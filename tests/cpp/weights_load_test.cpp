@@ -35,11 +35,11 @@ int main() {
     assert(result.has_value());
 
     auto handle0 = vm->state().registers[0];
-    auto handle1 = vm->state().registers[1];
+    [[maybe_unused]] auto handle1 = vm->state().registers[1];
     assert(handle0 > 0);
     assert(handle0 == handle1);
     assert(vm->state().weights_tensor_refs.size() == 1);
-    const auto* native = vm->weights_tensor(handle0);
+    [[maybe_unused]] const auto* native = vm->weights_tensor(handle0);
     assert(native != nullptr);
     std::vector<uint64_t> expected_shape{2, 2};
     assert(native->shape == expected_shape);

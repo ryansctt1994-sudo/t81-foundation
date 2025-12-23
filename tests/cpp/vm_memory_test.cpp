@@ -30,6 +30,16 @@ t81::vm::Trap run_expected_trap(const std::vector<t81::tisc::Insn>& insns) {
     return result.error();
 }
 
+int dump_axion_log_and_fail(const t81::vm::State& state, const char* label) {
+    std::cerr << "[Axion log] missing " << label << "\n";
+    for (const auto& entry : state.axion_log) {
+        std::cerr << "  opcode=" << static_cast<int>(entry.opcode)
+                  << " reason=\"" << entry.verdict.reason << "\"\n";
+    }
+    std::cerr << "[Axion log] end\n";
+    return 1;
+}
+
 }  // namespace
 
 int main() {

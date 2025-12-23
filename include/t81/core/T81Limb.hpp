@@ -272,9 +272,8 @@ inline T81Limb T81Limb::from_trits(const std::array<int8_t, TRITS>& digits) noex
     int carry = 0;
     for (int i = 0; i < TRITS; ++i) {
         int sum = static_cast<int>(normalized[i]) + carry;
-        if (sum == 2) { normalized[i] = -1; carry = 1; }
-        else if (sum == -2) { normalized[i] = 1; carry = -1; }
-        else { normalized[i] = static_cast<int8_t>(sum); carry = 0; }
+        carry = (sum + (sum >= 0 ? 1 : -1)) / 3;
+        normalized[i] = static_cast<int8_t>(sum - carry * 3);
     }
     T81Limb limb;
     for (int idx = 0; idx < TRYTES; ++idx) {
@@ -310,74 +309,26 @@ inline std::array<int8_t, T81Limb::TRITS> T81Limb::booth_mul_trits(
     const std::array<int8_t, TRITS>& a,
     const std::array<int8_t, TRITS>& b) noexcept
 {
-    std::array<int, TRITS * 2> accum{};
-    for (int i = 0; i < TRITS; i += 2) {
-        int d0 = b[i];
-        int d1 = (i + 1 < TRITS) ? b[i + 1] : 0;
-        int pattern = d0 + 3 * d1;
-        int shift = i;
-        int8_t mul = 0;
-        switch (pattern) {
-            case 1:
-            case 3:
-                mul = 1;
-                shift = i;
-                break;
-            case 2:
-            case 4:
-                mul = 1;
-                shift = i + 1;
-                break;
-            case -1:
-            case -3:
-                mul = -1;
-                shift = i;
-                break;
-            case -2:
-            case -4:
-                mul = -1;
-                shift = i + 1;
-                break;
-            default:
-                continue;
-        }
+    std::array<int, detail::WIDE_TRITS> accum{};
+    for (int i = 0; i < TRITS; ++i) {
+        const int8_t digit = b[i];
+        if (digit == 0) continue;
         for (int j = 0; j < TRITS; ++j) {
-            if (a[j] == 0) continue;
-            int target = j + shift;
-            if (target >= TRITS * 2) break;
-            accum[target] += mul * a[j];
+            int target = i + j;
+            if (target >= detail::WIDE_TRITS) break;
+            accum[target] += static_cast<int>(digit) * static_cast<int>(a[j]);
         }
     }
 
-    int carry = 0;
-    for (int i = 0; i < TRITS * 2; ++i) {
-        int sum = accum[i] + carry;
-        if (sum >= 2) {
-            accum[i] = sum - 3;
-            carry = 1;
-        } else if (sum <= -2) {
-            accum[i] = sum + 3;
-            carry = -1;
-        } else {
-            accum[i] = sum;
-            carry = 0;
-        }
-    }
+    detail::normalize_wide(accum);
+    detail::normalize_wide(accum);
+    detail::normalize_wide(accum);
+
+    std::array<int8_t, detail::WIDE_TRITS> intermediate{};
+    detail::finalize_wide(intermediate, accum);
 
     std::array<int8_t, TRITS> result{};
-    for (int i = 0; i < TRITS; ++i) {
-        int sum = accum[i] + carry;
-        if (sum == 2) {
-            result[i] = -1;
-            carry = 1;
-        } else if (sum == -2) {
-            result[i] = 1;
-            carry = -1;
-        } else {
-            result[i] = static_cast<int8_t>(sum);
-            carry = 0;
-        }
-    }
+    std::copy_n(intermediate.begin(), TRITS, result.begin());
     return result;
 }
 
@@ -876,55 +827,19 @@ inline std::pair<T81Limb, T81Limb> T81Limb::mul_wide(
     const T81Limb& a,
     const T81Limb& b) noexcept
 {
-    constexpr int HALF_TRITS = TRITS / 2;
     auto a_trits = a.to_trits();
     auto b_trits = b.to_trits();
 
-    auto make_half_limb = [&](const std::array<int8_t, TRITS>& digits, int offset) {
-        std::array<int8_t, TRITS> window{};
-        for (int i = 0; i < HALF_TRITS; ++i) {
-            window[offset + i] = digits[offset + i];
-        }
-        return T81Limb::from_trits(window);
-    };
-
-    auto to_int_section = [&](const T81Limb& limb) {
-        std::array<int, TRITS> section{};
-        auto trits = limb.to_trits();
-        for (int i = 0; i < TRITS; ++i) {
-            section[i] = static_cast<int>(trits[i]);
-        }
-        return section;
-    };
-
-    auto x_lo = make_half_limb(a_trits, 0);
-    auto x_hi = make_half_limb(a_trits, HALF_TRITS);
-    auto y_lo = make_half_limb(b_trits, 0);
-    auto y_hi = make_half_limb(b_trits, HALF_TRITS);
-
-    auto z0_limb = T81Limb::booth_mul(x_lo, y_lo);
-    auto z2_limb = T81Limb::booth_mul(x_hi, y_hi);
-    auto z1_limb = T81Limb::booth_mul(x_lo + x_hi, y_lo + y_hi);
-
-    auto z0 = to_int_section(z0_limb);
-    auto z2 = to_int_section(z2_limb);
-    auto z1 = to_int_section(z1_limb);
+    std::array<int, detail::WIDE_TRITS> accum{};
     for (int i = 0; i < TRITS; ++i) {
-        z1[i] -= z0[i] + z2[i];
-    }
-
-    auto accum = std::array<int, detail::WIDE_TRITS>{};
-    auto add_shifted = [&](const std::array<int, TRITS>& section, int shift) {
-        for (int i = 0; i < TRITS; ++i) {
-            int target = i + shift;
+        const int8_t digit = b_trits[i];
+        if (digit == 0) continue;
+        for (int j = 0; j < TRITS; ++j) {
+            int target = i + j;
             if (target >= detail::WIDE_TRITS) break;
-            accum[target] += section[i];
+            accum[target] += static_cast<int>(digit) * static_cast<int>(a_trits[j]);
         }
-    };
-
-    add_shifted(z0, 0);
-    add_shifted(z1, HALF_TRITS);
-    add_shifted(z2, HALF_TRITS * 2);
+    }
 
     detail::normalize_wide(accum);
     detail::normalize_wide(accum);
@@ -933,13 +848,13 @@ inline std::pair<T81Limb, T81Limb> T81Limb::mul_wide(
     std::array<int8_t, detail::WIDE_TRITS> trits{};
     detail::finalize_wide(trits, accum);
 
-    std::array<int8_t, TRITS> low{}, high{};
+    std::array<int8_t, TRITS> low{};
+    std::array<int8_t, TRITS> high{};
     std::copy_n(trits.begin(), TRITS, low.begin());
     std::copy_n(trits.begin() + TRITS, TRITS, high.begin());
 
     T81Limb low_limb = T81Limb::from_trits(low);
     T81Limb high_limb = T81Limb::from_trits(high);
-    // The fast path is now battle-tested and bit-identical
     return {low_limb, high_limb};
 }
 

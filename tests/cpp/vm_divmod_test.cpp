@@ -15,7 +15,7 @@ int main() {
 
   auto vm = vm::make_interpreter_vm();
   vm->load_program(p);
-  auto res = vm->run_to_halt();
+  [[maybe_unused]] auto res = vm->run_to_halt();
   assert(res.has_value());
   assert(vm->state().registers[2] == 10 / 3);
   assert(vm->state().registers[3] == 10 % 3);
