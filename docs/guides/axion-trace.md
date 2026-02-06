@@ -52,6 +52,7 @@ opcode=109 reason="heap relocation from=267 to=512 size=32"
 opcode=125 reason="bounds fault segment=stack addr=999 action=stack frame allocate"
 opcode=0 reason="meta slot axion event segment=meta addr=0 action=Write"
 opcode=1 reason="meta slot axion event segment=meta addr=1 action=Read"
+opcode=3 reason="meta slot axion event segment=meta addr=2 action=Repair"
 ```
 
 Cat those files for auditors or paste the lines into `(require-axion-event (reason "..."))`
@@ -178,6 +179,34 @@ Running `t81 compile --verbose match_guard.t81 -P policy/guards.axion` or
 `axion_policy_runner` produces the same `enum guard` / `segment trace` strings
 that RFC-0009 and RFC-0020 mandate. Auditors can inspect this file to confirm
 the CLI output matches the trace snippets collected by the regressions.
+
+### 3.4 Fault trace samples
+
+When the VM encounters a deterministic fault, it logs the segment violation
+details. These can also be required by policy:
+
+```
+opcode=8 reason="bounds fault segment=code addr=5000 action=jump"
+opcode=68 reason="bounds fault segment=stack addr=0 action=stack frame free"
+opcode=119 reason="bounds fault segment=tensor addr=999 action=tensor handle access"
+```
+
+### 3.5 Interleaved Trap Trace
+
+When a trap occurs, the VM state's `trace` vector records the `Trap` type
+alongside the program counter. Auditors look for the `AxionEvent` reason that
+immediately precedes the trapped trace entry:
+
+```text
+Axion log entry:
+  opcode=8 reason="bounds fault segment=code addr=5000 action=jump"
+
+VM Trace entry:
+  PC=123 JMP trap=BoundsFault
+```
+
+This interleaving proves that the fault was recognized and logged by Axion
+before the VM halted execution.
 
 ## 4. Policy integration checklist
 

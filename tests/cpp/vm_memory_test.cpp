@@ -97,7 +97,7 @@ int main() {
 
     {
         [[maybe_unused]] auto trap = run_expected_trap({stack_alloc, stack_alloc2, stack_free0, halt});
-        assert(trap == t81::vm::Trap::IllegalInstruction);
+        assert(trap == t81::vm::Trap::StackFault);
     }
 
     t81::tisc::Insn stack_overflow{};
@@ -111,7 +111,7 @@ int main() {
         vm->load_program(program);
         auto result = vm->run_to_halt();
         assert(!result.has_value());
-        assert(result.error() == t81::vm::Trap::BoundsFault);
+        assert(result.error() == t81::vm::Trap::StackFault);
         const auto& log = vm->state().axion_log;
         bool saw_stack_bounds = false;
         for (const auto& entry : log) {
@@ -160,7 +160,7 @@ int main() {
 
     {
         [[maybe_unused]] auto trap = run_expected_trap({heap_alloc, heap_alloc, heap_free, halt});
-        assert(trap == t81::vm::Trap::IllegalInstruction);
+        assert(trap == t81::vm::Trap::DecodeFault);
     }
 
     t81::tisc::Insn heap_big{};
@@ -312,7 +312,7 @@ int main() {
         corrupt_handle.opcode = t81::tisc::Opcode::LoadImm;
         corrupt_handle.a = 2;
         corrupt_handle.b = 42;
-        corrupt_handle.literal_kind = t81::tisc::LiteralKind::Int;
+        corrupt_handle.literal_kind = t81::tisc::LiteralKind::TensorHandle;
 
         t81::tisc::Program program;
         t81::T729Tensor dummy_tensor({1}, {0.0f});

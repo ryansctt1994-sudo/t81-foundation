@@ -37,7 +37,7 @@ int main() {
     vm->load_program(p);
     [[maybe_unused]] auto r = vm->step();
     assert(!r.has_value());
-    assert(r.error() == vm::Trap::IllegalInstruction);
+    assert(r.error() == vm::Trap::DecodeFault);
     assert(!vm->state().trace.empty());
     assert(vm->state().trace.back().trap.has_value());
   }

@@ -27,13 +27,14 @@ namespace t81::vm {
 std::string to_string(Trap trap) {
     switch (trap) {
         case Trap::None: return "None";
-        case Trap::InvalidMemory: return "InvalidMemory";
-        case Trap::IllegalInstruction: return "IllegalInstruction";
-        case Trap::DivideByZero: return "DivideByZero";
+        case Trap::DecodeFault: return "DecodeFault";
+        case Trap::TypeFault: return "TypeFault";
         case Trap::BoundsFault: return "BoundsFault";
-        case Trap::SecurityFault: return "SecurityFault";
-        case Trap::TrapInstruction: return "TrapInstruction";
         case Trap::StackFault: return "StackFault";
+        case Trap::DivisionFault: return "DivisionFault";
+        case Trap::SecurityFault: return "SecurityFault";
+        case Trap::ShapeFault: return "ShapeFault";
+        case Trap::TrapInstruction: return "TrapInstruction";
     }
     return "UnknownTrap";
 }
@@ -43,11 +44,13 @@ int trap_exit_code(t81::vm::Trap trap) {
     using T = t81::vm::Trap;
     switch (trap) {
         case T::None:               return 0;
-        case T::DivideByZero:       return 10;
-        case T::InvalidMemory:      return 11;
+        case T::DecodeFault:        return 14;
+        case T::TypeFault:          return 16;
         case T::BoundsFault:        return 12;
+        case T::StackFault:         return 17;
+        case T::DivisionFault:      return 10;
         case T::SecurityFault:      return 13;
-        case T::IllegalInstruction: return 14;
+        case T::ShapeFault:         return 18;
         case T::TrapInstruction:    return 15;
         default:                    return 1;
     }

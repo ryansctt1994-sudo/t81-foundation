@@ -33,7 +33,7 @@ int main() {
   assert(step.has_value()); // second load
   step = vm2->step();
   assert(!step.has_value());
-  assert(step.error() == vm::Trap::DivideByZero);
+  assert(step.error() == vm::Trap::DivisionFault);
 
   return 0;
 }

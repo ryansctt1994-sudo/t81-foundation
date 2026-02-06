@@ -6,13 +6,14 @@ std::string trap_to_string(t81::vm::Trap trap) {
     using Trap = t81::vm::Trap;
     switch (trap) {
         case Trap::None: return "None";
-        case Trap::InvalidMemory: return "InvalidMemory";
-        case Trap::IllegalInstruction: return "IllegalInstruction";
-        case Trap::DivideByZero: return "DivideByZero";
+        case Trap::DecodeFault: return "DecodeFault";
+        case Trap::TypeFault: return "TypeFault";
         case Trap::BoundsFault: return "BoundsFault";
+        case Trap::StackFault: return "StackFault";
+        case Trap::DivisionFault: return "DivisionFault";
         case Trap::SecurityFault: return "SecurityFault";
+        case Trap::ShapeFault: return "ShapeFault";
         case Trap::TrapInstruction: return "TrapInstruction";
-        case t81::vm::Trap::StackFault: return "StackFault";
     }
     return "UnknownTrap";
 }

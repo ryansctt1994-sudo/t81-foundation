@@ -3,12 +3,13 @@
 namespace t81::vm {
 enum class Trap {
   None = 0,
-  InvalidMemory,
-  IllegalInstruction,
-  DivideByZero,
+  DecodeFault,
+  TypeFault,
   BoundsFault,
-  SecurityFault,
-  TrapInstruction,
   StackFault,
+  DivisionFault,
+  SecurityFault,
+  ShapeFault,
+  TrapInstruction,
 };
 }  // namespace t81::vm

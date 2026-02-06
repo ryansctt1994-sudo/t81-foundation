@@ -369,6 +369,92 @@ let result_text: Symbol = match (find_positive(my_value)) {
 };
 ```
 
+### Record and Enum Example
+
+```t81
+record Point {
+    x: T81Int,
+    y: T81Int,
+}
+
+enum Shape {
+    Circle(T81Int),         // Circle with radius
+    Rectangle(Point, Point), // Rectangle with top-left and bottom-right points
+}
+
+fn area_squared(s: Shape) -> T81Int {
+    return match (s) {
+        Circle(r) => 3 * r * r,
+        Rectangle(p1, p2) => (p2.x - p1.x) * (p2.y - p1.y),
+    };
+}
+```
+
+### Loop and Boundedness Example
+
+```t81
+fn factorial(n: T81Int) -> T81Int {
+    var result: T81Int = 1;
+    var i: T81Int = n;
+
+    @bounded(100) // Expect this loop to run at most 100 times
+    loop {
+        if (i <= 1) {
+            return result;
+        }
+        result = result * i;
+        i = i - 1;
+    }
+}
+```
+
+### Safety Limit Examples
+
+T81Lang code is subject to Axion safety policies. The following examples
+illustrate code patterns that may trigger deterministic Axion traps if policy
+limits are exceeded.
+
+#### Recursion Depth Limit
+
+Deep recursion triggers a `SecurityFault` when the stack depth exceeds the
+`(max-recursion <n>)` policy limit.
+
+```t81
+// This will trap if max-recursion is set to a small value (e.g., 10)
+fn deep_recursion(n: T81Int) -> T81Int {
+    if (n <= 0) { return 0; }
+    return 1 + deep_recursion(n - 1);
+}
+```
+
+#### Instruction Count Limit
+
+Infinite or extremely long loops trigger a `SecurityFault` when the total
+executed instruction count exceeds the `(max-instructions <n>)` limit.
+
+```t81
+fn infinite_loop() {
+    @bounded(infinite)
+    loop {
+        // performs work indefinitely until Axion veto
+    }
+}
+```
+
+#### Stack Usage Limit
+
+Large local variable allocations trigger a `StackFault` (if exceeding physical
+segment) or `SecurityFault` (if exceeding `(max-stack <n>)` policy).
+
+```t81
+fn large_stack_usage() {
+    // This may trigger a StackFault depending on VM configuration
+    // and Axion max-stack policy.
+    let data: Vector[T81Int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    // ... complex local state ...
+}
+```
+
 ### Stage 4 — Purity Analysis
 
 Tracks pure vs impure operations.

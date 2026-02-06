@@ -15,7 +15,7 @@ int main() {
   assert(r.has_value());
   r = vm->step();
   assert(!r.has_value());
-  assert(r.error() == vm::Trap::InvalidMemory || r.error() == vm::Trap::BoundsFault);
+  assert(r.error() == vm::Trap::BoundsFault);
 
   return 0;
 }

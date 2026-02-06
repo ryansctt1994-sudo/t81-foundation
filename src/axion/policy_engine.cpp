@@ -43,6 +43,12 @@ Verdict PolicyEngine::evaluate(const SyscallContext& ctx) {
            << " limit=" << *policy_->max_recursion;
     return Verdict{VerdictKind::Deny, reason.str()};
   }
+  if (policy_->max_stack && ctx.stack_usage > static_cast<std::size_t>(*policy_->max_stack)) {
+    std::ostringstream reason;
+    reason << "Stack usage limit exceeded: usage=" << ctx.stack_usage
+           << " limit=" << *policy_->max_stack;
+    return Verdict{VerdictKind::Deny, reason.str()};
+  }
   for (const auto& req : loop_requirements_) {
     if (!loop_hint_satisfied(ctx, *req.hint)) {
       std::ostringstream reason;

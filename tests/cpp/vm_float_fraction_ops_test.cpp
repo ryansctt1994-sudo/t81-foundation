@@ -54,7 +54,7 @@ int main() {
     vm->load_program(program);
     [[maybe_unused]] auto run = vm->run_to_halt();
     assert(!run.has_value());
-    assert(run.error() == vm::Trap::DivideByZero);
+    assert(run.error() == vm::Trap::DivisionFault);
   }
 
   // Fraction opcodes mirror float behavior.
@@ -92,7 +92,7 @@ int main() {
     vm->load_program(program);
     [[maybe_unused]] auto run = vm->run_to_halt();
     assert(!run.has_value());
-    assert(run.error() == vm::Trap::DivideByZero);
+    assert(run.error() == vm::Trap::DivisionFault);
   }
 
   // Float comparisons influence flags.

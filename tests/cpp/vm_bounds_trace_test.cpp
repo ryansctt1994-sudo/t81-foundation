@@ -75,7 +75,7 @@ int main() {
     load0.opcode = t81::tisc::Opcode::LoadImm;
     load0.a = 0;
     load0.b = 999;
-    load0.literal_kind = t81::tisc::LiteralKind::Int;
+    load0.literal_kind = t81::tisc::LiteralKind::TensorHandle;
     t81::tisc::Insn load1 = load0;
     load1.a = 1;
     t81::tisc::Insn tensordot{};
@@ -90,7 +90,7 @@ int main() {
     halt.opcode = t81::tisc::Opcode::Halt;
     tensor_program.push_back(halt);
   }
-  if (run_and_expect(tensor_program, t81::vm::Trap::IllegalInstruction, "bounds fault segment=tensor") != 0) {
+  if (run_and_expect(tensor_program, t81::vm::Trap::DecodeFault, "bounds fault segment=tensor") != 0) {
     return 1;
   }
 

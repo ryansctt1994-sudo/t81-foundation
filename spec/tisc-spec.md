@@ -88,6 +88,35 @@ ADD R2, R0, R1
 HALT
 ```
 
+### Complex Arithmetic & Comparison Example
+
+```tisc
+; Floating point arithmetic
+LOADI R0, 1.5           ; Load float handle
+LOADI R1, 2.5           ; Load another float handle
+FADD R2, R0, R1         ; R2 = 4.0 handle
+
+; Comparison and conditional jump
+LOADI R3, 10
+CMP R2, R3              ; Compare 4.0 with 10
+JN label_less           ; Jump if negative (4.0 < 10)
+HALT
+
+label_less:
+LOADI R4, 1
+HALT
+```
+
+### Tensor Operation Example
+
+```tisc
+; Assuming handles are pre-loaded or created via language frontend
+LOADI R1, 1             ; Tensor handle 1
+LOADI R2, 2             ; Tensor handle 2
+TVECADD R0, R1, R2      ; Elementwise vector add
+HALT
+```
+
 ______________________________________________________________________
 
 ## 2. Register File

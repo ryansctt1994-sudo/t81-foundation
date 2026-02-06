@@ -19,5 +19,6 @@ struct SyscallContext {
   t81::tisc::Opcode next_opcode{t81::tisc::Opcode::Nop};
   std::size_t recursion_depth{0};
   std::size_t instruction_count{0};
+  std::size_t stack_usage{0};
 };
 }  // namespace t81::axion
