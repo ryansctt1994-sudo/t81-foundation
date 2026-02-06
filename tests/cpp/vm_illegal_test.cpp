@@ -12,7 +12,7 @@ int main() {
   vm->load_program(bad_reg);
   auto r = vm->step();
   assert(!r.has_value());
-  assert(r.error() == vm::Trap::IllegalInstruction);
+  assert(r.error() == vm::Trap::DecodeFault);
 
   // Jump out of bounds
   tisc::Program bad_jump;
@@ -20,7 +20,7 @@ int main() {
   vm->load_program(bad_jump);
   r = vm->step();
   assert(!r.has_value());
-  assert(r.error() == vm::Trap::IllegalInstruction);
+  assert(r.error() == vm::Trap::DecodeFault);
 
   // Unknown opcode
   tisc::Insn bogus{static_cast<tisc::Opcode>(99), 0, 0, 0};
@@ -29,7 +29,7 @@ int main() {
   vm->load_program(bad_op);
   r = vm->step();
   assert(!r.has_value());
-  assert(r.error() == vm::Trap::IllegalInstruction);
+  assert(r.error() == vm::Trap::DecodeFault);
 
   return 0;
 }

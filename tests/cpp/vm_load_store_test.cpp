@@ -26,7 +26,7 @@ int main() {
   vm->load_program(bad);
   [[maybe_unused]] auto step = vm->step();
   assert(!step.has_value());
-  assert(step.error() == vm::Trap::InvalidMemory);
+  assert(step.error() == vm::Trap::BoundsFault);
 
   return 0;
 }

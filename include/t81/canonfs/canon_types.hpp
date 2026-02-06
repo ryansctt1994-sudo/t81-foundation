@@ -64,5 +64,6 @@ enum class OpKind {
   Write,
   Publish,
   Revoke,
+  Repair,
 };
 }  // namespace t81::canonfs

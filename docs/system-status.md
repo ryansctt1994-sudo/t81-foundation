@@ -56,9 +56,9 @@ ______________________________________________________________________
 ## 3. TISC ISA & T81VM
 
 - **Specification:** [`spec/tisc-spec.md`](../spec/tisc-spec.md), [`spec/t81vm-spec.md`](../spec/t81vm-spec.md)
-- **Status:** `Partial`
-- **Summary:** The VM can execute a significant subset of the TISC instruction set, but the memory model is primitive.
-- **Next Steps:** Implement the full VM memory model and deterministic fault handling. Integrate the Axion Kernel hooks into the VM's dispatch loop.
+- **Status:** `Implemented`
+- **Summary:** The VM fully supports the TISC instruction set and implements the deterministic memory model (CODE, STACK, HEAP, TENSOR, META). Fault handling is strict and Axion-visible, matching the spec-defined categories.
+- **Next Steps:** Harden the IR generator and expand end-to-end tests for complex language features.
 
 ______________________________________________________________________
 

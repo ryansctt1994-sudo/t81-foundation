@@ -22,7 +22,7 @@ int main() {
     r2 = vm->step();
     if (!r2.has_value()) break;
   }
-  assert(r2.error() == vm::Trap::InvalidMemory || r2.error() == vm::Trap::IllegalInstruction);
+  assert(r2.error() == vm::Trap::DecodeFault);
   assert(!vm->state().trace.empty());
   [[maybe_unused]] auto last = vm->state().trace.back();
   assert(last.trap.has_value());

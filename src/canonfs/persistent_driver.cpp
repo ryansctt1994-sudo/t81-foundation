@@ -136,6 +136,7 @@ class PersistentDriver final : public Driver {
   }
 
   Result<void> parity_repair_subtree(const CanonRef& ref) override {
+    if (!axion_allow(OpKind::Repair, ref)) return Error::CapabilityError;
     auto target = object_path(root_, ref.hash);
     if (!std::filesystem::exists(target)) return Error::NotFound;
     return {};

@@ -239,6 +239,7 @@ if(T81_BUILD_TESTS)
 
   add_executable(vm_bounds_trace_test tests/cpp/vm_bounds_trace_test.cpp)
   target_link_libraries(vm_bounds_trace_test PRIVATE t81_core)
+  add_test(NAME vm_bounds_trace_test COMMAND vm_bounds_trace_test)
 
   add_executable(t81_canonfs_driver_test tests/cpp/canonfs_driver_test.cpp)
   target_link_libraries(t81_canonfs_driver_test PRIVATE t81_core)

@@ -20,6 +20,7 @@ const char* action_to_string(OpKind kind) {
     case OpKind::Write: return "Write";
     case OpKind::Publish: return "Publish";
     case OpKind::Revoke: return "Revoke";
+    case OpKind::Repair: return "Repair";
   }
   return "Unknown";
 }

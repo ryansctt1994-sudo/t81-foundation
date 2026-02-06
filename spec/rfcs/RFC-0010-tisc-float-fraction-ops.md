@@ -51,8 +51,8 @@ Extend `spec/tisc-spec.md §5.7` with the following opcodes (each 3-register for
 
 **Faults**
 
-- Handle out of range → `Trap::IllegalInstruction`.
-- Division by zero (denominator handle resolves to zero) → `Trap::DivideByZero`.
+- Handle out of range → `Trap::DecodeFault`.
+- Division by zero (denominator handle resolves to zero) → `Trap::DivisionFault`.
 
 ## 2. Literal Pools
 

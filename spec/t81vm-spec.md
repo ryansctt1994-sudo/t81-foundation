@@ -356,7 +356,7 @@ alongside CODE. Loading a program MUST:
 Requirements:
 
 - Dereferencing a handle that is zero, negative, or beyond the current pool size
-  MUST raise `Trap::IllegalInstruction`.
+  MUST raise `Trap::DecodeFault`.
 - Arithmetic opcodes (`FADD`…`FRACDIV`) MUST resolve handles, perform canonical
   arithmetic (per Data Types), and append canonical results to the pool unless a
   deterministically equal entry already exists. Deduplication, if implemented,
