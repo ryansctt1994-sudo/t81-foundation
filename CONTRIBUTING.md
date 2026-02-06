@@ -132,9 +132,24 @@ Focus comments and discussion on technical accuracy, clarity, and iterative impr
 
 ______________________________________________________________________
 
-## 6. License
+## 6. Onboarding & Help Wanted
 
-All contributions are accepted under the **Apache 2.0 License**, consistent with the repository’s LICENSE file.
+We are looking for contributors to help with the following "First Good Issues":
+- SIMD optimization for `T81Tensor` kernels (AVX2, AVX-512).
+- Python bindings via `pybind11` for AI researcher integration.
+- Documentation improvements and more T81Lang examples.
+- Implementations of missing `CanonFS` specifications.
+
+If you are looking to help, check the `help wanted` and `good first issue` labels on GitHub.
+
+## 7. Recommended GitHub Topics
+
+When sharing or tagging this project, please use:
+`reproducible-research`, `ternary-logic`, `deterministic-computing`, `ai-safety`, `virtual-machine`, `tensor-algebra`, `agi`.
+
+## 8. License
+
+All contributions are accepted under the **MIT License**, consistent with the repository’s [LICENSE](LICENSE) file.
 
 ______________________________________________________________________
 
