@@ -7,8 +7,9 @@
 int main() {
   using namespace t81;
 
-  // Build a CanonRef
-  CanonHash81 h = CanonHash81::from_string("b81:deadbeef0123456789");
+  // Build a CanonRef from a valid Base-81 hash (example from hash_string("test"))
+  std::string valid_b81 = hash::hash_string("test").to_string();
+  CanonHash81 h = CanonHash81::from_string(valid_b81);
   CanonRef ref = CanonRef::make(h, CANON_PERM_READ | CANON_PERM_WRITE, 0x1122334455667788ull);
 
   // Encode → bytes[99]
@@ -21,7 +22,7 @@ int main() {
   // Check roundtrip
   assert(got.permissions == (CANON_PERM_READ | CANON_PERM_WRITE));
   assert(got.expires_at == 0x1122334455667788ull);
-  assert(got.target.to_string() == "b81:deadbeef0123456789");
+  assert(got.target.to_string() == h.to_string());
 
   // Permission helper
   assert(t81::canonfs_io::permissions_allow(got.permissions, CANON_PERM_READ));

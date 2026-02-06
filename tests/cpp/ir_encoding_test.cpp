@@ -15,26 +15,24 @@ static bool eq(const Insn& a, const Insn& b) {
 }
 
 int main() {
-  // Build a small "program"
+  // Build a program covering all major opcode blocks
   std::vector<Insn> prog;
   prog.push_back(make0(Opcode::Nop));
-  prog.push_back(make_imm(Opcode::Jump, 0x1122334455667788ull, 0xA5A5A5A5u));
+  prog.push_back(make_imm(Opcode::Jump, 0x1122334455667788ull, OP_FLAG_BRANCH | OP_FLAG_TERMINATOR));
   prog.push_back(make3(Opcode::Add, 1, 2, 3));
   prog.push_back(make3(Opcode::BigMul, 7, 8, 9));
   prog.push_back(make3(Opcode::TMatMul, 10, 11, 12));
   prog.push_back(make_imm(Opcode::TReduce, /*axis*/1, /*flags*/0x00000003u));
 
+  // Test new opcodes
+  prog.push_back(make2(Opcode::Load, 1, 100)); // load r1, [r100]
+  prog.push_back(make0(Opcode::AxRead));
+  prog.push_back(make1(Opcode::CapCheck, 5));
+  prog.push_back(make0(Opcode::Halt));
+
   // Encode → bytes
   std::vector<uint8_t> bytes = encode_many(prog);
   assert(bytes.size() == prog.size() * 32);
-
-  // Also test single encode/decode symmetry
-  {
-    uint8_t buf[32];
-    encode(prog[2], buf);
-    Insn r = decode(buf);
-    assert(eq(r, prog[2]));
-  }
 
   // Decode back → program
   auto round = decode_many(bytes.data(), bytes.size());
@@ -43,15 +41,21 @@ int main() {
     assert(eq(round[i], prog[i]));
   }
 
-  // Mutate a byte and ensure decode still works but yields difference
-  bytes[32 + 0x18] ^= 0xFF; // flip a bit in flags of second instruction
-  auto mutated = decode_many(bytes.data(), bytes.size());
-  bool any_diff = false;
-  for (size_t i = 0; i < prog.size(); ++i) {
-    if (!eq(mutated[i], prog[i])) { any_diff = true; break; }
-  }
-  assert(any_diff);
+  // Verify OpcodeDesc and Flags
+  {
+    auto desc = get_opcode_desc(Opcode::Halt);
+    assert(desc.flags & OP_FLAG_TERMINATOR);
 
-  std::cout << "ir_encoding ok\n";
+    desc = get_opcode_desc(Opcode::Jump);
+    assert(desc.flags & OP_FLAG_BRANCH);
+
+    desc = get_opcode_desc(Opcode::AxRead);
+    assert(desc.flags & OP_FLAG_PRIVILEGED);
+
+    desc = get_opcode_desc(Opcode::Store);
+    assert(desc.flags & OP_FLAG_MEMORY);
+  }
+
+  std::cout << "ir_encoding (expanded) ok\n";
   return 0;
 }

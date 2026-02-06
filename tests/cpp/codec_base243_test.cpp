@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "t81/codec/base243.hpp"
+#include "t81/bigint.hpp"
 
 int main() {
   using namespace t81::codec;

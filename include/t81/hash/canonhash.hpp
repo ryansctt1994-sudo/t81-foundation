@@ -4,11 +4,16 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <cstring>
 
 #include "t81/hash/base81.hpp"
 
 namespace t81::hash {
 
+/**
+ * @struct CanonHash81
+ * @brief Represents a canonical 256-bit hash for the T81 system.
+ */
 struct CanonHash81 {
   std::array<std::uint8_t, 32> bytes{};  // 256-bit hash
 
@@ -19,32 +24,58 @@ struct CanonHash81 {
     return !(*this == other);
   }
 
-  // Encode to base-81 string using the canonical codec.
+  /**
+   * @brief Encodes the hash to a Base-81 string.
+   * @return A Base-81 string (approx 41-43 characters).
+   */
   std::string to_string() const {
     std::vector<std::uint8_t> v(bytes.begin(), bytes.end());
     return encode_base81(v);
   }
 
-  // Parse from base-81 string representation.
-  // Throws std::invalid_argument on invalid input or wrong length.
+  /**
+   * @brief Encodes the hash to a fixed-size 81-character text buffer (zero-padded).
+   * Used for CanonFS wire format.
+   */
+  std::array<char, 81> to_text() const {
+    std::array<char, 81> text{};
+    text.fill(0);
+    std::string s = to_string();
+    const size_t n = s.size() < 81 ? s.size() : 81;
+    std::memcpy(text.data(), s.data(), n);
+    return text;
+  }
+
+  /**
+   * @brief Parses a CanonHash81 from a Base-81 string or 81-character text.
+   */
   static CanonHash81 from_string(std::string_view s) {
-    std::vector<std::uint8_t> v = decode_base81(std::string(s));
-    CanonHash81 h;
-    if (v.size() != h.bytes.size()) {
-      throw std::invalid_argument("CanonHash81::from_string: wrong byte length");
+    // Trim potential zero padding if it's an 81-char buffer
+    std::string_view trimmed = s;
+    size_t last = s.find_first_of('\0');
+    if (last != std::string_view::npos) {
+        trimmed = s.substr(0, last);
     }
-    std::copy(v.begin(), v.end(), h.bytes.begin());
+
+    std::vector<std::uint8_t> v = decode_base81(std::string(trimmed));
+    CanonHash81 h;
+    // For the canonical implementation, we might need to pad/truncate the bytes
+    // if the input isn't exactly 32 bytes, but here we expect exactly 32.
+    if (v.size() > 32) {
+      throw std::invalid_argument("CanonHash81::from_string: input too long");
+    }
+    std::copy(v.begin(), v.end(), h.bytes.begin() + (32 - v.size()));
     return h;
   }
 };
 
-// Deterministic, non-cryptographic hash over bytes.
+// Deterministic hash over bytes using SHA3-512 truncated to 256 bits.
 CanonHash81 hash_bytes(const std::vector<std::uint8_t>& data);
 
 // Convenience wrapper for strings.
 CanonHash81 hash_string(std::string_view s);
 
-// Optional compatibility alias for old stub name:
+// Compatibility alias
 inline CanonHash81 make_canonhash81_base81stub(std::string_view s) {
   return hash_string(s);
 }

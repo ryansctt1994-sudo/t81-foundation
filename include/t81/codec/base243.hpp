@@ -3,7 +3,8 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include <t81/bigint.hpp>
+
+namespace t81 { class T81BigInt; }
 
 namespace t81::codec {
 
