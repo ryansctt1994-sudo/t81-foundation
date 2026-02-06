@@ -1,91 +1,70 @@
-# T81 Foundation: Ternary-Native Stack for Trustworthy AI Research
+# [![CI](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml/badge.svg)](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml)
 
-> Deterministic, ternary-aware computing for researchers who need perfect arithmetic, audited tensor pipelines, and Axion-friendly proofs of behavior.
+# T81 Foundation Manifesto & Portal
 
-The T81 Foundation builds a full-stack research platform centered on **balanced ternary (−1, 0, +1)** and deterministic execution:
-- **Exact, round-trip-safe arithmetic** (`T81Int`, `T81Fraction`, `T81Float`, `T81Tensor`) with Axion traps for every overflow/underflow and no hidden carries.
-- **T81Lang + HanoiVM**: a deterministic compiler/VM pair that emits TISC bytecode, supports `match` metadata tracing, and can be replayed for third-party verification.
-- **Weights & tensor tooling**: import SafeTensors/GGUF, quantize to T3_K, and expose models inside HanoiVM via a `weights.load("...")` builtin.
-- **Benchmarking-first instrumentation**: Google Benchmarks, Classic/Native/Binary comparisons, Axion trace capture, and reproducible logs that feed documentation and reputational claims.
+> We turn the AI reproducibility crisis into a deterministic ledger. T81 is no longer a theoretical ternary playground; it is the production-ready stack that proves every model, tensor, and trace can be audited, replayed, and trusted.
 
-This README is tuned for AI researchers: it highlights where to find canonical data, how to reproduce metrics, and how to layer ternary components onto ML workflows.
+## The Reproducibility Crisis Tally
+- Benchmarks diverge whenever environments or numerics drift; probabilistic floating-point paths refuse third-party verification.
+- Axion traps evade silent overflow, but most platforms never surface the logs that matter.
+- Tensor blobs, weights dumps, and deployment scripts are scattered across unverified storage, so claims about accuracy or robustness cannot be reproduced.
+- The missing artifact is not compute; it is a deterministic stack that enforces canonical encoding, Axion-safe overflow, and reproducible tracing from weights to inference.
 
-## Research Mission & Guarantees
+## The T81 Determinism Manifesto
+- **Canonical numerics**: Balanced ternary arithmetic (`T81Int`, `T81Fraction`, `T81Float`, `T81Tensor`) guarantees `encode(decode(x)) ≡ x` and Axion traps on any overflow/underflow. No hidden carries; no silent corruption.
+- **Deterministic execution**: `t81 compile` → `t81 run` emits HanoiVM bytecode with Axion metadata so every run is replayable, observable, and audit-ready.
+- **Tensor transparency**: `t81 weights import/quantize/info` tracks SHA3-512 metadata, trit statistics, and CanonFS hints, ensuring tensors carry provenance all the way into HanoiVM.
+- **Evidence pipeline**: Benchmark runs (`t81 benchmark`), Axion traces (`./scripts/capture-axion-trace.sh`), and canonical artifacts (`docs/benchmarks.md`) become the reproducibility ledger researchers, auditors, and regulators can cite.
+- **Specification-first governance**: All semantics live in `/spec/`; any change touching determinism, encoding, or logging must follow the RFC path. The stack enforces zero hidden nondeterminism.
 
-| Principle | Why it matters for AI research |
-| --- | --- |
-| **Determinism** | Every run can be replayed with the same bytecode + Axion trace; perfect for audits and reproducibility studies. |
-| **Ternary purity** | No floating-point error, no sign-bit tax, and canonical encoding for tensors that serves as a contrast point to probabilistic binary models. |
-| **Data-centric tooling** | Benchmarks, quantizers, and `weights` commands emit structured metrics/metadata that AI agents can parse for trend analysis. |
-| **Specification-driven** | Core behavior is governed by `/spec/`; any semantics change must be RFC-sanctioned, so researchers can cite normative text. |
-
-## Getting Started (Reproducible Build)
-
-```bash
-git clone https://github.com/t81dev/t81-foundation.git
-cd t81-foundation
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --parallel
-ctest --test-dir build --output-on-failure
+## Axion Guarantee
+```cpp
+t81::axion::Context axion;
+auto value = t81::T81Int<81>::kMaxValue;
+auto result = value + t81::T81Int<81>(1); // Axion traps overflow before corruption
 ```
 
-Every contributor (including researchers evaluating our stack) should run the standard build/test pipeline before proposing changes or citing benchmark numbers. Optionally extend validation with the property/fuzz suite:
+## Portal: Join the Stack
+1. **Build the manifest**  
+   ```bash
+   git clone https://github.com/t81dev/t81-foundation.git
+   cd t81-foundation
+   cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+   cmake --build build --parallel
+   ctest --test-dir build --output-on-failure
+   ```  
+   This standard pipeline is your baseline truth; every contributor and researcher runs it before generating comparisons.
 
-```bash
-ctest --test-dir build -R "fuzz|property|axion" --schedule-random
-```
+2. **Extend & verify the ledger**  
+   - Use `ctest --test-dir build -R "fuzz|property|axion" --schedule-random` to stress Axion controls.
+   - Reference [`spec/index.md`](spec/index.md), [`spec/t81lang-spec.md`](spec/t81lang-spec.md), [`spec/tisc-spec.md`](spec/tisc-spec.md), [`spec/t81vm-spec.md`](spec/t81vm-spec.md), and [`spec/t81-data-types.md`](spec/t81-data-types.md) for normative behavior.
+   - Coordinate changes with tests under `/tests/`; every new public face needs proof, every semantics change needs an RFC.
 
-## AI Research Workflows
+3. **Publish deterministic artifacts**  
+   - Regenerate [`docs/benchmarks.md`](docs/benchmarks.md) via [`benchmarks/benchmark_runner`](benchmarks/benchmark_runner) each time numerics, compilers, or tensor tooling shift.
+   - Capture Axion trace logs (`axion_policy_runner.log`, `vm_bounds_trace.log`, etc.) with `./scripts/capture-axion-trace.sh` and archive them alongside each benchmark run.
+   - Use [`docs/assets/`](docs/assets/) and [`docs/guides/weights-integration.md`](docs/guides/weights-integration.md) to explain how weights land in deterministic HanoiVM deployments.
 
-### 1. Deterministic Workloads
-- `t81 compile <source.t81>` → `t81 run` executes bytecode inside the HanoiVM with Axion traps enabled.
-- `t81 check <source.t81>` surfaces syntax/semantic errors with precise `file:line:column` diagnostics.
-- Use [`docs/benchmarks.md`](docs/benchmarks.md) and [`benchmarks/benchmark_runner`](benchmarks/benchmark_runner) output as a canonical dataset for throughput, latency, and density comparisons.
+4. **Stay informed & aligned**  
+   - Keep an eye on [`docs/system-status.md`](docs/system-status.md) for ongoing risks and investigative priorities.
+   - Cite [`CLAUDE.md`](CLAUDE.md) and [`ANALYSIS.md`](ANALYSIS.md) for contextual guidance when documenting limitations or anomalies.
+   - Propose RFCs under [`spec/rfcs/`](spec/rfcs/) before touching the constitution; new APIs go under [`include/t81/`](include/t81/) and are paired with tests in [`tests/`](tests/).
 
-### 2. Ternary Tensor Pipelines
-- `t81 weights import <file.safetensors|.gguf>` produces `.t81w` bundles with SHA3-512 metadata, bits/trit stats, and CanonFS hints.
-- `t81 weights quantize <path> --to-gguf <out.gguf>` generates T3_K blocks (128 trits/52 bytes) compatible with `llama.cpp` via the T3_K backend.
-- `t81 weights info <model.t81w>` reports tensor counts, limb layout, sparsity, and canonical hashes that experiments can vocalize in logs or papers.
-- `weights.load("model.t81w")` inside T81Lang lets you hydrate models in HanoiVM programs for symbolic experimentation.
+## Repository Portal Map
 
-### 3. Benchmarks & Logging
-- Run `t81 benchmark` (or `./build/t81 benchmark`) after touching arithmetic, compiler, or tensor code to regenerate [`docs/benchmarks.md`](docs/benchmarks.md).
-- Benchmark suites emit Classic/Native/Binary columns, latency/bandwidth counters, and highlight tooltips that AI systems can index for search/explainability tasks.
-- Capture Axion traces with `./scripts/capture-axion-trace.sh`; include the resulting logs (`axion_policy_runner.log`, `vm_bounds_trace.log`, etc.) with research artifacts for future auditors.
-
-### 4. Extending the Stack
-- Public APIs live in `include/t81/` under the `t81::v1` namespace. Add new functionality there, and pair every public entry with tests in `/tests/`.
-- Use `/legacy/hanoivm/` as a behavioral reference; it is read-only.
-- Follow the ternary invariants (`encode(decode(x)) ≡ x`, overflow traps, canonical encoding) whenever you touch numerics or VM state.
-
-## Data, Benchmarks, and Artifacts
-
-- [`docs/benchmarks.md`](docs/benchmarks.md): auto-generated HTML/Markdown table of every benchmark, Classic/Native/Binary throughput, latency, and analyst notes.
-- [`benchmarks/benchmark_runner`](benchmarks/benchmark_runner): generates the report and is the source of truth for [`docs/benchmarks.md`](docs/benchmarks.md) (run after arithmetic or ML-weight changes).
-- [`docs/assets/`](docs/assets/): brand and visualization assets for publications.
-- [`docs/guides/weights-integration.md`](docs/guides/weights-integration.md) and [`examples/weights_load_demo.t81`](examples/weights_load_demo.t81): working examples for hooking weights into T81Lang scripts.
-
-Researchers can cite [`docs/benchmarks.md`](docs/benchmarks.md) (updated with each run) alongside Axion logs to prove claims about determinism, accuracy, and density.
-
-## Repository Layout at a Glance
-
-| Path | Role |
+| Compass | Purpose |
 | --- | --- |
-| [`spec/`](spec/) | Immutable constitution; normative text only changes via RFC. |
-| [`include/t81/`](include/t81/) | Public headers (`t81::v1`). Add APIs here; don’t break existing contracts. |
-| [`src/`](src/) | Implementation of compiler, VM, weights, benchmarking tooling. |
-| [`tests/`](tests/) | Proofs of correctness; add tests for every public face you change. |
-| [`benchmarks/`](benchmarks/) | Benchmark suites + generators. |
-| [`docs/`](docs/) | Guides, benchmarks, release notes, CI instructions, onboarding flows. |
-| [`examples/`](examples/) | Sample T81Lang programs and runtime demos. |
-| [`legacy/hanoivm/`](legacy/hanoivm/) | Historical reference; read-only. |
+| [`spec/`](spec/) | Constitutional governance; normative semantics only change through RFCs. |
+| [`include/t81/`](include/t81/) | Public `t81::v1` headers; add APIs here with Axion-safe guarantees. |
+| [`src/`](src/) | Implementation of compiler, HanoiVM, tensor tooling, and benchmarks. |
+| [`tests/`](tests/) | Automated proofs of determinism; every API change gets coverage. |
+| [`benchmarks/`](benchmarks/) | Benchmark generators and runners that power `docs/benchmarks.md`. |
+| [`docs/`](docs/) | Manifest insights, benchmark reports, onboarding guides, and system status. |
+| [`examples/`](examples/) | Canonical T81Lang demos and deployment snippets. |
+| [`legacy/hanoivm/`](legacy/hanoivm/) | Frozen historical reference; read-only. |
 
-## Next Steps for AI Researchers
-
-1. Read the spec ([`spec/index.md`](spec/index.md), [`spec/t81lang-spec.md`](spec/t81lang-spec.md), [`spec/tisc-spec.md`](spec/tisc-spec.md), [`spec/t81vm-spec.md`](spec/t81vm-spec.md), [`spec/t81-data-types.md`](spec/t81-data-types.md)) to understand the normative guarantees.
-2. Explore [`docs/onboarding.md`](docs/onboarding.md) → [`docs/cpp-quickstart.md`](docs/cpp-quickstart.md) for hands-on context before editing.
-3. Trace the benchmark pipeline: modify numerics → `t81 benchmark` → inspect [`docs/benchmarks.md`](docs/benchmarks.md) → cite the report in publications or agent prompts.
-4. When in doubt, reference the RFC process under [`spec/rfcs/`](spec/rfcs/) before modifying normative behavior.
-5. Keep Axion traces (`build/artifacts/*axion*.log`) archived with research notes so future reviewers can replay every claim.
-
-Need help? [`CLAUDE.md`](CLAUDE.md), [`ANALYSIS.md`](ANALYSIS.md), and [`docs/system-status.md`](docs/system-status.md) document known limitations, investigative priorities, and current risks.
+## Next Steps for Researchers
+- Read the canonical specs ([`spec/index.md`](spec/index.md), [`spec/t81lang-spec.md`](spec/t81lang-spec.md), [`spec/tisc-spec.md`](spec/tisc-spec.md), [`spec/t81vm-spec.md`](spec/t81vm-spec.md), [`spec/t81-data-types.md`](spec/t81-data-types.md)).
+- Explore [`docs/onboarding.md`](docs/onboarding.md) and [`docs/cpp-quickstart.md`](docs/cpp-quickstart.md) before making contributions.
+- Run deterministic weight pipelines (`t81 weights import`, `t81 weights quantize`, `weights.load(...)`) and update [`docs/benchmarks.md`](docs/benchmarks.md) with each meaningful change.
+- Archive Axion traces (`build/artifacts/*axion*.log`) with every benchmark/experiment so future reviewers can replay the exact behavior.

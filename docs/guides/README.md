@@ -1,3 +1,7 @@
+# Manifesto Guide Map
+
+The guides here are the portal annexes referenced by the Manifesto & Portal README: each article expands a ledgered workflow (CLI ops, Axion observability, language semantics, weights, release hygiene) so readers can execute deterministic tasks with full traceability.
+
 # Guide Directory Map
 
 This directory contains the living set of `[docs/guides/*](.)` articles that describe how to work with the T81 CLI, Axion policies, vector literals, and related release tooling. Treat this README as the table of contents before opening individual markdown files.

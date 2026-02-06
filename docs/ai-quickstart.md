@@ -1,12 +1,12 @@
 # AI Quickstart — T81 Foundation
 
-This document describes how automated coding agents and advanced assistants should onboard into the T81 Foundation repository.
+This quickstart is the manifesto portal for automated agents: follow these steps to prove every session is reproducible, Axion-safe, and spec-aligned before publishing artifacts.
 
-Its goal is to make your first session reproducible, safe, and aligned with the project’s architecture and specs.
+The goal is to give you the deterministic ledger keys (tools, specs, workflows) that map directly to the README portal.
 
 ______________________________________________________________________
 
-## 1. Files to Read First
+# Ledger Entry 1. Files to Read First
 
 Before making any edits, load and skim the following files:
 

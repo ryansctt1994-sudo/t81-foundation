@@ -1,18 +1,18 @@
 # T81 Foundation User Manual
 
-> Determinism, ternary purity, and Axion-aware transparency for researchers, maintainers, and auditors.
+> This manual mirrors the manifesto portal: determinism, reproducibility, and Axion transparency form the ledger for every artifact we ship.
 
 ## Purpose & Principles
 
-- Balanced ternary arithmetic (`T81Int`, `T81Fraction`, `T81Float`, `T81Tensor`) is canonical: every value that leaves a subsystem must encode/decode transparently and trap on ±∞ overflows. These invariants are sacrosanct; the specification in `/spec/` is the source of truth and only evolves through RFCs (`spec/rfcs/template.md`).
-- Axion is the supervisory intelligence guarding every execution, policy, and trace (`docs/guides/axion-trace.md`, `spec/axion-kernel.md`). Research artifacts must include Axion logs (`build/artifacts/*axion*.log`) so claims are replayable.
-- Public APIs live in `include/t81/` under `t81::v1`. Implementation lives in `src/`, and legacy HanoiVM remains read-only (`legacy/hanoivm/`).
+- Balanced ternary arithmetic (`T81Int`, `T81Fraction`, `T81Float`, `T81Tensor`) anchors every deterministic payload—we enforce `encode(decode(x)) ≡ x`, Axion traps on ±∞, and `/spec/` is the immutable ledger (RFCs via `spec/rfcs/template.md`).
+- Axion oversees every execution, policy, and trace (`docs/guides/axion-trace.md`, `spec/axion-kernel.md`); artifact bundles must include Axion logs (`build/artifacts/*axion*.log`) so future reviewers can replay every verdict.
+- Public APIs live in `include/t81/` under `t81::v1`; implementation lives in `src/`; `legacy/hanoivm/` remains a read-only oracle for behavior matching.
 
 ## Getting Started
 
 ### Prerequisites
-- Clone the repo and ensure you have a C++20/23 compiler (Clang/GCC), CMake ≥3.16, Ninja (or Make), Python ≥3.9, and Node.js (for docs tooling). `docs/ai-quickstart.md` and `docs/cpp-quickstart.md` list the same stack plus environment hints.
-- Configure `git` with your identity and read `AGENTS.md` before touching anything, since it governs agent behavior, determinism, Axion overrides, and build/test rituals.
++ Clone the repo and gather the tools (C++23 compiler, CMake ≥3.16, Ninja/Make, Python ≥3.9, Node.js) listed in `docs/ai-quickstart.md`/`docs/cpp-quickstart.md`; the manifest pipeline depends on reproducible host tooling.
++ Align `git` with your identity and read `AGENTS.md` before editing; it encodes the deterministic rituals, Axion axioms, and portal guardrails.
 
 ### Build & Test Ritual
 ```bash

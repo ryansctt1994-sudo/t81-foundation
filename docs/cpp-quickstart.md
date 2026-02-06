@@ -5,7 +5,7 @@ title: C++ Quickstart Guide
 
 # T81 C++ Quickstart Guide
 
-This page provides a hands-on guide to building the C++ project, running tests, and writing your first piece of ternary-native code.
+This page is the C++ portal: it describes how to bootstrap the deterministic ledger (build, tests, code, docs) so every artifact remains reproducible.
 
 ______________________________________________________________________
 
@@ -73,7 +73,7 @@ ______________________________________________________________________
 
 ## 4. Where to Go Next
 
-- **To understand the code's structure:** Read the [`ARCHITECTURE.md`](../ARCHITECTURE.md) to see how the different libraries (`t81_core`, `t81_frontend`, etc.) fit together.
+- **To understand the code's structure:** Read the [`ARCHITECTURE.md`](../ARCHITECTURE.md) to see how the different libraries (`t81_core`, `t81_frontend`, etc.) fit together in the deterministic ledger.
 - **To find a task to work on:** See the prioritized list of needed contributions in [`TASKS.md`](../TASKS.md).
 - **To understand the onboarding flow:** See [`docs/onboarding.md`](./onboarding.md).
 - **To explore the API:** Generate the Doxygen documentation by running `cmake --build build --target docs` and opening `docs/api/html/index.html`.
@@ -84,6 +84,6 @@ ______________________________________________________________________
 
 - **`T81BigInt` is Partial:** The `T81BigInt` class provides arbitrary-precision storage, but its arithmetic functions are still incomplete.
 - **`Tensor` is Partial:** The `Tensor` class has a solid foundation but does not yet implement the full set of operations defined in the spec.
-- **Axion & CanonFS are Stubs:** The Axion Kernel and CanonFS are non-functional placeholders.
+- **Axion & CanonFS are Stubs:** The Axion Kernel and CanonFS are non-functional placeholders; treat every Axion trace as a promise until the policy becomes executable.
 
 For a detailed status of all components, see the [`System Status Report`](./system-status.md).
