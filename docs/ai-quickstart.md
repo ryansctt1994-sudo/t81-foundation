@@ -251,3 +251,47 @@ For routine refactors, documentation clarity, and additional tests, standard rev
 ______________________________________________________________________
 
 By following this quickstart, agents can integrate into the T81 Foundation workflow in a predictable way, improving the system without undermining its specification, determinism, or safety guarantees.
+
+______________________________________________________________________
+
+## Visual Reference
+
+These diagrams echo the same quick mental model offered in `docs/user-manual.md`.
+
+### Toolchain & Execution Flow
+
+```mermaid
+graph TD
+  A["T81Lang Source (.t81)"] --> B{Lexer}
+  B --> C["Token Stream"]
+  C --> D{Parser}
+  D --> E["AST"]
+  E --> F{Semantic Analyzer}
+  F --> G["Verified AST"]
+  G --> H{IR Generator}
+  H --> I["TISC IR"]
+  I --> J{Binary Emitter}
+  J --> K["TISC Bytecode"]
+  K --> L{Virtual Machine}
+  L --> M["Deterministic Result + Axion Trace"]
+  style A fill:#fff5e6,stroke:#ff9933
+  style K fill:#e6f3ff,stroke:#3399ff
+  style M fill:#e6ffe6,stroke:#33cc33
+```
+
+### Workflow & Artifact Loop
+
+```mermaid
+graph LR
+  subgraph Tooling
+    CLI["`t81` CLI"] -->|compile| TISC["TISC bytecode"]
+    TISC -->|run| VM["HanoiVM + Axion"]
+    CLI -->|weights import/quantize| Weights["`.t81w` / GGUF"]
+  end
+  VM --> Trace["Axion log + `VERDICT_*`"]
+  Weights --> VM
+  CLI -->|benchmark| Bench["Benchmark runner"]
+  Bench --> Docs["`docs/benchmarks.md`"]
+  Trace --> Docs
+  Docs --> Research["Research artifacts & publications"]
+```
