@@ -469,6 +469,12 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(t81_bigint_v1_baseline_test tests/cpp/test_bigint_v1_baseline.cpp)
   target_link_libraries(t81_bigint_v1_baseline_test PRIVATE t81_core)
 
+  add_executable(test_bigint_multilimb_ext tests/cpp/test_bigint_multilimb_ext.cpp)
+  target_link_libraries(test_bigint_multilimb_ext PRIVATE t81_core)
+
+  add_executable(test_T81Tensor_transpose tests/cpp/test_T81Tensor_transpose.cpp)
+  target_link_libraries(test_T81Tensor_transpose PRIVATE t81_core)
+
   enable_testing()
   set(T81_TEST_TARGETS
     t81_float_test
@@ -569,6 +575,8 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     axion_instruction_counter_test
     canonfs_axion_trace_test
     e2e_axion_trace_test
+    test_bigint_multilimb_ext
+    test_T81Tensor_transpose
   )
   foreach(tgt IN LISTS T81_TEST_TARGETS)
     add_test(NAME ${tgt} COMMAND $<TARGET_FILE:${tgt}>)

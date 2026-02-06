@@ -117,6 +117,47 @@ TVECADD R0, R1, R2      ; Elementwise vector add
 HALT
 ```
 
+### Stack Management & Function Call Example
+
+```tisc
+; main entry
+LOADI R0, 42            ; Argument for function
+PUSH R0                 ; Push argument to stack
+LOADI R1, label_func    ; Function address
+CALL R1                 ; Call function
+POP R2                  ; Pop result from stack (assuming ABI uses stack for return)
+HALT
+
+label_func:
+POP R3                  ; Pop argument from stack
+LOADI R4, 1
+ADD R5, R3, R4          ; result = arg + 1
+PUSH R5                 ; Push result to stack
+RET                     ; Return to caller
+```
+
+### Axion Policy & Metadata Example
+
+```tisc
+; Read current instruction count from Axion
+; IMM_TAG 0: Instruction Count (hypothetical tag)
+AXREAD R0, 0
+
+; Set a new stack limit for current context
+; IMM_TAG 1: Max Stack Depth (hypothetical tag)
+LOADI R1, 1024
+AXSET 1, R1
+
+; Verify current state against ethical constraints
+AXVERIFY R2
+JZ R2, label_unsafe     ; If result is zero (fail), jump to handler
+HALT
+
+label_unsafe:
+TRAP 1                  ; Trigger security trap
+HALT
+```
+
 ______________________________________________________________________
 
 ## 2. Register File

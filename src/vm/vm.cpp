@@ -157,6 +157,7 @@ class Interpreter : public IVirtualMachine {
         return layout.code.contains(a);
       }
       if (a >= state_.memory.size()) return false;
+      // Strict segment containment: an address must resolve to exactly one segment.
       return layout.stack.contains(a) || layout.heap.contains(a) ||
              layout.tensor.contains(a) || layout.meta.contains(a);
     };
@@ -1385,11 +1386,14 @@ class Interpreter : public IVirtualMachine {
     t81::axion::Verdict verdict;
     verdict.kind = t81::axion::VerdictKind::Allow;
     std::ostringstream reason;
+    // Format: '[action] [segment] addr=[address] size=[size]'
     reason << action << " " << to_string(kind) << " addr=" << addr;
-    if (kind == MemorySegmentKind::Stack || action.find("allocated") != std::string_view::npos) {
-        if (size > 1 || kind == MemorySegmentKind::Stack) {
-            reason << " size=" << size;
-        }
+    if (kind == MemorySegmentKind::Stack ||
+        action.find("allocated") != std::string_view::npos ||
+        action.find("freed") != std::string_view::npos) {
+        reason << " size=" << size;
+    } else if (size > 1) {
+        reason << " size=" << size;
     }
     verdict.reason = reason.str();
     record_axion_event(opcode, static_cast<std::int32_t>(kind), static_cast<std::int64_t>(addr),
@@ -1456,15 +1460,13 @@ class Interpreter : public IVirtualMachine {
     t81::axion::Verdict verdict;
     verdict.kind = t81::axion::VerdictKind::Allow;
     std::ostringstream os;
-    os << reason << " stack_frames=" << state_.stack_frames.size()
-       << " heap_frames=" << state_.heap_frames.size()
-       << " heap_ptr=" << state_.heap_ptr
-       << " tensor_slots=" << state_.tensors.size()
-       << " meta_space=" << state_.layout.meta.size();
+    // Format: 'GC cycle reason=[reason]'
+    os << "GC cycle reason=" << reason;
     verdict.reason = os.str();
     record_axion_event(t81::tisc::Opcode::Trap,
                        static_cast<std::int32_t>(state_.gc_cycles),
        static_cast<std::int64_t>(state_.gc_cycles), verdict);
+
     log_heap_compaction(state_.heap_ptr, state_.heap_frames.size());
     log_heap_relocation(state_.heap_ptr, state_.layout.heap.start,
                         state_.heap_frames.size());

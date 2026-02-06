@@ -251,6 +251,48 @@ template <typename E, size_t D1, size_t D2, size_t D3, size_t D4>
     return out;
 }
 
+/**
+ * @brief Transposes a Rank 5 tensor (reverses dimensions).
+ */
+template <typename E, size_t D1, size_t D2, size_t D3, size_t D4, size_t D5>
+[[nodiscard]] constexpr auto transpose(const T81Tensor<E, 5, D1, D2, D3, D4, D5>& t) noexcept {
+    T81Tensor<E, 5, D5, D4, D3, D2, D1> out;
+    for (size_t i = 0; i < D1; ++i) {
+        for (size_t j = 0; j < D2; ++j) {
+            for (size_t k = 0; k < D3; ++k) {
+                for (size_t l = 0; l < D4; ++l) {
+                    for (size_t m = 0; m < D5; ++m) {
+                        out(m, l, k, j, i) = t(i, j, k, l, m);
+                    }
+                }
+            }
+        }
+    }
+    return out;
+}
+
+/**
+ * @brief Transposes a Rank 6 tensor (reverses dimensions).
+ */
+template <typename E, size_t D1, size_t D2, size_t D3, size_t D4, size_t D5, size_t D6>
+[[nodiscard]] constexpr auto transpose(const T81Tensor<E, 6, D1, D2, D3, D4, D5, D6>& t) noexcept {
+    T81Tensor<E, 6, D6, D5, D4, D3, D2, D1> out;
+    for (size_t i = 0; i < D1; ++i) {
+        for (size_t j = 0; j < D2; ++j) {
+            for (size_t k = 0; k < D3; ++k) {
+                for (size_t l = 0; l < D4; ++l) {
+                    for (size_t m = 0; m < D5; ++m) {
+                        for (size_t n = 0; n < D6; ++n) {
+                            out(n, m, l, k, j, i) = t(i, j, k, l, m, n);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return out;
+}
+
 template <typename E, size_t... Dims>
 [[nodiscard]] constexpr auto transpose(
     const T81Tensor<E, sizeof...(Dims), Dims...>& t

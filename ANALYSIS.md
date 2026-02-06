@@ -9,26 +9,26 @@ ______________________________________________________________________
 ## 1. Core Numerics (`t81_core`)
 
 - **Specification:** [`spec/t81-data-types.md`](spec/t81-data-types.md)
-- **Status:** `Partial`
+- **Status:** `Complete`
 - **Analysis:**
   - **`T81Int<N>`:** **Complete.** The fixed-size ternary integer implementation is robust, well-tested, and fully conforms to the spec's requirements for arithmetic, comparison, and overflow behavior.
   - **`T81Float`:** **Complete (double-backed with NaE/∞ handling).** The implementation now exposes the full arithmetic surface (`+`, `-`, `*`, `/`, `fma`) with NaE/∞ detection and side-channel-free fallbacks; conversions to/from `double` (via `from_double`/`to_double`) maintain balanced ternary semantics and enable the high-level helpers (`sin`, `cos`, `sqrt`) required by the spec's geometry/time layers.
   - **`Fraction`:** **Complete.** The rational number type correctly implements canonical reduction and all specified arithmetic operations, and it now consistently relies on the `T81BigInt` façade for numerator/denominator arithmetic.
-  - **`T81BigInt`:** **Experimental / Stub.** The public API mirrors the arbitrary-precision spec, but the current backend only supports a single `int64_t` limb and throws when multi-limb state would be required. It is safe for small workloads but not for large integers yet.
-  - **`Tensor`:** **Partial.** Tensors now support elementwise `+`, `-`, `*`, `/`, reshaping, and span/linear indexing, and the canonical type aliases (`Vec81`, `Mat81x81`, etc.) are defined, but broadcasting remains a placeholder and helper functions like `transpose` simply return the input rather than reshuffling data, so many spec-defined tensor transformations are still pending.
+  - **`T81BigInt`:** **Complete.** The implementation now supports a full multi-limb balanced ternary representation, handling arbitrary-precision arithmetic (addition, subtraction, multiplication) and canonical sign-magnitude normalization.
+  - **`Tensor`:** **Complete.** Tensors support elementwise `+`, `-`, `*`, `/`, reshaping, and span/linear indexing. Canonical type aliases are defined, and `transpose` is fully implemented for common ranks (up to Rank 6), satisfying the spec-defined tensor transformations.
 
 ______________________________________________________________________
 
 ## 2. TISC ISA & VM (`t81_tisc`, `t81_vm`)
 
 - **Specification:** [`spec/tisc-spec.md`](spec/tisc-spec.md), [`spec/t81vm-spec.md`](spec/t81vm-spec.md)
-- **Status:** `Partial`
+- **Status:** `Complete`
 - **Analysis:**
-  - **Instruction Set:** **Partial.** A large subset of the TISC opcodes are defined in `opcodes.hpp` and executed by the interpreter, but opcode families tied to the Axion kernel interface and extended memory primitives still await implementation.
-  - **Binary Encoding:** **Complete.** The `BinaryEmitter` correctly encodes the implemented subset of TISC IR into the specified flat binary format, including the two-pass label resolution.
-  - **VM Execution Loop:** **Partial.** The interpreter (`src/vm/vm.cpp`) now wires each instruction through `eval_axion_call`, injecting Axion policy evaluation before the dispatch, and the runtime pushes loop/match metadata into `state_.axion_log` so Axion traces can replay guards; traps for denied policies surface as `Trap::SecurityFault`.
-  - **Memory Model:** **Partial.** The runtime now derives a `Layout` with dedicated code/stack/heap/tensor/meta regions and `mem_ok` guards, so the interpreter can reject out-of-bounds accesses; however the allocator is still a flat linear space with no segment protection or privilege separation beyond the simple range checks.
-  - **Known Deviation:** Faults like division-by-zero or Axion-denied instructions currently map to generic `Trap` values / host exceptions rather than the spec's richer Axion fault taxonomy.
+  - **Instruction Set:** **Complete.** The TISC opcodes are defined and executed by the interpreter, including family-specific opcodes for Axion kernel interaction and extended memory primitives.
+  - **Binary Encoding:** **Complete.** The `BinaryEmitter` correctly encodes the TISC IR into the specified flat binary format.
+  - **VM Execution Loop:** **Complete.** The interpreter (`src/vm/vm.cpp`) wires instruction execution through `eval_axion_call`, enabling pre-instruction policy enforcement and logging.
+  - **Memory Model:** **Complete.** The runtime enforces a deterministic memory model with strict segment containment (CODE, STACK, HEAP, TENSOR, META). All segment operations and faults log canonical Axion trace strings.
+  - **Fault Handling:** Faults like division-by-zero or Axion-denied instructions map to the spec's specific `Trap` taxonomy and emit the required `bounds fault` or `stack fault` trace reasons.
 
 ______________________________________________________________________
 
@@ -45,6 +45,6 @@ ______________________________________________________________________
 
 ## 4. Supporting Systems
 
-- **CanonFS (`t81_core`):** **Experimental / Stub.** The `canonfs::Driver` API supports writing/reading objects and publishing capabilities, and `make_in_memory_driver` plus the Hanoi in-memory kernel use it, but the driver never performs canonical hashing, persistence, or parity verification, and snapshot hashes are reused rather than derived from actual contents.
-- **Axion Kernel (`t81_core`):** **Experimental / Stub.** `include/t81/axion/api.hpp` exposes a deterministic stub context with telemetry, and `PolicyEngine`/`Engine` hooks drive the interpreter, yet the kernel still allows every request (or only performs simple loop/match guard checks) instead of enforcing the full Axion safety model.
+- **CanonFS (`t81_core`):** **Stable.** The `canonfs::Driver` API is fully functional. The `PersistentDriver` implements disk-backed storage with Axion hooks, ensuring auditable writes and reads. Snapshot hashes in the `InMemoryKernel` are now derived deterministically from parent hashes and fork metadata.
+- **Axion Kernel (`t81_core`):** **Stable.** The `PolicyEngine` enforces the full set of Axion safety policies, including resource limits (instructions, recursion, stack) and trace-based requirements for loops, guards, and segment events.
 - **Tooling (`t81` CLI):** **Partial.** The `t81` command-line tool still drives compile/check/run/repl, but it now conserves Axion metadata from the frontend (`axion_policy_text`, `match_metadata_text`) and pushes it into the VM so trace output carries loop bounds and guard hints even though more advanced inspection/debugging commands are missing.

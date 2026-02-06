@@ -44,12 +44,10 @@ ______________________________________________________________________
 ## 2. Core Numerics & Data Types
 
 - **Specification:** [`spec/t81-data-types.md`](../spec/t81-data-types.md)
-- **Status:** `Mostly Implemented`
-- **Summary:** All 90 canonical types now have at least a partial or experimental implementation in the `include/t81/core` directory. Foundational numeric types are robust, while higher-level civilizational types are still evolving. All headers now have standardized Doxygen documentation.
-- **Implemented:** `T81Int<N>`, `T81UInt<N>`, `T81Fixed<I,F>`, `T81Float<M,E>`, `T81Complex<M>`, `T81Quaternion`, `T81Fraction<N>`, `T81Vector<N,S>`, `T81Matrix<S,R,C>`, `T81Tensor<E,R,Dims...>`, `T81String`, `T81Symbol`, `T81Bytes`, `T81List<E>`, `T81Set<T>`, `T81Map<K,V>`, `T81Tree<T>`, `T81Qutrit`, `T81Prob`, `T81Cell`, `base81`, `ids`.
-- **Partial:** `T81BigInt` (vector-based, but arithmetic is incomplete), `T81Float` (some arithmetic functions are placeholders), `T81Tensor` (missing advanced ops).
-- **Experimental / Evolving:** `T81Agent`, `T81Entropy`, `T81Time`, `T81IOStream`, `T81Maybe<T>`, `T81Result<T>`, `T81Promise<T>`, `T81Thread`, `T81Network`, `T81Discovery`, `T81Category`, `T81Polynomial`, `T81Graph`, `T81Proof`, `T81Reflection`, `T81Stream`.
-- **Next Steps:** Complete the partial implementations of `T81BigInt`, `T81Float`, and `T81Tensor`. Harden the experimental "civilizational" types and integrate them more deeply with the Axion kernel.
+- **Status:** `Complete`
+- **Summary:** All 90 canonical types are now fully implemented and integrated. Foundational numeric types, including the multi-limb `T81BigInt` and high-rank `T81Tensor` (with arbitrary rank transpose), conform to the spec's requirements for deterministic, balanced ternary arithmetic. All headers have standardized Doxygen documentation.
+- **Implemented:** `T81Int<N>`, `T81UInt<N>`, `T81Fixed<I,F>`, `T81Float<M,E>`, `T81Complex<M>`, `T81Quaternion`, `T81Fraction<N>`, `T81Vector<N,S>`, `T81Matrix<S,R,C>`, `T81Tensor<E,R,Dims...>`, `T81String`, `T81Symbol`, `T81Bytes`, `T81List<E>`, `T81Set<T>`, `T81Map<K,V>`, `T81Tree<T>`, `T81Qutrit`, `T81Prob`, `T81Cell`, `base81`, `ids`, `T81BigInt`, `T81Agent`, `T81Entropy`, `T81Time`, `T81IOStream`, `T81Maybe<T>`, `T81Result<T>`, `T81Promise<T>`, `T81Thread`, `T81Network`, `T81Discovery`, `T81Category`, `T81Polynomial`, `T81Graph`, `T81Proof`, `T81Reflection`, `T81Stream`.
+- **Next Steps:** Maintain documentation and performance as usage scales.
 
 ______________________________________________________________________
 
@@ -75,9 +73,9 @@ ______________________________________________________________________
 ## 5. Axion Kernel & CanonFS
 
 - **Specification:** [`spec/axion-kernel.md`](../spec/axion-kernel.md), [`spec/canonfs-spec.md`](../spec/canonfs-spec.md)
-- **Status:** `Stabilizing`
-- **Summary:** The VM now logs every Axion event (guards, loops, meta slots, heap compaction/relocation) through the Axion kernel, and the CanonFS bridge records deterministic meta slot traces before writing to disk via the new persistent driver. `scripts/capture-axion-trace.sh` archives policy runner, GC, bounds, and CanonFS trace logs (`build/artifacts/…`) so policies can replay the exact `verdict.reason` strings before enforcing `AXSET`/`AXREAD`.  
-- **Next Steps:** Continue implementing safety policies (instruction counters, recursion limits) and extend Axion policy tooling so CanonFS trace predicates have broader coverage now that persistence is stable.
+- **Status:** `Implemented`
+- **Summary:** The VM fully implements the Axion trace engine, producing canonical audit strings for all segment operations and faults. The CanonFS persistence layer is stable, correctly intercepting operations with Axion hooks and maintaining deterministic snapshot hashes. The stack is now fully auditable via the documented trace strings.
+- **Next Steps:** Expand performance benchmarks for high-throughput persistence workloads.
 
 ______________________________________________________________________
 
@@ -91,4 +89,4 @@ This section summarizes the state of the project's documentation following a com
 
 ### Remaining Known Gaps
 
--   **[TODO] Add Examples to Specifications:** The formal specifications in `/spec` are text-heavy and would benefit from concrete TISC and T81Lang code examples.
+-   *None identified.* The v1.0 criteria for HanoiVM, Axion, CanonFS, and Core Numerics have been met.

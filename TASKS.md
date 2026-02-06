@@ -37,35 +37,35 @@ With P0 closed, work shifts to the runtime-focused priorities below.
 
 ______________________________________________________________________
 
-### [P1] HanoiVM & TISC Runtime
+### [P1] HanoiVM & TISC Runtime (Completed)
 
-**Goal:** Harden the VM and integrate it with other core systems. These tasks can be worked on in parallel with P0, but are secondary.
+**Goal:** The HanoiVM now implements the full deterministic memory model, strict segment containment, and the Axion trace engine required for v1.0.
 
 - **[EPIC] Implement the T81VM Memory Model:**
-    - **[L] Task:** Design and implement the full stack and heap memory model as defined in `spec/t81vm-spec.md`.
-    - **[M] Task:** Add VM instructions for stack manipulation (push, pop, stack pointers).
+    - **[DONE] [L] Task:** Design and implement the full stack and heap memory model as defined in `spec/t81vm-spec.md`.
+    - **[DONE] [M] Task:** Add VM instructions for stack manipulation (push, pop, stack pointers).
 
 - **[EPIC] Harden the VM:**
-    - **[M] Task:** Improve VM fault handling. Ensure all illegal operations (e.g., division by zero, out-of-bounds memory access) result in deterministic, spec-compliant faults.
-    - **[L] Task:** Add extensive "negative" tests for the VM that deliberately trigger faults and verify the correct behavior.
-    - **[S] Task:** Surface match metadata hints in the Axion/trace log to confirm CLI workloads can replay guard coverage during execution.
-- **[M] Task:** Document and verify the deterministic segment-trace strings (`stack frame allocated`, `tensor slot allocated`, `AxRead/AxSet guard …`) via `axion_policy_runner` and updated Axion trace guides so policy runners can replay RFC-0020/RFC-0009 expectations.
+    - **[DONE] [M] Task:** Improve VM fault handling. Ensure all illegal operations (e.g., division by zero, out-of-bounds memory access) result in deterministic, spec-compliant faults.
+    - **[DONE] [L] Task:** Add extensive "negative" tests for the VM that deliberately trigger faults and verify the correct behavior.
+    - **[DONE] [S] Task:** Surface match metadata hints in the Axion/trace log to confirm CLI workloads can replay guard coverage during execution.
+- **[DONE] [M] Task:** Document and verify the deterministic segment-trace strings (`stack frame allocated`, `tensor slot allocated`, `AxRead/AxSet guard …`) via `axion_policy_runner` and updated Axion trace guides so policy runners can replay RFC-0020/RFC-0009 expectations.
 
 ______________________________________________________________________
 
-### [P2] Axion Kernel & Documentation
+### [P2] Axion Kernel & CanonFS (Completed)
 
-**Goal:** Transform stubs into functional components and improve documentation.
+**Goal:** The Axion Kernel and CanonFS are now fully functional and integrated into the runtime stack.
 
 - **[EPIC] Implement the Axion Kernel:**
-    - **[M] Task:** Formalize the API between the HanoiVM and the Axion Kernel.
-    - **[L] Task:** Implement the first set of safety policies in the Axion Kernel (e.g., Recursion Depth Limiter, Instruction Counter).
-    - **[M] Task:** Integrate the specified Axion hooks (`AXREAD`, `AXSET`, etc.) into the VM's main dispatch loop.
+    - **[DONE] [M] Task:** Formalize the API between the HanoiVM and the Axion Kernel.
+    - **[DONE] [L] Task:** Implement the first set of safety policies in the Axion Kernel (e.g., Recursion Depth Limiter, Instruction Counter).
+    - **[DONE] [M] Task:** Integrate the specified Axion hooks (`AXREAD`, `AXSET`, etc.) into the VM's main dispatch loop.
 
 - **[EPIC] General Documentation & Good First Issues:**
-    - **[S] Task:** Add more unit tests for existing data types (`T81Float`, `Tensor`).
-    - **[S] Task:** Improve Doxygen comments on public headers in `/include/t81/`.
-    - **[M] Task:** Update the `docs/tensor-guide.md` to reflect the current C++ `Tensor` API.
-- **[S] Task:** Publish the `axion_policy_runner` trace output in release docs and CI artifacts to give auditors a reachable example of the required `verdict.reason` strings.
-- **[M] Task:** Implement the persistent CanonFS driver with Axion hooks so trace regressions exercise the disk-backed store before policy predicates run.
-- **[M] Task:** Document and implement CanonFS policy hooks that intercept `AXSET`/`AXREAD` calls, emit the canonical meta/trace strings for each write, and expose those strings to policy predicates like `(require-axion-event (reason "meta slot axion event segment=meta"))` so auditors can tie CanonFS persistence to Axion enforcement.
+    - **[DONE] [S] Task:** Add more unit tests for existing data types (`T81Float`, `Tensor`).
+    - **[DONE] [S] Task:** Improve Doxygen comments on public headers in `/include/t81/`.
+    - **[DONE] [M] Task:** Update the `docs/tensor-guide.md` to reflect the current C++ `Tensor` API.
+- **[DONE] [S] Task:** Publish the `axion_policy_runner` trace output in release docs and CI artifacts to give auditors a reachable example of the required `verdict.reason` strings.
+- **[DONE] [M] Task:** Implement the persistent CanonFS driver with Axion hooks so trace regressions exercise the disk-backed store before policy predicates run.
+- **[DONE] [M] Task:** Document and implement CanonFS policy hooks that intercept `AXSET`/`AXREAD` calls, emit the canonical meta/trace strings for each write, and expose those strings to policy predicates like `(require-axion-event (reason "meta slot axion event segment=meta"))` so auditors can tie CanonFS persistence to Axion enforcement.
