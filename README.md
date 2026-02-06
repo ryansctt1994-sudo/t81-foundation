@@ -40,7 +40,7 @@ ctest --test-dir build -R "fuzz|property|axion" --schedule-random
 ### 1. Deterministic Workloads
 - `t81 compile <source.t81>` → `t81 run` executes bytecode inside the HanoiVM with Axion traps enabled.
 - `t81 check <source.t81>` surfaces syntax/semantic errors with precise `file:line:column` diagnostics.
-- Use `docs/benchmarks.md` and `benchmarks/benchmark_runner` output as a canonical dataset for throughput, latency, and density comparisons.
+- Use [`docs/benchmarks.md`](docs/benchmarks.md) and [`benchmarks/benchmark_runner`](benchmarks/benchmark_runner) output as a canonical dataset for throughput, latency, and density comparisons.
 
 ### 2. Ternary Tensor Pipelines
 - `t81 weights import <file.safetensors|.gguf>` produces `.t81w` bundles with SHA3-512 metadata, bits/trit stats, and CanonFS hints.
@@ -49,7 +49,7 @@ ctest --test-dir build -R "fuzz|property|axion" --schedule-random
 - `weights.load("model.t81w")` inside T81Lang lets you hydrate models in HanoiVM programs for symbolic experimentation.
 
 ### 3. Benchmarks & Logging
-- Run `t81 benchmark` (or `./build/t81 benchmark`) after touching arithmetic, compiler, or tensor code to regenerate `docs/benchmarks.md`.
+- Run `t81 benchmark` (or `./build/t81 benchmark`) after touching arithmetic, compiler, or tensor code to regenerate [`docs/benchmarks.md`](docs/benchmarks.md).
 - Benchmark suites emit Classic/Native/Binary columns, latency/bandwidth counters, and highlight tooltips that AI systems can index for search/explainability tasks.
 - Capture Axion traces with `./scripts/capture-axion-trace.sh`; include the resulting logs (`axion_policy_runner.log`, `vm_bounds_trace.log`, etc.) with research artifacts for future auditors.
 
@@ -60,32 +60,32 @@ ctest --test-dir build -R "fuzz|property|axion" --schedule-random
 
 ## Data, Benchmarks, and Artifacts
 
-- `docs/benchmarks.md`: auto-generated HTML/Markdown table of every benchmark, Classic/Native/Binary throughput, latency, and analyst notes.
-- `benchmarks/benchmark_runner`: generates the report and is the source of truth for `docs/benchmarks.md` (run after arithmetic or ML-weight changes).
-- `docs/assets/`: brand and visualization assets for publications.
-- `docs/guides/weights-integration.md` and `examples/weights_load_demo.t81`: working examples for hooking weights into T81Lang scripts.
+- [`docs/benchmarks.md`](docs/benchmarks.md): auto-generated HTML/Markdown table of every benchmark, Classic/Native/Binary throughput, latency, and analyst notes.
+- [`benchmarks/benchmark_runner`](benchmarks/benchmark_runner): generates the report and is the source of truth for [`docs/benchmarks.md`](docs/benchmarks.md) (run after arithmetic or ML-weight changes).
+- [`docs/assets/`](docs/assets/): brand and visualization assets for publications.
+- [`docs/guides/weights-integration.md`](docs/guides/weights-integration.md) and [`examples/weights_load_demo.t81`](examples/weights_load_demo.t81): working examples for hooking weights into T81Lang scripts.
 
-Researchers can cite `docs/benchmarks.md` (updated with each run) alongside Axion logs to prove claims about determinism, accuracy, and density.
+Researchers can cite [`docs/benchmarks.md`](docs/benchmarks.md) (updated with each run) alongside Axion logs to prove claims about determinism, accuracy, and density.
 
 ## Repository Layout at a Glance
 
 | Path | Role |
 | --- | --- |
-| `/spec/` | Immutable constitution; normative text only changes via RFC. |
-| `/include/t81/` | Public headers (`t81::v1`). Add APIs here; don’t break existing contracts. |
-| `/src/` | Implementation of compiler, VM, weights, benchmarking tooling. |
-| `/tests/` | Proofs of correctness; add tests for every public face you change. |
-| `/benchmarks/` | Benchmark suites + generators. |
-| `/docs/` | Guides, benchmarks, release notes, CI instructions, onboarding flows. |
-| `/examples/` | Sample T81Lang programs and runtime demos. |
-| `/legacy/hanoivm/` | Historical reference; read-only. |
+| [`spec/`](spec/) | Immutable constitution; normative text only changes via RFC. |
+| [`include/t81/`](include/t81/) | Public headers (`t81::v1`). Add APIs here; don’t break existing contracts. |
+| [`src/`](src/) | Implementation of compiler, VM, weights, benchmarking tooling. |
+| [`tests/`](tests/) | Proofs of correctness; add tests for every public face you change. |
+| [`benchmarks/`](benchmarks/) | Benchmark suites + generators. |
+| [`docs/`](docs/) | Guides, benchmarks, release notes, CI instructions, onboarding flows. |
+| [`examples/`](examples/) | Sample T81Lang programs and runtime demos. |
+| [`legacy/hanoivm/`](legacy/hanoivm/) | Historical reference; read-only. |
 
 ## Next Steps for AI Researchers
 
-1. Read the spec (`spec/index.md`, `spec/t81lang-spec.md`, `spec/tisc-spec.md`, `spec/t81vm-spec.md`, `spec/t81-data-types.md`) to understand the normative guarantees.
-2. Explore `docs/onboarding.md` → `docs/cpp-quickstart.md` for hands-on context before editing.
-3. Trace the benchmark pipeline: modify numerics → `t81 benchmark` → inspect `docs/benchmarks.md` → cite the report in publications or agent prompts.
-4. When in doubt, reference the RFC process under `spec/rfcs/` before modifying normative behavior.
+1. Read the spec ([`spec/index.md`](spec/index.md), [`spec/t81lang-spec.md`](spec/t81lang-spec.md), [`spec/tisc-spec.md`](spec/tisc-spec.md), [`spec/t81vm-spec.md`](spec/t81vm-spec.md), [`spec/t81-data-types.md`](spec/t81-data-types.md)) to understand the normative guarantees.
+2. Explore [`docs/onboarding.md`](docs/onboarding.md) → [`docs/cpp-quickstart.md`](docs/cpp-quickstart.md) for hands-on context before editing.
+3. Trace the benchmark pipeline: modify numerics → `t81 benchmark` → inspect [`docs/benchmarks.md`](docs/benchmarks.md) → cite the report in publications or agent prompts.
+4. When in doubt, reference the RFC process under [`spec/rfcs/`](spec/rfcs/) before modifying normative behavior.
 5. Keep Axion traces (`build/artifacts/*axion*.log`) archived with research notes so future reviewers can replay every claim.
 
-Need help? `CLAUDE.md`, `ANALYSIS.md`, and `docs/system-status.md` document known limitations, investigative priorities, and current risks.
+Need help? [`CLAUDE.md`](CLAUDE.md), [`ANALYSIS.md`](ANALYSIS.md), and [`docs/system-status.md`](docs/system-status.md) document known limitations, investigative priorities, and current risks.
