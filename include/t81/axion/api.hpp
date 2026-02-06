@@ -13,6 +13,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstdio>
 #include <string>
 #include <vector>
 #include <stdexcept>
@@ -198,5 +199,10 @@ private:
 #endif
   }
 };
+
+[[noreturn]] inline void trap_overflow(const char* reason = "Axion overflow") {
+  std::fprintf(stderr, "Axion trap: %s\n", reason ? reason : "Axion overflow");
+  throw std::overflow_error(reason ? reason : "Axion overflow");
+}
 
 } // namespace t81::axion

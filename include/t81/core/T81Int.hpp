@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <type_traits>
 #include "t81/detail/msvc_compat.hpp"
+#include "t81/axion/api.hpp"
 
 namespace t81 {
 
@@ -206,7 +207,7 @@ public:
         return static_cast<T>(val);
     }
 
-    constexpr T81Int operator-() const noexcept {
+    constexpr T81Int operator-() const {
         T81Int out;
         for (size_type i = 0; i < kNumTrits; ++i) {
             Trit t = get_trit(i);
@@ -215,10 +216,10 @@ public:
         return out;
     }
 
-    constexpr T81Int& operator++() noexcept { *this += T81Int(1); return *this; }
-    constexpr T81Int operator++(int) noexcept { T81Int t(*this); ++*this; return t; }
-    constexpr T81Int& operator--() noexcept { *this -= T81Int(1); return *this; }
-    constexpr T81Int operator--(int) noexcept { T81Int t(*this); --*this; return t; }
+    constexpr T81Int& operator++() { *this += T81Int(1); return *this; }
+    constexpr T81Int operator++(int) { T81Int t(*this); ++*this; return t; }
+    constexpr T81Int& operator--() { *this -= T81Int(1); return *this; }
+    constexpr T81Int operator--(int) { T81Int t(*this); --*this; return t; }
 
 private:
     constexpr void shift_left(size_type k) noexcept {
@@ -251,7 +252,7 @@ public:
 
     constexpr bool operator==(const T81Int&) const noexcept = default;
 
-    friend constexpr T81Int operator+(const T81Int& a, const T81Int& b) noexcept {
+    friend constexpr T81Int operator+(const T81Int& a, const T81Int& b) {
         T81Int r;
         int carry = 0;
         for (size_type i = 0; i < kNumTrits; ++i) {
@@ -260,14 +261,17 @@ public:
             carry = (sum > 1) ? 1 : (sum < -1) ? -1 : 0;
             r.set_trit(i, int_to_trit(digit));
         }
+        if (carry != 0) {
+            axion::trap_overflow("T81Int overflow");
+        }
         return r;
     }
 
-    friend constexpr T81Int operator-(const T81Int& a, const T81Int& b) noexcept { return a + (-b); }
-    constexpr T81Int& operator+=(const T81Int& o) noexcept { *this = *this + o; return *this; }
-    constexpr T81Int& operator-=(const T81Int& o) noexcept { *this = *this - o; return *this; }
+    friend constexpr T81Int operator-(const T81Int& a, const T81Int& b) { return a + (-b); }
+    constexpr T81Int& operator+=(const T81Int& o) { *this = *this + o; return *this; }
+    constexpr T81Int& operator-=(const T81Int& o) { *this = *this - o; return *this; }
 
-    friend constexpr T81Int operator*(const T81Int& a, const T81Int& b) noexcept {
+    friend constexpr T81Int operator*(const T81Int& a, const T81Int& b) {
         T81Int r;
         for (size_type i = 0; i < kNumTrits; ++i) {
             Trit tb = b.get_trit(i);
@@ -279,7 +283,7 @@ public:
         return r;
     }
 
-    constexpr T81Int& operator*=(const T81Int& o) noexcept { *this = *this * o; return *this; }
+    constexpr T81Int& operator*=(const T81Int& o) { *this = *this * o; return *this; }
 
     friend T81Int operator/(const T81Int& a, const T81Int& b) {
         if (b.is_zero()) throw std::domain_error("division by zero");

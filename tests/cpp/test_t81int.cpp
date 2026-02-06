@@ -1,6 +1,7 @@
 #include "t81/core/T81Int.hpp"
 #include <cassert>
 #include <iostream>
+#include <stdexcept>
 
 using namespace t81;
 
@@ -19,6 +20,17 @@ int main() {
     try { T81Int<32>(1) / T81Int<32>(0); }
     catch (...) { threw = true; }
     assert(threw);
+
+    bool overflow_trapped = false;
+    try {
+        auto v = T81Int<8>::kMaxValue;
+        auto backup = T81Int<8>(1);
+        auto _ = v + backup;
+        (void)_;
+    } catch (const std::overflow_error&) {
+        overflow_trapped = true;
+    }
+    assert(overflow_trapped);
 
     std::cout << "All T81Int tests passed!\n";
 }
