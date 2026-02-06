@@ -41,7 +41,7 @@ auto result = value + t81::T81Int<81>(1); // Axion traps overflow before corrupt
    - Coordinate changes with tests under `/tests/`; every new public face needs proof, every semantics change needs an RFC.
 
 3. **Publish deterministic artifacts**  
-   - Regenerate [`docs/benchmarks.md`](docs/benchmarks.md) via [`benchmarks/benchmark_runner`](benchmarks/benchmark_runner) each time numerics, compilers, or tensor tooling shift.
+- Regenerate [`docs/benchmarks.md`](docs/benchmarks.md) via the `t81 benchmark` shortcut (which builds `build/benchmarks/benchmark_runner`) whenever numerics, compilers, or tensor tooling shift.
    - Capture Axion trace logs (`axion_policy_runner.log`, `vm_bounds_trace.log`, etc.) with `./scripts/capture-axion-trace.sh` and archive them alongside each benchmark run.
    - Use [`docs/assets/`](docs/assets/) and [`docs/guides/weights-integration.md`](docs/guides/weights-integration.md) to explain how weights land in deterministic HanoiVM deployments.
 
