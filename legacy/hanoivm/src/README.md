@@ -177,7 +177,7 @@ fn main() {
 - **Literate Sources**: Run `cweave *.cweb && pdflatex *.tex` for PDFs.
 - **API Refs**: `cargo doc --open` (Rust); Doxygen for C.
 - **Further Reading**:
-  - [T81 Analysis](docs/TYRNARY-T81Analysis.pdf)
+  - [T81 Analysis](../../../T81_State_of_Project_Dec_2025.md)
   - [Axion AI Bridge](https://github.com/t81dev/axion-ai)
 
 ## Contributing

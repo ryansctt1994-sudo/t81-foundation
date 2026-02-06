@@ -1,63 +1,25 @@
-# T81 Foundation: The Ternary-Native Computing Stack
+# T81 Foundation: Ternary-Native Stack for Trustworthy AI Research
 
-<div align="center">
-  <br/>
-  <img src="docs/assets/img/banner.png" alt="T81 Foundation" width="100%"/>
-  <br/><br/>
+> Deterministic, ternary-aware computing for researchers who need perfect arithmetic, audited tensor pipelines, and Axion-friendly proofs of behavior.
 
-[![Paradigm: Ternary Computing](https://img.shields.io/badge/Paradigm-Ternary%20Computing-red?style=flat-square)](https://en.wikipedia.org/wiki/Ternary_computer)
-[![Design: Specification-First](https://img.shields.io/badge/Design-Specification%20First-blue?style=flat-square)](#)
-[![CI Status](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml/badge.svg)](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml)
-[![Core: C++20](https://img.shields.io/badge/Core-C%2B%2B20-0d1117?style=flat-square&logo=cplusplus)](#)
-[![License: MIT/GPL-3.0](https://img.shields.io/badge/License-MIT%20%2F%20GPL--3.0-green?style=flat-square)](LICENSE-MIT)
+The T81 Foundation builds a full-stack research platform centered on **balanced ternary (−1, 0, +1)** and deterministic execution:
+- **Exact, round-trip-safe arithmetic** (`T81Int`, `T81Fraction`, `T81Float`, `T81Tensor`) with Axion traps for every overflow/underflow and no hidden carries.
+- **T81Lang + HanoiVM**: a deterministic compiler/VM pair that emits TISC bytecode, supports `match` metadata tracing, and can be replayed for third-party verification.
+- **Weights & tensor tooling**: import SafeTensors/GGUF, quantize to T3_K, and expose models inside HanoiVM via a `weights.load("...")` builtin.
+- **Benchmarking-first instrumentation**: Google Benchmarks, Classic/Native/Binary comparisons, Axion trace capture, and reproducible logs that feed documentation and reputational claims.
 
-*   *   *
+This README is tuned for AI researchers: it highlights where to find canonical data, how to reproduce metrics, and how to layer ternary components onto ML workflows.
 
-[![build / macos-latest / clang](https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?label=macos%20clang&style=flat-square&logo=apple)](https://github.com/t81dev/t81-foundation/actions)
-[![build / windows-latest / clang-cl](https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?label=windows%20clang-cl&style=flat-square&logo=windows&color=brightgreen)](https://github.com/t81dev/t81-foundation/actions)
-[![build / windows-latest / msvc](https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?label=windows%20msvc&style=flat-square&logo=visualstudio&color=brightgreen)](https://github.com/t81dev/t81-foundation/actions)
-[![build / ubuntu-latest / gcc](https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?label=ubuntu%20gcc&style=flat-square&logo=ubuntu)](https://github.com/t81dev/t81-foundation/actions)
+## Research Mission & Guarantees
 
-*   *   *
+| Principle | Why it matters for AI research |
+| --- | --- |
+| **Determinism** | Every run can be replayed with the same bytecode + Axion trace; perfect for audits and reproducibility studies. |
+| **Ternary purity** | No floating-point error, no sign-bit tax, and canonical encoding for tensors that serves as a contrast point to probabilistic binary models. |
+| **Data-centric tooling** | Benchmarks, quantizers, and `weights` commands emit structured metrics/metadata that AI agents can parse for trend analysis. |
+| **Specification-driven** | Core behavior is governed by `/spec/`; any semantics change must be RFC-sanctioned, so researchers can cite normative text. |
 
-[![Negation](https://img.shields.io/badge/Negation-7.18_Gops/s_(native)_vs_2.98_Gops/s_(classic)-brightgreen)](https://github.com/t81dev/t81-foundation/)
-[![Range](https://img.shields.io/badge/Range-40×_greater_than___int128-blue)](https://github.com/t81dev/t81-foundation/)
-[![Overflow](https://img.shields.io/badge/Overflow-NEVER-red)](https://github.com/t81dev/t81-foundation/)
-[![Exact Math](https://img.shields.io/badge/Math-Perfect-yellow)](https://github.com/t81dev/t81-foundation/)
-
-*   *   *
-
-<div align="center">
-
-[![English](https://img.shields.io/badge/Language-English-blue?style=flat-square)](/README.md)
-[![简体中文](https://img.shields.io/badge/Language-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-red?style=flat-square)](/README.zh-CN.md)
-[![Español](https://img.shields.io/badge/Language-Español-green?style=flat-square)](/README.es.md)
-[![Русский](https://img.shields.io/badge/Language-Русский-brightgreen?style=flat-square)](/README.ru.md)
-[![Português](https://img.shields.io/badge/Language-Português%20(Brasil)-blueviolet?style=flat-square)](/README.pt-BR.md)
-
-*   *   *
-
-</div>
-<br>
-<br/><br/>
-
-</div>
-
-## 1. Elevator Pitch
-
-T81 is a sovereign, deterministic stack built around balanced ternary (−1, 0, +1). Everything from the core arithmetic types to the compiler, virtual machine, tensor library, and benchmarking toolchain is designed to demonstrate that ternary math can be exact, auditable, and performant when paired with modern C++ and SIMD hardware.
-
-Core features:
-- **Balanced ternary primitives**: `T81Int`, `T81Fraction`, `T81Float`, `T81Tensor` and friends implement exact arithmetic with zero hidden carries, round-trip safety, and Axion-friendly traps.
-- **T81Lang compiler + TISC VM**: parse T81 code, emit TISC bytecode, and execute deterministically inside the HanoiVM.
-- **Native + Classic benchmarking**: compare tryte-based (classic) vs AVX2-friendly (native) representations, reporting Classic/Native/Binary columns and latency/bandwidth metrics.
-- **Weights tooling**: import SafeTensors/GGUF to `t81w`, inspect metadata, and quantize tensors into T3_K GGUF models (with new CLI `weights quantize`).
-
-The stack is currently in a beta state: the core numerics and compiler are stable and feature-complete, while the VM and runtime systems are under active development.
-
-## 2. Quick Start
-
-### Build & Test
+## Getting Started (Reproducible Build)
 
 ```bash
 git clone https://github.com/t81dev/t81-foundation.git
@@ -67,79 +29,63 @@ cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
 
-### CLI Cheatsheet
+Every contributor (including researchers evaluating our stack) should run the standard build/test pipeline before proposing changes or citing benchmark numbers. Optionally extend validation with the property/fuzz suite:
 
-```text
-t81 compile <file.t81> [-o <file.tisc>]
-t81 run <file.t81|.tisc>
-t81 check <file.t81> (syntax + semantic validation)
-t81 benchmark [benchmark flags]
-t81 weights import <safetensors|gguf> [--format <safetensors|gguf>] [-o out.t81w]
-t81 weights info <model.t81w>
-t81 weights quantize <dir|file.safetensors> --to-gguf <out.gguf>
+```bash
+ctest --test-dir build -R "fuzz|property|axion" --schedule-random
 ```
 
-> Diagnostics: semantic and parsing errors now print the source file, line, and column.
-> Match expressions now also emit canonical metadata (variant roots, guard presence, payload handles) via the CLI and Axion trace log so tooling can audit guards/payloads alongside loop hints.
+## AI Research Workflows
 
-Weights tooling highlights:
-- `weights import` converts BitNet/SafeTensors/GGUF to the canonical `.t81w` with SHA3-512 metadata and density stats.
-- `weights info` prints trits, limbs, storage (bits/trit), sparsity, format, checksum, and canonical CanonFS hints.
-- `weights quantize … --to-gguf` runs the T3_K quantizer (128-element trit blocks, scale per block) and emits a GGUF file ready for llama.cpp with T3_K support.
+### 1. Deterministic Workloads
+- `t81 compile <source.t81>` → `t81 run` executes bytecode inside the HanoiVM with Axion traps enabled.
+- `t81 check <source.t81>` surfaces syntax/semantic errors with precise `file:line:column` diagnostics.
+- Use `docs/benchmarks.md` and `benchmarks/benchmark_runner` output as a canonical dataset for throughput, latency, and density comparisons.
 
-### Axion Trace & Release Logs
+### 2. Ternary Tensor Pipelines
+- `t81 weights import <file.safetensors|.gguf>` produces `.t81w` bundles with SHA3-512 metadata, bits/trit stats, and CanonFS hints.
+- `t81 weights quantize <path> --to-gguf <out.gguf>` generates T3_K blocks (128 trits/52 bytes) compatible with `llama.cpp` via the T3_K backend.
+- `t81 weights info <model.t81w>` reports tensor counts, limb layout, sparsity, and canonical hashes that experiments can vocalize in logs or papers.
+- `weights.load("model.t81w")` inside T81Lang lets you hydrate models in HanoiVM programs for symbolic experimentation.
 
-Before tagging a release, run `./scripts/capture-axion-trace.sh` (see `docs/guides/release-audit-manual.md` for the checklist). The script builds `axion_policy_runner` plus the GC/bounds/CanonFS regressions and drops `build/artifacts/axion_policy_runner.log`, `axion_heap_compaction_trace.log`, `vm_bounds_trace.log`, and `canonfs_axion_trace.log` into the artifacts folder. Keep those files (especially the persistent CanonFS trace with `meta slot axion event segment=meta … action=Write/Read`) with release notes so auditors can replay the canonical Axion verdict strings outlined in the RFCs.
+### 3. Benchmarks & Logging
+- Run `t81 benchmark` (or `./build/t81 benchmark`) after touching arithmetic, compiler, or tensor code to regenerate `docs/benchmarks.md`.
+- Benchmark suites emit Classic/Native/Binary columns, latency/bandwidth counters, and highlight tooltips that AI systems can index for search/explainability tasks.
+- Capture Axion traces with `./scripts/capture-axion-trace.sh`; include the resulting logs (`axion_policy_runner.log`, `vm_bounds_trace.log`, etc.) with research artifacts for future auditors.
 
-## 3. Command Summary
+### 4. Extending the Stack
+- Public APIs live in `include/t81/` under the `t81::v1` namespace. Add new functionality there, and pair every public entry with tests in `/tests/`.
+- Use `/legacy/hanoivm/` as a behavioral reference; it is read-only.
+- Follow the ternary invariants (`encode(decode(x)) ≡ x`, overflow traps, canonical encoding) whenever you touch numerics or VM state.
 
-| Command | What it does |
+## Data, Benchmarks, and Artifacts
+
+- `docs/benchmarks.md`: auto-generated HTML/Markdown table of every benchmark, Classic/Native/Binary throughput, latency, and analyst notes.
+- `benchmarks/benchmark_runner`: generates the report and is the source of truth for `docs/benchmarks.md` (run after arithmetic or ML-weight changes).
+- `docs/assets/`: brand and visualization assets for publications.
+- `docs/guides/weights-integration.md` and `examples/weights_load_demo.t81`: working examples for hooking weights into T81Lang scripts.
+
+Researchers can cite `docs/benchmarks.md` (updated with each run) alongside Axion logs to prove claims about determinism, accuracy, and density.
+
+## Repository Layout at a Glance
+
+| Path | Role |
 | --- | --- |
-| `t81 compile` | Compile a `.t81` source file to TISC bytecode; semantic errors now include `file:line:column`. |
-| `t81 run` | Compile (if needed) and execute TISC programs inside the HanoiVM. |
-| `t81 check` | Fast parse + semantic validation of T81 source. |
-| `t81 benchmark` | Runs `benchmarks/benchmark_runner`, updates `docs/benchmarks.md` with Classic/Native/Binary stats and highlights. |
-| `t81 weights import` | Import BitNet/SafeTensors/GGUF to a native binary `.t81w`. |
-| `t81 weights info` | Inspect `.t81w`: tensor count, trits, bits/trit, sparsity, checksum. |
-| `t81 weights quantize` | Quantize SafeTensors into 52-byte/128-trit T3_K blocks stored in GGUF (new CLI entry). |
+| `/spec/` | Immutable constitution; normative text only changes via RFC. |
+| `/include/t81/` | Public headers (`t81::v1`). Add APIs here; don’t break existing contracts. |
+| `/src/` | Implementation of compiler, VM, weights, benchmarking tooling. |
+| `/tests/` | Proofs of correctness; add tests for every public face you change. |
+| `/benchmarks/` | Benchmark suites + generators. |
+| `/docs/` | Guides, benchmarks, release notes, CI instructions, onboarding flows. |
+| `/examples/` | Sample T81Lang programs and runtime demos. |
+| `/legacy/hanoivm/` | Historical reference; read-only. |
 
-## 4. Benchmark & Documentation Highlights
+## Next Steps for AI Researchers
 
-[![Benchmarks](https://img.shields.io/badge/benchmarks-view_report-blueviolet?style=flat-square&logo=github)](https://github.com/t81dev/t81-foundation/blob/main/benchmarks/benchmark.md?plain=1)
+1. Read the spec (`spec/index.md`, `spec/t81lang-spec.md`, `spec/tisc-spec.md`, `spec/t81vm-spec.md`, `spec/t81-data-types.md`) to understand the normative guarantees.
+2. Explore `docs/onboarding.md` → `docs/cpp-quickstart.md` for hands-on context before editing.
+3. Trace the benchmark pipeline: modify numerics → `t81 benchmark` → inspect `docs/benchmarks.md` → cite the report in publications or agent prompts.
+4. When in doubt, reference the RFC process under `spec/rfcs/` before modifying normative behavior.
+5. Keep Axion traces (`build/artifacts/*axion*.log`) archived with research notes so future reviewers can replay every claim.
 
-Key stats (see `docs/benchmarks.md` for full report):
-- **Negation**: native `BM_NegationSpeed` reaches 7.18 Gops/s (classic 2.98, binary 8.26 → 0.87× ratio) thanks to the single‑shuffle implementation.
-- **Native arithmetic**: `BM_LimbAdd` reports 4.26 Mops/s on the SIMD path, while `BM_LimbArithThroughput` still shows 13.06 Mops/s for the classic tryte Kogge-Stone vs 376.94 Mops/s for binary (`__int128`) — the markdown table now surfaces Classic/Native/Binary columns and latency counters.
-- **Memory bandwidth**: `BM_MemoryBandwidth` records 5.40 GB/s of read/write streaming, and `BM_PackingDensity` asserts ~1.58 bits/trit theoretical density.
-- Run `./build/t81 benchmark` after arithmetic or weight changes to regenerate `docs/benchmarks.md`, refresh the Classic/Native/Binary rows, and keep the README badges accurate.
-- The “T81 vs Q4_K_M vs BitNet b1.58” showcase now demonstrates the end-to-end workflow: convert SafeTensors/GGUF → `.t81w`, quantize to T3_K, and compare `llama-cli` throughput (via `scripts/weights-benchmark.sh`) between the native T3_K file and a Q4_K_M baseline.
-- **Weight integration**: `t81 weights load` powers the new T81Lang `weights.load("<path>")` builtin, so HanoiVM code can hydrate `.t81w` models, inspect `WeightsModel` handles, and pass tensors through the same arithmetic pipeline that powers `t81 weights info`. See `docs/benchmarks.md` for the Classic/Native/Binary tables plus CLI workflow references.
-
-- `docs/onboarding.md` – curated flow for new C++ developers (clone/build/first bug) before diving into the rest.
-- `docs/guides/weights-integration.md` – walkthrough for the new `weights.load("<tensor>")` builtin, the `.t81w` CLI path, and links to the `examples/weights_load_demo.t81` sample that shows handle reuse.
-- `docs/release.md` – release/versioning policy and checklist for maintainers who ship tags.
-- `docs/ci.md` – explains how to reproduce CI/test suites locally and what GitHub Actions run.
-- `docs/benchmarks.md` – auto-generated benchmark table + analysis.
-- `docs/assets/...` – brand assets used in this README.
-- `docs/system-status.md` and `docs/guides/` for narrative walkthroughs.
-- Build/site preview with `cd docs && bundle exec jekyll serve`.
-
-## 5. Repository Layout
-
-| Path | Description |
-| --- | --- |
-| `/spec/` | Immutable project constitution (normative specs, RFCs). |
-| `/include/t81/` | Public C++ headers (`t81::v1`) including the new weights/crypto helpers. |
-| `/src/` | Implementation: compiler, VM, weights tooling, benchmarks, crypto helpers. |
-| `/tests/` | Unit + regression tests (do not remove coverage). |
-| `/benchmarks/` | Google Benchmark tables + the report runner. |
-| `/docs/` | Jekyll guides & generated benchmark report (`docs/benchmarks.md`). |
-| `/examples/` | T81 sample programs & demos. |
-
-## 6. Next Steps
-
-- Read `spec/index.md` (and linked specs such as `spec/t81lang-spec.md`, `spec/tisc-spec.md`, `spec/t81vm-spec.md`, `spec/t81-data-types.md`, `spec/axion-kernel.md`, `spec/canonfs-spec.md`) for the constitutional and interface-level definitions.
-- Follow `ARCHITECTURE.md` for how components glue together and consult `TASKS.md` + `ROADMAP.md` for current priorities.
-- Use `docs/onboarding.md` → `docs/cpp-quickstart.md` for the full newcomer flow, then dive into `docs/guides/` for targeted walkthroughs.
-- Reference `docs/release.md` before bumping versions and creating tags; keep `CHANGELOG.md` and spec RFCs (see `spec/rfcs/template.md`) in sync before merging.
-- Keep `docs/benchmarks.md` fresh by rerunning `./build/t81 benchmark` whenever arithmetic or weights tooling changes.
+Need help? `CLAUDE.md`, `ANALYSIS.md`, and `docs/system-status.md` document known limitations, investigative priorities, and current risks.

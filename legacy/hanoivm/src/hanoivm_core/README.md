@@ -219,7 +219,7 @@ cargo bench --bench promotion
 
 For deeper dives:
 
-- [T81 Analysis PDF](https://github.com/t81dev/t81-foundation/blob/main/docs/TYRNARY-T81Analysis.pdf)
+- [T81 Analysis PDF](https://github.com/t81dev/t81-foundation/blob/main/T81_State_of_Project_Dec_2025.md)
 - [Axion AI Docs](https://github.com/t81dev/axion-ai)
 
 ## Contributing
@@ -238,7 +238,7 @@ Guidelines:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](../../LICENSE) file for details.
 
 ## Acknowledgments
 

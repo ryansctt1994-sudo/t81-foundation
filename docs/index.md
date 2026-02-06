@@ -62,7 +62,7 @@ For contributors looking to modify the codebase, these resources provide detaile
 - **[Guide: VM Opcodes](./guides/vm-opcodes.md)**
   - The process for extending the virtual machine with new instructions.
 
-- **[C++ API Reference (Doxygen)](./api/html/index.html)**
+- **[C++ API overview](guides/public-api-overview.md)** – describes the canonical headers and the `t81::v1` surface; run `cmake --build build --target docs` to generate the Doxygen HTML under `build/api/html/index.html`.
   - Auto-generated, detailed reference for every class and method in the source code. *(Run `cmake --build build --target docs` to generate).*
 
 ______________________________________________________________________
