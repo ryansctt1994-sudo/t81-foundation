@@ -17,5 +17,7 @@ struct SyscallContext {
   std::vector<std::string_view> trace_reasons;
   std::size_t pc{0};
   t81::tisc::Opcode next_opcode{t81::tisc::Opcode::Nop};
+  std::size_t recursion_depth{0};
+  std::size_t instruction_count{0};
 };
 }  // namespace t81::axion

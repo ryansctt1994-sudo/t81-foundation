@@ -203,12 +203,43 @@ public:
         return from_double(std::sqrt(x));
     }
 
+    /**
+     * @brief Arc cosine of the value.
+     * @return T81Float in the range [0, pi], or NaE if input is out of range or NaE.
+     */
     [[nodiscard]] T81Float acos() const noexcept {
         if (is_nae()) return *this;
         double x = to_double();
         if (x < -1.0) x = -1.0;
         if (x >  1.0) x =  1.0;
         return from_double(std::acos(x));
+    }
+
+    /**
+     * @brief Exponential function e^x.
+     */
+    [[nodiscard]] T81Float exp() const noexcept {
+        if (is_nae()) return *this;
+        return from_double(std::exp(to_double()));
+    }
+
+    /**
+     * @brief Natural logarithm ln(x).
+     * @return ln(x) or NaE if x <= 0.
+     */
+    [[nodiscard]] T81Float log() const noexcept {
+        if (is_nae()) return *this;
+        const double x = to_double();
+        if (x <= 0.0) return nae();
+        return from_double(std::log(x));
+    }
+
+    /**
+     * @brief Power function x^exponent.
+     */
+    [[nodiscard]] T81Float pow(T81Float exponent) const noexcept {
+        if (is_nae() || exponent.is_nae()) return nae();
+        return from_double(std::pow(to_double(), exponent.to_double()));
     }
 
     // ---------------------------------------------------------------------

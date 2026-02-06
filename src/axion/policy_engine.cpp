@@ -31,6 +31,18 @@ Verdict PolicyEngine::evaluate(const SyscallContext& ctx) {
   if (!policy_) {
     return Verdict{VerdictKind::Allow, "Axion policy engine (no policy)"};
   }
+  if (policy_->max_instructions && ctx.instruction_count > static_cast<std::size_t>(*policy_->max_instructions)) {
+    std::ostringstream reason;
+    reason << "Instruction count limit exceeded: count=" << ctx.instruction_count
+           << " limit=" << *policy_->max_instructions;
+    return Verdict{VerdictKind::Deny, reason.str()};
+  }
+  if (policy_->max_recursion && ctx.recursion_depth > static_cast<std::size_t>(*policy_->max_recursion)) {
+    std::ostringstream reason;
+    reason << "Recursion depth limit exceeded: depth=" << ctx.recursion_depth
+           << " limit=" << *policy_->max_recursion;
+    return Verdict{VerdictKind::Deny, reason.str()};
+  }
   for (const auto& req : loop_requirements_) {
     if (!loop_hint_satisfied(ctx, *req.hint)) {
       std::ostringstream reason;

@@ -75,6 +75,7 @@ public:
 // ======================================================================
 class EntropyPool {
     alignas(64) std::atomic<uint64_t> counter_{0};
+    static inline uint64_t seed_{0x517cc1b727220a95ULL};
 
     static T81Entropy::Raw hardware_trng() noexcept;
 
@@ -82,6 +83,10 @@ public:
     static EntropyPool& global() noexcept {
         static EntropyPool pool;
         return pool;
+    }
+
+    static void seed(uint64_t s) noexcept {
+        seed_ = s;
     }
 
     T81Entropy acquire(T81Symbol requester = T81Symbol::intern("KERNEL")) noexcept {
@@ -92,11 +97,10 @@ public:
 };
 
 inline T81Entropy::Raw EntropyPool::hardware_trng() noexcept {
-    static uint64_t x = 0x517cc1b727220a95ULL;
-    x ^= x << 13;
-    x ^= x >> 7;
-    x ^= x << 17;
-    return T81Int<81>(static_cast<std::int64_t>(x));
+    seed_ ^= seed_ << 13;
+    seed_ ^= seed_ >> 7;
+    seed_ ^= seed_ << 17;
+    return T81Int<81>(static_cast<std::int64_t>(seed_));
 }
 
 inline T81Entropy acquire_entropy(T81Symbol who = T81Symbol::intern("KERNEL")) {

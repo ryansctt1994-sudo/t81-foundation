@@ -12,6 +12,7 @@ std::string trap_to_string(t81::vm::Trap trap) {
         case Trap::BoundsFault: return "BoundsFault";
         case Trap::SecurityFault: return "SecurityFault";
         case Trap::TrapInstruction: return "TrapInstruction";
+        case t81::vm::Trap::StackFault: return "StackFault";
     }
     return "UnknownTrap";
 }

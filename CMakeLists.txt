@@ -465,6 +465,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(t81_native_arith_test tests/cpp/test_t81_native_arith.cpp)
   target_link_libraries(t81_native_arith_test PRIVATE t81_core)
 
+  add_executable(t81_bigint_v1_baseline_test tests/cpp/test_bigint_v1_baseline.cpp)
+  target_link_libraries(t81_bigint_v1_baseline_test PRIVATE t81_core)
+
   enable_testing()
   set(T81_TEST_TARGETS
     t81_float_test
@@ -531,6 +534,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_limb_mul_wide_high_test
     t81_limb_add_test
     t81_native_arith_test
+    t81_bigint_v1_baseline_test
     t81_limb54_add_test
     t81_limb54_booth_mul_test
     t81_frontend_lexer_test
