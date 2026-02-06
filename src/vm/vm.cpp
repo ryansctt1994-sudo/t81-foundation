@@ -83,6 +83,7 @@ class Interpreter : public IVirtualMachine {
     state_.policy.reset();
     state_.gc_cycles = 0;
     instructions_since_gc_ = 0;
+    instruction_count_ = 0;
     if (!program_.axion_policy_text.empty()) {
       auto policy = t81::axion::parse_policy(program_.axion_policy_text);
       if (policy.has_value()) {
@@ -137,6 +138,7 @@ class Interpreter : public IVirtualMachine {
 
     const std::size_t current_pc = state_.pc++;
     const auto& insn = program_.insns[current_pc];
+    instruction_count_++;
 
     // Evaluate Axion policy before every instruction.
     auto verdict = eval_axion_call("step", current_pc, insn.opcode);
@@ -187,23 +189,29 @@ class Interpreter : public IVirtualMachine {
       state_.flags.negative = (v < 0);
       state_.flags.positive = (v > 0);
     };
-    auto push_stack = [this](std::int64_t value, ValueTag tag) -> std::optional<std::size_t> {
+    auto push_stack = [this, current_pc](std::int64_t value, ValueTag tag) -> std::optional<std::size_t> {
       const auto& stack = state_.layout.stack;
-      if (!stack.valid()) return false;
-      if (state_.sp <= stack.start) return false;
-      --state_.sp;
-      if (!stack.contains(static_cast<std::size_t>(state_.sp))) {
-        ++state_.sp;
-        return false;
+      if (!stack.valid()) return std::nullopt;
+      if (state_.sp <= stack.start) return std::nullopt;
+
+      std::size_t new_sp = state_.sp - 1;
+      if (!stack.contains(new_sp)) {
+        return std::nullopt;
       }
+      if (state_.policy && state_.policy->max_stack &&
+          static_cast<std::int64_t>(stack.limit - new_sp) > *state_.policy->max_stack) {
+        return std::nullopt;
+      }
+
+      state_.sp = new_sp;
       state_.memory[state_.sp] = value;
       state_.memory_tags[state_.sp] = tag;
       return static_cast<std::size_t>(state_.sp);
     };
     auto pop_stack = [this](std::int64_t& value, ValueTag& tag) -> std::optional<std::size_t> {
       const auto& stack = state_.layout.stack;
-      if (!stack.valid()) return false;
-      if (state_.sp >= stack.limit) return false;
+      if (!stack.valid()) return std::nullopt;
+      if (state_.sp >= stack.limit) return std::nullopt;
       std::size_t addr = state_.sp;
       value = state_.memory[addr];
       tag = state_.memory_tags[addr];
@@ -475,10 +483,10 @@ class Interpreter : public IVirtualMachine {
         update_flags(state_.registers[insn.a]);
         break;
       case t81::tisc::Opcode::Load: {
-        if (!reg_ok(insn.a)) { trap = Trap::InvalidMemory; break; }
+        if (!reg_ok(insn.a)) { trap = Trap::IllegalInstruction; break; }
         if (!mem_ok(insn.b)) {
-          log_bounds_fault(insn.opcode, insn.b, "memory load");
-          trap = Trap::InvalidMemory;
+          log_bounds_fault(insn.opcode, segment_for_address(static_cast<std::size_t>(insn.b)), insn.b, "memory load");
+          trap = Trap::BoundsFault;
           break;
         }
         std::size_t addr = static_cast<std::size_t>(insn.b);
@@ -501,10 +509,10 @@ class Interpreter : public IVirtualMachine {
         break;
       }
       case t81::tisc::Opcode::Store: {
-        if (!reg_ok(insn.b)) { trap = Trap::InvalidMemory; break; }
+        if (!reg_ok(insn.b)) { trap = Trap::IllegalInstruction; break; }
         if (!mem_ok(insn.a)) {
-          log_bounds_fault(insn.opcode, insn.a, "memory store");
-          trap = Trap::InvalidMemory;
+          log_bounds_fault(insn.opcode, segment_for_address(static_cast<std::size_t>(insn.a)), insn.a, "memory store");
+          trap = Trap::BoundsFault;
           break;
         }
         std::size_t addr = static_cast<std::size_t>(insn.a);
@@ -627,7 +635,11 @@ class Interpreter : public IVirtualMachine {
       case t81::tisc::Opcode::Push: {
         if (!reg_ok(insn.a)) { trap = Trap::IllegalInstruction; break; }
         auto addr_opt = push_stack(state_.registers[insn.a], state_.register_tags[insn.a]);
-        if (!addr_opt.has_value()) { trap = Trap::BoundsFault; break; }
+        if (!addr_opt.has_value()) {
+          log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(state_.sp), "stack push");
+          trap = Trap::StackFault;
+          break;
+        }
         log_memory_segment_access(insn.opcode, MemorySegmentKind::Stack, *addr_opt, 1, "stack push");
         break;
       }
@@ -635,7 +647,11 @@ class Interpreter : public IVirtualMachine {
         if (!reg_ok(insn.a)) { trap = Trap::IllegalInstruction; break; }
         ValueTag tag = ValueTag::Int;
         auto addr_opt = pop_stack(state_.registers[insn.a], tag);
-        if (!addr_opt.has_value()) { trap = Trap::BoundsFault; break; }
+        if (!addr_opt.has_value()) {
+          log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(state_.sp), "stack pop");
+          trap = Trap::StackFault;
+          break;
+        }
         state_.register_tags[insn.a] = tag;
         update_flags(state_.registers[insn.a]);
         log_memory_segment_access(insn.opcode, MemorySegmentKind::Stack, *addr_opt, 1, "stack pop");
@@ -651,14 +667,21 @@ class Interpreter : public IVirtualMachine {
         if (size > available) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Stack,
                            static_cast<int>(state_.sp), "stack frame allocate");
-          trap = Trap::BoundsFault;
+          trap = Trap::StackFault;
           break;
         }
         std::size_t new_sp = state_.sp - size;
         if (new_sp < stack.start) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Stack,
                            static_cast<int>(new_sp), "stack frame allocate");
-          trap = Trap::BoundsFault;
+          trap = Trap::StackFault;
+          break;
+        }
+        if (state_.policy && state_.policy->max_stack &&
+            static_cast<std::int64_t>(stack.limit - new_sp) > *state_.policy->max_stack) {
+          log_bounds_fault(insn.opcode, MemorySegmentKind::Stack,
+                           static_cast<int>(new_sp), "stack frame allocate");
+          trap = Trap::StackFault;
           break;
         }
         std::int64_t addr = static_cast<std::int64_t>(new_sp);
@@ -679,7 +702,7 @@ class Interpreter : public IVirtualMachine {
         if (state_.stack_frames.empty()) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Stack,
                            static_cast<int>(state_.sp), "stack frame free");
-          trap = Trap::BoundsFault;
+          trap = Trap::StackFault;
           break;
         }
         std::size_t size = static_cast<std::size_t>(insn.b);
@@ -1300,6 +1323,8 @@ class Interpreter : public IVirtualMachine {
     ctx.syscall.assign(syscall);
     ctx.pc = pc;
     ctx.next_opcode = opcode;
+    ctx.instruction_count = instruction_count_;
+    ctx.recursion_depth = state_.stack_frames.size();
     ctx.policy = state_.policy ? &*state_.policy : nullptr;
     ctx.trace_reasons.reserve(state_.axion_log.size());
     for (const auto& entry : state_.axion_log) {
@@ -1342,7 +1367,12 @@ class Interpreter : public IVirtualMachine {
     t81::axion::Verdict verdict;
     verdict.kind = t81::axion::VerdictKind::Allow;
     std::ostringstream reason;
-    reason << action << " " << to_string(kind) << " addr=" << addr << " size=" << size;
+    reason << action << " " << to_string(kind) << " addr=" << addr;
+    if (kind == MemorySegmentKind::Stack || action.find("allocated") != std::string_view::npos) {
+        if (size > 1 || kind == MemorySegmentKind::Stack) {
+            reason << " size=" << size;
+        }
+    }
     verdict.reason = reason.str();
     record_axion_event(opcode, static_cast<std::int32_t>(kind), static_cast<std::int64_t>(addr),
                        verdict);
@@ -1459,6 +1489,7 @@ class Interpreter : public IVirtualMachine {
   std::unique_ptr<t81::axion::Engine> axion_engine_;
   static constexpr std::size_t kGcInterval = 64;
   std::size_t instructions_since_gc_{0};
+  std::size_t instruction_count_{0};
 };
 }  // namespace
 

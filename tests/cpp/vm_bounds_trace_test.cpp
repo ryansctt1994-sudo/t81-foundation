@@ -50,7 +50,7 @@ int main() {
     halt.opcode = t81::tisc::Opcode::Halt;
     stack_program.push_back(halt);
   }
-  if (run_and_expect(stack_program, t81::vm::Trap::BoundsFault, "bounds fault segment=stack") != 0) {
+  if (run_and_expect(stack_program, t81::vm::Trap::StackFault, "bounds fault segment=stack") != 0) {
     return 1;
   }
 

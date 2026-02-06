@@ -9,5 +9,6 @@ enum class Trap {
   BoundsFault,
   SecurityFault,
   TrapInstruction,
+  StackFault,
 };
 }  // namespace t81::vm

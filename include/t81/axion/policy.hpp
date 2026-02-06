@@ -39,6 +39,8 @@ struct Policy {
 
   int tier{1};
   std::optional<int64_t> max_stack;
+  std::optional<int64_t> max_instructions;
+  std::optional<int64_t> max_recursion;
   std::vector<LoopHint> loops;
   std::vector<MatchGuardRequirement> match_guards;
   std::vector<SegmentEventRequirement> segment_requirements;
@@ -149,6 +151,30 @@ inline t81::expected<Policy, std::string> parse_policy(std::string_view text) {
         return make_error("tier requires integer");
       }
       policy.tier = static_cast<int>(val.value);
+      tok = lex.next();
+      if (tok.kind != detail::PolicyToken::Kind::RParen) {
+        return make_error("expected ')'");
+      }
+      continue;
+    }
+    if (key.text == "max-instructions") {
+      auto val = lex.next();
+      if (val.kind != detail::PolicyToken::Kind::Integer) {
+        return make_error("max-instructions requires integer");
+      }
+      policy.max_instructions = val.value;
+      tok = lex.next();
+      if (tok.kind != detail::PolicyToken::Kind::RParen) {
+        return make_error("expected ')'");
+      }
+      continue;
+    }
+    if (key.text == "max-recursion") {
+      auto val = lex.next();
+      if (val.kind != detail::PolicyToken::Kind::Integer) {
+        return make_error("max-recursion requires integer");
+      }
+      policy.max_recursion = val.value;
       tok = lex.next();
       if (tok.kind != detail::PolicyToken::Kind::RParen) {
         return make_error("expected ')'");

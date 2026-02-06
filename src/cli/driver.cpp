@@ -33,6 +33,7 @@ std::string to_string(Trap trap) {
         case Trap::BoundsFault: return "BoundsFault";
         case Trap::SecurityFault: return "SecurityFault";
         case Trap::TrapInstruction: return "TrapInstruction";
+        case Trap::StackFault: return "StackFault";
     }
     return "UnknownTrap";
 }

@@ -48,6 +48,13 @@ std::function<AxionVerdict(OpKind, const CanonRef&)> make_axion_policy_hook(
            << " action=" << action_to_string(kind);
     auto reason_str = reason.str();
     push_reason(reason_str);
+
+    // Also push a generic axion event reason as per requirement
+    std::ostringstream generic_reason;
+    generic_reason << "axion event segment=meta addr=" << (g_meta_ptr - 1)
+                   << " action=" << action_to_string(kind);
+    push_reason(generic_reason.str());
+
     if (!engine) {
       return AxionVerdict{true, reason_str};
     }

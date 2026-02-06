@@ -31,9 +31,11 @@ private:
     clock::time_point tp_;
     T81Symbol         event_id_;
 
+    static inline std::optional<clock::time_point> deterministic_override_;
+
 public:
     T81Time()
-        : tp_(clock::now())
+        : tp_(deterministic_override_.value_or(clock::now()))
         , event_id_(T81Symbol::intern("TIME_EVENT")) {}
 
     explicit T81Time(clock::time_point tp,
@@ -43,7 +45,11 @@ public:
 
     [[nodiscard]] static T81Time now(
         T81Symbol id = T81Symbol::intern("TIME_EVENT")) {
-        return T81Time(clock::now(), id);
+        return T81Time(deterministic_override_.value_or(clock::now()), id);
+    }
+
+    static void set_deterministic_time(clock::time_point tp) {
+        deterministic_override_ = tp;
     }
 
     [[nodiscard]] duration since(const T81Time& other) const noexcept {
