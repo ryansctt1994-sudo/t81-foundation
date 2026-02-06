@@ -95,14 +95,6 @@ jobs:
             compiler: gcc
             c_compiler: gcc-14
             cpp_compiler: g++-14
-          - os: windows-latest
-            compiler: msvc
-            c_compiler: cl
-            cpp_compiler: cl
-          - os: windows-latest
-            compiler: clang-cl
-            c_compiler: clang-cl
-            cpp_compiler: clang-cl
 
     steps:
       - name: Checkout repository

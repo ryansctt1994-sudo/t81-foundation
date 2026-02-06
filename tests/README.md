@@ -8,4 +8,4 @@
 
 ## Contribution reminders
 - When expanding tests, keep Axion logs and canonical artifacts (like `docs/benchmarks.md` entries) updated so the CI trace readers remain reproducible.
-- Consult `AGENTS.md` for the required build/test commands and rerun `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release`, `cmake --build build --parallel`, and `ctest --test-dir build --output-on-failure` after touching this directory.
+- Consult [`AGENTS.md`](../AGENTS.md) for the required build/test commands and rerun `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release`, `cmake --build build --parallel`, and `ctest --test-dir build --output-on-failure` after touching this directory.
