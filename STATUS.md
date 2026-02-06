@@ -1,9 +1,9 @@
 
-#T81 Foundation – State of the Project, February 2026
+# T81 Foundation – Project Status, February 2026
 
 ***
 
-**Document Status:** Final  
+**Document Status:** Current
 **Date:** 06 February 2026  
 **Author:** The T81 Foundation  
 **Primary Audience:** Staff+ C++ performance engineers, AI researchers working on reproducible inference, strategic sponsors and grant reviewers
