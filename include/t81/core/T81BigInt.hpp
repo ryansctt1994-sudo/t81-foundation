@@ -47,13 +47,12 @@ private:
             return;
         }
 
-        // For the current implementation we enforce exactly one limb,
-        // and keep the sign separately.
-        if (limbs_.size() > 1) {
-            throw std::logic_error("T81BigInt: multi-limb state not supported yet");
+        // Trim leading zero limbs (except the first one if it's the only one)
+        while (limbs_.size() > 1 && limbs_.back().is_zero()) {
+            limbs_.pop_back();
         }
 
-        if (limbs_[0].is_zero()) {
+        if (limbs_.size() == 1 && limbs_[0].is_zero()) {
             negative_ = false;
         }
     }
@@ -117,22 +116,23 @@ public:
         if (limbs_.empty()) {
             throw std::logic_error("T81BigInt::to_int64: no limbs");
         }
-        if (limbs_.size() != 1) {
+        if (limbs_.size() > 1) {
             throw std::overflow_error("T81BigInt::to_int64: value too large");
         }
 
         const std::int64_t mag = limbs_[0].to_int64(); // magnitude
         if (mag < 0) {
-            throw std::logic_error("T81BigInt::to_int64: negative magnitude limb");
+            // This can happen if the limb was constructed from a negative int64
+            // but we want magnitude. Actually assign_from_int64 handles this.
+            if (mag == std::numeric_limits<std::int64_t>::min()) {
+                 // abs(min) still fits in 81 trits but not in int64_t magnitude.
+                 throw std::overflow_error("T81BigInt::to_int64: magnitude overflow");
+            }
+            return negative_ ? mag : -mag; // should not reach here if normalize is correct
         }
 
         if (!negative_) {
             return mag;
-        }
-
-        // Check for -mag overflow (it cannot, since mag >= 0 and fits in int64_t).
-        if (mag == std::numeric_limits<std::int64_t>::min()) {
-            throw std::overflow_error("T81BigInt::to_int64: negative overflow");
         }
 
         return -mag;
@@ -156,40 +156,29 @@ public:
         return r;
     }
 
-    // Balanced-ternary string representation of the current int64 domain.
+    // Balanced-ternary string representation.
     // Digits: '-', '0', '+'
     [[nodiscard]] std::string str() const {
         if (is_zero()) {
             return "0";
         }
 
-        std::int64_t v = to_int64();
-        const bool is_neg = v < 0;
-        if (is_neg) {
-            v = -v;
-        }
-
         std::string s;
-        while (v != 0) {
-            std::int64_t r = v % 3;
-            v /= 3;
-
-            // Map {0,1,2} → {0,+,-} with balanced adjustment.
-            if (r == 2) {
-                r = -1;
-                ++v;
+        for (size_t i = 0; i < limbs_.size(); ++i) {
+            for (size_t t = 0; t < kLimbTrits; ++t) {
+                Trit tr = limbs_[i][t];
+                // Magnitude trits are always non-negative in our canonical form
+                // after addition/subtraction adjustment.
+                if (tr == Trit::P) s.push_back('+');
+                else if (tr == Trit::N) s.push_back('-');
+                else s.push_back('0');
             }
-
-            char c = '0';
-            if (r == 1) {
-                c = '+';
-            } else if (r == -1) {
-                c = '-';
-            }
-            s.push_back(c);
         }
 
-        if (is_neg) {
+        // Trim leading zeros (at the end of the string before reverse)
+        while (s.size() > 1 && s.back() == '0') s.pop_back();
+
+        if (negative_) {
             s.push_back('-');
         }
 
@@ -198,8 +187,19 @@ public:
     }
 
     // ------------------------------------------------------------------
-    // Comparison (int64-backed)
+    // Comparison (multi-limb balanced ternary)
     // ------------------------------------------------------------------
+
+    static int compare_magnitudes(const std::vector<Limb>& a, const std::vector<Limb>& b) {
+        if (a.size() != b.size()) {
+            return (a.size() < b.size()) ? -1 : 1;
+        }
+        for (size_t i = a.size(); i-- > 0; ) {
+            if (a[i] < b[i]) return -1;
+            if (a[i] > b[i]) return 1;
+        }
+        return 0;
+    }
 
     [[nodiscard]] bool operator==(const T81BigInt& other) const {
         if (is_zero() && other.is_zero()) {
@@ -213,9 +213,15 @@ public:
     }
 
     [[nodiscard]] bool operator<(const T81BigInt& other) const {
-        const std::int64_t a = to_int64();
-        const std::int64_t b = other.to_int64();
-        return a < b;
+        if (negative_ != other.negative_) {
+            return negative_;
+        }
+        if (is_zero()) return !other.is_zero() && !other.negative_;
+        if (other.is_zero()) return negative_;
+
+        int cmp = compare_magnitudes(limbs_, other.limbs_);
+        if (negative_) return cmp > 0;
+        return cmp < 0;
     }
 
     [[nodiscard]] bool operator>(const T81BigInt& other) const {
@@ -231,55 +237,123 @@ public:
     }
 
     // ------------------------------------------------------------------
-    // Arithmetic (int64-backed with overflow checks)
+    // Arithmetic (multi-limb balanced ternary)
     // ------------------------------------------------------------------
 
     friend T81BigInt operator+(const T81BigInt& a, const T81BigInt& b) {
-        const std::int64_t av = a.to_int64();
-        const std::int64_t bv = b.to_int64();
+        T81BigInt res;
+        res.limbs_.clear();
 
-        // Overflow-checked addition
-        if ((bv > 0 && av > std::numeric_limits<std::int64_t>::max() - bv) ||
-            (bv < 0 && av < std::numeric_limits<std::int64_t>::min() - bv)) {
-            throw std::overflow_error("T81BigInt::operator+: overflow");
+        const size_t n = std::max(a.limbs_.size(), b.limbs_.size());
+        int carry = 0;
+        for (size_t i = 0; i < n || carry != 0; ++i) {
+            Limb r;
+            for (size_t t = 0; t < kLimbTrits; ++t) {
+                int va = 0;
+                if (i < a.limbs_.size()) {
+                    va = trit_to_int(a.limbs_[i][t]);
+                    if (a.negative_) va = -va;
+                }
+                int vb = 0;
+                if (i < b.limbs_.size()) {
+                    vb = trit_to_int(b.limbs_[i][t]);
+                    if (b.negative_) vb = -vb;
+                }
+                int sum = va + vb + carry;
+                int digit = (sum > 1) ? sum - 3 : (sum < -1) ? sum + 3 : sum;
+                carry = (sum > 1) ? 1 : (sum < -1) ? -1 : 0;
+                r[t] = int_to_trit(digit);
+            }
+            res.limbs_.push_back(r);
         }
 
-        return T81BigInt(av + bv);
+        // Determine sign from most significant non-zero trit
+        Trit s = Trit::Z;
+        for (size_t i = res.limbs_.size(); i-- > 0; ) {
+            s = res.limbs_[i].sign_trit();
+            if (s != Trit::Z) break;
+        }
+
+        if (s == Trit::N) {
+            res.negative_ = true;
+            // Negate to store positive magnitude
+            int carry_neg = 0;
+            for (size_t i = 0; i < res.limbs_.size(); ++i) {
+                for (size_t t = 0; t < kLimbTrits; ++t) {
+                    int v = trit_to_int(res.limbs_[i][t]);
+                    int val = -v + carry_neg;
+                    int digit = (val > 1) ? val - 3 : (val < -1) ? val + 3 : val;
+                    carry_neg = (val > 1) ? 1 : (val < -1) ? -1 : 0;
+                    res.limbs_[i][t] = int_to_trit(digit);
+                }
+            }
+        } else {
+            res.negative_ = false;
+        }
+
+        res.normalize();
+        return res;
     }
 
     friend T81BigInt operator-(const T81BigInt& a, const T81BigInt& b) {
-        const std::int64_t av = a.to_int64();
-        const std::int64_t bv = b.to_int64();
-
-        // Overflow-checked subtraction
-        if ((bv < 0 && av > std::numeric_limits<std::int64_t>::max() + bv) ||
-            (bv > 0 && av < std::numeric_limits<std::int64_t>::min() + bv)) {
-            throw std::overflow_error("T81BigInt::operator-: overflow");
-        }
-
-        return T81BigInt(av - bv);
+        T81BigInt neg_b = b;
+        if (!b.is_zero()) neg_b.negative_ = !b.negative_;
+        return a + neg_b;
     }
 
     friend T81BigInt operator*(const T81BigInt& a, const T81BigInt& b) {
-        const std::int64_t av = a.to_int64();
-        const std::int64_t bv = b.to_int64();
+        if (a.is_zero() || b.is_zero()) return T81BigInt::zero();
 
-        // Overflow-checked multiplication using 128-bit intermediate where available.
-#if defined(__GNUC__) || defined(__clang__)
-        __int128 prod = static_cast<__int128>(av) * static_cast<__int128>(bv);
-        if (prod > std::numeric_limits<std::int64_t>::max() ||
-            prod < std::numeric_limits<std::int64_t>::min()) {
-            throw std::overflow_error("T81BigInt::operator*: overflow");
+        // Multi-limb schoolbook multiplication for balanced ternary
+        T81BigInt res;
+        res.limbs_.resize(a.limbs_.size() + b.limbs_.size(), Limb(0));
+
+        // Temporarily ignore signs and multiply magnitudes, but we use the sign-aware trits.
+        // Actually, easiest to just do it like standard schoolbook.
+        // For simplicity, we can convert trits to absolute and then apply sign.
+
+        for (size_t i = 0; i < a.limbs_.size(); ++i) {
+            for (size_t it = 0; it < kLimbTrits; ++it) {
+                Trit ta = a.limbs_[i][it];
+                if (ta == Trit::Z) continue;
+
+                for (size_t j = 0; j < b.limbs_.size(); ++j) {
+                    for (size_t jt = 0; jt < kLimbTrits; ++jt) {
+                        Trit tb = b.limbs_[j][jt];
+                        if (tb == Trit::Z) continue;
+
+                        // Product of two trits
+                        Trit prod = (ta == tb) ? Trit::P : Trit::N;
+
+                        // Add this to res at position (i*81 + it) + (j*81 + jt)
+                        size_t pos = (i + j) * kLimbTrits + it + jt;
+                        size_t limb_idx = pos / kLimbTrits;
+                        size_t trit_idx = pos % kLimbTrits;
+
+                        // Addition with carry propagation
+                        int carry = trit_to_int(prod);
+                        while (carry != 0) {
+                            if (limb_idx >= res.limbs_.size()) res.limbs_.emplace_back(0);
+                            int val = trit_to_int(res.limbs_[limb_idx][trit_idx]) + carry;
+                            int digit = (val > 1) ? val - 3 : (val < -1) ? val + 3 : val;
+                            carry = (val > 1) ? 1 : (val < -1) ? -1 : 0;
+                            res.limbs_[limb_idx][trit_idx] = int_to_trit(digit);
+
+                            trit_idx++;
+                            if (trit_idx >= kLimbTrits) {
+                                trit_idx = 0;
+                                limb_idx++;
+                            }
+                        }
+                    }
+                }
+            }
         }
-        return T81BigInt(static_cast<std::int64_t>(prod));
-#else
-        // Fallback: conservative check via division where possible.
-        if (av != 0 && (bv > std::numeric_limits<std::int64_t>::max() / av ||
-                        bv < std::numeric_limits<std::int64_t>::min() / av)) {
-            throw std::overflow_error("T81BigInt::operator*: overflow");
-        }
-        return T81BigInt(av * bv);
-#endif
+
+        res.negative_ = (a.negative_ != b.negative_);
+
+        res.normalize();
+        return res;
     }
 
     T81BigInt& operator+=(const T81BigInt& rhs) {

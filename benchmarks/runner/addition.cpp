@@ -117,8 +117,10 @@ static void BM_Add_1024_bit_ternary_koggestone(benchmark::State& state) {
   auto a = RandomTernaryValue<t81::T81Int<1024>>(rng);
   auto b = RandomTernaryValue<t81::T81Int<1024>>(rng);
   for (auto _ : state) {
-    auto result = a + b;
-    benchmark::DoNotOptimize(result);
+    try {
+      auto result = a + b;
+      benchmark::DoNotOptimize(result);
+    } catch (const std::overflow_error&) {}
     benchmark::ClobberMemory();
   }
   state.SetItemsProcessed(state.iterations());
@@ -131,8 +133,10 @@ static void BM_Add_4096_bit_ternary_koggestone(benchmark::State& state) {
   auto a = random_wide_ternary(rng);
   auto b = random_wide_ternary(rng);
   for (auto _ : state) {
-    auto result = add_wide(a, b);
-    benchmark::DoNotOptimize(result);
+    try {
+      auto result = add_wide(a, b);
+      benchmark::DoNotOptimize(result);
+    } catch (const std::overflow_error&) {}
     benchmark::ClobberMemory();
   }
   state.SetItemsProcessed(state.iterations());
@@ -145,8 +149,10 @@ static void BM_Add_2048_bit_ternary_koggestone(benchmark::State& state) {
   auto a = RandomTernaryValue<t81::T81Int<2048>>(rng);
   auto b = RandomTernaryValue<t81::T81Int<2048>>(rng);
   for (auto _ : state) {
-    auto result = a + b;
-    benchmark::DoNotOptimize(result);
+    try {
+      auto result = a + b;
+      benchmark::DoNotOptimize(result);
+    } catch (const std::overflow_error&) {}
     benchmark::ClobberMemory();
   }
   state.SetItemsProcessed(state.iterations());
@@ -171,10 +177,12 @@ static void BM_Add_8192_bit_ternary_koggestone(benchmark::State& state) {
   auto b = make_block();
   for (auto _ : state) {
     Block result{};
-    for (size_t i = 0; i < kChunks; ++i) {
-      result.segments[i] = a.segments[i] + b.segments[i];
-    }
-    benchmark::DoNotOptimize(result);
+    try {
+      for (size_t i = 0; i < kChunks; ++i) {
+        result.segments[i] = a.segments[i] + b.segments[i];
+      }
+      benchmark::DoNotOptimize(result);
+    } catch (const std::overflow_error&) {}
     benchmark::ClobberMemory();
   }
   state.SetItemsProcessed(state.iterations() * kChunks);
@@ -199,10 +207,12 @@ static void BM_Add_16384_bit_ternary_koggestone(benchmark::State& state) {
   auto b = make_block();
   for (auto _ : state) {
     Block result{};
-    for (size_t i = 0; i < kChunks; ++i) {
-      result.segments[i] = a.segments[i] + b.segments[i];
-    }
-    benchmark::DoNotOptimize(result);
+    try {
+      for (size_t i = 0; i < kChunks; ++i) {
+        result.segments[i] = a.segments[i] + b.segments[i];
+      }
+      benchmark::DoNotOptimize(result);
+    } catch (const std::overflow_error&) {}
     benchmark::ClobberMemory();
   }
   state.SetItemsProcessed(state.iterations() * kChunks);

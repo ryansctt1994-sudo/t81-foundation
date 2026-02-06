@@ -369,6 +369,39 @@ let result_text: Symbol = match (find_positive(my_value)) {
 };
 ```
 
+### Vector & Matrix Operations Example
+
+```t81
+fn process_vectors(a: Vector[T81Int], b: Vector[T81Int]) -> T81Int {
+    // Vectors support element-wise operations if they have compatible shapes
+    let sum = a + b;
+
+    // Dot product of two vectors
+    return contract(a, b);
+}
+
+fn matrix_transform(m: Matrix[T81Float], v: Vector[T81Float]) -> Vector[T81Float] {
+    // Matrix multiplication
+    return m * v;
+}
+```
+
+### Generic Type Example
+
+```t81
+// A generic container for any T81 type
+record Box[T] {
+    content: T,
+}
+
+fn open_box[T](b: Box[T]) -> T {
+    return b.content;
+}
+
+let int_box: Box[T81Int] = Box { content: 42 };
+let value: T81Int = open_box(int_box);
+```
+
 ### Record and Enum Example
 
 ```t81
@@ -452,6 +485,18 @@ fn large_stack_usage() {
     // and Axion max-stack policy.
     let data: Vector[T81Int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     // ... complex local state ...
+}
+```
+
+### Effectful Function Example
+
+```t81
+@effect
+fn log_and_calculate(x: T81Int) -> T81Int {
+    // Calling an intrinsic effectful function for logging
+    write_axion_log(`Calculating for value`, x);
+
+    return x * x;
 }
 ```
 

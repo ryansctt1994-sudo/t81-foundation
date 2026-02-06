@@ -21,8 +21,9 @@ class InMemoryKernel : public Kernel {
 
   Result<SnapshotRef> fork_snapshot(const SnapshotRef& base) override {
     if (!snapshots_.count(base.hash)) return Error::CanonMismatch;
-    // Derive a new hash deterministically; in this stub we reuse the same hash (no real fork hash).
-    SnapshotRef child{base.hash};
+    // Derive a new hash deterministically by hashing the base hash string plus a fork marker.
+    std::string fork_str = base.hash.h.to_string() + ".fork." + std::to_string(next_pid_);
+    SnapshotRef child{t81::canonfs::CanonHash{t81::hash::hash_string(fork_str)}};
     snapshots_[child.hash] = Snapshot{child};
     return child;
   }

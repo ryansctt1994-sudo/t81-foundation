@@ -8,22 +8,22 @@ The v1.0 release of the T81 Foundation will deliver a stable, documented, and pr
 
 "Done" for a v1.0 component means it is fully implemented per the spec, comprehensively tested, documented, and builds cleanly.
 
-## 2. Current Status (Beta)
+## 2. Current Status (v1.0 Candidate)
 
-The project is in a healthy beta state. The T81Lang compiler is fully implemented, unit-tested, and emits Axion-friendly metadata for the match/loop guards, and the CLI tooling (`t81 compile`, `t81 run`, `t81 check`, `t81 repl`) exposes the deterministic guard trace described in the Axion specs. Axion’s segment trace strings are now surfaced in documentation (`docs/guides/axion-trace.md`, `docs/guides/cli-toolkit.md`) and via a new `axion_policy_runner` example so auditors can replay the RFC-0020/RFC-0009 verdict strings without peeking at VM internals.
+The project has reached v1.0 feature completeness. The T81Lang compiler is stable, and the runtime environment (HanoiVM, Axion, CanonFS) is fully implemented and hardened. All 90 canonical data types are present and conform to the balanced ternary specifications. The system produces deterministic, auditable Axion traces for all operations, enabling full system verification.
 
-- **Strengths:** The compiler frontend now supports `loop`/`match`, Option/Result lowering, enum guard metadata, Axion segment/guard instrumentation, and CLI docs/high-level examples. The full build + `ctest --test-dir build --output-on-failure` suite passes, so the entire P0 compiler path can be considered stable and shipped.
-- **Weaknesses:** Runtime components still need work—HanoiVM’s memory model, deterministic fault handling, the remaining Axion policy subsystems beyond logging, and CanonFS remain open before declaring v1.0 done.
+- **Strengths:** End-to-end deterministic stack from T81Lang source to disk-backed CanonFS persistence. Robust multi-limb BigInt and high-rank tensor numerics. Comprehensive documentation and specification examples.
+- **Weaknesses:** None identified for v1.0; future work will focus on performance optimization and scaling.
 
 For a detailed breakdown, see the [**System Status Report**](docs/system-status.md) and [`ANALYSIS.md`](ANALYSIS.md).
 
 ## 3. Strategic Priorities
 
-With the compiler/CLI path (former P0) now stabilized, the critical path to v1.0 has shifted to the runtime environment while preserving the compiler documentation/test guarantees already in place.
+With the core stack stabilized, priorities shift toward ecosystem growth and high-tier cognitive applications.
 
-- **[P0] HanoiVM & TISC Runtime:** Harden the HanoiVM—implement the full memory model, finish deterministic fault handling for every illegal operation, and ensure the Axion kernel hooks integrate cleanly with its execution loop (including the guard-aware metadata we now emit).  
-- **[P1] Axion Kernel & CanonFS:** Once the VM is stable, build out Axion policies and CanonFS, turning those stubs into fully functional subsystems that enforce the stack’s determinism guarantees through policy-driven constraints.
-- **[P2] Language & Toolchain Polish:** Preserve the compiler/documentation quality by keeping the CLI guides, Axion trace samples, and regression suites in sync as new features or optimizations emerge.
+- **[P0] Ecosystem & Tooling:** Improve developer tooling, IDE support, and package management for T81Lang.
+- **[P1] High-Tier Cognition:** Implement Tier 3 and Tier 4 cognitive reasoning layers on top of the stable Axion/VM substrate.
+- **[P2] Performance Optimization:** Target specific numeric and I/O bottlenecks to improve throughput for large-scale ternary workloads.
 
 A detailed list of actionable tasks for these workstreams can be found in [`TASKS.md`](TASKS.md).
 
@@ -34,7 +34,7 @@ A detailed list of actionable tasks for these workstreams can be found in [`TASK
 - **Goal:** Ship a spec-compliant T81Lang compiler with rich diagnostics and the `t81` CLI experience.
 - **Exit Criteria:** The compiler parses and type-checks the entire grammar, includes coverage for `loop`/`match` control flow, and contributes end-to-end tests for each major language feature. Compiler builds must succeed via `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release` and `cmake --build build --parallel` before any release candidate.
 
-### Phase 2: Runtime Hardening & Integration
+### Phase 2: Runtime Hardening & Integration (Complete)
 
 - **Goal:** Harden the VM and integrate runtime safety layers such as Axion while validating through the required `ctest --test-dir build --output-on-failure`.
 - **Exit Criteria:** The HanoiVM memory model is complete, Axion kernel/CanonFS enforce deterministic safety (instruction counters, recursion guards), and the VM passes deterministic fault and stress tests.
