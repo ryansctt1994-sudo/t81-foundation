@@ -1,7 +1,6 @@
-# t81/hash — Base-81 & CanonHash stubs
+# t81/hash — Canonical Base-81 & CanonHash
 
-This directory provides a stable API surface for hashing/encoding so other
-modules can compile before the real codec is wired.
+This directory provides the canonical implementations for hashing and Base-81 encoding.
 
 ## Files
 
@@ -9,23 +8,20 @@ modules can compile before the real codec is wired.
 
   - `encode_base81(bytes) -> std::string`
   - `decode_base81(string) -> std::vector<uint8_t>`
-  - **Stub:** currently emits/accepts a `"b81:"` + hex fallback for determinism.
+  - Uses the canonical 81-character alphabet (0-9, A-Z, a-z, and 19 mathematical symbols).
 
 - `canonhash.hpp`
 
-  - `make_canonhash81_base81stub(void* data, size_t len) -> CanonHash81`
-  - **Stub:** encodes bytes via the Base-81 stub and truncates/pads to 81 bytes.
-    Replace with a real digest path (e.g., BLAKE3 -> Base-81) in production.
+  - `hash_bytes(data) -> CanonHash81`
+  - `hash_string(s) -> CanonHash81`
+  - Uses SHA3-512 truncated to 256 bits for the digest path.
 
-## Migration Notes
+## Design
 
-1. Keep the function signatures stable.
-2. When the real codec lands:
-   - Swap `encode_base81`/`decode_base81` with canonical Base-81.
-   - Update `make_canonhash81_base81stub` to compute a digest before encoding.
-3. `CanonHash81.text` remains a fixed 81-byte buffer (zero-padded).
+1. **Base-81 Encoding:** Deterministic and invertible; no whitespace or padding.
+2. **CanonHash81:** A 256-bit hash (32 bytes). Its string representation is a Base-81 encoded string of these bytes.
+3. **Compatibility:** Legacy "b81:" prefixes are no longer accepted.
 
 ## Safety
 
-These stubs are **non-cryptographic** and intended only for testing and wiring.
-Do not use in production or for security-sensitive features.
+The `CanonHash81` uses a cryptographically strong digest (SHA3), but the system's overall security depends on how these hashes are used and verified within the Axion kernel policies.

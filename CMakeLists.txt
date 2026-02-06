@@ -35,6 +35,7 @@ add_library(t81_core STATIC
   src/canonfs/axion_hook.cpp
   src/hanoi/error.cpp
   src/hanoi/in_memory_kernel.cpp        # ← fixed path
+  src/axion/axion_api.cpp
   src/axion/engine.cpp
   src/axion/policy_engine.cpp
   src/tools/weights.cpp

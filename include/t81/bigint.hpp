@@ -10,6 +10,7 @@
 #include <sstream>
 #include <unordered_map>
 #include "t81/config.hpp"
+#include "t81/codec/base243.hpp"
 
 namespace t81 {
 
@@ -288,9 +289,22 @@ public:
   std::string to_base81_string() const;
   static T81BigInt from_base81_string(std::string_view s);
 
-  // --- Serialization ---
-  void serialize(std::ostream& os) const;
-  void deserialize(std::istream& is);
+  // --- Serialization (Rewired to use Base243) ---
+  void serialize(std::ostream& os) const {
+    std::string s = codec::Base243::encode_bigint(*this);
+    uint64_t len = s.size();
+    os.write(reinterpret_cast<const char*>(&len), sizeof(len));
+    os.write(s.data(), static_cast<std::streamsize>(len));
+  }
+  void deserialize(std::istream& is) {
+    uint64_t len;
+    is.read(reinterpret_cast<char*>(&len), sizeof(len));
+    std::string s(static_cast<size_t>(len), '\0');
+    is.read(s.data(), static_cast<std::streamsize>(len));
+    if (!codec::Base243::decode_bigint(s, *this)) {
+        throw std::runtime_error("BigInt deserialize failed: invalid Base243");
+    }
+  }
 
 private:
   Sign sign_{Sign::Zero};
@@ -523,27 +537,6 @@ inline T81BigInt T81BigInt::from_base81_string(std::string_view s) {
   return v;
 }
 
-inline void T81BigInt::serialize(std::ostream& os) const {
-    char sign_char = static_cast<char>(sign_);
-    os.write(&sign_char, sizeof(sign_char));
-    uint64_t size = d_.size();
-    os.write(reinterpret_cast<const char*>(&size), sizeof(size));
-    if (size > 0) {
-        os.write(reinterpret_cast<const char*>(d_.data()), size * sizeof(uint8_t));
-    }
-}
-
-inline void T81BigInt::deserialize(std::istream& is) {
-    char sign_char;
-    is.read(&sign_char, sizeof(sign_char));
-    sign_ = static_cast<Sign>(sign_char);
-    uint64_t size;
-    is.read(reinterpret_cast<char*>(&size), sizeof(size));
-    d_.resize(size);
-    if (size > 0) {
-        is.read(reinterpret_cast<char*>(d_.data()), size * sizeof(uint8_t));
-    }
-}
 
 // Legacy alias preserved for downstream code migrating from the old API.
 using T243BigInt = T81BigInt;
