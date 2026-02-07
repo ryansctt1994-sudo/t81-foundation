@@ -7,20 +7,20 @@
 #include <iostream>
 
 void test_addition() {
-    std::string source = "fn main() -> T81Int { return 20t81 + 22t81; }";
+    [[maybe_unused]] std::string source= "fn main() -> T81Int { return 20t81 + 22t81; }";
     t81::frontend::Lexer lexer(source);
     t81::frontend::Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
     assert(!parser.had_error() && "Parsing failed");
 
-    t81::frontend::IRGenerator generator;
-    auto ir_program = generator.generate(stmts);
+    [[maybe_unused]] t81::frontend::IRGenerator generator;
+    [[maybe_unused]] auto ir_program= generator.generate(stmts);
 
-    t81::tisc::BinaryEmitter emitter;
-    auto program = emitter.emit(ir_program);
+    [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
+    [[maybe_unused]] auto program= emitter.emit(ir_program);
 
-    auto vm = t81::vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
     vm->load_program(program);
     vm->run_to_halt();
 
@@ -30,20 +30,20 @@ void test_addition() {
 }
 
 void test_subtraction() {
-    std::string source = "fn main() -> T81Int { return 50t81 - 8t81; }";
+    [[maybe_unused]] std::string source= "fn main() -> T81Int { return 50t81 - 8t81; }";
     t81::frontend::Lexer lexer(source);
     t81::frontend::Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
     assert(!parser.had_error() && "Parsing failed");
 
-    t81::frontend::IRGenerator generator;
-    auto ir_program = generator.generate(stmts);
+    [[maybe_unused]] t81::frontend::IRGenerator generator;
+    [[maybe_unused]] auto ir_program= generator.generate(stmts);
 
-    t81::tisc::BinaryEmitter emitter;
-    auto program = emitter.emit(ir_program);
+    [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
+    [[maybe_unused]] auto program= emitter.emit(ir_program);
 
-    auto vm = t81::vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
     vm->load_program(program);
     vm->run_to_halt();
 
@@ -53,20 +53,20 @@ void test_subtraction() {
 }
 
 void test_multiplication() {
-    std::string source = "fn main() -> T81Int { return 6t81 * 7t81; }";
+    [[maybe_unused]] std::string source= "fn main() -> T81Int { return 6t81 * 7t81; }";
     t81::frontend::Lexer lexer(source);
     t81::frontend::Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
     assert(!parser.had_error() && "Parsing failed");
 
-    t81::frontend::IRGenerator generator;
-    auto ir_program = generator.generate(stmts);
+    [[maybe_unused]] t81::frontend::IRGenerator generator;
+    [[maybe_unused]] auto ir_program= generator.generate(stmts);
 
-    t81::tisc::BinaryEmitter emitter;
-    auto program = emitter.emit(ir_program);
+    [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
+    [[maybe_unused]] auto program= emitter.emit(ir_program);
 
-    auto vm = t81::vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
     vm->load_program(program);
     vm->run_to_halt();
 
@@ -76,20 +76,20 @@ void test_multiplication() {
 }
 
 void test_division() {
-    std::string source = "fn main() -> T81Int { return 84t81 / 2t81; }";
+    [[maybe_unused]] std::string source= "fn main() -> T81Int { return 84t81 / 2t81; }";
     t81::frontend::Lexer lexer(source);
     t81::frontend::Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
     assert(!parser.had_error() && "Parsing failed");
 
-    t81::frontend::IRGenerator generator;
-    auto ir_program = generator.generate(stmts);
+    [[maybe_unused]] t81::frontend::IRGenerator generator;
+    [[maybe_unused]] auto ir_program= generator.generate(stmts);
 
-    t81::tisc::BinaryEmitter emitter;
-    auto program = emitter.emit(ir_program);
+    [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
+    [[maybe_unused]] auto program= emitter.emit(ir_program);
 
-    auto vm = t81::vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
     vm->load_program(program);
     vm->run_to_halt();
 
@@ -103,5 +103,5 @@ int main() {
     test_subtraction();
     test_multiplication();
     test_division();
-    return 0;
+    [[maybe_unused]] return 0;
 }

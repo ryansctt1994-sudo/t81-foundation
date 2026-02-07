@@ -8,7 +8,7 @@
 #include <vector>
 
 int main() {
-    t81::tisc::Program program;
+    [[maybe_unused]] t81::tisc::Program program;
     program.tensor_pool.emplace_back(std::vector<int>{1}, std::vector<float>{1.0f});
     program.tensor_pool.emplace_back(std::vector<int>{1}, std::vector<float>{2.0f});
 
@@ -55,15 +55,15 @@ int main() {
 
     program.insns = {load_tensor0, load_tensor1, vec_add, load_addr, load_value, ax_set, ax_read, halt};
 
-    auto vm = t81::vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
     vm->load_program(program);
-    auto result = vm->run_to_halt();
+    [[maybe_unused]] auto result= vm->run_to_halt();
     assert(result.has_value());
 
-    bool saw_tensor = false;
-    bool saw_axread = false;
-    bool saw_axset = false;
-    bool saw_meta = false;
+    [[maybe_unused]] bool saw_tensor= false;
+    [[maybe_unused]] bool saw_axread= false;
+    [[maybe_unused]] bool saw_axset= false;
+    [[maybe_unused]] bool saw_meta= false;
     for (const auto& entry : vm->state().axion_log) {
         if (entry.verdict.reason.find("tensor slot allocated") != std::string::npos) {
             saw_tensor = true;
@@ -80,16 +80,11 @@ int main() {
             saw_meta = true;
         }
     }
-    assert(saw_tensor);
-    assert(saw_axread);
-    assert(saw_axset);
-    assert(saw_meta);
-
-    std::cout << "Axion segment trace snippet:\n";
+    assert(saw_tensor); assert(saw_axread); assert(saw_axset); assert(saw_meta); std::cout << "Axion segment trace snippet:\n";
     for (const auto& entry : vm->state().axion_log) {
         std::cout << "  opcode=" << static_cast<int>(entry.opcode)
                   << " reason=\"" << entry.verdict.reason << "\"\n";
     }
 
-    return 0;
+    [[maybe_unused]] return 0;
 }

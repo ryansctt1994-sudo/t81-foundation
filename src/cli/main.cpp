@@ -44,7 +44,6 @@ namespace fs = std::filesystem;
 #define XSTR(x) STR(x)
 
 constexpr const char* T81_VERSION      = "1.0.0-SOVEREIGN";
-constexpr const char* T81_BUILD_DATE   = __DATE__ " " __TIME__;
 constexpr const char* T81_FULL_VERSION = "T81 Foundation 1.0.0-SOVEREIGN (" __DATE__ " " __TIME__ ")";
 struct TempTiscFile {
     fs::path path;
@@ -264,7 +263,7 @@ std::shared_ptr<t81::weights::ModelFile> load_weights_model_optional(const std::
 
 int run_benchmark(const char* command_name, const Args& args) {
     auto exe_path = fs::path(command_name);
-    auto runner_path = find_benchmark_runner(exe_path);
+    [[maybe_unused]] [[maybe_unused]] auto runner_path = find_benchmark_runner(exe_path);
 
     if (!runner_path) {
         error("Could not locate benchmark_runner (looked next to the CLI and under ./build/benchmarks)");

@@ -8,20 +8,20 @@
 #include <vector>
 
 void test_let_statement_e2e() {
-    std::string source = "fn main() -> T81Int { let x: T81Int = 42; return x; }";
+    [[maybe_unused]] std::string source= "fn main() -> T81Int { let x: T81Int = 42; return x; }";
     t81::frontend::Lexer lexer(source);
     t81::frontend::Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
     assert(!parser.had_error() && "Parsing failed");
 
-    t81::frontend::IRGenerator generator;
-    auto ir_program = generator.generate(stmts);
+    [[maybe_unused]] t81::frontend::IRGenerator generator;
+    [[maybe_unused]] auto ir_program= generator.generate(stmts);
 
-    t81::tisc::BinaryEmitter emitter;
-    auto program = emitter.emit(ir_program);
+    [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
+    [[maybe_unused]] auto program= emitter.emit(ir_program);
 
-    auto vm = t81::vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
     vm->load_program(program);
     vm->run_to_halt();
 
@@ -33,5 +33,5 @@ void test_let_statement_e2e() {
 
 int main() {
     test_let_statement_e2e();
-    return 0;
+    [[maybe_unused]] return 0;
 }

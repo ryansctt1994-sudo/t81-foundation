@@ -22,7 +22,7 @@ int main() {
   B.data() = {7,8, 9,10, 11,12};
 
   // C = A·B -> 2x2
-  auto C = t81::ops::matmul(A, B);
+  [[maybe_unused]] auto C= t81::ops::matmul(A, B);
   assert(C.rank() == 2 && C.shape()[0] == 2 && C.shape()[1] == 2);
   const auto& cd = C.data();
   // Expected:
@@ -32,19 +32,17 @@ int main() {
   assert(cd[0] == 58 && cd[1] == 64 && cd[2] == 139 && cd[3] == 154);
 
   // Sanity: A·A^T -> 2x2
-  auto AT = t81::ops::transpose(A);
-  auto G = t81::ops::matmul(A, AT);
+  [[maybe_unused]] auto AT= t81::ops::transpose(A);
+  [[maybe_unused]] auto G= t81::ops::matmul(A, AT);
   const auto& gd = G.data();
   // [1 2 3]·[1 2 3] = 14 ; [4 5 6]·[4 5 6] = 77 ; off-diag = 32
   assert((gd == std::vector<float>{14, 32, 32, 77}));
 
   // Mismatch should throw
-  bool threw = false;
+  [[maybe_unused]] bool threw= false;
   try {
     (void)t81::ops::matmul(A, A); // 2x3 · 2x3 invalid
   } catch (const std::invalid_argument&) { threw = true; }
-  assert(threw);
-
-  std::cout << "tensor_matmul ok\n";
-  return 0;
+  assert(threw); std::cout << "tensor_matmul ok\n";
+  [[maybe_unused]] return 0;
 }

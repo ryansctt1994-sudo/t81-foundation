@@ -23,5 +23,5 @@ int main() {
     run_rejection_test("let x: Vector<T81Int> = 1;");
     run_rejection_test("fn foo(bar: Option<T81Float>) {}");
 
-    return 0;
+    [[maybe_unused]] return 0;
 }

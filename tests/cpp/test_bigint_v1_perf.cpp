@@ -15,18 +15,18 @@ int main() {
         b = b * b;
     }
 
-    auto start = std::chrono::high_resolution_clock::now();
+    [[maybe_unused]] auto start= std::chrono::high_resolution_clock::now();
 
     const int iterations = 10;
-    T81BigInt c;
+    [[maybe_unused]] T81BigInt c;
     for (int i = 0; i < iterations; ++i) {
         c = a * b;
     }
 
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> diff = end - start;
+    [[maybe_unused]] auto end= std::chrono::high_resolution_clock::now();
+    [[maybe_unused]] std::chrono::duration<double> diff= end - start;
 
     std::cout << "Time for " << iterations << " multiplications (dense): " << diff.count() << " s" << std::endl;
 
-    return 0;
+    [[maybe_unused]] return 0;
 }

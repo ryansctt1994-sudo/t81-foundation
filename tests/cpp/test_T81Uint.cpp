@@ -9,7 +9,7 @@ int main() {
     using U = T81UInt<28>;  // 28-trit unsigned integer (must be multiple of 4)
 
     // Construction
-    U zero;
+    [[maybe_unused]] U zero;
     U one(1);
     U large(100);
 
@@ -18,13 +18,13 @@ int main() {
     assert(large.to_signed().to_int64() == 100);
 
     // Arithmetic
-    U sum = one + one;
+    [[maybe_unused]] U sum= one + one;
     assert(sum.to_signed().to_int64() == 2);
 
-    U diff = U(5) - U(3);
+    [[maybe_unused]] U diff= U(5) - U(3);
     assert(diff.to_signed().to_int64() == 2);
 
-    U prod = U(3) * U(4);
+    [[maybe_unused]] U prod= U(3) * U(4);
     assert(prod.to_signed().to_int64() == 12);
 
     // Comparison
@@ -40,6 +40,5 @@ int main() {
     assert((a ^ b).to_signed().to_int64() == 6);
 
     // All T81Uint tests PASSED!
-    return 0;
+    [[maybe_unused]] return 0;
 }
-

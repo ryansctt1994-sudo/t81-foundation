@@ -230,6 +230,8 @@ inline std::string opcode_name(t81::tisc::Opcode opcode) {
         CASE(TSoftmax)
         CASE(TRMSNorm)
         CASE(TRoPE)
+        CASE(TVecMul)
+        CASE(TTranspose)
 #undef CASE
     }
     return "Opcode(" + std::to_string(static_cast<int>(opcode)) + ")";

@@ -16,13 +16,13 @@ void test_option_type_e2e() {
                 Some(x) => x,
                 None => 0
             };
-            return res;
+            [[maybe_unused]] return res;
         }
     )";
 
     t81::frontend::Lexer lexer(source);
     t81::frontend::Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
     assert(!parser.had_error() && "Parsing failed");
 
@@ -30,14 +30,14 @@ void test_option_type_e2e() {
     semantic_analyzer.analyze();
     assert(!semantic_analyzer.had_error() && "Semantic analysis failed");
 
-    t81::frontend::IRGenerator generator;
+    [[maybe_unused]] t81::frontend::IRGenerator generator;
     generator.attach_semantic_analyzer(&semantic_analyzer);
-    auto ir_program = generator.generate(stmts);
+    [[maybe_unused]] auto ir_program= generator.generate(stmts);
 
-    t81::tisc::BinaryEmitter emitter;
-    auto program = emitter.emit(ir_program);
+    [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
+    [[maybe_unused]] auto program= emitter.emit(ir_program);
 
-    auto vm = t81::vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
     vm->load_program(program);
     vm->run_to_halt();
 
@@ -48,5 +48,5 @@ void test_option_type_e2e() {
 
 int main() {
     test_option_type_e2e();
-    return 0;
+    [[maybe_unused]] return 0;
 }

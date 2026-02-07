@@ -9,7 +9,7 @@ int main() {
     // Running T81Maybe tests...
 
     // Default construction (nothing)
-    T81Maybe<T81Int<27>> nothing;
+    [[maybe_unused]] T81Maybe<T81Int<27>> nothing;
     assert(!nothing.has_value());
     assert(!static_cast<bool>(nothing));
 
@@ -24,31 +24,26 @@ int main() {
     assert(!explicit_nothing.has_value());
 
     // Nothing with reason
-    T81Symbol reason = T81Symbol::intern("test_reason");
-    T81Maybe<T81Int<27>> nothing_with_reason = T81Maybe<T81Int<27>>::nothing(reason);
-    (void)nothing_with_reason;
-    assert(!nothing_with_reason.has_value());
+    [[maybe_unused]] T81Symbol reason= T81Symbol::intern("test_reason");
+    [[maybe_unused]] T81Maybe<T81Int<27>> nothing_with_reason= T81Maybe<T81Int<27>>::nothing(reason);
+        assert(!nothing_with_reason.has_value());
 
     // Value or default
-    T81Int<27> val1 = something.value_or(T81Int<27>(999));
-    (void)val1;
-    assert(val1.to_int64() == 42);
+    [[maybe_unused]] T81Int<27> val1= something.value_or(T81Int<27>(999));
+        assert(val1.to_int64() == 42);
 
-    T81Int<27> val2 = nothing.value_or(T81Int<27>(999));
-    (void)val2;
-    assert(val2.to_int64() == 999);
+    [[maybe_unused]] T81Int<27> val2= nothing.value_or(T81Int<27>(999));
+        assert(val2.to_int64() == 999);
 
     // Map
-    auto doubled = something.map([](const T81Int<27>& x) { return x * T81Int<27>(2); });
-    (void)doubled;
-    assert(doubled.has_value());
+    [[maybe_unused]] auto doubled= something.map([](const T81Int<27>& x) { return x * T81Int<27>(2); });
+        assert(doubled.has_value());
     assert(doubled.value().to_int64() == 84);
 
-    auto mapped_nothing = nothing.map([](const T81Int<27>& x) { return x * T81Int<27>(2); });
-    (void)mapped_nothing;
-    assert(!mapped_nothing.has_value());
+    [[maybe_unused]] auto mapped_nothing= nothing.map([](const T81Int<27>& x) { return x * T81Int<27>(2); });
+        assert(!mapped_nothing.has_value());
 
     // All T81Maybe tests PASSED!
-    return 0;
+    [[maybe_unused]] return 0;
 }
 

@@ -12,7 +12,7 @@ int main() {
 
     // 1) Empty construction
     {
-        T81Bytes empty;
+        [[maybe_unused]] T81Bytes empty;
         assert(empty.empty());
         assert(empty.size() == 0);
         std::cout << "  [OK] Empty construction\n";
@@ -45,7 +45,7 @@ int main() {
         uint8_t data2[] = {0x05, 0x06};
         T81Bytes bytes1(data1);
         T81Bytes bytes2(data2);
-        T81Bytes combined = bytes1 + bytes2;
+        [[maybe_unused]] T81Bytes combined= bytes1 + bytes2;
 
         assert(combined.size() == 6);
         assert(combined[4] == 0x05);
@@ -59,17 +59,17 @@ int main() {
         T81Bytes bytes(raw);
 
         // slice(start=1, length=2) → indices 1 and 2 → values 0x02, 0x03
-        T81Bytes slice = bytes.slice(1, 2);
+        [[maybe_unused]] T81Bytes slice= bytes.slice(1, 2);
 
         assert(slice.size() == 2);      // ← THIS NOW PASSES
         assert(slice[0] == 0x02);
         assert(slice[1] == 0x03);
 
         // Bonus: test edge cases
-        T81Bytes whole = bytes.slice(0, bytes.size());
+        [[maybe_unused]] T81Bytes whole= bytes.slice(0, bytes.size());
         assert(whole.size() == 4);
 
-        T81Bytes empty_slice = bytes.slice(4, 0);
+        [[maybe_unused]] T81Bytes empty_slice= bytes.slice(4, 0);
         assert(empty_slice.empty());
 
         std::cout << "  [OK] Slicing (fixed!)\n";
@@ -80,7 +80,7 @@ int main() {
         uint8_t data[] = {0x01, 0x02, 0x03, 0x04};
         T81Bytes a(data);
         T81Bytes b(data);
-        T81Bytes c = {0x01, 0x02, 0x03, 0x05};
+        [[maybe_unused]] T81Bytes c= {0x01, 0x02, 0x03, 0x05};
 
         assert(a == b);
         assert(!(a == c));
@@ -89,8 +89,8 @@ int main() {
 
     // 7) Copy construction and assignment
     {
-        T81Bytes original = {0xDE, 0xAD, 0xBE, 0xEF};
-        T81Bytes copy = original;
+        [[maybe_unused]] T81Bytes original= {0xDE, 0xAD, 0xBE, 0xEF};
+        [[maybe_unused]] T81Bytes copy= original;
         T81Bytes assigned; assigned = original;
 
         assert(copy.size() == 4);
@@ -100,5 +100,5 @@ int main() {
     }
 
     std::cout << "All T81Bytes tests PASSED!\n";
-    return 0;
+    [[maybe_unused]] return 0;
 }

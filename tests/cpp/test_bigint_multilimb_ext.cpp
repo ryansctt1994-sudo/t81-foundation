@@ -23,7 +23,7 @@ void test_multilimb_addition() {
     std::cout << "BigInt str: " << a.str() << std::endl;
     assert(!a.is_zero());
 
-    T81BigInt c = a - b;
+    [[maybe_unused]] T81BigInt c= a - b;
     assert(c < a);
 
     std::cout << "test_multilimb_addition passed!" << std::endl;
@@ -31,5 +31,5 @@ void test_multilimb_addition() {
 
 int main() {
     test_multilimb_addition();
-    return 0;
+    [[maybe_unused]] return 0;
 }

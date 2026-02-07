@@ -11,8 +11,8 @@ int main() {
 
     T81Map<T81Symbol, T81Int<27>> map;
 
-    T81Symbol key1 = T81Symbol::intern("key1");
-    T81Symbol key2 = T81Symbol::intern("key2");
+    [[maybe_unused]] T81Symbol key1= T81Symbol::intern("key1");
+    [[maybe_unused]] T81Symbol key2= T81Symbol::intern("key2");
 
     map[key1] = T81Int<27>(100);
     map[key2] = T81Int<27>(200);
@@ -31,14 +31,14 @@ int main() {
     assert(map.size() == 1);
     assert(!map.contains(key2));
 
-    T81Symbol key3 = T81Symbol::intern("key3");
-    [[maybe_unused]] auto opt_val = map.get(key3);
+    [[maybe_unused]] T81Symbol key3= T81Symbol::intern("key3");
+    [[maybe_unused]] auto opt_val= map.get(key3);
     assert(!opt_val.has_value());
 
-    [[maybe_unused]] auto opt_val2 = map.get(key1);
+    [[maybe_unused]] auto opt_val2= map.get(key1);
     assert(opt_val2.has_value());
     assert(opt_val2.value().to_int64() == 150);
 
     std::cout << "All T81Map tests PASSED!\n";
-    return 0;
+    [[maybe_unused]] return 0;
 }

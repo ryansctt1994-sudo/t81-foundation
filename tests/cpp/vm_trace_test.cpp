@@ -5,7 +5,7 @@
 using namespace t81;
 
 int main() {
-  tisc::Program p;
+  [[maybe_unused]] tisc::Program p;
   for (int i = 0; i < 80; ++i) {
     p.insns.push_back({tisc::Opcode::Nop, 0, 0, 0});
   }
@@ -13,9 +13,9 @@ int main() {
   p.insns.push_back({tisc::Opcode::Load, 1, 9999, 0}); // invalid -> trap
   p.axion_policy_text = "(policy (tier 2) (max-stack 1024))";
 
-  auto vm = vm::make_interpreter_vm();
+  [[maybe_unused]] auto vm= vm::make_interpreter_vm();
   vm->load_program(p);
-  auto r1 = vm->step();
+  [[maybe_unused]] auto r1= vm->step();
   assert(r1.has_value());
   std::expected<void, vm::Trap> r2;
   while (true) {
@@ -24,10 +24,10 @@ int main() {
   }
   assert(r2.error() == vm::Trap::DecodeFault);
   assert(!vm->state().trace.empty());
-  [[maybe_unused]] auto last = vm->state().trace.back();
+  [[maybe_unused]] auto last= vm->state().trace.back();
   assert(last.trap.has_value());
   assert(vm->state().policy.has_value());
   assert(vm->state().policy->tier == 2);
   assert(vm->state().gc_cycles > 0);
-  return 0;
+  [[maybe_unused]] return 0;
 }

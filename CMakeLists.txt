@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
+if(POLICY CMP0135)
+  cmake_policy(SET CMP0135 NEW)
+endif()
 project(t81 LANGUAGES C CXX)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -44,7 +47,6 @@ add_library(t81_core STATIC
   src/tools/weights.cpp
   src/tools/weights_t81w_emitter.cpp
   src/cog/promotion.cpp
-  src/cog/tier4.cpp
   src/cog/tier4/tier4_loop.cpp
   src/codec/base243.cpp
   src/codec/base81.cpp
@@ -392,6 +394,9 @@ target_link_libraries(axion_policy_match_guard_test PRIVATE t81_cli_driver t81_t
 add_executable(axion_policy_gc_trace_test tests/cpp/axion_policy_gc_trace_test.cpp)
 target_link_libraries(axion_policy_gc_trace_test PRIVATE t81_cli_driver t81_tisc t81_vm)
 
+  add_executable(axion_policy_bytecode_test tests/cpp/axion_policy_bytecode_test.cpp)
+  target_link_libraries(axion_policy_bytecode_test PRIVATE t81_core)
+
 add_executable(axion_policy_segment_event_test tests/cpp/axion_policy_segment_event_test.cpp)
 target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
 
@@ -633,6 +638,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_tier4_test
     t81_jit_test
     e2e_axion_trace_test
+    axion_policy_bytecode_test
     test_bigint_multilimb_ext
     t81_bigint_v1_perf
     test_T81Tensor_transpose

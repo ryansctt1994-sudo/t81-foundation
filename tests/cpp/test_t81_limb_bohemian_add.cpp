@@ -12,15 +12,15 @@ constexpr int kTrials = 4096;
 
 T81Limb RandomLimb(std::mt19937_64& rng,
                     std::uniform_int_distribution<int>& dist) {
-  T81Limb limb;
+  [[maybe_unused]] T81Limb limb;
   for (int idx = 0; idx < T81Limb::TRYTES; ++idx) {
     limb.set_tryte(idx, static_cast<int8_t>(dist(rng)));
   }
-  return limb;
+  [[maybe_unused]] return limb;
 }
 
 void Dump(const T81Limb& limb, const char* label) {
-  auto trits = limb.to_trits();
+  [[maybe_unused]] auto trits= limb.to_trits();
   std::cerr << label << ":";
   for (int i = 0; i < T81Limb::TRITS; ++i) {
     std::cerr << " " << static_cast<int>(trits[i]);
@@ -30,8 +30,8 @@ void Dump(const T81Limb& limb, const char* label) {
 
 void VerifyMatch(const T81Limb& lhs, const T81Limb& rhs,
                  const char* label = "") {
-  T81Limb expected = lhs + rhs;
-  T81Limb actual = t81::core::bohemian_add(lhs, rhs);
+  [[maybe_unused]] T81Limb expected= lhs + rhs;
+  [[maybe_unused]] T81Limb actual= t81::core::bohemian_add(lhs, rhs);
   if (std::memcmp(&expected, &actual, sizeof(expected)) != 0) {
     std::cerr << "Mismatch in " << label << "\n";
     Dump(lhs, "  lhs");
@@ -51,12 +51,12 @@ int main() {
   std::uniform_int_distribution<int> tryte_dist(-13, 13);
 
   for (int trial = 0; trial < kTrials; ++trial) {
-    auto lhs = RandomLimb(rng, tryte_dist);
-    auto rhs = RandomLimb(rng, tryte_dist);
+    [[maybe_unused]] auto lhs= RandomLimb(rng, tryte_dist);
+    [[maybe_unused]] auto rhs= RandomLimb(rng, tryte_dist);
     VerifyMatch(lhs, rhs, "random trial");
     VerifyMatch(rhs, lhs, "random trial commutative");
   }
 
   std::cout << "t81::core bohemian_add matches operator+ for all checked inputs\n";
-  return 0;
+  [[maybe_unused]] return 0;
 }

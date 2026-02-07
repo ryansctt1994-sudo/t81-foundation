@@ -16,14 +16,12 @@ int main() {
 
     // Test overflow
     T81Int<16> c{300}; // Fits in int, but not in int8_t
-    bool threw = false;
+    [[maybe_unused]] bool threw= false;
     try {
         (void)c.to_binary<std::int8_t>();
     } catch (const std::overflow_error&) {
         threw = true;
     }
-    assert(threw);
-
-    std::cout << "All T81Int::to_binary tests passed!\n";
-    return 0;
+    assert(threw); std::cout << "All T81Int::to_binary tests passed!\n";
+    [[maybe_unused]] return 0;
 }

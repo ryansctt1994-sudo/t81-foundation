@@ -4,12 +4,12 @@
 void run_test(const std::string& source, const std::string& expected) {
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
     assert(stmts.size() == 1);
 
-    AstPrinter printer;
-    std::string result = printer.print(*stmts[0]);
+    [[maybe_unused]] AstPrinter printer;
+    [[maybe_unused]] std::string result= printer.print(*stmts[0]);
 
     if (result != expected) {
         std::cerr << "Parser generics test failed!" << std::endl;
@@ -29,5 +29,5 @@ int main() {
     run_test("let x: Tensor[T81Int, 5] = 1;", "(let x: (generic Tensor T81Int 5) = 1)");
     run_test("let x: Tensor[T81Int, 5, 10] = 1;", "(let x: (generic Tensor T81Int 5 10) = 1)");
 
-    return 0;
+    [[maybe_unused]] return 0;
 }

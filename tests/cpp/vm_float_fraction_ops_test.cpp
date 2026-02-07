@@ -18,7 +18,7 @@ int main() {
 
   // Float opcodes produce deterministic handles.
   {
-    tisc::Program program;
+    [[maybe_unused]] tisc::Program program;
     program.float_pool = {1.5, -0.5};
     program.insns.push_back({tisc::Opcode::LoadImm, 1, 1, 0});
     program.insns.push_back({tisc::Opcode::LoadImm, 2, 2, 0});
@@ -28,13 +28,13 @@ int main() {
     program.insns.push_back({tisc::Opcode::FDiv, 6, 1, 2});
     program.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
 
-    auto vm = vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(program);
-    [[maybe_unused]] auto run = vm->run_to_halt();
+    [[maybe_unused]] auto run= vm->run_to_halt();
     assert(run.has_value());
-    [[maybe_unused]] const auto& floats = vm->state().floats;
+    const auto& floats = vm->state().floats;
     assert(floats.size() == 6);
-    [[maybe_unused]] auto nearly_equal = [](double lhs, double rhs) {
+    auto nearly_equal = [](double lhs, double rhs) {
       return std::fabs(lhs - rhs) < 1e-12;
     };
     assert(nearly_equal(floats[2], 1.0));    // FAdd
@@ -45,21 +45,21 @@ int main() {
 
   // Float divide-by-zero traps.
   {
-    tisc::Program program;
+    [[maybe_unused]] tisc::Program program;
     program.float_pool = {1.0, 0.0};
     program.insns.push_back({tisc::Opcode::LoadImm, 1, 1, 0});
     program.insns.push_back({tisc::Opcode::LoadImm, 2, 2, 0});
     program.insns.push_back({tisc::Opcode::FDiv, 3, 1, 2});
-    auto vm = vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(program);
-    [[maybe_unused]] auto run = vm->run_to_halt();
+    [[maybe_unused]] auto run= vm->run_to_halt();
     assert(!run.has_value());
     assert(run.error() == vm::Trap::DivisionFault);
   }
 
   // Fraction opcodes mirror float behavior.
   {
-    tisc::Program program;
+    [[maybe_unused]] tisc::Program program;
     program.fraction_pool = {make_fraction(1, 2), make_fraction(2, 3)};
     program.insns.push_back({tisc::Opcode::LoadImm, 1, 1, 0});
     program.insns.push_back({tisc::Opcode::LoadImm, 2, 2, 0});
@@ -69,11 +69,11 @@ int main() {
     program.insns.push_back({tisc::Opcode::FracDiv, 6, 1, 2});
     program.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
 
-    auto vm = vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(program);
-    [[maybe_unused]] auto run = vm->run_to_halt();
+    [[maybe_unused]] auto run= vm->run_to_halt();
     assert(run.has_value());
-    [[maybe_unused]] const auto& fracs = vm->state().fractions;
+    const auto& fracs = vm->state().fractions;
     assert(fracs.size() == 6);
     assert(fracs[2].num.to_int64() == 7 && fracs[2].den.to_int64() == 6);   // add
     assert(fracs[3].num.to_int64() == -1 && fracs[3].den.to_int64() == 6);  // sub
@@ -83,21 +83,21 @@ int main() {
 
   // Fraction divide-by-zero traps.
   {
-    tisc::Program program;
+    [[maybe_unused]] tisc::Program program;
     program.fraction_pool = {make_fraction(1, 2), make_fraction(0, 1)};
     program.insns.push_back({tisc::Opcode::LoadImm, 1, 1, 0});
     program.insns.push_back({tisc::Opcode::LoadImm, 2, 2, 0});
     program.insns.push_back({tisc::Opcode::FracDiv, 3, 1, 2});
-    auto vm = vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(program);
-    [[maybe_unused]] auto run = vm->run_to_halt();
+    [[maybe_unused]] auto run= vm->run_to_halt();
     assert(!run.has_value());
     assert(run.error() == vm::Trap::DivisionFault);
   }
 
   // Float comparisons influence flags.
   {
-    tisc::Program program;
+    [[maybe_unused]] tisc::Program program;
     program.float_pool = {1.0, 2.0};
     program.insns.push_back({tisc::Opcode::LoadImm, 1, 1, 0,
                              tisc::LiteralKind::FloatHandle});
@@ -105,9 +105,9 @@ int main() {
                              tisc::LiteralKind::FloatHandle});
     program.insns.push_back({tisc::Opcode::Cmp, 1, 2, 0});
     program.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
-    auto vm = vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(program);
-    [[maybe_unused]] auto run = vm->run_to_halt();
+    [[maybe_unused]] auto run= vm->run_to_halt();
     assert(run.has_value());
     assert(vm->state().flags.zero == false);
     assert(vm->state().flags.negative == true);
@@ -115,7 +115,7 @@ int main() {
 
   // Fraction comparisons influence flags.
   {
-    tisc::Program program;
+    [[maybe_unused]] tisc::Program program;
     program.fraction_pool = {make_fraction(1, 2), make_fraction(3, 4)};
     program.insns.push_back({tisc::Opcode::LoadImm, 1, 1, 0,
                              tisc::LiteralKind::FractionHandle});
@@ -123,13 +123,13 @@ int main() {
                              tisc::LiteralKind::FractionHandle});
     program.insns.push_back({tisc::Opcode::Cmp, 2, 1, 0});
     program.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
-    auto vm = vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(program);
-    [[maybe_unused]] auto run = vm->run_to_halt();
+    [[maybe_unused]] auto run= vm->run_to_halt();
     assert(run.has_value());
     assert(vm->state().flags.zero == false);
     assert(vm->state().flags.negative == false);
   }
 
-  return 0;
+  [[maybe_unused]] return 0;
 }

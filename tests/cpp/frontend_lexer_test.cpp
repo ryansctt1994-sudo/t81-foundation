@@ -6,15 +6,15 @@
 using namespace t81::frontend;
 
 struct ExpectedToken {
-    TokenType type;
+    [[maybe_unused]] TokenType type;
     const char* lexeme;
-    int line;
-    int column;
+    [[maybe_unused]] int line;
+    [[maybe_unused]] int column;
 };
 
 void test_sequence(const char* source, const std::vector<ExpectedToken>& expected_tokens) {
     Lexer lexer(source);
-    std::vector<Token> tokens = lexer.all_tokens();
+    [[maybe_unused]] std::vector<Token> tokens= lexer.all_tokens();
     assert(tokens.size() == expected_tokens.size() + 1); // +1 for EOF
 
     for (size_t i = 0; i < expected_tokens.size(); ++i) {
@@ -38,8 +38,8 @@ int main() {
     const char* source = R"(module my_mod;
 
 fn main() -> i32 {
-    let x = 1;
-    return x;
+    [[maybe_unused]] let x= 1;
+    [[maybe_unused]] return x;
 }
 )";
     std::vector<ExpectedToken> expected = {
@@ -67,5 +67,5 @@ fn main() -> i32 {
 
     std::cout << "All lexer tests passed!" << std::endl;
 
-    return 0;
+    [[maybe_unused]] return 0;
 }

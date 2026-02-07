@@ -11,21 +11,21 @@
 namespace {
 
 std::unique_ptr<t81::vm::IVirtualMachine> run_program(const std::vector<t81::tisc::Insn>& insns) {
-    t81::tisc::Program program;
+    [[maybe_unused]] t81::tisc::Program program;
     program.insns = insns;
-    auto vm = t81::vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
     vm->load_program(program);
-    [[maybe_unused]] auto result = vm->run_to_halt();
+    [[maybe_unused]] auto result= vm->run_to_halt();
     assert(result.has_value());
-    return vm;
+    [[maybe_unused]] return vm;
 }
 
 t81::vm::Trap run_expected_trap(const std::vector<t81::tisc::Insn>& insns) {
-    t81::tisc::Program program;
+    [[maybe_unused]] t81::tisc::Program program;
     program.insns = insns;
-    auto vm = t81::vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
     vm->load_program(program);
-    [[maybe_unused]] auto result = vm->run_to_halt();
+    [[maybe_unused]] auto result= vm->run_to_halt();
     assert(!result.has_value());
     return result.error();
 }
@@ -37,7 +37,7 @@ int dump_axion_log_and_fail(const t81::vm::State& state, const char* label) {
                   << " reason=\"" << entry.verdict.reason << "\"\n";
     }
     std::cerr << "[Axion log] end\n";
-    return 1;
+    [[maybe_unused]] return 1;
 }
 
 }  // namespace
@@ -67,13 +67,13 @@ int main() {
     halt.opcode = t81::tisc::Opcode::Halt;
 
     {
-        auto vm = run_program({stack_alloc, stack_free0, halt});
+        [[maybe_unused]] auto vm= run_program({stack_alloc, stack_free0, halt});
         assert(vm->state().stack_frames.empty());
         assert(vm->state().sp == vm->state().layout.stack.limit);
         assert(vm->state().registers[0] >= static_cast<std::int64_t>(vm->state().layout.code.limit));
         const auto& log = vm->state().axion_log;
-        bool saw_alloc = false;
-        bool saw_free = false;
+        [[maybe_unused]] bool saw_alloc= false;
+        [[maybe_unused]] bool saw_free= false;
         for (const auto& entry : log) {
             if (entry.opcode == t81::tisc::Opcode::StackAlloc &&
                 entry.verdict.reason.find("stack frame allocated") != std::string::npos) {
@@ -90,13 +90,13 @@ int main() {
     }
 
     {
-        auto vm = run_program({stack_alloc, stack_alloc2, stack_free, stack_free0, halt});
+        [[maybe_unused]] auto vm= run_program({stack_alloc, stack_alloc2, stack_free, stack_free0, halt});
         assert(vm->state().stack_frames.empty());
         assert(vm->state().sp == vm->state().layout.stack.limit);
     }
 
     {
-        [[maybe_unused]] auto trap = run_expected_trap({stack_alloc, stack_alloc2, stack_free0, halt});
+        [[maybe_unused]] auto trap= run_expected_trap({stack_alloc, stack_alloc2, stack_free0, halt});
         assert(trap == t81::vm::Trap::StackFault);
     }
 
@@ -105,15 +105,15 @@ int main() {
     stack_overflow.a = 2;
     stack_overflow.b = 512;
     {
-        t81::tisc::Program program;
+        [[maybe_unused]] t81::tisc::Program program;
         program.insns = {stack_overflow, halt};
-        auto vm = t81::vm::make_interpreter_vm();
+        [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
         vm->load_program(program);
-        auto result = vm->run_to_halt();
+        [[maybe_unused]] auto result= vm->run_to_halt();
         assert(!result.has_value());
         assert(result.error() == t81::vm::Trap::StackFault);
         const auto& log = vm->state().axion_log;
-        bool saw_stack_bounds = false;
+        [[maybe_unused]] bool saw_stack_bounds= false;
         for (const auto& entry : log) {
             if (entry.verdict.reason.find("bounds fault") != std::string::npos &&
                 entry.verdict.reason.find("stack frame allocate") != std::string::npos) {
@@ -137,12 +137,12 @@ int main() {
     heap_free.b = 32;
 
     {
-        auto vm = run_program({heap_alloc, heap_free, halt});
+        [[maybe_unused]] auto vm= run_program({heap_alloc, heap_free, halt});
         assert(vm->state().heap_frames.empty());
         assert(vm->state().heap_ptr == vm->state().layout.heap.start);
         const auto& log = vm->state().axion_log;
-        bool saw_alloc = false;
-        bool saw_free = false;
+        [[maybe_unused]] bool saw_alloc= false;
+        [[maybe_unused]] bool saw_free= false;
         for (const auto& entry : log) {
             if (entry.opcode == t81::tisc::Opcode::HeapAlloc &&
                 entry.verdict.reason.find("heap block allocated") != std::string::npos) {
@@ -159,7 +159,7 @@ int main() {
     }
 
     {
-        [[maybe_unused]] auto trap = run_expected_trap({heap_alloc, heap_alloc, heap_free, halt});
+        [[maybe_unused]] auto trap= run_expected_trap({heap_alloc, heap_alloc, heap_free, halt});
         assert(trap == t81::vm::Trap::DecodeFault);
     }
 
@@ -168,15 +168,15 @@ int main() {
     heap_big.a = 4;
     heap_big.b = 1024;
     {
-        t81::tisc::Program program;
+        [[maybe_unused]] t81::tisc::Program program;
         program.insns = {heap_big, halt};
-        auto vm = t81::vm::make_interpreter_vm();
+        [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
         vm->load_program(program);
-        auto result = vm->run_to_halt();
+        [[maybe_unused]] auto result= vm->run_to_halt();
         assert(!result.has_value());
         assert(result.error() == t81::vm::Trap::BoundsFault);
         const auto& log = vm->state().axion_log;
-        bool saw_heap_bounds = false;
+        [[maybe_unused]] bool saw_heap_bounds= false;
         for (const auto& entry : log) {
             if (entry.verdict.reason.find("bounds fault") != std::string::npos &&
                 entry.verdict.reason.find("heap block allocate") != std::string::npos) {
@@ -214,9 +214,9 @@ int main() {
         load_meta.a = 2;
         load_meta.b = meta_start;
 
-        auto vm = run_program({load_val, store_meta, load_meta, halt});
-        bool saw_store = false;
-        bool saw_load = false;
+        [[maybe_unused]] auto vm= run_program({load_val, store_meta, load_meta, halt});
+        [[maybe_unused]] bool saw_store= false;
+        [[maybe_unused]] bool saw_load= false;
         for (const auto& entry : vm->state().axion_log) {
             if (entry.opcode == t81::tisc::Opcode::Store &&
                 entry.verdict.reason.find("meta") != std::string::npos) {
@@ -238,14 +238,14 @@ int main() {
         bad_load.a = 0;
         bad_load.b = -1;
 
-        t81::tisc::Program program;
+        [[maybe_unused]] t81::tisc::Program program;
         program.insns = {bad_load, halt};
-        auto vm = t81::vm::make_interpreter_vm();
+        [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
         vm->load_program(program);
-        auto result = vm->run_to_halt();
+        [[maybe_unused]] auto result= vm->run_to_halt();
         assert(!result.has_value());
 
-        bool saw_bounds = false;
+        [[maybe_unused]] bool saw_bounds= false;
         for (const auto& entry : vm->state().axion_log) {
             if (entry.verdict.reason.find("bounds fault") != std::string::npos &&
                 entry.verdict.reason.find("memory load") != std::string::npos) {
@@ -264,19 +264,19 @@ int main() {
         bad_store.a = 0;
         bad_store.b = 0;
 
-        t81::tisc::Program program;
+        [[maybe_unused]] t81::tisc::Program program;
         program.insns = {bad_store, halt};
 
-        auto vm = t81::vm::make_interpreter_vm();
+        [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
         vm->load_program(program);
-        int bad_addr = static_cast<int>(vm->state().layout.total_size());
+        [[maybe_unused]] int bad_addr= static_cast<int>(vm->state().layout.total_size());
         program.insns[0].a = bad_addr;
         vm->load_program(program);
 
-        auto result = vm->run_to_halt();
+        [[maybe_unused]] auto result= vm->run_to_halt();
         assert(!result.has_value());
 
-        bool saw_bounds = false;
+        [[maybe_unused]] bool saw_bounds= false;
         for (const auto& entry : vm->state().axion_log) {
             if (entry.verdict.reason.find("bounds fault") != std::string::npos &&
                 entry.verdict.reason.find("memory store") != std::string::npos) {
@@ -314,18 +314,18 @@ int main() {
         corrupt_handle.b = 42;
         corrupt_handle.literal_kind = t81::tisc::LiteralKind::TensorHandle;
 
-        t81::tisc::Program program;
+        [[maybe_unused]] t81::tisc::Program program;
         t81::T729Tensor dummy_tensor({1}, {0.0f});
         program.tensor_pool.push_back(dummy_tensor);
         program.tensor_pool.push_back(dummy_tensor);
         program.insns = {load_tensor_a, load_tensor_b, corrupt_handle, vec_add, halt};
 
-        auto vm = t81::vm::make_interpreter_vm();
+        [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
         vm->load_program(program);
-        auto result = vm->run_to_halt();
+        [[maybe_unused]] auto result= vm->run_to_halt();
         assert(!result.has_value());
 
-        bool saw_tensor_bounds = false;
+        [[maybe_unused]] bool saw_tensor_bounds= false;
         for (const auto& entry : vm->state().axion_log) {
             if (entry.verdict.reason.find("bounds fault") != std::string::npos &&
                 entry.verdict.reason.find("tensor handle access") != std::string::npos) {
@@ -338,5 +338,5 @@ int main() {
         }
     }
 
-    return 0;
+    [[maybe_unused]] return 0;
 }

@@ -10,19 +10,19 @@ using namespace t81::frontend;
 using namespace t81::tisc::ir;
 
 void test_relation_metadata() {
-    std::string source = "let cmp = 1 < 2;";
+    [[maybe_unused]] std::string source= "let cmp = 1 < 2;";
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
     SemanticAnalyzer analyzer(stmts);
     analyzer.analyze();
 
-    IRGenerator generator;
+    [[maybe_unused]] IRGenerator generator;
     generator.attach_semantic_analyzer(&analyzer);
-    auto program = generator.generate(stmts);
+    [[maybe_unused]] auto program= generator.generate(stmts);
 
-    bool found = false;
+    [[maybe_unused]] bool found= false;
     for (const auto& inst : program.instructions()) {
         if (inst.opcode == Opcode::CMP &&
             inst.boolean_result &&
@@ -37,5 +37,5 @@ void test_relation_metadata() {
 
 int main() {
     test_relation_metadata();
-    return 0;
+    [[maybe_unused]] return 0;
 }

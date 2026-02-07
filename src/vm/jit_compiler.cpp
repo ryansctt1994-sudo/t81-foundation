@@ -22,6 +22,18 @@ public:
                     state.registers[insn.a] = state.registers[insn.b] * state.registers[insn.c];
                     state.register_tags[insn.a] = ValueTag::Int;
                     break;
+                case t81::tisc::Opcode::Div:
+                    if (state.registers[insn.c] != 0) {
+                        state.registers[insn.a] = state.registers[insn.b] / state.registers[insn.c];
+                        state.register_tags[insn.a] = ValueTag::Int;
+                    }
+                    break;
+                case t81::tisc::Opcode::Mod:
+                    if (state.registers[insn.c] != 0) {
+                        state.registers[insn.a] = state.registers[insn.b] % state.registers[insn.c];
+                        state.register_tags[insn.a] = ValueTag::Int;
+                    }
+                    break;
                 case t81::tisc::Opcode::Inc:
                     state.registers[insn.a]++;
                     state.register_tags[insn.a] = ValueTag::Int;
@@ -41,6 +53,14 @@ public:
                 case t81::tisc::Opcode::LoadImm:
                     state.registers[insn.a] = insn.b;
                     state.register_tags[insn.a] = (insn.literal_kind == t81::tisc::LiteralKind::Int) ? ValueTag::Int : ValueTag::SymbolHandle;
+                    break;
+                case t81::tisc::Opcode::Less:
+                    state.registers[insn.a] = (state.registers[insn.b] < state.registers[insn.c]) ? 1 : 0;
+                    state.register_tags[insn.a] = ValueTag::Int;
+                    break;
+                case t81::tisc::Opcode::Equal:
+                    state.registers[insn.a] = (state.registers[insn.b] == state.registers[insn.c]) ? 1 : 0;
+                    state.register_tags[insn.a] = ValueTag::Int;
                     break;
                 default:
                     break;
@@ -69,11 +89,15 @@ void JitCompiler::record_instruction(const t81::tisc::Insn& insn) {
         case t81::tisc::Opcode::Add:
         case t81::tisc::Opcode::Sub:
         case t81::tisc::Opcode::Mul:
+        case t81::tisc::Opcode::Div:
+        case t81::tisc::Opcode::Mod:
         case t81::tisc::Opcode::Inc:
         case t81::tisc::Opcode::Dec:
         case t81::tisc::Opcode::Mov:
         case t81::tisc::Opcode::Neg:
         case t81::tisc::Opcode::LoadImm:
+        case t81::tisc::Opcode::Less:
+        case t81::tisc::Opcode::Equal:
             trace_buffer_.push_back(insn);
             break;
         default:

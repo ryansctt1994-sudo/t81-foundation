@@ -25,20 +25,20 @@ class StreamCapture {
 };
 
 struct ReplResult {
-  int rc = 0;
-  std::string output;
-  std::string errors;
+  [[maybe_unused]] int rc= 0;
+  [[maybe_unused]] std::string output;
+  [[maybe_unused]] std::string errors;
 };
 
 ReplResult run_repl_script(const std::string& script,
                           const std::shared_ptr<t81::weights::ModelFile>& weights_model) {
   std::istringstream input(script);
-  std::ostringstream output;
-  std::ostringstream errors;
+  [[maybe_unused]] std::ostringstream output;
+  [[maybe_unused]] std::ostringstream errors;
   StreamCapture stdout_capture(std::cout, output.rdbuf());
   StreamCapture stderr_capture(std::cerr, errors.rdbuf());
 
-  int rc = t81::cli::repl(weights_model, input);
+  [[maybe_unused]] int rc= t81::cli::repl(weights_model, input);
   return {rc, output.str(), errors.str()};
 }
 }  // namespace
@@ -53,16 +53,16 @@ int main() {
   {
     std::ofstream load_file(load_path);
     load_file << R"(fn helper() -> i32 {
-    return 42;
+    [[maybe_unused]] return 42;
 }
 )";
   }
-  std::error_code ignore_ec;
+  [[maybe_unused]] std::error_code ignore_ec;
   fs::remove(save_path, ignore_ec);
 
-  std::ostringstream script;
+  [[maybe_unused]] std::ostringstream script;
   script << R"(fn main() -> i32 {
-    return 123;
+    [[maybe_unused]] return 123;
 }
 
 )";
@@ -85,7 +85,7 @@ int main() {
   script << ":quit\n";
 
   auto run_and_assert = [&](const std::shared_ptr<t81::weights::ModelFile>& weights_model) {
-    ReplResult result = run_repl_script(script.str(), weights_model);
+    [[maybe_unused]] ReplResult result= run_repl_script(script.str(), weights_model);
     assert(result.rc == 0);
     assert(result.output.find("REPL buffer") != std::string::npos);
     assert(result.output.find("REPL buffer cleared") != std::string::npos);
@@ -102,7 +102,7 @@ int main() {
   };
 
   run_and_assert(nullptr);
-  auto weights = std::make_shared<t81::weights::ModelFile>();
+  [[maybe_unused]] auto weights= std::make_shared<t81::weights::ModelFile>();
   run_and_assert(weights);
 
   {
@@ -114,5 +114,5 @@ int main() {
 
   fs::remove(load_path, ignore_ec);
   fs::remove(save_path, ignore_ec);
-  return 0;
+  [[maybe_unused]] return 0;
 }

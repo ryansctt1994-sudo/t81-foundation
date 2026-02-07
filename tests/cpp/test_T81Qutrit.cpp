@@ -23,14 +23,14 @@ int main() {
     assert(q1 != q2);
 
     // Copy / assign sanity
-    T81Qutrit q0_copy = q0;
-    T81Qutrit q1_copy = q1;
-    T81Qutrit q2_copy = q2;
+    [[maybe_unused]] T81Qutrit q0_copy= q0;
+    [[maybe_unused]] T81Qutrit q1_copy= q1;
+    [[maybe_unused]] T81Qutrit q2_copy= q2;
 
     assert(q0_copy == q0);
     assert(q1_copy == q1);
     assert(q2_copy == q2);
 
     std::cout << "All T81Qutrit tests PASSED!\n";
-    return 0;
+    [[maybe_unused]] return 0;
 }

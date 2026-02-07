@@ -3,7 +3,7 @@
 #include <vector>
 #include "t81/core/T81BigInt.hpp"
 #include "t81/canonfs/canon_driver.hpp"
-#include "t81/cog/tier4.hpp"
+#include "t81/cog/tier4/tier4_loop.hpp"
 
 using namespace t81::v1;
 using namespace t81::canonfs;
@@ -22,7 +22,7 @@ void test_bigint_karatsuba() {
         b = b * b;
     }
 
-    T81BigInt c = a * b;
+    [[maybe_unused]] T81BigInt c= a * b;
     assert(!c.is_zero());
     std::cout << "BigInt Karatsuba multiplication successful." << std::endl;
 }
@@ -36,15 +36,15 @@ void test_canonfs_cache() {
 
 void test_tier4_loop() {
     std::cout << "Testing Tier 4 Loop..." << std::endl;
-    TierStatus status{TierId::Tier4, "Tier4"};
-    auto engine = t81::axion::make_allow_all_engine();
-    Tier4Loop loop(status, *engine);
+    [[maybe_unused]] auto engine= t81::axion::make_allow_all_engine();
+    t81::cog::v1::Tier4Loop loop(*engine);
 
-    loop.cycle();
+    loop.observe("test");
     loop.reflect();
+    loop.refine();
 
-    assert(loop.get_status().current == TierId::Tier4);
-    std::cout << "Tier 4 Loop cycle/reflect successful." << std::endl;
+    assert(loop.get_model().confidence == 1.0f);
+    std::cout << "Tier 4 Loop observe/reflect/refine successful." << std::endl;
 }
 
 int main() {
@@ -52,5 +52,5 @@ int main() {
     test_canonfs_cache();
     test_tier4_loop();
     std::cout << "All performance advancement tests passed!" << std::endl;
-    return 0;
+    [[maybe_unused]] return 0;
 }

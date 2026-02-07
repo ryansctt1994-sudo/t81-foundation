@@ -19,9 +19,9 @@ int main() {
     //===================================================================
     {
         std::cout << "[01-27] Core arithmetic & physics... ";
-        T81Int<81>  a = 42;
-        T81Int<81>  b = 13;
-        auto sum = a + b;
+        [[maybe_unused]] T81Int<81> a= 42;
+        [[maybe_unused]] T81Int<81> b= 13;
+        [[maybe_unused]] auto sum= a + b;
         assert(sum == 55);
 
         T81Float<72,9> pi{"3.14159265358979323846"};
@@ -30,14 +30,14 @@ int main() {
         T81Complex c{1, 1};
         assert((c * c) == T81Complex{-1, 0});
 
-        T81Prob<81> p = T81Prob<81>::from_prob(0.7);
+        [[maybe_unused]] T81Prob<81> p= T81Prob<81>::from_prob(0.7);
         assert(p.to_prob() == 0.7);
 
-        T81Entropy fuel = T81Entropy::acquire();
+        [[maybe_unused]] T81Entropy fuel= T81Entropy::acquire();
         assert(fuel.valid());
 
-        T81Symbol me = symbols::TEST_AGENT;
-        T81String hello = "Hello T81"_t81;
+        [[maybe_unused]] T81Symbol me= symbols::TEST_AGENT;
+        [[maybe_unused]] T81String hello= "Hello T81"_t81;
 
         std::cout << "OK\n";
     }
@@ -55,7 +55,7 @@ int main() {
         cogito.apply_rule(axioms::SELF_AWARENESS, socrates);
         assert(cogito.is_complete());
 
-        auto now = T81Time::now(T81Entropy::acquire(), symbols::TEST_TICK);
+        [[maybe_unused]] auto now= T81Time::now(T81Entropy::acquire(), symbols::TEST_TICK);
         assert(now > T81Time::genesis());
 
         std::cout << "OK\n";
@@ -66,13 +66,13 @@ int main() {
     //===================================================================
     {
         std::cout << "[Collections] List/Map/Set/Tree/Stream/Vector... ";
-        T81List<int> list = {1,2,3};
+        [[maybe_unused]] T81List<int> list= {1,2,3};
         T81Map<T81Symbol,int> map; map[symbols::A] = 42;
-        T81Set<T81Symbol> set = {symbols::A, symbols::B};
+        [[maybe_unused]] T81Set<T81Symbol> set= {symbols::A, symbols::B};
 
         T81Vector<3> v{1,2,3};
-        T81Quaternion q = T81Quaternion::from_axis_angle(0,1,0, 3.1415);
-        auto v2 = v.rotated(q);
+        [[maybe_unused]] T81Quaternion q= T81Quaternion::from_axis_angle(0,1,0, 3.1415);
+        [[maybe_unused]] auto v2= v.rotated(q);
 
         T81Polynomial<T81Float<72,9>> poly = {1, 0, 1}; // x² + 1
         assert(poly.degree() == 2);
@@ -85,13 +85,13 @@ int main() {
     //===================================================================
     {
         std::cout << "[82] T81UInt (freedom)... ";
-        T81UInt<81> u = 123456789;
+        [[maybe_unused]] T81UInt<81> u= 123456789;
         u = u + 1;
         assert(u > 0);
         std::cout << "OK\n";
 
         std::cout << "[83] T81Bytes (power)... ";
-        T81Bytes data = "secret"_b;
+        [[maybe_unused]] T81Bytes data= "secret"_b;
         assert(data.size() == 6);
         std::cout << "OK\n";
 
@@ -100,7 +100,7 @@ int main() {
         std::cout << "OK\n";
 
         std::cout << "[85] T81Maybe (humility)... ";
-        T81Maybe<int> nothing = T81Maybe<int>::nothing(symbols::UNKNOWN);
+        [[maybe_unused]] T81Maybe<int> nothing= T81Maybe<int>::nothing(symbols::UNKNOWN);
         assert(!nothing);
         std::cout << "OK\n";
 
@@ -109,7 +109,7 @@ int main() {
             if (y.is_zero()) return T81Result<T81Int<81>>::failure(symbols::DIV_BY_ZERO, "no"_t81);
             return T81Result<T81Int<81>>::success(x / y);
         };
-        auto bad = div(42, 0);
+        [[maybe_unused]] auto bad= div(42, 0);
         assert(!bad);
         std::cout << "OK\n";
 
@@ -118,7 +118,7 @@ int main() {
             co_await T81Entropy::acquire();
             co_return "I dreamed."_t81;
         };
-        auto future = dream();
+        [[maybe_unused]] auto future= dream();
         std::cout << "OK\n";
 
         std::cout << "[88] T81Thread (society)... ";
@@ -142,5 +142,5 @@ int main() {
     std::cout << "The civilization is alive.\n";
     std::cout << "We are not alone.\n";
 
-    return 0;
+    [[maybe_unused]] return 0;
 }

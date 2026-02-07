@@ -6,16 +6,16 @@ using namespace t81;
 
 int main() {
   // Invalid register index
-  tisc::Program bad_reg;
+  [[maybe_unused]] tisc::Program bad_reg;
   bad_reg.insns.push_back({tisc::Opcode::LoadImm, 99, 1, 0});
-  auto vm = vm::make_interpreter_vm();
+  [[maybe_unused]] auto vm= vm::make_interpreter_vm();
   vm->load_program(bad_reg);
-  auto r = vm->step();
+  [[maybe_unused]] auto r= vm->step();
   assert(!r.has_value());
   assert(r.error() == vm::Trap::DecodeFault);
 
   // Jump out of bounds
-  tisc::Program bad_jump;
+  [[maybe_unused]] tisc::Program bad_jump;
   bad_jump.insns.push_back({tisc::Opcode::Jump, 5, 0, 0});
   vm->load_program(bad_jump);
   r = vm->step();
@@ -24,12 +24,12 @@ int main() {
 
   // Unknown opcode
   tisc::Insn bogus{static_cast<tisc::Opcode>(99), 0, 0, 0};
-  tisc::Program bad_op;
+  [[maybe_unused]] tisc::Program bad_op;
   bad_op.insns.push_back(bogus);
   vm->load_program(bad_op);
   r = vm->step();
   assert(!r.has_value());
   assert(r.error() == vm::Trap::DecodeFault);
 
-  return 0;
+  [[maybe_unused]] return 0;
 }
