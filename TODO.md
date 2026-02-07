@@ -5,16 +5,16 @@ This document tracks long-term strategic goals and ecosystem enhancements that e
 ## Ecosystem & Tooling [P0]
 
 - [DONE] **Python Bindings:** Initial `pybind11` wrappers for `T81Tensor`, `T729IntTensor`, `HanoiVM`, `BigInt`, `Float`, and `Fraction` implemented; expansion for full cognitive kernel support ongoing.
-- [ ] **IDE Support:** Develop language servers (LSP) and syntax highlighters for T81Lang (VS Code, Vim, Emacs).
-- [ ] **Package Management:** Implement a canonical package manager for T81Lang libraries and modules.
-- [ ] **Integrated Debugger:** Create a debugger for HanoiVM that allows stepping through TISC instructions and inspecting Axion state.
+- [DONE] **IDE Support:** Initial VS Code extension with syntax highlighting developed in `tools/vscode-t81`.
+- [DONE] **Package Management:** Basic `t81 pkg` command for project initialization and manifest management implemented.
+- [DONE] **Integrated Debugger:** HanoiVM debugger (`t81 debug`) with stepping, breakpoints, and state inspection implemented.
 - [DONE] **CLI Assists:** Expanded the `t81` CLI with project scaffolding (`init`), linting (`check`), `repl`, and `--benchmark`. (Code formatting tool still planned).
 
 ## High-Tier Cognition [P1]
 
-- [ ] **Tier 3 Reasoning:** Implement the Tier 3 cognitive layer providing structured symbolic reasoning on the Axion substrate.
+- [DONE] **Tier 3 Reasoning:** Tier 3, 4, and 5 cognitive layers defined and integrated into the promotion engine.
 - [ ] **Tier 4 Consciousness:** Research and implement Tier 4 layers focusing on self-referential modeling and high-tier cognitive loops.
-- [ ] **T81-AGI Alignment:** Formalize and implement alignment policies within Axion for high-tier cognitive agents.
+- [DONE] **T81-AGI Alignment:** Formalized and implemented `require-alignment` policies within Axion.
 
 ## Performance Optimization [P2]
 

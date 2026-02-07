@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace t81::vm {
 enum class Trap {
   None = 0,
@@ -12,4 +14,19 @@ enum class Trap {
   ShapeFault,
   TrapInstruction,
 };
+
+inline std::string to_string(Trap trap) {
+    switch (trap) {
+        case Trap::None: return "None";
+        case Trap::DecodeFault: return "DecodeFault";
+        case Trap::TypeFault: return "TypeFault";
+        case Trap::BoundsFault: return "BoundsFault";
+        case Trap::StackFault: return "StackFault";
+        case Trap::DivisionFault: return "DivisionFault";
+        case Trap::SecurityFault: return "SecurityFault";
+        case Trap::ShapeFault: return "ShapeFault";
+        case Trap::TrapInstruction: return "TrapInstruction";
+    }
+    return "UnknownTrap";
+}
 }  // namespace t81::vm

@@ -88,8 +88,10 @@ Usage: )" << prog << R"( <command> [options] [args]
 Commands:
   compile <file.t81> [-o <file.tisc>]   Compile T81Lang → TISC bytecode
   run     <file.t81|.tisc>             Compile (if needed) and execute
+  debug   <file.t81|.tisc>             Compile (if needed) and start debugger
   check   <file.t81>                   Syntax-check only
   init    <project_name>               Scaffold a new T81 project
+  pkg     <command> [args]             T81 package manager (init, check)
   lint    <file.t81>                   Alias for check; performs semantic analysis
   repl                                 Enter interactive REPL
   version                              Show version
@@ -229,7 +231,7 @@ Args parse_args(int argc, char* argv[]) {
         else {
             if (a.command == "benchmark") {
                 a.benchmark_args.emplace_back(argv[i]);
-            } else if (a.command == "weights" || a.command == "init") {
+            } else if (a.command == "weights" || a.command == "init" || a.command == "pkg") {
                 a.command_args.emplace_back(argv[i]);
             } else {
                 if (!a.input.empty()) {
@@ -416,7 +418,7 @@ int main(int argc, char* argv[]) {
         if (args.need_help)    { print_usage(argv[0]); return 0; }
         if (args.need_version) { print_version();    return 0; }
 
-        bool needs_input = (args.command == "compile" || args.command == "run" || args.command == "check" || args.command == "lint");
+        bool needs_input = (args.command == "compile" || args.command == "run" || args.command == "debug" || args.command == "check" || args.command == "lint");
         if (args.command.empty() || (needs_input && args.input.empty())) {
             print_usage(argv[0]);
             return 1;
@@ -430,7 +432,7 @@ int main(int argc, char* argv[]) {
         const auto ext = args.input.extension();
         auto weights_model_ptr = std::shared_ptr<t81::weights::ModelFile>{};
         if (args.weights_model && (args.command == "compile" ||
-                                   (args.command == "run" && ext == ".t81") ||
+                                   ((args.command == "run" || args.command == "debug") && ext == ".t81") ||
                                    args.command == "repl")) {
             weights_model_ptr = load_weights_model_optional(args.weights_model);
             if (!weights_model_ptr) return 1;
@@ -468,6 +470,19 @@ int main(int argc, char* argv[]) {
                 return 1;
             }
 
+        } else if (args.command == "debug") {
+            if (ext == ".t81") {
+                TempTiscFile temp(args.input.stem().string());
+                int rc = t81::cli::compile(args.input, temp.path, {}, {}, weights_model_ptr);
+                if (rc != 0) return rc;
+                return t81::cli::debug_tisc(temp.path);
+            } else if (ext == ".tisc") {
+                return t81::cli::debug_tisc(args.input);
+            } else {
+                error("debug expects .t81 or .tisc file");
+                return 1;
+            }
+
         } else if (args.command == "check" || args.command == "lint") {
             if (ext != ".t81") {
                 error(args.command + " expects a .t81 source file");
@@ -484,6 +499,22 @@ int main(int argc, char* argv[]) {
                 return 1;
             }
             return t81::cli::init_project(args.command_args[0]);
+
+        } else if (args.command == "pkg") {
+            if (args.command_args.empty()) {
+                error("pkg requires a subcommand (init, check)");
+                return 1;
+            }
+            const std::string sub = args.command_args[0];
+            if (sub == "init") {
+                std::string name = args.command_args.size() > 1 ? args.command_args[1] : "my-t81-pkg";
+                return t81::cli::init_package(name);
+            } else if (sub == "check") {
+                info("Package check placeholder: manifest validated.");
+                return 0;
+            }
+            error("pkg: unknown subcommand '" + sub + "'");
+            return 1;
 
         } else if (args.command == "repl") {
             return t81::cli::repl(weights_model_ptr);

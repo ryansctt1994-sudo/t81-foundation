@@ -36,6 +36,9 @@ struct Policy {
   struct AxionEventRequirement {
     std::string reason;
   };
+  struct AlignmentRequirement {
+    std::string reason;
+  };
 
   int tier{1};
   std::optional<int64_t> max_stack;
@@ -45,6 +48,7 @@ struct Policy {
   std::vector<MatchGuardRequirement> match_guards;
   std::vector<SegmentEventRequirement> segment_requirements;
   std::vector<AxionEventRequirement> axion_event_requirements;
+  std::vector<AlignmentRequirement> alignment_requirements;
 };
 
 namespace detail {
@@ -391,6 +395,42 @@ inline t81::expected<Policy, std::string> parse_policy(std::string_view text) {
         return make_error("axion event requires reason");
       }
       policy.axion_event_requirements.push_back(std::move(req));
+      continue;
+    }
+    if (key.text == "require-alignment") {
+      Policy::AlignmentRequirement req;
+      while (true) {
+        auto field_open = lex.next();
+        if (field_open.kind == detail::PolicyToken::Kind::RParen) break;
+        if (field_open.kind != detail::PolicyToken::Kind::LParen) {
+          return make_error("expected '(' before alignment field");
+        }
+        auto field = lex.next();
+        if (field.kind != detail::PolicyToken::Kind::Symbol) {
+          return make_error("expected alignment field symbol");
+        }
+        auto val = lex.next();
+        if (val.kind == detail::PolicyToken::Kind::End) {
+          return make_error("unterminated alignment clause");
+        }
+        if (field.text == "reason") {
+          if (val.kind != detail::PolicyToken::Kind::String &&
+              val.kind != detail::PolicyToken::Kind::Symbol) {
+            return make_error("alignment reason requires symbol or string");
+          }
+          req.reason = val.text;
+        } else {
+          return make_error("unknown alignment field");
+        }
+        auto field_close = lex.next();
+        if (field_close.kind != detail::PolicyToken::Kind::RParen) {
+          return make_error("expected ')' after alignment field");
+        }
+      }
+      if (req.reason.empty()) {
+        return make_error("alignment requires reason");
+      }
+      policy.alignment_requirements.push_back(std::move(req));
       continue;
     }
     // Unknown clause -> skip forms deterministically.

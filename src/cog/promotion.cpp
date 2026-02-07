@@ -4,7 +4,7 @@
 
 namespace t81::cog {
 Result<TierStatus> try_promote(const TierStatus& status, t81::axion::Engine& engine) {
-  if (status.current == TierId::Tier2) {
+  if (status.current == TierId::Tier5) {
     return PromotionError::NotEligible;
   }
 
@@ -15,12 +15,29 @@ Result<TierStatus> try_promote(const TierStatus& status, t81::axion::Engine& eng
   }
 
   TierStatus next = status;
-  if (status.current == TierId::Tier0) {
-    next.current = TierId::Tier1;
-    next.label = "Tier1";
-  } else if (status.current == TierId::Tier1) {
-    next.current = TierId::Tier2;
-    next.label = "Tier2";
+  switch (status.current) {
+    case TierId::Tier0:
+      next.current = TierId::Tier1;
+      next.label = "Tier1";
+      break;
+    case TierId::Tier1:
+      next.current = TierId::Tier2;
+      next.label = "Tier2";
+      break;
+    case TierId::Tier2:
+      next.current = TierId::Tier3;
+      next.label = "Tier3";
+      break;
+    case TierId::Tier3:
+      next.current = TierId::Tier4;
+      next.label = "Tier4";
+      break;
+    case TierId::Tier4:
+      next.current = TierId::Tier5;
+      next.label = "Tier5";
+      break;
+    default:
+      return PromotionError::NotEligible;
   }
   return next;
 }

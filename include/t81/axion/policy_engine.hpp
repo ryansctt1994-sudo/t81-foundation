@@ -30,6 +30,8 @@ class PolicyEngine : public Engine {
                                const Policy::SegmentEventRequirement& req) const;
   bool axion_event_satisfied(const SyscallContext& ctx,
                              const Policy::AxionEventRequirement& req) const;
+  bool alignment_event_satisfied(const SyscallContext& ctx,
+                                 const Policy::AlignmentRequirement& req) const;
 
   std::optional<Policy> policy_;
   struct InternalLoopReq {
