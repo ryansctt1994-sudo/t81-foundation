@@ -389,6 +389,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(cli_e2e_test tests/cpp/cli_e2e_test.cpp)
   target_link_libraries(cli_e2e_test PRIVATE t81_cli_driver)
 
+  add_executable(t81_frontend_fuzz_test tests/cpp/frontend_fuzz_test.cpp)
+  target_link_libraries(t81_frontend_fuzz_test PRIVATE t81_frontend)
+
   add_executable(t81_t81int_test tests/cpp/test_t81int.cpp)
   target_link_libraries(t81_t81int_test PRIVATE t81_core)
 
@@ -585,6 +588,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     e2e_match_expression_test
     e2e_loop_statement_test
     cli_e2e_test
+    t81_frontend_fuzz_test
     t81_cli_check_test
     t81_cli_pipeline_test
     t81_cli_option_result_test
@@ -604,6 +608,21 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   foreach(tgt IN LISTS T81_TEST_TARGETS)
     add_test(NAME ${tgt} COMMAND $<TARGET_FILE:${tgt}>)
   endforeach()
+endif()
+
+# =============================================================================
+# Python Bindings
+# =============================================================================
+execute_process(
+    COMMAND python3 -c "import pybind11; print(pybind11.get_cmake_dir())"
+    OUTPUT_VARIABLE pybind11_DIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+)
+if(pybind11_DIR)
+  find_package(pybind11 REQUIRED)
+  pybind11_add_module(t81_python src/python/t81_python.cpp)
+  target_link_libraries(t81_python PRIVATE t81_core)
 endif()
 
 # =============================================================================
