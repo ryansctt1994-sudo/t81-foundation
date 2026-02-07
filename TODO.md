@@ -4,11 +4,11 @@ This document tracks long-term strategic goals and ecosystem enhancements that e
 
 ## Ecosystem & Tooling [P0]
 
-- [/] **Python Bindings:** Initial `pybind11` wrappers for `T81Tensor`, `T729IntTensor`, and `HanoiVM` implemented; expansion for full cognitive kernel support ongoing.
+- [/] **Python Bindings:** Initial `pybind11` wrappers for `T81Tensor`, `T729IntTensor`, `HanoiVM`, `BigInt`, `Float`, and `Fraction` implemented; expansion for full cognitive kernel support ongoing.
 - [ ] **IDE Support:** Develop language servers (LSP) and syntax highlighters for T81Lang (VS Code, Vim, Emacs).
 - [ ] **Package Management:** Implement a canonical package manager for T81Lang libraries and modules.
 - [ ] **Integrated Debugger:** Create a debugger for HanoiVM that allows stepping through TISC instructions and inspecting Axion state.
-- [ ] **CLI Assists:** Expand the `t81` CLI with project scaffolding, linting, and formatting tools.
+- [/] **CLI Assists:** Expand the `t81` CLI with project scaffolding (`init`), linting, and formatting tools.
 
 ## High-Tier Cognition [P1]
 

@@ -29,5 +29,6 @@ int run_tisc(const std::filesystem::path& path);
 int check_syntax(const std::filesystem::path& path);
 int repl(const std::shared_ptr<t81::weights::ModelFile>& weights_model = nullptr,
          std::istream& input = std::cin);
+int init_project(const std::string& name);
 
 } // namespace t81::cli

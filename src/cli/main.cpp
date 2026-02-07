@@ -89,6 +89,7 @@ Commands:
   compile <file.t81> [-o <file.tisc>]   Compile T81Lang → TISC bytecode
   run     <file.t81|.tisc>             Compile (if needed) and execute
   check   <file.t81>                   Syntax-check only
+  init    <project_name>               Scaffold a new T81 project
   lint    <file.t81>                   Alias for check; performs semantic analysis
   repl                                 Enter interactive REPL
   version                              Show version
@@ -228,7 +229,7 @@ Args parse_args(int argc, char* argv[]) {
         else {
             if (a.command == "benchmark") {
                 a.benchmark_args.emplace_back(argv[i]);
-            } else if (a.command == "weights") {
+            } else if (a.command == "weights" || a.command == "init") {
                 a.command_args.emplace_back(argv[i]);
             } else {
                 if (!a.input.empty()) {
@@ -476,6 +477,13 @@ int main(int argc, char* argv[]) {
 
         } else if (args.command == "benchmark") {
             return run_benchmark(argv[0], args);
+
+        } else if (args.command == "init") {
+            if (args.command_args.empty()) {
+                error("init requires a project name");
+                return 1;
+            }
+            return t81::cli::init_project(args.command_args[0]);
 
         } else if (args.command == "repl") {
             return t81::cli::repl(weights_model_ptr);

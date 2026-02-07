@@ -4,6 +4,9 @@ All notable changes to the T81 Foundation should be documented in this file. Fol
 
 ## [Unreleased]
 
+- expanded Python bindings (`src/python/t81_python.cpp`) to include `BigInt`, `Float`, and `Fraction` types from the `t81::v1` namespace, enabling AI researchers to interact with ternary primitives directly from Python.
+- added `t81 init <project_name>` command to the CLI to scaffold new ternary-native projects with a template `main.t81` and `README.md`.
+- migrated core ternary types (`T81BigInt`, `T81Float`, `T81Fraction`) to the `t81::v1` namespace to ensure long-term API stability and resolve header conflicts.
 - add a high-rank tensor demo and a graph demo to the `examples/` directory plus documentation so the suite of data-type demos now illustrates tensor indexing and adjacency matrix handling
 - expand `docs/guides/data-types-overview.md`, `docs/guides/demo-gallery.md`, `docs/index.md`, and `README.md` with descriptions and CLI commands for the new demos to keep the guides and gallery synchronized
 - ensure `scripts/run-demos.sh` compiles and runs the full demo suite (match → quaternion → high-rank tensor → graph) and document that automation with cross-references
