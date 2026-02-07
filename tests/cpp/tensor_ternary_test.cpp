@@ -24,15 +24,15 @@ void test_ternary_tensor_ops() {
     T729IntTensor a({2, 2}, {T81Int<81>(1), T81Int<81>(2), T81Int<81>(3), T81Int<81>(4)});
     T729IntTensor b({2, 2}, {T81Int<81>(10), T81Int<81>(20), T81Int<81>(30), T81Int<81>(40)});
 
-    auto c = add(a, b);
+    [[maybe_unused]] auto c= add(a, b);
     assert(c.data()[0].to_int64() == 11);
     assert(c.data()[3].to_int64() == 44);
 
-    auto d = sub(b, a);
+    [[maybe_unused]] auto d= sub(b, a);
     assert(d.data()[0].to_int64() == 9);
     assert(d.data()[3].to_int64() == 36);
 
-    auto e = mul(a, a);
+    [[maybe_unused]] auto e= mul(a, a);
     assert(e.data()[0].to_int64() == 1);
     assert(e.data()[3].to_int64() == 16);
 
@@ -59,7 +59,7 @@ void test_reductions() {
 
 void test_broadcast_ternary() {
     T729IntTensor a({3}, {T81Int<81>(1), T81Int<81>(2), T81Int<81>(3)});
-    auto b = broadcast_to(a, {2, 3});
+    [[maybe_unused]] auto b= broadcast_to(a, {2, 3});
 
     assert(b.shape()[0] == 2);
     assert(b.shape()[1] == 3);
@@ -76,5 +76,5 @@ int main() {
     test_reductions();
     test_broadcast_ternary();
     std::cout << "All tensor ternary tests passed!" << std::endl;
-    return 0;
+    [[maybe_unused]] return 0;
 }

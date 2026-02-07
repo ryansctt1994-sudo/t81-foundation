@@ -33,6 +33,11 @@ public:
 
     const SelfModel& get_model() const { return model_; }
 
+    /**
+     * @brief Updates the agent's self-model based on internal reflection.
+     */
+    void update_self_model(const std::string& belief_key, const std::string& belief_val);
+
 private:
     t81::axion::Engine& engine_;
     SelfModel model_;

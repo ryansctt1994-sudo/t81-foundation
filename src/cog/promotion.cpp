@@ -61,6 +61,13 @@ bool should_promote_to_tier4(const v1::ReflectionTrace& trace) {
     return true;
   }
 
+  // Tier 4 specifically handles self-referential paradoxes or inconsistencies
+  // recorded in the trace reason.
+  if (trace.reason.find("inconsistency") != std::string::npos ||
+      trace.reason.find("paradox") != std::string::npos) {
+    return true;
+  }
+
   return false;
 }
 

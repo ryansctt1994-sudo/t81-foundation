@@ -8,7 +8,7 @@ int main() {
     std::cout << "Running T81String tests...\n";
 
     // Construction
-    T81String empty;
+    [[maybe_unused]] T81String empty;
     assert(empty.empty());
     assert(empty.length() == 0);
 
@@ -22,7 +22,7 @@ int main() {
 
     // Concatenation
     T81String space(" ");
-    T81String combined = hello + space + lit;
+    [[maybe_unused]] T81String combined= hello + space + lit;
     assert(combined.length() == hello.length() + 1 + lit.length());
 
     // Comparison
@@ -35,7 +35,7 @@ int main() {
     assert(hello.hash() != lit.hash());
 
     // String view access
-    std::string_view sv = hello.sv();
+    [[maybe_unused]] std::string_view sv= hello.sv();
     assert(sv == "HELLO");  // Should be normalized to uppercase
 
     // String operations
@@ -43,6 +43,6 @@ int main() {
     assert(str.length() == 3);
 
     std::cout << "All T81String tests PASSED!\n";
-    return 0;
+    [[maybe_unused]] return 0;
 }
 

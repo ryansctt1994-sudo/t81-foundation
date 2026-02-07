@@ -17,7 +17,7 @@ class DenyEngine : public t81::axion::Engine {
 
 int main() {
   {
-    tisc::Program p;
+    [[maybe_unused]] tisc::Program p;
     // r1 = 5
     p.insns.push_back({tisc::Opcode::LoadImm, 1, 5, 0});
     // r2 = r1
@@ -41,9 +41,9 @@ int main() {
     p.insns.push_back({tisc::Opcode::AxVerify, 6, 0, 0});
     p.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
 
-    auto vm = vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(p);
-    auto r = vm->run_to_halt();
+    [[maybe_unused]] auto r= vm->run_to_halt();
     assert(r.has_value());
     assert(vm->state().registers[1] == 6);
     assert(vm->state().registers[2] == 4);
@@ -59,25 +59,25 @@ int main() {
 
   // Pop with empty stack must trap.
   {
-    tisc::Program p;
+    [[maybe_unused]] tisc::Program p;
     p.insns.push_back({tisc::Opcode::Pop, 0, 0, 0});
-    auto vm = vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(p);
-    auto step = vm->step();
+    [[maybe_unused]] auto step= vm->step();
     assert(!step.has_value());
     assert(step.error() == vm::Trap::BoundsFault);
   }
 
   // Axion privilege denial via custom engine.
   {
-    tisc::Program p;
+    [[maybe_unused]] tisc::Program p;
     p.insns.push_back({tisc::Opcode::AxRead, 0, 1, 0});
-    auto vm = vm::make_interpreter_vm(std::make_unique<DenyEngine>());
+    [[maybe_unused]] auto vm= vm::make_interpreter_vm(std::make_unique<DenyEngine>());
     vm->load_program(p);
-    auto res = vm->step();
+    [[maybe_unused]] auto res= vm->step();
     assert(!res.has_value());
     assert(res.error() == vm::Trap::SecurityFault);
   }
 
-  return 0;
+  [[maybe_unused]] return 0;
 }

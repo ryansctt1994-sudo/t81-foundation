@@ -11,7 +11,7 @@ using namespace t81::frontend;
 void expect_semantic_success(const std::string& source, const char* label = "<success fixture>") {
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
     if (parser.had_error()) {
         std::cerr << "[" << label << "] parser reported errors\n";
     }
@@ -23,10 +23,9 @@ void expect_semantic_success(const std::string& source, const char* label = "<su
 }
 
 void expect_semantic_failure(const std::string& source, const char* label = "<failure fixture>") {
-    (void)label;
-    Lexer lexer(source);
+        Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
     if (parser.had_error()) {
         // Parsing already failed, acceptable for these fixtures.
         return;
@@ -49,11 +48,11 @@ int main() {
         fn main() -> T81Float {
             let big: T81BigInt = 123456;
             let result: T81Float = big + 1.20t81;
-            return result;
+            [[maybe_unused]] return result;
         }
     )";
     expect_semantic_success(bigint_float_success, "bigint_float_success");
 
     std::cout << "Semantic analyzer numeric rules tests passed!" << std::endl;
-    return 0;
+    [[maybe_unused]] return 0;
 }

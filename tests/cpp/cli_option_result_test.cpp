@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 namespace {
 fs::path make_temp_path(const std::string& prefix, const std::string& extension) {
     static std::mt19937_64 rng{std::random_device{}()};
-    std::uniform_int_distribution<uint64_t> dist;
+    [[maybe_unused]] std::uniform_int_distribution<uint64_t> dist;
     return fs::temp_directory_path() /
            (prefix + "-" + std::to_string(dist(rng)) + extension);
 }
@@ -53,16 +53,16 @@ int main() {
             let second: Option[i32] = None;
             let ok_result: Result[i32, T81String] = Ok(10);
             let err_result: Result[i32, T81String] = Err("boom");
-            let first_total = option_match(first);
-            let second_total = option_match(second);
-            let ok_total = result_match(ok_result);
-            let err_total = result_match(err_result);
+            [[maybe_unused]] let first_total= option_match(first);
+            [[maybe_unused]] let second_total= option_match(second);
+            [[maybe_unused]] let ok_total= result_match(ok_result);
+            [[maybe_unused]] let err_total= result_match(err_result);
             return first_total + second_total + ok_total + err_total;
         }
     )";
 
-    auto src = make_temp_path("t81-option-result", ".t81");
-    auto tisc_path = src;
+    [[maybe_unused]] auto src= make_temp_path("t81-option-result", ".t81");
+    [[maybe_unused]] auto tisc_path= src;
     tisc_path.replace_extension(".tisc");
 
     write_source(src, program);
@@ -75,5 +75,5 @@ int main() {
     fs::remove(tisc_path);
 
     std::cout << "CliOptionResultTest passed!" << std::endl;
-    return 0;
+    [[maybe_unused]] return 0;
 }

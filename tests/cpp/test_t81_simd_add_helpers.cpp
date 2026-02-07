@@ -16,14 +16,14 @@ int main() {
                           : static_cast<int8_t>(value);
         const int8_t expected_carry = (value > 1)   ? 1
                                        : (value < -1) ? -1
-                                                       : 0;
+                                                       [[maybe_unused]] : 0;
         if (entry.sum[carry_idx] != expected_sum || entry.carry[carry_idx] != expected_carry) {
           std::cout << "Mismatch for " << lhs << ", " << rhs << ", carry " << carry_in << "\n";
-          return 1;
+          [[maybe_unused]] return 1;
         }
       }
     }
   }
   std::cout << "Add helpers table OK\n";
-  return 0;
+  [[maybe_unused]] return 0;
 }

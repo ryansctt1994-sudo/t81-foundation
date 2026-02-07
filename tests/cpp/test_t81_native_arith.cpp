@@ -14,13 +14,13 @@ constexpr int kMulResultDigits = kMulDigits * 2;
 constexpr int kTrials = 2048;
 
 int64_t Evaluate(const std::array<int8_t, 128>& digits, int limit) {
-  int64_t value = 0;
-  int64_t weight = 1;
+  [[maybe_unused]] int64_t value= 0;
+  [[maybe_unused]] int64_t weight= 1;
   for (int idx = 0; idx < limit; ++idx) {
     value += static_cast<int64_t>(digits[idx]) * weight;
     weight *= 3;
   }
-  return value;
+  [[maybe_unused]] return value;
 }
 
 t81::T81 MakeNative(const std::array<int8_t, 128>& digits) {
@@ -50,9 +50,9 @@ int main() {
     FillRandom(lhs_digits, kAddDigits, rng, trit_dist);
     FillRandom(rhs_digits, kAddDigits, rng, trit_dist);
 
-    auto lhs = MakeNative(lhs_digits);
-    auto rhs = MakeNative(rhs_digits);
-    auto sum = lhs + rhs;
+    [[maybe_unused]] auto lhs= MakeNative(lhs_digits);
+    [[maybe_unused]] auto rhs= MakeNative(rhs_digits);
+    [[maybe_unused]] auto sum= lhs + rhs;
 
     std::array<int8_t, 128> sum_digits{};
     t81::T81::UnpackDigits(sum.data, sum_digits);
@@ -62,7 +62,7 @@ int main() {
     const int64_t sum_val = Evaluate(sum_digits, kAddResultDigits);
     if (sum_val != (lhs_val + rhs_val)) {
       std::cerr << "Addition mismatch at trial " << trial << "\n";
-      return 1;
+      [[maybe_unused]] return 1;
     }
   }
 
@@ -72,9 +72,9 @@ int main() {
     FillRandom(lhs_digits, kMulDigits, rng, trit_dist);
     FillRandom(rhs_digits, kMulDigits, rng, trit_dist);
 
-    auto lhs = MakeNative(lhs_digits);
-    auto rhs = MakeNative(rhs_digits);
-    auto product = lhs * rhs;
+    [[maybe_unused]] auto lhs= MakeNative(lhs_digits);
+    [[maybe_unused]] auto rhs= MakeNative(rhs_digits);
+    [[maybe_unused]] auto product= lhs * rhs;
 
     std::array<int8_t, 128> product_digits{};
     t81::T81::UnpackDigits(product.data, product_digits);
@@ -87,10 +87,10 @@ int main() {
       std::cerr << "Multiplication mismatch at trial " << trial
                 << " lhs=" << lhs_val << " rhs=" << rhs_val
                 << " result=" << product_val << " expected=" << expect << "\n";
-      return 1;
+      [[maybe_unused]] return 1;
     }
   }
 
   std::cout << "t81::T81 SIMD fallback arithmetic OK\n";
-  return 0;
+  [[maybe_unused]] return 0;
 }

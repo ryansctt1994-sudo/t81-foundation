@@ -17,17 +17,17 @@ int main() {
               Red => 0;
               Blue(v) if v > 10 => v;
           };
-          return 0;
+          [[maybe_unused]] return 0;
       }
   )";
 
-  auto program_opt = t81::cli::build_program_from_source(std::string(source), "<policy-match>");
+  [[maybe_unused]] auto program_opt= t81::cli::build_program_from_source(std::string(source), "<policy-match>");
   if (!program_opt) {
     std::cerr << "Failed to compile policy match program\n";
-    return 1;
+    [[maybe_unused]] return 1;
   }
 
-  auto program = *program_opt;
+  [[maybe_unused]] auto program= *program_opt;
   program.axion_policy_text = R"(
 (policy
   (tier 1)
@@ -38,15 +38,15 @@ int main() {
     (result pass)))
 )";
 
-  auto vm = t81::vm::make_interpreter_vm();
+  [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
   vm->load_program(program);
-  auto result = vm->run_to_halt();
+  [[maybe_unused]] auto result= vm->run_to_halt();
   if (!result) {
     std::cerr << "Guard policy run trapped: " << static_cast<int>(result.error()) << '\n';
-    return 1;
+    [[maybe_unused]] return 1;
   }
 
-  auto program_fail = *program_opt;
+  [[maybe_unused]] auto program_fail= *program_opt;
   program_fail.axion_policy_text = R"(
 (policy
   (tier 1)
@@ -56,17 +56,17 @@ int main() {
     (result pass)))
 )";
 
-  auto vm_fail = t81::vm::make_interpreter_vm();
+  [[maybe_unused]] auto vm_fail= t81::vm::make_interpreter_vm();
   vm_fail->load_program(program_fail);
-  auto fail_result = vm_fail->run_to_halt();
+  [[maybe_unused]] auto fail_result= vm_fail->run_to_halt();
   if (fail_result.has_value()) {
     std::cerr << "Policy guard failure did not trap\n";
-    return 1;
+    [[maybe_unused]] return 1;
   }
   if (fail_result.error() != t81::vm::Trap::SecurityFault) {
     std::cerr << "Expected security fault, got " << static_cast<int>(fail_result.error()) << '\n';
-    return 1;
+    [[maybe_unused]] return 1;
   }
 
-  return 0;
+  [[maybe_unused]] return 0;
 }

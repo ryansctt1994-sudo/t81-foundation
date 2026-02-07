@@ -28,6 +28,8 @@
 
 namespace t81::v1 {
 
+__extension__ typedef __int128 int128_t;
+
 namespace detail {
     inline const std::array<int16_t, 256>& get_byte_to_ternary() {
         static const auto table = []() {
@@ -424,19 +426,27 @@ public:
     }
 
     friend T81BigInt operator-(const T81BigInt& a, const T81BigInt& b) {
+        if (b.is_zero()) return a;
+        if (a.is_zero()) {
+            T81BigInt res = b;
+            res.negative_ = !b.negative_;
+            return res;
+        }
+        // For now, reuse addition logic for simplicity and correctness.
+        // Optimization: implement direct subtraction with SIMD if needed.
         T81BigInt neg_b = b;
-        if (!b.is_zero()) neg_b.negative_ = !b.negative_;
+        neg_b.negative_ = !b.negative_;
         return a + neg_b;
     }
 
-    static std::vector<__int128> karatsuba_mul_(const std::vector<int64_t>& a, const std::vector<int64_t>& b) {
+    static std::vector<int128_t> karatsuba_mul_(const std::vector<int64_t>& a, const std::vector<int64_t>& b) {
         size_t n = std::max(a.size(), b.size());
         if (n <= 12) { // Schoolbook threshold
-            std::vector<__int128> res(a.size() + b.size(), 0);
+            std::vector<int128_t> res(a.size() + b.size(), 0);
             for (size_t i = 0; i < a.size(); ++i) {
                 const int64_t val_a = a[i];
                 if (val_a == 0) continue;
-                const __int128 a128 = val_a;
+                const int128_t a128 = val_a;
                 for (size_t j = 0; j < b.size(); ++j) {
                     const int64_t val_b = b[j];
                     if (val_b == 0) continue;
@@ -481,13 +491,13 @@ public:
                 r[i] = (i < nx ? x[i] : 0) + (i < ny ? y[i] : 0);
             }
 
-            __int128 carry = 0;
-            const __int128 B = 7625597484987LL;
-            const __int128 halfB = (B - 1) / 2;
+            int128_t carry = 0;
+            const int128_t B = 7625597484987LL;
+            const int128_t halfB = (B - 1) / 2;
             for (size_t j = 0; j < r.size() || carry != 0; ++j) {
                 if (j >= r.size()) r.push_back(0);
-                __int128 val = r[j] + carry;
-                __int128 q = (val >= 0) ? (val + halfB) / B : (val - halfB) / B;
+                int128_t val = r[j] + carry;
+                int128_t q = (val >= 0) ? (val + halfB) / B : (val - halfB) / B;
                 r[j] = static_cast<int64_t>(val - q * B);
                 carry = q;
             }
@@ -499,17 +509,17 @@ public:
         auto z1 = karatsuba_mul_(a01, b01);
 
         // z1 = z1 - z0 - z2
-        auto sub_v_128 = [](std::vector<__int128>& x, const std::vector<__int128>& y) {
+        auto sub_v_128 = [](std::vector<int128_t>& x, const std::vector<int128_t>& y) {
             size_t nx = x.size(), ny = y.size();
             if (nx < ny) x.resize(ny, 0);
             for (size_t i = 0; i < ny; ++i) x[i] -= y[i];
         };
 
-        std::vector<__int128> middle = z1;
+        std::vector<int128_t> middle = z1;
         sub_v_128(middle, z0);
         sub_v_128(middle, z2);
 
-        std::vector<__int128> res(z2.size() + 2 * k, 0);
+        std::vector<int128_t> res(z2.size() + 2 * k, 0);
         if (res.size() < z0.size()) res.resize(z0.size(), 0);
         if (res.size() < middle.size() + k) res.resize(middle.size() + k, 0);
 
@@ -524,15 +534,15 @@ public:
         if (a.is_zero() || b.is_zero()) return T81BigInt::zero();
         auto ac = get_chunks_static(a);
         auto bc = get_chunks_static(b);
-        std::vector<__int128> rc = karatsuba_mul_(ac, bc);
+        std::vector<int128_t> rc = karatsuba_mul_(ac, bc);
 
-        const __int128 B = 7625597484987LL; // 3^27
-        const __int128 halfB = (B - 1) / 2;
-        __int128 carry = 0;
+        const int128_t B = 7625597484987LL; // 3^27
+        const int128_t halfB = (B - 1) / 2;
+        int128_t carry = 0;
         std::vector<int64_t> final_c;
         for (size_t i = 0; i < rc.size() || carry != 0; ++i) {
-            __int128 val = (i < rc.size() ? rc[i] : 0) + carry;
-            __int128 q = (val >= 0) ? (val + halfB) / B : (val - halfB) / B;
+            int128_t val = (i < rc.size() ? rc[i] : 0) + carry;
+            int128_t q = (val >= 0) ? (val + halfB) / B : (val - halfB) / B;
             final_c.push_back(static_cast<int64_t>(val - q * B));
             carry = q;
         }

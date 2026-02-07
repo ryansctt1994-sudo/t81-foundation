@@ -39,25 +39,25 @@ int main() {
             }
         )";
 
-        auto src = make_temp_path("t81-match", ".t81");
+        [[maybe_unused]] auto src= make_temp_path("t81-match", ".t81");
         write_source(src, program);
-        auto tisc_path = src;
+        [[maybe_unused]] auto tisc_path= src;
         tisc_path.replace_extension(".tisc");
 
-        int rc = t81::cli::compile(src, tisc_path);
+        [[maybe_unused]] int rc= t81::cli::compile(src, tisc_path);
         if (rc != 0) {
             std::cerr << "Compilation failed with return code " << rc << std::endl;
-            return rc;
+            [[maybe_unused]] return rc;
         }
 
-        auto compiled = t81::tisc::load_program(tisc_path.string());
+        [[maybe_unused]] auto compiled= t81::tisc::load_program(tisc_path.string());
         assert(!compiled.match_metadata_text.empty());
         assert(compiled.match_metadata_text.find("(payload") != std::string::npos);
 
-        auto vm = t81::vm::make_interpreter_vm();
+        [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
         vm->load_program(compiled);
 
-        bool saw_match_hint = false;
+        [[maybe_unused]] bool saw_match_hint= false;
         for (const auto& entry : vm->state().axion_log) {
             if (entry.verdict.reason.find("match metadata") != std::string::npos) {
                 saw_match_hint = true;
@@ -66,7 +66,7 @@ int main() {
         }
         if (!saw_match_hint) {
             std::cerr << "Axion log missing match metadata hint" << std::endl;
-            return 1;
+            [[maybe_unused]] return 1;
         }
 
         fs::remove(src);
@@ -75,9 +75,9 @@ int main() {
         }
 
         std::cout << "Axion match metadata test passed!" << std::endl;
-        return 0;
+        [[maybe_unused]] return 0;
     } catch (const std::exception& ex) {
         std::cerr << "Axion match metadata test threw: " << ex.what() << std::endl;
-        return 1;
+        [[maybe_unused]] return 1;
     }
 }

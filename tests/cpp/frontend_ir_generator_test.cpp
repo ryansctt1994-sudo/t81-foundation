@@ -22,20 +22,20 @@ using namespace t81::tisc::ir;
     }
 
 void test_simple_addition() {
-    std::string source = "let x = 1 + 2;";
+    [[maybe_unused]] std::string source= "let x = 1 + 2;";
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
-    IRGenerator generator;
-    auto program = generator.generate(stmts);
+    [[maybe_unused]] IRGenerator generator;
+    [[maybe_unused]] auto program= generator.generate(stmts);
 
     const auto& instructions = program.instructions();
 
     EXPECT(!instructions.empty(), "IRGenerator produced no instructions");
 
-    bool has_loadi = false;
-    bool has_add = false;
+    [[maybe_unused]] bool has_loadi= false;
+    [[maybe_unused]] bool has_add= false;
     for (const auto& inst : instructions) {
         if (inst.opcode == Opcode::LOADI) has_loadi = true;
         if (inst.opcode == Opcode::ADD) has_add = true;
@@ -47,21 +47,21 @@ void test_simple_addition() {
 }
 
 void test_if_statement() {
-    std::string source = "if (1 < 2) { let x = 1; }";
+    [[maybe_unused]] std::string source= "if (1 < 2) { let x = 1; }";
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
-    IRGenerator generator;
-    auto program = generator.generate(stmts);
+    [[maybe_unused]] IRGenerator generator;
+    [[maybe_unused]] auto program= generator.generate(stmts);
 
     const auto& instructions = program.instructions();
 
     EXPECT(!instructions.empty(), "IRGenerator produced no instructions for IfStmt");
 
-    bool found_cmp = false;
-    bool found_jz = false;
-    bool found_label = false;
+    [[maybe_unused]] bool found_cmp= false;
+    [[maybe_unused]] bool found_jz= false;
+    [[maybe_unused]] bool found_label= false;
     for (const auto& inst : instructions) {
         if (inst.opcode == Opcode::CMP) found_cmp = true;
         if (inst.opcode == Opcode::JZ) found_jz = true;
@@ -75,21 +75,21 @@ void test_if_statement() {
 }
 
 void test_if_else_statement() {
-    std::string source = "if (1 < 2) { let x = 1; } else { let y = 2; }";
+    [[maybe_unused]] std::string source= "if (1 < 2) { let x = 1; } else { let y = 2; }";
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
-    IRGenerator generator;
-    auto program = generator.generate(stmts);
+    [[maybe_unused]] IRGenerator generator;
+    [[maybe_unused]] auto program= generator.generate(stmts);
 
     const auto& instructions = program.instructions();
 
     EXPECT(!instructions.empty(), "IRGenerator produced no instructions for IfElseStmt");
 
-    bool found_jz = false;
-    bool found_jmp = false;
-    int labels_count = 0;
+    [[maybe_unused]] bool found_jz= false;
+    [[maybe_unused]] bool found_jmp= false;
+    [[maybe_unused]] int labels_count= 0;
     for (const auto& inst : instructions) {
         if (inst.opcode == Opcode::JZ) found_jz = true;
         if (inst.opcode == Opcode::JMP) found_jmp = true;
@@ -103,21 +103,21 @@ void test_if_else_statement() {
 }
 
 void test_while_loop() {
-    std::string source = "while (1 < 2) { let x = 1; }";
+    [[maybe_unused]] std::string source= "while (1 < 2) { let x = 1; }";
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
-    IRGenerator generator;
-    auto program = generator.generate(stmts);
+    [[maybe_unused]] IRGenerator generator;
+    [[maybe_unused]] auto program= generator.generate(stmts);
 
     const auto& instructions = program.instructions();
 
     EXPECT(!instructions.empty(), "IRGenerator produced no instructions for WhileStmt");
 
-    bool found_jz = false;
-    bool found_jmp = false;
-    int labels_count = 0;
+    [[maybe_unused]] bool found_jz= false;
+    [[maybe_unused]] bool found_jmp= false;
+    [[maybe_unused]] int labels_count= 0;
     for (const auto& inst : instructions) {
         if (inst.opcode == Opcode::JZ) found_jz = true;
         if (inst.opcode == Opcode::JMP) found_jmp = true;
@@ -131,20 +131,20 @@ void test_while_loop() {
 }
 
 void test_loop_statement() {
-    std::string source = "@bounded(5) loop { let x = 1; }";
+    [[maybe_unused]] std::string source= "@bounded(5) loop { let x = 1; }";
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
-    IRGenerator generator;
-    auto program = generator.generate(stmts);
+    [[maybe_unused]] IRGenerator generator;
+    [[maybe_unused]] auto program= generator.generate(stmts);
 
     const auto& instructions = program.instructions();
 
     EXPECT(!instructions.empty(), "IRGenerator produced no instructions for LoopStmt");
 
-    bool found_jmp = false;
-    int labels_count = 0;
+    [[maybe_unused]] bool found_jmp= false;
+    [[maybe_unused]] int labels_count= 0;
     for (const auto& inst : instructions) {
         if (inst.opcode == Opcode::JMP) found_jmp = true;
         if (inst.opcode == Opcode::LABEL) labels_count++;
@@ -156,21 +156,21 @@ void test_loop_statement() {
 }
 
 void test_guarded_loop_statement() {
-    std::string source = "var x = 0; @bounded(loop(x < 5)) loop { x = x + 1; }";
+    [[maybe_unused]] std::string source= "var x = 0; @bounded(loop(x < 5)) loop { x = x + 1; }";
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
-    IRGenerator generator;
-    auto program = generator.generate(stmts);
+    [[maybe_unused]] IRGenerator generator;
+    [[maybe_unused]] auto program= generator.generate(stmts);
 
     const auto& instructions = program.instructions();
 
     EXPECT(!instructions.empty(), "IRGenerator produced no instructions for Guarded LoopStmt");
 
-    bool found_jz = false;
-    bool found_jmp = false;
-    int labels_count = 0;
+    [[maybe_unused]] bool found_jz= false;
+    [[maybe_unused]] bool found_jmp= false;
+    [[maybe_unused]] int labels_count= 0;
     for (const auto& inst : instructions) {
         if (inst.opcode == Opcode::JZ) found_jz = true;
         if (inst.opcode == Opcode::JMP) found_jmp = true;
@@ -184,19 +184,19 @@ void test_guarded_loop_statement() {
 }
 
 void test_assignment() {
-    std::string source = "let x = 1; x = 2;";
+    [[maybe_unused]] std::string source= "let x = 1; x = 2;";
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
-    IRGenerator generator;
-    auto program = generator.generate(stmts);
+    [[maybe_unused]] IRGenerator generator;
+    [[maybe_unused]] auto program= generator.generate(stmts);
 
     const auto& instructions = program.instructions();
 
     EXPECT(!instructions.empty(), "Assignment should produce IR");
 
-    bool has_loadi = false;
+    [[maybe_unused]] bool has_loadi= false;
     for (const auto& inst : instructions) {
         if (inst.opcode == Opcode::LOADI) has_loadi = true;
     }
@@ -213,23 +213,23 @@ void test_match_option() {
                 Some(x) => x + 1;
                 None => 0;
             };
-            return v;
+            [[maybe_unused]] return v;
         }
     )";
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
-    IRGenerator generator;
-    auto program = generator.generate(stmts);
+    [[maybe_unused]] IRGenerator generator;
+    [[maybe_unused]] auto program= generator.generate(stmts);
     const auto& instructions = program.instructions();
 
     EXPECT(!instructions.empty(), "IRGenerator produced no instructions for match");
 
-    bool has_option_is_some = false;
-    bool has_option_unwrap = false;
-    bool has_branch = false;
-    bool has_jump = false;
+    [[maybe_unused]] bool has_option_is_some= false;
+    [[maybe_unused]] bool has_option_unwrap= false;
+    [[maybe_unused]] bool has_branch= false;
+    [[maybe_unused]] bool has_jump= false;
     for (const auto& inst : instructions) {
         if (inst.opcode == Opcode::OPTION_IS_SOME) has_option_is_some = true;
         if (inst.opcode == Opcode::OPTION_UNWRAP) has_option_unwrap = true;
@@ -257,19 +257,19 @@ void test_match_result() {
     )";
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
-    IRGenerator generator;
-    auto program = generator.generate(stmts);
+    [[maybe_unused]] IRGenerator generator;
+    [[maybe_unused]] auto program= generator.generate(stmts);
     const auto& instructions = program.instructions();
 
     EXPECT(!instructions.empty(), "Result match should produce IR");
 
-    bool has_result_is_ok = false;
-    bool has_result_unwrap_ok = false;
-    bool has_result_unwrap_err = false;
-    bool has_branch = false;
-    bool has_jump = false;
+    [[maybe_unused]] bool has_result_is_ok= false;
+    [[maybe_unused]] bool has_result_unwrap_ok= false;
+    [[maybe_unused]] bool has_result_unwrap_err= false;
+    [[maybe_unused]] bool has_branch= false;
+    [[maybe_unused]] bool has_jump= false;
     for (const auto& inst : instructions) {
         if (inst.opcode == Opcode::RESULT_IS_OK) has_result_is_ok = true;
         if (inst.opcode == Opcode::RESULT_UNWRAP_OK) has_result_unwrap_ok = true;
@@ -299,5 +299,5 @@ int main() {
     test_match_result();
 
     std::cout << "All IRGenerator integration tests completed!" << std::endl;
-    return 0;
+    [[maybe_unused]] return 0;
 }

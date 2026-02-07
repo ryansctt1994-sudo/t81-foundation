@@ -11,7 +11,7 @@ using namespace t81::frontend;
 void expect_semantic_success(const std::string& source, const char* label) {
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
     if (parser.had_error()) {
         std::cerr << "[" << label << "] parser reported errors\n";
     }
@@ -25,7 +25,7 @@ void expect_semantic_success(const std::string& source, const char* label) {
 void expect_semantic_failure(const std::string& source, const char* label) {
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
     if (parser.had_error()) {
         std::cerr << "[" << label << "] parser reported errors (expected)\n";
         return;
@@ -42,7 +42,7 @@ int main() {
             var a: Tensor[T81Int, 2, 3];
             var b: Tensor[T81Int, 2, 3];
             b = a;
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_success(matching_tensor, "matching_tensor");
@@ -52,7 +52,7 @@ int main() {
             var a: Tensor[T81Int, 2, 3];
             var b: Tensor[T81Int, 3, 3];
             b = a;
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(mismatched_tensor, "mismatched_tensor");
@@ -61,7 +61,7 @@ int main() {
         let RANK: i32 = 3;
         fn main() -> i32 {
             var parametric: Tensor[T81Int, RANK];
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_success(runtime_constant, "runtime_constant");
@@ -69,7 +69,7 @@ int main() {
     const std::string option_inference = R"(
         fn main() -> i32 {
             let inferred: Option = Some(42);
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_success(option_inference, "option_inference");
@@ -81,7 +81,7 @@ int main() {
                 Some(v) => v;
                 None => 0;
             };
-            return value;
+            [[maybe_unused]] return value;
         }
     )";
     expect_semantic_failure(option_inference_failure, "option_inference_failure");
@@ -89,7 +89,7 @@ int main() {
     const std::string result_inference = R"(
         fn main() -> i32 {
             let inferred: Result = Ok(1);
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_success(result_inference, "result_inference");
@@ -101,7 +101,7 @@ int main() {
                 Ok(v) => v;
                 Err(_) => 0;
             };
-            return value;
+            [[maybe_unused]] return value;
         }
     )";
     expect_semantic_failure(result_inference_failure, "result_inference_failure");
@@ -110,7 +110,7 @@ int main() {
         fn main() -> i32 {
             let inferred: Vector = Vector[T81Int, 4];
             let value: Vector[T81Int, 4] = inferred;
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_success(vector_inference, "vector_inference");
@@ -119,7 +119,7 @@ int main() {
         fn main() -> i32 {
             let inferred: Vector = Vector[T81Int, 4];
             let value: Vector[T81Float, 4] = inferred;
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(vector_inference_failure, "vector_inference_failure");
@@ -128,7 +128,7 @@ int main() {
         fn main() -> i32 {
             let inferred: Tensor = Tensor[T81Int, 2, 2];
             let value: Tensor[T81Int, 2, 2] = inferred;
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_success(tensor_inference, "tensor_inference");
@@ -137,7 +137,7 @@ int main() {
         fn main() -> i32 {
             let inferred: Tensor = Tensor[T81Int, 2, 2];
             let value: Tensor[T81Int, 2, 3] = inferred;
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(tensor_inference_failure, "tensor_inference_failure");
@@ -147,7 +147,7 @@ int main() {
         fn main() -> i32 {
             let inferred: Tensor = Tensor[T81Int, 2, RANK];
             let value: Tensor[T81Int, 2, RANK] = inferred;
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_success(tensor_symbol_consistent, "tensor_symbol_consistent");
@@ -157,7 +157,7 @@ int main() {
         fn main() -> i32 {
             let inferred: Tensor = Tensor[T81Int, 2, 4];
             let value: Tensor[T81Int, 2, RANK] = inferred;
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(tensor_symbol_mismatch, "tensor_symbol_mismatch");
@@ -166,7 +166,7 @@ int main() {
         fn main() -> i32 {
             let inferred: Box = Box[i32, 4];
             let value: Box[i32, 4] = inferred;
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_success(custom_generic, "custom_generic");
@@ -175,7 +175,7 @@ int main() {
         fn main() -> i32 {
             let inferred: Box = Box[i32, 4];
             let value: Box[i32, 5] = inferred;
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(custom_generic_failure, "custom_generic_failure");
@@ -184,7 +184,7 @@ int main() {
         fn main() -> i32 {
             let first: Box = Box[i32, 4];
             let second: Box = Box[i32, 4];
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_success(custom_generic_consistent, "custom_generic_consistent");
@@ -193,7 +193,7 @@ int main() {
         type Box[T, N] = Tensor[T, N];
         fn main() -> i32 {
             let value: Box[i32, 3] = Tensor[i32, 3];
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_success(custom_generic_alias, "custom_generic_alias");
@@ -202,7 +202,7 @@ int main() {
         type Box[T, N] = Tensor[T, N];
         type Box[T, N] = Tensor[T, N];
         fn main() -> i32 {
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(custom_generic_redefinition, "custom_generic_redefinition");
@@ -211,7 +211,7 @@ int main() {
         fn main() -> i32 {
             let inferred: Box = Box[i32, 4];
             let value: Box[i32, 4, 2] = inferred;
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(custom_generic_param_mismatch, "custom_generic_param_mismatch");
@@ -220,7 +220,7 @@ int main() {
         fn main() -> i32 {
             let inferred: Box = Box[i32, 4, 2];
             let value: Box[i32, 4] = inferred;
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(custom_generic_param_missing, "custom_generic_param_missing");
@@ -232,7 +232,7 @@ int main() {
                 Some(t) => t;
                 None => Tensor[T81Int, 2, 3];
             };
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_success(tensor_match_inference, "tensor_match_inference");
@@ -244,7 +244,7 @@ int main() {
                 Some(t) => t;
                 None => Tensor[T81Int, 3, 2];
             };
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(tensor_match_inference_failure, "tensor_match_inference_failure");
@@ -255,7 +255,7 @@ int main() {
             @bounded(infinite)
             loop {
                 let value: Tensor[T81Int, 2, 3] = inferred;
-                return 0;
+                [[maybe_unused]] return 0;
             }
         }
     )";
@@ -267,12 +267,12 @@ int main() {
             @bounded(infinite)
             loop {
                 let value: Tensor[T81Int, 3, 3] = inferred;
-                return 0;
+                [[maybe_unused]] return 0;
             }
         }
     )";
     expect_semantic_failure(tensor_loop_inference_failure, "tensor_loop_inference_failure");
 
     std::cout << "Semantic analyzer generic tests passed!" << std::endl;
-    return 0;
+    [[maybe_unused]] return 0;
 }

@@ -41,52 +41,49 @@ int main() {
     assert((s2 == std::vector<int>{2,3}));
     auto s3 = broadcast_shape({2,1,4}, {1,3,1}); // -> {2,3,4}
     assert((s3 == std::vector<int>{2,3,4}));
-    bool threw = false;
+    [[maybe_unused]] bool threw= false;
     try { (void)broadcast_shape({2,2}, {2,3}); } catch (const std::invalid_argument&) { threw = true; }
-    assert(threw);
-  }
+    assert(threw); }
 
   // squeeze
   {
-    auto q = squeeze({1,2,1,3,1});
+    [[maybe_unused]] auto q= squeeze({1,2,1,3,1});
     assert((q == std::vector<int>{2,3}));
-    auto q2 = squeeze({1,1});
+    [[maybe_unused]] auto q2= squeeze({1,1});
     assert((q2 == std::vector<int>{1})); // keep scalar dim
   }
 
   // flatten
   {
-    auto f = flatten({2,3,4});
+    [[maybe_unused]] auto f= flatten({2,3,4});
     assert((f == std::vector<int>{24}));
   }
 
   // validate_reshape
   {
-    auto v1 = validate_reshape({2,3}, {3,2});
+    [[maybe_unused]] auto v1= validate_reshape({2,3}, {3,2});
     assert((v1 == std::vector<int>{3,2}));
-    auto v2 = validate_reshape({2,3}, {-1});
+    [[maybe_unused]] auto v2= validate_reshape({2,3}, {-1});
     assert((v2 == std::vector<int>{6}));
     auto v3 = validate_reshape({2,3}, {2,-1,1}); // -> {2,3,1}
     assert((v3 == std::vector<int>{2,3,1}));
 
-    bool threw = false;
+    [[maybe_unused]] bool threw= false;
     try { (void)validate_reshape({2,3}, {-1,-1}); } catch (const std::invalid_argument&) { threw = true; }
     assert(threw); threw = false;
     try { (void)validate_reshape({2,3}, {4,2}); } catch (const std::invalid_argument&) { threw = true; }
-    assert(threw);
-  }
+    assert(threw); }
 
   // tensor construction overflow guard
   {
-    bool threw = false;
+    [[maybe_unused]] bool threw= false;
     try {
       t81::T729Tensor huge({INT_MAX, INT_MAX, INT_MAX});
     } catch (const std::overflow_error&) {
       threw = true;
     }
-    assert(threw);
-  }
+    assert(threw); }
 
   std::cout << "tensor_shape ok\n";
-  return 0;
+  [[maybe_unused]] return 0;
 }

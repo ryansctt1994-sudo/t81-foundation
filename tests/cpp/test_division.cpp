@@ -5,15 +5,15 @@
 using namespace t81;
 
 int main() {
-    using I = T81Int<32>;
+    [[maybe_unused]] using I= T81Int<32>;
 
     assert(I(10) / I(3) == I(3));
     assert(I(-10) / I(3) == I(-3));
     assert(I(10) / I(-3) == I(-3));
     assert(I(-10) / I(-3) == I(3));
 
-    bool ok = false;
-    try { I(1) / I(0); } catch (...) { ok = true; }
+    [[maybe_unused]] bool ok= false;
+    try { (void)(I(1) / I(0)); } catch (...) { ok = true; }
     assert(ok);
 
     std::cout << "Division tests passed!\n";

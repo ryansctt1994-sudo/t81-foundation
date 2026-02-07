@@ -17,21 +17,21 @@ using namespace t81;
 int64_t run_e2e_test(const std::string& source) {
     frontend::Lexer lexer(source);
     frontend::Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
     assert(!parser.had_error());
 
     frontend::SemanticAnalyzer analyzer(stmts);
     analyzer.analyze();
     assert(!analyzer.had_error());
 
-    frontend::IRGenerator ir_gen;
+    [[maybe_unused]] frontend::IRGenerator ir_gen;
     ir_gen.attach_semantic_analyzer(&analyzer);
-    tisc::ir::IntermediateProgram ir = ir_gen.generate(stmts);
+    [[maybe_unused]] tisc::ir::IntermediateProgram ir= ir_gen.generate(stmts);
 
-    tisc::BinaryEmitter emitter;
-    tisc::Program program = emitter.emit(ir);
+    [[maybe_unused]] tisc::BinaryEmitter emitter;
+    [[maybe_unused]] tisc::Program program= emitter.emit(ir);
 
-    auto vm = vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(program);
     vm->run_to_halt();
 
@@ -46,18 +46,18 @@ int main() {
             @bounded(100)
             loop {
                 if (i == 10) {
-                    return sum;
+                    [[maybe_unused]] return sum;
                 }
                 sum = sum + i;
                 i = i + 1;
             }
-            return sum;
+            [[maybe_unused]] return sum;
         }
     )";
 
-    [[maybe_unused]] int64_t result = run_e2e_test(loop_test_source);
+    [[maybe_unused]] int64_t result= run_e2e_test(loop_test_source);
     assert(result == 45);
 
     std::cout << "E2E loop statement test passed!" << std::endl;
-    return 0;
+    [[maybe_unused]] return 0;
 }

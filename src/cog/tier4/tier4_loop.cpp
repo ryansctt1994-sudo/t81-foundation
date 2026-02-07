@@ -42,6 +42,11 @@ void Tier4Loop::refine() {
     }
 }
 
+void Tier4Loop::update_self_model(const std::string& belief_key, const std::string& belief_val) {
+    model_.beliefs[belief_key] = belief_val;
+    log_reflection("updated self-model belief: " + belief_key);
+}
+
 void Tier4Loop::log_reflection(const std::string& reason) {
     std::ostringstream ss;
     ss << "cog:tier4:reflect: " << reason;

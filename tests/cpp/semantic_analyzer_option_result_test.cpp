@@ -11,7 +11,7 @@ using namespace t81::frontend;
 void expect_semantic_success(const std::string& source) {
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
     assert(!parser.had_error());
 
     SemanticAnalyzer analyzer(stmts);
@@ -24,7 +24,7 @@ void expect_semantic_failure(const std::string& source,
                              const std::string& expected_error = "") {
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
     if (parser.had_error()) {
         // Parsing already failed; that's acceptable for this helper.
         return;
@@ -48,17 +48,17 @@ void expect_semantic_failure(const std::string& source,
 int main() {
 #if defined(_WIN32) || defined(_WIN64)
     std::cout << "Semantic analyzer option/result tests skipped on Windows.\n";
-    return 0;
+    [[maybe_unused]] return 0;
 #else
     const std::string valid_option = R"(
         fn make_option() -> Option[i32] {
             let value: Option[i32] = Some(1);
-            return value;
+            [[maybe_unused]] return value;
         }
 
         fn main() -> i32 {
             let other: Option[i32] = make_option();
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_success(valid_option);
@@ -66,7 +66,7 @@ int main() {
     const std::string invalid_option = R"(
         fn bad_option() -> Option[i32] {
             let value: Option[i32] = Some(true);
-            return value;
+            [[maybe_unused]] return value;
         }
     )";
     expect_semantic_failure(invalid_option);
@@ -91,8 +91,8 @@ int main() {
 
     const std::string none_without_context = R"(
         fn main() -> i32 {
-            let missing = None();
-            return 0;
+            [[maybe_unused]] let missing= None();
+            [[maybe_unused]] return 0;
         }
     )";
     // `None` must appear where a contextual `Option[T]` type exists.
@@ -116,7 +116,7 @@ int main() {
         fn widen() -> i32 {
             let a: i8 = 1;
             let b: i32 = a + 2;
-            return b;
+            [[maybe_unused]] return b;
         }
     )";
     expect_semantic_success(numeric_widening_success);
@@ -133,7 +133,7 @@ int main() {
         fn widen_float() -> T81Float {
             let value: i8 = 3;
             let result: T81Float = value + 1.20t81;
-            return result;
+            [[maybe_unused]] return result;
         }
     )";
     expect_semantic_success(int_float_success);
@@ -182,6 +182,6 @@ int main() {
     expect_semantic_failure(nested_option_result_failure);
 
     std::cout << "Semantic analyzer option/result tests passed!" << std::endl;
-    return 0;
+    [[maybe_unused]] return 0;
 #endif
 }

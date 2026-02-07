@@ -12,7 +12,7 @@ int main() {
   T729Tensor m({2,3});
   m.data() = {1,2,3, 4,5,6};
 
-  auto t = t81::ops::transpose(m);
+  [[maybe_unused]] auto t= t81::ops::transpose(m);
 
   // Should be 3x2:
   assert(t.rank() == 2);
@@ -33,5 +33,5 @@ int main() {
   assert(d[5] == 6);
 
   std::cout << "tensor_transpose ok\n";
-  return 0;
+  [[maybe_unused]] return 0;
 }

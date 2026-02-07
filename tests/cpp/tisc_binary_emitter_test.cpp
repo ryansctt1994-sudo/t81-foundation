@@ -6,12 +6,12 @@
 using namespace t81::tisc::ir;
 
 void test_simple_program() {
-    IntermediateProgram ir_program;
+    [[maybe_unused]] IntermediateProgram ir_program;
     ir_program.add_instruction({Opcode::LOADI, {Register{0}, Immediate{10}}});
     ir_program.add_instruction({Opcode::HALT, {}});
 
-    t81::tisc::BinaryEmitter emitter;
-    auto program = emitter.emit(ir_program);
+    [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
+    [[maybe_unused]] auto program= emitter.emit(ir_program);
 
     assert(program.insns.size() == 2);
     assert(program.insns[0].opcode == t81::tisc::Opcode::LoadImm);
@@ -23,13 +23,13 @@ void test_simple_program() {
 }
 
 void test_jump() {
-    IntermediateProgram ir_program;
+    [[maybe_unused]] IntermediateProgram ir_program;
     ir_program.add_instruction({Opcode::JMP, {Label{0}}});
     ir_program.add_instruction({Opcode::LABEL, {Label{0}}});
     ir_program.add_instruction({Opcode::HALT, {}});
 
-    t81::tisc::BinaryEmitter emitter;
-    auto program = emitter.emit(ir_program);
+    [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
+    [[maybe_unused]] auto program= emitter.emit(ir_program);
 
     assert(program.insns.size() == 2);
     assert(program.insns[0].opcode == t81::tisc::Opcode::Jump);
@@ -40,15 +40,15 @@ void test_jump() {
 }
 
 void test_comparison_relation() {
-    IntermediateProgram ir_program;
+    [[maybe_unused]] IntermediateProgram ir_program;
     Instruction cmp{Opcode::CMP, {Register{0}, Register{1}, Register{2}}};
     cmp.boolean_result = true;
     cmp.relation = ComparisonRelation::LessEqual;
     ir_program.add_instruction(cmp);
     ir_program.add_instruction({Opcode::HALT, {}});
 
-    t81::tisc::BinaryEmitter emitter;
-    auto program = emitter.emit(ir_program);
+    [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
+    [[maybe_unused]] auto program= emitter.emit(ir_program);
 
     assert(program.insns.size() == 2);
     assert(program.insns[0].opcode == t81::tisc::Opcode::LessEqual);
@@ -70,15 +70,15 @@ void test_all_comparison_relations() {
     };
 
     for (const auto& [relation, expected_opcode] : cases) {
-        IntermediateProgram ir_program;
+        [[maybe_unused]] IntermediateProgram ir_program;
         Instruction cmp{Opcode::CMP, {Register{0}, Register{1}, Register{2}}};
         cmp.boolean_result = true;
         cmp.relation = relation;
         ir_program.add_instruction(cmp);
         ir_program.add_instruction({Opcode::HALT, {}});
 
-        t81::tisc::BinaryEmitter emitter;
-        auto program = emitter.emit(ir_program);
+        [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
+        [[maybe_unused]] auto program= emitter.emit(ir_program);
 
         assert(program.insns.size() == 2);
         assert(program.insns[0].opcode == expected_opcode);
@@ -95,5 +95,5 @@ int main() {
     test_jump();
     test_comparison_relation();
     test_all_comparison_relations();
-    return 0;
+    [[maybe_unused]] return 0;
 }

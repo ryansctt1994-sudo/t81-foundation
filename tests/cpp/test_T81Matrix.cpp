@@ -12,8 +12,8 @@ using namespace t81;
 int main() {
     std::cout << "Running T81Matrix tests...\n";
 
-    using Scalar = T81Float<72,9>;
-    using Mat    = T81Matrix<Scalar, 3, 3>;
+    [[maybe_unused]] using Scalar= T81Float<72,9>;
+    [[maybe_unused]] using Mat= T81Matrix<Scalar, 3, 3>;
 
     // Pre-constructed scalars so equality is purely "same ternary value"
     const Scalar one   = Scalar::from_double(1.0);
@@ -60,23 +60,21 @@ int main() {
     std::cout << "  [OK] Manual fill and element access\n";
 
     // 3) Transpose – purely structural check
-    Mat mt = m.transpose();
-    (void)mt;
-    for (int i = 0; i < 3; ++i)
+    [[maybe_unused]] Mat mt= m.transpose();
+        for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 3; ++j)
             assert(mt(i, j) == m(j, i));
     std::cout << "  [OK] Transpose\n";
 
     // 4) Addition and subtraction – check with algebraic identities
-    Mat m2  = m;
-    Mat sum = m + m2;
-    Mat diff = m - m2;
-    (void)sum; (void)diff;
+    [[maybe_unused]] Mat m2= m;
+    [[maybe_unused]] Mat sum= m + m2;
+    [[maybe_unused]] Mat diff= m - m2;
 
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
             // sum should be element-wise double of m
-            [[maybe_unused]] Scalar expected_sum = m(i, j) + m2(i, j);
+            [[maybe_unused]] Scalar expected_sum= m(i, j) + m2(i, j);
             assert(sum(i, j) == expected_sum);
 
             // diff should be zero everywhere
@@ -90,7 +88,6 @@ int main() {
         Mat copy1 = m;   // copy constructor
         Mat copy2; 
         copy2 = m;       // copy assignment
-        (void)copy1; (void)copy2;
 
         for (int i = 0; i < 3; ++i)
             for (int j = 0; j < 3; ++j) {
@@ -101,5 +98,5 @@ int main() {
     }
 
     std::cout << "All T81Matrix tests PASSED!\n";
-    return 0;
+    [[maybe_unused]] return 0;
 }

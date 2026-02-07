@@ -15,21 +15,21 @@ using namespace t81;
 int64_t execute_e2e_option_result_function_test(const std::string& source) {
     frontend::Lexer lexer(source);
     frontend::Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
     assert(!parser.had_error());
 
     frontend::SemanticAnalyzer analyzer(stmts);
     analyzer.analyze();
     assert(!analyzer.had_error());
 
-    frontend::IRGenerator ir_gen;
+    [[maybe_unused]] frontend::IRGenerator ir_gen;
     ir_gen.attach_semantic_analyzer(&analyzer);
-    tisc::ir::IntermediateProgram ir = ir_gen.generate(stmts);
+    [[maybe_unused]] tisc::ir::IntermediateProgram ir= ir_gen.generate(stmts);
 
-    tisc::BinaryEmitter emitter;
-    tisc::Program program = emitter.emit(ir);
+    [[maybe_unused]] tisc::BinaryEmitter emitter;
+    [[maybe_unused]] tisc::Program program= emitter.emit(ir);
 
-    auto vm = vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(program);
     vm->run_to_halt();
 
@@ -43,7 +43,7 @@ void test_option_result_function_regression() {
             if (flag > 0) {
                 return Some(template);
             }
-            return None;
+            [[maybe_unused]] return None;
         }
 
         fn inspect_payload(value: Option[Vector[i32]]) -> Result[i32, T81String] {
@@ -54,8 +54,8 @@ void test_option_result_function_regression() {
         }
 
         fn main() -> i32 {
-            let present_result = inspect_payload(produce_payload(1));
-            let absent_result = inspect_payload(produce_payload(0));
+            [[maybe_unused]] let present_result= inspect_payload(produce_payload(1));
+            [[maybe_unused]] let absent_result= inspect_payload(produce_payload(0));
 
             let present_value: i32 = match (present_result) {
                 Ok(v) => v;
@@ -77,5 +77,5 @@ void test_option_result_function_regression() {
 int main() {
     test_option_result_function_regression();
     std::cout << "E2E option/result function regression passed!" << std::endl;
-    return 0;
+    [[maybe_unused]] return 0;
 }

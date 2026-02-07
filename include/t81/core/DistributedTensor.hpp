@@ -33,6 +33,22 @@ public:
         return *local_data_;
     }
 
+    /**
+     * @brief Performs a distributed elementwise addition.
+     */
+    void add(const DistributedT81Tensor& other) {
+        if (num_shards_ != other.num_shards_ || shard_id_ != other.shard_id_) {
+            throw std::invalid_argument("Shard configuration mismatch");
+        }
+        // In a real distributed system, this would trigger network ops.
+        // Here we just operate on local shards.
+        auto& l = local();
+        const auto& r = other.local();
+        for (size_t i = 0; i < l.data().size(); ++i) {
+            l.data()[i] += r.data()[i];
+        }
+    }
+
 private:
     size_t shard_id_;
     size_t num_shards_;

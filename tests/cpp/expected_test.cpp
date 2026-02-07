@@ -18,7 +18,7 @@ void test_expected_monadic() {
     t81::expected<int, std::string> e(42);
 
     // transform
-    auto e2 = e.transform([](int x) { return x * 2; });
+    [[maybe_unused]] auto e2= e.transform([](int x) { return x * 2; });
     assert(e2.has_value());
     assert(e2.value() == 84);
 
@@ -31,13 +31,13 @@ void test_expected_monadic() {
 
     // transform_error
     t81::expected<int, int> err(std::unexpect, 1);
-    auto err2 = err.transform_error([](int x) { return std::to_string(x); });
+    [[maybe_unused]] auto err2= err.transform_error([](int x) { return std::to_string(x); });
     assert(!err2.has_value());
     assert(err2.error() == "1");
 
     // or_else
-    auto err3 = err2.or_else([](const std::string& s) -> t81::expected<int, std::string> {
-        return 0;
+    auto err3 = err2.or_else([](const std::string& /*s*/) -> t81::expected<int, std::string> {
+        [[maybe_unused]] return 0;
     });
     assert(err3.has_value());
     assert(err3.value() == 0);
@@ -47,7 +47,7 @@ void test_expected_void() {
     t81::expected<void, int> e;
     assert(e.has_value());
 
-    auto e2 = e.transform([]() { return 42; });
+    [[maybe_unused]] auto e2= e.transform([]() { return 42; });
     assert(e2.has_value());
     assert(e2.value() == 42);
 
@@ -61,5 +61,5 @@ int main() {
     test_expected_monadic();
     test_expected_void();
     std::cout << "expected_test passed!" << std::endl;
-    return 0;
+    [[maybe_unused]] return 0;
 }

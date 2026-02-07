@@ -17,16 +17,16 @@ std::array<int8_t, T81Limb54::TRITS> RandomTrits(std::mt19937_64& rng) {
   for (auto& trit : trits) {
     trit = static_cast<int8_t>(dist(rng));
   }
-  return trits;
+  [[maybe_unused]] return trits;
 }
 
 std::array<int8_t, T81Limb54::TRITS> AddTrits(
     const std::array<int8_t, T81Limb54::TRITS>& lhs,
     const std::array<int8_t, T81Limb54::TRITS>& rhs) {
   std::array<int8_t, T81Limb54::TRITS> sum{};
-  int carry = 0;
+  [[maybe_unused]] int carry= 0;
   for (int idx = 0; idx < T81Limb54::TRITS; ++idx) {
-    int total = static_cast<int>(lhs[idx]) + static_cast<int>(rhs[idx]) + carry;
+    [[maybe_unused]] int total= static_cast<int>(lhs[idx]) + static_cast<int>(rhs[idx]) + carry;
     if (total > 1) {
       sum[idx] = static_cast<int8_t>(total - 3);
       carry = 1;
@@ -38,11 +38,11 @@ std::array<int8_t, T81Limb54::TRITS> AddTrits(
       carry = 0;
     }
   }
-  return sum;
+  [[maybe_unused]] return sum;
 }
 
 void Dump(const T81Limb54& limb, const char* label) {
-  auto trits = limb.to_trits();
+  [[maybe_unused]] auto trits= limb.to_trits();
   std::cerr << label << ":";
   for (int idx = 0; idx < T81Limb54::TRITS; ++idx) {
     std::cerr << ' ' << static_cast<int>(trits[idx]);
@@ -52,9 +52,9 @@ void Dump(const T81Limb54& limb, const char* label) {
 
 void VerifyMatch(const T81Limb54& lhs, const T81Limb54& rhs,
                  const char* label) {
-  auto expected_trits = AddTrits(lhs.to_trits(), rhs.to_trits());
-  T81Limb54 expected = T81Limb54::from_trits(expected_trits);
-  T81Limb54 actual = lhs + rhs;
+  [[maybe_unused]] auto expected_trits= AddTrits(lhs.to_trits(), rhs.to_trits());
+  [[maybe_unused]] T81Limb54 expected= T81Limb54::from_trits(expected_trits);
+  [[maybe_unused]] T81Limb54 actual= lhs + rhs;
   if (expected.to_trits() != actual.to_trits()) {
     std::cerr << "Mismatch in " << label << "\n";
     Dump(lhs, "  lhs");
@@ -69,13 +69,13 @@ void VerifyMatch(const T81Limb54& lhs, const T81Limb54& rhs,
 int main() {
   std::mt19937_64 rng(0xCAFEBABE);
   for (int trial = 0; trial < kTrials; ++trial) {
-    auto trits_a = RandomTrits(rng);
-    auto trits_b = RandomTrits(rng);
-    T81Limb54 lhs = T81Limb54::from_trits(trits_a);
-    T81Limb54 rhs = T81Limb54::from_trits(trits_b);
+    [[maybe_unused]] auto trits_a= RandomTrits(rng);
+    [[maybe_unused]] auto trits_b= RandomTrits(rng);
+    [[maybe_unused]] T81Limb54 lhs= T81Limb54::from_trits(trits_a);
+    [[maybe_unused]] T81Limb54 rhs= T81Limb54::from_trits(trits_b);
     VerifyMatch(lhs, rhs, "random trial");
     VerifyMatch(rhs, lhs, "random trial commuted");
   }
   std::cout << "T81Limb54::operator+ matches naive trit addition\n";
-  return 0;
+  [[maybe_unused]] return 0;
 }

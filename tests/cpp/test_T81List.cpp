@@ -9,7 +9,7 @@ int main() {
     std::cout << "Running T81List tests...\n";
 
     // Construction
-    T81List<T81Int<27>> empty;
+    [[maybe_unused]] T81List<T81Int<27>> empty;
     assert(empty.empty());
     assert(empty.size() == 0);
 
@@ -30,7 +30,7 @@ int main() {
 
     // Concatenation
     T81List<T81Int<27>> other{T81Int<27>(5), T81Int<27>(6)};
-    T81List<T81Int<27>> combined = list + other;
+    [[maybe_unused]] T81List<T81Int<27>> combined= list + other;
     assert(combined.size() == 6);
     assert(combined[4].to_int64() == 5);
     assert(combined[5].to_int64() == 6);
@@ -44,6 +44,6 @@ int main() {
     assert(list.hash() == same.hash());
 
     std::cout << "All T81List tests PASSED!\n";
-    return 0;
+    [[maybe_unused]] return 0;
 }
 

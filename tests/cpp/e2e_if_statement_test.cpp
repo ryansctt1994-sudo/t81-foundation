@@ -7,20 +7,20 @@
 #include <iostream>
 
 void test_if_statement_true() {
-    std::string source = "fn main() -> T81Int { if (1 < 2) { return 1; } return 0; }";
+    [[maybe_unused]] std::string source= "fn main() -> T81Int { if (1 < 2) { return 1; } return 0; }";
     t81::frontend::Lexer lexer(source);
     t81::frontend::Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
     assert(!parser.had_error() && "Parsing failed");
 
-    t81::frontend::IRGenerator generator;
-    auto ir_program = generator.generate(stmts);
+    [[maybe_unused]] t81::frontend::IRGenerator generator;
+    [[maybe_unused]] auto ir_program= generator.generate(stmts);
 
-    t81::tisc::BinaryEmitter emitter;
-    auto program = emitter.emit(ir_program);
+    [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
+    [[maybe_unused]] auto program= emitter.emit(ir_program);
 
-    auto vm = t81::vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
     vm->load_program(program);
     vm->run_to_halt();
 
@@ -30,20 +30,20 @@ void test_if_statement_true() {
 }
 
 void test_if_statement_false() {
-    std::string source = "fn main() -> T81Int { if (2 < 1) { return 1; } return 0; }";
+    [[maybe_unused]] std::string source= "fn main() -> T81Int { if (2 < 1) { return 1; } return 0; }";
     t81::frontend::Lexer lexer(source);
     t81::frontend::Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
     assert(!parser.had_error() && "Parsing failed");
 
-    t81::frontend::IRGenerator generator;
-    auto ir_program = generator.generate(stmts);
+    [[maybe_unused]] t81::frontend::IRGenerator generator;
+    [[maybe_unused]] auto ir_program= generator.generate(stmts);
 
-    t81::tisc::BinaryEmitter emitter;
-    auto program = emitter.emit(ir_program);
+    [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
+    [[maybe_unused]] auto program= emitter.emit(ir_program);
 
-    auto vm = t81::vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
     vm->load_program(program);
     vm->run_to_halt();
 
@@ -53,20 +53,20 @@ void test_if_statement_false() {
 }
 
 void test_if_else_statement() {
-    std::string source = "fn main() -> T81Int { if (2 < 1) { return 1; } else { return 123; } }";
+    [[maybe_unused]] std::string source= "fn main() -> T81Int { if (2 < 1) { return 1; } else { return 123; } }";
     t81::frontend::Lexer lexer(source);
     t81::frontend::Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
 
     assert(!parser.had_error() && "Parsing failed");
 
-    t81::frontend::IRGenerator generator;
-    auto ir_program = generator.generate(stmts);
+    [[maybe_unused]] t81::frontend::IRGenerator generator;
+    [[maybe_unused]] auto ir_program= generator.generate(stmts);
 
-    t81::tisc::BinaryEmitter emitter;
-    auto program = emitter.emit(ir_program);
+    [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
+    [[maybe_unused]] auto program= emitter.emit(ir_program);
 
-    auto vm = t81::vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
     vm->load_program(program);
     vm->run_to_halt();
 
@@ -79,5 +79,5 @@ int main() {
     test_if_statement_true();
     test_if_statement_false();
     test_if_else_statement();
-    return 0;
+    [[maybe_unused]] return 0;
 }

@@ -12,7 +12,7 @@ void expect_semantic_success(const std::string& source, const char* label = "sem
     Lexer lexer(source);
     const std::string diag = label ? label : "<source>";
     Parser parser(lexer, diag);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
     assert(!parser.had_error());
 
     SemanticAnalyzer analyzer(stmts, diag);
@@ -26,7 +26,7 @@ void expect_semantic_failure(const std::string& source,
     Lexer lexer(source);
     const std::string diag = label ? label : "<source>";
     Parser parser(lexer, diag);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
     if (parser.had_error()) {
         return;
     }
@@ -48,7 +48,7 @@ void expect_semantic_failure(const std::string& source,
 int main() {
 #if defined(_WIN32) || defined(_WIN64)
     std::cout << "Semantic analyzer match tests skipped on Windows.\n";
-    return 0;
+    [[maybe_unused]] return 0;
 #else
     const std::string option_match = R"(
         fn main() -> i32 {
@@ -57,7 +57,7 @@ int main() {
                 Some(v) => v + 1;
                 None => 0;
             };
-            return value;
+            [[maybe_unused]] return value;
         }
     )";
     expect_semantic_success(option_match);
@@ -68,7 +68,7 @@ int main() {
             match (maybe) {
                 Some(v) => v;
             };
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(missing_none);
@@ -79,7 +79,7 @@ int main() {
             match (maybe) {
                 None => 0;
             };
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(missing_some);
@@ -92,7 +92,7 @@ int main() {
                 Some(w) => w;
                 None => 0;
             };
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(duplicate_some);
@@ -104,7 +104,7 @@ int main() {
                 Ok(v) => v;
                 None => 0;
             };
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(invalid_option_variant);
@@ -116,7 +116,7 @@ int main() {
                 Some(v) => v;
                 None => true;
             };
-            return result;
+            [[maybe_unused]] return result;
         }
     )";
     expect_semantic_failure(mismatched_arm);
@@ -127,7 +127,7 @@ int main() {
                 Some(v) => v;
                 None => 0;
             };
-            return value;
+            [[maybe_unused]] return value;
         }
     )";
     expect_semantic_failure(invalid_scrutinee);
@@ -204,7 +204,7 @@ int main() {
                 Green => 2;
                 Data(v) => v;
             };
-            return value;
+            [[maybe_unused]] return value;
         }
     )";
     expect_semantic_success(enum_success, "enum_match_success");
@@ -220,7 +220,7 @@ int main() {
             match (signal) {
                 Red => 1;
             };
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(enum_missing_variant, "enum_match_missing_variant");
@@ -237,7 +237,7 @@ int main() {
                 Red(value) => value;
                 Blue => 0;
             };
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(enum_binding_error, "enum_match_binding_error");
@@ -293,7 +293,7 @@ int main() {
                 Some(v) if v => v;
                 None => 0;
             };
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(guard_failure, "match_guard_failure", "Condition must be bool");
@@ -305,15 +305,15 @@ int main() {
                 Some(v) if Some(v) => v;
                 None => 0;
             };
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(guard_non_bool_variant, "match_guard_non_bool_variant", "Condition must be bool");
 
     const std::string record_pattern_success = R"(
         record Point2D {
-            x: i32;
-            y: i32;
+            [[maybe_unused]] x: i32;
+            [[maybe_unused]] y: i32;
         };
 
         enum Shape {
@@ -333,8 +333,8 @@ int main() {
 
     const std::string record_pattern_alias_success = R"(
         record Point2D {
-            x: i32;
-            y: i32;
+            [[maybe_unused]] x: i32;
+            [[maybe_unused]] y: i32;
         };
 
         enum Shape {
@@ -354,8 +354,8 @@ int main() {
 
     const std::string record_pattern_error = R"(
         record Point2D {
-            x: i32;
-            y: i32;
+            [[maybe_unused]] x: i32;
+            [[maybe_unused]] y: i32;
         };
 
         enum Shape {
@@ -369,7 +369,7 @@ int main() {
                 At({z}) => 0;
                 Empty => 0;
             };
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(record_pattern_error, "match_record_missing_field", "has no field 'z'");
@@ -398,8 +398,8 @@ int main() {
 
     const std::string nested_record_variant_success = R"(
         record Point {
-            x: i32;
-            y: i32;
+            [[maybe_unused]] x: i32;
+            [[maybe_unused]] y: i32;
         };
 
         enum Inner {
@@ -435,7 +435,7 @@ int main() {
                 Some => 0;
                 None => 0;
             };
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(missing_variant_binding, "match_missing_binding", "requires a binding");
@@ -452,7 +452,7 @@ int main() {
                 Tup(a) => a;
                 Empty => 0;
             };
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(tuple_pattern_arity_mismatch, "match_tuple_arity_mismatch", "expects 1 fields but payload has 2");
@@ -469,12 +469,12 @@ int main() {
                 Tup(a, b) => a + b;
                 Empty => 0;
             };
-            return 0;
+            [[maybe_unused]] return 0;
         }
     )";
     expect_semantic_failure(tuple_pattern_mismatch, "match_tuple_mismatch", "Tuple pattern for variant 'Tup' lacks payload type information.");
 
     std::cout << "Semantic analyzer match tests passed!" << std::endl;
-    return 0;
+    [[maybe_unused]] return 0;
 #endif
 }

@@ -9,26 +9,26 @@
 using namespace t81::frontend;
 
 std::string generate_random_string(std::mt19937& gen, size_t length) {
-    std::string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-*/%=<>()[]{}; \n\t@\"\\";
+    [[maybe_unused]] std::string charset= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-*/%=<>()[]{}; \n\t@\"\\";
     std::uniform_int_distribution<size_t> dist(0, charset.size() - 1);
-    std::string result;
+    [[maybe_unused]] std::string result;
     for (size_t i = 0; i < length; ++i) {
         result += charset[dist(gen)];
     }
-    return result;
+    [[maybe_unused]] return result;
 }
 
 void fuzz_iteration(std::mt19937& gen, int iteration) {
-    size_t length = std::uniform_int_distribution<size_t>(1, 1000)(gen);
-    std::string input = generate_random_string(gen, length);
+    [[maybe_unused]] size_t length= std::uniform_int_distribution<size_t>(1, 1000)(gen);
+    [[maybe_unused]] std::string input= generate_random_string(gen, length);
 
     try {
         Lexer lexer(input);
         // Exhaust tokens
-        auto tokens = lexer.all_tokens();
+        [[maybe_unused]] auto tokens= lexer.all_tokens();
 
         Parser parser(lexer);
-        auto stmts = parser.parse();
+        [[maybe_unused]] auto stmts= parser.parse();
 
         if (!parser.had_error()) {
             SemanticAnalyzer analyzer(stmts);
@@ -41,10 +41,10 @@ void fuzz_iteration(std::mt19937& gen, int iteration) {
 }
 
 int main() {
-    std::random_device rd;
+    [[maybe_unused]] std::random_device rd;
     std::mt19937 gen(rd());
 
-    int iterations = 1000;
+    [[maybe_unused]] int iterations= 1000;
     std::cout << "Running " << iterations << " fuzzing iterations...\n";
     for (int i = 0; i < iterations; ++i) {
         if (i % 100 == 0) {
@@ -53,5 +53,5 @@ int main() {
         fuzz_iteration(gen, i);
     }
     std::cout << "Fuzzing completed successfully!\n";
-    return 0;
+    [[maybe_unused]] return 0;
 }

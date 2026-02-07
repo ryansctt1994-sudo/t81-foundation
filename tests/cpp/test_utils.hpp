@@ -28,7 +28,7 @@ public:
     }
 
     std::any visit(const VarStmt& stmt) override {
-        std::string name = "var " + std::string(stmt.name.lexeme);
+        [[maybe_unused]] std::string name= "var " + std::string(stmt.name.lexeme);
         if (stmt.type) {
             name += ": " + print(*stmt.type);
         }
@@ -39,7 +39,7 @@ public:
     }
 
     std::any visit(const LetStmt& stmt) override {
-        std::string name = "let " + std::string(stmt.name.lexeme);
+        [[maybe_unused]] std::string name= "let " + std::string(stmt.name.lexeme);
         if (stmt.type) {
             name += ": " + print(*stmt.type);
         }
@@ -48,7 +48,7 @@ public:
     }
 
     std::any visit(const BlockStmt& stmt) override {
-        std::stringstream ss;
+        [[maybe_unused]] std::stringstream ss;
         ss << "(block";
         for (const auto& statement : stmt.statements) {
             ss << " " << print(*statement);
@@ -69,7 +69,7 @@ public:
     }
 
     std::any visit(const LoopStmt& stmt) override {
-        std::stringstream ss;
+        [[maybe_unused]] std::stringstream ss;
         ss << "(loop";
         if (stmt.bound_kind == LoopStmt::BoundKind::Infinite) {
             ss << " @bounded(infinite)";
@@ -91,16 +91,16 @@ public:
         return std::string("(return)");
     }
 
-    std::any visit(const BreakStmt& stmt) override {
+    std::any visit(const BreakStmt& /*stmt*/) override {
         return std::string("(break)");
     }
 
-    std::any visit(const ContinueStmt& stmt) override {
+    std::any visit(const ContinueStmt& /*stmt*/) override {
         return std::string("(continue)");
     }
 
     std::any visit(const FunctionStmt& stmt) override {
-        std::stringstream ss;
+        [[maybe_unused]] std::stringstream ss;
         ss << "(fn " << stmt.name.lexeme;
         ss << " (";
         for (size_t i = 0; i < stmt.params.size(); ++i) {
@@ -124,7 +124,7 @@ public:
     }
 
     std::any visit(const TypeDecl& stmt) override {
-        std::stringstream ss;
+        [[maybe_unused]] std::stringstream ss;
         ss << "(type " << stmt.name.lexeme << " [";
         for (size_t i = 0; i < stmt.params.size(); ++i) {
             ss << stmt.params[i].lexeme;
@@ -138,7 +138,7 @@ public:
     }
 
     std::any visit(const RecordDecl& stmt) override {
-        std::stringstream ss;
+        [[maybe_unused]] std::stringstream ss;
         ss << "(record " << stmt.name.lexeme;
         for (const auto& field : stmt.fields) {
             ss << " " << field.name.lexeme << ": ";
@@ -153,7 +153,7 @@ public:
     }
 
     std::any visit(const EnumDecl& stmt) override {
-        std::stringstream ss;
+        [[maybe_unused]] std::stringstream ss;
         ss << "(enum " << stmt.name.lexeme;
         for (const auto& variant : stmt.variants) {
             ss << " " << variant.name.lexeme;
@@ -178,7 +178,7 @@ public:
     }
 
     std::any visit(const VectorLiteralExpr& expr) override {
-        std::stringstream ss;
+        [[maybe_unused]] std::stringstream ss;
         ss << "[";
         for (size_t i = 0; i < expr.elements.size(); ++i) {
             ss << print(*expr.elements[i]);
@@ -197,7 +197,7 @@ public:
     }
 
     std::any visit(const CallExpr& expr) override {
-        std::vector<std::any> parts;
+        [[maybe_unused]] std::vector<std::any> parts;
         parts.push_back(&expr.callee);
         for (const auto& arg : expr.arguments) {
             parts.push_back(&arg);
@@ -210,7 +210,7 @@ public:
     }
 
     std::any visit(const MatchExpr& expr) override {
-        std::stringstream ss;
+        [[maybe_unused]] std::stringstream ss;
         ss << "(match " << print(*expr.scrutinee);
         for (const auto& arm : expr.arms) {
             ss << " (" << arm.keyword.lexeme;
@@ -255,7 +255,7 @@ public:
     }
 
     std::any visit(const RecordLiteralExpr& expr) override {
-        std::stringstream ss;
+        [[maybe_unused]] std::stringstream ss;
         ss << "(recordlit " << expr.type_name.lexeme;
         for (const auto& field : expr.fields) {
             ss << " " << field.first.lexeme;
@@ -268,7 +268,7 @@ public:
     }
 
     std::any visit(const EnumLiteralExpr& expr) override {
-        std::stringstream ss;
+        [[maybe_unused]] std::stringstream ss;
         ss << "(enumlit " << expr.enum_name.lexeme << "." << expr.variant.lexeme;
         if (expr.payload) {
             ss << " " << print(*expr.payload);
@@ -291,7 +291,7 @@ public:
 
 private:
     std::string parenthesize(std::string_view name, const std::vector<const Expr*>& exprs) {
-        std::stringstream ss;
+        [[maybe_unused]] std::stringstream ss;
         ss << "(" << name;
         for (const auto& expr : exprs) {
             ss << " " << print(*expr);
@@ -301,7 +301,7 @@ private:
     }
 
     std::string parenthesize(std::string_view name, const std::vector<std::any>& parts) {
-        std::stringstream ss;
+        [[maybe_unused]] std::stringstream ss;
         ss << "(" << name;
         for (const auto& part : parts) {
             ss << " ";
@@ -317,10 +317,10 @@ private:
 
 };
 
-inline void expect_semantic_success(const std::string& source, [[maybe_unused]] const char* label) {
+inline void expect_semantic_success(const std::string& source, const char* label) {
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
     assert(!parser.had_error() && label);
 
     SemanticAnalyzer analyzer(stmts);
@@ -331,7 +331,7 @@ inline void expect_semantic_success(const std::string& source, [[maybe_unused]] 
 inline void expect_semantic_failure(const std::string& source, const char* label, const std::string& expected_error = "") {
     Lexer lexer(source);
     Parser parser(lexer);
-    auto stmts = parser.parse();
+    [[maybe_unused]] auto stmts= parser.parse();
     if (parser.had_error()) return;
 
     SemanticAnalyzer analyzer(stmts);

@@ -17,7 +17,7 @@ int main() {
       std::filesystem::temp_directory_path() / "canonfs-axion-trace";
   std::filesystem::remove_all(workdir);
   std::filesystem::create_directories(workdir);
-  auto driver = make_persistent_driver(workdir);
+  [[maybe_unused]] auto driver= make_persistent_driver(workdir);
   driver->set_axion_hook(make_axion_policy_hook(R"(
     (policy
       (tier 1)
@@ -36,26 +36,26 @@ int main() {
       ObjectType::Blob, std::span<const std::byte>(bytes.data(), bytes.size()));
   assert(write_res.has_value());
 
-  auto read_res = driver->read_object_bytes(write_res.value());
+  [[maybe_unused]] auto read_res= driver->read_object_bytes(write_res.value());
   assert(read_res.has_value());
 
   const auto& trace = axion_trace();
   if (!std::any_of(trace.begin(), trace.end(), [](auto& entry) {
         return entry.find("meta slot axion event segment=meta addr=") != std::string::npos;
       })) {
-    return 1;
+    [[maybe_unused]] return 1;
   }
   if (!std::any_of(trace.begin(), trace.end(), [](auto& entry) {
         return entry.find("action=Write") != std::string::npos;
       })) {
-    return 1;
+    [[maybe_unused]] return 1;
   }
   if (!std::any_of(trace.begin(), trace.end(), [](auto& entry) {
         return entry.find("action=Read") != std::string::npos;
       })) {
-    return 1;
+    [[maybe_unused]] return 1;
   }
 
   std::filesystem::remove_all(workdir);
-  return 0;
+  [[maybe_unused]] return 0;
 }

@@ -7,11 +7,11 @@ using namespace t81;
 int main() {
     std::cout << "Running T81Float tests...\n";
 
-    using F = T81Float<18, 9>;
+    [[maybe_unused]] using F= T81Float<18, 9>;
 
-    F a = F::from_double(1.0);
-    F b = F::from_double(2.0);
-    F z = F::zero();
+    [[maybe_unused]] F a= F::from_double(1.0);
+    [[maybe_unused]] F b= F::from_double(2.0);
+    [[maybe_unused]] F z= F::zero();
 
     assert(a.to_double() != 0.0);
     assert(b.to_double() > a.to_double());
@@ -19,5 +19,5 @@ int main() {
     assert(!a.is_zero());
 
     std::cout << "All T81Float tests PASSED!\n";
-    return 0;
+    [[maybe_unused]] return 0;
 }
