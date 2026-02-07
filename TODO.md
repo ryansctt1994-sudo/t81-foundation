@@ -4,6 +4,7 @@ This document tracks long-term strategic goals and ecosystem enhancements that e
 
 ## Ecosystem & Tooling [P0]
 
+- [ ] **Python Bindings:** Implement `pybind11` wrappers for `T81Tensor` and `HanoiVM` to enable research experimentation.
 - [ ] **IDE Support:** Develop language servers (LSP) and syntax highlighters for T81Lang (VS Code, Vim, Emacs).
 - [ ] **Package Management:** Implement a canonical package manager for T81Lang libraries and modules.
 - [ ] **Integrated Debugger:** Create a debugger for HanoiVM that allows stepping through TISC instructions and inspecting Axion state.

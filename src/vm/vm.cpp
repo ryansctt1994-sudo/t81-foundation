@@ -8,6 +8,8 @@
 
 #include "t81/fraction.hpp"
 #include "t81/tensor.hpp"
+#include "t81/tensor/matmul.hpp"
+#include "t81/tensor/llama.hpp"
 #include <string>
 #include <string_view>
 #include <utility>
@@ -558,9 +560,7 @@ class Interpreter : public IVirtualMachine {
         if (auto res = promote_to_tensor(insn.b); !res) { trap = res.error(); break; }
         auto t = tensor_ptr(state_.registers[insn.b]);
         if (!t) { trap = Trap::DecodeFault; break; }
-        std::vector<float> data = t->data();
-        for (auto& x : data) x = x / (1.0f + std::exp(-x));
-        state_.registers[insn.a] = alloc_tensor(T729Tensor(t->shape(), std::move(data)));
+        state_.registers[insn.a] = alloc_tensor(t81::ops::silu(*t));
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
@@ -569,19 +569,7 @@ class Interpreter : public IVirtualMachine {
         if (auto res = promote_to_tensor(insn.b); !res) { trap = res.error(); break; }
         auto t = tensor_ptr(state_.registers[insn.b]);
         if (!t || t->rank() == 0) { trap = Trap::DecodeFault; break; }
-        int last_dim = t->shape().back();
-        std::vector<float> data = t->data();
-        for (size_t i = 0; i < data.size(); i += static_cast<size_t>(last_dim)) {
-          float max_val = data[i];
-          for (int j = 1; j < last_dim; ++j) max_val = std::max(max_val, data[i + j]);
-          float sum = 0.0f;
-          for (int j = 0; j < last_dim; ++j) {
-            data[i + j] = std::exp(data[i + j] - max_val);
-            sum += data[i + j];
-          }
-          for (int j = 0; j < last_dim; ++j) data[i + j] /= sum;
-        }
-        state_.registers[insn.a] = alloc_tensor(T729Tensor(t->shape(), std::move(data)));
+        state_.registers[insn.a] = alloc_tensor(t81::ops::softmax(*t));
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
@@ -595,16 +583,7 @@ class Interpreter : public IVirtualMachine {
           trap = Trap::ShapeFault;
           break;
         }
-        int dim = t->shape().back();
-        std::vector<float> data = t->data();
-        const float eps = 1e-6f;
-        for (size_t i = 0; i < data.size(); i += static_cast<size_t>(dim)) {
-          float ss = 0.0f;
-          for (int j = 0; j < dim; ++j) ss += data[i + j] * data[i + j];
-          ss = std::sqrt(ss / dim + eps);
-          for (int j = 0; j < dim; ++j) data[i + j] = (data[i + j] / ss) * w->data()[static_cast<size_t>(j)];
-        }
-        state_.registers[insn.a] = alloc_tensor(T729Tensor(t->shape(), std::move(data)));
+        state_.registers[insn.a] = alloc_tensor(t81::ops::rmsnorm(*t, *w));
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
@@ -1392,22 +1371,9 @@ class Interpreter : public IVirtualMachine {
           trap = Trap::ShapeFault;
           break;
         }
-        int m = ta->shape()[0];
         int k = ta->shape()[1];
         if (tb->shape()[0] != k) { trap = Trap::ShapeFault; break; }
-        int n = tb->shape()[1];
-        std::vector<float> data(static_cast<std::size_t>(m * n), 0.0f);
-        for (int i = 0; i < m; ++i) {
-          for (int j = 0; j < n; ++j) {
-            float sum = 0.0f;
-            for (int z = 0; z < k; ++z) {
-              sum += ta->data()[static_cast<std::size_t>(i) * k + z] *
-                     tb->data()[static_cast<std::size_t>(z) * n + j];
-            }
-            data[static_cast<std::size_t>(i) * n + j] = sum;
-          }
-        }
-        t81::T729Tensor result({m, n}, std::move(data));
+        t81::T729Tensor result = t81::ops::matmul(*ta, *tb);
         state_.registers[insn.a] = alloc_tensor(std::move(result));
         break;
       }

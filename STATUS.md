@@ -89,7 +89,7 @@ graph TD
 | Weights Tooling      | Usable             | `t81 weights load` persists `.t81w` metadata, `weights.load("<tensor>")` reuses handles, docs/guides/weights-integration.md walks the flow |
 | Benchmark Suite      | Production Ready   | `benchmark_runner` drives `t81 --benchmark`, artifacts land in `docs/benchmarks.md` plus GitHub Action coverage |
 | Axion Kernel         | Stub               | API declared (see `include/t81/axion`), example runner + docs capture policy trace expectations |
-| CanonFS              | Spec only          | Not yet started                                                                             |
+| CanonFS              | Beta               | Functional persistent driver with Axion trace hooks; demonstrated by `canonfs_trace_demo`  |
 
 ### 5. Technical Debt & Known Issues
 

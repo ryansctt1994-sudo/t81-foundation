@@ -128,6 +128,9 @@ target_link_libraries(axion_policy_runner PRIVATE t81_cli_driver t81_vm)
 add_executable(llama32_demo examples/llama32_demo.cpp)
 target_link_libraries(llama32_demo PRIVATE t81_cli_driver t81_vm)
 
+add_executable(canonfs_trace_demo examples/canonfs_trace_demo.cpp)
+target_link_libraries(canonfs_trace_demo PRIVATE t81_core)
+
 add_executable(axion_nested_guard_test tests/cpp/axion_nested_guard_test.cpp)
 target_link_libraries(axion_nested_guard_test PRIVATE t81_cli_driver t81_vm)
 
@@ -253,6 +256,12 @@ if(T81_BUILD_TESTS)
 
   add_executable(t81_vm_trace_test tests/cpp/vm_trace_test.cpp)
   target_link_libraries(t81_vm_trace_test PRIVATE t81_core)
+
+  add_executable(vm_extended_ops_test tests/cpp/vm_extended_ops_test.cpp)
+  target_link_libraries(vm_extended_ops_test PRIVATE t81_core)
+
+  add_executable(llama_kernels_test tests/cpp/llama_kernels_test.cpp)
+  target_link_libraries(llama_kernels_test PRIVATE t81_core)
 
   add_executable(t81_vm_jump_flags_test tests/cpp/vm_jump_flags_test.cpp)
   target_link_libraries(t81_vm_jump_flags_test PRIVATE t81_core)
@@ -543,6 +552,8 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_canonfs_driver_test
     t81_weights_load_test
     t81_vm_trace_test
+    vm_extended_ops_test
+    llama_kernels_test
     t81_vm_jump_flags_test
     t81_vm_float_fraction_ops_test
     t81_vm_neg_jumps_test

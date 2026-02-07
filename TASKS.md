@@ -35,6 +35,11 @@ ______________________________________________________________________
 
 With P0 closed, work shifts to the runtime-focused priorities below.
 
+- **[EPIC] T81Tensor & Transformer Kernels Optimization:**
+    - **[DONE] [M] Task:** Implement AVX2 acceleration for `TMatMul` in `include/t81/tensor/matmul.hpp`.
+    - **[DONE] [M] Task:** Implement AVX2 acceleration for `TRMSNorm`, `TSiLU`, and `TSoftmax` in `include/t81/tensor/llama.hpp`.
+    - **[DONE] [S] Task:** Ship the "Go Broad" killer demo: deterministic Llama-3.2 block in `examples/llama32_demo.cpp`.
+
 ______________________________________________________________________
 
 ### [P1] HanoiVM & TISC Runtime (Completed)
