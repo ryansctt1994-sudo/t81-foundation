@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <t81/hash/canonhash.hpp>
+#include <t81/canonfs/rs_repair.hpp>
 
 namespace t81::canonfs {
 namespace {
@@ -25,7 +26,9 @@ class InMemoryDriver : public Driver {
     CanonHash canon_hash{h};
     CanonRef ref{canon_hash};
     if (!has_capability(ref, CANON_PERM_WRITE)) return Error::CapabilityError;
-    objects_[ref.hash] = std::vector<std::byte>(bytes.begin(), bytes.end());
+    std::vector<std::byte> data(bytes.begin(), bytes.end());
+    objects_[ref.hash] = data;
+    parity_shards_[ref.hash] = ReedSolomonRepair::encode(data);
     return ref;
   }
 
@@ -51,8 +54,25 @@ class InMemoryDriver : public Driver {
 
   Result<void> parity_repair_subtree(const CanonRef& ref) override {
     if (!axion_allow(OpKind::Repair, ref)) return Error::CapabilityError;
-    // Placeholder: mark parity repair succeeded. TODO: spec/canonfs-spec.md repair rules.
-    if (!objects_.count(ref.hash)) return Error::NotFound;
+    if (objects_.count(ref.hash)) return {};
+
+    // Attempt repair from parity shards
+    auto it = parity_shards_.find(ref.hash);
+    if (it == parity_shards_.end()) return Error::NotFound;
+
+    const auto& shards = it->second;
+    std::vector<bool> available(5, true); // Assume all 5 are there for this impl
+    auto recovered = ReedSolomonRepair::repair(shards, available);
+
+    if (recovered.empty()) return Error::ParityFailure;
+
+    // Concatenate recovered data shards
+    std::vector<std::byte> full_data;
+    for (const auto& shard : recovered) {
+        full_data.insert(full_data.end(), shard.begin(), shard.end());
+    }
+
+    objects_[ref.hash] = std::move(full_data);
     return {};
   }
 
@@ -72,6 +92,7 @@ class InMemoryDriver : public Driver {
   }
 
   std::map<CanonHash, std::vector<std::byte>> objects_;
+  std::map<CanonHash, std::vector<std::vector<std::byte>>> parity_shards_;
   std::map<CanonHash, uint16_t> capabilities_;
   std::function<AxionVerdict(OpKind, const CanonRef&)> hook_{};
 };

@@ -24,7 +24,7 @@ enum class LiteralKind : std::uint8_t {
 struct Insn {
   Opcode opcode{Opcode::Nop};
   std::int32_t a{0};
-  std::int32_t b{0};
+  std::int64_t b{0};
   std::int32_t c{0};
   LiteralKind literal_kind{LiteralKind::Int};
 };

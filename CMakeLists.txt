@@ -45,7 +45,7 @@ add_library(t81_core STATIC
   src/tools/weights_t81w_emitter.cpp
   src/cog/promotion.cpp
   src/cog/tier4.cpp
-  src/cog/tier4/reflection_loop.cpp
+  src/cog/tier4/tier4_loop.cpp
   src/codec/base243.cpp
   src/codec/base81.cpp
   src/bigint/divmod.cpp

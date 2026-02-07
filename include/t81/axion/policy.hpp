@@ -23,7 +23,22 @@ enum class PolicyTag : uint8_t {
   SegmentEvent = 0x08,
   AxionEvent = 0x09,
   Alignment = 0x0A,
+  BytecodeHeader = 0x10,
   End = 0xFF
+};
+
+// Axion Policy Bytecode Opcodes
+enum class AxionOp : uint8_t {
+  CheckTier = 0x01,
+  LimitInstructions = 0x02,
+  LimitStack = 0x03,
+  LimitRecursion = 0x04,
+  RequireLoop = 0x05,
+  RequireMatchGuard = 0x06,
+  RequireSegmentEvent = 0x07,
+  RequireAxionEvent = 0x08,
+  RequireAlignment = 0x09,
+  Ret = 0xFF
 };
 
 struct Policy {
@@ -67,7 +82,12 @@ struct Policy {
   std::vector<AxionEventRequirement> axion_event_requirements;
   std::vector<AlignmentRequirement> alignment_requirements;
 
+  // New bytecode-related members
+  std::vector<uint8_t> bytecode;
+  std::vector<std::string> symbol_table;
+
   void serialize(std::ostream& os) const;
+  void compile_to_bytecode(); // NEW: Emitter
   static t81::expected<Policy, std::string> deserialize(std::istream& is);
 };
 

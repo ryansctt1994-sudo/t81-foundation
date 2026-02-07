@@ -434,10 +434,13 @@ public:
         if (n <= 12) { // Schoolbook threshold
             std::vector<__int128> res(a.size() + b.size(), 0);
             for (size_t i = 0; i < a.size(); ++i) {
-                if (a[i] == 0) continue;
+                const int64_t val_a = a[i];
+                if (val_a == 0) continue;
+                const __int128 a128 = val_a;
                 for (size_t j = 0; j < b.size(); ++j) {
-                    if (b[j] == 0) continue;
-                    res[i + j] += (__int128)a[i] * b[j];
+                    const int64_t val_b = b[j];
+                    if (val_b == 0) continue;
+                    res[i + j] += a128 * val_b;
                 }
             }
             return res;
@@ -462,15 +465,30 @@ public:
         auto z2 = karatsuba_mul_(a1, b1);
 
         auto add_v = [](const std::vector<int64_t>& x, const std::vector<int64_t>& y) {
-            std::vector<int64_t> r(std::max(x.size(), y.size()), 0);
+            size_t nx = x.size(), ny = y.size();
+            size_t n = std::max(nx, ny);
+            std::vector<int64_t> r(n, 0);
+            size_t i = 0;
+#if defined(__AVX2__)
+            size_t n_simd = std::min(nx, ny) & ~size_t(3);
+            for (; i < n_simd; i += 4) {
+                __m256i vx = _mm256_loadu_si256((const __m256i*)&x[i]);
+                __m256i vy = _mm256_loadu_si256((const __m256i*)&y[i]);
+                _mm256_storeu_si256((__m256i*)&r[i], _mm256_add_epi64(vx, vy));
+            }
+#endif
+            for (; i < n; ++i) {
+                r[i] = (i < nx ? x[i] : 0) + (i < ny ? y[i] : 0);
+            }
+
             __int128 carry = 0;
             const __int128 B = 7625597484987LL;
             const __int128 halfB = (B - 1) / 2;
-            for (size_t i = 0; i < r.size() || carry != 0; ++i) {
-                if (i >= r.size()) r.push_back(0);
-                __int128 val = (i < x.size() ? x[i] : 0) + (i < y.size() ? y[i] : 0) + carry;
+            for (size_t j = 0; j < r.size() || carry != 0; ++j) {
+                if (j >= r.size()) r.push_back(0);
+                __int128 val = r[j] + carry;
                 __int128 q = (val >= 0) ? (val + halfB) / B : (val - halfB) / B;
-                r[i] = static_cast<int64_t>(val - q * B);
+                r[j] = static_cast<int64_t>(val - q * B);
                 carry = q;
             }
             return r;
@@ -482,8 +500,9 @@ public:
 
         // z1 = z1 - z0 - z2
         auto sub_v_128 = [](std::vector<__int128>& x, const std::vector<__int128>& y) {
-            if (x.size() < y.size()) x.resize(y.size(), 0);
-            for (size_t i = 0; i < y.size(); ++i) x[i] -= y[i];
+            size_t nx = x.size(), ny = y.size();
+            if (nx < ny) x.resize(ny, 0);
+            for (size_t i = 0; i < ny; ++i) x[i] -= y[i];
         };
 
         std::vector<__int128> middle = z1;

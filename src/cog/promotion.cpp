@@ -41,5 +41,28 @@ Result<TierStatus> try_promote(const TierStatus& status, t81::axion::Engine& eng
   }
   return next;
 }
+
+bool should_promote_to_tier4(const v1::ReflectionTrace& trace) {
+  // Heuristic: promote if confidence is low.
+  if (trace.confidence < 0.81f) {
+    return true;
+  }
+
+  // Heuristic: promote if we have three or more observations without successful refinement
+  // (implied by recalibrate goal persisting in snapshot).
+  int observations = 0;
+  for (const auto& event : trace.history_snapshot) {
+    if (event.find("Observation:") != std::string::npos) {
+      observations++;
+    }
+  }
+
+  if (observations >= 3 && trace.goal == "recalibrate") {
+    return true;
+  }
+
+  return false;
+}
+
 }  // namespace t81::cog
 

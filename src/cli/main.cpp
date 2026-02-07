@@ -425,9 +425,11 @@ int run_policy_compile(const Args& args) {
     std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
     auto policy_res = t81::axion::parse_policy(content);
     if (!policy_res) { error("Policy parse error: " + policy_res.error()); return 1; }
+    auto& policy = policy_res.value();
+    policy.compile_to_bytecode();
     std::ofstream ofs(output, std::ios::binary);
     if (!ofs) { error("Could not open output file: " + output.string()); return 1; }
-    policy_res.value().serialize(ofs);
+    policy.serialize(ofs);
     info("Compiled policy to " + output.string());
     return 0;
 }

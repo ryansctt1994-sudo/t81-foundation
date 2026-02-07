@@ -33,6 +33,8 @@ class PolicyEngine : public Engine {
   bool alignment_event_satisfied(const SyscallContext& ctx,
                                  const Policy::AlignmentRequirement& req) const;
 
+  Verdict execute_bytecode(const SyscallContext& ctx);
+
   std::optional<Policy> policy_;
   struct InternalLoopReq {
     const Policy::LoopHint* hint;

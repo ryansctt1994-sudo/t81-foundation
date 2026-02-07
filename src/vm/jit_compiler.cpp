@@ -30,6 +30,18 @@ public:
                     state.registers[insn.a]--;
                     state.register_tags[insn.a] = ValueTag::Int;
                     break;
+                case t81::tisc::Opcode::Mov:
+                    state.registers[insn.a] = state.registers[insn.b];
+                    state.register_tags[insn.a] = state.register_tags[insn.b];
+                    break;
+                case t81::tisc::Opcode::Neg:
+                    state.registers[insn.a] = -state.registers[insn.b];
+                    state.register_tags[insn.a] = ValueTag::Int;
+                    break;
+                case t81::tisc::Opcode::LoadImm:
+                    state.registers[insn.a] = insn.b;
+                    state.register_tags[insn.a] = (insn.literal_kind == t81::tisc::LiteralKind::Int) ? ValueTag::Int : ValueTag::SymbolHandle;
+                    break;
                 default:
                     break;
             }
@@ -59,6 +71,9 @@ void JitCompiler::record_instruction(const t81::tisc::Insn& insn) {
         case t81::tisc::Opcode::Mul:
         case t81::tisc::Opcode::Inc:
         case t81::tisc::Opcode::Dec:
+        case t81::tisc::Opcode::Mov:
+        case t81::tisc::Opcode::Neg:
+        case t81::tisc::Opcode::LoadImm:
             trace_buffer_.push_back(insn);
             break;
         default:

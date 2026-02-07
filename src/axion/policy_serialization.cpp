@@ -108,7 +108,93 @@ void Policy::serialize(std::ostream& os) const {
         write_string(os, al.reason);
     }
 
+    if (!bytecode.empty()) {
+        write_u8(os, static_cast<uint8_t>(PolicyTag::BytecodeHeader));
+        write_u32(os, static_cast<uint32_t>(symbol_table.size()));
+        for (const auto& sym : symbol_table) {
+            write_string(os, sym);
+        }
+        write_u32(os, static_cast<uint32_t>(bytecode.size()));
+        os.write(reinterpret_cast<const char*>(bytecode.data()), static_cast<std::streamsize>(bytecode.size()));
+    }
+
     write_u8(os, static_cast<uint8_t>(PolicyTag::End));
+}
+
+void Policy::compile_to_bytecode() {
+    bytecode.clear();
+    symbol_table.clear();
+    auto add_sym = [&](const std::string& s) -> uint32_t {
+        for (size_t i = 0; i < symbol_table.size(); ++i) {
+            if (symbol_table[i] == s) return static_cast<uint32_t>(i);
+        }
+        symbol_table.push_back(s);
+        return static_cast<uint32_t>(symbol_table.size() - 1);
+    };
+    auto emit_u8 = [&](uint8_t v) { bytecode.push_back(v); };
+    auto emit_u32 = [&](uint32_t v) {
+        emit_u8(static_cast<uint8_t>(v & 0xFF));
+        emit_u8(static_cast<uint8_t>((v >> 8) & 0xFF));
+        emit_u8(static_cast<uint8_t>((v >> 16) & 0xFF));
+        emit_u8(static_cast<uint8_t>((v >> 24) & 0xFF));
+    };
+    auto emit_u64 = [&](uint64_t v) {
+        for (int i = 0; i < 8; ++i) emit_u8(static_cast<uint8_t>((v >> (i * 8)) & 0xFF));
+    };
+
+    emit_u8(static_cast<uint8_t>(AxionOp::CheckTier));
+    emit_u32(static_cast<uint32_t>(tier));
+
+    if (max_instructions) {
+        emit_u8(static_cast<uint8_t>(AxionOp::LimitInstructions));
+        emit_u64(static_cast<uint64_t>(*max_instructions));
+    }
+    if (max_stack) {
+        emit_u8(static_cast<uint8_t>(AxionOp::LimitStack));
+        emit_u64(static_cast<uint64_t>(*max_stack));
+    }
+    if (max_recursion) {
+        emit_u8(static_cast<uint8_t>(AxionOp::LimitRecursion));
+        emit_u64(static_cast<uint64_t>(*max_recursion));
+    }
+
+    for (const auto& loop : loops) {
+        emit_u8(static_cast<uint8_t>(AxionOp::RequireLoop));
+        emit_u32(static_cast<uint32_t>(loop.id));
+        emit_u32(add_sym(loop.file));
+        emit_u32(static_cast<uint32_t>(loop.line));
+        emit_u32(static_cast<uint32_t>(loop.column));
+        emit_u8(loop.bound_infinite ? 1 : 0);
+        emit_u64(loop.bound_value.value_or(0));
+    }
+
+    for (const auto& mg : match_guards) {
+        emit_u8(static_cast<uint8_t>(AxionOp::RequireMatchGuard));
+        emit_u32(add_sym(mg.enum_name));
+        emit_u32(add_sym(mg.variant_name));
+        emit_u32(mg.payload ? add_sym(*mg.payload) : 0xFFFFFFFF);
+        emit_u32(add_sym(mg.result));
+    }
+
+    for (const auto& sr : segment_requirements) {
+        emit_u8(static_cast<uint8_t>(AxionOp::RequireSegmentEvent));
+        emit_u32(add_sym(sr.segment));
+        emit_u32(add_sym(sr.action));
+        emit_u8(sr.addr ? 1 : 0);
+        emit_u64(sr.addr.value_or(0));
+    }
+
+    for (const auto& ar : axion_event_requirements) {
+        emit_u8(static_cast<uint8_t>(AxionOp::RequireAxionEvent));
+        emit_u32(add_sym(ar.reason));
+    }
+
+    for (const auto& al : alignment_requirements) {
+        emit_u8(static_cast<uint8_t>(AxionOp::RequireAlignment));
+        emit_u32(add_sym(al.reason));
+    }
+
+    emit_u8(static_cast<uint8_t>(AxionOp::Ret));
 }
 
 t81::expected<Policy, std::string> Policy::deserialize(std::istream& is) {
@@ -176,6 +262,17 @@ t81::expected<Policy, std::string> Policy::deserialize(std::istream& is) {
                 AlignmentRequirement al;
                 al.reason = read_string(is);
                 policy.alignment_requirements.push_back(std::move(al));
+                break;
+            }
+            case PolicyTag::BytecodeHeader: {
+                uint32_t sym_count = read_u32(is);
+                policy.symbol_table.resize(sym_count);
+                for (uint32_t i = 0; i < sym_count; ++i) {
+                    policy.symbol_table[i] = read_string(is);
+                }
+                uint32_t code_size = read_u32(is);
+                policy.bytecode.resize(code_size);
+                is.read(reinterpret_cast<char*>(policy.bytecode.data()), static_cast<std::streamsize>(code_size));
                 break;
             }
             default:

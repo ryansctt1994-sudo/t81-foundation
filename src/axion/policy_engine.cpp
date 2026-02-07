@@ -28,9 +28,166 @@ PolicyEngine::PolicyEngine(std::optional<Policy> policy) : policy_(std::move(pol
   }
 }
 
+Verdict PolicyEngine::execute_bytecode(const SyscallContext& ctx) {
+    if (!policy_ || policy_->bytecode.empty()) {
+        return Verdict{VerdictKind::Allow, "Axion policy engine (no bytecode)"};
+    }
+
+    const uint8_t* pc = policy_->bytecode.data();
+    const uint8_t* end = pc + policy_->bytecode.size();
+
+    auto read_u32 = [&]() {
+        uint32_t v = 0;
+        v |= *pc++;
+        v |= (static_cast<uint32_t>(*pc++) << 8);
+        v |= (static_cast<uint32_t>(*pc++) << 16);
+        v |= (static_cast<uint32_t>(*pc++) << 24);
+        return v;
+    };
+    auto read_u64 = [&]() {
+        uint64_t v = 0;
+        for (int i = 0; i < 8; ++i) v |= (static_cast<uint64_t>(*pc++) << (i * 8));
+        return v;
+    };
+    auto get_sym = [&](uint32_t idx) -> std::string_view {
+        if (idx >= policy_->symbol_table.size()) return "";
+        return policy_->symbol_table[idx];
+    };
+
+    const bool final_instruction = ctx.next_opcode == t81::tisc::Opcode::Halt;
+
+    while (pc < end) {
+        AxionOp op = static_cast<AxionOp>(*pc++);
+        switch (op) {
+            case AxionOp::CheckTier: {
+                uint32_t required = read_u32();
+                // Tier check would happen here in a full implementation
+                (void)required;
+                break;
+            }
+            case AxionOp::LimitInstructions: {
+                uint64_t limit = read_u64();
+                if (ctx.instruction_count > limit) {
+                    std::ostringstream ss;
+                    ss << "Instruction count limit exceeded: count=" << ctx.instruction_count << " limit=" << limit;
+                    return Verdict{VerdictKind::Deny, ss.str()};
+                }
+                break;
+            }
+            case AxionOp::LimitStack: {
+                uint64_t limit = read_u64();
+                if (ctx.stack_usage > limit) {
+                    std::ostringstream ss;
+                    ss << "Stack usage limit exceeded: usage=" << ctx.stack_usage << " limit=" << limit;
+                    return Verdict{VerdictKind::Deny, ss.str()};
+                }
+                break;
+            }
+            case AxionOp::LimitRecursion: {
+                uint64_t limit = read_u64();
+                if (ctx.recursion_depth > limit) {
+                    std::ostringstream ss;
+                    ss << "Recursion depth limit exceeded: depth=" << ctx.recursion_depth << " limit=" << limit;
+                    return Verdict{VerdictKind::Deny, ss.str()};
+                }
+                break;
+            }
+            case AxionOp::RequireLoop: {
+                uint32_t id = read_u32();
+                std::string_view file = get_sym(read_u32());
+                uint32_t line = read_u32();
+                uint32_t col = read_u32();
+                uint8_t infinite = *pc++;
+                uint64_t bound = read_u64();
+
+                std::ostringstream expect;
+                expect << "loop hint file=" << file << " line=" << line << " column=" << col << " bound=";
+                if (infinite) expect << "infinite";
+                else expect << bound;
+
+                bool satisfied = false;
+                for (const auto& entry : ctx.trace_reasons) {
+                    if (entry.find(expect.str()) != std::string::npos) {
+                        satisfied = true;
+                        break;
+                    }
+                }
+                if (!satisfied) {
+                    return Verdict{VerdictKind::Deny, "Missing loop hint trace: " + expect.str()};
+                }
+                (void)id;
+                break;
+            }
+            case AxionOp::RequireMatchGuard: {
+                std::string_view enum_name = get_sym(read_u32());
+                std::string_view variant_name = get_sym(read_u32());
+                uint32_t payload_idx = read_u32();
+                std::string_view result = get_sym(read_u32());
+
+                if (final_instruction) {
+                    Policy::MatchGuardRequirement req;
+                    req.enum_name = enum_name;
+                    req.variant_name = variant_name;
+                    if (payload_idx != 0xFFFFFFFF) req.payload = get_sym(payload_idx);
+                    req.result = result;
+                    if (!match_guard_satisfied(ctx, req)) {
+                        return Verdict{VerdictKind::Deny, "Missing match guard event"};
+                    }
+                }
+                break;
+            }
+            case AxionOp::RequireSegmentEvent: {
+                std::string_view segment = get_sym(read_u32());
+                std::string_view action = get_sym(read_u32());
+                uint8_t has_addr = *pc++;
+                uint64_t addr = read_u64();
+
+                if (final_instruction) {
+                    Policy::SegmentEventRequirement req;
+                    req.segment = segment;
+                    req.action = action;
+                    if (has_addr) req.addr = static_cast<int64_t>(addr);
+                    if (!segment_event_satisfied(ctx, req)) {
+                        return Verdict{VerdictKind::Deny, "Missing segment event"};
+                    }
+                }
+                break;
+            }
+            case AxionOp::RequireAxionEvent: {
+                std::string_view reason = get_sym(read_u32());
+                if (final_instruction) {
+                    Policy::AxionEventRequirement req{std::string(reason)};
+                    if (!axion_event_satisfied(ctx, req)) {
+                        return Verdict{VerdictKind::Deny, "Missing Axion event reason containing \"" + std::string(reason) + "\""};
+                    }
+                }
+                break;
+            }
+            case AxionOp::RequireAlignment: {
+                std::string_view reason = get_sym(read_u32());
+                if (final_instruction) {
+                    Policy::AlignmentRequirement req{std::string(reason)};
+                    if (!alignment_event_satisfied(ctx, req)) {
+                        return Verdict{VerdictKind::Deny, "Missing alignment event: reason=\"" + std::string(reason) + "\""};
+                    }
+                }
+                break;
+            }
+            case AxionOp::Ret:
+                return Verdict{VerdictKind::Allow, "Axion bytecode executed successfully"};
+            default:
+                return Verdict{VerdictKind::Deny, "Unknown Axion opcode"};
+        }
+    }
+    return Verdict{VerdictKind::Allow, "Axion bytecode end reached"};
+}
+
 Verdict PolicyEngine::evaluate(const SyscallContext& ctx) {
   if (!policy_) {
     return Verdict{VerdictKind::Allow, "Axion policy engine (no policy)"};
+  }
+  if (!policy_->bytecode.empty()) {
+      return execute_bytecode(ctx);
   }
   if (policy_->max_instructions && ctx.instruction_count > static_cast<std::size_t>(*policy_->max_instructions)) {
     std::ostringstream reason;
