@@ -43,6 +43,7 @@ add_library(t81_core STATIC
   src/tools/weights.cpp
   src/tools/weights_t81w_emitter.cpp
   src/cog/promotion.cpp
+  src/cog/tier4.cpp
   src/codec/base243.cpp
   src/codec/base81.cpp
   src/bigint/divmod.cpp
@@ -511,6 +512,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(test_T81Tensor_transpose tests/cpp/test_T81Tensor_transpose.cpp)
   target_link_libraries(test_T81Tensor_transpose PRIVATE t81_core)
 
+  add_executable(performance_advancements_test tests/cpp/performance_advancements_test.cpp)
+  target_link_libraries(performance_advancements_test PRIVATE t81_core)
+
   enable_testing()
   set(T81_TEST_TARGETS
     t81_float_test
@@ -621,6 +625,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     test_bigint_multilimb_ext
     t81_bigint_v1_perf
     test_T81Tensor_transpose
+    performance_advancements_test
   )
   foreach(tgt IN LISTS T81_TEST_TARGETS)
     add_test(NAME ${tgt} COMMAND $<TARGET_FILE:${tgt}>)

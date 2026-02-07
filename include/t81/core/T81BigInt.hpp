@@ -301,6 +301,78 @@ public:
         return a + neg_b;
     }
 
+    static std::vector<__int128> karatsuba_mul_(const std::vector<int64_t>& a, const std::vector<int64_t>& b) {
+        size_t n = std::max(a.size(), b.size());
+        if (n <= 12) { // Schoolbook threshold
+            std::vector<__int128> res(a.size() + b.size(), 0);
+            for (size_t i = 0; i < a.size(); ++i) {
+                if (a[i] == 0) continue;
+                for (size_t j = 0; j < b.size(); ++j) {
+                    if (b[j] == 0) continue;
+                    res[i + j] += (__int128)a[i] * b[j];
+                }
+            }
+            return res;
+        }
+
+        size_t k = n / 2;
+        auto split = [k](const std::vector<int64_t>& v) {
+            std::vector<int64_t> low, high;
+            for (size_t i = 0; i < v.size(); ++i) {
+                if (i < k) low.push_back(v[i]);
+                else high.push_back(v[i]);
+            }
+            if (low.empty()) low.push_back(0);
+            if (high.empty()) high.push_back(0);
+            return std::make_pair(low, high);
+        };
+
+        auto [a0, a1] = split(a);
+        auto [b0, b1] = split(b);
+
+        auto z0 = karatsuba_mul_(a0, b0);
+        auto z2 = karatsuba_mul_(a1, b1);
+
+        auto add_v = [](const std::vector<int64_t>& x, const std::vector<int64_t>& y) {
+            std::vector<int64_t> r(std::max(x.size(), y.size()), 0);
+            __int128 carry = 0;
+            const __int128 B = 7625597484987LL;
+            const __int128 halfB = (B - 1) / 2;
+            for (size_t i = 0; i < r.size() || carry != 0; ++i) {
+                if (i >= r.size()) r.push_back(0);
+                __int128 val = (i < x.size() ? x[i] : 0) + (i < y.size() ? y[i] : 0) + carry;
+                __int128 q = (val >= 0) ? (val + halfB) / B : (val - halfB) / B;
+                r[i] = static_cast<int64_t>(val - q * B);
+                carry = q;
+            }
+            return r;
+        };
+
+        auto a01 = add_v(a0, a1);
+        auto b01 = add_v(b0, b1);
+        auto z1 = karatsuba_mul_(a01, b01);
+
+        // z1 = z1 - z0 - z2
+        auto sub_v_128 = [](std::vector<__int128>& x, const std::vector<__int128>& y) {
+            if (x.size() < y.size()) x.resize(y.size(), 0);
+            for (size_t i = 0; i < y.size(); ++i) x[i] -= y[i];
+        };
+
+        std::vector<__int128> middle = z1;
+        sub_v_128(middle, z0);
+        sub_v_128(middle, z2);
+
+        std::vector<__int128> res(z2.size() + 2 * k, 0);
+        if (res.size() < z0.size()) res.resize(z0.size(), 0);
+        if (res.size() < middle.size() + k) res.resize(middle.size() + k, 0);
+
+        for (size_t i = 0; i < z0.size(); ++i) res[i] += z0[i];
+        for (size_t i = 0; i < middle.size(); ++i) res[i + k] += middle[i];
+        for (size_t i = 0; i < z2.size(); ++i) res[i + 2 * k] += z2[i];
+
+        return res;
+    }
+
     friend T81BigInt operator*(const T81BigInt& a, const T81BigInt& b) {
         if (a.is_zero() || b.is_zero()) return T81BigInt::zero();
 
@@ -328,15 +400,7 @@ public:
 
         std::vector<int64_t> ac = get_chunks(a);
         std::vector<int64_t> bc = get_chunks(b);
-        std::vector<__int128> rc(ac.size() + bc.size(), 0);
-
-        for (size_t i = 0; i < ac.size(); ++i) {
-            if (ac[i] == 0) continue;
-            for (size_t j = 0; j < bc.size(); ++j) {
-                if (bc[j] == 0) continue;
-                rc[i + j] += (__int128)ac[i] * bc[j];
-            }
-        }
+        std::vector<__int128> rc = karatsuba_mul_(ac, bc);
 
         const __int128 B = 7625597484987LL; // 3^27
         const __int128 halfB = (B - 1) / 2;

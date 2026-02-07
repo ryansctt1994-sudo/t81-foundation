@@ -7,12 +7,26 @@
 #include <istream>
 #include <optional>
 #include <stdexcept>
+#include <unordered_map>
 #include <system_error>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "t81/hash/canonhash.hpp"
+
+namespace std {
+template <>
+struct hash<t81::canonfs::CanonHash> {
+  size_t operator()(const t81::canonfs::CanonHash& h) const noexcept {
+    size_t seed = 0;
+    for (uint8_t b : h.h.bytes) {
+      seed ^= std::hash<uint8_t>{}(b) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+    return seed;
+  }
+};
+}
 
 namespace t81::canonfs {
 namespace {
@@ -122,6 +136,7 @@ class PersistentDriver final : public Driver {
     auto target = capability_path(root_, grant.target.hash);
     if (!write_capability(target, grant.perms)) return Error::DecodeError;
     has_capabilities_ = true;
+    capability_cache_[grant.target.hash] = grant.perms;
     return {};
   }
 
@@ -132,6 +147,7 @@ class PersistentDriver final : public Driver {
     std::filesystem::remove(target, ec);
     if (ec) return Error::CapabilityError;
     has_capabilities_ = !std::filesystem::is_empty(capabilities_dir_);
+    capability_cache_.erase(ref.hash);
     return {};
   }
 
@@ -152,9 +168,18 @@ class PersistentDriver final : public Driver {
   bool has_capability(const CanonHash& hash, uint16_t required) const {
     if (required == 0) return true;
     if (!has_capabilities_) return true;
-    auto perms = read_capability(capability_path(root_, hash));
-    if (!perms.has_value()) return false;
-    return (perms.value() & required) != 0;
+
+    uint16_t perms_val = 0;
+    auto it = capability_cache_.find(hash);
+    if (it != capability_cache_.end()) {
+      perms_val = it->second;
+    } else {
+      auto perms = read_capability(capability_path(root_, hash));
+      if (!perms.has_value()) return false;
+      perms_val = perms.value();
+      capability_cache_[hash] = perms_val;
+    }
+    return (perms_val & required) != 0;
   }
 
   std::filesystem::path root_;
@@ -162,6 +187,7 @@ class PersistentDriver final : public Driver {
   std::filesystem::path capabilities_dir_;
   std::filesystem::path parity_dir_;
   bool has_capabilities_{false};
+  mutable std::unordered_map<CanonHash, uint16_t> capability_cache_{};
   std::function<AxionVerdict(OpKind, const CanonRef&)> hook_{};
 };
 
