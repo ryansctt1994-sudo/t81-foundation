@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cmath>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -236,6 +238,48 @@ class Interpreter : public IVirtualMachine {
       log_memory_segment_access(t81::tisc::Opcode::Nop, MemorySegmentKind::Tensor, idx, 1,
                                 "tensor slot allocated");
       return static_cast<std::int64_t>(idx);
+    };
+    auto promote_to_tensor = [&](int reg) -> std::expected<void, Trap> {
+      if (reg < 0 || static_cast<std::size_t>(reg) >= state_.registers.size()) {
+        return Trap::DecodeFault;
+      }
+      if (state_.register_tags[reg] == ValueTag::WeightsTensorHandle) {
+        auto handle = state_.registers[reg];
+        const auto* native = weights_tensor(handle);
+        if (!native) return Trap::DecodeFault;
+
+        std::vector<float> float_data;
+        float_data.reserve(native->num_trits());
+
+        uint64_t remaining = native->trits;
+        if (remaining == 0 && !native->data.empty()) {
+          remaining = native->data.size() * 48;
+        }
+
+        for (uint64_t limb : native->data) {
+          uint64_t count = std::min<uint64_t>(48, remaining);
+          std::vector<float> block(count);
+          uint64_t val = limb;
+          for (int i = 47; i >= 0; --i) {
+            uint64_t digit = val % 3;
+            val /= 3;
+            if (static_cast<uint64_t>(i) < count) {
+              block[i] = static_cast<float>(static_cast<int>(digit) - 1);
+            }
+          }
+          float_data.insert(float_data.end(), block.begin(), block.end());
+          remaining -= count;
+          if (remaining == 0) break;
+        }
+
+        std::vector<int> shape;
+        for (auto d : native->shape) shape.push_back(static_cast<int>(d));
+
+        t81::T729Tensor promoted(std::move(shape), std::move(float_data));
+        state_.registers[reg] = alloc_tensor(std::move(promoted));
+        state_.register_tags[reg] = ValueTag::TensorHandle;
+      }
+      return {};
     };
     auto float_ptr = [this](std::int64_t handle) -> double* {
       if (handle <= 0) return nullptr;
@@ -485,6 +529,107 @@ class Interpreter : public IVirtualMachine {
         auto handle = intern_weights_tensor(name);
         state_.registers[insn.a] = handle;
         state_.register_tags[insn.a] = ValueTag::WeightsTensorHandle;
+        break;
+      }
+      case t81::tisc::Opcode::TExp: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) { trap = Trap::DecodeFault; break; }
+        if (auto res = promote_to_tensor(insn.b); !res) { trap = res.error(); break; }
+        auto t = tensor_ptr(state_.registers[insn.b]);
+        if (!t) { trap = Trap::DecodeFault; break; }
+        std::vector<float> data = t->data();
+        for (auto& v : data) v = std::exp(v);
+        state_.registers[insn.a] = alloc_tensor(T729Tensor(t->shape(), std::move(data)));
+        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+        break;
+      }
+      case t81::tisc::Opcode::TSqrt: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) { trap = Trap::DecodeFault; break; }
+        if (auto res = promote_to_tensor(insn.b); !res) { trap = res.error(); break; }
+        auto t = tensor_ptr(state_.registers[insn.b]);
+        if (!t) { trap = Trap::DecodeFault; break; }
+        std::vector<float> data = t->data();
+        for (auto& v : data) v = std::sqrt(v);
+        state_.registers[insn.a] = alloc_tensor(T729Tensor(t->shape(), std::move(data)));
+        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+        break;
+      }
+      case t81::tisc::Opcode::TSiLU: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) { trap = Trap::DecodeFault; break; }
+        if (auto res = promote_to_tensor(insn.b); !res) { trap = res.error(); break; }
+        auto t = tensor_ptr(state_.registers[insn.b]);
+        if (!t) { trap = Trap::DecodeFault; break; }
+        std::vector<float> data = t->data();
+        for (auto& x : data) x = x / (1.0f + std::exp(-x));
+        state_.registers[insn.a] = alloc_tensor(T729Tensor(t->shape(), std::move(data)));
+        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+        break;
+      }
+      case t81::tisc::Opcode::TSoftmax: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) { trap = Trap::DecodeFault; break; }
+        if (auto res = promote_to_tensor(insn.b); !res) { trap = res.error(); break; }
+        auto t = tensor_ptr(state_.registers[insn.b]);
+        if (!t || t->rank() == 0) { trap = Trap::DecodeFault; break; }
+        int last_dim = t->shape().back();
+        std::vector<float> data = t->data();
+        for (size_t i = 0; i < data.size(); i += static_cast<size_t>(last_dim)) {
+          float max_val = data[i];
+          for (int j = 1; j < last_dim; ++j) max_val = std::max(max_val, data[i + j]);
+          float sum = 0.0f;
+          for (int j = 0; j < last_dim; ++j) {
+            data[i + j] = std::exp(data[i + j] - max_val);
+            sum += data[i + j];
+          }
+          for (int j = 0; j < last_dim; ++j) data[i + j] /= sum;
+        }
+        state_.registers[insn.a] = alloc_tensor(T729Tensor(t->shape(), std::move(data)));
+        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+        break;
+      }
+      case t81::tisc::Opcode::TRMSNorm: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) { trap = Trap::DecodeFault; break; }
+        if (auto res = promote_to_tensor(insn.b); !res) { trap = res.error(); break; }
+        if (auto res = promote_to_tensor(insn.c); !res) { trap = res.error(); break; }
+        auto t = tensor_ptr(state_.registers[insn.b]);
+        auto w = tensor_ptr(state_.registers[insn.c]);
+        if (!t || !w || t->rank() == 0 || w->rank() != 1 || w->shape()[0] != t->shape().back()) {
+          trap = Trap::ShapeFault;
+          break;
+        }
+        int dim = t->shape().back();
+        std::vector<float> data = t->data();
+        const float eps = 1e-6f;
+        for (size_t i = 0; i < data.size(); i += static_cast<size_t>(dim)) {
+          float ss = 0.0f;
+          for (int j = 0; j < dim; ++j) ss += data[i + j] * data[i + j];
+          ss = std::sqrt(ss / dim + eps);
+          for (int j = 0; j < dim; ++j) data[i + j] = (data[i + j] / ss) * w->data()[static_cast<size_t>(j)];
+        }
+        state_.registers[insn.a] = alloc_tensor(T729Tensor(t->shape(), std::move(data)));
+        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+        break;
+      }
+      case t81::tisc::Opcode::TRoPE: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) { trap = Trap::DecodeFault; break; }
+        if (auto res = promote_to_tensor(insn.b); !res) { trap = res.error(); break; }
+        auto t = tensor_ptr(state_.registers[insn.b]);
+        if (!t || t->rank() < 2) { trap = Trap::ShapeFault; break; }
+        int pos = static_cast<int>(state_.registers[insn.c]);
+        int head_dim = t->shape().back();
+        std::vector<float> data = t->data();
+        for (size_t i = 0; i < data.size(); i += static_cast<size_t>(head_dim)) {
+          for (int j = 0; j < head_dim; j += 2) {
+            float freq = 1.0f / std::pow(10000.0f, static_cast<float>(j) / head_dim);
+            float val = static_cast<float>(pos) * freq;
+            float f_cos = std::cos(val);
+            float f_sin = std::sin(val);
+            float v0 = data[i + static_cast<size_t>(j)];
+            float v1 = data[i + static_cast<size_t>(j + 1)];
+            data[i + static_cast<size_t>(j)] = v0 * f_cos - v1 * f_sin;
+            data[i + static_cast<size_t>(j + 1)] = v0 * f_sin + v1 * f_cos;
+          }
+        }
+        state_.registers[insn.a] = alloc_tensor(T729Tensor(t->shape(), std::move(data)));
+        state_.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
       case t81::tisc::Opcode::Store: {
@@ -1183,6 +1328,8 @@ class Interpreter : public IVirtualMachine {
       }
       case t81::tisc::Opcode::TVecAdd: {
         if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) { trap = Trap::DecodeFault; break; }
+        if (auto res = promote_to_tensor(insn.b); !res) { trap = res.error(); break; }
+        if (auto res = promote_to_tensor(insn.c); !res) { trap = res.error(); break; }
         if (state_.register_tags[insn.b] != ValueTag::TensorHandle ||
             state_.register_tags[insn.c] != ValueTag::TensorHandle) {
           trap = Trap::TypeFault;
@@ -1218,6 +1365,8 @@ class Interpreter : public IVirtualMachine {
       }
       case t81::tisc::Opcode::TMatMul: {
         if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) { trap = Trap::DecodeFault; break; }
+        if (auto res = promote_to_tensor(insn.b); !res) { trap = res.error(); break; }
+        if (auto res = promote_to_tensor(insn.c); !res) { trap = res.error(); break; }
         if (state_.register_tags[insn.b] != ValueTag::TensorHandle ||
             state_.register_tags[insn.c] != ValueTag::TensorHandle) {
           trap = Trap::TypeFault;
@@ -1264,6 +1413,8 @@ class Interpreter : public IVirtualMachine {
       }
       case t81::tisc::Opcode::TTenDot: {
         if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) { trap = Trap::DecodeFault; break; }
+        if (auto res = promote_to_tensor(insn.b); !res) { trap = res.error(); break; }
+        if (auto res = promote_to_tensor(insn.c); !res) { trap = res.error(); break; }
         if (state_.register_tags[insn.b] != ValueTag::TensorHandle ||
             state_.register_tags[insn.c] != ValueTag::TensorHandle) {
           trap = Trap::TypeFault;

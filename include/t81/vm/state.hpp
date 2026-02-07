@@ -111,8 +111,8 @@ struct AxionEvent {
 
 // Virtual machine register file per spec/t81vm-spec.md.
 struct State {
-  std::array<std::int64_t, 27> registers{}; // R0..R26
-  std::array<ValueTag, 27> register_tags{};
+  std::array<std::int64_t, 243> registers{}; // R0..R242
+  std::array<ValueTag, 243> register_tags{};
   std::vector<std::int64_t> memory;
   std::vector<ValueTag> memory_tags;
   MemoryLayout layout{};
