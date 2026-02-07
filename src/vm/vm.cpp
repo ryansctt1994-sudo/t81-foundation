@@ -158,7 +158,7 @@ class Interpreter : public IVirtualMachine {
       std::size_t a = static_cast<std::size_t>(addr);
       const auto& layout = state_.layout;
       if (code) {
-        return layout.code.contains(a);
+        return a >= layout.code.start && a <= layout.code.limit;
       }
       if (a >= state_.memory.size()) return false;
       // Strict segment containment: an address must resolve to exactly one segment.
@@ -1343,8 +1343,21 @@ class Interpreter : public IVirtualMachine {
         if (auto res = promote_to_tensor(insn.b); !res) { trap = res.error(); break; }
         if (auto res = promote_to_tensor(insn.c); !res) { trap = res.error(); break; }
         auto ta = tensor_ptr(state_.registers[insn.b]);
+        if (!ta) {
+          log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor,
+                           static_cast<int>(state_.registers[insn.b]),
+                           "tensor handle access");
+          trap = Trap::DecodeFault;
+          break;
+        }
         auto tb = tensor_ptr(state_.registers[insn.c]);
-        if (!ta || !tb) { trap = Trap::DecodeFault; break; }
+        if (!tb) {
+          log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor,
+                           static_cast<int>(state_.registers[insn.c]),
+                           "tensor handle access");
+          trap = Trap::DecodeFault;
+          break;
+        }
         if (ta->data().size() != tb->data().size()) {
           trap = Trap::ShapeFault;
           break;
@@ -1378,11 +1391,6 @@ class Interpreter : public IVirtualMachine {
         if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) { trap = Trap::DecodeFault; break; }
         if (auto res = promote_to_tensor(insn.b); !res) { trap = res.error(); break; }
         if (auto res = promote_to_tensor(insn.c); !res) { trap = res.error(); break; }
-        if (state_.register_tags[insn.b] != ValueTag::TensorHandle ||
-            state_.register_tags[insn.c] != ValueTag::TensorHandle) {
-          trap = Trap::TypeFault;
-          break;
-        }
         auto ta = tensor_ptr(state_.registers[insn.b]);
         if (!ta) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor,

@@ -1,0 +1,35 @@
+// T81 Foundation: Ternary Logic Verification (Comprehensive with Unary Minus)
+// Performs operations and traps via division by zero on failure.
+
+// Basic Arithmetic
+if (1 + 1 != 2) { let trap = 1 / 0; }
+if (1 - 1 != 0) { let trap = 1 / 0; }
+if (10 * 10 != 100) { let trap = 1 / 0; }
+if (81 / 3 != 27) { let trap = 1 / 0; }
+if (81 % 80 != 1) { let trap = 1 / 0; }
+
+// Negative numbers (using unary minus)
+if (-1 + -1 != -2) { let trap = 1 / 0; }
+if (-1 * -1 != 1) { let trap = 1 / 0; }
+if (-1 * 1 != -1) { let trap = 1 / 0; }
+
+// Large numbers
+if (728 + 1 != 729) { let trap = 1 / 0; }
+if (729 * 3 != 2187) { let trap = 1 / 0; }
+
+// Logical short-circuiting emulation
+var side_effect: i32 = 0;
+
+// Emulate: if (1 == 1 || (side_effect = 1) == 1)
+if (1 == 1) {
+    // skip
+} else {
+    side_effect = 1;
+}
+if (side_effect != 0) { let trap = 1 / 0; }
+
+// Emulate: if (1 == 0 && (side_effect = 1) == 1)
+if (1 == 0) {
+    side_effect = 1;
+}
+if (side_effect != 0) { let trap = 1 / 0; }

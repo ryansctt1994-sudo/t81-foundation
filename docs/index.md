@@ -22,6 +22,9 @@ If you are new to the project, start here. These documents provide the high-leve
 - **[Architecture Overview](../ARCHITECTURE.md)**
   - A high-level description of the system's structure, libraries, and data flow, from T81Lang source code to VM execution.
 
+- **[Researcher's Guide](./research-guide.md)**
+  - An in-depth exploration of the mathematical foundations of balanced ternary and the five cognitive tiers of execution.
+
 ______________________________________________________________________
 
 ## 2. Core Concepts & Specifications
@@ -48,6 +51,9 @@ For contributors looking to modify the codebase, these resources provide detaile
 
 - **[Guide: Match Expression Demo](./guides/match-example.md)**
   - A live example that compiles and runs an `Option`/`Result` match through the CLI and HanoiVM.
+
+- **[Tutorial: Secure Deployment](./guides/secure-deployment-tutorial.md)**
+  - An end-to-end guide to building, securing with Axion policies, and auditing T81 applications.
 - **[Guide: Weight & Model Integration](./guides/weights-integration.md)**
   - How `t81 weights load`, the new `weights.load("<tensor>")` builtin, and the HanoiVM `WeightsLoad` opcode cooperate to keep `.t81w` tensors zero-copy inside the interpreter.
 - **[Guide: Data Types Overview](./guides/data-types-overview.md)**

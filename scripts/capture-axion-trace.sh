@@ -11,6 +11,9 @@ BOUNDS_LOG="$LOG_DIR/vm_bounds_trace.log"
 
 mkdir -p "$LOG_DIR"
 
+echo "Validating policy/guards.axion"
+python3 "$REPO_ROOT/tools/axion_policy_validator.py" "$REPO_ROOT/policy/guards.axion"
+
 if [[ ! -x "$BUILD_DIR/axion_policy_runner" ]]; then
   echo "Building axion_policy_runner in $BUILD_DIR"
   (cd "$BUILD_DIR" && cmake --build . --parallel --target axion_policy_runner)

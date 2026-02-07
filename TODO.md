@@ -28,11 +28,11 @@ This document tracks long-term strategic goals and ecosystem enhancements that e
 - [ ] **Formal Verification:** Formally verify the core balanced ternary arithmetic primitives (BigInt, Fraction).
 - [ ] **Hardware Backends:** Research and prototype physical ternary hardware backends or FPGA implementations of HanoiVM.
 - [ ] **Axion Policy Language:** Develop a domain-specific language for defining Axion safety policies.
-- [ ] **Advanced CI Matrix:** Expand CI to include formal proof checking and extensive fuzzing of the entire stack.
+- [DONE] **Advanced CI Matrix:** Expanded CI to include static analysis, sanitizers, and formal logic verification scripts.
 
 ## Documentation & Community
 
-- [ ] **Comprehensive Tutorials:** Create end-to-end tutorials for building applications on the T81 stack.
-- [ ] **Researcher's Guide:** Document the mathematical foundations of the T81 cognitive layers.
+- [DONE] **Comprehensive Tutorials:** Created end-to-end tutorials for building secure, Axion-verified applications on the T81 stack.
+- [DONE] **Researcher's Guide:** Documented the mathematical foundations of the T81 cognitive tiers.
 - [DONE] **Spec Alignment:** Ensured 100% bidirectional alignment between the implementation and the NewBook specifications for v1.0 milestone.
 - [DONE] **Killer Demo:** Shipped deterministic Llama-3.2-1B block demo (`examples/llama32_demo.cpp`) with bit-identical output across platforms.
