@@ -1,5 +1,6 @@
 #include "t81/cli/driver.hpp"
 #include "t81/cli/logging.hpp"
+#include "debugger.hpp"
 #include "t81/frontend/lexer.hpp"
 #include "t81/frontend/parser.hpp"
 #include "t81/frontend/semantic_analyzer.hpp"
@@ -23,22 +24,6 @@
 
 namespace fs = std::filesystem;
 
-namespace t81::vm {
-inline std::string to_string(Trap trap) {
-    switch (trap) {
-        case Trap::None: return "None";
-        case Trap::DecodeFault: return "DecodeFault";
-        case Trap::TypeFault: return "TypeFault";
-        case Trap::BoundsFault: return "BoundsFault";
-        case Trap::StackFault: return "StackFault";
-        case Trap::DivisionFault: return "DivisionFault";
-        case Trap::SecurityFault: return "SecurityFault";
-        case Trap::ShapeFault: return "ShapeFault";
-        case Trap::TrapInstruction: return "TrapInstruction";
-    }
-    return "UnknownTrap";
-}
-}
 
 inline int trap_exit_code(t81::vm::Trap trap) {
     using T = t81::vm::Trap;
@@ -871,6 +856,19 @@ int run_tisc(const fs::path& path) {
     return 0;
 }
 
+int debug_tisc(const fs::path& path) {
+    verbose("Loading TISC program for debugging: " + path.string());
+
+    auto program = t81::tisc::load_program(path.string());
+    auto vm = t81::vm::make_interpreter_vm();
+    vm->load_program(program);
+
+    Debugger dbg(std::move(vm));
+    dbg.run();
+
+    return 0;
+}
+
 int check_syntax(const fs::path& path) {
     verbose("Syntax-checking " + path.string());
 
@@ -930,6 +928,32 @@ int init_project(const std::string& name) {
         return 0;
     } catch (const std::exception& e) {
         error("Failed to initialize project: " + std::string(e.what()));
+        return 1;
+    }
+}
+
+int init_package(const std::string& name) {
+    if (name.empty()) {
+        error("Package name cannot be empty");
+        return 1;
+    }
+
+    try {
+        std::ofstream pkg_file("package.t81");
+        pkg_file << "(package\n"
+                 << "  (name \"" << name << "\")\n"
+                 << "  (version \"0.1.0\")\n"
+                 << "  (description \"A ternary-native T81 package\")\n"
+                 << "  (dependencies\n"
+                 << "    (std \"0.1.0\")\n"
+                 << "  )\n"
+                 << ")\n";
+        pkg_file.close();
+
+        info("Package manifest 'package.t81' initialized for " + name);
+        return 0;
+    } catch (const std::exception& e) {
+        error("Failed to initialize package: " + std::string(e.what()));
         return 1;
     }
 }

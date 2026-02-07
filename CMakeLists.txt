@@ -95,7 +95,10 @@ target_link_libraries(t81_llvm INTERFACE t81_core)
 # =============================================================================
 # CLI & Examples
 # =============================================================================
-add_library(t81_cli_driver STATIC src/cli/driver.cpp)
+add_library(t81_cli_driver STATIC
+  src/cli/driver.cpp
+  src/cli/debugger.cpp
+)
 target_link_libraries(t81_cli_driver PUBLIC t81_frontend t81_tisc t81_vm)
 target_include_directories(t81_cli_driver PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

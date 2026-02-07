@@ -7,6 +7,9 @@ enum class TierId {
   Tier0,
   Tier1,
   Tier2,
+  Tier3,
+  Tier4,
+  Tier5,
 };
 
 struct TierStatus {

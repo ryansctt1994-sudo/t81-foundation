@@ -85,6 +85,13 @@ Verdict PolicyEngine::evaluate(const SyscallContext& ctx) {
         return Verdict{VerdictKind::Deny, reason.str()};
       }
     }
+    for (const auto& req : policy_->alignment_requirements) {
+      if (!alignment_event_satisfied(ctx, req)) {
+        std::ostringstream reason;
+        reason << "Missing alignment event: reason=\"" << req.reason << "\"";
+        return Verdict{VerdictKind::Deny, reason.str()};
+      }
+    }
   }
   return Verdict{VerdictKind::Allow, "Axion policy engine (loop hints satisfied)"};
 }
@@ -97,6 +104,17 @@ bool PolicyEngine::loop_hint_satisfied(const SyscallContext& ctx,
   for (const auto& entry : ctx.trace_reasons) {
     if (entry.find(req.expected_reason) != std::string_view::npos) {
       req.satisfied = true;
+      return true;
+    }
+  }
+  return false;
+}
+
+bool PolicyEngine::alignment_event_satisfied(const SyscallContext& ctx,
+                                             const Policy::AlignmentRequirement& req) const {
+  for (const auto& entry : ctx.trace_reasons) {
+    if (entry.find("alignment") != std::string_view::npos &&
+        entry.find(req.reason) != std::string_view::npos) {
       return true;
     }
   }
