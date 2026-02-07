@@ -31,6 +31,13 @@ inline T729Tensor matmul(const T729Tensor& A, const T729Tensor& B) {
 #if defined(__AVX2__)
       const __m256 va = _mm256_set1_ps(av);
       int j = 0;
+      // Unroll by 4 for better throughput
+      for (; j <= n - 32; j += 32) {
+        _mm256_storeu_ps(&c[c_row + j + 0],  _mm256_fmadd_ps(va, _mm256_loadu_ps(&b[b_row + j + 0]),  _mm256_loadu_ps(&c[c_row + j + 0])));
+        _mm256_storeu_ps(&c[c_row + j + 8],  _mm256_fmadd_ps(va, _mm256_loadu_ps(&b[b_row + j + 8]),  _mm256_loadu_ps(&c[c_row + j + 8])));
+        _mm256_storeu_ps(&c[c_row + j + 16], _mm256_fmadd_ps(va, _mm256_loadu_ps(&b[b_row + j + 16]), _mm256_loadu_ps(&c[c_row + j + 16])));
+        _mm256_storeu_ps(&c[c_row + j + 24], _mm256_fmadd_ps(va, _mm256_loadu_ps(&b[b_row + j + 24]), _mm256_loadu_ps(&c[c_row + j + 24])));
+      }
       for (; j <= n - 8; j += 8) {
         __m256 vb = _mm256_loadu_ps(&b[b_row + j]);
         __m256 vc = _mm256_loadu_ps(&c[c_row + j]);
