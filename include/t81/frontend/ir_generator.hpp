@@ -420,7 +420,21 @@ public:
         return {};
     }
 
-    std::any visit(const UnaryExpr&) override        { return {}; }
+    std::any visit(const UnaryExpr& expr) override {
+        auto right = evaluate_expr(expr.right.get());
+        auto dest = allocate_typed_register(right.primitive);
+        tisc::ir::Opcode opcode;
+        if (expr.op.type == TokenType::Minus) {
+            opcode = tisc::ir::Opcode::NEG;
+        } else {
+            throw std::runtime_error("Unsupported unary operator");
+        }
+        auto instr = tisc::ir::Instruction{opcode, {dest.reg, right.reg}};
+        instr.primitive = right.primitive;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+    }
     std::any visit(const VariableExpr& expr) override {
         auto found = lookup_variable(expr.name.lexeme);
         if (found.has_value()) {

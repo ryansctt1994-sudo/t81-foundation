@@ -113,3 +113,8 @@ graph TD
 | [`examples/`](examples/) | Canonical T81Lang demos and deployment snippets. |
 
 [→ Full documentation](docs/) · [Specification](spec/) · [Whitepaper](WHITEPAPER.md) · [Roadmap](ROADMAP.md)
+
+### Release v1.0 Resources
+- **[Researcher's Guide](./docs/research-guide.md)**: Deep dive into balanced ternary and cognitive tiers.
+- **[Secure Deployment Tutorial](./docs/guides/secure-deployment-tutorial.md)**: End-to-end guide for verified apps.
+- **[Ecosystem Tools](./tools/axion_policy_validator.py)**: Policy validation and audit tooling.

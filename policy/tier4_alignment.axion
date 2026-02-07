@@ -1,0 +1,22 @@
+(policy
+  (tier 4)
+  (max-instructions 1000000)
+  (max-recursion 100)
+  (max-stack 65536)
+
+  ;; Require explicit alignment events for Tier 4 consciousness support
+  (require-alignment
+    (reason "self-referential loop verified"))
+
+  ;; Require promotion verification trace
+  (require-axion-event
+    (reason "tier promotion verified to 4"))
+
+  ;; Ensure core segment events are present
+  (require-segment-event
+    (segment stack)
+    (action "stack frame allocated"))
+  (require-segment-event
+    (segment heap)
+    (action "heap block allocated"))
+)

@@ -212,4 +212,116 @@ jobs:
           fi
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
-  # (static-analysis, coverage, sanitizers, thread-sanitizer stay exactly as you had them)
+  ############################################################################
+  # JOB: static-analysis
+  ############################################################################
+  static-analysis:
+    name: " static analysis / clang-tidy "
+    needs: spec-and-docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y clang-tidy-18 build-essential cmake ninja-build
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DT81_BUILD_TESTS=ON
+
+      - name: Run clang-tidy
+        run: |
+          find src include -name "*.cpp" -o -name "*.hpp" | xargs clang-tidy-18 -p build --header-filter=include/t81/.*
+
+  ############################################################################
+  # JOB: sanitizers
+  ############################################################################
+  sanitizers:
+    name: " build / sanitizers "
+    needs: spec-and-docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y build-essential cmake ninja-build clang-18
+
+      - name: Configure and Build (ASan/UBSan)
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_CXX_COMPILER=clang++-18 \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DT81_ENABLE_ASAN=ON \
+            -DT81_ENABLE_UBSAN=ON
+          cmake --build build --parallel
+
+      - name: Test
+        run: |
+          ctest --test-dir build --output-on-failure
+
+  ############################################################################
+  # JOB: fuzzing
+  ############################################################################
+  fuzzing:
+    name: " fuzzing / frontend "
+    needs: spec-and-docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y build-essential cmake ninja-build clang-18
+
+      - name: Configure and Build
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_CXX_COMPILER=clang++-18 \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DT81_BUILD_FUZZ_TESTS=ON
+          cmake --build build --target frontend_fuzz_test
+
+      - name: Run Fuzzer
+        run: |
+          ./build/tests/cpp/frontend_fuzz_test -max_total_time=60
+
+  ############################################################################
+  # JOB: formal-verification
+  ############################################################################
+  formal-verification:
+    name: " formal verification / ternary logic "
+    needs: spec-and-docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y build-essential cmake ninja-build gcc-14 g++-14
+
+      - name: Configure and Build
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=gcc-14 \
+            -DCMAKE_CXX_COMPILER=g++-14
+
+      - name: Build t81 CLI
+        run: |
+          cmake --build build --parallel --target t81
+
+      - name: Run Ternary Logic Verification
+        run: |
+          python3 scripts/verify_ternary_logic.py

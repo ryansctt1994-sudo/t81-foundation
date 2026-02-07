@@ -39,7 +39,7 @@ A detailed list of actionable tasks for these workstreams can be found in [`TASK
 - **Goal:** Harden the VM and integrate runtime safety layers such as Axion while validating through the required `ctest --test-dir build --output-on-failure`.
 - **Exit Criteria:** The HanoiVM memory model is complete, Axion kernel/CanonFS enforce deterministic safety (instruction counters, recursion guards), and the VM passes deterministic fault and stress tests.
 
-### Phase 3: Public v1.0 Release
+### Phase 3: Public v1.0 Release (Locked Down)
 
 - **Goal:** Lock down documentation, tutorials, release scripts, and contributions so the stack is ready for external adoption.
-- **Exit Criteria:** All v1.0 Definition of Done items are complete, documentation is aligned with the latest implementation, and the release checklist (build/tests/ctest runs) has been executed on every candidate.
+- **Exit Criteria:** [COMPLETE] All v1.0 Definition of Done items are complete, including expanded CI (static analysis, sanitizers, fuzzing), formal verification scripts, Axion policy validation tooling, and comprehensive researcher/onboarding guides.
