@@ -637,21 +637,7 @@ class Interpreter : public IVirtualMachine {
         t81::axion::Verdict v{t81::axion::VerdictKind::Allow, "TRoPE kernel execution"};
         record_axion_event(insn.opcode, insn.b, state_.registers[insn.b], v);
         int pos = static_cast<int>(state_.registers[insn.c]);
-        int head_dim = t->shape().back();
-        std::vector<float> data = t->data();
-        for (size_t i = 0; i < data.size(); i += static_cast<size_t>(head_dim)) {
-          for (int j = 0; j < head_dim; j += 2) {
-            float freq = 1.0f / std::pow(10000.0f, static_cast<float>(j) / head_dim);
-            float val = static_cast<float>(pos) * freq;
-            float f_cos = std::cos(val);
-            float f_sin = std::sin(val);
-            float v0 = data[i + static_cast<size_t>(j)];
-            float v1 = data[i + static_cast<size_t>(j + 1)];
-            data[i + static_cast<size_t>(j)] = v0 * f_cos - v1 * f_sin;
-            data[i + static_cast<size_t>(j + 1)] = v0 * f_sin + v1 * f_cos;
-          }
-        }
-        state_.registers[insn.a] = alloc_tensor(T729Tensor(t->shape(), std::move(data)));
+        state_.registers[insn.a] = alloc_tensor(t81::ops::rope(*t, pos));
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
