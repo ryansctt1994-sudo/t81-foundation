@@ -78,5 +78,11 @@ enum class Opcode : std::uint8_t {
   HeapAlloc,
   HeapFree,
   WeightsLoad,
+  TExp,
+  TSqrt,
+  TSiLU,
+  TSoftmax,
+  TRMSNorm,
+  TRoPE,
 };
 }  // namespace t81::tisc

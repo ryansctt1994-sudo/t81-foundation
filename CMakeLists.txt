@@ -125,6 +125,9 @@ target_link_libraries(axion_heap_compaction_trace_test PRIVATE t81_cli_driver t8
 add_executable(axion_policy_runner examples/axion_policy_runner.cpp)
 target_link_libraries(axion_policy_runner PRIVATE t81_cli_driver t81_vm)
 
+add_executable(llama32_demo examples/llama32_demo.cpp)
+target_link_libraries(llama32_demo PRIVATE t81_cli_driver t81_vm)
+
 add_executable(axion_nested_guard_test tests/cpp/axion_nested_guard_test.cpp)
 target_link_libraries(axion_nested_guard_test PRIVATE t81_cli_driver t81_vm)
 
