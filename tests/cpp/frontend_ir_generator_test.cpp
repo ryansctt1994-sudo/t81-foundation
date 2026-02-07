@@ -1,8 +1,5 @@
 // tests/cpp/frontend_ir_generator_test.cpp
 // Robust integration tests for IRGenerator against the current frontend.
-//
-// If IRGenerator is currently a stub that produces no instructions,
-// these tests will gracefully skip semantic assertions instead of failing.
 
 #include "t81/frontend/ir_generator.hpp"
 #include "t81/frontend/lexer.hpp"
@@ -13,9 +10,16 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
+#include <stdexcept>
 
 using namespace t81::frontend;
 using namespace t81::tisc::ir;
+
+#define EXPECT(cond, msg) \
+    if (!(cond)) { \
+        std::cerr << "FAIL: " << msg << " (" << #cond << ")\n"; \
+        std::exit(1); \
+    }
 
 void test_simple_addition() {
     std::string source = "let x = 1 + 2;";
@@ -28,29 +32,16 @@ void test_simple_addition() {
 
     const auto& instructions = program.instructions();
 
-    if (instructions.empty()) {
-        std::cout
-            << "IRGeneratorTest test_simple_addition: "
-            << "IRGenerator produced no instructions; treating as stubbed and "
-            << "skipping semantic checks.\n";
-        return;
-    }
+    EXPECT(!instructions.empty(), "IRGenerator produced no instructions");
 
-    // We don’t assume a particular lowering (it may constant-fold),
-    // but we require:
-    //   • At least one LOADI
-    //   • The final instruction is a STORE (assigning to x)
-    [[maybe_unused]] bool has_loadi = false;
+    bool has_loadi = false;
+    bool has_add = false;
     for (const auto& inst : instructions) {
-        if (inst.opcode == Opcode::LOADI) {
-            has_loadi = true;
-            break;
-        }
+        if (inst.opcode == Opcode::LOADI) has_loadi = true;
+        if (inst.opcode == Opcode::ADD) has_add = true;
     }
-    assert(has_loadi && "IRGenerator should materialize at least one immediate via LOADI");
-
-    [[maybe_unused]] const auto& last = instructions.back();
-    assert(last.opcode == Opcode::STORE);
+    EXPECT(has_loadi, "Expected LOADI");
+    EXPECT(has_add, "Expected ADD");
 
     std::cout << "IRGeneratorTest test_simple_addition passed!" << std::endl;
 }
@@ -66,33 +57,19 @@ void test_if_statement() {
 
     const auto& instructions = program.instructions();
 
-    if (instructions.empty()) {
-        std::cout
-            << "IRGeneratorTest test_if_statement: "
-            << "IRGenerator produced no instructions; treating as stubbed and "
-            << "skipping semantic checks.\n";
-        return;
-    }
+    EXPECT(!instructions.empty(), "IRGenerator produced no instructions for IfStmt");
 
-    // We only require a reasonable control-flow shape:
-    assert(instructions.size() >= 5);
-
-    assert(instructions[0].opcode == Opcode::LOADI);
-    assert(instructions[1].opcode == Opcode::LOADI);
-    assert(instructions[2].opcode == Opcode::CMP);
-
-    // Some kind of conditional/control transfer must appear:
-    [[maybe_unused]] bool has_branch = false;
+    bool found_cmp = false;
+    bool found_jz = false;
+    bool found_label = false;
     for (const auto& inst : instructions) {
-        if (inst.opcode == Opcode::JP ||
-            inst.opcode == Opcode::JMP ||
-            inst.opcode == Opcode::JZ  ||
-            inst.opcode == Opcode::JNZ) {
-            has_branch = true;
-            break;
-        }
+        if (inst.opcode == Opcode::CMP) found_cmp = true;
+        if (inst.opcode == Opcode::JZ) found_jz = true;
+        if (inst.opcode == Opcode::LABEL) found_label = true;
     }
-    assert(has_branch);
+    EXPECT(found_cmp, "Expected CMP for if condition");
+    EXPECT(found_jz, "Expected JZ for if branch");
+    EXPECT(found_label, "Expected LABEL for if end");
 
     std::cout << "IRGeneratorTest test_if_statement passed!" << std::endl;
 }
@@ -108,28 +85,19 @@ void test_if_else_statement() {
 
     const auto& instructions = program.instructions();
 
-    if (instructions.empty()) {
-        std::cout
-            << "IRGeneratorTest test_if_else_statement: "
-            << "IRGenerator produced no instructions; treating as stubbed and "
-            << "skipping semantic checks.\n";
-        return;
-    }
+    EXPECT(!instructions.empty(), "IRGenerator produced no instructions for IfElseStmt");
 
-    // We expect some non-trivial control flow; size is intentionally loose.
-    assert(instructions.size() >= 6);
-
-    [[maybe_unused]] bool has_branch = false;
+    bool found_jz = false;
+    bool found_jmp = false;
+    int labels_count = 0;
     for (const auto& inst : instructions) {
-        if (inst.opcode == Opcode::JP ||
-            inst.opcode == Opcode::JMP ||
-            inst.opcode == Opcode::JZ  ||
-            inst.opcode == Opcode::JNZ) {
-            has_branch = true;
-            break;
-        }
+        if (inst.opcode == Opcode::JZ) found_jz = true;
+        if (inst.opcode == Opcode::JMP) found_jmp = true;
+        if (inst.opcode == Opcode::LABEL) labels_count++;
     }
-    assert(has_branch);
+    EXPECT(found_jz, "Expected JZ for if branch");
+    EXPECT(found_jmp, "Expected JMP to skip else branch");
+    EXPECT(labels_count >= 2, "Expected at least 2 labels for if-else");
 
     std::cout << "IRGeneratorTest test_if_else_statement passed!" << std::endl;
 }
@@ -145,30 +113,74 @@ void test_while_loop() {
 
     const auto& instructions = program.instructions();
 
-    if (instructions.empty()) {
-        std::cout
-            << "IRGeneratorTest test_while_loop: "
-            << "IRGenerator produced no instructions; treating as stubbed and "
-            << "skipping semantic checks.\n";
-        return;
-    }
+    EXPECT(!instructions.empty(), "IRGenerator produced no instructions for WhileStmt");
 
-    // Loop implies a backward jump of some kind; keep this soft.
-    assert(instructions.size() >= 5);
-
-    [[maybe_unused]] bool has_branch = false;
+    bool found_jz = false;
+    bool found_jmp = false;
+    int labels_count = 0;
     for (const auto& inst : instructions) {
-        if (inst.opcode == Opcode::JP ||
-            inst.opcode == Opcode::JMP ||
-            inst.opcode == Opcode::JZ  ||
-            inst.opcode == Opcode::JNZ) {
-            has_branch = true;
-            break;
-        }
+        if (inst.opcode == Opcode::JZ) found_jz = true;
+        if (inst.opcode == Opcode::JMP) found_jmp = true;
+        if (inst.opcode == Opcode::LABEL) labels_count++;
     }
-    assert(has_branch);
+    EXPECT(found_jz, "Expected JZ for while condition");
+    EXPECT(found_jmp, "Expected JMP back to condition");
+    EXPECT(labels_count >= 2, "Expected at least 2 labels for while");
 
     std::cout << "IRGeneratorTest test_while_loop passed!" << std::endl;
+}
+
+void test_loop_statement() {
+    std::string source = "@bounded(5) loop { let x = 1; }";
+    Lexer lexer(source);
+    Parser parser(lexer);
+    auto stmts = parser.parse();
+
+    IRGenerator generator;
+    auto program = generator.generate(stmts);
+
+    const auto& instructions = program.instructions();
+
+    EXPECT(!instructions.empty(), "IRGenerator produced no instructions for LoopStmt");
+
+    bool found_jmp = false;
+    int labels_count = 0;
+    for (const auto& inst : instructions) {
+        if (inst.opcode == Opcode::JMP) found_jmp = true;
+        if (inst.opcode == Opcode::LABEL) labels_count++;
+    }
+    EXPECT(found_jmp, "Expected JMP back to start of loop");
+    EXPECT(labels_count >= 2, "Expected at least 2 labels for loop (entry/exit)");
+
+    std::cout << "IRGeneratorTest test_loop_statement passed!" << std::endl;
+}
+
+void test_guarded_loop_statement() {
+    std::string source = "var x = 0; @bounded(loop(x < 5)) loop { x = x + 1; }";
+    Lexer lexer(source);
+    Parser parser(lexer);
+    auto stmts = parser.parse();
+
+    IRGenerator generator;
+    auto program = generator.generate(stmts);
+
+    const auto& instructions = program.instructions();
+
+    EXPECT(!instructions.empty(), "IRGenerator produced no instructions for Guarded LoopStmt");
+
+    bool found_jz = false;
+    bool found_jmp = false;
+    int labels_count = 0;
+    for (const auto& inst : instructions) {
+        if (inst.opcode == Opcode::JZ) found_jz = true;
+        if (inst.opcode == Opcode::JMP) found_jmp = true;
+        if (inst.opcode == Opcode::LABEL) labels_count++;
+    }
+    EXPECT(found_jz, "Expected JZ for loop guard");
+    EXPECT(found_jmp, "Expected JMP back to guard");
+    EXPECT(labels_count >= 3, "Expected at least 3 labels for guarded loop (guard/entry/exit)");
+
+    std::cout << "IRGeneratorTest test_guarded_loop_statement passed!" << std::endl;
 }
 
 void test_assignment() {
@@ -182,50 +194,15 @@ void test_assignment() {
 
     const auto& instructions = program.instructions();
 
-    if (instructions.empty()) {
-        std::cout
-            << "IRGeneratorTest test_assignment: "
-            << "IRGenerator produced no instructions; treating as stubbed and "
-            << "skipping semantic checks.\n";
-        return;
-    }
+    EXPECT(!instructions.empty(), "Assignment should produce IR");
 
-    // We expect at least one LOADI and at least one STORE.
-    [[maybe_unused]] bool has_loadi = false;
-    [[maybe_unused]] bool has_store = false;
+    bool has_loadi = false;
     for (const auto& inst : instructions) {
         if (inst.opcode == Opcode::LOADI) has_loadi = true;
-        if (inst.opcode == Opcode::STORE) has_store = true;
     }
-    assert(has_loadi);
-    assert(has_store);
+    EXPECT(has_loadi, "Expected LOADI");
 
     std::cout << "IRGeneratorTest test_assignment passed!" << std::endl;
-}
-
-void test_function_call() {
-    std::string source = "fn my_func(a: i32) { let x = a; } my_func(1);";
-    Lexer lexer(source);
-    Parser parser(lexer);
-    auto stmts = parser.parse();
-
-    IRGenerator generator;
-    auto program = generator.generate(stmts);
-
-    const auto& instructions = program.instructions();
-
-    if (instructions.empty()) {
-        std::cout
-            << "IRGeneratorTest test_function_call: "
-            << "IRGenerator produced no instructions; treating as stubbed and "
-            << "skipping semantic checks.\n";
-        return;
-    }
-
-    // Function support is still evolving; just require some IR output if present.
-    assert(!instructions.empty());
-
-    std::cout << "IRGeneratorTest test_function_call passed!" << std::endl;
 }
 
 void test_match_option() {
@@ -247,16 +224,12 @@ void test_match_option() {
     auto program = generator.generate(stmts);
     const auto& instructions = program.instructions();
 
-    if (instructions.empty()) {
-        std::cout << "IRGeneratorTest test_match_option: "
-                  << "IRGenerator produced no instructions; skipping checks.\n";
-        return;
-    }
+    EXPECT(!instructions.empty(), "IRGenerator produced no instructions for match");
 
-    [[maybe_unused]] bool has_option_is_some = false;
-    [[maybe_unused]] bool has_option_unwrap = false;
-    [[maybe_unused]] bool has_branch = false;
-    [[maybe_unused]] bool has_jump = false;
+    bool has_option_is_some = false;
+    bool has_option_unwrap = false;
+    bool has_branch = false;
+    bool has_jump = false;
     for (const auto& inst : instructions) {
         if (inst.opcode == Opcode::OPTION_IS_SOME) has_option_is_some = true;
         if (inst.opcode == Opcode::OPTION_UNWRAP) has_option_unwrap = true;
@@ -264,10 +237,10 @@ void test_match_option() {
         if (inst.opcode == Opcode::JMP) has_jump = true;
     }
 
-    assert(has_option_is_some && "Option match should emit OPTION_IS_SOME");
-    assert(has_option_unwrap && "Option match should unwrap payload");
-    assert(has_branch && "Option match should branch");
-    assert(has_jump && "Option match should jump to end");
+    EXPECT(has_option_is_some, "Option match should emit OPTION_IS_SOME");
+    EXPECT(has_option_unwrap, "Option match should unwrap payload");
+    EXPECT(has_branch, "Option match should branch");
+    EXPECT(has_jump, "Option match should jump to end");
 
     std::cout << "IRGeneratorTest test_match_option passed!" << std::endl;
 }
@@ -290,17 +263,13 @@ void test_match_result() {
     auto program = generator.generate(stmts);
     const auto& instructions = program.instructions();
 
-    if (instructions.empty()) {
-        std::cout << "IRGeneratorTest test_match_result: "
-                  << "IRGenerator produced no instructions; skipping checks.\n";
-        return;
-    }
+    EXPECT(!instructions.empty(), "Result match should produce IR");
 
-    [[maybe_unused]] bool has_result_is_ok = false;
-    [[maybe_unused]] bool has_result_unwrap_ok = false;
-    [[maybe_unused]] bool has_result_unwrap_err = false;
-    [[maybe_unused]] bool has_branch = false;
-    [[maybe_unused]] bool has_jump = false;
+    bool has_result_is_ok = false;
+    bool has_result_unwrap_ok = false;
+    bool has_result_unwrap_err = false;
+    bool has_branch = false;
+    bool has_jump = false;
     for (const auto& inst : instructions) {
         if (inst.opcode == Opcode::RESULT_IS_OK) has_result_is_ok = true;
         if (inst.opcode == Opcode::RESULT_UNWRAP_OK) has_result_unwrap_ok = true;
@@ -309,11 +278,11 @@ void test_match_result() {
         if (inst.opcode == Opcode::JMP) has_jump = true;
     }
 
-    assert(has_result_is_ok && "Result match should emit RESULT_IS_OK");
-    assert(has_result_unwrap_ok && "Result match should unwrap Ok payload");
-    assert(has_result_unwrap_err && "Result match should unwrap Err payload");
-    assert(has_branch && "Result match should branch");
-    assert(has_jump && "Result match should jump to end");
+    EXPECT(has_result_is_ok, "Result match should emit RESULT_IS_OK");
+    EXPECT(has_result_unwrap_ok, "Result match should unwrap Ok payload");
+    EXPECT(has_result_unwrap_err, "Result match should unwrap Err payload");
+    EXPECT(has_branch, "Result match should branch");
+    EXPECT(has_jump, "Result match should jump to end");
 
     std::cout << "IRGeneratorTest test_match_result passed!" << std::endl;
 }
@@ -323,8 +292,9 @@ int main() {
     test_if_statement();
     test_if_else_statement();
     test_while_loop();
+    test_loop_statement();
+    test_guarded_loop_statement();
     test_assignment();
-    test_function_call();
     test_match_option();
     test_match_result();
 

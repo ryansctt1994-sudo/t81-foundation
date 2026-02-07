@@ -118,8 +118,42 @@ public:
         bind_variable_from_initializer(stmt.name, stmt.initializer.get());
         return {};
     }
-    std::any visit(const IfStmt&) override           { return {}; }
-    std::any visit(const WhileStmt&) override        { return {}; }
+    std::any visit(const IfStmt& stmt) override {
+        auto end_label = new_label();
+
+        stmt.condition->accept(*this);
+        auto cond = ensure_expr_result(stmt.condition.get());
+
+        if (stmt.else_branch) {
+            auto else_label = new_label();
+            emit_jump_if_zero(else_label, cond);
+            stmt.then_branch->accept(*this);
+            emit_jump(end_label);
+            emit_label(else_label);
+            stmt.else_branch->accept(*this);
+        } else {
+            emit_jump_if_zero(end_label, cond);
+            stmt.then_branch->accept(*this);
+        }
+        emit_label(end_label);
+        return {};
+    }
+
+    std::any visit(const WhileStmt& stmt) override {
+        auto cond_label = new_label();
+        auto end_label = new_label();
+
+        emit_label(cond_label);
+        stmt.condition->accept(*this);
+        auto cond = ensure_expr_result(stmt.condition.get());
+        emit_jump_if_zero(end_label, cond);
+
+        stmt.body->accept(*this);
+        emit_jump(cond_label);
+
+        emit_label(end_label);
+        return {};
+    }
     std::any visit(const LoopStmt& stmt) override {
         auto entry_label = new_label();
         auto exit_label = new_label();

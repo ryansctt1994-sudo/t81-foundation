@@ -89,6 +89,7 @@ Commands:
   compile <file.t81> [-o <file.tisc>]   Compile T81Lang → TISC bytecode
   run     <file.t81|.tisc>             Compile (if needed) and execute
   check   <file.t81>                   Syntax-check only
+  lint    <file.t81>                   Alias for check; performs semantic analysis
   repl                                 Enter interactive REPL
   version                              Show version
   benchmark                            Run the core benchmark suite (build/benchmarks/benchmark_runner)
@@ -414,7 +415,7 @@ int main(int argc, char* argv[]) {
         if (args.need_help)    { print_usage(argv[0]); return 0; }
         if (args.need_version) { print_version();    return 0; }
 
-        bool needs_input = (args.command == "compile" || args.command == "run" || args.command == "check");
+        bool needs_input = (args.command == "compile" || args.command == "run" || args.command == "check" || args.command == "lint");
         if (args.command.empty() || (needs_input && args.input.empty())) {
             print_usage(argv[0]);
             return 1;
@@ -466,9 +467,9 @@ int main(int argc, char* argv[]) {
                 return 1;
             }
 
-        } else if (args.command == "check") {
+        } else if (args.command == "check" || args.command == "lint") {
             if (ext != ".t81") {
-                error("check expects a .t81 source file");
+                error(args.command + " expects a .t81 source file");
                 return 1;
             }
             return t81::cli::check_syntax(args.input);
