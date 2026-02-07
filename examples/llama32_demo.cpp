@@ -41,11 +41,14 @@ int main() {
             std::memcpy(byte_ptr, &scale, sizeof(float));
             byte_ptr += sizeof(float);
 
-            uint32_t buffer = 0;
+            uint64_t buffer = 0; // Use 64-bit buffer to avoid overflow during shifts
             int bits = 0;
             for (int i = 0; i < 128; ++i) {
                 size_t idx = b * 128 + i;
+                // Use a more varied pattern for non-zero results
                 int8_t trit = (idx < total) ? static_cast<int8_t>((idx % 3) - 1) : 0;
+                if (trit == 0 && (idx % 7 == 0)) trit = 1; // Break zero streaks
+
                 uint32_t val = static_cast<uint32_t>(trit + 1);
                 buffer = (buffer << 3) | val;
                 bits += 3;
@@ -112,7 +115,11 @@ int main() {
     program.axion_policy_text =
         "(policy (tier 1)"
         " (require-segment-event (segment tensor) (action \"tensor slot allocated\"))"
-        " (require-segment-event (segment meta) (action \"meta slot axion event\")))";
+        " (require-segment-event (segment meta) (action \"meta slot axion event\"))"
+        " (require-axion-event (reason \"TMatMul kernel execution\"))"
+        " (require-axion-event (reason \"TRMSNorm kernel execution\"))"
+        " (require-axion-event (reason \"TRoPE kernel execution\"))"
+        " (require-axion-event (reason \"TSoftmax kernel execution\")))";
 
     // 3. Run
     auto vm = vm::make_interpreter_vm();
@@ -147,6 +154,7 @@ int main() {
             std::cout << out_t.shape()[i] << (i == out_t.shape().size() - 1 ? "" : ", ");
         }
         std::cout << "]\n";
+        std::cout.precision(10);
         std::cout << "First 3 elements: " << out_t.data()[0] << ", " << out_t.data()[1] << ", " << out_t.data()[2] << "\n";
     }
 

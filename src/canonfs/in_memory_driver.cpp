@@ -38,18 +38,19 @@ class InMemoryDriver : public Driver {
   }
 
   Result<void> publish_capability(const CapabilityGrant& grant) override {
+    if (!axion_allow(OpKind::Publish, grant.target)) return Error::CapabilityError;
     capabilities_[grant.target.hash] = grant.perms;
-    axion_allow(OpKind::Publish, grant.target); // side-effect hook
     return {};
   }
 
   Result<void> revoke_capability(const CanonRef& ref) override {
+    if (!axion_allow(OpKind::Revoke, ref)) return Error::CapabilityError;
     capabilities_.erase(ref.hash);
-    axion_allow(OpKind::Revoke, ref);
     return {};
   }
 
   Result<void> parity_repair_subtree(const CanonRef& ref) override {
+    if (!axion_allow(OpKind::Repair, ref)) return Error::CapabilityError;
     // Placeholder: mark parity repair succeeded. TODO: spec/canonfs-spec.md repair rules.
     if (!objects_.count(ref.hash)) return Error::NotFound;
     return {};

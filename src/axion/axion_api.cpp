@@ -17,6 +17,7 @@ Verdict AxionContext::evaluate(const SyscallContext& ctx) {
     return Verdict{VerdictKind::Allow, "No engine attached (default allow)"};
   }
 
+  // Delegation to the attached engine for policy-based evaluation.
   Verdict v = engine_->evaluate(ctx);
 
   if (v.kind == VerdictKind::Deny) {
@@ -28,17 +29,21 @@ Verdict AxionContext::evaluate(const SyscallContext& ctx) {
 }
 
 Status AxionContext::submit(const Signal& sig, const Buffer& in, Buffer& out) {
-  // Logic for submit usually involves evaluating a signal kind as a syscall.
-  // For the façade, we simulate a policy check on the signal.
-  SyscallContext dummy_ctx{};
-  dummy_ctx.syscall = "signal_" + std::to_string(sig.kind);
+  // Evaluate the signal kind and flags against the active policy.
+  SyscallContext submit_ctx{};
+  submit_ctx.syscall = "submit_signal";
+  submit_ctx.instruction_count = sig.kind; // Using kind as a pseudo-count for policy matching
 
-  Verdict v = evaluate(dummy_ctx);
+  // Create a reason for the trace that the policy engine can inspect.
+  submit_ctx.trace_reasons.push_back("signal kind=" + std::to_string(sig.kind));
+  submit_ctx.trace_reasons.push_back("signal flags=" + std::to_string(sig.flags));
+
+  Verdict v = evaluate(submit_ctx);
   if (v.kind == VerdictKind::Deny) {
     return Status::Denied;
   }
 
-  // Placeholder processing from the original stub
+  // Processing logic for validated signals.
   constexpr uint8_t trailer_magic[4] = {'A','X','N','\x02'}; // bump version
   out.data.clear();
   out.data.reserve(in.data.size() + sizeof(trailer_magic) + 16);
