@@ -64,10 +64,10 @@ inline T729Tensor silu(const T729Tensor& x) {
 #if defined(__AVX2__)
     __m256 vone = _mm256_set1_ps(1.0f);
     for (; i + 8 <= size; i += 8) {
-        float tmp[8];
-        for (int j = 0; j < 8; ++j) tmp[j] = std::exp(-data[i + j]);
+        alignas(32) float tmp_exp[8];
+        for (int j = 0; j < 8; ++j) tmp_exp[j] = std::exp(-data[i + j]);
         __m256 vx = _mm256_loadu_ps(&data[i]);
-        __m256 vexp = _mm256_loadu_ps(tmp);
+        __m256 vexp = _mm256_load_ps(tmp_exp);
         __m256 vres = _mm256_div_ps(vx, _mm256_add_ps(vone, vexp));
         _mm256_storeu_ps(&data[i], vres);
     }
@@ -92,8 +92,8 @@ inline T729Tensor softmax(const T729Tensor& x) {
             __m256 v = _mm256_loadu_ps(&row[j_max]);
             vmax = _mm256_max_ps(vmax, v);
         }
-        float tmp_max[8];
-        _mm256_storeu_ps(tmp_max, vmax);
+        alignas(32) float tmp_max[8];
+        _mm256_store_ps(tmp_max, vmax);
         for (int k = 0; k < 8; ++k) if (tmp_max[k] > max_val) max_val = tmp_max[k];
         for (; j_max < dim; ++j_max) if (row[j_max] > max_val) max_val = row[j_max];
 #else
@@ -101,25 +101,64 @@ inline T729Tensor softmax(const T729Tensor& x) {
 #endif
 
         float sum = 0.0f;
+#if defined(__AVX2__)
+        __m256 vsum = _mm256_setzero_ps();
+        int j_sum = 0;
+        for (; j_sum + 8 <= dim; j_sum += 8) {
+            alignas(32) float tmp_exp[8];
+            for (int k = 0; k < 8; ++k) tmp_exp[k] = std::exp(row[j_sum + k] - max_val);
+            __m256 vexp = _mm256_load_ps(tmp_exp);
+            _mm256_storeu_ps(&row[j_sum], vexp);
+            vsum = _mm256_add_ps(vsum, vexp);
+        }
+        alignas(32) float tmp_sum[8];
+        _mm256_store_ps(tmp_sum, vsum);
+        for (int k = 0; k < 8; ++k) sum += tmp_sum[k];
+        for (; j_sum < dim; ++j_sum) {
+            row[j_sum] = std::exp(row[j_sum] - max_val);
+            sum += row[j_sum];
+        }
+#else
         for (int j = 0; j < dim; ++j) {
             row[j] = std::exp(row[j] - max_val);
             sum += row[j];
         }
+#endif
+
         float inv_sum = 1.0f / sum;
 #if defined(__AVX2__)
         __m256 vinv = _mm256_set1_ps(inv_sum);
-        int j = 0;
-        for (; j + 8 <= dim; j += 8) {
-            __m256 v = _mm256_loadu_ps(&row[j]);
+        int j_norm = 0;
+        for (; j_norm + 8 <= dim; j_norm += 8) {
+            __m256 v = _mm256_loadu_ps(&row[j_norm]);
             v = _mm256_mul_ps(v, vinv);
-            _mm256_storeu_ps(&row[j], v);
+            _mm256_storeu_ps(&row[j_norm], v);
         }
-        for (; j < dim; ++j) row[j] *= inv_sum;
+        for (; j_norm < dim; ++j_norm) row[j_norm] *= inv_sum;
 #else
-        for (int j = 0; j < dim; ++j) row[j] *= inv_sum;
+        for (int j_norm = 0; j_norm < dim; ++j_norm) row[j_norm] *= inv_sum;
 #endif
     }
     return T729Tensor(x.shape(), std::move(out));
+}
+
+inline T729Tensor rope(const T729Tensor& x, int pos) {
+    if (x.rank() < 2) throw std::invalid_argument("rope: rank must be at least 2");
+    int head_dim = x.shape().back();
+    std::vector<float> data = x.data();
+    for (size_t i = 0; i < data.size(); i += static_cast<size_t>(head_dim)) {
+        for (int j = 0; j < head_dim; j += 2) {
+            float freq = 1.0f / std::pow(10000.0f, static_cast<float>(j) / head_dim);
+            float val = static_cast<float>(pos) * freq;
+            float f_cos = std::cos(val);
+            float f_sin = std::sin(val);
+            float v0 = data[i + static_cast<size_t>(j)];
+            float v1 = data[i + static_cast<size_t>(j + 1)];
+            data[i + static_cast<size_t>(j)] = v0 * f_cos - v1 * f_sin;
+            data[i + static_cast<size_t>(j + 1)] = v0 * f_sin + v1 * f_cos;
+        }
+    }
+    return T729Tensor(x.shape(), std::move(data));
 }
 
 } // namespace t81::ops
