@@ -292,6 +292,16 @@ std::unique_ptr<Stmt> Parser::statement() {
     if (check(TokenType::At) || check(TokenType::Loop)) {
         return loop_statement();
     }
+    if (match({TokenType::Break})) {
+        Token keyword = previous();
+        consume(TokenType::Semicolon, "Expect ';' after 'break'.");
+        return std::make_unique<BreakStmt>(keyword);
+    }
+    if (match({TokenType::Continue})) {
+        Token keyword = previous();
+        consume(TokenType::Semicolon, "Expect ';' after 'continue'.");
+        return std::make_unique<ContinueStmt>(keyword);
+    }
     if (match({TokenType::Return})) {
         Token keyword = previous();
         std::unique_ptr<Expr> value = nullptr;

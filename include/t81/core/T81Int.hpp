@@ -25,7 +25,10 @@
 
 namespace t81 {
 
-enum class Trit : std::int8_t { N = -1, Z = 0, P = 1 };
+enum class Trit : std::int8_t {
+    N = -1, Z = 0, P = 1,
+    Neg = -1, Zero = 0, Pos = 1
+};
 
 constexpr inline int trit_to_int(Trit t) noexcept {
     return static_cast<int>(t);

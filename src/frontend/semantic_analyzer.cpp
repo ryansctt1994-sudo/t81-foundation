@@ -769,7 +769,9 @@ std::any SemanticAnalyzer::visit(const IfStmt& stmt) {
 std::any SemanticAnalyzer::visit(const WhileStmt& stmt) {
     Token cond_token = extract_token(*stmt.condition);
     expect_condition_bool(*stmt.condition, cond_token);
+    _loop_stack.push_back(nullptr); // WhileStmt doesn't have metadata yet, but it's a loop
     analyze(*stmt.body);
+    _loop_stack.pop_back();
     return {};
 }
 
@@ -808,6 +810,20 @@ std::any SemanticAnalyzer::visit(const LoopStmt& stmt) {
         analyze(*statement);
     }
     _loop_stack.pop_back();
+    return {};
+}
+
+std::any SemanticAnalyzer::visit(const BreakStmt& stmt) {
+    if (_loop_stack.empty()) {
+        error(stmt.keyword, "Break statement outside of a loop.");
+    }
+    return {};
+}
+
+std::any SemanticAnalyzer::visit(const ContinueStmt& stmt) {
+    if (_loop_stack.empty()) {
+        error(stmt.keyword, "Continue statement outside of a loop.");
+    }
     return {};
 }
 
@@ -1256,6 +1272,7 @@ std::any SemanticAnalyzer::visit(const MatchExpr& expr) {
     bool result_type_locked = contextual_expected && contextual_expected->kind != Type::Kind::Unknown;
     bool structural_error = false;
     std::unordered_set<std::string> seen_variants;
+    std::unordered_set<std::string> variants_with_no_guard;
     std::vector<MatchMetadata::ArmInfo> arm_infos;
 
     for (const auto& arm : expr.arms) {
@@ -1270,10 +1287,14 @@ std::any SemanticAnalyzer::visit(const MatchExpr& expr) {
         if (name == "None") saw_none = true;
         if (name == "Ok") saw_ok = true;
         if (name == "Err") saw_err = true;
-        if (!seen_variants.insert(name).second) {
-            error(arm.keyword, "Duplicate match arm for '" + name + "'.");
-            structural_error = true;
+        bool has_guard = arm.guard != nullptr;
+        if (!has_guard) {
+            if (!variants_with_no_guard.insert(name).second) {
+                error(arm.keyword, "Duplicate match arm for '" + name + "' without a guard.");
+                structural_error = true;
+            }
         }
+        seen_variants.insert(name);
 
         bool variant_has_payload = variant_it->second.payload.has_value();
         Type payload_type = variant_has_payload ? *variant_it->second.payload : Type{Type::Kind::Unknown};

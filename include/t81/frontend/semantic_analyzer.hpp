@@ -122,6 +122,8 @@ public:
     std::any visit(const WhileStmt& stmt) override;
     std::any visit(const LoopStmt& stmt) override;
     std::any visit(const ReturnStmt& stmt) override;
+    std::any visit(const BreakStmt& stmt) override;
+    std::any visit(const ContinueStmt& stmt) override;
     std::any visit(const FunctionStmt& stmt) override;
     std::any visit(const TypeDecl& stmt) override;
     std::any visit(const RecordDecl& stmt) override;

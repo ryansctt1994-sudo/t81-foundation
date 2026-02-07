@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(t81 LANGUAGES C CXX)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 # Options
 option(T81_BUILD_EXAMPLES "Build T81 C++ examples" ON)
 option(T81_BUILD_TESTS    "Build T81 C++ unit tests" ON)
@@ -225,6 +227,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_tensor_elementwise_test tests/cpp/tensor_elementwise_test.cpp)
   target_link_libraries(t81_tensor_elementwise_test PRIVATE t81_core)
 
+  add_executable(t81_tensor_ternary_test tests/cpp/tensor_ternary_test.cpp)
+  target_link_libraries(t81_tensor_ternary_test PRIVATE t81_core)
+
   add_executable(t81_c_api_bigint_test tests/cpp/c_api_bigint_test.c)
   target_link_libraries(t81_c_api_bigint_test PRIVATE t81_c_api)
   target_include_directories(t81_c_api_bigint_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -386,6 +391,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(e2e_loop_statement_test tests/cpp/e2e_loop_statement_test.cpp)
   target_link_libraries(e2e_loop_statement_test PRIVATE t81_frontend t81_tisc t81_vm)
 
+  add_executable(e2e_advanced_features_test tests/cpp/e2e_advanced_features_test.cpp)
+  target_link_libraries(e2e_advanced_features_test PRIVATE t81_frontend t81_tisc t81_vm)
+
   add_executable(cli_e2e_test tests/cpp/cli_e2e_test.cpp)
   target_link_libraries(cli_e2e_test PRIVATE t81_cli_driver)
 
@@ -542,6 +550,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_entropy_test
     t81_expected_test
     t81_tensor_elementwise_test
+    t81_tensor_ternary_test
     t81_c_api_bigint_test
     t81_tensor_unary_test
     t81_hanoi_integration_test
@@ -587,6 +596,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     e2e_option_type_test
     e2e_match_expression_test
     e2e_loop_statement_test
+    e2e_advanced_features_test
     cli_e2e_test
     t81_frontend_fuzz_test
     t81_cli_check_test
@@ -622,7 +632,7 @@ execute_process(
 if(pybind11_DIR)
   find_package(pybind11 REQUIRED)
   pybind11_add_module(t81_python src/python/t81_python.cpp)
-  target_link_libraries(t81_python PRIVATE t81_core)
+  target_link_libraries(t81_python PRIVATE t81_core t81_frontend t81_tisc)
 endif()
 
 # =============================================================================

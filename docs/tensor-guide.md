@@ -17,10 +17,12 @@ ______________________________________________________________________
 
 ## 1. Core Concepts
 
-- **`t81::T729Tensor`:** A row-major tensor of `float` with a runtime `shape()` (`std::vector<int>`) and owned `data()` buffer. It exposes `rank()`, `size()`, broadcasting helpers, and basic serialization (`serialize`/`deserialize`).
+- **`t81::T729TensorBase<T>`:** A row-major tensor template with a runtime `shape()` (`std::vector<int>`) and owned `data()` buffer of type `T`. It exposes `rank()`, `size()`, broadcasting helpers, and basic serialization (`serialize`/`deserialize`).
+- **`t81::T729Tensor`:** Alias for `T729TensorBase<float>`, the standard floating-point tensor.
+- **`t81::T729IntTensor`:** Alias for `T729TensorBase<T81Int<81>>`, the native ternary tensor.
 - **Shape Utilities:** `include/t81/tensor/shape.hpp` provides row-major strides, size computation, `broadcast_shape`, `squeeze`, and reshape validation helpers that the ops headers reuse.
 - **Ops Library:** The headers under `include/t81/tensor/` expose free functions in `t81::ops` such as `matmul`, `transpose`, `slice2d`, `reshape`, `broadcast_to`, elementwise/`unary` helpers, and reduction primitives. These have dedicated regression tests under `tests/cpp/`.
-- **Status:** This is a partial implementation aligning with the current C++ migration roadmap—sufficient for basic numerics while more spec features (e.g., native ternary storage) are on the TODO list.
+- **Status:** This is a comprehensive implementation of the T81 tensor API, supporting both floating-point and native ternary storage with a rich set of operations.
 
 ______________________________________________________________________
 
@@ -93,11 +95,13 @@ auto patch = t81::ops::slice2d(A, 0, 1, 1, 3); // 1×2 block
 
 ### Reduction
 
-`reduce_sum_2d` and `reduce_max_2d` collapse a rank-2 tensor along axis `0` (columns) or `1` (rows), producing a 1D tensor that summarizes sums or maxima.
+`reduce_sum_2d`, `reduce_max_2d`, `reduce_min_2d`, and `reduce_mean_2d` collapse a rank-2 tensor along axis `0` (columns) or `1` (rows), producing a 1D tensor that summarizes the values.
 
 ```cpp
 auto row_sums = t81::ops::reduce_sum_2d(A, 1);
 auto col_max = t81::ops::reduce_max_2d(A, 0);
+auto col_min = t81::ops::reduce_min_2d(A, 0);
+auto row_mean = t81::ops::reduce_mean_2d(A, 1);
 ```
 
 **Test:** [`tests/cpp/tensor_reduce_test.cpp`](../tests/cpp/tensor_reduce_test.cpp)
@@ -129,8 +133,8 @@ ______________________________________________________________________
 
 ## 4. Status & Next Steps
 
-The current tensor API is **partial** but usable: base storage, reshape/slice/matmul/reduce, broadcasting, elementwise, unary transforms, and IO are all implemented and covered by tests.
+The tensor API is now feature-complete for v1.0: base storage for both float and ternary types, reshape/slice/matmul/reduce, broadcasting, elementwise, unary transforms, and IO are all implemented and covered by tests.
 
-- **Next Steps:** Expand the API to native ternary types (`T81Int`), add spec-aligned broadcasting rules, and upstream more operations (elementwise reductions, scatter/gather) once `T81Lang` reaches greater maturity.
+- **Next Steps:** Upstream more specialized operations (scatter/gather, advanced cognitive kernels) once `T81Lang` reaches greater maturity.
 
 For a full list of planned work, see [`TASKS.md`](../TASKS.md).

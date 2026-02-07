@@ -143,6 +143,11 @@ public:
         auto cond_label = new_label();
         auto end_label = new_label();
 
+        LoopInfo info;
+        info.entry_label = cond_label;
+        info.exit_label = end_label;
+        _loop_stack.push_back(info);
+
         emit_label(cond_label);
         stmt.condition->accept(*this);
         auto cond = ensure_expr_result(stmt.condition.get());
@@ -152,14 +157,21 @@ public:
         emit_jump(cond_label);
 
         emit_label(end_label);
+        _loop_stack.pop_back();
         return {};
     }
     std::any visit(const LoopStmt& stmt) override {
         auto entry_label = new_label();
         auto exit_label = new_label();
         auto guard_label = entry_label;
+
+        LoopInfo info;
+        info.entry_label = entry_label;
+        info.exit_label = exit_label;
+
         if (stmt.bound_kind == LoopStmt::BoundKind::Guarded && stmt.guard_expression) {
             guard_label = new_label();
+            info.entry_label = guard_label; // continue should go to guard
             emit_label(guard_label);
             stmt.guard_expression->accept(*this);
             auto guard_value = ensure_expr_result(stmt.guard_expression.get());
@@ -168,15 +180,14 @@ public:
         } else {
             emit_label(entry_label);
         }
+
+        _loop_stack.push_back(info);
         for (const auto& statement : stmt.body) {
             statement->accept(*this);
         }
         emit_jump(guard_label);
         emit_label(exit_label);
 
-        LoopInfo info;
-        info.entry_label = entry_label;
-        info.exit_label = exit_label;
         if (_semantic) {
             if (const auto* meta = _semantic->loop_metadata_for(stmt)) {
                 info.id = meta->id;
@@ -185,11 +196,26 @@ public:
             }
         }
         _loop_infos.push_back(info);
+        _loop_stack.pop_back();
         return {};
     }
     std::any visit(const ReturnStmt& stmt) override {
         if (stmt.value) {
-            stmt.value->accept(*this);
+            auto value = evaluate_expr(stmt.value.get());
+            copy_to_dest(value, {tisc::ir::Register{0}, value.primitive});
+        }
+        emit_simple(tisc::ir::Opcode::HALT);
+        return {};
+    }
+    std::any visit(const BreakStmt&) override {
+        if (!_loop_stack.empty()) {
+            emit_jump(_loop_stack.back().exit_label);
+        }
+        return {};
+    }
+    std::any visit(const ContinueStmt&) override {
+        if (!_loop_stack.empty()) {
+            emit_jump(_loop_stack.back().entry_label);
         }
         return {};
     }
@@ -472,14 +498,21 @@ public:
     std::any visit(const AssignExpr& expr) override {
         expr.value->accept(*this);
         auto value = ensure_expr_result(expr.value.get());
-        bind_variable(std::string(expr.name.lexeme), value);
-        record_result(&expr, value);
+        auto found = lookup_variable(expr.name.lexeme);
+        if (found.has_value()) {
+            copy_to_dest(value, *found);
+            record_result(&expr, *found);
+        } else {
+            bind_variable(std::string(expr.name.lexeme), value);
+            record_result(&expr, value);
+        }
         return {};
     }
     std::any visit(const SimpleTypeExpr&) override   { return {}; }
     std::any visit(const GenericTypeExpr&) override  { return {}; }
     std::any visit(const MatchExpr& expr) override {
         expr.scrutinee->accept(*this);
+        auto scrutinee_reg = ensure_expr_result(expr.scrutinee.get());
 
         const SemanticAnalyzer::MatchMetadata* metadata = _semantic ? _semantic->match_metadata_for(expr) : nullptr;
         const Type* result_type = typed_expr(&expr);
@@ -490,172 +523,119 @@ public:
         auto dest = allocate_typed_register(primitive);
         record_result(&expr, dest);
 
-        // const Type* scrutinee_type = typed_expr(expr.scrutinee.get());
-        auto scrutinee_reg = ensure_expr_result(expr.scrutinee.get());
-        std::unordered_map<const MatchArm*, std::size_t> arm_indices;
-        arm_indices.reserve(expr.arms.size());
-        for (std::size_t i = 0; i < expr.arms.size(); ++i) {
-            arm_indices[&expr.arms[i]] = i;
+        auto end_label = new_label();
+        auto trap_label = new_label();
+
+        // Group arms by variant name
+        std::vector<std::string> variants;
+        std::unordered_map<std::string, std::vector<size_t>> arms_by_variant;
+        for (size_t i = 0; i < expr.arms.size(); ++i) {
+            std::string name{expr.arms[i].keyword.lexeme};
+            if (arms_by_variant.find(name) == arms_by_variant.end()) {
+                variants.push_back(name);
+            }
+            arms_by_variant[name].push_back(i);
         }
 
-        auto find_arm = [&](std::string_view name) -> const MatchArm* {
-            for (const auto& arm : expr.arms) {
-                if (std::string_view{arm.keyword.lexeme} == name) {
-                    return &arm;
-                }
-            }
-            return nullptr;
-        };
+        auto flag_reg = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        auto payload_reg = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
 
-        auto emit_match_arm = [&]<typename Prelude>(const MatchArm& arm,
-                                                    std::size_t arm_index,
-                                                    tisc::ir::Label entry_label,
-                                                    tisc::ir::Label guard_fail_target,
-                                                    Prelude before_body,
-                                                    tisc::ir::Label end_label,
-                                                    const TypedRegister* variant_flag,
-                                                    std::optional<int> variant_id) {
-            emit_label(entry_label);
-            enter_pattern_scope();
-            const SemanticAnalyzer::MatchMetadata::ArmInfo* arm_meta = nullptr;
-            if (metadata && arm_index < metadata->arms.size()) {
-                arm_meta = &metadata->arms[arm_index];
-            }
-            std::optional<tisc::ir::Label> guard_fail_label;
-            if (variant_flag && variant_id.has_value()) {
-                emit_enum_is_variant(*variant_flag, scrutinee_reg, *variant_id);
-                emit_jump_if_zero(guard_fail_target, *variant_flag);
-            }
-            before_body();
-            if (arm.guard) {
-                emit_guard_metadata(arm_meta, variant_id);
-                guard_fail_label = new_label();
-                arm.guard->accept(*this);
-                auto guard_value = ensure_expr_result(arm.guard.get());
-                emit_jump_if_zero(*guard_fail_label, guard_value);
-            }
-            arm.expression->accept(*this);
-            auto value = ensure_expr_result(arm.expression.get());
-            copy_to_dest(value, dest);
-            emit_jump(end_label);
-            if (guard_fail_label) {
-                emit_label(*guard_fail_label);
-                emit_jump(guard_fail_target);
-            }
-            exit_pattern_scope();
-        };
+        for (size_t v_idx = 0; v_idx < variants.size(); ++v_idx) {
+            const std::string& v_name = variants[v_idx];
+            const auto& arm_indices = arms_by_variant[v_name];
+            auto next_variant_label = (v_idx + 1 < variants.size()) ? new_label() : trap_label;
 
-        auto finalize_branches = [&](tisc::ir::Label end_label, tisc::ir::Label unmatched_label) {
-            emit_label(end_label);
-            emit_label(unmatched_label);
-            emit_simple(tisc::ir::Opcode::TRAP);
-        };
-
-        const MatchArm* some_arm = find_arm("Some");
-        const MatchArm* none_arm = find_arm("None");
-        if (some_arm && none_arm) {
-            auto end_label = new_label();
-            auto unmatched_label = new_label();
-            auto some_label = new_label();
-            auto none_label = new_label();
-
-            auto payload_reg = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-            auto flag_reg = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-
-            emit_option_is_some(flag_reg, scrutinee_reg);
-            emit_jump_if_not_zero(some_label, flag_reg);
-
-            emit_match_arm(*none_arm, arm_indices.at(none_arm), none_label, unmatched_label, []() {}, end_label, nullptr, std::nullopt);
-
-            emit_match_arm(*some_arm, arm_indices.at(some_arm), some_label, none_label,
-                          [&]() {
-                              emit_option_unwrap(payload_reg, scrutinee_reg);
-                              bind_variant_payload(*some_arm, payload_reg);
-                          },
-                          end_label, nullptr, std::nullopt);
-
-            finalize_branches(end_label, unmatched_label);
-            return {};
-        }
-
-        const MatchArm* ok_arm = find_arm("Ok");
-        const MatchArm* err_arm = find_arm("Err");
-        if (ok_arm && err_arm) {
-            auto end_label = new_label();
-            auto unmatched_label = new_label();
-            auto ok_label = new_label();
-            auto err_label = new_label();
-
-            auto payload_reg = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-            auto flag_reg = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-
-            emit_result_is_ok(flag_reg, scrutinee_reg);
-            emit_jump_if_not_zero(ok_label, flag_reg);
-
-            emit_match_arm(*err_arm, arm_indices.at(err_arm), err_label, unmatched_label, [&]() {
-                emit_result_unwrap_err(payload_reg, scrutinee_reg);
-                bind_variant_payload(*err_arm, payload_reg);
-            }, end_label, nullptr, std::nullopt);
-
-            emit_match_arm(*ok_arm, arm_indices.at(ok_arm), ok_label, err_label, [&]() {
-                emit_result_unwrap_ok(payload_reg, scrutinee_reg);
-                bind_variant_payload(*ok_arm, payload_reg);
-            }, end_label, nullptr, std::nullopt);
-
-            finalize_branches(end_label, unmatched_label);
-            return {};
-        }
-
-        if (metadata && metadata->kind == SemanticAnalyzer::MatchMetadata::Kind::Enum) {
-            auto end_label = new_label();
-            auto trap_label = new_label();
-            std::vector<tisc::ir::Label> arm_labels(expr.arms.size());
-            for (auto& label : arm_labels) {
-                label = new_label();
-            }
-            auto variant_flag = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-            auto payload_reg = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-            for (size_t i = 0; i < expr.arms.size(); ++i) {
-                tisc::ir::Label guard_fail_target =
-                    (i + 1 < expr.arms.size()) ? arm_labels[i + 1] : trap_label;
-                const auto& arm_meta = metadata->arms[i];
-                const auto& arm = expr.arms[i];
-                std::optional<int> variant_id;
-                if (arm_meta.variant_id >= 0) {
-                    variant_id = arm_meta.variant_id;
-                    if (auto encoded = global_variant_id_for(arm_meta)) {
-                        variant_id = *encoded;
+            // Emit check for this variant
+            if (v_name == "Some") {
+                emit_option_is_some(flag_reg, scrutinee_reg);
+                emit_jump_if_zero(next_variant_label, flag_reg);
+            } else if (v_name == "None") {
+                emit_option_is_some(flag_reg, scrutinee_reg);
+                emit_jump_if_not_zero(next_variant_label, flag_reg);
+            } else if (v_name == "Ok") {
+                emit_result_is_ok(flag_reg, scrutinee_reg);
+                emit_jump_if_zero(next_variant_label, flag_reg);
+            } else if (v_name == "Err") {
+                emit_result_is_ok(flag_reg, scrutinee_reg);
+                emit_jump_if_not_zero(next_variant_label, flag_reg);
+            } else if (metadata && metadata->kind == SemanticAnalyzer::MatchMetadata::Kind::Enum) {
+                int variant_id = -1;
+                for (size_t idx : arm_indices) {
+                    if (metadata->arms[idx].variant_id >= 0) {
+                        variant_id = metadata->arms[idx].variant_id;
+                        if (auto encoded = global_variant_id_for(metadata->arms[idx])) {
+                            variant_id = *encoded;
+                        }
+                        break;
                     }
                 }
-                bool variant_has_payload =
-                    arm_meta.payload_type.kind != Type::Kind::Unknown;
-
-                emit_match_arm(expr.arms[i],
-                               i,
-                               arm_labels[i],
-                               guard_fail_target,
-                               [&]() {
-                                   if (variant_has_payload) {
-                                       emit_enum_unwrap_payload(payload_reg, scrutinee_reg);
-                                       bind_variant_payload(arm, payload_reg);
-                                   }
-                               },
-                               end_label,
-                               &variant_flag,
-                               variant_id);
+                if (variant_id >= 0) {
+                    emit_enum_is_variant(flag_reg, scrutinee_reg, variant_id);
+                    emit_jump_if_zero(next_variant_label, flag_reg);
+                } else {
+                    emit_jump(next_variant_label);
+                }
+            } else {
+                emit_jump(next_variant_label);
             }
-            emit_label(trap_label);
-            emit_simple(tisc::ir::Opcode::TRAP);
-            emit_label(end_label);
-            emit_simple(tisc::ir::Opcode::NOP);
-            return {};
+
+            // If we reached here, the variant matches. Now check arms sequentially.
+            for (size_t a_idx = 0; a_idx < arm_indices.size(); ++a_idx) {
+                size_t arm_idx = arm_indices[a_idx];
+                const auto& arm = expr.arms[arm_idx];
+                auto next_arm_label = (a_idx + 1 < arm_indices.size()) ? new_label() : next_variant_label;
+
+                enter_pattern_scope();
+
+                bool has_payload = false;
+                if (v_name == "Some") {
+                    emit_option_unwrap(payload_reg, scrutinee_reg);
+                    has_payload = true;
+                } else if (v_name == "Ok") {
+                    emit_result_unwrap_ok(payload_reg, scrutinee_reg);
+                    has_payload = true;
+                } else if (v_name == "Err") {
+                    emit_result_unwrap_err(payload_reg, scrutinee_reg);
+                    has_payload = true;
+                } else if (metadata && metadata->kind == SemanticAnalyzer::MatchMetadata::Kind::Enum) {
+                    if (metadata->arms[arm_idx].payload_type.kind != Type::Kind::Unknown) {
+                        emit_enum_unwrap_payload(payload_reg, scrutinee_reg);
+                        has_payload = true;
+                    }
+                }
+
+                if (has_payload) {
+                    bind_variant_payload(arm, payload_reg);
+                }
+
+                if (arm.guard && metadata) {
+                    const auto& arm_meta = metadata->arms[arm_idx];
+                    emit_guard_metadata(&arm_meta, arm_meta.variant_id >= 0 ? std::optional<int>(arm_meta.variant_id) : std::nullopt);
+                    arm.guard->accept(*this);
+                    auto guard_value = ensure_expr_result(arm.guard.get());
+                    emit_jump_if_zero(next_arm_label, guard_value);
+                }
+
+                arm.expression->accept(*this);
+                auto value = ensure_expr_result(arm.expression.get());
+                copy_to_dest(value, dest);
+                emit_jump(end_label);
+
+                if (a_idx + 1 < arm_indices.size()) {
+                    emit_label(next_arm_label);
+                }
+                exit_pattern_scope();
+            }
+
+            if (v_idx + 1 < variants.size()) {
+                emit_label(next_variant_label);
+            }
         }
 
-        for (const auto& arm : expr.arms) {
-            arm.expression->accept(*this);
-            auto value = ensure_expr_result(arm.expression.get());
-            copy_to_dest(value, dest);
-        }
+        emit_label(trap_label);
+        emit_simple(tisc::ir::Opcode::TRAP);
+        emit_label(end_label);
+        emit_simple(tisc::ir::Opcode::NOP);
         return {};
     }
 
@@ -1128,6 +1108,7 @@ private:
     std::unordered_map<std::string, TypedRegister> _variable_registers;
     std::vector<std::vector<std::pair<std::string, std::optional<TypedRegister>>>> _pattern_scopes;
     std::vector<LoopInfo> _loop_infos;
+    std::vector<LoopInfo> _loop_stack;
 };
 
 } // namespace t81::frontend

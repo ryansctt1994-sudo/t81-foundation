@@ -8,24 +8,26 @@
 #include <algorithm>
 #include <numeric>
 #include <limits>
+#include "t81/core/T81Int.hpp"
 
 namespace t81 {
 
-// Lightweight row-major tensor of float.
-class T729Tensor {
+// Lightweight row-major tensor template.
+template <typename T>
+class T729TensorBase {
 public:
   // --- ctors ---
-  T729Tensor() = default;
+  T729TensorBase() = default;
 
-  explicit T729Tensor(std::vector<int> shape)
+  explicit T729TensorBase(std::vector<int> shape)
   : shape_(std::move(shape)), data_(size_from_shape_(shape_)) {
     if (!valid_shape_(shape_)) throw std::invalid_argument("T729Tensor: invalid shape");
   }
 
-  T729Tensor(std::initializer_list<int> shape)
-  : T729Tensor(std::vector<int>(shape)) {}
+  T729TensorBase(std::initializer_list<int> shape)
+  : T729TensorBase(std::vector<int>(shape)) {}
 
-  T729Tensor(std::vector<int> shape, std::vector<float> data)
+  T729TensorBase(std::vector<int> shape, std::vector<T> data)
   : shape_(std::move(shape)), data_(std::move(data)) {
     if (!valid_shape_(shape_)) throw std::invalid_argument("T729Tensor: invalid shape");
     if (data_.size() != size_from_shape_(shape_))
@@ -35,38 +37,38 @@ public:
   // --- basics ---
   int rank() const { return static_cast<int>(shape_.size()); }
   const std::vector<int>& shape() const { return shape_; }
-  std::vector<float>& data() { return data_; }
-  const std::vector<float>& data() const { return data_; }
+  std::vector<T>& data() { return data_; }
+  const std::vector<T>& data() const { return data_; }
 
   std::size_t size() const { return data_.size(); }
 
   // --- utilities ---
   // Dot-product of two rank-1 tensors → rank-1 {1} tensor.
-  static T729Tensor contract_dot(const T729Tensor& a, const T729Tensor& b) {
+  static T729TensorBase contract_dot(const T729TensorBase& a, const T729TensorBase& b) {
     if (a.rank() != 1 || b.rank() != 1)
       throw std::invalid_argument("contract_dot: both inputs must be vectors");
     if (a.shape_[0] != b.shape_[0])
       throw std::invalid_argument("contract_dot: size mismatch");
-    float s = 0.0f;
+    T s{};
     for (std::size_t i = 0; i < a.data_.size(); ++i) s += a.data_[i] * b.data_[i];
-    return T729Tensor({1}, std::vector<float>{s});
+    return T729TensorBase({1}, std::vector<T>{s});
   }
 
   // 2D transpose → swaps {rows, cols}.
-  T729Tensor transpose2d() const {
+  T729TensorBase transpose2d() const {
     if (rank() != 2) throw std::invalid_argument("transpose2d: rank must be 2");
     const int R = shape_[0], C = shape_[1];
-    std::vector<float> out(static_cast<std::size_t>(R) * C);
+    std::vector<T> out(static_cast<std::size_t>(R) * C);
     for (int r = 0; r < R; ++r) {
       for (int c = 0; c < C; ++c) {
         out[static_cast<std::size_t>(c) * R + r] = data_[static_cast<std::size_t>(r) * C + c];
       }
     }
-    return T729Tensor({C, R}, std::move(out));
+    return T729TensorBase({C, R}, std::move(out));
   }
 
   // Broadcast (naive repeat) to new shape if compatible (right-aligned).
-  T729Tensor broadcast(std::vector<int> new_shape) const {
+  T729TensorBase broadcast(std::vector<int> new_shape) const {
     if (new_shape.empty()) throw std::invalid_argument("broadcast: empty new_shape");
     // Align shapes from the right
     int nr = static_cast<int>(new_shape.size());
@@ -106,7 +108,7 @@ public:
                         return a * static_cast<std::size_t>(b);
                       });
 
-    std::vector<float> out(out_sz);
+    std::vector<T> out(out_sz);
     std::vector<int> idx(nr, 0);
 
     for (std::size_t flat = 0; flat < out_sz; ++flat) {
@@ -126,12 +128,12 @@ public:
       out[flat] = data_[in_flat];
     }
 
-    return T729Tensor(std::move(new_shape), std::move(out));
+    return T729TensorBase(std::move(new_shape), std::move(out));
   }
 
 private:
   std::vector<int>   shape_;
-  std::vector<float> data_;
+  std::vector<T> data_;
 
 public:
   // --- Serialization ---
@@ -142,7 +144,7 @@ public:
 
       uint64_t data_size = data_.size();
       os.write(reinterpret_cast<const char*>(&data_size), sizeof(data_size));
-      os.write(reinterpret_cast<const char*>(data_.data()), data_size * sizeof(float));
+      os.write(reinterpret_cast<const char*>(data_.data()), data_size * sizeof(T));
   }
 
   void deserialize(std::istream& is) {
@@ -154,7 +156,7 @@ public:
       uint64_t data_size;
       is.read(reinterpret_cast<char*>(&data_size), sizeof(data_size));
       data_.resize(data_size);
-      is.read(reinterpret_cast<char*>(data_.data()), data_size * sizeof(float));
+      is.read(reinterpret_cast<char*>(data_.data()), data_size * sizeof(T));
   }
 
 private:
@@ -175,5 +177,8 @@ private:
     return n;
   }
 };
+
+using T729Tensor = T729TensorBase<float>;
+using T729IntTensor = T729TensorBase<T81Int<81>>;
 
 } // namespace t81

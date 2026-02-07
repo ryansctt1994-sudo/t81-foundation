@@ -16,6 +16,7 @@ class IVirtualMachine {
   virtual std::expected<void, Trap> step() = 0;
   virtual std::expected<void, Trap> run_to_halt(std::size_t max_steps = 100000) = 0;
   virtual const State& state() const = 0;
+  virtual void set_register(int idx, std::int64_t value, ValueTag tag = ValueTag::Int) = 0;
   virtual std::int64_t load_weights_tensor(std::string_view name) = 0;
   virtual const t81::weights::NativeTensor* weights_tensor(std::int64_t handle) const = 0;
 };

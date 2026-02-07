@@ -1434,6 +1434,21 @@ class Interpreter : public IVirtualMachine {
 
   const State& state() const override { return state_; }
 
+  void set_register(int idx, std::int64_t value, ValueTag tag) override {
+    if (idx < 0 || static_cast<std::size_t>(idx) >= state_.registers.size()) {
+      return;
+    }
+    state_.registers[idx] = value;
+    state_.register_tags[idx] = tag;
+
+    t81::axion::Verdict verdict;
+    verdict.kind = t81::axion::VerdictKind::Allow;
+    std::ostringstream reason;
+    reason << "register mutation R" << idx << " value=" << value;
+    verdict.reason = reason.str();
+    record_axion_event(t81::tisc::Opcode::Nop, idx, value, verdict);
+  }
+
  private:
   std::int64_t intern_weights_tensor(std::string_view name) {
     if (name.empty() || !state_.weights_model) return 0;

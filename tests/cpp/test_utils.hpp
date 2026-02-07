@@ -91,6 +91,14 @@ public:
         return std::string("(return)");
     }
 
+    std::any visit(const BreakStmt& stmt) override {
+        return std::string("(break)");
+    }
+
+    std::any visit(const ContinueStmt& stmt) override {
+        return std::string("(continue)");
+    }
+
     std::any visit(const FunctionStmt& stmt) override {
         std::stringstream ss;
         ss << "(fn " << stmt.name.lexeme;
