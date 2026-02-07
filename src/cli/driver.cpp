@@ -885,4 +885,47 @@ int check_syntax(const fs::path& path) {
     return 0;
 }
 
+int init_project(const std::string& name) {
+    if (name.empty()) {
+        error("Project name cannot be empty");
+        return 1;
+    }
+
+    fs::path project_dir(name);
+    if (fs::exists(project_dir)) {
+        error("Directory already exists: " + name);
+        return 1;
+    }
+
+    try {
+        fs::create_directories(project_dir);
+
+        // Create main.t81
+        std::ofstream main_file(project_dir / "main.t81");
+        main_file << "// T81 Foundation Project: " << name << "\n"
+                  << "// Created by t81 init\n\n"
+                  << "let x = 81;\n"
+                  << "let y = 100;\n"
+                  << "let sum = x + y;\n"
+                  << "sum;\n";
+        main_file.close();
+
+        // Create README.md
+        std::ofstream readme_file(project_dir / "README.md");
+        readme_file << "# " << name << "\n\n"
+                    << "A ternary-native project built on the T81 Foundation stack.\n\n"
+                    << "## How to run\n\n"
+                    << "```bash\n"
+                    << "t81 run main.t81\n"
+                    << "```\n";
+        readme_file.close();
+
+        info("Project initialized in " + name);
+        return 0;
+    } catch (const std::exception& e) {
+        error("Failed to initialize project: " + std::string(e.what()));
+        return 1;
+    }
+}
+
 } // namespace t81::cli

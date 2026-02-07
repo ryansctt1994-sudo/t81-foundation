@@ -3,6 +3,7 @@
 #include <cassert>
 
 using namespace t81;
+using namespace t81::v1;
 
 void test_multilimb_addition() {
     // 3^40 is larger than int64_t max (~9e18 vs 1e19)

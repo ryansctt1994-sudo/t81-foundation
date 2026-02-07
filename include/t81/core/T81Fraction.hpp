@@ -20,7 +20,7 @@
 #include <cmath>
 #include <algorithm>
 
-namespace t81 {
+namespace t81::v1 {
 
 template <std::size_t TotalTrits = 81>
     requires (TotalTrits >= 13 && TotalTrits <= 324)
@@ -187,4 +187,4 @@ public:
 using T81Frac81  = T81Fraction<81>;
 using T81Frac162 = T81Fraction<162>;
 
-} // namespace t81::core
+} // namespace t81::v1

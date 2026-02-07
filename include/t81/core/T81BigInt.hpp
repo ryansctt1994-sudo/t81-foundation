@@ -23,7 +23,7 @@
 #include <limits>
 #include <algorithm>
 
-namespace t81 {
+namespace t81::v1 {
 
 class T81BigInt {
 public:
@@ -375,4 +375,4 @@ public:
 // Convenience alias
 using BigInt = T81BigInt;
 
-} // namespace t81::core
+} // namespace t81::v1

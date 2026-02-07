@@ -23,7 +23,7 @@
 #include <compare>
 #include <cstdlib> // fabsl, powl
 
-namespace t81 {
+namespace t81::v1 {
 
 template <std::size_t M, std::size_t E>
 class T81Float;
@@ -297,16 +297,11 @@ private:
 
     constexpr void set_exp(std::int64_t e) noexcept {
         for (size_type i = 0; i < E; ++i) {
-            std::int64_t digit_ll = e % 3;
+            int digit = static_cast<int>(e % 3);
             e /= 3;
-            int digit = static_cast<int>(digit_ll);
-            if (digit == 2) {
-                // 2 → -1 with carry
-                bits_[M + i] = Trit::N;
-                ++e;
-            } else {
-                bits_[M + i] = int_to_trit(digit);
-            }
+            if (digit > 1) { digit -= 3; ++e; }
+            if (digit < -1) { digit += 3; --e; }
+            bits_[M + i] = int_to_trit(digit);
         }
     }
 
@@ -605,4 +600,11 @@ using T81Float18_9 = T81Float<18, 9>;
 using T81Float27_9 = T81Float<27, 9>;
 using T81Float72_9 = T81Float<72, 9>;   // default for Vec3f, etc.
 
-} // namespace t81
+} // namespace t81::v1
+
+namespace t81 {
+    using v1::T81Float;
+    using v1::T81Float18_9;
+    using v1::T81Float27_9;
+    using v1::T81Float72_9;
+}

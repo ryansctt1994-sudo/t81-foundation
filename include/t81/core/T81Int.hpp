@@ -41,9 +41,14 @@ constexpr inline Trit int_to_trit(int v) noexcept {
 }
 
 // Forward declarations
-template <std::size_t M, std::size_t E> class T81Float;
-template <std::size_t I, std::size_t F> class T81Fixed;
-template <std::size_t Trits> class T81Prob;
+namespace v1 {
+    template <std::size_t M, std::size_t E> class T81Float;
+    template <std::size_t I, std::size_t F> class T81Fixed;
+    template <std::size_t Trits> class T81Prob;
+}
+using v1::T81Float;
+using v1::T81Fixed;
+using v1::T81Prob;
 
 template <std::size_t N>
 class T81Int {

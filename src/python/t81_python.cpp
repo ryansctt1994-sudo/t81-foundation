@@ -1,6 +1,9 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include "t81/core/T81Int.hpp"
+#include "t81/core/T81BigInt.hpp"
+#include "t81/core/T81Float.hpp"
+#include "t81/core/T81Fraction.hpp"
 #include "t81/core/T81Tensor.hpp"
 #include "t81/tensor.hpp"
 #include "t81/vm/vm.hpp"
@@ -36,6 +39,40 @@ PYBIND11_MODULE(t81_python, m) {
         })
         .def_static("max_value", []() { return T81Int<81>::kMaxValue; })
         .def_static("min_value", []() { return T81Int<81>::kMinValue; });
+
+    // Bind T81BigInt
+    py::class_<v1::T81BigInt>(m, "BigInt")
+        .def(py::init<int64_t>())
+        .def("__add__", [](const v1::T81BigInt& a, const v1::T81BigInt& b) { return a + b; })
+        .def("__sub__", [](const v1::T81BigInt& a, const v1::T81BigInt& b) { return a - b; })
+        .def("__mul__", [](const v1::T81BigInt& a, const v1::T81BigInt& b) { return a * b; })
+        .def("__repr__", &v1::T81BigInt::str)
+        .def("to_int", &v1::T81BigInt::to_int64);
+
+    // Bind T81Float27_9
+    py::class_<v1::T81Float27_9>(m, "Float")
+        .def(py::init<double>())
+        .def("__add__", [](const v1::T81Float27_9& a, const v1::T81Float27_9& b) { return a + b; })
+        .def("__sub__", [](const v1::T81Float27_9& a, const v1::T81Float27_9& b) { return a - b; })
+        .def("__mul__", [](const v1::T81Float27_9& a, const v1::T81Float27_9& b) { return a * b; })
+        .def("__truediv__", [](const v1::T81Float27_9& a, const v1::T81Float27_9& b) { return a / b; })
+        .def("__repr__", [](const v1::T81Float27_9& f) { return std::to_string(f.to_double()); })
+        .def("to_double", &v1::T81Float27_9::to_double)
+        .def_static("from_double", &v1::T81Float27_9::from_double);
+
+    // Bind T81Frac81
+    py::class_<v1::T81Frac81>(m, "Fraction")
+        .def(py::init<int64_t>())
+        .def(py::init([](int64_t n, int64_t d) { return v1::T81Frac81(T81Int<81>(n), T81Int<81>(d)); }))
+        .def("__add__", [](const v1::T81Frac81& a, const v1::T81Frac81& b) { return a + b; })
+        .def("__sub__", [](const v1::T81Frac81& a, const v1::T81Frac81& b) { return a - b; })
+        .def("__mul__", [](const v1::T81Frac81& a, const v1::T81Frac81& b) { return a * b; })
+        .def("__truediv__", [](const v1::T81Frac81& a, const v1::T81Frac81& b) { return a / b; })
+        .def("__repr__", [](const v1::T81Frac81& f) {
+            return std::to_string(f.num().to_int64()) + "/" + std::to_string(f.den().to_int64());
+        })
+        .def("to_double", &v1::T81Frac81::to_double)
+        .def_static("from_double", &v1::T81Frac81::from_double, py::arg("value"), py::arg("max_iterations") = 64);
 
     // Bind T81Tensor<T81Int<81>, 1, 3>
     using Tensor1D3 = T81Tensor<T81Int<81>, 1, 3>;
