@@ -304,53 +304,88 @@ public:
     friend T81BigInt operator*(const T81BigInt& a, const T81BigInt& b) {
         if (a.is_zero() || b.is_zero()) return T81BigInt::zero();
 
-        // Multi-limb schoolbook multiplication for balanced ternary
-        T81BigInt res;
-        res.limbs_.resize(a.limbs_.size() + b.limbs_.size(), Limb(0));
+        // Optimized limb-based multiplication using 27-trit chunks.
+        // Each 81-trit limb is split into 3 chunks of 27 trits each.
+        // 3^27 = 7,625,597,484,987, fits in int64_t.
+        // Product of two 27-trit chunks fits in __int128.
 
-        // Temporarily ignore signs and multiply magnitudes, but we use the sign-aware trits.
-        // Actually, easiest to just do it like standard schoolbook.
-        // For simplicity, we can convert trits to absolute and then apply sign.
-
-        for (size_t i = 0; i < a.limbs_.size(); ++i) {
-            for (size_t it = 0; it < kLimbTrits; ++it) {
-                Trit ta = a.limbs_[i][it];
-                if (ta == Trit::Z) continue;
-
-                for (size_t j = 0; j < b.limbs_.size(); ++j) {
-                    for (size_t jt = 0; jt < kLimbTrits; ++jt) {
-                        Trit tb = b.limbs_[j][jt];
-                        if (tb == Trit::Z) continue;
-
-                        // Product of two trits
-                        Trit prod = (ta == tb) ? Trit::P : Trit::N;
-
-                        // Add this to res at position (i*81 + it) + (j*81 + jt)
-                        size_t pos = (i + j) * kLimbTrits + it + jt;
-                        size_t limb_idx = pos / kLimbTrits;
-                        size_t trit_idx = pos % kLimbTrits;
-
-                        // Addition with carry propagation
-                        int carry = trit_to_int(prod);
-                        while (carry != 0) {
-                            if (limb_idx >= res.limbs_.size()) res.limbs_.emplace_back(0);
-                            int val = trit_to_int(res.limbs_[limb_idx][trit_idx]) + carry;
-                            int digit = (val > 1) ? val - 3 : (val < -1) ? val + 3 : val;
-                            carry = (val > 1) ? 1 : (val < -1) ? -1 : 0;
-                            res.limbs_[limb_idx][trit_idx] = int_to_trit(digit);
-
-                            trit_idx++;
-                            if (trit_idx >= kLimbTrits) {
-                                trit_idx = 0;
-                                limb_idx++;
-                            }
-                        }
+        auto get_chunks = [](const T81BigInt& x) {
+            std::vector<int64_t> chunks;
+            chunks.reserve(x.limbs_.size() * 3);
+            for (const auto& limb : x.limbs_) {
+                for (int c = 0; c < 3; ++c) {
+                    int64_t val = 0;
+                    int64_t pow3 = 1;
+                    for (int t = 0; t < 27; ++t) {
+                        val += trit_to_int(limb[c * 27 + t]) * pow3;
+                        if (t < 26) pow3 *= 3;
                     }
+                    chunks.push_back(val);
                 }
+            }
+            return chunks;
+        };
+
+        std::vector<int64_t> ac = get_chunks(a);
+        std::vector<int64_t> bc = get_chunks(b);
+        std::vector<__int128> rc(ac.size() + bc.size(), 0);
+
+        for (size_t i = 0; i < ac.size(); ++i) {
+            if (ac[i] == 0) continue;
+            for (size_t j = 0; j < bc.size(); ++j) {
+                if (bc[j] == 0) continue;
+                rc[i + j] += (__int128)ac[i] * bc[j];
             }
         }
 
+        const __int128 B = 7625597484987LL; // 3^27
+        const __int128 halfB = (B - 1) / 2;
+        __int128 carry = 0;
+        std::vector<int64_t> final_c;
+        for (size_t i = 0; i < rc.size() || carry != 0; ++i) {
+            __int128 val = (i < rc.size() ? rc[i] : 0) + carry;
+            __int128 q = (val >= 0) ? (val + halfB) / B : (val - halfB) / B;
+            final_c.push_back(static_cast<int64_t>(val - q * B));
+            carry = q;
+        }
+
+        T81BigInt res;
+        res.limbs_.clear();
+        for (size_t i = 0; i < final_c.size(); i += 3) {
+            Limb l;
+            for (int c = 0; c < 3; ++c) {
+                int64_t v = (i + c < final_c.size()) ? final_c[i + c] : 0;
+                bool v_neg = v < 0;
+                uint64_t uv = v_neg ? static_cast<uint64_t>(-v) : static_cast<uint64_t>(v);
+                for (int t = 0; t < 27; ++t) {
+                    int r = static_cast<int>(uv % 3); uv /= 3;
+                    if (r == 2) { r = -1; uv++; }
+                    l[c * 27 + t] = int_to_trit(v_neg ? -r : r);
+                }
+            }
+            res.limbs_.push_back(l);
+        }
+
         res.negative_ = (a.negative_ != b.negative_);
+
+        // Correct sign if magnitude ended up negative (can happen due to balanced ternary representation)
+        Trit s = Trit::Z;
+        for (size_t i = res.limbs_.size(); i-- > 0; ) {
+            s = res.limbs_[i].sign_trit();
+            if (s != Trit::Z) break;
+        }
+        if (s == Trit::N) {
+            res.negative_ = !res.negative_;
+            int c_neg = 0;
+            for (auto& limb : res.limbs_) {
+                for (size_t t = 0; t < kLimbTrits; ++t) {
+                    int v = -trit_to_int(limb[t]) + c_neg;
+                    int d = (v > 1) ? v - 3 : (v < -1) ? v + 3 : v;
+                    c_neg = (v > 1) ? 1 : (v < -1) ? -1 : 0;
+                    limb[t] = int_to_trit(d);
+                }
+            }
+        }
 
         res.normalize();
         return res;
