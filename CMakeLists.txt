@@ -40,14 +40,17 @@ add_library(t81_core STATIC
   src/axion/axion_api.cpp
   src/axion/engine.cpp
   src/axion/policy_engine.cpp
+  src/axion/policy_serialization.cpp
   src/tools/weights.cpp
   src/tools/weights_t81w_emitter.cpp
   src/cog/promotion.cpp
   src/cog/tier4.cpp
+  src/cog/tier4/reflection_loop.cpp
   src/codec/base243.cpp
   src/codec/base81.cpp
   src/bigint/divmod.cpp
   src/bigint/gcd.cpp
+  src/vm/jit_compiler.cpp
   src/hash/canonhash81.cpp
   src/crypto/sha3.cpp
 )
@@ -368,6 +371,12 @@ if(T81_BUILD_TESTS)
   add_executable(t81_cli_record_enum_test tests/cpp/cli_record_enum_test.cpp)
   target_link_libraries(t81_cli_record_enum_test PRIVATE t81_cli_driver t81_tisc t81_vm)
 
+  add_executable(t81_tier4_test tests/cpp/tier4_test.cpp)
+  target_link_libraries(t81_tier4_test PRIVATE t81_core)
+
+  add_executable(t81_jit_test tests/cpp/jit_test.cpp)
+  target_link_libraries(t81_jit_test PRIVATE t81_core)
+
   add_executable(axion_loop_metadata_test tests/cpp/axion_loop_metadata_test.cpp)
   target_link_libraries(axion_loop_metadata_test PRIVATE t81_cli_driver t81_tisc t81_vm)
 
@@ -621,6 +630,8 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     axion_nested_guard_test
     axion_instruction_counter_test
     canonfs_axion_trace_test
+    t81_tier4_test
+    t81_jit_test
     e2e_axion_trace_test
     test_bigint_multilimb_ext
     t81_bigint_v1_perf

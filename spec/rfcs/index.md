@@ -93,6 +93,34 @@ Introduces high-level `train` and `infer` statements for safe, deterministic, an
 **Title:** First-Class Agents and Tiered Recursive Cognition  
 Proposes the `agent` construct for encapsulating state and behaviors, enabling tiered cognition and recursive AI systems.
 
+### [RFC-0016](RFC-0016-t81-simd-limb.md)
+**Title:** T81 SIMD Limb
+Specifies SIMD-accelerated 27-trit limb operations.
+
+### [RFC-0017](RFC-0017-introduce-t81-native.md)
+**Title:** Introduce T81 Native
+Proposes the T81 Native interface for direct hardware interaction.
+
+### [RFC-0018](RFC-0018-t81-native-simd-arith.md)
+**Title:** T81 Native SIMD Arithmetic
+Extends T81 Native with SIMD-optimized arithmetic kernels.
+
+### [RFC-0019](RFC-0019-axion-match-logging.md)
+**Title:** Axion Match Logging
+Defines deterministic logging for match expressions and guards.
+
+### [RFC-0020](RFC-0020-axion-segment-trace.md)
+**Title:** Axion Segment Trace
+Specifies canonical trace strings for memory segment transitions.
+
+### [RFC-0021](RFC-0021-tier4-cognition.md)
+**Title:** Tier 4 Cognition
+Defines self-referential cognitive loops and tier-aware planners.
+
+### [RFC-0022](RFC-0022-axion-policy-language.md)
+**Title:** Axion Policy Language Evolution
+Formalizes the APL grammar, compiler pipeline, and binary format.
+
 ---
 
 # 2. Upcoming RFCs (Planned)

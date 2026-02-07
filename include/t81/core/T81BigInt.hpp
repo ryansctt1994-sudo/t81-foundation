@@ -22,8 +22,50 @@
 #include <stdexcept>
 #include <limits>
 #include <algorithm>
+#if defined(__AVX2__)
+#include <immintrin.h>
+#endif
 
 namespace t81::v1 {
+
+namespace detail {
+    inline const std::array<int16_t, 256>& get_byte_to_ternary() {
+        static const auto table = []() {
+            std::array<int16_t, 256> t{};
+            for (int i = 0; i < 256; ++i) {
+                int val = 0;
+                int p3 = 1;
+                for (int j = 0; j < 4; ++j) {
+                    int u = (i >> (j * 2)) & 0x3;
+                    if (u > 2) u = 1; // Treat invalid as Zero
+                    val += (u - 1) * p3;
+                    p3 *= 3;
+                }
+                t[i] = static_cast<int16_t>(val);
+            }
+            return t;
+        }();
+        return table;
+    }
+
+    inline const std::array<uint8_t, 81>& get_ternary_to_packed() {
+        static const auto table = []() {
+            std::array<uint8_t, 81> t{};
+            for (int i = 0; i < 81; ++i) {
+                int val = 0;
+                int tmp = i;
+                for (int j = 0; j < 4; ++j) {
+                    int d = tmp % 3;
+                    tmp /= 3;
+                    val |= (d << (j * 2));
+                }
+                t[i] = static_cast<uint8_t>(val);
+            }
+            return t;
+        }();
+        return table;
+    }
+}
 
 class T81BigInt {
 public:
@@ -240,57 +282,143 @@ public:
     // Arithmetic (multi-limb balanced ternary)
     // ------------------------------------------------------------------
 
+    static std::vector<int64_t> get_chunks_static(const T81BigInt& x) {
+        const auto& table = detail::get_byte_to_ternary();
+        std::vector<int64_t> chunks;
+        chunks.reserve(x.limbs_.size() * 3);
+
+        static constexpr int64_t p3_4[] = {
+            1LL, 81LL, 6561LL, 531441LL, 43046721LL, 3486784401LL, 282429536481LL
+        };
+
+        for (const auto& limb : x.limbs_) {
+            const auto& data = limb.raw_data();
+
+            int64_t c0 = (int64_t)table[data[0]] * p3_4[0] +
+                         (int64_t)table[data[1]] * p3_4[1] +
+                         (int64_t)table[data[2]] * p3_4[2] +
+                         (int64_t)table[data[3]] * p3_4[3] +
+                         (int64_t)table[data[4]] * p3_4[4] +
+                         (int64_t)table[data[5]] * p3_4[5];
+            int b6 = data[6] & 0x3F;
+            int64_t v24_26 = 0;
+            int p3 = 1;
+            for(int j=0; j<3; ++j) {
+                int u = (b6 >> (j*2)) & 0x3;
+                if (u > 2) u = 1;
+                v24_26 += (u - 1) * p3;
+                p3 *= 3;
+            }
+            c0 += v24_26 * 282429536481LL;
+            if (x.negative_) c0 = -c0;
+            chunks.push_back(c0);
+
+            int t27 = (data[6] >> 6) & 0x3;
+            if (t27 > 2) t27 = 1;
+            int64_t c1 = (int64_t)(t27 - 1);
+            c1 += (int64_t)table[data[7]] * 3LL;
+            c1 += (int64_t)table[data[8]] * 243LL;
+            c1 += (int64_t)table[data[9]] * 19683LL;
+            c1 += (int64_t)table[data[10]] * 1594323LL;
+            c1 += (int64_t)table[data[11]] * 129140163LL;
+            c1 += (int64_t)table[data[12]] * 10460353203LL;
+            int b13_0_3 = data[13] & 0x0F;
+            int t52 = (b13_0_3 & 0x3); if (t52 > 2) t52 = 1;
+            int t53 = (b13_0_3 >> 2) & 0x3; if (t53 > 2) t53 = 1;
+            c1 += (int64_t)(t52 - 1) * 847288609443LL;
+            c1 += (int64_t)(t53 - 1) * 2541865828329LL;
+            if (x.negative_) c1 = -c1;
+            chunks.push_back(c1);
+
+            int b13_4_7 = (data[13] >> 4) & 0x0F;
+            int t54 = (b13_4_7 & 0x3); if (t54 > 2) t54 = 1;
+            int t55 = (b13_4_7 >> 2) & 0x3; if (t55 > 2) t55 = 1;
+            int64_t c2 = (int64_t)(t54 - 1);
+            c2 += (int64_t)(t55 - 1) * 3LL;
+            c2 += (int64_t)table[data[14]] * 9LL;
+            c2 += (int64_t)table[data[15]] * 729LL;
+            c2 += (int64_t)table[data[16]] * 59049LL;
+            c2 += (int64_t)table[data[17]] * 4782969LL;
+            c2 += (int64_t)table[data[18]] * 387420489LL;
+            c2 += (int64_t)table[data[19]] * 31381059609LL;
+            int t80 = data[20] & 0x03; if (t80 > 2) t80 = 1;
+            c2 += (int64_t)(t80 - 1) * 2541865828329LL;
+            if (x.negative_) c2 = -c2;
+            chunks.push_back(c2);
+        }
+        return chunks;
+    }
+
     friend T81BigInt operator+(const T81BigInt& a, const T81BigInt& b) {
+        if (a.is_zero()) return b;
+        if (b.is_zero()) return a;
+        auto ac = get_chunks_static(a);
+        auto bc = get_chunks_static(b);
+        size_t n = std::max(ac.size(), bc.size());
+        size_t n_padded = (n + 3) & ~size_t(3);
+        ac.resize(n_padded, 0);
+        bc.resize(n_padded, 0);
+        static constexpr int64_t B = 7625597484987LL;
+        static constexpr int64_t halfB = (B - 1) / 2;
+        std::vector<int64_t> rc(n_padded + 1, 0);
+        size_t i = 0;
+#if defined(__AVX2__)
+        for (; i < n_padded; i += 4) {
+            __m256i va = _mm256_loadu_si256((const __m256i*)&ac[i]);
+            __m256i vb = _mm256_loadu_si256((const __m256i*)&bc[i]);
+            __m256i vsum = _mm256_add_epi64(va, vb);
+            _mm256_storeu_si256((__m256i*)&rc[i], vsum);
+        }
+#endif
+        for (; i < n; ++i) rc[i] = ac[i] + bc[i];
+        int64_t carry = 0;
+        for (size_t j = 0; j < rc.size() || carry != 0; ++j) {
+            if (j >= rc.size()) rc.push_back(0);
+            int64_t sum = rc[j] + carry;
+            if (sum > halfB) { rc[j] = sum - B; carry = 1; }
+            else if (sum < -halfB) { rc[j] = sum + B; carry = -1; }
+            else { rc[j] = sum; carry = 0; }
+        }
         T81BigInt res;
         res.limbs_.clear();
-
-        const size_t n = std::max(a.limbs_.size(), b.limbs_.size());
-        int carry = 0;
-        for (size_t i = 0; i < n || carry != 0; ++i) {
-            Limb r;
-            for (size_t t = 0; t < kLimbTrits; ++t) {
-                int va = 0;
-                if (i < a.limbs_.size()) {
-                    va = trit_to_int(a.limbs_[i][t]);
-                    if (a.negative_) va = -va;
-                }
-                int vb = 0;
-                if (i < b.limbs_.size()) {
-                    vb = trit_to_int(b.limbs_[i][t]);
-                    if (b.negative_) vb = -vb;
-                }
-                int sum = va + vb + carry;
-                int digit = (sum > 1) ? sum - 3 : (sum < -1) ? sum + 3 : sum;
-                carry = (sum > 1) ? 1 : (sum < -1) ? -1 : 0;
-                r[t] = int_to_trit(digit);
-            }
-            res.limbs_.push_back(r);
-        }
-
-        // Determine sign from most significant non-zero trit
-        Trit s = Trit::Z;
-        for (size_t i = res.limbs_.size(); i-- > 0; ) {
-            s = res.limbs_[i].sign_trit();
-            if (s != Trit::Z) break;
-        }
-
-        if (s == Trit::N) {
+        int64_t last = 0;
+        for (size_t i = rc.size(); i-- > 0; ) if (rc[i] != 0) { last = rc[i]; break; }
+        if (last < 0) {
             res.negative_ = true;
-            // Negate to store positive magnitude
-            int carry_neg = 0;
-            for (size_t i = 0; i < res.limbs_.size(); ++i) {
-                for (size_t t = 0; t < kLimbTrits; ++t) {
-                    int v = trit_to_int(res.limbs_[i][t]);
-                    int val = -v + carry_neg;
-                    int digit = (val > 1) ? val - 3 : (val < -1) ? val + 3 : val;
-                    carry_neg = (val > 1) ? 1 : (val < -1) ? -1 : 0;
-                    res.limbs_[i][t] = int_to_trit(digit);
-                }
+            int64_t c_neg = 0;
+            for (auto& v : rc) {
+                int64_t val = -v + c_neg;
+                if (val > halfB) { v = val - B; c_neg = 1; }
+                else if (val < -halfB) { v = val + B; c_neg = -1; }
+                else { v = val; c_neg = 0; }
             }
-        } else {
-            res.negative_ = false;
+        } else res.negative_ = false;
+        const auto& packed_table = detail::get_ternary_to_packed();
+        for (size_t i = 0; i < rc.size(); i += 3) {
+            Limb l;
+            auto& ldata = const_cast<std::array<uint8_t, Limb::kNumBytes>&>(l.raw_data());
+            std::fill(ldata.begin(), ldata.end(), 0x55u);
+            auto set_chunk_in_limb = [&](int c, int64_t v) {
+                static constexpr int64_t offset27 = 3812798742493LL;
+                uint64_t uv = static_cast<uint64_t>(v + offset27);
+                int start_trit = c * 27;
+                for (int j = 0; j < 6; ++j) {
+                    int r = uv % 81; uv /= 81;
+                    uint8_t packed = packed_table[r];
+                    for (int t = 0; t < 4; ++t) {
+                        int u = (packed >> (t * 2)) & 0x3;
+                        l[start_trit + j * 4 + t] = static_cast<Trit>(u - 1);
+                    }
+                }
+                for(int t=24; t<27; ++t) { int r = uv % 3; uv /= 3; l[start_trit + t] = static_cast<Trit>(r - 1); }
+            };
+            for (int c = 0; c < 3; ++c) {
+                int64_t v = (i + c < rc.size()) ? rc[i + c] : 0;
+                if (res.negative_) v = -v;
+                set_chunk_in_limb(c, v);
+            }
+            res.limbs_.push_back(l);
         }
-
         res.normalize();
         return res;
     }
@@ -375,31 +503,8 @@ public:
 
     friend T81BigInt operator*(const T81BigInt& a, const T81BigInt& b) {
         if (a.is_zero() || b.is_zero()) return T81BigInt::zero();
-
-        // Optimized limb-based multiplication using 27-trit chunks.
-        // Each 81-trit limb is split into 3 chunks of 27 trits each.
-        // 3^27 = 7,625,597,484,987, fits in int64_t.
-        // Product of two 27-trit chunks fits in __int128.
-
-        auto get_chunks = [](const T81BigInt& x) {
-            std::vector<int64_t> chunks;
-            chunks.reserve(x.limbs_.size() * 3);
-            for (const auto& limb : x.limbs_) {
-                for (int c = 0; c < 3; ++c) {
-                    int64_t val = 0;
-                    int64_t pow3 = 1;
-                    for (int t = 0; t < 27; ++t) {
-                        val += trit_to_int(limb[c * 27 + t]) * pow3;
-                        if (t < 26) pow3 *= 3;
-                    }
-                    chunks.push_back(val);
-                }
-            }
-            return chunks;
-        };
-
-        std::vector<int64_t> ac = get_chunks(a);
-        std::vector<int64_t> bc = get_chunks(b);
+        auto ac = get_chunks_static(a);
+        auto bc = get_chunks_static(b);
         std::vector<__int128> rc = karatsuba_mul_(ac, bc);
 
         const __int128 B = 7625597484987LL; // 3^27

@@ -932,6 +932,86 @@ int init_project(const std::string& name) {
     }
 }
 
+#define COLOR_RESET  "\033[0m"
+#define COLOR_BOLD   "\033[1m"
+#define COLOR_RED    "\033[31m"
+#define COLOR_GREEN  "\033[32m"
+#define COLOR_YELLOW "\033[33m"
+#define COLOR_BLUE   "\033[34m"
+#define COLOR_CYAN   "\033[36m"
+
+int run_trace_show(const TraceArgs& args) {
+    if (args.args.empty()) { error("trace show requires a trace file"); return 1; }
+    std::ifstream ifs(args.args[0]);
+    if (!ifs) { error("Could not open trace file: " + args.args[0]); return 1; }
+    std::string line;
+    while (std::getline(ifs, line)) {
+        if (line.find("fault") != std::string::npos || line.find("trap") != std::string::npos) std::cout << COLOR_RED << line << COLOR_RESET << "\n";
+        else if (line.find("allow") != std::string::npos || line.find("satisfied") != std::string::npos) std::cout << COLOR_GREEN << line << COLOR_RESET << "\n";
+        else if (line.find("PC=") != std::string::npos) std::cout << COLOR_CYAN << line << COLOR_RESET << "\n";
+        else std::cout << line << "\n";
+    }
+    return 0;
+}
+
+int run_trace_diff(const TraceArgs& args) {
+    if (args.args.size() < 2) { error("trace diff requires two trace files"); return 1; }
+    std::ifstream f1(args.args[0]), f2(args.args[1]);
+    if (!f1 || !f2) { error("Could not open trace files"); return 1; }
+    std::string l1, l2;
+    int line_num = 1;
+    bool found_diff = false;
+    while (std::getline(f1, l1) && std::getline(f2, l2)) {
+        if (l1 != l2) {
+            std::cout << COLOR_BOLD << "Difference at line " << line_num << ":" << COLOR_RESET << "\n";
+            std::cout << COLOR_RED << "- " << l1 << COLOR_RESET << "\n";
+            std::cout << COLOR_GREEN << "+ " << l2 << COLOR_RESET << "\n";
+            found_diff = true;
+        }
+        line_num++;
+    }
+    if (!found_diff) info("Traces are identical");
+    return 0;
+}
+
+int run_trace_replay(const TraceArgs& args) {
+    if (args.args.size() < 2) { error("trace replay requires a .tisc file and a canonical trace file"); return 1; }
+    fs::path tisc_path = args.args[0];
+    fs::path trace_path = args.args[1];
+    auto program = t81::tisc::load_program(tisc_path.string());
+    auto vm = t81::vm::make_interpreter_vm();
+    vm->load_program(program);
+    vm->run_to_halt();
+    const auto& current_trace = vm->state().trace;
+    std::ifstream ifs(trace_path);
+    std::vector<std::string> saved_trace;
+    std::string line;
+    while (std::getline(ifs, line)) saved_trace.push_back(line);
+    if (current_trace.size() != saved_trace.size()) {
+        error("Trace size mismatch! Current: " + std::to_string(current_trace.size()) + ", Saved: " + std::to_string(saved_trace.size()));
+        return 1;
+    }
+    for (size_t i = 0; i < current_trace.size(); ++i) {
+        std::string cur = format_trace_entry(current_trace[i]);
+        if (cur != saved_trace[i]) {
+            error("Trace mismatch at entry " + std::to_string(i));
+            std::cerr << "Expected: " << saved_trace[i] << "\n";
+            std::cerr << "Actual:   " << cur << "\n";
+            return 1;
+        }
+    }
+    info("Replay successful: traces are bit-identical");
+    return 0;
+}
+
+int run_trace(const TraceArgs& args) {
+    if (args.subcommand == "show") return run_trace_show(args);
+    if (args.subcommand == "diff") return run_trace_diff(args);
+    if (args.subcommand == "replay") return run_trace_replay(args);
+    error("Unknown trace subcommand: " + args.subcommand);
+    return 1;
+}
+
 int init_package(const std::string& name) {
     if (name.empty()) {
         error("Package name cannot be empty");

@@ -5,6 +5,8 @@
 #include <string_view>
 #include <vector>
 #include <cstring>
+#include <span>
+#include <cstddef>
 
 #include "t81/hash/base81.hpp"
 
@@ -71,6 +73,7 @@ struct CanonHash81 {
 
 // Deterministic hash over bytes using SHA3-512 truncated to 256 bits.
 CanonHash81 hash_bytes(const std::vector<std::uint8_t>& data);
+CanonHash81 hash_bytes(std::span<const std::byte> data);
 
 // Convenience wrapper for strings.
 CanonHash81 hash_string(std::string_view s);

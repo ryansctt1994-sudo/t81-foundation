@@ -35,6 +35,16 @@ void Debugger::run() {
                 }
                 break;
             }
+            case 'p': {
+                std::string pattern;
+                if (iss >> pattern) {
+                    policy_breakpoints_.insert(pattern);
+                    info("Policy breakpoint set for: " + pattern);
+                } else {
+                    error("Usage: p <pattern>");
+                }
+                break;
+            }
             case 'c': {
                 while (!vm_->state().halted) {
                     auto res = vm_->step();
@@ -46,6 +56,20 @@ void Debugger::run() {
                         info("Breakpoint hit at PC=" + std::to_string(vm_->state().pc));
                         break;
                     }
+                    bool policy_hit = false;
+                    const auto& log = vm_->state().axion_log;
+                    if (!log.empty()) {
+                        const auto& last_event = log.back();
+                        for (const auto& pat : policy_breakpoints_) {
+                            if (last_event.verdict.reason.find(pat) != std::string::npos) {
+                                info("Policy breakpoint hit: " + pat);
+                                info("Reason: " + last_event.verdict.reason);
+                                policy_hit = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (policy_hit) break;
                 }
                 break;
             }
@@ -92,6 +116,7 @@ void Debugger::print_help() {
               << "  s          Step one instruction\n"
               << "  c          Continue execution\n"
               << "  b <pc>     Set breakpoint at PC\n"
+              << "  p <pat>    Set policy breakpoint (on trace string match)\n"
               << "  r          Print registers\n"
               << "  k          Print stack\n"
               << "  m <addr>   Print memory at address\n"

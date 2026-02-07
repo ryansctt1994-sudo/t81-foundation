@@ -99,6 +99,11 @@ Commands:
   weights import <file> [options]      Import BitNet/SafeTensors → .t81w
   weights info <model.t81w>            Print native model metadata
   weights quantize <dir|file> --to-gguf <out>  Quantize SafeTensors → T3_K GGUF
+  policy compile <file.apl> [-o <out>] Compile Axion Policy Language → .axionb
+  policy run <file.apl|.axionb>        Validate and load an Axion policy
+  trace show <trace.txt>               Visualize an Axion trace with color
+  trace diff <trace1.txt> <trace2.txt> Diff two Axion traces
+  trace replay <file.tisc> <trace.txt> Replay and verify trace matches
   help                                 Show this message
 
 
@@ -231,7 +236,7 @@ Args parse_args(int argc, char* argv[]) {
         else {
             if (a.command == "benchmark") {
                 a.benchmark_args.emplace_back(argv[i]);
-            } else if (a.command == "weights" || a.command == "init" || a.command == "pkg") {
+            } else if (a.command == "weights" || a.command == "init" || a.command == "pkg" || a.command == "policy" || a.command == "trace") {
                 a.command_args.emplace_back(argv[i]);
             } else {
                 if (!a.input.empty()) {
@@ -408,6 +413,65 @@ int run_weights(const Args& args) {
     return 1;
 }
 
+int run_policy_compile(const Args& args) {
+    if (args.command_args.size() < 2) {
+        error("policy compile requires an input .apl file");
+        return 1;
+    }
+    fs::path input = args.command_args[1];
+    fs::path output = args.output.value_or(input.stem().string() + ".axionb");
+    std::ifstream ifs(input);
+    if (!ifs) { error("Could not open input file: " + input.string()); return 1; }
+    std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    auto policy_res = t81::axion::parse_policy(content);
+    if (!policy_res) { error("Policy parse error: " + policy_res.error()); return 1; }
+    std::ofstream ofs(output, std::ios::binary);
+    if (!ofs) { error("Could not open output file: " + output.string()); return 1; }
+    policy_res.value().serialize(ofs);
+    info("Compiled policy to " + output.string());
+    return 0;
+}
+
+int run_policy_run(const Args& args) {
+    if (args.command_args.size() < 2) {
+        error("policy run requires an input .apl or .axionb file");
+        return 1;
+    }
+    fs::path input = args.command_args[1];
+    t81::axion::Policy policy;
+    if (input.extension() == ".axionb") {
+        std::ifstream ifs(input, std::ios::binary);
+        if (!ifs) { error("Could not open policy file: " + input.string()); return 1; }
+        auto res = t81::axion::Policy::deserialize(ifs);
+        if (!res) { error("Policy deserialization error: " + res.error()); return 1; }
+        policy = std::move(res.value());
+    } else {
+        std::ifstream ifs(input);
+        if (!ifs) { error("Could not open policy file: " + input.string()); return 1; }
+        std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+        auto res = t81::axion::parse_policy(content);
+        if (!res) { error("Policy parse error: " + res.error()); return 1; }
+        policy = std::move(res.value());
+    }
+    info("Policy validated successfully.");
+    if (g_flags.verbose) {
+        std::cout << "Tier: " << policy.tier << "\n";
+        if (policy.max_instructions) std::cout << "Max Instructions: " << *policy.max_instructions << "\n";
+        if (policy.max_stack) std::cout << "Max Stack: " << *policy.max_stack << "\n";
+        if (policy.max_recursion) std::cout << "Max Recursion: " << *policy.max_recursion << "\n";
+    }
+    return 0;
+}
+
+int run_policy(const Args& args) {
+    if (args.command_args.empty()) { error("policy requires a subcommand (compile|run)"); return 1; }
+    const std::string sub = args.command_args[0];
+    if (sub == "compile") return run_policy_compile(args);
+    if (sub == "run") return run_policy_run(args);
+    error("policy: unknown subcommand '" + sub + "'");
+    return 1;
+}
+
 // ──────────────────────────────────────────────────────────────
 // Main
 // ──────────────────────────────────────────────────────────────
@@ -521,6 +585,17 @@ int main(int argc, char* argv[]) {
 
         } else if (args.command == "weights") {
             return run_weights(args);
+
+        } else if (args.command == "policy") {
+            return run_policy(args);
+
+        } else if (args.command == "trace") {
+            t81::cli::TraceArgs ta;
+            if (!args.command_args.empty()) {
+                ta.subcommand = args.command_args[0];
+                for (size_t i = 1; i < args.command_args.size(); ++i) ta.args.push_back(args.command_args[i]);
+            }
+            return t81::cli::run_trace(ta);
 
         } else {
             error("Unknown command: " + args.command);
