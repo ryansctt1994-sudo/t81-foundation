@@ -116,8 +116,8 @@ Virtually none in the traditional sense. The only meaningful debt is intentional
 
 ### 8. 30-60-90 Day Roadmap (Jan–Mar 2026)
 
-Days 1–30 → Build & ship deterministic Llama-3.2-1B (T3_K) with bit-identical output across machines  
-Days 31–60 → 3–5× speed-up via targeted AVX2 + AVX-512 paths + packed helper data for the real workloads  
+Days 1–30 → Build & ship deterministic Llama-3.2-1B (T3_K) with bit-identical output across machines [COMPLETED]
+Days 31–60 → 3–5× speed-up via targeted AVX2 + AVX-512 paths + packed helper data for the real workloads [COMPLETED]
 Days 61–90 → Public launch, outreach to llama.cpp / Hugging Face / quant funds, onboard first external core contributors, and document the Axion policy trace signature used to attest the demo
 
 ### 9. Handover Checklist for New Contributors

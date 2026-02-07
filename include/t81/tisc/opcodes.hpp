@@ -84,5 +84,7 @@ enum class Opcode : std::uint8_t {
   TSoftmax,
   TRMSNorm,
   TRoPE,
+  TVecMul,
+  TTranspose,
 };
 }  // namespace t81::tisc

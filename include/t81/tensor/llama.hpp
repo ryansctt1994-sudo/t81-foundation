@@ -11,6 +11,43 @@
 
 namespace t81::ops {
 
+#if defined(__AVX2__)
+// Fast SIMD exponential approximation for AVX2.
+// Approximation: exp(x) = 2^(x * log2(e)) = 2^n * 2^f
+// n = round(x * log2(e)), f = x * log2(e) - n
+inline __m256 simd_exp(__m256 x) {
+    const __m256 log2e = _mm256_set1_ps(1.4426950408889634f);
+    const __m256 ln2_hi = _mm256_set1_ps(0.6931471805599453f);
+
+    __m256 n = _mm256_round_ps(_mm256_mul_ps(x, log2e), _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
+    __m256 f = _mm256_sub_ps(x, _mm256_mul_ps(n, ln2_hi));
+
+    // 6th degree polynomial approximation for 2^f (actually e^f here)
+    // p = 1 + f + f^2/2! + f^3/3! + f^4/4! + f^5/5! + f^6/6!
+    const __m256 c1 = _mm256_set1_ps(1.0f);
+    const __m256 c2 = _mm256_set1_ps(0.5f);
+    const __m256 c3 = _mm256_set1_ps(0.16666666666666666f);
+    const __m256 c4 = _mm256_set1_ps(0.041666666666666664f);
+    const __m256 c5 = _mm256_set1_ps(0.008333333333333333f);
+    const __m256 c6 = _mm256_set1_ps(0.0013888888888888889f);
+
+    __m256 p = _mm256_fmadd_ps(f, c6, c5);
+    p = _mm256_fmadd_ps(f, p, c4);
+    p = _mm256_fmadd_ps(f, p, c3);
+    p = _mm256_fmadd_ps(f, p, c2);
+    p = _mm256_fmadd_ps(f, p, c1);
+    p = _mm256_fmadd_ps(f, p, c1);
+
+    // 2^n multiplication via integer shift
+    __m256i imm0 = _mm256_cvtps_epi32(n);
+    imm0 = _mm256_add_epi32(imm0, _mm256_set1_epi32(127));
+    imm0 = _mm256_slli_epi32(imm0, 23);
+    __m256 pow2n = _mm256_castsi256_ps(imm0);
+
+    return _mm256_mul_ps(p, pow2n);
+}
+#endif
+
 inline T729Tensor rmsnorm(const T729Tensor& x, const T729Tensor& w, float eps = 1e-6f) {
     if (x.rank() == 0 || w.rank() != 1 || w.shape()[0] != x.shape().back()) {
         throw std::invalid_argument("rmsnorm: shape mismatch");
@@ -29,9 +66,12 @@ inline T729Tensor rmsnorm(const T729Tensor& x, const T729Tensor& w, float eps = 
             __m256 v = _mm256_loadu_ps(&row[j]);
             vss = _mm256_fmadd_ps(v, v, vss);
         }
-        float tmp[8];
-        _mm256_storeu_ps(tmp, vss);
-        for (int k = 0; k < 8; ++k) ss += tmp[k];
+        // Optimized horizontal sum for ss
+        __m128 vss_h = _mm_add_ps(_mm256_castps256_ps128(vss), _mm256_extractf128_ps(vss, 1));
+        vss_h = _mm_add_ps(vss_h, _mm_movehl_ps(vss_h, vss_h));
+        vss_h = _mm_add_ps(vss_h, _mm_shuffle_ps(vss_h, vss_h, _MM_SHUFFLE(1, 1, 1, 1)));
+        ss = _mm_cvtss_f32(vss_h);
+
         for (; j < dim; ++j) ss += row[j] * row[j];
 #else
         for (int j = 0; j < dim; ++j) ss += row[j] * row[j];
@@ -64,10 +104,9 @@ inline T729Tensor silu(const T729Tensor& x) {
 #if defined(__AVX2__)
     __m256 vone = _mm256_set1_ps(1.0f);
     for (; i + 8 <= size; i += 8) {
-        alignas(32) float tmp_exp[8];
-        for (int j = 0; j < 8; ++j) tmp_exp[j] = std::exp(-data[i + j]);
         __m256 vx = _mm256_loadu_ps(&data[i]);
-        __m256 vexp = _mm256_load_ps(tmp_exp);
+        __m256 vnegx = _mm256_sub_ps(_mm256_setzero_ps(), vx);
+        __m256 vexp = simd_exp(vnegx);
         __m256 vres = _mm256_div_ps(vx, _mm256_add_ps(vone, vexp));
         _mm256_storeu_ps(&data[i], vres);
     }
@@ -103,17 +142,20 @@ inline T729Tensor softmax(const T729Tensor& x) {
         float sum = 0.0f;
 #if defined(__AVX2__)
         __m256 vsum = _mm256_setzero_ps();
+        const __m256 vmax_v = _mm256_set1_ps(max_val);
         int j_sum = 0;
         for (; j_sum + 8 <= dim; j_sum += 8) {
-            alignas(32) float tmp_exp[8];
-            for (int k = 0; k < 8; ++k) tmp_exp[k] = std::exp(row[j_sum + k] - max_val);
-            __m256 vexp = _mm256_load_ps(tmp_exp);
+            __m256 vx = _mm256_loadu_ps(&row[j_sum]);
+            __m256 vexp = simd_exp(_mm256_sub_ps(vx, vmax_v));
             _mm256_storeu_ps(&row[j_sum], vexp);
             vsum = _mm256_add_ps(vsum, vexp);
         }
-        alignas(32) float tmp_sum[8];
-        _mm256_store_ps(tmp_sum, vsum);
-        for (int k = 0; k < 8; ++k) sum += tmp_sum[k];
+        // Horizontal sum of vsum
+        __m128 vsum_h = _mm_add_ps(_mm256_castps256_ps128(vsum), _mm256_extractf128_ps(vsum, 1));
+        vsum_h = _mm_add_ps(vsum_h, _mm_movehl_ps(vsum_h, vsum_h));
+        vsum_h = _mm_add_ps(vsum_h, _mm_shuffle_ps(vsum_h, vsum_h, _MM_SHUFFLE(1, 1, 1, 1)));
+        sum = _mm_cvtss_f32(vsum_h);
+
         for (; j_sum < dim; ++j_sum) {
             row[j_sum] = std::exp(row[j_sum] - max_val);
             sum += row[j_sum];
