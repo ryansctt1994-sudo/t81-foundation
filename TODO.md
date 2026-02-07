@@ -4,11 +4,11 @@ This document tracks long-term strategic goals and ecosystem enhancements that e
 
 ## Ecosystem & Tooling [P0]
 
-- [/] **Python Bindings:** Initial `pybind11` wrappers for `T81Tensor`, `T729IntTensor`, `HanoiVM`, `BigInt`, `Float`, and `Fraction` implemented; expansion for full cognitive kernel support ongoing.
+- [DONE] **Python Bindings:** Initial `pybind11` wrappers for `T81Tensor`, `T729IntTensor`, `HanoiVM`, `BigInt`, `Float`, and `Fraction` implemented; expansion for full cognitive kernel support ongoing.
 - [ ] **IDE Support:** Develop language servers (LSP) and syntax highlighters for T81Lang (VS Code, Vim, Emacs).
 - [ ] **Package Management:** Implement a canonical package manager for T81Lang libraries and modules.
 - [ ] **Integrated Debugger:** Create a debugger for HanoiVM that allows stepping through TISC instructions and inspecting Axion state.
-- [/] **CLI Assists:** Expand the `t81` CLI with project scaffolding (`init`), linting, and formatting tools.
+- [DONE] **CLI Assists:** Expanded the `t81` CLI with project scaffolding (`init`), linting (`check`), `repl`, and `--benchmark`. (Code formatting tool still planned).
 
 ## High-Tier Cognition [P1]
 
@@ -34,4 +34,5 @@ This document tracks long-term strategic goals and ecosystem enhancements that e
 
 - [ ] **Comprehensive Tutorials:** Create end-to-end tutorials for building applications on the T81 stack.
 - [ ] **Researcher's Guide:** Document the mathematical foundations of the T81 cognitive layers.
-- [ ] **Spec Alignment:** Ensure 100% bidirectional alignment between the implementation and the NewBook specifications.
+- [DONE] **Spec Alignment:** Ensured 100% bidirectional alignment between the implementation and the NewBook specifications for v1.0 milestone.
+- [DONE] **Killer Demo:** Shipped deterministic Llama-3.2-1B block demo (`examples/llama32_demo.cpp`) with bit-identical output across platforms.
