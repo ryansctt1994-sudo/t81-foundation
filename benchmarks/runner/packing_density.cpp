@@ -5,6 +5,7 @@
 
 static void BM_PackingDensity_Theoretical(benchmark::State& state) {
     for (auto _ : state) {}
+    state.SetItemsProcessed(state.iterations());
     state.counters["Bits/Trit"] = log2(3);
     state.SetLabel("Theoretical maximum without compression");
 }
@@ -12,6 +13,7 @@ BENCHMARK(BM_PackingDensity_Theoretical);
 
 static void BM_PackingDensity_Achieved(benchmark::State& state) {
     for (auto _ : state) {}
+    state.SetItemsProcessed(state.iterations());
     double bits_per_cell = 8.0 * sizeof(t81::core::Cell);
     state.counters["Bits/Trit"] = bits_per_cell / t81::core::Cell::TRITS;
     state.SetLabel("log2(states) / trit_count");
@@ -20,6 +22,7 @@ BENCHMARK(BM_PackingDensity_Achieved);
 
 static void BM_PackingDensity_Practical(benchmark::State& state) {
     for (auto _ : state) {}
+    state.SetItemsProcessed(state.iterations());
     constexpr size_t trits = 19;
     constexpr size_t cells = (trits + t81::core::Cell::TRITS - 1) / t81::core::Cell::TRITS;
     constexpr size_t t81_bytes = cells * sizeof(t81::core::Cell);

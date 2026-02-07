@@ -27,7 +27,9 @@ struct BenchmarkResult {
     double t81_native_latency_seconds = 0.0;
     double binary_latency_seconds = 0.0;
     std::string bandwidth_result_str;
-    double bandwidth_bytes_per_second = 0.0;
+    double t81_bandwidth_val = 0.0;
+    double t81_native_bandwidth_val = 0.0;
+    double binary_bandwidth_val = 0.0;
     std::string t81_classic_advantage;
     std::string t81_native_advantage;
     std::string t81_classic_note;
@@ -401,12 +403,16 @@ public:
                 summary = ss.str();
             }
             auto bandwidth_it = run.counters.find("bytes_per_second");
+            bool bandwidth_recorded = false;
+            double bandwidth = 0.0;
             if (bandwidth_it != run.counters.end()) {
-                const double bandwidth = bandwidth_it->second;
+                bandwidth = bandwidth_it->second;
                 if (bandwidth > 0.0) {
-                    final_results[family].bandwidth_result_str = FormatBandwidth(bandwidth);
-                    final_results[family].bandwidth_bytes_per_second = bandwidth;
-                    summary = final_results[family].bandwidth_result_str;
+                    bandwidth_recorded = true;
+                    summary = FormatBandwidth(bandwidth);
+                    if (final_results[family].bandwidth_result_str.empty()) {
+                        final_results[family].bandwidth_result_str = summary;
+                    }
                 }
             }
 
@@ -421,12 +427,20 @@ public:
                     final_results[family].t81_result_val = gops;
                     final_results[family].has_t81_flow = true;
                 }
+                if (bandwidth_recorded) {
+                    final_results[family].t81_bandwidth_val = bandwidth;
+                    final_results[family].has_t81_flow = true;
+                }
             } else if (is_t81_native) {
                 final_results[family].t81_native_result_str = summary;
                 final_results[family].t81_native_latency_seconds = latency;
                 final_results[family].t81_native_latency_str = latency_str;
                 if (throughput_recorded) {
                     final_results[family].t81_native_result_val = gops;
+                    final_results[family].has_t81_native_flow = true;
+                }
+                if (bandwidth_recorded) {
+                    final_results[family].t81_native_bandwidth_val = bandwidth;
                     final_results[family].has_t81_native_flow = true;
                 }
             } else if (is_binary) {
@@ -437,12 +451,17 @@ public:
                     final_results[family].binary_result_val = gops;
                     final_results[family].has_binary_flow = true;
                 }
+                if (bandwidth_recorded) {
+                    final_results[family].binary_bandwidth_val = bandwidth;
+                    final_results[family].has_binary_flow = true;
+                }
             } else if (final_results[family].t81_result_str.empty()) {
                 final_results[family].t81_result_str = summary;
                 final_results[family].t81_latency_seconds = latency;
                 final_results[family].t81_latency_str = latency_str;
-                final_results[family].has_t81_flow = throughput_recorded;
+                final_results[family].has_t81_flow = throughput_recorded || bandwidth_recorded;
                 final_results[family].t81_result_val = throughput_recorded ? gops : 0.0;
+                if (bandwidth_recorded) final_results[family].t81_bandwidth_val = bandwidth;
             }
         }
     }
@@ -501,6 +520,37 @@ void GenerateMarkdownReport() {
         return r.ratio_str;
     };
 
+    for (auto& [name, r] : final_results) {
+        const bool has_any_t81_flow = r.has_t81_flow || r.has_t81_native_flow;
+        const double t81_comparable_val = r.has_t81_native_flow ?
+            r.t81_native_result_val : r.t81_result_val;
+        const double t81_comparable_bw = r.has_t81_native_flow ?
+            r.t81_native_bandwidth_val : r.t81_bandwidth_val;
+
+        bool ratio_ready = has_any_t81_flow && r.has_binary_flow &&
+                           r.binary_result_val > 0.0 && t81_comparable_val > 0.0;
+        double ratio = 0.0;
+        if (ratio_ready) {
+            ratio = t81_comparable_val / r.binary_result_val;
+        } else if (has_any_t81_flow && r.has_binary_flow &&
+                   r.binary_bandwidth_val > 0.0 && t81_comparable_bw > 0.0) {
+            ratio = t81_comparable_bw / r.binary_bandwidth_val;
+            ratio_ready = true;
+        }
+
+        if (ratio_ready) {
+            r.ratio_val = ratio;
+            std::ostringstream temp;
+            temp << std::fixed << std::setprecision(2) << ratio << "x";
+            r.ratio_str = temp.str();
+            r.ratio_computed = true;
+        } else {
+            r.ratio_str = "n/a";
+            r.ratio_computed = false;
+        }
+        r.analysis = BuildAnalysis(r);
+    }
+
     std::cout << std::left << std::setw(25) << "Benchmark"
               << std::setw(20) << "T81 Result"
               << std::setw(16) << "T81 Latency"
@@ -556,19 +606,8 @@ void GenerateMarkdownReport() {
     int ties = 0;
 
     for (auto& [name, r] : final_results) {
-        const bool has_any_t81_flow = r.has_t81_flow || r.has_t81_native_flow;
-        const double t81_comparable_val = r.has_t81_native_flow ?
-            r.t81_native_result_val : r.t81_result_val;
-        const bool ratio_ready = has_any_t81_flow && r.has_binary_flow &&
-                                 r.binary_result_val > 0.0 && t81_comparable_val > 0.0;
-        double ratio = 0.0;
-        if (ratio_ready) {
-            ratio = t81_comparable_val / r.binary_result_val;
-            r.ratio_val = ratio;
-            std::ostringstream temp;
-            temp << std::fixed << std::setprecision(2) << ratio << "x";
-            r.ratio_str = temp.str();
-            r.ratio_computed = true;
+        if (r.ratio_computed) {
+            double ratio = r.ratio_val;
             if (ratio > 1.0 && ratio > best_t81_ratio) {
                 best_t81_ratio = ratio;
                 best_name = r.name;
@@ -584,11 +623,7 @@ void GenerateMarkdownReport() {
             } else {
                 ++ties;
             }
-        } else {
-            r.ratio_str = "n/a";
-            r.ratio_computed = false;
         }
-        r.analysis = BuildAnalysis(r);
         const std::string advantage_display = BuildT81AdvantageDisplay(r);
         const std::string notes_display = BuildNotesDisplay(r);
         const std::string advantage_display_md = EscapePipes(advantage_display);
