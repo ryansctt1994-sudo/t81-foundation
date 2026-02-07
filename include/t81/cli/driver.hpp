@@ -33,4 +33,10 @@ int repl(const std::shared_ptr<t81::weights::ModelFile>& weights_model = nullptr
 int init_project(const std::string& name);
 int init_package(const std::string& name);
 
+struct TraceArgs {
+    std::string subcommand;
+    std::vector<std::string> args;
+};
+int run_trace(const TraceArgs& args);
+
 } // namespace t81::cli

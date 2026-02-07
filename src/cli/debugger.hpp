@@ -20,6 +20,7 @@ private:
 
     std::unique_ptr<t81::vm::IVirtualMachine> vm_;
     std::set<std::size_t> breakpoints_;
+    std::set<std::string> policy_breakpoints_;
     bool quit_{false};
 };
 

@@ -94,12 +94,7 @@ class PersistentDriver final : public Driver {
 
   Result<CanonRef> write_object(ObjectType, std::span<const std::byte> bytes)
       override {
-    std::vector<std::uint8_t> raw;
-    raw.reserve(bytes.size());
-    for (const auto b : bytes) {
-      raw.push_back(std::to_integer<std::uint8_t>(b));
-    }
-    auto hashed = t81::hash::hash_bytes(raw);
+    auto hashed = t81::hash::hash_bytes(bytes);
     CanonRef ref{CanonHash{hashed}};
     if (!axion_allow(OpKind::Write, ref)) return Error::CapabilityError;
     if (!has_capability(ref.hash, CANON_PERM_WRITE)) return Error::CapabilityError;
@@ -115,6 +110,10 @@ class PersistentDriver final : public Driver {
       const CanonRef& ref) override {
     if (!axion_allow(OpKind::Read, ref)) return Error::CapabilityError;
     if (!has_capability(ref.hash, CANON_PERM_READ)) return Error::CapabilityError;
+
+    auto it = object_cache_.find(ref.hash);
+    if (it != object_cache_.end()) return it->second;
+
     auto target = object_path(root_, ref.hash);
     if (!std::filesystem::exists(target)) return Error::NotFound;
     std::ifstream in(target, std::ios::binary);
@@ -128,6 +127,7 @@ class PersistentDriver final : public Driver {
       in.read(reinterpret_cast<char*>(result.data()), size);
       if (!in) return Error::DecodeError;
     }
+    if (object_cache_.size() < 1024) object_cache_[ref.hash] = result;
     return result;
   }
 
@@ -188,6 +188,7 @@ class PersistentDriver final : public Driver {
   std::filesystem::path parity_dir_;
   bool has_capabilities_{false};
   mutable std::unordered_map<CanonHash, uint16_t> capability_cache_{};
+  mutable std::unordered_map<CanonHash, std::vector<std::byte>> object_cache_{};
   std::function<AxionVerdict(OpKind, const CanonRef&)> hook_{};
 };
 

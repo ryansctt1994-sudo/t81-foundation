@@ -2,6 +2,7 @@
 
 #include <cctype>
 #include <cstdint>
+#include <iostream>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -9,6 +10,22 @@
 #include "t81/support/expected.hpp"
 
 namespace t81::axion {
+
+// Binary policy tags for TLV encoding
+enum class PolicyTag : uint8_t {
+  Header = 0x01,
+  Tier = 0x02,
+  MaxStack = 0x03,
+  MaxInstructions = 0x04,
+  MaxRecursion = 0x05,
+  LoopHint = 0x06,
+  MatchGuard = 0x07,
+  SegmentEvent = 0x08,
+  AxionEvent = 0x09,
+  Alignment = 0x0A,
+  End = 0xFF
+};
+
 struct Policy {
   struct LoopHint {
     int id{0};
@@ -49,6 +66,9 @@ struct Policy {
   std::vector<SegmentEventRequirement> segment_requirements;
   std::vector<AxionEventRequirement> axion_event_requirements;
   std::vector<AlignmentRequirement> alignment_requirements;
+
+  void serialize(std::ostream& os) const;
+  static t81::expected<Policy, std::string> deserialize(std::istream& is);
 };
 
 namespace detail {
@@ -219,8 +239,9 @@ inline t81::expected<Policy, std::string> parse_policy(std::string_view text) {
           }
           hint.id = static_cast<int>(val.value);
         } else if (field.text == "file") {
-          if (val.kind != detail::PolicyToken::Kind::Symbol) {
-            return make_error("loop file requires symbol");
+          if (val.kind != detail::PolicyToken::Kind::Symbol &&
+              val.kind != detail::PolicyToken::Kind::String) {
+            return make_error("loop file requires symbol or string");
           }
           hint.file = val.text;
         } else if (field.text == "line") {
@@ -234,8 +255,9 @@ inline t81::expected<Policy, std::string> parse_policy(std::string_view text) {
           }
           hint.column = static_cast<int>(val.value);
         } else if (field.text == "annotated") {
-          if (val.kind != detail::PolicyToken::Kind::Symbol) {
-            return make_error("loop annotated requires symbol");
+          if (val.kind != detail::PolicyToken::Kind::Symbol &&
+              val.kind != detail::PolicyToken::Kind::String) {
+            return make_error("loop annotated requires symbol or string");
           }
           hint.annotated = (val.text == "true");
         } else if (field.text == "depth") {
