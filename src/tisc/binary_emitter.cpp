@@ -9,24 +9,32 @@ namespace tisc {
 Opcode map_primitive_opcode(ir::Opcode ir_op, ir::PrimitiveKind kind) {
     switch (ir_op) {
         case ir::Opcode::ADD:
+        case ir::Opcode::FADD:
+        case ir::Opcode::FRACADD:
             switch (kind) {
                 case ir::PrimitiveKind::Float: return Opcode::FAdd;
                 case ir::PrimitiveKind::Fraction: return Opcode::FracAdd;
                 default: return Opcode::Add;
             }
         case ir::Opcode::SUB:
+        case ir::Opcode::FSUB:
+        case ir::Opcode::FRACSUB:
             switch (kind) {
                 case ir::PrimitiveKind::Float: return Opcode::FSub;
                 case ir::PrimitiveKind::Fraction: return Opcode::FracSub;
                 default: return Opcode::Sub;
             }
         case ir::Opcode::MUL:
+        case ir::Opcode::FMUL:
+        case ir::Opcode::FRACMUL:
             switch (kind) {
                 case ir::PrimitiveKind::Float: return Opcode::FMul;
                 case ir::PrimitiveKind::Fraction: return Opcode::FracMul;
                 default: return Opcode::Mul;
             }
         case ir::Opcode::DIV:
+        case ir::Opcode::FDIV:
+        case ir::Opcode::FRACDIV:
             switch (kind) {
                 case ir::PrimitiveKind::Float: return Opcode::FDiv;
                 case ir::PrimitiveKind::Fraction: return Opcode::FracDiv;

@@ -3,19 +3,32 @@
 #include "t81/cog/tier4/self_model.hpp"
 #include "t81/axion/engine.hpp"
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace t81::cog::v1 {
 
 /**
- * @class ReflectionLoop
+ * @struct ReflectionTrace
+ * @brief Captures cognitive state for auditing and promotion decisions.
+ */
+struct ReflectionTrace {
+    std::string goal;
+    float confidence;
+    std::string reason;
+    std::vector<std::string> history_snapshot;
+};
+
+/**
+ * @class Tier4Loop
  * @brief Implements the Tier 4 observe-reflect-refine cycle.
  */
-class ReflectionLoop {
+class Tier4Loop {
 public:
-    ReflectionLoop(t81::axion::Engine& engine);
+    Tier4Loop(t81::axion::Engine& engine);
 
     void observe(const std::string& observation);
-    void reflect();
+    ReflectionTrace reflect();
     void refine();
 
     const SelfModel& get_model() const { return model_; }

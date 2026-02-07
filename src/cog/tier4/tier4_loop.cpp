@@ -1,30 +1,40 @@
-#include "t81/cog/tier4/reflection_loop.hpp"
+#include "t81/cog/tier4/tier4_loop.hpp"
 #include "t81/axion/context.hpp"
 #include <sstream>
 
 namespace t81::cog::v1 {
 
-ReflectionLoop::ReflectionLoop(t81::axion::Engine& engine) : engine_(engine) {
+Tier4Loop::Tier4Loop(t81::axion::Engine& engine) : engine_(engine) {
     model_.current_goal = "initialize";
     model_.confidence = 1.0f;
 }
 
-void ReflectionLoop::observe(const std::string& observation) {
+void Tier4Loop::observe(const std::string& observation) {
     model_.add_history("Observation: " + observation);
     log_reflection("observed state change");
 }
 
-void ReflectionLoop::reflect() {
+ReflectionTrace Tier4Loop::reflect() {
+    std::string reason;
     // Determine if refinement is needed based on history and confidence
     if (model_.confidence < 0.81f) {
         model_.current_goal = "recalibrate";
-        log_reflection("confidence below threshold, seeking refinement");
+        reason = "confidence below threshold, seeking refinement";
+        log_reflection(reason);
     } else {
-        log_reflection("reflection complete: state stable");
+        reason = "reflection complete: state stable";
+        log_reflection(reason);
     }
+
+    ReflectionTrace trace;
+    trace.goal = model_.current_goal;
+    trace.confidence = model_.confidence;
+    trace.reason = reason;
+    trace.history_snapshot = model_.history;
+    return trace;
 }
 
-void ReflectionLoop::refine() {
+void Tier4Loop::refine() {
     if (model_.current_goal == "recalibrate") {
         model_.confidence = 1.0f;
         model_.current_goal = "execute";
@@ -32,7 +42,7 @@ void ReflectionLoop::refine() {
     }
 }
 
-void ReflectionLoop::log_reflection(const std::string& reason) {
+void Tier4Loop::log_reflection(const std::string& reason) {
     std::ostringstream ss;
     ss << "cog:tier4:reflect: " << reason;
 

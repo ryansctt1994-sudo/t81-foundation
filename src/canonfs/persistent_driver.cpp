@@ -98,11 +98,17 @@ class PersistentDriver final : public Driver {
     CanonRef ref{CanonHash{hashed}};
     if (!axion_allow(OpKind::Write, ref)) return Error::CapabilityError;
     if (!has_capability(ref.hash, CANON_PERM_WRITE)) return Error::CapabilityError;
+
+    // Check if already exists to avoid redundant writes
     auto target = object_path(root_, ref.hash);
-    std::ofstream out(target, std::ios::binary | std::ios::trunc);
-    if (!out) return Error::DecodeError;
-    out.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
-    if (!out) return Error::DecodeError;
+    if (std::filesystem::exists(target)) return ref;
+
+    FILE* f = fopen(target.c_str(), "wb");
+    if (!f) return Error::DecodeError;
+    size_t written = fwrite(bytes.data(), 1, bytes.size(), f);
+    fclose(f);
+
+    if (written != bytes.size()) return Error::DecodeError;
     return ref;
   }
 
@@ -115,18 +121,23 @@ class PersistentDriver final : public Driver {
     if (it != object_cache_.end()) return it->second;
 
     auto target = object_path(root_, ref.hash);
-    if (!std::filesystem::exists(target)) return Error::NotFound;
-    std::ifstream in(target, std::ios::binary);
-    if (!in) return Error::DecodeError;
-    in.seekg(0, std::ios::end);
-    std::streamsize size = in.tellg();
-    in.seekg(0, std::ios::beg);
+    FILE* f = fopen(target.c_str(), "rb");
+    if (!f) return Error::NotFound;
+
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
     std::vector<std::byte> result;
     if (size > 0) {
       result.resize(static_cast<std::size_t>(size));
-      in.read(reinterpret_cast<char*>(result.data()), size);
-      if (!in) return Error::DecodeError;
+      size_t read_bytes = fread(result.data(), 1, static_cast<size_t>(size), f);
+      fclose(f);
+      if (read_bytes != static_cast<size_t>(size)) return Error::DecodeError;
+    } else {
+      fclose(f);
     }
+
     if (object_cache_.size() < 1024) object_cache_[ref.hash] = result;
     return result;
   }

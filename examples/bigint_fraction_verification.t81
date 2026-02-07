@@ -1,0 +1,22 @@
+// T81 Foundation: BigInt and Fraction Logic Verification
+// Performs operations and traps via division by zero on failure.
+
+// BigInt Arithmetic
+let a: T81BigInt = 1000000000000;
+let b: T81BigInt = 2000000000000;
+if (a + b != 3000000000000) { let trap = 1 / 0; }
+if (b - a != 1000000000000) { let trap = 1 / 0; }
+if (a * 2 != b) { let trap = 1 / 0; }
+
+// Fraction Arithmetic
+let one: T81Fraction = 1;
+let f1: T81Fraction = one / 3;
+let f2: T81Fraction = one * 2 / 3;
+if (f1 + f2 != 1) { let trap = 1 / 0; }
+if (f2 - f1 != f1) { let trap = 1 / 0; }
+if (f1 * 3 != 1) { let trap = 1 / 0; }
+if (one / f1 != 3) { let trap = 1 / 0; }
+
+// Invariants
+if (a * 0 != 0) { let trap = 1 / 0; }
+if (f1 * 0 != 0) { let trap = 1 / 0; }
