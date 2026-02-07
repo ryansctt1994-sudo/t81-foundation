@@ -24,6 +24,7 @@ static void BM_overflow_ternary_auto(benchmark::State& state) {
             detected++;
         }
     }
+    state.SetItemsProcessed(state.iterations());
     state.counters["Detected"] = static_cast<double>(detected);
 }
 BENCHMARK(BM_overflow_ternary_auto)->Iterations(5'000'000);
@@ -34,6 +35,7 @@ static void BM_overflow_binary_silent(benchmark::State& state) {
         volatile int64_t r = max_val + int64_t(1);
         benchmark::DoNotOptimize(r);
     }
+    state.SetItemsProcessed(state.iterations());
 }
 BENCHMARK(BM_overflow_binary_silent)->Iterations(5'000'000);
 
@@ -48,6 +50,7 @@ static void BM_overflow_binary_checked(benchmark::State& state) {
             benchmark::DoNotOptimize(r);
         }
     }
+    state.SetItemsProcessed(state.iterations());
     state.counters["Detected"] = static_cast<double>(detected);
 }
 BENCHMARK(BM_overflow_binary_checked)->Iterations(5'000'000);

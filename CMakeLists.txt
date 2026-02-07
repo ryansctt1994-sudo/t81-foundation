@@ -216,6 +216,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_entropy_test tests/cpp/entropy_test.cpp)
   target_link_libraries(t81_entropy_test PRIVATE t81_core)
 
+  add_executable(t81_expected_test tests/cpp/expected_test.cpp)
+  target_link_libraries(t81_expected_test PRIVATE t81_core)
+
   add_executable(t81_tensor_elementwise_test tests/cpp/tensor_elementwise_test.cpp)
   target_link_libraries(t81_tensor_elementwise_test PRIVATE t81_core)
 
@@ -319,6 +322,9 @@ if(T81_BUILD_TESTS)
 
   add_executable(e2e_option_result_test tests/cpp/e2e_option_result_test.cpp)
   target_link_libraries(e2e_option_result_test PRIVATE t81_frontend t81_tisc t81_vm)
+
+  add_executable(e2e_option_type_test tests/cpp/e2e_option_type_test.cpp)
+  target_link_libraries(e2e_option_type_test PRIVATE t81_frontend t81_tisc t81_vm)
 
   add_executable(e2e_option_result_function_test tests/cpp/e2e_option_result_function_test.cpp)
   target_link_libraries(e2e_option_result_function_test PRIVATE t81_frontend t81_tisc t81_vm)
@@ -522,6 +528,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_tensor_reduce_test
     t81_tensor_broadcast_test
     t81_entropy_test
+    t81_expected_test
     t81_tensor_elementwise_test
     t81_c_api_bigint_test
     t81_tensor_unary_test
@@ -563,6 +570,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_tisc_binary_emitter_test
     t81_tisc_type_alias_io_test
     e2e_option_result_test
+    e2e_option_type_test
     e2e_match_expression_test
     e2e_loop_statement_test
     cli_e2e_test

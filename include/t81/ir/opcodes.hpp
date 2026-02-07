@@ -100,14 +100,71 @@ struct OpcodeDesc {
 
 inline OpcodeDesc get_opcode_desc(Opcode op) {
   switch (op) {
-    case Opcode::Halt: return {op, "halt", OP_FLAG_TERMINATOR};
-    case Opcode::Jump: return {op, "jump", OP_FLAG_BRANCH | OP_FLAG_TERMINATOR};
-    case Opcode::AxRead:
-    case Opcode::AxSet:
-    case Opcode::AxVerify:
-    case Opcode::CapGrant: return {op, "axion_op", OP_FLAG_PRIVILEGED};
-    case Opcode::Load:
-    case Opcode::Store: return {op, "mem_op", OP_FLAG_MEMORY};
+    // --- Meta / Control ---
+    case Opcode::Nop:        return {op, "nop", OP_FLAG_NONE};
+    case Opcode::Halt:       return {op, "halt", OP_FLAG_TERMINATOR};
+    case Opcode::Jump:       return {op, "jump", OP_FLAG_BRANCH | OP_FLAG_TERMINATOR};
+    case Opcode::JumpIfZero: return {op, "jz", OP_FLAG_BRANCH};
+    case Opcode::JumpIfNotZero: return {op, "jnz", OP_FLAG_BRANCH};
+    case Opcode::JumpIfNeg:  return {op, "jneg", OP_FLAG_BRANCH};
+    case Opcode::JumpIfPos:  return {op, "jpos", OP_FLAG_BRANCH};
+    case Opcode::Call:       return {op, "call", OP_FLAG_BRANCH};
+    case Opcode::Ret:        return {op, "ret", OP_FLAG_BRANCH | OP_FLAG_TERMINATOR};
+    case Opcode::Trap:       return {op, "trap", OP_FLAG_TERMINATOR};
+
+    // --- Integer / Scalar ALU ---
+    case Opcode::Add:        return {op, "add", OP_FLAG_NONE};
+    case Opcode::Sub:        return {op, "sub", OP_FLAG_NONE};
+    case Opcode::Mul:        return {op, "mul", OP_FLAG_NONE};
+    case Opcode::Div:        return {op, "div", OP_FLAG_NONE};
+    case Opcode::Mod:        return {op, "mod", OP_FLAG_NONE};
+    case Opcode::Rem:        return {op, "rem", OP_FLAG_NONE};
+    case Opcode::And:        return {op, "and", OP_FLAG_NONE};
+    case Opcode::Or:         return {op, "or", OP_FLAG_NONE};
+    case Opcode::Xor:        return {op, "xor", OP_FLAG_NONE};
+    case Opcode::Not:        return {op, "not", OP_FLAG_NONE};
+    case Opcode::Neg:        return {op, "neg", OP_FLAG_NONE};
+    case Opcode::Inc:        return {op, "inc", OP_FLAG_NONE};
+    case Opcode::Dec:        return {op, "dec", OP_FLAG_NONE};
+    case Opcode::Cmp:        return {op, "cmp", OP_FLAG_NONE};
+    case Opcode::Move:       return {op, "move", OP_FLAG_NONE};
+    case Opcode::LoadImm:    return {op, "load_imm", OP_FLAG_NONE};
+
+    // --- BigInt Ops ---
+    case Opcode::BigAdd:     return {op, "big_add", OP_FLAG_NONE};
+    case Opcode::BigSub:     return {op, "big_sub", OP_FLAG_NONE};
+    case Opcode::BigMul:     return {op, "big_mul", OP_FLAG_NONE};
+    case Opcode::BigDiv:     return {op, "big_div", OP_FLAG_NONE};
+    case Opcode::BigMod:     return {op, "big_mod", OP_FLAG_NONE};
+    case Opcode::BigCmp:     return {op, "big_cmp", OP_FLAG_NONE};
+
+    // --- Tensor Ops ---
+    case Opcode::TDot:       return {op, "tdot", OP_FLAG_NONE};
+    case Opcode::TTranspose: return {op, "ttranspose", OP_FLAG_NONE};
+    case Opcode::TSlice2D:   return {op, "tslice2d", OP_FLAG_NONE};
+    case Opcode::TReshape:   return {op, "treshape", OP_FLAG_NONE};
+    case Opcode::TMatMul:    return {op, "tmatmul", OP_FLAG_NONE};
+    case Opcode::TReduce:    return {op, "treduce", OP_FLAG_NONE};
+    case Opcode::TVecAdd:    return {op, "tvecadd", OP_FLAG_NONE};
+
+    // --- Memory / Stack / IO ---
+    case Opcode::Load:       return {op, "load", OP_FLAG_MEMORY};
+    case Opcode::Store:      return {op, "store", OP_FLAG_MEMORY};
+    case Opcode::Push:       return {op, "push", OP_FLAG_MEMORY};
+    case Opcode::Pop:        return {op, "pop", OP_FLAG_MEMORY};
+    case Opcode::StackAlloc: return {op, "stack_alloc", OP_FLAG_MEMORY};
+    case Opcode::StackFree:  return {op, "stack_free", OP_FLAG_MEMORY};
+    case Opcode::HeapAlloc:  return {op, "heap_alloc", OP_FLAG_MEMORY};
+    case Opcode::HeapFree:   return {op, "heap_free", OP_FLAG_MEMORY};
+
+    // --- Axion / System ---
+    case Opcode::AxRead:     return {op, "axread", OP_FLAG_PRIVILEGED};
+    case Opcode::AxSet:      return {op, "axset", OP_FLAG_PRIVILEGED};
+    case Opcode::AxVerify:   return {op, "axverify", OP_FLAG_PRIVILEGED};
+    case Opcode::CapCheck:   return {op, "capcheck", OP_FLAG_NONE};
+    case Opcode::CapGrant:   return {op, "capgrant", OP_FLAG_PRIVILEGED};
+    case Opcode::WeightsLoad: return {op, "weights_load", OP_FLAG_PRIVILEGED};
+
     default: return {op, "unknown", OP_FLAG_NONE};
   }
 }
