@@ -22,6 +22,10 @@
 #include <type_traits>
 
 namespace t81 {
+class T81Entropy;
+}
+
+namespace t81::v1 {
 
 // ======================================================================
 // T81Prob<Trits> — Native log-odds / log-probability
@@ -214,14 +218,15 @@ log_sum_exp(std::span<const T81Prob27> probs) noexcept {
     return max + sum;
 }
 
-// Forward declaration of entropy source
-class T81Entropy;
-
 // Gumbel-softmax trick → just add noise from T81Entropy (placeholder)
 [[nodiscard]] inline T81Prob27
-gumbel_add(const T81Prob27& p, const T81Entropy& /*noise*/) noexcept {
+gumbel_add(const T81Prob27& p, const t81::T81Entropy& /*noise*/) noexcept {
     // TODO: implement real Gumbel noise once T81Entropy is fully specified.
     return p;
 }
 
-} // namespace t81
+} // namespace t81::v1
+
+namespace t81 {
+using v1::T81Prob27;
+}
