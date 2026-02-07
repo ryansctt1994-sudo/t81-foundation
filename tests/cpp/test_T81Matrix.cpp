@@ -61,6 +61,7 @@ int main() {
 
     // 3) Transpose – purely structural check
     Mat mt = m.transpose();
+    (void)mt;
     for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 3; ++j)
             assert(mt(i, j) == m(j, i));
@@ -70,6 +71,7 @@ int main() {
     Mat m2  = m;
     Mat sum = m + m2;
     Mat diff = m - m2;
+    (void)sum; (void)diff;
 
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
@@ -88,6 +90,7 @@ int main() {
         Mat copy1 = m;   // copy constructor
         Mat copy2; 
         copy2 = m;       // copy assignment
+        (void)copy1; (void)copy2;
 
         for (int i = 0; i < 3; ++i)
             for (int j = 0; j < 3; ++j) {

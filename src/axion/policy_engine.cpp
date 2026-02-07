@@ -7,9 +7,9 @@ namespace t81::axion {
 
 PolicyEngine::PolicyEngine(std::optional<Policy> policy) : policy_(std::move(policy)) {
   if (policy_ && !policy_->loops.empty()) {
-    loop_requirements_.reserve(policy_->loops.size());
+    loop_reqs_.reserve(policy_->loops.size());
     for (const auto& hint : policy_->loops) {
-      LoopRequirement req;
+      InternalLoopReq req;
       req.hint = &hint;
       std::ostringstream expect;
       expect << "loop hint file=" << hint.file << " line=" << hint.line
@@ -22,7 +22,8 @@ PolicyEngine::PolicyEngine(std::optional<Policy> policy) : policy_(std::move(pol
         expect << "unknown";
       }
       req.expected_reason = expect.str();
-      loop_requirements_.push_back(std::move(req));
+      req.satisfied = false;
+      loop_reqs_.push_back(std::move(req));
     }
   }
 }
@@ -49,10 +50,10 @@ Verdict PolicyEngine::evaluate(const SyscallContext& ctx) {
            << " limit=" << *policy_->max_stack;
     return Verdict{VerdictKind::Deny, reason.str()};
   }
-  for (const auto& req : loop_requirements_) {
-    if (!loop_hint_satisfied(ctx, *req.hint)) {
+  for (size_t i = 0; i < loop_reqs_.size(); ++i) {
+    if (!loop_hint_satisfied(ctx, i)) {
       std::ostringstream reason;
-      reason << "Missing loop hint trace: " << req.expected_reason;
+      reason << "Missing loop hint trace: " << loop_reqs_[i].expected_reason;
       return Verdict{VerdictKind::Deny, reason.str()};
     }
   }
@@ -89,17 +90,13 @@ Verdict PolicyEngine::evaluate(const SyscallContext& ctx) {
 }
 
 bool PolicyEngine::loop_hint_satisfied(const SyscallContext& ctx,
-                                       const Policy::LoopHint& hint) const {
-  const std::string expected = std::string("loop hint file=") + hint.file +
-                               " line=" + std::to_string(hint.line) +
-                               " column=" + std::to_string(hint.column) +
-                               " bound=" +
-                               (hint.bound_infinite
-                                    ? "infinite"
-                                    : (hint.bound_value ? std::to_string(*hint.bound_value)
-                                                       : "unknown"));
+                                       size_t requirement_idx) const {
+  auto& req = loop_reqs_[requirement_idx];
+  if (req.satisfied) return true;
+
   for (const auto& entry : ctx.trace_reasons) {
-    if (entry.find(expected) != std::string_view::npos) {
+    if (entry.find(req.expected_reason) != std::string_view::npos) {
+      req.satisfied = true;
       return true;
     }
   }

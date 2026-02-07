@@ -17,7 +17,6 @@ Verdict AxionContext::evaluate(const SyscallContext& ctx) {
     return Verdict{VerdictKind::Allow, "No engine attached (default allow)"};
   }
 
-  auto start_time = 0.0; // In a real implementation, we'd use a timer.
   Verdict v = engine_->evaluate(ctx);
 
   if (v.kind == VerdictKind::Deny) {

@@ -20,7 +20,7 @@ int main() {
         auto y = rmsnorm(x, w);
         // ss = (1+4+9+16)/4 = 30/4 = 7.5
         // ss = sqrt(7.5 + 1e-6) ~= 2.7386127
-        float inv_ss = 1.0f / std::sqrt(7.5f + 1e-6f);
+        [[maybe_unused]] float inv_ss = 1.0f / std::sqrt(7.5f + 1e-6f);
         assert(approx(y.data()[0], 1.0f * inv_ss));
         assert(approx(y.data()[1], 2.0f * inv_ss));
         assert(approx(y.data()[2], 3.0f * inv_ss));
@@ -46,7 +46,7 @@ int main() {
         // max = 2
         // exp(0-2), exp(1-2), exp(2-2) = exp(-2), exp(-1), 1
         // sum = exp(-2) + exp(-1) + 1 ~= 0.135335 + 0.367879 + 1 = 1.503214
-        float sum = std::exp(-2.0f) + std::exp(-1.0f) + 1.0f;
+        [[maybe_unused]] float sum = std::exp(-2.0f) + std::exp(-1.0f) + 1.0f;
         assert(approx(y.data()[0], std::exp(-2.0f) / sum));
         assert(approx(y.data()[1], std::exp(-1.0f) / sum));
         assert(approx(y.data()[2], 1.0f / sum));

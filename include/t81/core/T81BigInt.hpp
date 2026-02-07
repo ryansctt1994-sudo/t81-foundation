@@ -62,11 +62,11 @@ private:
         if (v < 0) {
             negative_ = true;
             // std::int64_t min value is safe: abs(min) fits in 81 trits.
-            const std::int64_t mag = (v == std::numeric_limits<std::int64_t>::min())
-                                         ? static_cast<std::int64_t>(1) +
-                                               std::numeric_limits<std::int64_t>::max()
-                                         : -v;
-            limbs_.emplace_back(mag);
+            // Use unsigned to avoid overflow warning/UB when negating INT64_MIN.
+            const std::uint64_t uv = (v == std::numeric_limits<std::int64_t>::min())
+                                         ? static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max()) + 1
+                                         : static_cast<std::uint64_t>(-v);
+            limbs_.emplace_back(static_cast<std::int64_t>(uv));
         } else {
             negative_ = false;
             limbs_.emplace_back(v);
