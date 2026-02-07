@@ -15,7 +15,7 @@ std::string generate_random_string(std::mt19937& gen, size_t length) {
     for (size_t i = 0; i < length; ++i) {
         result += charset[dist(gen)];
     }
-    [[maybe_unused]] return result;
+    return result;
 }
 
 void fuzz_iteration(std::mt19937& gen, int iteration) {
@@ -53,5 +53,5 @@ int main() {
         fuzz_iteration(gen, i);
     }
     std::cout << "Fuzzing completed successfully!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

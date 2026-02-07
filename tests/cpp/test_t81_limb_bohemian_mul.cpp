@@ -13,7 +13,7 @@ T81Limb RandomLimb(std::mt19937_64& rng, std::uniform_int_distribution<int>& dis
     [[maybe_unused]] T81Limb limb;
     for (int i = 0; i < T81Limb::TRYTES; ++i)
         limb.set_tryte(i, static_cast<int8_t>(dist(rng)));
-    [[maybe_unused]] return limb;
+    return limb;
 }
 
 std::string PrintTrits(const T81Limb& limb) {
@@ -24,7 +24,7 @@ std::string PrintTrits(const T81Limb& limb) {
         out += std::to_string(static_cast<int>(trits[i]));
         if (i + 1 < T81Limb::TRITS) out += ' ';
     }
-    [[maybe_unused]] return out;
+    return out;
 }
 
 int main() {
@@ -44,10 +44,10 @@ int main() {
             std::cerr << "b        : " << PrintTrits(b) << '\n';
             std::cerr << "expected : " << PrintTrits(expected) << '\n';
             std::cerr << "actual   : " << PrintTrits(actual) << '\n';
-            [[maybe_unused]] return 1;
+            return 1;
         }
     }
 
     std::cout << "bohemian_mul matches operator* on " << TRIALS << " random trials — multiplication verified\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

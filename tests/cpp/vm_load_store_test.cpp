@@ -28,5 +28,5 @@ int main() {
   assert(!step.has_value());
   assert(step.error() == vm::Trap::BoundsFault);
 
-  [[maybe_unused]] return 0;
+  return 0;
 }

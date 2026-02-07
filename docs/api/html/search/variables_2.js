@@ -1,0 +1,22 @@
+var searchData=
+[
+  ['b_0',['b',['../d1/d4d/structt81_1_1tisc_1_1_insn.html#ae7c8fe6bb6725c3c6dd751fd3d2b3960',1,'t81::tisc::Insn']]],
+  ['beliefs_1',['beliefs',['../d6/df7/structt81_1_1cog_1_1v1_1_1_self_model.html#a82f60ae99689969d20a47f5f032c051b',1,'t81::cog::v1::SelfModel']]],
+  ['benchmark_5fargs_2',['benchmark_args',['../d5/dca/struct_args.html#a90dc3c0c18f68862acb7b0626f420550',1,'Args']]],
+  ['biased_5fexp_3',['biased_exp',['../de/dd0/structt81_1_1v1_1_1_t81_float_1_1_debug_fields.html#ac97ebab6be8e9d3acb7d35e387aefeb5',1,'t81::v1::T81Float::DebugFields::biased_exp'],['../da/d0f/structt81_1_1_t81_float_1_1_debug_fields.html#ac97ebab6be8e9d3acb7d35e387aefeb5',1,'t81::T81Float::DebugFields::biased_exp']]],
+  ['binding_4',['binding',['../de/dcd/structt81_1_1lang_1_1_match_pattern.html#af16e7497cf9691e3e983d7448816333a',1,'t81::lang::MatchPattern']]],
+  ['binding_5fis_5fwildcard_5',['binding_is_wildcard',['../d7/d62/structt81_1_1frontend_1_1_match_pattern.html#a4ff90949563dbd886e995bda6f214bd2',1,'t81::frontend::MatchPattern']]],
+  ['bits_5fper_5ftrit_6',['bits_per_trit',['../d3/d60/structt81_1_1weights_1_1_model_file.html#afe3401e1524e7fe1eba57ff17a90e677',1,'t81::weights::ModelFile']]],
+  ['body_7',['body',['../d8/db6/structt81_1_1frontend_1_1_while_stmt.html#a95a11d511957cd234a76be426b1d1c52',1,'t81::frontend::WhileStmt::body'],['../dd/d32/structt81_1_1frontend_1_1_function_stmt.html#aa60c8ea5c4a9b9a441b0904053ded2d0',1,'t81::frontend::FunctionStmt::body'],['../dc/d10/structt81_1_1frontend_1_1_loop_stmt.html#a67d40278084a5ba3d95bd20abcae8ba2',1,'t81::frontend::LoopStmt::body'],['../da/dd2/structt81_1_1lang_1_1_statement_loop.html#ae2e945ed819b57db2c4273d89b21b2b4',1,'t81::lang::StatementLoop::body'],['../dc/d94/structt81_1_1lang_1_1_function.html#a142f63575d33088510abc3ffe9cb0174',1,'t81::lang::Function::body']]],
+  ['boolean_5fresult_8',['boolean_result',['../dd/d37/structt81_1_1tisc_1_1ir_1_1_instruction.html#a9885c57d96a5e1408b8b2772d5072574',1,'t81::tisc::ir::Instruction']]],
+  ['booth27_5ftable_9',['BOOTH27_TABLE',['../d8/da9/namespacet81_1_1core_1_1detail.html#aa4c163da6b18f257664cea04e7354717',1,'t81::core::detail']]],
+  ['born_5fat_10',['born_at',['../d7/d7f/struct_thread_state.html#aaa978ad3fc6825620cc515fc5a7d2aea',1,'ThreadState']]],
+  ['bos_11',['bos',['../dd/dd0/namespacet81_1_1symbols.html#a31c8bccf83fc437aad76cc5bfa0547cf',1,'t81::symbols']]],
+  ['bound_5finfinite_12',['bound_infinite',['../d4/dff/structt81_1_1axion_1_1_policy_1_1_loop_hint.html#ab5d03ce7395e9d65bf8cdccb1e1a415b',1,'t81::axion::Policy::LoopHint']]],
+  ['bound_5fkind_13',['bound_kind',['../dc/d10/structt81_1_1frontend_1_1_loop_stmt.html#ada1a94369aa4324641d44e9270b5acf3',1,'t81::frontend::LoopStmt::bound_kind'],['../dd/d27/structt81_1_1frontend_1_1_semantic_analyzer_1_1_loop_metadata.html#a1ec78ec1025ce8da42ff8b52e82e6b08',1,'t81::frontend::SemanticAnalyzer::LoopMetadata::bound_kind']]],
+  ['bound_5fvalue_14',['bound_value',['../d4/dff/structt81_1_1axion_1_1_policy_1_1_loop_hint.html#aa4c27450316e1b46744ceb7ebb4516fa',1,'t81::axion::Policy::LoopHint::bound_value'],['../dc/d10/structt81_1_1frontend_1_1_loop_stmt.html#a27ba9287ffdf30962fbca0c1b1e49525',1,'t81::frontend::LoopStmt::bound_value'],['../dd/d27/structt81_1_1frontend_1_1_semantic_analyzer_1_1_loop_metadata.html#a15a56f0c3f10a63bbc353f415d9a1ce0',1,'t81::frontend::SemanticAnalyzer::LoopMetadata::bound_value']]],
+  ['bytecode_15',['bytecode',['../df/d25/structt81_1_1axion_1_1_policy.html#a4e9a5752abacb39114d8925ef9aa40f8',1,'t81::axion::Policy']]],
+  ['bytes_16',['bytes',['../df/de6/structt81_1_1hash_1_1_canon_hash81.html#aa4c1da4adccd6dd13f076fee1366ce4b',1,'t81::hash::CanonHash81']]],
+  ['bytes_5fin_17',['bytes_in',['../d2/d05/structt81_1_1axion_1_1_telemetry.html#aa279bcc7de04be891ca82065717a3e48',1,'t81::axion::Telemetry']]],
+  ['bytes_5fout_18',['bytes_out',['../d2/d05/structt81_1_1axion_1_1_telemetry.html#aa7fea0f4c8c774869eae260e9d8b62a0',1,'t81::axion::Telemetry']]]
+];

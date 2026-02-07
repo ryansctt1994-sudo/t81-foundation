@@ -38,5 +38,5 @@ int main() {
   assert(d2.size() == 4 && d2[0] == 1 && d2[1] == 2 && d2[2] == 3 && d2[3] == 4);
 
   std::cout << "tensor_loader ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

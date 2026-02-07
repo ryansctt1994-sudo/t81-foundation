@@ -67,5 +67,5 @@ int main() {
     fs::remove(tisc_path);
 
     std::cout << "CliRecordEnumTest passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

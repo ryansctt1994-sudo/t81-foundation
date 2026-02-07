@@ -44,6 +44,6 @@ int main() {
         assert(!mapped_nothing.has_value());
 
     // All T81Maybe tests PASSED!
-    [[maybe_unused]] return 0;
+    return 0;
 }
 

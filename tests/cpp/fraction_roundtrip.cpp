@@ -36,5 +36,5 @@ int main() {
   assert(z.to_string() == "0/1");
 
   std::cout << "fraction_roundtrip ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

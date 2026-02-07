@@ -51,7 +51,7 @@ int main() {
         [[maybe_unused]] int rc= t81::cli::compile(src, tisc_path);
         if (rc != 0) {
             std::cerr << "Compilation failed with return code " << rc << std::endl;
-            [[maybe_unused]] return rc;
+            return rc;
         }
 
         [[maybe_unused]] auto compiled= t81::tisc::load_program(tisc_path.string());
@@ -59,7 +59,7 @@ int main() {
         vm->load_program(compiled);
         if (!vm->run_to_halt()) {
             std::cerr << "Enum guard test VM trapped unexpectedly" << std::endl;
-            [[maybe_unused]] return 1;
+            return 1;
         }
 
         [[maybe_unused]] bool saw_variant_guard= false;
@@ -87,19 +87,19 @@ int main() {
 
         if (!saw_variant_guard) {
             std::cerr << "Axion log missing enum variant guard event" << std::endl;
-            [[maybe_unused]] return 1;
+            return 1;
         }
         if (!saw_payload_unwrap) {
             std::cerr << "Axion log missing enum payload unwrap event" << std::endl;
-            [[maybe_unused]] return 1;
+            return 1;
         }
         if (!saw_variant_metadata) {
             std::cerr << "Axion log missing enum guard metadata" << std::endl;
-            [[maybe_unused]] return 1;
+            return 1;
         }
         if (!saw_payload_metadata) {
             std::cerr << "Axion log missing enum payload metadata" << std::endl;
-            [[maybe_unused]] return 1;
+            return 1;
         }
 
         fs::remove(src);
@@ -108,9 +108,9 @@ int main() {
         }
 
         std::cout << "Axion enum guard test passed!" << std::endl;
-        [[maybe_unused]] return 0;
+        return 0;
     } catch (const std::exception& ex) {
         std::cerr << "Axion enum guard test threw: " << ex.what() << std::endl;
-        [[maybe_unused]] return 1;
+        return 1;
     }
 }

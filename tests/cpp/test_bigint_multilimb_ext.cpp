@@ -31,5 +31,5 @@ void test_multilimb_addition() {
 
 int main() {
     test_multilimb_addition();
-    [[maybe_unused]] return 0;
+    return 0;
 }

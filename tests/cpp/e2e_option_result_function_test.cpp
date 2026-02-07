@@ -43,7 +43,7 @@ void test_option_result_function_regression() {
             if (flag > 0) {
                 return Some(template);
             }
-            [[maybe_unused]] return None;
+            return None;
         }
 
         fn inspect_payload(value: Option[Vector[i32]]) -> Result[i32, T81String] {
@@ -77,5 +77,5 @@ void test_option_result_function_regression() {
 int main() {
     test_option_result_function_regression();
     std::cout << "E2E option/result function regression passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

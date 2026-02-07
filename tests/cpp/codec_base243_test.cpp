@@ -65,5 +65,5 @@ int main() {
   }
 
   std::cout << "codec_base243 ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

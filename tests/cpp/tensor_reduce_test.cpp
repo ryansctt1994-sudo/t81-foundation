@@ -39,5 +39,5 @@ int main() {
   assert(threw); threw = false;
   try { (void)t81::ops::reduce_max_2d(m, -1); } catch (const std::invalid_argument&) { threw = true; }
   assert(threw); std::cout << "tensor_reduce ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

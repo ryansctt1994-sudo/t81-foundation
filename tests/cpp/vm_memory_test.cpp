@@ -17,7 +17,7 @@ std::unique_ptr<t81::vm::IVirtualMachine> run_program(const std::vector<t81::tis
     vm->load_program(program);
     [[maybe_unused]] auto result= vm->run_to_halt();
     assert(result.has_value());
-    [[maybe_unused]] return vm;
+    return vm;
 }
 
 t81::vm::Trap run_expected_trap(const std::vector<t81::tisc::Insn>& insns) {
@@ -37,7 +37,7 @@ int dump_axion_log_and_fail(const t81::vm::State& state, const char* label) {
                   << " reason=\"" << entry.verdict.reason << "\"\n";
     }
     std::cerr << "[Axion log] end\n";
-    [[maybe_unused]] return 1;
+    return 1;
 }
 
 }  // namespace
@@ -338,5 +338,5 @@ int main() {
         }
     }
 
-    [[maybe_unused]] return 0;
+    return 0;
 }

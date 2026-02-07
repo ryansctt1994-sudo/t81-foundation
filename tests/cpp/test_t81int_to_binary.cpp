@@ -23,5 +23,5 @@ int main() {
         threw = true;
     }
     assert(threw); std::cout << "All T81Int::to_binary tests passed!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

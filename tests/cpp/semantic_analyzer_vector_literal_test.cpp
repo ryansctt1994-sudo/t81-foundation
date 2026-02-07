@@ -34,7 +34,7 @@ int main() {
     const std::string simple_vector = R"(
         fn main() -> i32 {
             let v: Vector[i32] = [1, 2, 3];
-            [[maybe_unused]] return 0;
+            return 0;
         }
     )";
     expect_semantic_success(simple_vector, "simple_vector");
@@ -42,7 +42,7 @@ int main() {
     const std::string float_vector = R"(
         fn main() -> i32 {
             let v: Vector[Float] = [1, 2.5];
-            [[maybe_unused]] return 0;
+            return 0;
         }
     )";
     expect_semantic_success(float_vector, "float_vector");
@@ -50,11 +50,11 @@ int main() {
     const std::string no_context = R"(
         fn main() -> i32 {
             [[maybe_unused]] let v= [];
-            [[maybe_unused]] return 0;
+            return 0;
         }
     )";
     expect_semantic_failure(no_context, "no_context");
 
     std::cout << "Semantic analyzer vector literal tests passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

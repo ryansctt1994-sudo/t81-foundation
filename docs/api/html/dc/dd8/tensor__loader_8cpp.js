@@ -1,0 +1,6 @@
+var tensor__loader_8cpp =
+[
+    [ "t81::io::load_tensor_txt", "d4/dac/namespacet81_1_1io.html#a20d4d5dedb173ba4cee690104dda5dc6", null ],
+    [ "t81::io::require", "d4/dac/namespacet81_1_1io.html#aee095ad0551d00411e6517c43b09d87a", null ],
+    [ "t81::io::save_tensor_txt", "d4/dac/namespacet81_1_1io.html#a732c088550e95703098017a1a193013d", null ]
+];

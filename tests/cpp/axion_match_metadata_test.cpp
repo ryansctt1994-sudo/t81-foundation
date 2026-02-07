@@ -47,7 +47,7 @@ int main() {
         [[maybe_unused]] int rc= t81::cli::compile(src, tisc_path);
         if (rc != 0) {
             std::cerr << "Compilation failed with return code " << rc << std::endl;
-            [[maybe_unused]] return rc;
+            return rc;
         }
 
         [[maybe_unused]] auto compiled= t81::tisc::load_program(tisc_path.string());
@@ -66,7 +66,7 @@ int main() {
         }
         if (!saw_match_hint) {
             std::cerr << "Axion log missing match metadata hint" << std::endl;
-            [[maybe_unused]] return 1;
+            return 1;
         }
 
         fs::remove(src);
@@ -75,9 +75,9 @@ int main() {
         }
 
         std::cout << "Axion match metadata test passed!" << std::endl;
-        [[maybe_unused]] return 0;
+        return 0;
     } catch (const std::exception& ex) {
         std::cerr << "Axion match metadata test threw: " << ex.what() << std::endl;
-        [[maybe_unused]] return 1;
+        return 1;
     }
 }

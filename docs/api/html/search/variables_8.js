@@ -1,0 +1,20 @@
+var searchData=
+[
+  ['h_0',['h',['../dd/da6/structt81_1_1canonfs_1_1_canon_hash.html#a603b3d253ed8a672b84ebf6798496d5c',1,'t81::canonfs::CanonHash']]],
+  ['halted_1',['halted',['../d4/d3c/structt81_1_1vm_1_1_state.html#ae3f3ce48992d86c7e7ac36fb6bd8f574',1,'t81::vm::State']]],
+  ['handle_2',['handle',['../d7/d7f/struct_thread_state.html#affaf4ad0e0a7290abb500583f52b6c43',1,'ThreadState']]],
+  ['has_5ferr_3',['has_err',['../d5/d58/structt81_1_1frontend_1_1_semantic_analyzer_1_1_match_metadata.html#a317639ea0191c9d1217336bbd0de3a05',1,'t81::frontend::SemanticAnalyzer::MatchMetadata']]],
+  ['has_5fguard_4',['has_guard',['../d8/d7d/structt81_1_1frontend_1_1_semantic_analyzer_1_1_match_metadata_1_1_arm_info.html#a0b8ef0623039b24fff5084541e056bc4',1,'t81::frontend::SemanticAnalyzer::MatchMetadata::ArmInfo']]],
+  ['has_5fnone_5',['has_none',['../d5/d58/structt81_1_1frontend_1_1_semantic_analyzer_1_1_match_metadata.html#af0000e495f8450daa981fc49d0e69ce0',1,'t81::frontend::SemanticAnalyzer::MatchMetadata']]],
+  ['has_5fok_6',['has_ok',['../d5/d58/structt81_1_1frontend_1_1_semantic_analyzer_1_1_match_metadata.html#a8abdc27842824e420b2f7c38c1c3f645',1,'t81::frontend::SemanticAnalyzer::MatchMetadata']]],
+  ['has_5fpayload_7',['has_payload',['../d5/def/structt81_1_1vm_1_1_enum_value.html#a69d917f25bc6228ce6329afdb6d6449b',1,'t81::vm::EnumValue']]],
+  ['has_5fsome_8',['has_some',['../d5/d58/structt81_1_1frontend_1_1_semantic_analyzer_1_1_match_metadata.html#af1b601c5f91f9a3b9d2f73f886e68b1a',1,'t81::frontend::SemanticAnalyzer::MatchMetadata']]],
+  ['has_5fvalue_9',['has_value',['../d4/d4d/structt81_1_1vm_1_1_option_value.html#a79f220fefb6b9eea5f399802f0432c6c',1,'t81::vm::OptionValue']]],
+  ['hash_10',['hash',['../de/d01/structt81_1_1canonfs_1_1_canon_ref.html#a1d545f93aa86fe9c0df3a4ce2155ee17',1,'t81::canonfs::CanonRef']]],
+  ['heap_11',['heap',['../d7/df4/structt81_1_1vm_1_1_memory_layout.html#a442d24331cb935ceee6a50205b03ba6a',1,'t81::vm::MemoryLayout']]],
+  ['heap_5fframes_12',['heap_frames',['../d4/d3c/structt81_1_1vm_1_1_state.html#a14db5199d0f9adec0681e7fb32d58380',1,'t81::vm::State']]],
+  ['heap_5fptr_13',['heap_ptr',['../d4/d3c/structt81_1_1vm_1_1_state.html#ab543aecab0b5e22109bdefaca5530d0b',1,'t81::vm::State']]],
+  ['hint_14',['hint',['../d7/d46/structt81_1_1axion_1_1_loop_requirement.html#a76cab56faed16d7b0eec117a7083ee7d',1,'t81::axion::LoopRequirement']]],
+  ['history_15',['history',['../d6/df7/structt81_1_1cog_1_1v1_1_1_self_model.html#a6602e2df75f4a4c2b855fbe57549472d',1,'t81::cog::v1::SelfModel']]],
+  ['history_5fsnapshot_16',['history_snapshot',['../de/d97/structt81_1_1cog_1_1v1_1_1_reflection_trace.html#acdbc0d378f4078f490daddc695d9ab6e',1,'t81::cog::v1::ReflectionTrace']]]
+];

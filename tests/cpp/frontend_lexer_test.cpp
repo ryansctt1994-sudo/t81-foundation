@@ -39,7 +39,7 @@ int main() {
 
 fn main() -> i32 {
     [[maybe_unused]] let x= 1;
-    [[maybe_unused]] return x;
+    return x;
 }
 )";
     std::vector<ExpectedToken> expected = {
@@ -67,5 +67,5 @@ fn main() -> i32 {
 
     std::cout << "All lexer tests passed!" << std::endl;
 
-    [[maybe_unused]] return 0;
+    return 0;
 }

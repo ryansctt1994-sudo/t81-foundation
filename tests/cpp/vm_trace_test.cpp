@@ -29,5 +29,5 @@ int main() {
   assert(vm->state().policy.has_value());
   assert(vm->state().policy->tier == 2);
   assert(vm->state().gc_cycles > 0);
-  [[maybe_unused]] return 0;
+  return 0;
 }

@@ -32,5 +32,5 @@ int main() {
     assert(q2_copy == q2);
 
     std::cout << "All T81Qutrit tests PASSED!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

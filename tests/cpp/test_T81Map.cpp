@@ -40,5 +40,5 @@ int main() {
     assert(opt_val2.value().to_int64() == 150);
 
     std::cout << "All T81Map tests PASSED!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

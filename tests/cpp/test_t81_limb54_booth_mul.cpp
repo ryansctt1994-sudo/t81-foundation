@@ -15,7 +15,7 @@ T81Limb54 random_limb(std::mt19937_64& rng) {
     for (int i = 0; i < T81Limb54::TRYTES; ++i) {
         limb.set_tryte(i, static_cast<int8_t>(dist(rng)));
     }
-    [[maybe_unused]] return limb;
+    return limb;
 }
 
 int main() {
@@ -27,9 +27,9 @@ int main() {
         [[maybe_unused]] auto actual= T81Limb54::booth_mul(a, b);
         if (expected.to_trits() != actual.to_trits()) {
             std::cerr << "Booth mul mismatch" << std::endl;
-            [[maybe_unused]] return 1;
+            return 1;
         }
     }
     std::cout << "booth_mul matches reference_mul" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

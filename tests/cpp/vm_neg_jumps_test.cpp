@@ -105,5 +105,5 @@ int main() {
     assert(vm->state().registers[1] == 0);
   }
 
-  [[maybe_unused]] return 0;
+  return 0;
 }

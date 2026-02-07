@@ -16,7 +16,7 @@ fs::path make_temp_path(const std::string& prefix, const std::string& extension)
     [[maybe_unused]] std::uniform_int_distribution<uint64_t> dist;
     fs::path path = fs::temp_directory_path() /
                     (prefix + "-" + std::to_string(dist(rng)) + extension);
-    [[maybe_unused]] return path;
+    return path;
 }
 
 void write_source(const fs::path& path, std::string_view contents) {
@@ -30,7 +30,7 @@ void write_source(const fs::path& path, std::string_view contents) {
 int main() {
     const std::string minimal_program = R"(
         fn main() -> i32 {
-            [[maybe_unused]] return 0;
+            return 0;
         }
     )";
 
@@ -52,7 +52,7 @@ int main() {
     const std::string bad_program = R"(
         fn main() -> i32 {
             let bad: i2 = 1.5;
-            [[maybe_unused]] return 0;
+            return 0;
         }
     )";
 
@@ -81,5 +81,5 @@ int main() {
     if (fs::exists(fail_tisc)) {
         fs::remove(fail_tisc);
     }
-    [[maybe_unused]] return 0;
+    return 0;
 }

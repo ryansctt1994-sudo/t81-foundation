@@ -63,5 +63,5 @@ int main() {
   }
 
   std::cout << "tensor_unary ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

@@ -8,7 +8,7 @@ using namespace t81;
 int main() {
     std::cout << "Running T81Complex tests...\n";
 
-    [[maybe_unused]] using C= T81Complex<18>;
+    using C= T81Complex<18>;
 
     // Basic construction
     [[maybe_unused]] C zero= C::zero();
@@ -45,6 +45,6 @@ int main() {
     assert(conj_b.im.to_double() < -3.9 && conj_b.im.to_double() > -4.1);
 
     std::cout << "All T81Complex tests PASSED!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }
 

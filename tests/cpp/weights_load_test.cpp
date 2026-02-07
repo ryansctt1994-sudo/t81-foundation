@@ -43,5 +43,5 @@ int main() {
     assert(native != nullptr);
     std::vector<uint64_t> expected_shape{2, 2};
     assert(native->shape == expected_shape);
-    [[maybe_unused]] return 0;
+    return 0;
 }

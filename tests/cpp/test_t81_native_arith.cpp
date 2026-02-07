@@ -20,7 +20,7 @@ int64_t Evaluate(const std::array<int8_t, 128>& digits, int limit) {
     value += static_cast<int64_t>(digits[idx]) * weight;
     weight *= 3;
   }
-  [[maybe_unused]] return value;
+  return value;
 }
 
 t81::T81 MakeNative(const std::array<int8_t, 128>& digits) {
@@ -62,7 +62,7 @@ int main() {
     const int64_t sum_val = Evaluate(sum_digits, kAddResultDigits);
     if (sum_val != (lhs_val + rhs_val)) {
       std::cerr << "Addition mismatch at trial " << trial << "\n";
-      [[maybe_unused]] return 1;
+      return 1;
     }
   }
 
@@ -87,10 +87,10 @@ int main() {
       std::cerr << "Multiplication mismatch at trial " << trial
                 << " lhs=" << lhs_val << " rhs=" << rhs_val
                 << " result=" << product_val << " expected=" << expect << "\n";
-      [[maybe_unused]] return 1;
+      return 1;
     }
   }
 
   std::cout << "t81::T81 SIMD fallback arithmetic OK\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

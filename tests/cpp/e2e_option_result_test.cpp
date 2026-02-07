@@ -81,5 +81,5 @@ int main() {
     test_option();
     test_result();
     std::cout << "E2E option/result test passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

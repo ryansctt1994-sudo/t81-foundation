@@ -22,18 +22,18 @@ int main() {
     [[maybe_unused]] auto program_opt= t81::cli::build_program_from_source(std::string(source), "<axion-nested-guard>");
     if (!program_opt) {
         std::cerr << "Failed to compile nested guard program\n";
-        [[maybe_unused]] return 1;
+        return 1;
     }
 
     [[maybe_unused]] auto program= std::move(*program_opt);
     if (program.match_metadata_text.find("(guards true)") == std::string::npos ||
         program.match_metadata_text.find("(guard true)") == std::string::npos) {
         std::cerr << "Match metadata missing guard annotations: " << program.match_metadata_text << std::endl;
-        [[maybe_unused]] return 1;
+        return 1;
     }
     if (program.match_metadata_text.find("guard-expr \"v > 5\"") == std::string::npos) {
         std::cerr << "Match metadata missing guard expression snippet: " << program.match_metadata_text << std::endl;
-        [[maybe_unused]] return 1;
+        return 1;
     }
 
     [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
@@ -41,7 +41,7 @@ int main() {
     [[maybe_unused]] auto result= vm->run_to_halt();
     if (!result) {
         std::cerr << "Execution trapped unexpectedly\n";
-        [[maybe_unused]] return 1;
+        return 1;
     }
 
     [[maybe_unused]] bool saw_guard_event= false;
@@ -63,13 +63,13 @@ int main() {
 
     if (!saw_guard_event || !saw_guard_pass) {
         std::cerr << "Axion log missing Blue guard pass event\n";
-        [[maybe_unused]] return 1;
+        return 1;
     }
     if (!saw_payload_log) {
         std::cerr << "Axion log missing payload unwrap event for guard arm\n";
-        [[maybe_unused]] return 1;
+        return 1;
     }
 
     std::cout << "Axion nested guard test passed!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

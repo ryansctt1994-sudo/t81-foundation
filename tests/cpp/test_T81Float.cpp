@@ -7,7 +7,7 @@ using namespace t81;
 int main() {
     std::cout << "Running T81Float tests...\n";
 
-    [[maybe_unused]] using F= T81Float<18, 9>;
+    using F= T81Float<18, 9>;
 
     [[maybe_unused]] F a= F::from_double(1.0);
     [[maybe_unused]] F b= F::from_double(2.0);
@@ -19,5 +19,5 @@ int main() {
     assert(!a.is_zero());
 
     std::cout << "All T81Float tests PASSED!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

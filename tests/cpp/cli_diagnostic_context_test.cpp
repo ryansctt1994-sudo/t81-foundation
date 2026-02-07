@@ -42,7 +42,7 @@ fn main() -> i32 {
         Some(v) => v;
         None => 0;
     };
-    [[maybe_unused]] return 0;
+    return 0;
 }
 )";
 
@@ -51,14 +51,14 @@ fn main() -> i32 {
     loop {
         break;
     }
-    [[maybe_unused]] return 0;
+    return 0;
 }
 )";
 
     const std::string generic_source = R"(
 fn main() -> i32 {
     let missing: Option[] = Some(1);
-    [[maybe_unused]] return 0;
+    return 0;
 }
 )";
 
@@ -100,5 +100,5 @@ fn main() -> i32 {
         assert_contains(output, "^", "match");
     }
 
-    [[maybe_unused]] return 0;
+    return 0;
 }

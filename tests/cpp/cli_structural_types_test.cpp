@@ -46,7 +46,7 @@ int main() {
         fn main() -> i32 {
             let p: Point = Point { x: 3; y: 4; };
             [[maybe_unused]] let _= p.x;
-            [[maybe_unused]] return 0;
+            return 0;
         }
     )";
 
@@ -90,5 +90,5 @@ int main() {
     fs::remove(tisc_path);
 
     std::cout << "CliStructuralTypesTest passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

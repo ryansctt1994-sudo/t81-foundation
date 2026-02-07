@@ -28,5 +28,5 @@ int main() {
 
     std::cout << "Time for " << iterations << " multiplications (dense): " << diff.count() << " s" << std::endl;
 
-    [[maybe_unused]] return 0;
+    return 0;
 }

@@ -89,5 +89,5 @@ void run_vector_tests() {
 
 int main() {
     run_vector_tests();
-    [[maybe_unused]] return 0;
+    return 0;
 }

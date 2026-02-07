@@ -31,5 +31,5 @@ int main() {
   assert(!r.has_value());
   assert(r.error() == vm::Trap::DecodeFault);
 
-  [[maybe_unused]] return 0;
+  return 0;
 }

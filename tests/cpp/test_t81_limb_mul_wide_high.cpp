@@ -62,10 +62,10 @@ int main() {
         [[maybe_unused]] auto expected_high= canonical_high_half(a, b);
         if (std::memcmp(&high, &expected_high, sizeof(T81Limb)) != 0) {
             std::cerr << "wide high mismatch on trial " << trial << std::endl;
-            [[maybe_unused]] return 1;
+            return 1;
         }
     }
 
     std::cout << "mul_wide high half matches canonical high half" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

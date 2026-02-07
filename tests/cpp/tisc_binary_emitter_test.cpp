@@ -95,5 +95,5 @@ int main() {
     test_jump();
     test_comparison_relation();
     test_all_comparison_relations();
-    [[maybe_unused]] return 0;
+    return 0;
 }

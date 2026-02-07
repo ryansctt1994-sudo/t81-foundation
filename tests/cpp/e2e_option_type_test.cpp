@@ -16,7 +16,7 @@ void test_option_type_e2e() {
                 Some(x) => x,
                 None => 0
             };
-            [[maybe_unused]] return res;
+            return res;
         }
     )";
 
@@ -48,5 +48,5 @@ void test_option_type_e2e() {
 
 int main() {
     test_option_type_e2e();
-    [[maybe_unused]] return 0;
+    return 0;
 }

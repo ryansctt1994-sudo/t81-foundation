@@ -46,5 +46,5 @@ int main() {
     // silence unused warning
 
     std::cout << "All T81Time tests PASSED!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

@@ -37,5 +37,5 @@ void test_relation_metadata() {
 
 int main() {
     test_relation_metadata();
-    [[maybe_unused]] return 0;
+    return 0;
 }

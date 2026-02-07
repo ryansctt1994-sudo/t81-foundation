@@ -1,0 +1,25 @@
+var binary__io_8cpp =
+[
+    [ "t81::tisc::load_program", "d5/dac/namespacet81_1_1tisc.html#aab5ac5e5cd9aa202c444b7ecafe80aec", null ],
+    [ "t81::tisc::read_enum_metadata", "d5/dac/namespacet81_1_1tisc.html#ac198df0affc7cb962371e9eac38ee324", null ],
+    [ "t81::tisc::read_enum_variant_metadata", "d5/dac/namespacet81_1_1tisc.html#a597e765a7524e20999cf793a3e19b52a", null ],
+    [ "t81::tisc::read_field_info", "d5/dac/namespacet81_1_1tisc.html#a5655a822238e19b5a1b87ad0039cb368", null ],
+    [ "t81::tisc::read_serializable_vector", "d5/dac/namespacet81_1_1tisc.html#ac493c8b2b5a8149be650ab55be752a73", null ],
+    [ "t81::tisc::read_string", "d5/dac/namespacet81_1_1tisc.html#ac12c80d9f181c37eba051464a235d4b7", null ],
+    [ "t81::tisc::read_type_alias_metadata", "d5/dac/namespacet81_1_1tisc.html#abdabdbb795e73438d02c6641018258ed", null ],
+    [ "t81::tisc::read_variant_info", "d5/dac/namespacet81_1_1tisc.html#a1240d8f65bcda7b0c1b9523a428be904", null ],
+    [ "t81::tisc::read_vector", "d5/dac/namespacet81_1_1tisc.html#a1ff5a9d40679e977ef4e090543713616", null ],
+    [ "t81::tisc::read_vector_string", "d5/dac/namespacet81_1_1tisc.html#a3fa9b9063e380aa023137f8ef7434aea", null ],
+    [ "t81::tisc::read_vector_vector_int", "d5/dac/namespacet81_1_1tisc.html#a6a52f77096ef4605c149773ceb4eeeea", null ],
+    [ "t81::tisc::save_program", "d5/dac/namespacet81_1_1tisc.html#a3304fde6e9b40fd6bd4fbf5bd2e5aeb1", null ],
+    [ "t81::tisc::write_enum_metadata", "d5/dac/namespacet81_1_1tisc.html#a9ac0fde487002f129c3ec607faf9ad6e", null ],
+    [ "t81::tisc::write_enum_variant_metadata", "d5/dac/namespacet81_1_1tisc.html#ab7192f0e44d9b91139c8d3aa50585abb", null ],
+    [ "t81::tisc::write_field_info", "d5/dac/namespacet81_1_1tisc.html#a551468278f3283893cfea388eb102b29", null ],
+    [ "t81::tisc::write_serializable_vector", "d5/dac/namespacet81_1_1tisc.html#a1260d6b92e7bd35360248cb209b2c208", null ],
+    [ "t81::tisc::write_string", "d5/dac/namespacet81_1_1tisc.html#a7399fd33cda8c94c5f97587d36741a0d", null ],
+    [ "t81::tisc::write_type_alias_metadata", "d5/dac/namespacet81_1_1tisc.html#a844912d055bec05281f0b50bd384ac54", null ],
+    [ "t81::tisc::write_variant_info", "d5/dac/namespacet81_1_1tisc.html#ad41d8663d76dacf6fce4ca4e9e8a9227", null ],
+    [ "t81::tisc::write_vector", "d5/dac/namespacet81_1_1tisc.html#a95af3190931b02da060d25ae7760a9bd", null ],
+    [ "t81::tisc::write_vector_string", "d5/dac/namespacet81_1_1tisc.html#aa1ed119a5c468e12396b6956e603646e", null ],
+    [ "t81::tisc::write_vector_vector_int", "d5/dac/namespacet81_1_1tisc.html#a249e903726f26f0f755331814aaeb2b1", null ]
+];

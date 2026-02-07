@@ -33,5 +33,5 @@ void test_let_statement_e2e() {
 
 int main() {
     test_let_statement_e2e();
-    [[maybe_unused]] return 0;
+    return 0;
 }

@@ -84,5 +84,5 @@ int main() {
     test_long_division();
     test_property_addition_subtraction();
     std::cout << "T81BigInt V1 Baseline Tests Passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

@@ -40,5 +40,5 @@ int main() {
     assert((a ^ b).to_signed().to_int64() == 6);
 
     // All T81Uint tests PASSED!
-    [[maybe_unused]] return 0;
+    return 0;
 }

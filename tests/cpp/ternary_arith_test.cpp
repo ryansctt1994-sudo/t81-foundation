@@ -68,5 +68,5 @@ int main() {
   }
 
   std::cout << "ternary_arith ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

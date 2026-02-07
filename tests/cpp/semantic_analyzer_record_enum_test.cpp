@@ -13,7 +13,7 @@ int main() {
         fn main() -> i32 {
             let p: Point = Point { x: 1; y: 2; };
             let sum: i32 = p.x + p.y;
-            [[maybe_unused]] return sum;
+            return sum;
         }
     )";
     expect_semantic_success(simple_record, "simple_record");
@@ -26,7 +26,7 @@ int main() {
 
         fn main() -> i32 {
             let p: Point = Point { x: 1 };
-            [[maybe_unused]] return 0;
+            return 0;
         }
     )";
     expect_semantic_failure(missing_field, "missing_field", "missing field 'y'");
@@ -39,7 +39,7 @@ int main() {
 
         fn main() -> i32 {
             let p: Point = Point { x: 1; y: 2; z: 3 };
-            [[maybe_unused]] return 0;
+            return 0;
         }
     )";
     expect_semantic_failure(unknown_field, "unknown_field", "has no field 'z'");
@@ -52,7 +52,7 @@ int main() {
 
         fn main() -> i32 {
             let p: Point = Point { x: 1; x: 2; y: 3 };
-            [[maybe_unused]] return 0;
+            return 0;
         }
     )";
     expect_semantic_failure(duplicate_field, "duplicate_field", "is provided more than once");
@@ -65,7 +65,7 @@ int main() {
 
         fn main() -> i32 {
             let p: Point = Point { x: 1.5; y: 2 };
-            [[maybe_unused]] return 0;
+            return 0;
         }
     )";
     expect_semantic_failure(type_mismatch, "type_mismatch", "Cannot assign 'T81Float' to field 'x' of type 'i32'");
@@ -77,7 +77,7 @@ int main() {
         }
 
         fn main() -> i32 {
-            [[maybe_unused]] return 0;
+            return 0;
         }
     )";
     expect_semantic_success(enum_definition, "enum_definition");
@@ -89,11 +89,11 @@ int main() {
         }
 
         fn main() -> i32 {
-            [[maybe_unused]] return 0;
+            return 0;
         }
     )";
     expect_semantic_failure(enum_duplicate_variant, "enum_duplicate_variant", "already exists in enum");
 
     std::cout << "Semantic analyzer record/enum tests passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

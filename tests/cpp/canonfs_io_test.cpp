@@ -29,5 +29,5 @@ int main() {
   assert(!t81::canonfs_io::permissions_allow(got.permissions, CANON_PERM_ADMIN));
 
   std::cout << "canonfs_io ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

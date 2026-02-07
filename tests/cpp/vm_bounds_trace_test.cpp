@@ -9,10 +9,10 @@
 static bool contains_reason(const t81::vm::State& state, std::string_view substring) {
   for (const auto& entry : state.axion_log) {
     if (entry.verdict.reason.find(substring) != std::string::npos) {
-      [[maybe_unused]] return true;
+      return true;
     }
   }
-  [[maybe_unused]] return false;
+  return false;
 }
 
 static int run_and_expect(std::vector<t81::tisc::Insn> insns,
@@ -26,16 +26,16 @@ static int run_and_expect(std::vector<t81::tisc::Insn> insns,
   if (!result) {
     if (result.error() != expected) {
       std::cerr << "Unexpected trap: " << static_cast<int>(result.error()) << "\n";
-      [[maybe_unused]] return 1;
+      return 1;
     }
     if (!contains_reason(vm->state(), reason_substr)) {
       std::cerr << "Missing Axion reason '" << reason_substr << "'\n";
-      [[maybe_unused]] return 1;
+      return 1;
     }
-    [[maybe_unused]] return 0;
+    return 0;
   }
   std::cerr << "Expected trap but execution succeeded\n";
-  [[maybe_unused]] return 1;
+  return 1;
 }
 
 int main() {
@@ -51,7 +51,7 @@ int main() {
     stack_program.push_back(halt);
   }
   if (run_and_expect(stack_program, t81::vm::Trap::StackFault, "bounds fault segment=stack") != 0) {
-    [[maybe_unused]] return 1;
+    return 1;
   }
 
   [[maybe_unused]] std::vector<t81::tisc::Insn> heap_program;
@@ -66,7 +66,7 @@ int main() {
     heap_program.push_back(halt);
   }
   if (run_and_expect(heap_program, t81::vm::Trap::BoundsFault, "bounds fault segment=heap") != 0) {
-    [[maybe_unused]] return 1;
+    return 1;
   }
 
   [[maybe_unused]] std::vector<t81::tisc::Insn> tensor_program;
@@ -91,8 +91,8 @@ int main() {
     tensor_program.push_back(halt);
   }
   if (run_and_expect(tensor_program, t81::vm::Trap::DecodeFault, "bounds fault segment=tensor") != 0) {
-    [[maybe_unused]] return 1;
+    return 1;
   }
 
-  [[maybe_unused]] return 0;
+  return 0;
 }

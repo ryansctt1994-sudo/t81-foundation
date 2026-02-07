@@ -28,5 +28,5 @@ int main() {
     static_assert(t4t.shape()[3] == 2);
 
     std::cout << "T81Tensor transpose static tests passed!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

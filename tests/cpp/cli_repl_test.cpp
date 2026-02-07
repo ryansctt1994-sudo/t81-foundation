@@ -53,7 +53,7 @@ int main() {
   {
     std::ofstream load_file(load_path);
     load_file << R"(fn helper() -> i32 {
-    [[maybe_unused]] return 42;
+    return 42;
 }
 )";
   }
@@ -62,7 +62,7 @@ int main() {
 
   [[maybe_unused]] std::ostringstream script;
   script << R"(fn main() -> i32 {
-    [[maybe_unused]] return 123;
+    return 123;
 }
 
 )";
@@ -114,5 +114,5 @@ int main() {
 
   fs::remove(load_path, ignore_ec);
   fs::remove(save_path, ignore_ec);
-  [[maybe_unused]] return 0;
+  return 0;
 }

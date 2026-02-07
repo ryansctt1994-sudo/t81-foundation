@@ -46,12 +46,12 @@ int main() {
             @bounded(100)
             loop {
                 if (i == 10) {
-                    [[maybe_unused]] return sum;
+                    return sum;
                 }
                 sum = sum + i;
                 i = i + 1;
             }
-            [[maybe_unused]] return sum;
+            return sum;
         }
     )";
 
@@ -59,5 +59,5 @@ int main() {
     assert(result == 45);
 
     std::cout << "E2E loop statement test passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

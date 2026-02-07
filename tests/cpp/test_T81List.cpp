@@ -44,6 +44,6 @@ int main() {
     assert(list.hash() == same.hash());
 
     std::cout << "All T81List tests PASSED!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }
 

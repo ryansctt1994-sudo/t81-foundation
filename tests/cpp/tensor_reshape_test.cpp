@@ -37,5 +37,5 @@ int main() {
   threw = false;
   try { (void)t81::ops::reshape(m, {4,2}); } catch (const std::invalid_argument&) { threw = true; }
   assert(threw); std::cout << "tensor_reshape ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

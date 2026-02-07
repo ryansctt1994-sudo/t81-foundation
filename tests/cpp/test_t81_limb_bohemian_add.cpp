@@ -16,7 +16,7 @@ T81Limb RandomLimb(std::mt19937_64& rng,
   for (int idx = 0; idx < T81Limb::TRYTES; ++idx) {
     limb.set_tryte(idx, static_cast<int8_t>(dist(rng)));
   }
-  [[maybe_unused]] return limb;
+  return limb;
 }
 
 void Dump(const T81Limb& limb, const char* label) {
@@ -58,5 +58,5 @@ int main() {
   }
 
   std::cout << "t81::core bohemian_add matches operator+ for all checked inputs\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

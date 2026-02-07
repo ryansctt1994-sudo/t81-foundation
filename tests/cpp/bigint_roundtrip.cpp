@@ -178,5 +178,5 @@ int main() {
     test_base81_roundtrip();
     test_pow_basic_cases();
 
-    [[maybe_unused]] return 0;
+    return 0;
 }

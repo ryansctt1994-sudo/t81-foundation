@@ -31,6 +31,6 @@ int main() {
   std::string roundtrip(reinterpret_cast<char*>(buffer.data()), buffer.size());
   assert(roundtrip == payload);
 
-  [[maybe_unused]] return 0;
+  return 0;
 }
 

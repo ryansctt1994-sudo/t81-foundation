@@ -71,5 +71,5 @@ int main() {
   assert(verdict_allow.kind == VerdictKind::Allow);
 
   std::cout << "axion_façade tests ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

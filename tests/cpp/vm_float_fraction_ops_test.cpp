@@ -131,5 +131,5 @@ int main() {
     assert(vm->state().flags.negative == false);
   }
 
-  [[maybe_unused]] return 0;
+  return 0;
 }

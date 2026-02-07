@@ -7,7 +7,7 @@
 #include <string>
 
 int main() {
-    [[maybe_unused]] namespace fs= std::filesystem;
+    namespace fs= std::filesystem;
     std::string header = R"(
 {"tensor":{"dtype":"F32","shape":[128],"data_offsets":[0],"data_lengths":[512]}}
 )";
@@ -26,7 +26,7 @@ int main() {
     std::ofstream out(safetensors, std::ios::binary);
     if (!out) {
         std::cerr << "unable to create safetensors stub\n";
-        [[maybe_unused]] return 1;
+        return 1;
     }
     [[maybe_unused]] uint64_t header_len= static_cast<uint64_t>(header.size());
     out.write(reinterpret_cast<const char*>(&header_len), sizeof(header_len));
@@ -42,14 +42,14 @@ int main() {
     } catch (const std::exception& e) {
         std::cerr << "quantize failed: " << e.what() << '\n';
         cleanup();
-        [[maybe_unused]] return 1;
+        return 1;
     }
 
     if (!fs::exists(output) || fs::file_size(output) == 0) {
         std::cerr << "output GGUF missing or empty\n";
         cleanup();
-        [[maybe_unused]] return 1;
+        return 1;
     }
     cleanup();
-    [[maybe_unused]] return 0;
+    return 0;
 }

@@ -46,7 +46,7 @@ int main() {
                 Some(value) => value,
                 None => 42
             };
-            [[maybe_unused]] return result;
+            return result;
         }
     )";
 
@@ -54,5 +54,5 @@ int main() {
     assert(result == 123);
 
     std::cout << "E2E match expression test passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

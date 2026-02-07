@@ -87,5 +87,5 @@ int main() {
                   assert(state.symbols[handle - 1] == "omega");
                 });
 
-  [[maybe_unused]] return 0;
+  return 0;
 }

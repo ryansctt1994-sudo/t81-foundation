@@ -11,7 +11,7 @@ static bool eq(const Insn& a, const Insn& b) {
   if (a.ops != b.ops) return false;
   if (a.imm != b.imm) return false;
   if (a.flags != b.flags) return false;
-  [[maybe_unused]] return true;
+  return true;
 }
 
 int main() {
@@ -57,5 +57,5 @@ int main() {
   }
 
   std::cout << "ir_encoding (expanded) ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

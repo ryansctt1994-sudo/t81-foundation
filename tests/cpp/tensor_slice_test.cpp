@@ -47,5 +47,5 @@ int main() {
   assert(bad); bad = false;
   try { (void)t81::ops::slice2d(m, 0, 1, 3, 2); } catch (const std::invalid_argument&) { bad = true; }
   assert(bad); std::cout << "tensor_slice ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

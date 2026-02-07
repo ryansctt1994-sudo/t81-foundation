@@ -55,5 +55,5 @@ int main() {
         assert(dec == bytes);
     }
 
-    [[maybe_unused]] return 0;
+    return 0;
 }

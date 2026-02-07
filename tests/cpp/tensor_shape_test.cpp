@@ -85,5 +85,5 @@ int main() {
     assert(threw); }
 
   std::cout << "tensor_shape ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

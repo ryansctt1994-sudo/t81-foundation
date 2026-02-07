@@ -49,6 +49,6 @@ int main() {
     assert(chained.unwrap().to_int64() == 84);
 
     // All T81Result tests PASSED!
-    [[maybe_unused]] return 0;
+    return 0;
 }
 

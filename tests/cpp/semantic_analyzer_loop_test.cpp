@@ -66,7 +66,7 @@ std::vector<std::unique_ptr<Stmt>> parse_statements(const std::string& source) {
         std::cerr << "Parser failed while analyzing nested fixture" << std::endl;
         std::exit(1);
     }
-    [[maybe_unused]] return stmts;
+    return stmts;
 }
 
 int main() {
@@ -74,7 +74,7 @@ int main() {
         fn main() -> i32 {
             @bounded(infinite)
             loop {
-                [[maybe_unused]] return 0;
+                return 0;
             }
         }
     )";
@@ -84,7 +84,7 @@ int main() {
         fn main() -> i32 {
             @bounded(5)
             loop {
-                [[maybe_unused]] return 0;
+                return 0;
             }
         }
     )";
@@ -93,7 +93,7 @@ int main() {
     const std::string missing_annotation = R"(
         fn main() -> i32 {
             loop {
-                [[maybe_unused]] return 0;
+                return 0;
             }
         }
     )";
@@ -103,7 +103,7 @@ int main() {
         fn main() -> i32 {
             @bounded(0)
             loop {
-                [[maybe_unused]] return 0;
+                return 0;
             }
         }
     )";
@@ -116,7 +116,7 @@ int main() {
             loop {
                 counter = counter + 1;
                 if (counter == 5) {
-                    [[maybe_unused]] return counter;
+                    return counter;
                 }
             }
         }
@@ -128,7 +128,7 @@ int main() {
             var value: i32 = 0;
             @bounded(loop(value))
             loop {
-                [[maybe_unused]] return value;
+                return value;
             }
         }
     )";
@@ -152,7 +152,7 @@ int main() {
         fn run_forever(v: i32) -> i32 {
             @bounded(infinite)
             loop {
-                [[maybe_unused]] return v;
+                return v;
             }
         }
 
@@ -170,14 +170,14 @@ int main() {
         const auto& loops = fixture.analyzer.loop_metadata();
         if (loops.size() != 1) {
             std::cerr << "Expected one guard loop metadata entry but found " << loops.size() << std::endl;
-            [[maybe_unused]] return 1;
+            return 1;
         }
         const auto& guard_meta = loops[0];
         if (guard_meta.bound_kind != LoopStmt::BoundKind::Guarded ||
             !guard_meta.guard_present ||
             guard_meta.bound_value.has_value()) {
             std::cerr << "Guard loop metadata missing guard annotation" << std::endl;
-            [[maybe_unused]] return 1;
+            return 1;
         }
     }
 
@@ -196,7 +196,7 @@ int main() {
                 }
                 @bounded(3)
                 loop {
-                    [[maybe_unused]] return counter;
+                    return counter;
                 }
             }
         }
@@ -221,10 +221,10 @@ int main() {
         }
         if (loops.size() != 3 || !saw_infinite || !saw_guard || !saw_static) {
             std::cerr << "Nested match loop metadata did not record all variants" << std::endl;
-            [[maybe_unused]] return 1;
+            return 1;
         }
     }
 
     std::cout << "Semantic analyzer loop tests passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

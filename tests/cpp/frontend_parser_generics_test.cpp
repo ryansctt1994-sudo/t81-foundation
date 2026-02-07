@@ -29,5 +29,5 @@ int main() {
     run_test("let x: Tensor[T81Int, 5] = 1;", "(let x: (generic Tensor T81Int 5) = 1)");
     run_test("let x: Tensor[T81Int, 5, 10] = 1;", "(let x: (generic Tensor T81Int 5 10) = 1)");
 
-    [[maybe_unused]] return 0;
+    return 0;
 }

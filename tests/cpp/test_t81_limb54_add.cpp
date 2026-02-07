@@ -17,7 +17,7 @@ std::array<int8_t, T81Limb54::TRITS> RandomTrits(std::mt19937_64& rng) {
   for (auto& trit : trits) {
     trit = static_cast<int8_t>(dist(rng));
   }
-  [[maybe_unused]] return trits;
+  return trits;
 }
 
 std::array<int8_t, T81Limb54::TRITS> AddTrits(
@@ -38,7 +38,7 @@ std::array<int8_t, T81Limb54::TRITS> AddTrits(
       carry = 0;
     }
   }
-  [[maybe_unused]] return sum;
+  return sum;
 }
 
 void Dump(const T81Limb54& limb, const char* label) {
@@ -77,5 +77,5 @@ int main() {
     VerifyMatch(rhs, lhs, "random trial commuted");
   }
   std::cout << "T81Limb54::operator+ matches naive trit addition\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

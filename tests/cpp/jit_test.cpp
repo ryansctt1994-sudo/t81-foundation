@@ -41,5 +41,5 @@ int main() {
     assert(state.registers[3] == 300);
 
     std::cout << "HanoiVM JIT Prototype test passed!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

@@ -79,5 +79,5 @@ int main() {
     test_if_statement_true();
     test_if_statement_false();
     test_if_else_statement();
-    [[maybe_unused]] return 0;
+    return 0;
 }

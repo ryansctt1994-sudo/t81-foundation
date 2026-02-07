@@ -43,5 +43,5 @@ int main() {
     assert(TierAwarePlanner::select_tier(reflection_task) == t81::cog::TierId::Tier4);
 
     std::cout << "Tier 4 Reflection Loop and Planner tests passed!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

@@ -49,5 +49,5 @@ int main() {
   }
 
   std::cout << "entropy ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

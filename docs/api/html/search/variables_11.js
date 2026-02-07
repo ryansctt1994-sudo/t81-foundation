@@ -1,0 +1,23 @@
+var searchData=
+[
+  ['r_0',['r',['../d0/d12/structt81_1_1_div_mod_result.html#a0cb9f59f7172cea78b5486e1ebf52591',1,'t81::DivModResult']]],
+  ['re_1',['re',['../de/def/classt81_1_1_t81_complex.html#a86d6c0d37f745c5eed37b8c89bd6a8c0',1,'t81::T81Complex']]],
+  ['reason_2',['reason',['../d4/d79/structt81_1_1axion_1_1_policy_1_1_axion_event_requirement.html#a7aac4f04d83a26f6352e02bbbab2558b',1,'t81::axion::Policy::AxionEventRequirement::reason'],['../d3/de9/structt81_1_1axion_1_1_policy_1_1_alignment_requirement.html#a2a0c15f3854b3e449761f0acce5f5aa4',1,'t81::axion::Policy::AlignmentRequirement::reason'],['../d5/d4c/structt81_1_1axion_1_1_verdict.html#a48c1c2efb60b52aeeea7f8e282ef5464',1,'t81::axion::Verdict::reason'],['../d6/d96/structt81_1_1canonfs_1_1_axion_verdict.html#ac3842fbc583daa7abdf0f834dbcb6d66',1,'t81::canonfs::AxionVerdict::reason'],['../de/d97/structt81_1_1cog_1_1v1_1_1_reflection_trace.html#a53925a5ac27960aa2fc37f75b4d577d8',1,'t81::cog::v1::ReflectionTrace::reason']]],
+  ['record_5fbindings_3',['record_bindings',['../d7/d62/structt81_1_1frontend_1_1_match_pattern.html#a0674ddf1309865a8e53b2f135edb68f2',1,'t81::frontend::MatchPattern']]],
+  ['recursion_5fdepth_4',['recursion_depth',['../d6/d6f/structt81_1_1axion_1_1_syscall_context.html#ac4095363627fe0121d38fba1821ce907',1,'t81::axion::SyscallContext']]],
+  ['ref_5',['ref',['../db/d74/structt81_1_1canonfs_1_1_canon_link.html#a2ee386ea34ecb36bc0542c4102ae26a8',1,'t81::canonfs::CanonLink']]],
+  ['register_5ftags_6',['register_tags',['../d4/d3c/structt81_1_1vm_1_1_state.html#aeae081cc371b25d9865f56d381d5c3e7',1,'t81::vm::State']]],
+  ['registers_7',['registers',['../d4/d3c/structt81_1_1vm_1_1_state.html#a3c6f454a81378b5d4e73051adee77124',1,'t81::vm::State']]],
+  ['registry_5fmutex_8',['registry_mutex',['../d7/df6/namespacet81.html#a73a72c9e199d95425003dd757faf1288',1,'t81']]],
+  ['relation_9',['relation',['../dd/d37/structt81_1_1tisc_1_1ir_1_1_instruction.html#ae618ba935e9b903baa1dcbbcb5de9a3c',1,'t81::tisc::ir::Instruction']]],
+  ['requests_10',['requests',['../d2/d05/structt81_1_1axion_1_1_telemetry.html#af679b1b472873dbee5d8990e5b2d545e',1,'t81::axion::Telemetry']]],
+  ['requires_5fself_5freflection_11',['requires_self_reflection',['../d6/d97/structt81_1_1cog_1_1v1_1_1_task_metadata.html#a83948059536f7c41af4c11e2f4f48dc6',1,'t81::cog::v1::TaskMetadata']]],
+  ['resource_5flimit_12',['resource_limit',['../d6/d97/structt81_1_1cog_1_1v1_1_1_task_metadata.html#a138d197652bbc913b1f702b94acc6c0d',1,'t81::cog::v1::TaskMetadata']]],
+  ['result_13',['result',['../d5/df3/structt81_1_1axion_1_1_policy_1_1_match_guard_requirement.html#ae03eeb46b9c1b9ff36247a2c1e8bb149',1,'t81::axion::Policy::MatchGuardRequirement']]],
+  ['result_5ftype_14',['result_type',['../d5/d58/structt81_1_1frontend_1_1_semantic_analyzer_1_1_match_metadata.html#a545186eb730f5d3cab17a782fc58e512',1,'t81::frontend::SemanticAnalyzer::MatchMetadata']]],
+  ['results_15',['results',['../d4/d3c/structt81_1_1vm_1_1_state.html#a5cfb869f6c3d6ea56b25e69dcce28838',1,'t81::vm::State']]],
+  ['return_5ftype_16',['return_type',['../dd/d32/structt81_1_1frontend_1_1_function_stmt.html#af25ba6f36bbd015e3ce4850892f14887',1,'t81::frontend::FunctionStmt::return_type'],['../dc/d94/structt81_1_1lang_1_1_function.html#a125a880f09e9fe4e3495af6fa8fe5473',1,'t81::lang::Function::return_type']]],
+  ['rhs_17',['rhs',['../d7/d1a/structt81_1_1lang_1_1_expr_binary.html#a4e10b81dfdba08a987e1871afec6b816',1,'t81::lang::ExprBinary']]],
+  ['right_18',['right',['../d9/d9d/structt81_1_1frontend_1_1_binary_expr.html#a4b4b14a9fdcd43b1cf84021528f293d4',1,'t81::frontend::BinaryExpr::right'],['../d8/d99/structt81_1_1frontend_1_1_unary_expr.html#aba8e926babe4d4cec6735e2f90b7fb29',1,'t81::frontend::UnaryExpr::right']]],
+  ['rows_19',['rows',['../d1/db5/classt81_1_1_t81_matrix.html#a8b85d346bdf301a60e08768f8544cd71',1,'t81::T81Matrix']]]
+];

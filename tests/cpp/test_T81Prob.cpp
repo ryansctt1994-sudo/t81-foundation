@@ -37,5 +37,5 @@ int main() {
     assert(p05 == p05);
 
     std::cout << "All T81Prob tests PASSED!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

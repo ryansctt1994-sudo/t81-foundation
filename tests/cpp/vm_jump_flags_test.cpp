@@ -75,5 +75,5 @@ int main() {
     assert(vm->state().registers[2] == 7);
   }
 
-  [[maybe_unused]] return 0;
+  return 0;
 }

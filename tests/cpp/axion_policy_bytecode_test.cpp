@@ -37,5 +37,5 @@ int main() {
     assert(v2.kind == VerdictKind::Deny);
 
     std::cout << "Axion Policy Bytecode test passed!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

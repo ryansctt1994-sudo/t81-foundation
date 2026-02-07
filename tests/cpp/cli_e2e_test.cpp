@@ -18,7 +18,7 @@ int main() {
         std::ofstream out(t81_file);
         out << R"(
             fn main() -> i32 {
-                [[maybe_unused]] return 42;
+                return 42;
             }
         )";
     }
@@ -36,5 +36,5 @@ int main() {
     fs::remove(tisc_file);
 
     std::cout << "CLI e2e test passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

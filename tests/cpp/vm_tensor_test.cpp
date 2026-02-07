@@ -88,5 +88,5 @@ int main() {
   assert(vm_chk->state().registers[3] == 1);
   assert(vm_chk->state().registers[5] == 0);
 
-  [[maybe_unused]] return 0;
+  return 0;
 }

@@ -48,11 +48,11 @@ int main() {
         fn main() -> T81Float {
             let big: T81BigInt = 123456;
             let result: T81Float = big + 1.20t81;
-            [[maybe_unused]] return result;
+            return result;
         }
     )";
     expect_semantic_success(bigint_float_success, "bigint_float_success");
 
     std::cout << "Semantic analyzer numeric rules tests passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

@@ -17,14 +17,14 @@ int main() {
               Red => 0;
               Blue(v) if v > 10 => v;
           };
-          [[maybe_unused]] return 0;
+          return 0;
       }
   )";
 
   [[maybe_unused]] auto program_opt= t81::cli::build_program_from_source(std::string(source), "<policy-match>");
   if (!program_opt) {
     std::cerr << "Failed to compile policy match program\n";
-    [[maybe_unused]] return 1;
+    return 1;
   }
 
   [[maybe_unused]] auto program= *program_opt;
@@ -43,7 +43,7 @@ int main() {
   [[maybe_unused]] auto result= vm->run_to_halt();
   if (!result) {
     std::cerr << "Guard policy run trapped: " << static_cast<int>(result.error()) << '\n';
-    [[maybe_unused]] return 1;
+    return 1;
   }
 
   [[maybe_unused]] auto program_fail= *program_opt;
@@ -61,12 +61,12 @@ int main() {
   [[maybe_unused]] auto fail_result= vm_fail->run_to_halt();
   if (fail_result.has_value()) {
     std::cerr << "Policy guard failure did not trap\n";
-    [[maybe_unused]] return 1;
+    return 1;
   }
   if (fail_result.error() != t81::vm::Trap::SecurityFault) {
     std::cerr << "Expected security fault, got " << static_cast<int>(fail_result.error()) << '\n';
-    [[maybe_unused]] return 1;
+    return 1;
   }
 
-  [[maybe_unused]] return 0;
+  return 0;
 }

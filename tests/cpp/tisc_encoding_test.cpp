@@ -35,5 +35,5 @@ int main() {
     assert(bad.error() == EncodingError::InvalidOpcode);
   }
 
-  [[maybe_unused]] return 0;
+  return 0;
 }

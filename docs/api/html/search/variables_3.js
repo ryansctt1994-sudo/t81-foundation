@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['c_0',['c',['../d1/d4d/structt81_1_1tisc_1_1_insn.html#a457467e79c1b0976fd19da703b7d343d',1,'t81::tisc::Insn']]],
+  ['callee_1',['callee',['../da/db4/structt81_1_1frontend_1_1_call_expr.html#ab2b4f6aa17015fd4ba4f7b0e03afb87f',1,'t81::frontend::CallExpr::callee'],['../d1/dac/structt81_1_1lang_1_1_expr_call.html#a2bdf7c6ed71802ae38ef4d0dba62cc9e',1,'t81::lang::ExprCall::callee']]],
+  ['caller_2',['caller',['../d6/d6f/structt81_1_1axion_1_1_syscall_context.html#a0b9461a981fd4e50ef5bd7d87acb1169',1,'t81::axion::SyscallContext']]],
+  ['carry_3',['carry',['../d5/daa/structt81_1_1simd_1_1_add_entry.html#a85e371990b03b3f70330f6a9f51400e8',1,'t81::simd::AddEntry']]],
+  ['carry_5ffrom_5fzero_4',['CARRY_FROM_ZERO',['../d8/da9/namespacet81_1_1core_1_1detail.html#a73f87f4677bc7396430a058c2dafad9c',1,'t81::core::detail']]],
+  ['carry_5fout_5',['carry_out',['../d4/d10/structt81_1_1simd_1_1_byte_carry_map.html#a7de690b7f5809004c7a04dca0c1e8789',1,'t81::simd::ByteCarryMap']]],
+  ['checksum_6',['checksum',['../d3/d60/structt81_1_1weights_1_1_model_file.html#a874d191ffddee38c706f9f33a7acc881',1,'t81::weights::ModelFile']]],
+  ['civilization_7',['CIVILIZATION',['../d3/db6/namespacet81_1_1genesis.html#a38d33c665ffedf3d01d4d175e1cdebd5',1,'t81::genesis']]],
+  ['code_8',['code',['../da/d89/structt81_1_1_t81_error.html#aff04f190fd77667a1e690f925101fd73',1,'t81::T81Error::code'],['../d7/df4/structt81_1_1vm_1_1_memory_layout.html#ad8b39a929200f12ef5b27b1dc04a3838',1,'t81::vm::MemoryLayout::code']]],
+  ['coherence_9',['coherence',['../d3/d10/structt81_1_1cog_1_1_metrics.html#a387ed94190dfde168100378b7fce8efb',1,'t81::cog::Metrics']]],
+  ['cols_10',['cols',['../d1/db5/classt81_1_1_t81_matrix.html#ac774eade53390c84c2b262b1f7e9f884',1,'t81::T81Matrix']]],
+  ['column_11',['column',['../d4/dff/structt81_1_1axion_1_1_policy_1_1_loop_hint.html#a80f14d88538a1e36ad2034f98f3ef727',1,'t81::axion::Policy::LoopHint::column'],['../dc/d31/structt81_1_1frontend_1_1_token.html#a779c0f859516ba4cef7c4b923e6a1a76',1,'t81::frontend::Token::column'],['../d6/d38/structt81_1_1frontend_1_1_diagnostic.html#ae995504ac6330ddfbc6140c6c6b9746b',1,'t81::frontend::Diagnostic::column']]],
+  ['command_12',['command',['../d5/dca/struct_args.html#abc3cfeca26c2a8235cb39e0a4f6dae81',1,'Args']]],
+  ['command_5fargs_13',['command_args',['../d5/dca/struct_args.html#a9369b8492ad0e8dabec6453fa6b9c53b',1,'Args']]],
+  ['complexity_14',['complexity',['../d6/d97/structt81_1_1cog_1_1v1_1_1_task_metadata.html#ac0e91f803f55f94283dedd00ecd98d68',1,'t81::cog::v1::TaskMetadata']]],
+  ['composition_5fflat_15',['COMPOSITION_FLAT',['../d8/da9/namespacet81_1_1core_1_1detail.html#a6f2e2ab5cdf9e10d029cdbaddd113431',1,'t81::core::detail']]],
+  ['composition_5ftable_16',['COMPOSITION_TABLE',['../d8/da9/namespacet81_1_1core_1_1detail.html#a283e3adf18a2dcc62e7156379d2a7d4b',1,'t81::core::detail']]],
+  ['condition_17',['condition',['../d0/d86/structt81_1_1frontend_1_1_if_stmt.html#acf64fa32674a0f5b1e41fb297ea60fe0',1,'t81::frontend::IfStmt::condition'],['../d8/db6/structt81_1_1frontend_1_1_while_stmt.html#a126804a81285dface3bc2b42b8fb9f03',1,'t81::frontend::WhileStmt::condition'],['../d0/d7b/structt81_1_1lang_1_1_statement_if.html#aa5c99c8c7a5f2c85d238e94772501877',1,'t81::lang::StatementIf::condition']]],
+  ['confidence_18',['confidence',['../d6/df7/structt81_1_1cog_1_1v1_1_1_self_model.html#a0d989f799e21ffb44dfa44b344655179',1,'t81::cog::v1::SelfModel::confidence'],['../de/d97/structt81_1_1cog_1_1v1_1_1_reflection_trace.html#ad7a36072d33aa41f5633d2ecfe164446',1,'t81::cog::v1::ReflectionTrace::confidence']]],
+  ['cout_19',['cout',['../df/dc9/structt81_1_1core_1_1detail_1_1_add_entry.html#ab52b956e40fea917d306da927385484b',1,'t81::core::detail::AddEntry']]],
+  ['current_20',['current',['../d6/d3a/structt81_1_1cog_1_1_tier_status.html#aaedd9b9fc52cc2f5c373b96ceb05d1af',1,'t81::cog::TierStatus']]],
+  ['current_5fgoal_21',['current_goal',['../d6/df7/structt81_1_1cog_1_1v1_1_1_self_model.html#acceef93f037a0cebcd81e9f7e6c8ec6c',1,'t81::cog::v1::SelfModel']]],
+  ['current_5fvalue_22',['current_value',['../d1/d21/structt81_1_1_t81_stream_1_1promise__type.html#a83563387f45e8198bbf6d47f7b76920a',1,'t81::T81Stream::promise_type']]],
+  ['custom_5fname_23',['custom_name',['../da/d8f/structt81_1_1frontend_1_1_type.html#a09febb527c9cc34c290f284d7c1cbfab',1,'t81::frontend::Type']]]
+];

@@ -41,5 +41,5 @@ int main() {
     threw = true;
   }
   assert(threw); std::cout << "tensor_broadcast ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

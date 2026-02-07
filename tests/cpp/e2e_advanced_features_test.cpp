@@ -57,7 +57,7 @@ void test_while_break() {
                 }
                 i = i + 1;
             }
-            [[maybe_unused]] return i;
+            return i;
         }
     )";
     [[maybe_unused]] int64_t result= run_e2e_test(source);
@@ -144,5 +144,5 @@ int main() {
     test_match_guards();
     test_custom_enum_match();
     std::cout << "All advanced E2E tests passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

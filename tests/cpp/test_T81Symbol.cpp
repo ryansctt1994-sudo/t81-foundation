@@ -38,6 +38,6 @@ int main() {
     assert(sym1 >= sym1);
 
     std::cout << "All T81Symbol tests PASSED!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }
 

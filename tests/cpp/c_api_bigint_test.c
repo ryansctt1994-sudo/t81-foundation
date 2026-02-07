@@ -20,5 +20,5 @@ int main(void) {
   t81_bigint_free(h);
 
   puts("c_api_bigint ok");
-  [[maybe_unused]] return 0;
+  return 0;
 }

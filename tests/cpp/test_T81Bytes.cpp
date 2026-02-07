@@ -100,5 +100,5 @@ int main() {
     }
 
     std::cout << "All T81Bytes tests PASSED!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

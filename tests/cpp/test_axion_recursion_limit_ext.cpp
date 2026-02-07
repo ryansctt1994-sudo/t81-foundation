@@ -38,5 +38,5 @@ void test_recursion_limit() {
 
 int main() {
     test_recursion_limit();
-    [[maybe_unused]] return 0;
+    return 0;
 }

@@ -14,7 +14,7 @@ std::vector<std::byte> make_bytes(std::string_view str) {
   for (const char c : str) {
     bytes.push_back(static_cast<std::byte>(c));
   }
-  [[maybe_unused]] return bytes;
+  return bytes;
 }
 
 int main() {
@@ -62,5 +62,5 @@ int main() {
   if (read_again.value() != read_res.value()) return 1;
 
   std::filesystem::remove_all(root);
-  [[maybe_unused]] return 0;
+  return 0;
 }

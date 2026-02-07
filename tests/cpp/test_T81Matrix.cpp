@@ -12,8 +12,8 @@ using namespace t81;
 int main() {
     std::cout << "Running T81Matrix tests...\n";
 
-    [[maybe_unused]] using Scalar= T81Float<72,9>;
-    [[maybe_unused]] using Mat= T81Matrix<Scalar, 3, 3>;
+    using Scalar= T81Float<72,9>;
+    using Mat= T81Matrix<Scalar, 3, 3>;
 
     // Pre-constructed scalars so equality is purely "same ternary value"
     const Scalar one   = Scalar::from_double(1.0);
@@ -98,5 +98,5 @@ int main() {
     }
 
     std::cout << "All T81Matrix tests PASSED!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

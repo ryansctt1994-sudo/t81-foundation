@@ -37,7 +37,7 @@ void test_expected_monadic() {
 
     // or_else
     auto err3 = err2.or_else([](const std::string& /*s*/) -> t81::expected<int, std::string> {
-        [[maybe_unused]] return 0;
+        return 0;
     });
     assert(err3.has_value());
     assert(err3.value() == 0);
@@ -61,5 +61,5 @@ int main() {
     test_expected_monadic();
     test_expected_void();
     std::cout << "expected_test passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

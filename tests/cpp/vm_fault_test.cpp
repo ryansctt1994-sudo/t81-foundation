@@ -72,5 +72,5 @@ int main() {
     [[maybe_unused]] auto trap_store_neg= run_expected_trap({store_neg, halt});
     assert(trap_store_neg == t81::vm::Trap::BoundsFault);
 
-    [[maybe_unused]] return 0;
+    return 0;
 }

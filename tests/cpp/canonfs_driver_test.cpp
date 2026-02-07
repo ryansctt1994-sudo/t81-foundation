@@ -38,5 +38,5 @@ int main() {
   assert(!miss_cap.has_value());
   assert(miss_cap.error() == Error::CapabilityError);
 
-  [[maybe_unused]] return 0;
+  return 0;
 }

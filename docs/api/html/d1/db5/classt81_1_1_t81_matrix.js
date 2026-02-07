@@ -1,0 +1,27 @@
+var classt81_1_1_t81_matrix =
+[
+    [ "const_reference", "d1/db5/classt81_1_1_t81_matrix.html#a5047587ac19bb543d7fba345118b1b08", null ],
+    [ "reference", "d1/db5/classt81_1_1_t81_matrix.html#aa787cc6526e63d49536f6de235f39bc6", null ],
+    [ "value_type", "d1/db5/classt81_1_1_t81_matrix.html#a6ea59d186afcbea7914ad2304374e987", null ],
+    [ "T81Matrix", "d1/db5/classt81_1_1_t81_matrix.html#af04ed6541f745806b33bf7be01467fff", null ],
+    [ "T81Matrix", "d1/db5/classt81_1_1_t81_matrix.html#a696e8a7385d08f78d033005ffb77fe3c", null ],
+    [ "at", "d1/db5/classt81_1_1_t81_matrix.html#aabf7a44342b50feb1ac92b9f9082676f", null ],
+    [ "at", "d1/db5/classt81_1_1_t81_matrix.html#a8f1bbbe6a31f44488165d0b4d36b5f26", null ],
+    [ "operator()", "d1/db5/classt81_1_1_t81_matrix.html#abcbad8d0e9d4e424fa1dee1a91519599", null ],
+    [ "operator()", "d1/db5/classt81_1_1_t81_matrix.html#a1748e7775c3527f1f303ec9829208eb5", null ],
+    [ "operator*", "d1/db5/classt81_1_1_t81_matrix.html#a0e8a01463ce42752c642c94658b8bec8", null ],
+    [ "operator+", "d1/db5/classt81_1_1_t81_matrix.html#ab8ad49d32c9f1eb669986388aa754e18", null ],
+    [ "operator-", "d1/db5/classt81_1_1_t81_matrix.html#ae1ba9cd0495cc8bfe43e3163cf9b3012", null ],
+    [ "operator-", "d1/db5/classt81_1_1_t81_matrix.html#aad2d6da3f276cb37329d9c21202c01b4", null ],
+    [ "operator<=>", "d1/db5/classt81_1_1_t81_matrix.html#a4ac4945d054c4a89b96786478abc8450", null ],
+    [ "operator==", "d1/db5/classt81_1_1_t81_matrix.html#ac51a6f32ab8225b9e4c5e74f25cc09d1", null ],
+    [ "row", "d1/db5/classt81_1_1_t81_matrix.html#a58ae38c43b1204e41dd2ffefdda95a5e", null ],
+    [ "row", "d1/db5/classt81_1_1_t81_matrix.html#adcfb6fe761bd9f2929596c914a7e7e7a", null ],
+    [ "transpose", "d1/db5/classt81_1_1_t81_matrix.html#a001f055bacf2ee1b222acd37197ae96d", null ],
+    [ "operator*", "d1/db5/classt81_1_1_t81_matrix.html#a7428b3c8b336073aecda59da2d932fc5", null ],
+    [ "cols", "d1/db5/classt81_1_1_t81_matrix.html#ac774eade53390c84c2b262b1f7e9f884", null ],
+    [ "data", "d1/db5/classt81_1_1_t81_matrix.html#ae644cae925789768d5375f2aa5ed7481", null ],
+    [ "rows", "d1/db5/classt81_1_1_t81_matrix.html#a8b85d346bdf301a60e08768f8544cd71", null ],
+    [ "size", "d1/db5/classt81_1_1_t81_matrix.html#a1f278a0b3b9ae4853f507171ad565bc6", null ],
+    [ "trytes", "d1/db5/classt81_1_1_t81_matrix.html#ac2c0da09ac70071aec4e250fe567b5e7", null ]
+];

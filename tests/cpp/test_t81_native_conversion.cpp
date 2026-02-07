@@ -17,5 +17,5 @@ int main() {
         assert(std::memcmp(&classic, &roundtrip, sizeof(classic)) == 0);
 
     std::cout << "Conversion round-trip (classic ↔ native) OK\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

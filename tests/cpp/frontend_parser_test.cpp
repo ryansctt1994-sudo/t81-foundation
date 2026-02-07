@@ -5,7 +5,7 @@ int main() {
     std::string source = R"(
         fn fib(n: i32) -> i32 {
             if (n < 2) {
-                [[maybe_unused]] return n;
+                return n;
             }
             return fib(n - 1) + fib(n - 2);
         }
@@ -26,7 +26,7 @@ int main() {
         std::cerr << "  Actual   len: " << result.length() << std::endl;
         std::cerr << "  Expected: \"" << expected << "\"" << std::endl;
         std::cerr << "  Actual:   \"" << result << "\"" << std::endl;
-        [[maybe_unused]] return 1;
+        return 1;
     }
 
     std::cout << "Parser test passed!" << std::endl;
@@ -50,10 +50,10 @@ int main() {
         std::cerr << "Loop parser test failed!" << std::endl;
         std::cerr << "  Expected: \"" << loop_expected << "\"" << std::endl;
         std::cerr << "  Actual:   \"" << loop_result << "\"" << std::endl;
-        [[maybe_unused]] return 1;
+        return 1;
     }
 
     std::cout << "Loop parser test passed!" << std::endl;
 
-    [[maybe_unused]] return 0;
+    return 0;
 }

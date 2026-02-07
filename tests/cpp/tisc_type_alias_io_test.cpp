@@ -46,10 +46,10 @@ void test_type_alias_io_roundtrip() {
         if (lhs.size() != rhs.size()) return false;
         for (size_t i = 0; i < lhs.size(); ++i) {
             if (lhs[i].name != rhs[i].name || lhs[i].type != rhs[i].type) {
-                [[maybe_unused]] return false;
+                return false;
             }
         }
-        [[maybe_unused]] return true;
+        return true;
     };
 
     auto matches_variants = [](const std::vector<VariantInfo>& lhs, const std::vector<VariantInfo>& rhs) {
@@ -58,7 +58,7 @@ void test_type_alias_io_roundtrip() {
             if (lhs[i].name != rhs[i].name) return false;
             if (lhs[i].payload != rhs[i].payload) return false;
         }
-        [[maybe_unused]] return true;
+        return true;
     };
 
     for (size_t i = 0; i < program.type_aliases.size(); ++i) {
@@ -84,5 +84,5 @@ void test_type_alias_io_roundtrip() {
 
 int main() {
     test_type_alias_io_roundtrip();
-    [[maybe_unused]] return 0;
+    return 0;
 }

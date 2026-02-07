@@ -75,5 +75,5 @@ int main() {
     fs::remove(tisc_path);
 
     std::cout << "CliOptionResultTest passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

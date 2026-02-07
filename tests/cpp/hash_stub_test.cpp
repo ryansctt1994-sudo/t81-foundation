@@ -82,5 +82,5 @@ int main() {
   }
 
   std::cout << "hash tests ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

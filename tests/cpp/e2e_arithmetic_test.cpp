@@ -103,5 +103,5 @@ int main() {
     test_subtraction();
     test_multiplication();
     test_division();
-    [[maybe_unused]] return 0;
+    return 0;
 }

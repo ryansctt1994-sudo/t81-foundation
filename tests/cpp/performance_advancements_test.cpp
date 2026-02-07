@@ -52,5 +52,5 @@ int main() {
     test_canonfs_cache();
     test_tier4_loop();
     std::cout << "All performance advancement tests passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

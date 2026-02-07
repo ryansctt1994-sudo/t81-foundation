@@ -213,7 +213,7 @@ void test_match_option() {
                 Some(x) => x + 1;
                 None => 0;
             };
-            [[maybe_unused]] return v;
+            return v;
         }
     )";
     Lexer lexer(source);
@@ -299,5 +299,5 @@ int main() {
     test_match_result();
 
     std::cout << "All IRGenerator integration tests completed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

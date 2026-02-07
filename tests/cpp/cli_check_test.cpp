@@ -31,7 +31,7 @@ void write_source(const fs::path& path, std::string_view contents) {
 int main() {
     const std::string minimal_program = R"(
         fn main() -> i32 {
-            [[maybe_unused]] return 0;
+            return 0;
         }
     )";
 
@@ -43,7 +43,7 @@ int main() {
     const std::string broken_program = R"(
         fn main() -> i32 {
             let bad: i8 = 1.5;
-            [[maybe_unused]] return 0;
+            return 0;
         }
     )";
 
@@ -57,7 +57,7 @@ int main() {
 
     if (rc == 0) {
         std::cerr << "Expected `t81 check` to fail on invalid input\n";
-        [[maybe_unused]] return 1;
+        return 1;
     }
     [[maybe_unused]] std::string output= captured.str();
     assert(output.find(broken_path.string()) != std::string::npos);
@@ -66,5 +66,5 @@ int main() {
     fs::remove(broken_path);
 
     std::cout << "CliCheckTest passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

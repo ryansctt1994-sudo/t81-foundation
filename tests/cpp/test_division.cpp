@@ -5,7 +5,7 @@
 using namespace t81;
 
 int main() {
-    [[maybe_unused]] using I= T81Int<32>;
+    using I= T81Int<32>;
 
     assert(I(10) / I(3) == I(3));
     assert(I(-10) / I(3) == I(-3));

@@ -79,5 +79,5 @@ int main() {
     assert(res.error() == vm::Trap::SecurityFault);
   }
 
-  [[maybe_unused]] return 0;
+  return 0;
 }

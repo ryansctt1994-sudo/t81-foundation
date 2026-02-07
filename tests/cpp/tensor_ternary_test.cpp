@@ -76,5 +76,5 @@ int main() {
     test_reductions();
     test_broadcast_ternary();
     std::cout << "All tensor ternary tests passed!" << std::endl;
-    [[maybe_unused]] return 0;
+    return 0;
 }

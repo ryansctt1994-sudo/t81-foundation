@@ -142,5 +142,5 @@ int main() {
     std::cout << "The civilization is alive.\n";
     std::cout << "We are not alone.\n";
 
-    [[maybe_unused]] return 0;
+    return 0;
 }

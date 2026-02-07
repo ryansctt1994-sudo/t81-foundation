@@ -19,14 +19,14 @@ std::vector<t81::tisc::Insn> make_gc_program() {
   t81::tisc::Insn halt{};
   halt.opcode = t81::tisc::Opcode::Halt;
   insns.push_back(halt);
-  [[maybe_unused]] return insns;
+  return insns;
 }
 
 int main() {
   auto build_program = []() {
     [[maybe_unused]] t81::tisc::Program program;
     program.insns = make_gc_program();
-    [[maybe_unused]] return program;
+    return program;
   };
 
   [[maybe_unused]] auto program_ok= build_program();
@@ -45,7 +45,7 @@ int main() {
   [[maybe_unused]] auto result= vm_ok->run_to_halt();
   if (!result) {
     std::cerr << "GC policy run trapped: " << static_cast<int>(result.error()) << '\n';
-    [[maybe_unused]] return 1;
+    return 1;
   }
 
   [[maybe_unused]] auto program_fail= build_program();
@@ -60,12 +60,12 @@ int main() {
   [[maybe_unused]] auto fail_result= vm_fail->run_to_halt();
   if (fail_result.has_value()) {
     std::cerr << "GC policy failure did not trap\n";
-    [[maybe_unused]] return 1;
+    return 1;
   }
   if (fail_result.error() != t81::vm::Trap::SecurityFault) {
     std::cerr << "Expected security fault, got " << static_cast<int>(fail_result.error()) << '\n';
-    [[maybe_unused]] return 1;
+    return 1;
   }
 
-  [[maybe_unused]] return 0;
+  return 0;
 }

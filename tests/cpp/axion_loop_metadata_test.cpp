@@ -33,7 +33,7 @@ int main() {
         fn main() -> i32 {
             @bounded(infinite)
             loop {
-                [[maybe_unused]] return 0;
+                return 0;
             }
         }
     )";
@@ -52,7 +52,7 @@ int main() {
     }
     if (rc != 0) {
         std::cerr << "Failed to compile loop test source\n";
-        [[maybe_unused]] return rc;
+        return rc;
     }
     assert(fs::exists(tisc_path));
     std::cerr << "after compile" << std::endl;
@@ -67,11 +67,11 @@ int main() {
     [[maybe_unused]] auto parsed= t81::axion::parse_policy(compiled.axion_policy_text);
     if (!parsed.has_value()) {
         std::cerr << "parse_policy error: " << parsed.error() << std::endl;
-        [[maybe_unused]] return 1;
+        return 1;
     }
     if (parsed->loops.empty()) {
         std::cerr << "Policy did not preserve loop metadata\n";
-        [[maybe_unused]] return 1;
+        return 1;
     }
     std::cerr << "after parse" << std::endl;
 
@@ -85,11 +85,11 @@ int main() {
     std::cerr << "after load_program" << std::endl;
     if (!vm->state().policy.has_value()) {
         std::cerr << "VM failed to capture policy\n";
-        [[maybe_unused]] return 1;
+        return 1;
     }
     if (vm->state().policy->loops.empty()) {
         std::cerr << "VM policy missing loop hints\n";
-        [[maybe_unused]] return 1;
+        return 1;
     }
     auto run_rc = [&]() {
         try {
@@ -102,7 +102,7 @@ int main() {
     std::cerr << "after run_to_halt" << std::endl;
     if (!run_rc.has_value()) {
         std::cerr << "VM trapped while running loop program\n";
-        [[maybe_unused]] return 1;
+        return 1;
     }
 
     const auto& log = vm->state().axion_log;
@@ -119,7 +119,7 @@ int main() {
     }
     if (!saw_loop_hint) {
         std::cerr << "Axion log did not capture loop hint\n";
-        [[maybe_unused]] return 1;
+        return 1;
     }
 
     fs::remove(src);
@@ -128,9 +128,9 @@ int main() {
     }
 
         std::cout << "Axion loop metadata test passed!" << std::endl;
-        [[maybe_unused]] return 0;
+        return 0;
     } catch (const std::exception& ex) {
         std::cerr << "Axion loop metadata test threw: " << ex.what() << std::endl;
-        [[maybe_unused]] return 1;
+        return 1;
     }
 }

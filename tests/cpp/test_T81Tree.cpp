@@ -10,7 +10,7 @@ using namespace t81;
 template <typename T>
 bool is_leaf(const T81Tree<T>& node) {
     return std::all_of(node.children().begin(), node.children().end(), [](const auto& child) {
-        [[maybe_unused]] return child== nullptr;
+        return child== nullptr;
     });
 }
 
@@ -51,5 +51,5 @@ int main() {
     assert(node->left()->value().to_int64() == 10);
 
     std::cout << "All T81Tree tests PASSED!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

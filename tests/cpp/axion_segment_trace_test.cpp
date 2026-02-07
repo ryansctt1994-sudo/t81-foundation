@@ -86,5 +86,5 @@ int main() {
                   << " reason=\"" << entry.verdict.reason << "\"\n";
     }
 
-    [[maybe_unused]] return 0;
+    return 0;
 }

@@ -16,20 +16,20 @@ int main() {
                 Red => 0;
                 Blue(v) if v > 10 => v;
             };
-            [[maybe_unused]] return 0;
+            return 0;
         }
     )";
 
     [[maybe_unused]] auto program_opt= t81::cli::build_program_from_source(std::string(source), "<axion-e2e>");
     if (!program_opt) {
         std::cerr << "Failed to compile Axion trace program\n";
-        [[maybe_unused]] return 1;
+        return 1;
     }
 
     auto& program = *program_opt;
     if (program.match_metadata_text.find("guard-expr") == std::string::npos) {
         std::cerr << "Match metadata missing guard expression: " << program.match_metadata_text << '\n';
-        [[maybe_unused]] return 1;
+        return 1;
     }
 
     [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
@@ -37,7 +37,7 @@ int main() {
     [[maybe_unused]] auto result= vm->run_to_halt();
     if (!result) {
         std::cerr << "Guard trace VM trapped: " << static_cast<int>(result.error()) << '\n';
-        [[maybe_unused]] return 1;
+        return 1;
     }
 
     [[maybe_unused]] bool saw_match_metadata= false;
@@ -64,9 +64,9 @@ int main() {
                   << "match-metadata=" << saw_match_metadata
                   << " guard-pass=" << saw_guard_pass
                   << " payload-entry=" << saw_payload_entry << '\n';
-        [[maybe_unused]] return 1;
+        return 1;
     }
 
     std::cout << "E2E Axion trace test passed\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

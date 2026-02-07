@@ -43,6 +43,6 @@ int main() {
     assert(str.length() == 3);
 
     std::cout << "All T81String tests PASSED!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }
 

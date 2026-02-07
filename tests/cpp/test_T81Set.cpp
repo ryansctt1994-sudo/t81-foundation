@@ -54,6 +54,6 @@ int main() {
     assert(inter.contains(sym2));
 
     std::cout << "All T81Set tests PASSED!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }
 

@@ -43,19 +43,19 @@ int main() {
   if (!std::any_of(trace.begin(), trace.end(), [](auto& entry) {
         return entry.find("meta slot axion event segment=meta addr=") != std::string::npos;
       })) {
-    [[maybe_unused]] return 1;
+    return 1;
   }
   if (!std::any_of(trace.begin(), trace.end(), [](auto& entry) {
         return entry.find("action=Write") != std::string::npos;
       })) {
-    [[maybe_unused]] return 1;
+    return 1;
   }
   if (!std::any_of(trace.begin(), trace.end(), [](auto& entry) {
         return entry.find("action=Read") != std::string::npos;
       })) {
-    [[maybe_unused]] return 1;
+    return 1;
   }
 
   std::filesystem::remove_all(workdir);
-  [[maybe_unused]] return 0;
+  return 0;
 }

@@ -33,5 +33,5 @@ int main() {
   assert(d[5] == 6);
 
   std::cout << "tensor_transpose ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

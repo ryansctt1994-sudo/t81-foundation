@@ -8,7 +8,7 @@ using namespace t81;
 int main() {
     std::cout << "Running T81Quaternion tests...\n";
 
-    [[maybe_unused]] using Scalar= T81Quaternion::Scalar;
+    using Scalar= T81Quaternion::Scalar;
 
     // Identity quaternion
     [[maybe_unused]] T81Quaternion id= T81Quaternion::identity();
@@ -48,5 +48,5 @@ int main() {
     assert(prod.w().to_double() > 0.9 && prod.w().to_double() < 1.1);
 
     std::cout << "All T81Quaternion tests PASSED!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }

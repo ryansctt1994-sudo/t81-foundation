@@ -44,5 +44,5 @@ int main() {
     (void)t81::ops::matmul(A, A); // 2x3 · 2x3 invalid
   } catch (const std::invalid_argument&) { threw = true; }
   assert(threw); std::cout << "tensor_matmul ok\n";
-  [[maybe_unused]] return 0;
+  return 0;
 }

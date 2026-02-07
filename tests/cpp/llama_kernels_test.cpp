@@ -53,5 +53,5 @@ int main() {
         std::cout << "Softmax ok\n";
     }
 
-    [[maybe_unused]] return 0;
+    return 0;
 }

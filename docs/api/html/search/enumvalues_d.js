@@ -1,0 +1,20 @@
+var searchData=
+[
+  ['ok_0',['Ok',['../d5/d95/namespacet81_1_1axion.html#af06bdb7603932e3c2dd9d7c22beb9b1baa60852f204ed8028c1c58808b746d115',1,'t81::axion']]],
+  ['op_5fflag_5fbranch_1',['OP_FLAG_BRANCH',['../d3/d78/namespacet81_1_1ir.html#aa19b7ae294da8b59b409b97062d0887ea1d81e7a043ebeb8bd64d8fbdaa232de8',1,'t81::ir']]],
+  ['op_5fflag_5fmemory_2',['OP_FLAG_MEMORY',['../d3/d78/namespacet81_1_1ir.html#aa19b7ae294da8b59b409b97062d0887eaf0770edd9f4288683dcf7cf47e4b5210',1,'t81::ir']]],
+  ['op_5fflag_5fnone_3',['OP_FLAG_NONE',['../d3/d78/namespacet81_1_1ir.html#aa19b7ae294da8b59b409b97062d0887eaa6c8f3d25b275ae7ecc268d8e54af785',1,'t81::ir']]],
+  ['op_5fflag_5fprivileged_4',['OP_FLAG_PRIVILEGED',['../d3/d78/namespacet81_1_1ir.html#aa19b7ae294da8b59b409b97062d0887eab49507a2d1f29a698de23e7816a4afcb',1,'t81::ir']]],
+  ['op_5fflag_5fterminator_5',['OP_FLAG_TERMINATOR',['../d3/d78/namespacet81_1_1ir.html#aa19b7ae294da8b59b409b97062d0887ea28e6de86a8613e5bed76ec200596f732',1,'t81::ir']]],
+  ['opcode_6',['Opcode',['../d5/dac/namespacet81_1_1tisc.html#a9b2b201e949b6ad20e0159c801b705dba5782f6bdd633ac305e1e625779f96a77',1,'t81::tisc']]],
+  ['option_7',['Option',['../da/d8f/structt81_1_1frontend_1_1_type.html#a391cd100edc755b79eb10aedb1e161d7a054b4f3ea543c990f6b125f41af6ebf7',1,'t81::frontend::Type::Option'],['../d5/d58/structt81_1_1frontend_1_1_semantic_analyzer_1_1_match_metadata.html#a741d6202143e5fbfdac0a6bc6bc6ecaea054b4f3ea543c990f6b125f41af6ebf7',1,'t81::frontend::SemanticAnalyzer::MatchMetadata::Option']]],
+  ['option_5fis_5fsome_8',['OPTION_IS_SOME',['../d3/d58/namespacet81_1_1tisc_1_1ir.html#a68068d387b62d5721d5e9a191131e236a7eb8597e0433faf51edcda5b2c828ca5',1,'t81::tisc::ir']]],
+  ['option_5funwrap_9',['OPTION_UNWRAP',['../d3/d58/namespacet81_1_1tisc_1_1ir.html#a68068d387b62d5721d5e9a191131e236afab1115f5fef331c326e112f73f53d88',1,'t81::tisc::ir']]],
+  ['optionhandle_10',['OptionHandle',['../dc/d8f/namespacet81_1_1vm.html#a7bda98daf46c8906504377ea91c45afda31177ed2fa136314d5757637cacd8835',1,'t81::vm']]],
+  ['optionissome_11',['OptionIsSome',['../d5/dac/namespacet81_1_1tisc.html#a64a7d28648993d06651b1b01a4866297ae45a955a4f77af4778df3c4b0ee482eb',1,'t81::tisc']]],
+  ['optionnone_12',['OptionNone',['../de/dcd/structt81_1_1lang_1_1_match_pattern.html#a2ccc494c6b61b0f35542533ecb52ef85a308b7bd7841387db84b03ac39674fd4a',1,'t81::lang::MatchPattern']]],
+  ['optionsome_13',['OptionSome',['../de/dcd/structt81_1_1lang_1_1_match_pattern.html#a2ccc494c6b61b0f35542533ecb52ef85a79db6de816fae7d350f5c126d333dfe4',1,'t81::lang::MatchPattern']]],
+  ['optionunwrap_14',['OptionUnwrap',['../d5/dac/namespacet81_1_1tisc.html#a64a7d28648993d06651b1b01a4866297a1872f00d78dea4caeac8442ad962ffc8',1,'t81::tisc']]],
+  ['or_15',['Or',['../d3/d78/namespacet81_1_1ir.html#a80d0111175eadeb164502370453c8d31a3a2d5fe857d8f9541136a124c2edec6c',1,'t81::ir']]],
+  ['outofmemory_16',['OutOfMemory',['../d1/d10/namespacet81_1_1hanoi.html#a2cdde5abf4b9fbe05a03abfab75129abab498327feeb51430af73e07deac268fd',1,'t81::hanoi']]]
+];

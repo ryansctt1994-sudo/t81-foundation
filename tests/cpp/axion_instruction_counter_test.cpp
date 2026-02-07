@@ -39,5 +39,5 @@ void test_instruction_counter_axion_engine() {
 
 int main() {
     test_instruction_counter_axion_engine();
-    [[maybe_unused]] return 0;
+    return 0;
 }

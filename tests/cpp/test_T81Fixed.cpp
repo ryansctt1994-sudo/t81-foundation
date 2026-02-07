@@ -40,6 +40,6 @@ int main() {
     assert(neg.to_double() < -0.9 && neg.to_double() > -1.1);
 
     std::cout << "All T81Fixed tests PASSED!\n";
-    [[maybe_unused]] return 0;
+    return 0;
 }
 
