@@ -56,7 +56,7 @@ ______________________________________________________________________
 - **Specification:** [`spec/tisc-spec.md`](../spec/tisc-spec.md), [`spec/t81vm-spec.md`](../spec/t81vm-spec.md)
 - **Status:** `Implemented`
 - **Summary:** The VM fully supports the TISC instruction set and implements the deterministic memory model (CODE, STACK, HEAP, TENSOR, META). Fault handling is strict and Axion-visible, matching the spec-defined categories.
-- **Next Steps:** Harden the IR generator and expand end-to-end tests for complex language features.
+- **Next Steps:** Expand hardware acceleration for complex numeric operations.
 
 ______________________________________________________________________
 
@@ -66,7 +66,7 @@ ______________________________________________________________________
 - **Status:** `Implemented`
 - **Summary:** The new C++20 frontend is now largely complete. It includes a lexer, a recursive descent parser for the full T81Lang grammar, a new semantic analysis pass for scope and symbol resolution, and an IR generator that produces valid TISC IR. Vector literals follow the canonical rules from §2.3–§2.5: elements must be numeric, the empty literal relies on a contextual `Vector[T]` type, and the analyzer feeds a canonical `T729Tensor` payload through the IR tensor pool so the VM can load it via `LoadImm/TensorHandle`. `None`, `Ok`, and `Err` are now only valid in contextual `Option[T]` or `Result[T, E]` types, the match analyzer enforces exhaustiveness and consistent arm return types, and the new semantic/CLI regressions keep the `t81` pipeline aligned with the spec.
 - **Structural types:** `record` and `enum` declarations now produce field/variant metadata so literals and field access are checked for completeness and payload compliance, and the CLI serializes those layouts/variants alongside existing type aliases so downstream tooling can trust the structure; the new [`docs/guides/record-enum.md`](../docs/guides/record-enum.md) spells out the rules and `tests/cpp/cli_structural_types_test.cpp` proves that structural types flow through the CLI pipeline.
-- **Next Steps:** Harden the IR generator and expand end-to-end tests for the remaining language features (`loop`, `match`).
+- **Next Steps:** Add support for advanced cognitive kernels and JIT optimizations.
 
 ______________________________________________________________________
 

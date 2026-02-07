@@ -8,14 +8,6 @@
 
 namespace t81::ternary {
 
-inline int trit_to_int(Trit t) noexcept {
-    return static_cast<int>(t);  // Neg=-1, Zero=0, Pos=1
-}
-
-inline Trit int_to_trit(int v) noexcept {
-    return v < 0 ? Trit::Neg : v > 0 ? Trit::Pos : Trit::Zero;
-}
-
 inline void normalize(std::vector<Trit>& ds) noexcept {
     while (ds.size() > 1 && ds.back() == Trit::Zero) ds.pop_back();
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include <stdexcept>
 #include <vector>
+#include <limits>
 #include "t81/tensor.hpp"
 
 namespace t81::ops {
@@ -63,6 +64,52 @@ inline T729Tensor reduce_max_2d(const T729Tensor& m, int axis) {
     return T729Tensor({R}, std::move(out));
   }
   throw std::invalid_argument("reduce_max_2d: axis must be 0 or 1");
+}
+
+// Reduce min over axis (rank-2). Same axis semantics as sum.
+inline T729Tensor reduce_min_2d(const T729Tensor& m, int axis) {
+  if (m.rank() != 2) throw std::invalid_argument("reduce_min_2d: expects rank-2");
+  const int R = m.shape()[0], C = m.shape()[1];
+  const auto& d = m.data();
+
+  if (axis == 0) {
+    std::vector<float> out((size_t)C, std::numeric_limits<float>::infinity());
+    for (int r = 0; r < R; ++r) {
+      const size_t base = (size_t)r * C;
+      for (int c = 0; c < C; ++c) {
+        float v = d[base + (size_t)c];
+        if (v < out[(size_t)c]) out[(size_t)c] = v;
+      }
+    }
+    return T729Tensor({C}, std::move(out));
+  } else if (axis == 1) {
+    std::vector<float> out((size_t)R, std::numeric_limits<float>::infinity());
+    for (int r = 0; r < R; ++r) {
+      float mmin = std::numeric_limits<float>::infinity();
+      const size_t base = (size_t)r * C;
+      for (int c = 0; c < C; ++c) {
+        float v = d[base + (size_t)c];
+        if (v < mmin) mmin = v;
+      }
+      out[(size_t)r] = mmin;
+    }
+    return T729Tensor({R}, std::move(out));
+  }
+  throw std::invalid_argument("reduce_min_2d: axis must be 0 or 1");
+}
+
+// Reduce mean over axis (rank-2). Same axis semantics as sum.
+inline T729Tensor reduce_mean_2d(const T729Tensor& m, int axis) {
+  if (m.rank() != 2) throw std::invalid_argument("reduce_mean_2d: expects rank-2");
+  const int R = m.shape()[0], C = m.shape()[1];
+
+  T729Tensor sums = reduce_sum_2d(m, axis);
+  float count = static_cast<float>(axis == 0 ? R : C);
+
+  auto& d = sums.data();
+  for (auto& v : d) v /= count;
+
+  return sums;
 }
 
 } // namespace t81::ops

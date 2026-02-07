@@ -41,6 +41,8 @@ struct BlockStmt;
 struct IfStmt;
 struct WhileStmt;
 struct ReturnStmt;
+struct BreakStmt;
+struct ContinueStmt;
 struct FunctionStmt;
 struct LoopStmt;
 struct TypeDecl;
@@ -77,8 +79,7 @@ public:
     virtual std::any visit(const RecordLiteralExpr& expr) = 0;
     virtual std::any visit(const EnumLiteralExpr& expr) = 0;
     virtual std::any visit(const SimpleTypeExpr& expr) = 0;
-    virtual std::any visit(const GenericTypeExpr& expr) =
- 0;
+    virtual std::any visit(const GenericTypeExpr& expr) = 0;
 };
 
 class StmtVisitor {
@@ -92,6 +93,8 @@ public:
     virtual std::any visit(const WhileStmt& stmt) = 0;
     virtual std::any visit(const LoopStmt& stmt) = 0;
     virtual std::any visit(const ReturnStmt& stmt) = 0;
+    virtual std::any visit(const BreakStmt& stmt) = 0;
+    virtual std::any visit(const ContinueStmt& stmt) = 0;
     virtual std::any visit(const FunctionStmt& stmt) = 0;
     virtual std::any visit(const TypeDecl& stmt) = 0;
     virtual std::any visit(const RecordDecl& stmt) = 0;
@@ -364,6 +367,18 @@ struct ReturnStmt : Stmt {
 
     const Token keyword;
     const std::unique_ptr<Expr> value;
+};
+
+struct BreakStmt : Stmt {
+    BreakStmt(Token keyword) : keyword(keyword) {}
+    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+    const Token keyword;
+};
+
+struct ContinueStmt : Stmt {
+    ContinueStmt(Token keyword) : keyword(keyword) {}
+    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+    const Token keyword;
 };
 
 struct Parameter {
