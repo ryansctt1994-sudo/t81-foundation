@@ -199,7 +199,7 @@ class Interpreter : public IVirtualMachine {
       state_.flags.negative = (v < 0);
       state_.flags.positive = (v > 0);
     };
-    auto push_stack = [this, current_pc](std::int64_t value, ValueTag tag) -> std::optional<std::size_t> {
+    auto push_stack = [this](std::int64_t value, ValueTag tag) -> std::optional<std::size_t> {
       const auto& stack = state_.layout.stack;
       if (!stack.valid()) return std::nullopt;
       if (state_.sp <= stack.start) return std::nullopt;
@@ -253,25 +253,51 @@ class Interpreter : public IVirtualMachine {
         std::vector<float> float_data;
         float_data.reserve(native->num_trits());
 
-        uint64_t remaining = native->trits;
-        if (remaining == 0 && !native->data.empty()) {
-          remaining = native->data.size() * 48;
-        }
+        if (native->format == t81::weights::NativeFormat::T3_K) {
+            const uint8_t* byte_ptr = reinterpret_cast<const uint8_t*>(native->data.data());
+            uint64_t total_trits = native->num_trits();
+            for (uint64_t offset = 0; offset < total_trits; offset += 128) {
+                float scale;
+                std::memcpy(&scale, byte_ptr, sizeof(float));
+                byte_ptr += sizeof(float);
 
-        for (uint64_t limb : native->data) {
-          uint64_t count = std::min<uint64_t>(48, remaining);
-          std::vector<float> block(count);
-          uint64_t val = limb;
-          for (int i = 47; i >= 0; --i) {
-            uint64_t digit = val % 3;
-            val /= 3;
-            if (static_cast<uint64_t>(i) < count) {
-              block[i] = static_cast<float>(static_cast<int>(digit) - 1);
+                uint64_t buffer = 0;
+                int bits = 0;
+                uint64_t count = std::min<uint64_t>(128, total_trits - offset);
+                for (uint64_t i = 0; i < 128; ++i) {
+                    while (bits < 3) {
+                        buffer = (buffer << 8) | (*byte_ptr++);
+                        bits += 8;
+                    }
+                    uint32_t val = (buffer >> (bits - 3)) & 0x7;
+                    bits -= 3;
+                    if (i < count) {
+                        float trit = static_cast<float>(static_cast<int>(val) - 1);
+                        float_data.push_back(trit * scale);
+                    }
+                }
             }
-          }
-          float_data.insert(float_data.end(), block.begin(), block.end());
-          remaining -= count;
-          if (remaining == 0) break;
+        } else {
+            uint64_t remaining = native->trits;
+            if (remaining == 0 && !native->data.empty()) {
+              remaining = native->data.size() * 48;
+            }
+
+            for (uint64_t limb : native->data) {
+              uint64_t count = std::min<uint64_t>(48, remaining);
+              std::vector<float> block(count);
+              uint64_t val = limb;
+              for (int i = 47; i >= 0; --i) {
+                uint64_t digit = val % 3;
+                val /= 3;
+                if (static_cast<uint64_t>(i) < count) {
+                  block[i] = static_cast<float>(static_cast<int>(digit) - 1);
+                }
+              }
+              float_data.insert(float_data.end(), block.begin(), block.end());
+              remaining -= count;
+              if (remaining == 0) break;
+            }
         }
 
         std::vector<int> shape;

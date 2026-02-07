@@ -24,7 +24,7 @@
 namespace fs = std::filesystem;
 
 namespace t81::vm {
-std::string to_string(Trap trap) {
+inline std::string to_string(Trap trap) {
     switch (trap) {
         case Trap::None: return "None";
         case Trap::DecodeFault: return "DecodeFault";
@@ -40,7 +40,7 @@ std::string to_string(Trap trap) {
 }
 }
 
-int trap_exit_code(t81::vm::Trap trap) {
+inline int trap_exit_code(t81::vm::Trap trap) {
     using T = t81::vm::Trap;
     switch (trap) {
         case T::None:               return 0;
@@ -163,7 +163,7 @@ std::string summarize_snippet(const std::string& snippet) {
     return summary;
 }
 
-std::string opcode_name(t81::tisc::Opcode opcode) {
+inline std::string opcode_name(t81::tisc::Opcode opcode) {
     switch (opcode) {
 #define CASE(name) case t81::tisc::Opcode::name: return #name;
         CASE(Nop)
@@ -239,6 +239,12 @@ std::string opcode_name(t81::tisc::Opcode opcode) {
         CASE(HeapAlloc)
         CASE(HeapFree)
         CASE(WeightsLoad)
+        CASE(TExp)
+        CASE(TSqrt)
+        CASE(TSiLU)
+        CASE(TSoftmax)
+        CASE(TRMSNorm)
+        CASE(TRoPE)
 #undef CASE
     }
     return "Opcode(" + std::to_string(static_cast<int>(opcode)) + ")";

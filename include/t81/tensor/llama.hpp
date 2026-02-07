@@ -57,8 +57,23 @@ inline T729Tensor rmsnorm(const T729Tensor& x, const T729Tensor& w, float eps = 
 
 inline T729Tensor silu(const T729Tensor& x) {
     std::vector<float> out = x.data();
-    for (auto& val : out) {
-        val = val / (1.0f + std::exp(-val));
+    float* data = out.data();
+    size_t size = out.size();
+
+    size_t i = 0;
+#if defined(__AVX2__)
+    __m256 vone = _mm256_set1_ps(1.0f);
+    for (; i + 8 <= size; i += 8) {
+        float tmp[8];
+        for (int j = 0; j < 8; ++j) tmp[j] = std::exp(-data[i + j]);
+        __m256 vx = _mm256_loadu_ps(&data[i]);
+        __m256 vexp = _mm256_loadu_ps(tmp);
+        __m256 vres = _mm256_div_ps(vx, _mm256_add_ps(vone, vexp));
+        _mm256_storeu_ps(&data[i], vres);
+    }
+#endif
+    for (; i < size; ++i) {
+        data[i] = data[i] / (1.0f + std::exp(-data[i]));
     }
     return T729Tensor(x.shape(), std::move(out));
 }
@@ -70,7 +85,20 @@ inline T729Tensor softmax(const T729Tensor& x) {
     for (size_t i = 0; i < out.size(); i += static_cast<size_t>(dim)) {
         float* row = &out[i];
         float max_val = row[0];
+#if defined(__AVX2__)
+        __m256 vmax = _mm256_set1_ps(max_val);
+        int j_max = 0;
+        for (; j_max + 8 <= dim; j_max += 8) {
+            __m256 v = _mm256_loadu_ps(&row[j_max]);
+            vmax = _mm256_max_ps(vmax, v);
+        }
+        float tmp_max[8];
+        _mm256_storeu_ps(tmp_max, vmax);
+        for (int k = 0; k < 8; ++k) if (tmp_max[k] > max_val) max_val = tmp_max[k];
+        for (; j_max < dim; ++j_max) if (row[j_max] > max_val) max_val = row[j_max];
+#else
         for (int j = 1; j < dim; ++j) if (row[j] > max_val) max_val = row[j];
+#endif
 
         float sum = 0.0f;
         for (int j = 0; j < dim; ++j) {
@@ -81,7 +109,7 @@ inline T729Tensor softmax(const T729Tensor& x) {
 #if defined(__AVX2__)
         __m256 vinv = _mm256_set1_ps(inv_sum);
         int j = 0;
-        for (; j <= dim - 8; j += 8) {
+        for (; j + 8 <= dim; j += 8) {
             __m256 v = _mm256_loadu_ps(&row[j]);
             v = _mm256_mul_ps(v, vinv);
             _mm256_storeu_ps(&row[j], v);

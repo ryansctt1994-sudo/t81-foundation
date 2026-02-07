@@ -11,6 +11,11 @@
 
 namespace t81::weights {
 
+enum class NativeFormat {
+    BalancedTernary = 0,
+    T3_K = 1
+};
+
 struct TensorInfo {
     std::string name;
     std::vector<uint64_t> shape;
@@ -22,7 +27,11 @@ struct NativeTensor {
     std::vector<uint64_t> shape;
     std::vector<uint64_t> data;
     uint64_t trits = 0;
+    NativeFormat format = NativeFormat::BalancedTernary;
     uint64_t num_trits() const {
+        if (format == NativeFormat::T3_K) {
+            return trits;
+        }
         return trits != 0 ? trits : padded_limbs() * 48;
     }
     uint64_t padded_limbs() const { return data.size(); }

@@ -155,15 +155,17 @@ private:
         clear();
         if (v == 0) return;
         bool neg = v < 0;
-        if (neg) v = -v;
+        std::uint64_t uv = (v == std::numeric_limits<std::int64_t>::min())
+                               ? static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max()) + 1
+                               : static_cast<std::uint64_t>(neg ? -v : v);
         size_type i = 0;
-        while (v != 0 && i < kNumTrits) {
-            int r = static_cast<int>(v % 3);
-            v /= 3;
-            if (r == 2) { r = -1; ++v; }
+        while (uv != 0 && i < kNumTrits) {
+            int r = static_cast<int>(uv % 3);
+            uv /= 3;
+            if (r == 2) { r = -1; ++uv; }
             set_trit(i++, int_to_trit(neg ? -r : r));
         }
-        if (v != 0) throw std::overflow_error("T81Int: value does not fit in N trits");
+        if (uv != 0) throw std::overflow_error("T81Int: value does not fit in N trits");
     }
 
 public:

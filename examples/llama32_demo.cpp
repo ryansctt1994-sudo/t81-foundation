@@ -7,6 +7,7 @@
 #include <memory>
 #include <span>
 #include <chrono>
+#include <cstring>
 
 using namespace t81;
 using namespace t81::tisc;
@@ -17,22 +18,51 @@ int main() {
 
     const int hidden_dim = 1024; // Increased for realistic demo
     const int num_heads = 32;
-    const int head_dim = hidden_dim / num_heads;
+    [[maybe_unused]] const int head_dim = hidden_dim / num_heads;
 
     // 1. Create a mock T3_K quantized weights model
     NativeModel mock_weights;
-    auto create_dummy = [&](const std::string& name, std::vector<uint64_t> shape) {
+    auto create_dummy_t3k = [&](const std::string& name, std::vector<uint64_t> shape) {
         uint64_t total = 1;
         for (auto d : shape) total *= d;
-        std::vector<int8_t> dummy_w(total, 0);
-        for(size_t i=0; i<dummy_w.size(); ++i) {
-            dummy_w[i] = static_cast<int8_t>((i % 3) - 1);
+
+        NativeTensor tensor;
+        tensor.shape = shape;
+        tensor.trits = total;
+        tensor.format = NativeFormat::T3_K;
+
+        size_t num_blocks = (total + 127) / 128;
+        size_t total_bytes = num_blocks * 52; // 4 bytes scale + 48 bytes trits
+        tensor.data.assign((total_bytes + 7) / 8, 0);
+        uint8_t* byte_ptr = reinterpret_cast<uint8_t*>(tensor.data.data());
+
+        for (size_t b = 0; b < num_blocks; ++b) {
+            float scale = 0.5f + (b % 10) * 0.1f;
+            std::memcpy(byte_ptr, &scale, sizeof(float));
+            byte_ptr += sizeof(float);
+
+            uint32_t buffer = 0;
+            int bits = 0;
+            for (int i = 0; i < 128; ++i) {
+                size_t idx = b * 128 + i;
+                int8_t trit = (idx < total) ? static_cast<int8_t>((idx % 3) - 1) : 0;
+                uint32_t val = static_cast<uint32_t>(trit + 1);
+                buffer = (buffer << 3) | val;
+                bits += 3;
+                while (bits >= 8) {
+                    bits -= 8;
+                    *byte_ptr++ = static_cast<uint8_t>(buffer >> bits);
+                }
+            }
+            if (bits > 0) {
+                *byte_ptr++ = static_cast<uint8_t>(buffer << (8 - bits));
+            }
         }
-        mock_weights[name] = import_bitnet_b158(std::span<const int8_t>(dummy_w.data(), dummy_w.size()), shape);
+        mock_weights[name] = std::move(tensor);
     };
 
-    create_dummy("model.layers.0.input_layernorm.weight", {static_cast<uint64_t>(hidden_dim)});
-    create_dummy("model.layers.0.self_attn.q_proj.weight", {static_cast<uint64_t>(hidden_dim), static_cast<uint64_t>(hidden_dim)});
+    create_dummy_t3k("model.layers.0.input_layernorm.weight", {static_cast<uint64_t>(hidden_dim)});
+    create_dummy_t3k("model.layers.0.self_attn.q_proj.weight", {static_cast<uint64_t>(hidden_dim), static_cast<uint64_t>(hidden_dim)});
 
     // 2. Build TISC program
     Program program;

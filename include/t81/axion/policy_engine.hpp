@@ -23,7 +23,7 @@ class PolicyEngine : public Engine {
 
  private:
   bool loop_hint_satisfied(const SyscallContext& ctx,
-                           const Policy::LoopHint& hint) const;
+                           size_t requirement_idx) const;
   bool match_guard_satisfied(const SyscallContext& ctx,
                              const Policy::MatchGuardRequirement& req) const;
   bool segment_event_satisfied(const SyscallContext& ctx,
@@ -32,7 +32,12 @@ class PolicyEngine : public Engine {
                              const Policy::AxionEventRequirement& req) const;
 
   std::optional<Policy> policy_;
-  std::vector<LoopRequirement> loop_requirements_;
+  struct InternalLoopReq {
+    const Policy::LoopHint* hint;
+    std::string expected_reason;
+    mutable bool satisfied = false;
+  };
+  std::vector<InternalLoopReq> loop_reqs_;
 };
 
 std::unique_ptr<Engine> make_policy_engine(std::optional<Policy> policy);
