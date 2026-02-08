@@ -25,6 +25,27 @@ static void BM_Llama_RMSNorm_T81(benchmark::State& state) {
 }
 BENCHMARK(BM_Llama_RMSNorm_T81)->Arg(1024)->Arg(2048)->Arg(4096);
 
+static void BM_Llama_RMSNorm_Binary(benchmark::State& state) {
+    const int hidden_dim = state.range(0);
+    std::vector<float> x(hidden_dim);
+    std::vector<float> w(hidden_dim);
+
+    std::mt19937 gen(42);
+    std::uniform_real_distribution<float> dis(-1.0f, 1.0f);
+    for (auto& v : x) v = dis(gen);
+    for (auto& v : w) v = dis(gen);
+
+    for (auto _ : state) {
+        float ss = 0;
+        for (int i = 0; i < hidden_dim; i++) ss += x[i] * x[i];
+        float inv_ss = 1.0f / std::sqrt(ss / hidden_dim + 1e-6f);
+        for (int i = 0; i < hidden_dim; i++) x[i] = (x[i] * inv_ss) * w[i];
+        benchmark::DoNotOptimize(x);
+    }
+    state.SetItemsProcessed(state.iterations() * hidden_dim);
+}
+BENCHMARK(BM_Llama_RMSNorm_Binary)->Arg(1024)->Arg(2048)->Arg(4096);
+
 static void BM_Llama_SiLU_T81(benchmark::State& state) {
     const int size = state.range(0);
     T729Tensor x({1, size});
@@ -41,6 +62,24 @@ static void BM_Llama_SiLU_T81(benchmark::State& state) {
 }
 BENCHMARK(BM_Llama_SiLU_T81)->Arg(1024)->Arg(4096)->Arg(16384);
 
+static void BM_Llama_SiLU_Binary(benchmark::State& state) {
+    const int size = state.range(0);
+    std::vector<float> x(size);
+
+    std::mt19937 gen(42);
+    std::uniform_real_distribution<float> dis(-1.0f, 1.0f);
+    for (auto& v : x) v = dis(gen);
+
+    for (auto _ : state) {
+        for (int i = 0; i < size; i++) {
+            x[i] = x[i] / (1.0f + std::exp(-x[i]));
+        }
+        benchmark::DoNotOptimize(x);
+    }
+    state.SetItemsProcessed(state.iterations() * size);
+}
+BENCHMARK(BM_Llama_SiLU_Binary)->Arg(1024)->Arg(4096)->Arg(16384);
+
 static void BM_Llama_Softmax_T81(benchmark::State& state) {
     const int dim = state.range(0);
     T729Tensor x({1, dim});
@@ -56,6 +95,30 @@ static void BM_Llama_Softmax_T81(benchmark::State& state) {
     state.SetItemsProcessed(state.iterations() * dim);
 }
 BENCHMARK(BM_Llama_Softmax_T81)->Arg(1024)->Arg(4096)->Arg(16384);
+
+static void BM_Llama_Softmax_Binary(benchmark::State& state) {
+    const int dim = state.range(0);
+    std::vector<float> x(dim);
+
+    std::mt19937 gen(42);
+    std::uniform_real_distribution<float> dis(-1.0f, 1.0f);
+    for (auto& v : x) v = dis(gen);
+
+    for (auto _ : state) {
+        float max_val = x[0];
+        for (int i = 1; i < dim; i++) if (x[i] > max_val) max_val = x[i];
+        float sum = 0;
+        for (int i = 0; i < dim; i++) {
+            x[i] = std::exp(x[i] - max_val);
+            sum += x[i];
+        }
+        float inv_sum = 1.0f / sum;
+        for (int i = 0; i < dim; i++) x[i] *= inv_sum;
+        benchmark::DoNotOptimize(x);
+    }
+    state.SetItemsProcessed(state.iterations() * dim);
+}
+BENCHMARK(BM_Llama_Softmax_Binary)->Arg(1024)->Arg(4096)->Arg(16384);
 
 static void BM_Llama_RoPE_T81(benchmark::State& state) {
     const int head_dim = state.range(0);
