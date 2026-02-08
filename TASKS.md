@@ -75,3 +75,38 @@ ______________________________________________________________________
 - **[DONE] [S] Task:** Publish the `axion_policy_runner` trace output in release docs and CI artifacts to give auditors a reachable example of the required `verdict.reason` strings.
 - **[DONE] [M] Task:** Implement the persistent CanonFS driver with Axion hooks so trace regressions exercise the disk-backed store before policy predicates run.
 - **[DONE] [M] Task:** Document and implement CanonFS policy hooks that intercept `AXSET`/`AXREAD` calls, emit the canonical meta/trace strings for each write, and expose those strings to policy predicates like `(require-axion-event (reason "meta slot axion event segment=meta"))` so auditors can tie CanonFS persistence to Axion enforcement.
+
+______________________________________________________________________
+
+### [P3] High-Tier Cognition (Tier 4)
+
+**Goal:** Implement Tier 4 cognitive layers focusing on self-referential modeling and high-tier cognitive loops.
+
+- **[EPIC] Self-Referential Modeling & Reflection:**
+    - **[M] Task:** Formalize mathematical proofs ensuring that Tier 4 agents correctly model their own state transitions and internal beliefs. (Owner: Jules)
+    - **[L] Task:** Implement multi-stage `reflect -> refine` cycles in `Tier4Loop` that allow for recursive self-optimization. (Owner: HanoiVM & Axion Core)
+    - **[M] Task:** Add native TISC opcodes for triggering reflection events and accessing the `META` segment's self-model. (Owner: TISC ISA & VM)
+    - **[S] Task:** Integrate Axion policy predicates that validate the integrity of self-models before promoting processes to Tier 5. (Owner: Axion Kernel)
+
+______________________________________________________________________
+
+### [P4] Performance & Scaling
+
+**Goal:** Quantify and eliminate bottlenecks to move the system toward production scale.
+
+- **[EPIC] Numeric & I/O Optimization:**
+    - **[M] Task:** Optimize multi-limb `T81BigInt` arithmetic using SIMD Karatsuba techniques.
+    - **[L] Task:** Optimize CanonFS for high-throughput async persistence and retrieval.
+    - **[L] Task:** Implement a HanoiVM JIT compiler prototype for compute-intensive workloads.
+    - **[M] Task:** Implement distributed tensor sharding for high-rank ternary tensors.
+
+______________________________________________________________________
+
+### [P5] Formal Verification & Hardware
+
+**Goal:** Provide formal guarantees of correctness and explore physical ternary execution.
+
+- **[EPIC] Verification & DSL Design:**
+    - **[L] Task:** Formally verify the core balanced ternary arithmetic primitives (BigInt, Fraction).
+    - **[M] Task:** Prototype ternary hardware/FPGA backends for HanoiVM.
+    - **[M] Task:** Design and implement the Axion Policy DSL for declarative safety definitions.

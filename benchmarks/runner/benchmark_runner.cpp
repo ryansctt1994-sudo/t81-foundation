@@ -343,13 +343,20 @@ public:
                 family = run_name.substr(0, slash_pos);
                 suffix = run_name.substr(slash_pos + 1);
             } else {
-                const auto last_underscore = run_name.find_last_of('_');
-                if (last_underscore != std::string::npos) {
-                    std::string candidate = run_name.substr(last_underscore + 1);
-                    if (HasFlowSuffix(candidate)) {
+                family = run_name;
+            }
+
+            // Further strip flow suffixes from family (e.g., BM_Add_T81 -> BM_Add)
+            const auto last_underscore = family.find_last_of('_');
+            if (last_underscore != std::string::npos) {
+                std::string candidate = family.substr(last_underscore + 1);
+                if (HasFlowSuffix(candidate)) {
+                    if (suffix.empty()) {
                         suffix = candidate;
-                        family = run_name.substr(0, last_underscore);
+                    } else {
+                        suffix = candidate + "/" + suffix;
                     }
+                    family = family.substr(0, last_underscore);
                 }
             }
             if (family.empty()) {

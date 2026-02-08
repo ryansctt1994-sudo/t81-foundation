@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <filesystem>
 #include <random>
+#include <fstream>
 
 using namespace t81::canonfs;
 
@@ -20,6 +21,18 @@ static void BM_CanonFS_WriteThroughput_InMemory(benchmark::State& state) {
 }
 BENCHMARK(BM_CanonFS_WriteThroughput_InMemory)->Range(1024, 1024 * 1024);
 
+static void BM_CanonFS_WriteThroughput_Binary(benchmark::State& state) {
+    size_t data_size = state.range(0);
+    std::vector<std::byte> data(data_size, std::byte{0x42});
+    std::vector<std::byte> target;
+    for (auto _ : state) {
+        target = data;
+        benchmark::DoNotOptimize(target);
+    }
+    state.SetBytesProcessed(state.iterations() * data_size);
+}
+BENCHMARK(BM_CanonFS_WriteThroughput_Binary)->Range(1024, 1024 * 1024);
+
 static void BM_CanonFS_ReadThroughput_InMemory(benchmark::State& state) {
     auto driver = make_in_memory_driver();
     size_t data_size = state.range(0);
@@ -34,6 +47,17 @@ static void BM_CanonFS_ReadThroughput_InMemory(benchmark::State& state) {
     state.SetBytesProcessed(state.iterations() * data_size);
 }
 BENCHMARK(BM_CanonFS_ReadThroughput_InMemory)->Range(1024, 1024 * 1024);
+
+static void BM_CanonFS_ReadThroughput_Binary(benchmark::State& state) {
+    size_t data_size = state.range(0);
+    std::vector<std::byte> data(data_size, std::byte{0x42});
+    for (auto _ : state) {
+        std::vector<std::byte> copy = data;
+        benchmark::DoNotOptimize(copy);
+    }
+    state.SetBytesProcessed(state.iterations() * data_size);
+}
+BENCHMARK(BM_CanonFS_ReadThroughput_Binary)->Range(1024, 1024 * 1024);
 
 static void BM_CanonFS_WriteThroughput_Persistent(benchmark::State& state) {
     std::filesystem::path root = "bench_canonfs_root";
@@ -75,3 +99,35 @@ static void BM_CanonFS_ReadThroughput_Persistent(benchmark::State& state) {
     std::filesystem::remove_all(root);
 }
 BENCHMARK(BM_CanonFS_ReadThroughput_Persistent)->Range(1024, 1024 * 1024);
+
+static void BM_CanonFS_WriteThroughput_Persistent_Binary(benchmark::State& state) {
+    size_t data_size = state.range(0);
+    std::vector<std::byte> data(data_size, std::byte{0x42});
+    std::filesystem::path p = "bench_binary_persistent.tmp";
+    for (auto _ : state) {
+        std::ofstream ofs(p, std::ios::binary);
+        ofs.write(reinterpret_cast<const char*>(data.data()), data_size);
+        benchmark::DoNotOptimize(ofs);
+    }
+    state.SetBytesProcessed(state.iterations() * data_size);
+    std::filesystem::remove(p);
+}
+BENCHMARK(BM_CanonFS_WriteThroughput_Persistent_Binary)->Range(1024, 1024 * 1024);
+
+static void BM_CanonFS_ReadThroughput_Persistent_Binary(benchmark::State& state) {
+    size_t data_size = state.range(0);
+    std::vector<std::byte> data(data_size, std::byte{0x42});
+    std::filesystem::path p = "bench_binary_persistent_read.tmp";
+    {
+        std::ofstream ofs(p, std::ios::binary);
+        ofs.write(reinterpret_cast<const char*>(data.data()), data_size);
+    }
+    for (auto _ : state) {
+        std::ifstream ifs(p, std::ios::binary);
+        ifs.read(reinterpret_cast<char*>(data.data()), data_size);
+        benchmark::DoNotOptimize(ifs);
+    }
+    state.SetBytesProcessed(state.iterations() * data_size);
+    std::filesystem::remove(p);
+}
+BENCHMARK(BM_CanonFS_ReadThroughput_Persistent_Binary)->Range(1024, 1024 * 1024);
