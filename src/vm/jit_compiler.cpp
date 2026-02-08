@@ -7,8 +7,13 @@ class ThreadedJitTrace : public JitTrace {
 public:
     explicit ThreadedJitTrace(std::vector<t81::tisc::Insn> insns) : insns_(std::move(insns)) {}
 
-    void execute(State& state) override {
+    std::size_t size() const override { return insns_.size(); }
+
+    std::size_t execute(State& state) override {
+        std::size_t instructions_executed = 0;
         for (const auto& insn : insns_) {
+            instructions_executed++;
+            bool stop_trace = false;
             switch (insn.opcode) {
                 case t81::tisc::Opcode::Add:
                     state.registers[insn.a] = state.registers[insn.b] + state.registers[insn.c];
@@ -62,13 +67,36 @@ public:
                     state.registers[insn.a] = (state.registers[insn.b] == state.registers[insn.c]) ? 1 : 0;
                     state.register_tags[insn.a] = ValueTag::Int;
                     break;
+                case t81::tisc::Opcode::Jump:
+                    state.pc = static_cast<size_t>(insn.a);
+                    stop_trace = true;
+                    break;
+                case t81::tisc::Opcode::JumpIfZero:
+                    if (state.registers[insn.b] == 0) {
+                        state.pc = static_cast<size_t>(insn.a);
+                        stop_trace = true;
+                    }
+                    break;
+                case t81::tisc::Opcode::JumpIfNotZero:
+                    if (state.registers[insn.b] != 0) {
+                        state.pc = static_cast<size_t>(insn.a);
+                        stop_trace = true;
+                    }
+                    break;
                 default:
                     break;
             }
-            state.flags.zero = (state.registers[insn.a] == 0);
-            state.flags.negative = (state.registers[insn.a] < 0);
-            state.flags.positive = (state.registers[insn.a] > 0);
+            if (insn.opcode != t81::tisc::Opcode::Jump &&
+                insn.opcode != t81::tisc::Opcode::JumpIfZero &&
+                insn.opcode != t81::tisc::Opcode::JumpIfNotZero) {
+                state.flags.zero = (state.registers[insn.a] == 0);
+                state.flags.negative = (state.registers[insn.a] < 0);
+                state.flags.positive = (state.registers[insn.a] > 0);
+            }
+            if (stop_trace) return instructions_executed;
         }
+        state.pc += instructions_executed;
+        return instructions_executed;
     }
 
 private:
@@ -100,8 +128,14 @@ void JitCompiler::record_instruction(const t81::tisc::Insn& insn) {
         case t81::tisc::Opcode::Equal:
             trace_buffer_.push_back(insn);
             break;
+        case t81::tisc::Opcode::Jump:
+        case t81::tisc::Opcode::JumpIfZero:
+        case t81::tisc::Opcode::JumpIfNotZero:
+            trace_buffer_.push_back(insn);
+            tracing_ = false; // Always stop at jump
+            break;
         default:
-            // Stop tracing on unsupported opcode or branch
+            // Stop tracing on unsupported opcode
             tracing_ = false;
             break;
     }

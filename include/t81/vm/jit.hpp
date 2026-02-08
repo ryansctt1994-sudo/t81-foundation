@@ -14,7 +14,8 @@ namespace t81::vm {
 class JitTrace {
 public:
     virtual ~JitTrace() = default;
-    virtual void execute(State& state) = 0;
+    virtual std::size_t execute(State& state) = 0;
+    virtual std::size_t size() const = 0;
 };
 
 /**
