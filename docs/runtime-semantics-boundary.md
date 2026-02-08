@@ -1,0 +1,41 @@
+# Runtime Semantics Boundary (Foundation vs VM)
+
+This note locks the ownership boundary between normative semantics (`t81-foundation`) and executable runtime behavior (`t81-vm`).
+
+## Ownership Split
+
+`t81-foundation` owns:
+
+- Normative semantics in `spec/` (language, VM model, ISA meaning, canonical data behavior).
+- RFC process for semantics changes (`spec/rfcs/`).
+- Architectural intent and invariants that execution must preserve.
+
+`t81-vm` owns:
+
+- Executable implementation of VM behavior.
+- Runtime compatibility artifact and host-facing ABI contract:
+  - `t81-vm/docs/contracts/vm-compatibility.json`
+  - `t81-vm/include/t81/vm/c_api.h`
+- Parity/conformance automation and evidence artifacts.
+
+## Source-of-Truth Rule
+
+1. If code behavior and `spec/` differ, treat `spec/` as semantically authoritative.
+2. If runtime compatibility details differ across repos, treat `t81-vm/docs/contracts/vm-compatibility.json` as executable compatibility authority.
+3. Any proposed change that affects both semantics and runtime must ship as a linked cross-repo change set.
+
+## Required Cross-Repo Fan-Out
+
+Contract-impacting runtime changes must synchronize:
+
+1. `t81-vm` contract artifact/tag and ABI headers.
+2. `t81-lang` compatibility gate and docs.
+3. `t81-python` bridge compatibility docs/tests.
+4. `t81-roadmap` migration status/checkpoint artifacts.
+
+## High-Risk Mismatch Zones
+
+- Opcode semantics and trap classes.
+- Numeric conversion/quantization behavior claims.
+- Host ABI signatures and struct layout expectations.
+- Determinism guarantees used by downstream tooling.

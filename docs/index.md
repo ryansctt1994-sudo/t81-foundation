@@ -36,6 +36,10 @@ These documents are the "constitution" of the T81 Foundation. They define the no
 
 - **[Design Principles](../DESIGN.md)**
   - The core design philosophy, including balanced ternary, spec-first development, and deterministic semantics.
+- **[Runtime Semantics Boundary](./runtime-semantics-boundary.md)**
+  - Defines ownership boundaries between normative semantics in this repo and executable compatibility in `t81-vm`.
+- **[Terminology Alignment Notes](./terminology-alignment.md)**
+  - Canonical term map aligned with `duotronic-whitepaper` and `t81-docs`.
 
 - **[Tensor Library Guide](./tensor-guide.md)**
   - An in-depth guide to the concepts and API of the T81 tensor library.
