@@ -14,6 +14,10 @@ This document tracks long-term strategic goals and ecosystem enhancements that e
 
 - [DONE] **Tier 3 Reasoning:** Tier 3, 4, and 5 cognitive layers defined and integrated into the promotion engine.
 - [ ] **Tier 4 Consciousness:** Research and implement Tier 4 layers focusing on self-referential modeling and high-tier cognitive loops.
+    - [ ] **Deliverable: Self-Referential Modeling Proofs** - Formalize mathematical proofs ensuring that Tier 4 agents correctly model their own state transitions and internal beliefs (Owner: Jules).
+    - [ ] **Deliverable: High-Tier Cognitive Loops** - Implement multi-stage `reflect -> refine` cycles in `Tier4Loop` that allow for recursive self-optimization (Owner: HanoiVM & Axion Core).
+    - [ ] **Deliverable: TISC Reflection Primitives** - Add native TISC opcodes for triggering reflection events and accessing the `META` segment's self-model (Owner: TISC ISA & VM).
+    - [ ] **Deliverable: Alignment Clause Verification** - Integrate Axion policy predicates that validate the integrity of self-models before promoting processes to Tier 5 (Owner: Axion Kernel).
 - [DONE] **T81-AGI Alignment:** Formalized and implemented `require-alignment` policies within Axion.
 
 ## Performance Optimization [P2]
