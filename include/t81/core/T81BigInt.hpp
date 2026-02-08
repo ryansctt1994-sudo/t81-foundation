@@ -67,6 +67,20 @@ namespace detail {
         }();
         return table;
     }
+
+    inline const std::array<int32_t, 65536>& get_word_to_ternary() {
+        static const auto table = []() {
+            std::array<int32_t, 65536> t{};
+            const auto& b2t = get_byte_to_ternary();
+            for (int i = 0; i < 65536; ++i) {
+                int lo = i & 0xFF;
+                int hi = (i >> 8) & 0xFF;
+                t[i] = static_cast<int32_t>(b2t[lo]) + static_cast<int32_t>(b2t[hi]) * 81;
+            }
+            return t;
+        }();
+        return table;
+    }
 }
 
 class T81BigInt {
@@ -285,24 +299,27 @@ public:
     // ------------------------------------------------------------------
 
     static std::vector<int64_t> get_chunks_static(const T81BigInt& x) {
-        const auto& table = detail::get_byte_to_ternary();
+        const auto& wtable = detail::get_word_to_ternary();
         std::vector<int64_t> chunks;
         chunks.reserve(x.limbs_.size() * 3);
 
-        static constexpr int64_t p3_4[] = {
-            1LL, 81LL, 6561LL, 531441LL, 43046721LL, 3486784401LL, 282429536481LL
-        };
+        static constexpr int64_t p3_8[] = { 1LL, 6561LL, 43046721LL, 282429536481LL };
 
         for (const auto& limb : x.limbs_) {
             const auto& data = limb.raw_data();
+            const uint8_t* d = data.data();
 
-            int64_t c0 = (int64_t)table[data[0]] * p3_4[0] +
-                         (int64_t)table[data[1]] * p3_4[1] +
-                         (int64_t)table[data[2]] * p3_4[2] +
-                         (int64_t)table[data[3]] * p3_4[3] +
-                         (int64_t)table[data[4]] * p3_4[4] +
-                         (int64_t)table[data[5]] * p3_4[5];
-            int b6 = data[6] & 0x3F;
+            auto read_u16 = [](const uint8_t* p) {
+                uint16_t val;
+                std::memcpy(&val, p, 2);
+                return val;
+            };
+
+            // Chunk 0: trits 0-26
+            int64_t c0 = (int64_t)wtable[read_u16(&d[0])] * p3_8[0] +
+                         (int64_t)wtable[read_u16(&d[2])] * p3_8[1] +
+                         (int64_t)wtable[read_u16(&d[4])] * p3_8[2];
+            int b6 = d[6] & 0x3F;
             int64_t v24_26 = 0;
             int p3 = 1;
             for(int j=0; j<3; ++j) {
@@ -315,16 +332,14 @@ public:
             if (x.negative_) c0 = -c0;
             chunks.push_back(c0);
 
-            int t27 = (data[6] >> 6) & 0x3;
+            // Chunk 1: trits 27-53
+            int t27 = (d[6] >> 6) & 0x3;
             if (t27 > 2) t27 = 1;
             int64_t c1 = (int64_t)(t27 - 1);
-            c1 += (int64_t)table[data[7]] * 3LL;
-            c1 += (int64_t)table[data[8]] * 243LL;
-            c1 += (int64_t)table[data[9]] * 19683LL;
-            c1 += (int64_t)table[data[10]] * 1594323LL;
-            c1 += (int64_t)table[data[11]] * 129140163LL;
-            c1 += (int64_t)table[data[12]] * 10460353203LL;
-            int b13_0_3 = data[13] & 0x0F;
+            c1 += (int64_t)wtable[read_u16(&d[7])] * 3LL;
+            c1 += (int64_t)wtable[read_u16(&d[9])] * 19683LL;
+            c1 += (int64_t)wtable[read_u16(&d[11])] * 129140163LL;
+            int b13_0_3 = d[13] & 0x0F;
             int t52 = (b13_0_3 & 0x3); if (t52 > 2) t52 = 1;
             int t53 = (b13_0_3 >> 2) & 0x3; if (t53 > 2) t53 = 1;
             c1 += (int64_t)(t52 - 1) * 847288609443LL;
@@ -332,18 +347,16 @@ public:
             if (x.negative_) c1 = -c1;
             chunks.push_back(c1);
 
-            int b13_4_7 = (data[13] >> 4) & 0x0F;
+            // Chunk 2: trits 54-80
+            int b13_4_7 = (d[13] >> 4) & 0x0F;
             int t54 = (b13_4_7 & 0x3); if (t54 > 2) t54 = 1;
             int t55 = (b13_4_7 >> 2) & 0x3; if (t55 > 2) t55 = 1;
             int64_t c2 = (int64_t)(t54 - 1);
             c2 += (int64_t)(t55 - 1) * 3LL;
-            c2 += (int64_t)table[data[14]] * 9LL;
-            c2 += (int64_t)table[data[15]] * 729LL;
-            c2 += (int64_t)table[data[16]] * 59049LL;
-            c2 += (int64_t)table[data[17]] * 4782969LL;
-            c2 += (int64_t)table[data[18]] * 387420489LL;
-            c2 += (int64_t)table[data[19]] * 31381059609LL;
-            int t80 = data[20] & 0x03; if (t80 > 2) t80 = 1;
+            c2 += (int64_t)wtable[read_u16(&d[14])] * 9LL;
+            c2 += (int64_t)wtable[read_u16(&d[16])] * 59049LL;
+            c2 += (int64_t)wtable[read_u16(&d[18])] * 387420489LL;
+            int t80 = d[20] & 0x03; if (t80 > 2) t80 = 1;
             c2 += (int64_t)(t80 - 1) * 2541865828329LL;
             if (x.negative_) c2 = -c2;
             chunks.push_back(c2);
@@ -441,7 +454,7 @@ public:
 
     static std::vector<int128_t> karatsuba_mul_(const std::vector<int64_t>& a, const std::vector<int64_t>& b) {
         size_t n = std::max(a.size(), b.size());
-        if (n <= 12) { // Schoolbook threshold
+        if (n <= 32) { // Schoolbook threshold
             std::vector<int128_t> res(a.size() + b.size(), 0);
             for (size_t i = 0; i < a.size(); ++i) {
                 const int64_t val_a = a[i];
@@ -512,10 +525,21 @@ public:
         auto sub_v_128 = [](std::vector<int128_t>& x, const std::vector<int128_t>& y) {
             size_t nx = x.size(), ny = y.size();
             if (nx < ny) x.resize(ny, 0);
-            for (size_t i = 0; i < ny; ++i) x[i] -= y[i];
+            size_t i = 0;
+#if defined(__AVX2__)
+            // Optimization: partial SIMD for subtraction if we had 128-bit SIMD.
+            // Since we don't, we'll use unrolling.
+            for (; i + 3 < ny; i += 4) {
+                x[i] -= y[i];
+                x[i+1] -= y[i+1];
+                x[i+2] -= y[i+2];
+                x[i+3] -= y[i+3];
+            }
+#endif
+            for (; i < ny; ++i) x[i] -= y[i];
         };
 
-        std::vector<int128_t> middle = z1;
+        std::vector<int128_t> middle = std::move(z1);
         sub_v_128(middle, z0);
         sub_v_128(middle, z2);
 

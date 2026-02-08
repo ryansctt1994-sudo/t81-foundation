@@ -34,6 +34,43 @@ public:
     }
 
     /**
+     * @brief Performs a distributed reduction (sum).
+     * In a mock environment, we sum all local data and return.
+     */
+    Element reduce_sum() const {
+        return t81::reduce_sum(*local_data_);
+    }
+
+    /**
+     * @brief Performs a distributed matrix multiplication C = A * B.
+     * This mock implementation handles Rank 2 tensors.
+     * A is sharded by rows, B is replicated.
+     * Returns a sharded result C (also sharded by rows).
+     */
+    template <size_t InnerDim, size_t Cols, size_t OutRows>
+    void matmul(const T81Tensor<Element, 2, InnerDim, Cols>& B,
+                DistributedT81Tensor<Element, 2, OutRows, Cols>& C) {
+        static constexpr auto shape_A = LocalTensor::shape();
+        if (shape_A[1] != InnerDim || shape_A[0] != OutRows) {
+            throw std::invalid_argument("Matrix dimension mismatch");
+        }
+
+        // Local computation: each shard multiplies its rows of A with B.
+        auto& A_local = local();
+        auto& C_local = C.local();
+
+        for (size_t i = 0; i < shape_A[0]; ++i) {
+            for (size_t j = 0; j < Cols; ++j) {
+                Element sum{};
+                for (size_t k = 0; k < InnerDim; ++k) {
+                    sum = sum + A_local(i, k) * B(k, j);
+                }
+                C_local(i, j) = sum;
+            }
+        }
+    }
+
+    /**
      * @brief Performs a distributed elementwise addition.
      */
     void add(const DistributedT81Tensor& other) {
@@ -44,8 +81,8 @@ public:
         // Here we just operate on local shards.
         auto& l = local();
         const auto& r = other.local();
-        for (size_t i = 0; i < l.data().size(); ++i) {
-            l.data()[i] += r.data()[i];
+        for (size_t i = 0; i < l.size(); ++i) {
+            l.data[i] += r.data[i];
         }
     }
 

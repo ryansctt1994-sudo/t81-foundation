@@ -18,6 +18,7 @@
 #include "t81/axion/policy_engine.hpp"
 #include "t81/enum_meta.hpp"
 #include "t81/vm/vm.hpp"
+#include "t81/vm/jit.hpp"
 
 namespace t81::vm {
 namespace {
@@ -131,6 +132,14 @@ class Interpreter : public IVirtualMachine {
     if (state_.halted) {
       return {};
     }
+
+    // Check if we have a compiled trace for the current PC.
+    auto trace_it = compiled_traces_.find(state_.pc);
+    if (trace_it != compiled_traces_.end()) {
+        instruction_count_ += trace_it->second->execute(state_);
+        return {};
+    }
+
     if (state_.pc >= program_.insns.size()) {
       auto verdict = eval_axion_call("step", state_.pc, t81::tisc::Opcode::Halt);
       if (verdict.kind == t81::axion::VerdictKind::Deny) {
@@ -143,6 +152,24 @@ class Interpreter : public IVirtualMachine {
     const std::size_t current_pc = state_.pc++;
     const auto& insn = program_.insns[current_pc];
     instruction_count_++;
+
+    // Hot-spot detection and JIT compilation.
+    if (!jit_compiler_.is_tracing()) {
+        hot_spots_[current_pc]++;
+        if (hot_spots_[current_pc] >= kHotSpotThreshold) {
+            jit_compiler_.start_tracing(current_pc);
+        }
+    }
+
+    if (jit_compiler_.is_tracing()) {
+        jit_compiler_.record_instruction(insn);
+        if (!jit_compiler_.is_tracing()) {
+            auto trace = jit_compiler_.compile();
+            if (trace) {
+                compiled_traces_[current_pc] = std::move(trace);
+            }
+        }
+    }
 
     // Evaluate Axion policy before every instruction.
     auto verdict = eval_axion_call("step", current_pc, insn.opcode);
@@ -1694,6 +1721,12 @@ class Interpreter : public IVirtualMachine {
   static constexpr std::size_t kGcInterval = 64;
   std::size_t instructions_since_gc_{0};
   std::size_t instruction_count_{0};
+
+  // JIT components
+  JitCompiler jit_compiler_;
+  std::unordered_map<std::size_t, std::size_t> hot_spots_;
+  std::unordered_map<std::size_t, std::unique_ptr<JitTrace>> compiled_traces_;
+  static constexpr std::size_t kHotSpotThreshold = 50;
 };
 }  // namespace
 

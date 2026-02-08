@@ -529,6 +529,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(performance_advancements_test tests/cpp/performance_advancements_test.cpp)
   target_link_libraries(performance_advancements_test PRIVATE t81_core)
 
+  add_executable(t81_distributed_tensor_test tests/cpp/distributed_tensor_test.cpp)
+  target_link_libraries(t81_distributed_tensor_test PRIVATE t81_core)
+
   enable_testing()
   set(T81_TEST_TARGETS
     t81_float_test
@@ -643,6 +646,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_bigint_v1_perf
     test_T81Tensor_transpose
     performance_advancements_test
+    t81_distributed_tensor_test
   )
   foreach(tgt IN LISTS T81_TEST_TARGETS)
     add_test(NAME ${tgt} COMMAND $<TARGET_FILE:${tgt}>)

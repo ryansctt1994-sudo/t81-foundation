@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iterator>
 #include <istream>
+#include <list>
 #include <optional>
 #include <stdexcept>
 #include <unordered_map>
@@ -12,6 +13,11 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include "t81/hash/canonhash.hpp"
 
@@ -118,27 +124,47 @@ class PersistentDriver final : public Driver {
     if (!has_capability(ref.hash, CANON_PERM_READ)) return Error::CapabilityError;
 
     auto it = object_cache_.find(ref.hash);
-    if (it != object_cache_.end()) return it->second;
+    if (it != object_cache_.end()) {
+      // Move to front of LRU
+      lru_list_.erase(it->second.lru_it);
+      lru_list_.push_front(ref.hash);
+      it->second.lru_it = lru_list_.begin();
+      return it->second.data;
+    }
 
     auto target = object_path(root_, ref.hash);
-    FILE* f = fopen(target.c_str(), "rb");
-    if (!f) return Error::NotFound;
+    int fd = open(target.string().c_str(), O_RDONLY);
+    if (fd < 0) return Error::NotFound;
 
-    fseek(f, 0, SEEK_END);
-    long size = ftell(f);
-    fseek(f, 0, SEEK_SET);
+    struct stat st;
+    if (fstat(fd, &st) < 0) {
+      close(fd);
+      return Error::DecodeError;
+    }
+    size_t size = static_cast<size_t>(st.st_size);
 
     std::vector<std::byte> result;
     if (size > 0) {
-      result.resize(static_cast<std::size_t>(size));
-      size_t read_bytes = fread(result.data(), 1, static_cast<size_t>(size), f);
-      fclose(f);
-      if (read_bytes != static_cast<size_t>(size)) return Error::DecodeError;
-    } else {
-      fclose(f);
+      void* addr = mmap(nullptr, size, PROT_READ, MAP_PRIVATE, fd, 0);
+      if (addr == MAP_FAILED) {
+        close(fd);
+        return Error::DecodeError;
+      }
+      result.resize(size);
+      std::memcpy(result.data(), addr, size);
+      munmap(addr, size);
     }
+    close(fd);
 
-    if (object_cache_.size() < 1024) object_cache_[ref.hash] = result;
+    // Update LRU cache
+    if (object_cache_.size() >= kMaxCacheSize) {
+      auto last = lru_list_.back();
+      object_cache_.erase(last);
+      lru_list_.pop_back();
+    }
+    lru_list_.push_front(ref.hash);
+    object_cache_[ref.hash] = {result, lru_list_.begin()};
+
     return result;
   }
 
@@ -193,13 +219,20 @@ class PersistentDriver final : public Driver {
     return (perms_val & required) != 0;
   }
 
+  struct CacheEntry {
+    std::vector<std::byte> data;
+    std::list<CanonHash>::iterator lru_it;
+  };
+
   std::filesystem::path root_;
   std::filesystem::path objects_dir_;
   std::filesystem::path capabilities_dir_;
   std::filesystem::path parity_dir_;
   bool has_capabilities_{false};
+  static constexpr size_t kMaxCacheSize = 2048; // Increased from 1024
   mutable std::unordered_map<CanonHash, uint16_t> capability_cache_{};
-  mutable std::unordered_map<CanonHash, std::vector<std::byte>> object_cache_{};
+  mutable std::unordered_map<CanonHash, CacheEntry> object_cache_{};
+  mutable std::list<CanonHash> lru_list_{};
   std::function<AxionVerdict(OpKind, const CanonRef&)> hook_{};
 };
 
