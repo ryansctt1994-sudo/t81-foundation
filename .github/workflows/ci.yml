@@ -158,10 +158,10 @@ jobs:
         with:
           path: build
           key: >-
-            cmake-build-${{ runner.os }}-${{ matrix.compiler }}-
+            cmake-build-${{ runner.os }}-${{ matrix.platform }}-${{ matrix.compiler }}-
             ${{ hashFiles('CMakeLists.txt', 'cmake/**', 'include/**', 'src/**', 'tests/**') }}
           restore-keys: |
-            cmake-build-${{ runner.os }}-${{ matrix.compiler }}-
+            cmake-build-${{ runner.os }}-${{ matrix.platform }}-${{ matrix.compiler }}-
 
       - name: Setup MSVC/cl environment (Windows)
         if: runner.os == 'Windows'

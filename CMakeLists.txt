@@ -11,9 +11,11 @@ option(T81_BUILD_EXAMPLES "Build T81 C++ examples" ON)
 option(T81_BUILD_TESTS    "Build T81 C++ unit tests" ON)
 option(T81_BUILD_BENCHMARKS "Build T81 benchmark suite" ON)
 
-# AVX2 only on real x86_64 (never on Apple Silicon) and only for GCC/Clang.
-if(NOT MSVC AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
-    add_compile_options(-mavx2 -mfma)
+# CPU feature gating used for SIMD source/flags.
+string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" T81_SYSTEM_PROCESSOR_LOWER)
+set(T81_IS_X86_64 OFF)
+if(T81_SYSTEM_PROCESSOR_LOWER STREQUAL "x86_64" OR T81_SYSTEM_PROCESSOR_LOWER STREQUAL "amd64")
+  set(T81_IS_X86_64 ON)
 endif()
 
 # Global compiler flags (ANSI warnings for GCC/Clang; use /W4 for MSVC)
@@ -63,8 +65,12 @@ add_library(t81_core STATIC
 )
 target_compile_features(t81_core PUBLIC cxx_std_20)
 target_include_directories(t81_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
-  target_sources(t81_core PRIVATE src/simd/base81_digits_avx2.cpp)
+if(T81_IS_X86_64)
+  set(T81_AVX2_SOURCE src/simd/base81_digits_avx2.cpp)
+  target_sources(t81_core PRIVATE ${T81_AVX2_SOURCE})
+  if(NOT MSVC)
+    set_source_files_properties(${T81_AVX2_SOURCE} PROPERTIES COMPILE_OPTIONS "-mavx2;-mfma")
+  endif()
 endif()
 
 # =============================================================================

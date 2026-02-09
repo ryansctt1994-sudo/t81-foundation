@@ -56,7 +56,7 @@ jobs:
         run: cmake --build build --target benchmark_runner --parallel
 
       - name: Run benchmarks
-        run: ./build/benchmarks/benchmark_runner --reporter=json > bench.json
+        run: ./build/benchmarks/benchmark_runner --benchmark_format=json --benchmark_out=bench.json
 
       - name: Upload benchmark artifacts
         if: always()

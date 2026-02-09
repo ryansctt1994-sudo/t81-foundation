@@ -5,8 +5,8 @@
 
 int main(void) {
   // Construct from canonical base-81 digit string (digits 0..80 separated by '.')
-  [[maybe_unused]] t81_bigint h= t81_bigint_from_ascii("1.23.5");
-    assert(h != NULL);
+  t81_bigint h= t81_bigint_from_ascii("1.23.5");
+  assert(h != NULL);
 
   // Convert back to string (implementation-dependent debug format)
   char* s = t81_bigint_to_string(h);
