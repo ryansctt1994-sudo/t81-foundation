@@ -43,6 +43,8 @@ jobs:
         run: node build_index.js
 
       - name: Create Pull Request with updated index
+        id: cpr
+        continue-on-error: true
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -52,3 +54,9 @@ jobs:
           body: 'Automated run of `docs/search/build_index.js`'
           commit-message: 'chore(docs): update search_index.json [ci skip]'
           labels: documentation,automated
+
+      - name: Workflow summary
+        if: always()
+        run: |
+          echo "### Search index automation" >> $GITHUB_STEP_SUMMARY
+          echo "- PR step outcome: ${{ steps.cpr.outcome }}" >> $GITHUB_STEP_SUMMARY

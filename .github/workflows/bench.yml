@@ -23,12 +23,15 @@ jobs:
           - os: ubuntu
             runs_on: ubuntu-24.04
             arch: zen4
+            cxx_flags: -O3 -march=znver4 -DNDEBUG
           - os: ubuntu
             runs_on: ubuntu-24.04
             arch: native
+            cxx_flags: -O3 -march=native -DNDEBUG
           - os: macos
             runs_on: macos-14
             arch: apple-m2
+            cxx_flags: -O3 -DNDEBUG
 
     steps:
       - uses: actions/checkout@v4
@@ -47,7 +50,7 @@ jobs:
           cmake -S . -B build -G Ninja
           -DCMAKE_BUILD_TYPE=Release
           -DT81_BENCHMARK=ON
-          -DCMAKE_CXX_FLAGS="-O3 -march=${{ matrix.arch }} -DNDEBUG"
+          -DCMAKE_CXX_FLAGS="${{ matrix.cxx_flags }}"
 
       - name: Build benchmark runner
         run: cmake --build build --target t81_benchmark --parallel
