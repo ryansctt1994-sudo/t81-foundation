@@ -16,15 +16,18 @@ concurrency:
 jobs:
   benchmark:
     name: ${{ matrix.os }} • ${{ matrix.arch || 'native' }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runs_on }}
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu
+            runs_on: ubuntu-24.04
             arch: zen4
-          - os: ubuntu-latest
+          - os: ubuntu
+            runs_on: ubuntu-24.04
             arch: native
-          - os: macos-latest
+          - os: macos
+            runs_on: macos-14
             arch: apple-m2
 
     steps:
@@ -51,6 +54,16 @@ jobs:
 
       - name: Run benchmarks
         run: ./build/benchmarks/t81_benchmark --reporter=json > bench.json
+
+      - name: Upload benchmark artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: speed-oracle-${{ matrix.os }}-${{ matrix.arch }}
+          path: |
+            bench.json
+            .github/badges/t81-speed.json
+          if-no-files-found: warn
 
       - name: Generate live badge
         run: |
