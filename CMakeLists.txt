@@ -50,6 +50,7 @@ add_library(t81_core STATIC
   src/cog/tier4/tier4_loop.cpp
   src/codec/base243.cpp
   src/codec/base81.cpp
+  src/codec/trit_packing.cpp
   src/bigint/divmod.cpp
   src/bigint/gcd.cpp
   src/vm/jit_compiler.cpp
@@ -217,6 +218,9 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_codec_base243_test PRIVATE t81_core)
   add_executable(t81_codec_base81_test tests/cpp/codec_base81_test.cpp)
   target_link_libraries(t81_codec_base81_test PRIVATE t81_core)
+
+  add_executable(t81_trit_packing_test tests/cpp/trit_packing_test.cpp)
+  target_link_libraries(t81_trit_packing_test PRIVATE t81_core)
 
   add_executable(t81_tensor_shape_test tests/cpp/tensor_shape_test.cpp)
   target_link_libraries(t81_tensor_shape_test PRIVATE t81_core)
@@ -578,6 +582,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_axion_stub_test
     t81_codec_base243_test
     t81_codec_base81_test
+    t81_trit_packing_test
     t81_tensor_shape_test
     t81_ternary_arith_test
     t81_tensor_matmul_test
