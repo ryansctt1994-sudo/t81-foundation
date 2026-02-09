@@ -53,7 +53,6 @@ add_library(t81_core STATIC
   src/codec/base81_balanced.cpp
   src/codec/base81_packed.cpp
   src/codec/metadata.cpp
-  src/simd/base81_digits_avx2.cpp
   src/codec/trit_packing.cpp
   src/bigint/divmod.cpp
   src/bigint/gcd.cpp
@@ -63,6 +62,9 @@ add_library(t81_core STATIC
 )
 target_compile_features(t81_core PUBLIC cxx_std_20)
 target_include_directories(t81_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
+  target_sources(t81_core PRIVATE src/simd/base81_digits_avx2.cpp)
+endif()
 
 # =============================================================================
 # Other libraries
@@ -230,8 +232,10 @@ if(T81_BUILD_TESTS)
   add_executable(t81_base81_balanced_test tests/cpp/test_base81_balanced.cpp)
   target_link_libraries(t81_base81_balanced_test PRIVATE t81_core)
 
-  add_executable(t81_base81_simd_test tests/cpp/test_base81_simd.cpp)
-  target_link_libraries(t81_base81_simd_test PRIVATE t81_core)
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
+    add_executable(t81_base81_simd_test tests/cpp/test_base81_simd.cpp)
+    target_link_libraries(t81_base81_simd_test PRIVATE t81_core)
+  endif()
 
   add_executable(t81_base81_packed_test tests/cpp/test_base81_packed.cpp)
   target_link_libraries(t81_base81_packed_test PRIVATE t81_core)
@@ -607,7 +611,6 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_codec_base81_test
     t81_trit_packing_test
     t81_base81_balanced_test
-    t81_base81_simd_test
     t81_base81_packed_test
     t81_metadata_test
     t81_tisc_base81_view_test
@@ -693,6 +696,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     performance_advancements_test
     t81_distributed_tensor_test
   )
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
+    list(APPEND T81_TEST_TARGETS t81_base81_simd_test)
+  endif()
   foreach(tgt IN LISTS T81_TEST_TARGETS)
     add_test(NAME ${tgt} COMMAND $<TARGET_FILE:${tgt}>)
   endforeach()

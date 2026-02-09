@@ -20,7 +20,12 @@ int main(int argc, char** argv) {
         // Binary -> Base81
         std::ifstream ifs(filename, std::ios::binary);
         if (!ifs) { std::cerr << "Cannot open " << filename << std::endl; return 1; }
-        std::vector<std::byte> bytes((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+        std::vector<char> raw((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+        std::vector<std::byte> bytes;
+        bytes.reserve(raw.size());
+        for (char ch : raw) {
+            bytes.push_back(static_cast<std::byte>(static_cast<unsigned char>(ch)));
+        }
 
         auto program_res = decode(bytes);
         if (!program_res) {

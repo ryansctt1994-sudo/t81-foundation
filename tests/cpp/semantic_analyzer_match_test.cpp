@@ -312,8 +312,8 @@ int main() {
 
     const std::string record_pattern_success = R"(
         record Point2D {
-            [[maybe_unused]] x: i32;
-            [[maybe_unused]] y: i32;
+            x: i32;
+            y: i32;
         };
 
         enum Shape {
@@ -333,8 +333,8 @@ int main() {
 
     const std::string record_pattern_alias_success = R"(
         record Point2D {
-            [[maybe_unused]] x: i32;
-            [[maybe_unused]] y: i32;
+            x: i32;
+            y: i32;
         };
 
         enum Shape {
@@ -354,8 +354,8 @@ int main() {
 
     const std::string record_pattern_error = R"(
         record Point2D {
-            [[maybe_unused]] x: i32;
-            [[maybe_unused]] y: i32;
+            x: i32;
+            y: i32;
         };
 
         enum Shape {
@@ -398,8 +398,8 @@ int main() {
 
     const std::string nested_record_variant_success = R"(
         record Point {
-            [[maybe_unused]] x: i32;
-            [[maybe_unused]] y: i32;
+            x: i32;
+            y: i32;
         };
 
         enum Inner {
