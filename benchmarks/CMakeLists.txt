@@ -44,5 +44,5 @@ target_link_libraries(benchmark_runner PRIVATE benchmark::benchmark t81_core t81
 # Enable AVX2 on GCC/Clang *and* x86/x64 targets to keep macOS/ARM builds clean.
 if (NOT MSVC AND (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang") AND
     CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
-    target_compile_options(benchmark_runner PRIVATE -mavx2)
+    target_compile_options(benchmark_runner PRIVATE -mavx2 -mfma)
 endif()
