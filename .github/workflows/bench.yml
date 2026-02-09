@@ -53,10 +53,10 @@ jobs:
           -DCMAKE_CXX_FLAGS="${{ matrix.cxx_flags }}"
 
       - name: Build benchmark runner
-        run: cmake --build build --target t81_benchmark --parallel
+        run: cmake --build build --target benchmark_runner --parallel
 
       - name: Run benchmarks
-        run: ./build/benchmarks/t81_benchmark --reporter=json > bench.json
+        run: ./build/benchmarks/benchmark_runner --reporter=json > bench.json
 
       - name: Upload benchmark artifacts
         if: always()
@@ -105,4 +105,4 @@ jobs:
           git config user.email "oracle@t81.dev"
           git add .github/badges/t81-speed.json README.md
           git commit -m "oracle(bench): speed is now ${PERF} Gops/s" || echo "No changes"
-          git push
+          git push || echo "Protected branch policy blocked direct push; skipping."
