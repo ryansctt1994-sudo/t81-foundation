@@ -114,6 +114,12 @@ graph TD
 
 [→ Full documentation](docs/) · [Specification](spec/) · [Whitepaper](WHITEPAPER.md) · [Roadmap](ROADMAP.md)
 
+## Ecosystem Runtime Boundary
+
+- Runtime marker: `contracts/runtime-contract.json`
+- Boundary policy: `docs/runtime-semantics-boundary.md`
+- Sync check: `python3 scripts/check-runtime-contract-sync.py`
+
 ### Release v1.0 Resources
 - **[Researcher's Guide](./docs/research-guide.md)**: Deep dive into balanced ternary and cognitive tiers.
 - **[Secure Deployment Tutorial](./docs/guides/secure-deployment-tutorial.md)**: End-to-end guide for verified apps.

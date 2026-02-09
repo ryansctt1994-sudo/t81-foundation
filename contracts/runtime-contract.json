@@ -1,0 +1,8 @@
+{
+  "runtime_tag": "runtime-contract-v0.5",
+  "contract_version": "2026-02-08-v5",
+  "vm_main_pin": "4158a42156a085a2b722205be951576fc01969b9",
+  "contract_source": "https://github.com/t81dev/t81-vm/blob/main/docs/contracts/vm-compatibility.json",
+  "owner": "t81-foundation",
+  "semantics_boundary_doc": "docs/runtime-semantics-boundary.md"
+}

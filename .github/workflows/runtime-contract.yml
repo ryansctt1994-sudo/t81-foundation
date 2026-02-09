@@ -1,0 +1,31 @@
+name: runtime-contract
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "21 4 * * *"
+  workflow_dispatch:
+
+jobs:
+  contract-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout t81-foundation
+        uses: actions/checkout@v4
+        with:
+          path: t81-foundation
+
+      - name: Checkout t81-vm
+        uses: actions/checkout@v4
+        with:
+          repository: t81dev/t81-vm
+          path: t81-vm
+          ref: main
+
+      - name: Validate runtime boundary marker
+        env:
+          T81_VM_DIR: ${{ github.workspace }}/t81-vm
+        working-directory: t81-foundation
+        run: python3 scripts/check-runtime-contract-sync.py

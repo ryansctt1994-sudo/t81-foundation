@@ -2,6 +2,13 @@
 
 This note locks the ownership boundary between normative semantics (`t81-foundation`) and executable runtime behavior (`t81-vm`).
 
+## Active Runtime Baseline
+
+- Active tagged runtime baseline: `runtime-contract-v0.5`
+- VM contract version: `2026-02-08-v5`
+- VM contract commit pin (`t81-vm/main`): `4158a42156a085a2b722205be951576fc01969b9`
+- Contract marker in this repo: `contracts/runtime-contract.json`
+
 ## Ownership Split
 
 `t81-foundation` owns:
@@ -39,3 +46,7 @@ Contract-impacting runtime changes must synchronize:
 - Numeric conversion/quantization behavior claims.
 - Host ABI signatures and struct layout expectations.
 - Determinism guarantees used by downstream tooling.
+
+## Verification Rule
+
+- Run `python3 scripts/check-runtime-contract-sync.py` whenever runtime-contract versions are promoted.
