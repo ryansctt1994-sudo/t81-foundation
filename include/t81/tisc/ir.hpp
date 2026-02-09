@@ -65,6 +65,8 @@ enum class Opcode {
     // System
     NOP, HALT, TRAP,
     WEIGHTS_LOAD,
+    META_READ, META_WRITE,
+    META_REFLECT, META_REFINE,
 
     // Pseudo-instructions
     LABEL

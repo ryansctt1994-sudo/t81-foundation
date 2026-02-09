@@ -70,6 +70,7 @@ enum class MemorySegmentKind : std::int32_t {
   Heap,
   Tensor,
   Meta,
+  Registers = 100,
 };
 
 inline const char* to_string(MemorySegmentKind kind) {
@@ -79,6 +80,7 @@ inline const char* to_string(MemorySegmentKind kind) {
     case MemorySegmentKind::Heap: return "heap";
     case MemorySegmentKind::Tensor: return "tensor";
     case MemorySegmentKind::Meta: return "meta";
+    case MemorySegmentKind::Registers: return "registers";
     default: return "unknown";
   }
 }

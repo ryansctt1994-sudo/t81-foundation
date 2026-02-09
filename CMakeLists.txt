@@ -198,6 +198,12 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_memory_test tests/cpp/vm_memory_test.cpp)
   target_link_libraries(t81_vm_memory_test PRIVATE t81_core)
 
+  add_executable(t81_axion_log_determinism_test tests/cpp/axion_log_determinism_test.cpp)
+  target_link_libraries(t81_axion_log_determinism_test PRIVATE t81_core)
+
+  add_executable(t81_reflection_non_interference_test tests/cpp/reflection_non_interference_test.cpp)
+  target_link_libraries(t81_reflection_non_interference_test PRIVATE t81_core)
+
   add_executable(t81_weights_load_test tests/cpp/weights_load_test.cpp)
   target_link_libraries(t81_weights_load_test PRIVATE t81_core)
 
@@ -588,6 +594,8 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_vm_tensor_test
     t81_vm_fault_test
     t81_vm_memory_test
+    t81_axion_log_determinism_test
+    t81_reflection_non_interference_test
     t81_canonfs_driver_test
     t81_weights_load_test
     t81_vm_trace_test

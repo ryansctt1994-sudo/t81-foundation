@@ -86,5 +86,9 @@ enum class Opcode : std::uint8_t {
   TRoPE,
   TVecMul,
   TTranspose,
+  MetaRead,
+  MetaWrite,
+  MetaReflect,
+  MetaRefine,
 };
 }  // namespace t81::tisc
