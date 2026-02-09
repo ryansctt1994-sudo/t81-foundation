@@ -232,6 +232,10 @@ inline std::string opcode_name(t81::tisc::Opcode opcode) {
         CASE(TRoPE)
         CASE(TVecMul)
         CASE(TTranspose)
+        CASE(MetaRead)
+        CASE(MetaWrite)
+        CASE(MetaReflect)
+        CASE(MetaRefine)
 #undef CASE
     }
     return "Opcode(" + std::to_string(static_cast<int>(opcode)) + ")";

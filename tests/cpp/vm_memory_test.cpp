@@ -26,7 +26,10 @@ t81::vm::Trap run_expected_trap(const std::vector<t81::tisc::Insn>& insns) {
     [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
     vm->load_program(program);
     [[maybe_unused]] auto result= vm->run_to_halt();
-    assert(!result.has_value());
+    if (result.has_value()) {
+        std::cerr << "Expected trap but got success! pc=" << vm->state().pc << " halted=" << vm->state().halted << std::endl;
+        assert(false);
+    }
     return result.error();
 }
 

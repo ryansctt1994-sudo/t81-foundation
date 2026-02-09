@@ -74,6 +74,10 @@ enum class Opcode : uint16_t {
   CapCheck   = 0x0503,
   CapGrant   = 0x0504,
   WeightsLoad = 0x0505,
+  MetaRead   = 0x0506,
+  MetaWrite  = 0x0507,
+  MetaReflect = 0x0508,
+  MetaRefine = 0x0509,
 };
 
 /**
@@ -164,6 +168,10 @@ inline OpcodeDesc get_opcode_desc(Opcode op) {
     case Opcode::CapCheck:   return {op, "capcheck", OP_FLAG_NONE};
     case Opcode::CapGrant:   return {op, "capgrant", OP_FLAG_PRIVILEGED};
     case Opcode::WeightsLoad: return {op, "weights_load", OP_FLAG_PRIVILEGED};
+    case Opcode::MetaRead:    return {op, "metaread", OP_FLAG_PRIVILEGED};
+    case Opcode::MetaWrite:   return {op, "metawrite", OP_FLAG_PRIVILEGED};
+    case Opcode::MetaReflect: return {op, "metareflect", OP_FLAG_PRIVILEGED};
+    case Opcode::MetaRefine:  return {op, "metarefine", OP_FLAG_PRIVILEGED};
 
     default: return {op, "unknown", OP_FLAG_NONE};
   }

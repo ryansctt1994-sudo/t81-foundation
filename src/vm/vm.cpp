@@ -149,8 +149,9 @@ class Interpreter : public IVirtualMachine {
       return {};
     }
 
-    const std::size_t current_pc = state_.pc++;
+    const std::size_t current_pc = state_.pc;
     const auto& insn = program_.insns[current_pc];
+    state_.pc += 1;
     instruction_count_++;
 
     // Hot-spot detection and JIT compilation.
@@ -604,6 +605,95 @@ class Interpreter : public IVirtualMachine {
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
+      case t81::tisc::Opcode::MetaRead: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.c)) { trap = Trap::DecodeFault; break; }
+        MemorySegmentKind segment = static_cast<MemorySegmentKind>(insn.b);
+        std::int64_t addr = state_.registers[insn.c];
+        auto verdict = eval_axion_call("METAREAD", current_pc, insn.opcode);
+        if (verdict.kind == t81::axion::VerdictKind::Deny) { trap = Trap::SecurityFault; break; }
+        if (segment == MemorySegmentKind::Registers) {
+          if (!reg_ok(static_cast<int>(addr))) { trap = Trap::BoundsFault; break; }
+          state_.registers[insn.a] = state_.registers[addr];
+          state_.register_tags[insn.a] = state_.register_tags[addr];
+        } else if (segment == MemorySegmentKind::Code) {
+          if (addr < 0 || static_cast<size_t>(addr) >= program_.insns.size()) { trap = Trap::BoundsFault; break; }
+          state_.registers[insn.a] = static_cast<std::int64_t>(program_.insns[addr].opcode);
+          state_.register_tags[insn.a] = ValueTag::Int;
+        } else {
+          std::size_t physical_addr = 0;
+          bool ok = false;
+          const auto& layout = state_.layout;
+          switch (segment) {
+            case MemorySegmentKind::Stack: if (layout.stack.contains(addr)) { physical_addr = addr; ok = true; } break;
+            case MemorySegmentKind::Heap: if (layout.heap.contains(addr)) { physical_addr = addr; ok = true; } break;
+            case MemorySegmentKind::Tensor: if (layout.tensor.contains(addr)) { physical_addr = addr; ok = true; } break;
+            case MemorySegmentKind::Meta: if (layout.meta.contains(addr)) { physical_addr = addr; ok = true; } break;
+            default: break;
+          }
+          if (!ok) { trap = Trap::BoundsFault; break; }
+          state_.registers[insn.a] = state_.memory[physical_addr];
+          state_.register_tags[insn.a] = state_.memory_tags[physical_addr];
+        }
+        update_flags(state_.registers[insn.a]);
+        apply_segment_reason(verdict, "MetaRead reflection", segment, static_cast<size_t>(addr));
+        record_axion_event(insn.opcode, static_cast<int32_t>(segment), addr, verdict);
+        break;
+      }
+      case t81::tisc::Opcode::MetaWrite: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.c)) { trap = Trap::DecodeFault; break; }
+        MemorySegmentKind segment = static_cast<MemorySegmentKind>(insn.b);
+        std::int64_t addr = state_.registers[insn.c];
+        std::int64_t val = state_.registers[insn.a];
+        ValueTag tag = state_.register_tags[insn.a];
+        auto verdict = eval_axion_call("METAWRITE", current_pc, insn.opcode);
+        if (verdict.kind == t81::axion::VerdictKind::Deny) { trap = Trap::SecurityFault; break; }
+        if (segment == MemorySegmentKind::Registers) {
+          if (!reg_ok(static_cast<int>(addr))) { trap = Trap::BoundsFault; break; }
+          state_.registers[addr] = val;
+          state_.register_tags[addr] = tag;
+        } else if (segment == MemorySegmentKind::Code) {
+          if (addr < 0 || static_cast<size_t>(addr) >= program_.insns.size()) { trap = Trap::BoundsFault; break; }
+          program_.insns[addr].opcode = static_cast<t81::tisc::Opcode>(val);
+          compiled_traces_.clear();
+        } else {
+          std::size_t physical_addr = 0;
+          bool ok = false;
+          const auto& layout = state_.layout;
+          switch (segment) {
+            case MemorySegmentKind::Stack: if (layout.stack.contains(addr)) { physical_addr = addr; ok = true; } break;
+            case MemorySegmentKind::Heap: if (layout.heap.contains(addr)) { physical_addr = addr; ok = true; } break;
+            case MemorySegmentKind::Tensor: if (layout.tensor.contains(addr)) { physical_addr = addr; ok = true; } break;
+            case MemorySegmentKind::Meta: if (layout.meta.contains(addr)) { physical_addr = addr; ok = true; } break;
+            default: break;
+          }
+          if (!ok) { trap = Trap::BoundsFault; break; }
+          state_.memory[physical_addr] = val;
+          state_.memory_tags[physical_addr] = tag;
+        }
+        apply_segment_reason(verdict, "MetaWrite reflection", segment, static_cast<size_t>(addr));
+        record_axion_event(insn.opcode, static_cast<int32_t>(segment), addr, verdict);
+        break;
+      }
+      case t81::tisc::Opcode::MetaReflect: {
+        if (!reg_ok(insn.a)) { trap = Trap::DecodeFault; break; }
+        auto verdict = eval_axion_call("METAREFLECT", current_pc, insn.opcode);
+        if (verdict.kind == t81::axion::VerdictKind::Deny) { trap = Trap::SecurityFault; break; }
+        std::int64_t snapshot_handle = static_cast<std::int64_t>(state_.pc);
+        set_reg(insn.a, snapshot_handle, ValueTag::Int);
+        update_flags(snapshot_handle);
+        record_axion_event(insn.opcode, insn.b, snapshot_handle, verdict);
+        break;
+      }
+      case t81::tisc::Opcode::MetaRefine: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) { trap = Trap::DecodeFault; break; }
+        auto verdict = eval_axion_call("METAREFINE", current_pc, insn.opcode);
+        if (verdict.kind == t81::axion::VerdictKind::Deny) { trap = Trap::SecurityFault; break; }
+        std::int64_t refined_handle = state_.registers[insn.b] ^ state_.registers[insn.c];
+        set_reg(insn.a, refined_handle, ValueTag::Int);
+        update_flags(refined_handle);
+        record_axion_event(insn.opcode, insn.b, refined_handle, verdict);
+        break;
+      }
       case t81::tisc::Opcode::TSqrt: {
         if (!reg_ok(insn.a) || !reg_ok(insn.b)) { trap = Trap::DecodeFault; break; }
         if (auto res = promote_to_tensor(insn.b); !res) { trap = res.error(); break; }
@@ -701,20 +791,20 @@ class Interpreter : public IVirtualMachine {
         break;
       }
       case t81::tisc::Opcode::Jump:
-        if (!check_mem(insn.opcode, insn.a, "jump", true)) { trap = Trap::BoundsFault; break; }
+        if (!check_mem(insn.opcode, insn.a, "jump", true)) { trap = Trap::DecodeFault; break; }
         state_.pc = static_cast<std::size_t>(insn.a);
         break;
       case t81::tisc::Opcode::JumpIfZero:
         if (!reg_ok(insn.b)) { trap = Trap::DecodeFault; break; }
         if (state_.registers[insn.b] == 0) {
-          if (!check_mem(insn.opcode, insn.a, "jump if zero", true)) { trap = Trap::BoundsFault; break; }
+          if (!check_mem(insn.opcode, insn.a, "jump if zero", true)) { trap = Trap::DecodeFault; break; }
           state_.pc = static_cast<std::size_t>(insn.a);
         }
         break;
       case t81::tisc::Opcode::JumpIfNotZero:
         if (!reg_ok(insn.b)) { trap = Trap::DecodeFault; break; }
         if (state_.registers[insn.b] != 0) {
-          if (!check_mem(insn.opcode, insn.a, "jump if not zero", true)) { trap = Trap::BoundsFault; break; }
+          if (!check_mem(insn.opcode, insn.a, "jump if not zero", true)) { trap = Trap::DecodeFault; break; }
           state_.pc = static_cast<std::size_t>(insn.a);
         }
         break;
@@ -726,13 +816,13 @@ class Interpreter : public IVirtualMachine {
         break;
       case t81::tisc::Opcode::JumpIfNegative:
         if (state_.flags.negative) {
-          if (!check_mem(insn.opcode, insn.a, "jump if negative", true)) { trap = Trap::BoundsFault; break; }
+          if (!check_mem(insn.opcode, insn.a, "jump if negative", true)) { trap = Trap::DecodeFault; break; }
           state_.pc = static_cast<std::size_t>(insn.a);
         }
         break;
       case t81::tisc::Opcode::JumpIfPositive:
         if (state_.flags.positive) {
-          if (!check_mem(insn.opcode, insn.a, "jump if positive", true)) { trap = Trap::BoundsFault; break; }
+          if (!check_mem(insn.opcode, insn.a, "jump if positive", true)) { trap = Trap::DecodeFault; break; }
           state_.pc = static_cast<std::size_t>(insn.a);
         }
         break;
@@ -908,6 +998,10 @@ class Interpreter : public IVirtualMachine {
           trap = Trap::BoundsFault;
           break;
         }
+        if (state_.registers[insn.a] != 0) {
+          trap = Trap::DecodeFault;
+          break;
+        }
         state_.heap_frames.emplace_back(static_cast<std::int64_t>(addr), static_cast<std::int64_t>(size));
         state_.heap_ptr = addr + size;
         set_reg(insn.a, static_cast<std::int64_t>(addr), ValueTag::Int);
@@ -1036,7 +1130,7 @@ class Interpreter : public IVirtualMachine {
       case t81::tisc::Opcode::Call: {
         if (!reg_ok(insn.b)) { trap = Trap::DecodeFault; break; }
         auto target = state_.registers[insn.b];
-        if (!check_mem(insn.opcode, static_cast<int>(target), "call", true)) { trap = Trap::BoundsFault; break; }
+        if (!check_mem(insn.opcode, static_cast<int>(target), "call", true)) { trap = Trap::DecodeFault; break; }
         if (!push_stack(static_cast<std::int64_t>(state_.pc), ValueTag::Int)) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(state_.sp), "stack call");
           trap = Trap::StackFault;
@@ -1054,7 +1148,7 @@ class Interpreter : public IVirtualMachine {
           break;
         }
         if (tag != ValueTag::Int) { trap = Trap::TypeFault; break; }
-        if (!check_mem(insn.opcode, static_cast<int>(addr), "return", true)) { trap = Trap::BoundsFault; break; }
+        if (!check_mem(insn.opcode, static_cast<int>(addr), "return", true)) { trap = Trap::DecodeFault; break; }
         state_.pc = static_cast<std::size_t>(addr);
         break;
       }
@@ -1497,8 +1591,7 @@ class Interpreter : public IVirtualMachine {
 
     log_trace(insn.opcode, trap);
     if (trap != Trap::None) {
-      std::cerr << "[VM] Trap " << to_string(trap) << " at PC=" << current_pc << " Opcode=" << static_cast<int>(insn.opcode) << "\n";
-      return trap;
+      return {t81::unexpect, trap};
     }
     return {};
   }
@@ -1631,6 +1724,7 @@ class Interpreter : public IVirtualMachine {
   }
 
   void push_axion_event(const AxionEvent& event) {
+    std::cerr << "[VM] push_axion_event: opcode=" << static_cast<int>(event.opcode) << " reason=\"" << event.verdict.reason << "\"\n";
     state_.axion_log.push_back(event);
   }
 
