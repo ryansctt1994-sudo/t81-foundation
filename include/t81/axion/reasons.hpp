@@ -32,6 +32,8 @@ constexpr std::string_view kDivisionFault = "division fault";
 constexpr std::string_view kSecurityFault = "security fault";
 constexpr std::string_view kShapeFault = "shape fault";
 constexpr std::string_view kDecodeFault = "decode fault";
+constexpr std::string_view kRecursionCeiling = "recursion ceiling exceeded";
+constexpr std::string_view kContradictionDetected = "contradiction detected";
 
 // --- Garbage Collection ---
 constexpr std::string_view kGcCycle = "GC cycle";

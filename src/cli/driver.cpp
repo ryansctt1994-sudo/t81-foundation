@@ -243,7 +243,7 @@ inline std::string opcode_name(t81::tisc::Opcode opcode) {
 
 std::string format_trace_entry(const t81::vm::TraceEntry& entry) {
     std::ostringstream oss;
-    oss << "PC=" << entry.pc << ' ' << opcode_name(entry.opcode);
+    oss << "PC=" << entry.pc << ' ' << t81::tisc::opcode_name(entry.opcode);
     if (entry.trap) {
         oss << " trap=" << t81::vm::to_string(*entry.trap);
     }

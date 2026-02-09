@@ -174,6 +174,8 @@ struct State {
   std::vector<const t81::weights::NativeTensor*> weights_tensor_refs;
   std::unordered_map<std::string, std::int64_t> weights_tensor_handles;
   std::vector<std::pair<std::int64_t, std::int64_t>> stack_frames;
+  std::size_t call_depth{0};
+  std::size_t contradiction_events{0};
   std::vector<std::pair<std::int64_t, std::int64_t>> heap_frames;
   std::size_t heap_ptr{0};
   std::size_t meta_ptr{0};

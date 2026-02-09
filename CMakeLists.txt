@@ -59,6 +59,7 @@ add_library(t81_core STATIC
   src/vm/jit_compiler.cpp
   src/hash/canonhash81.cpp
   src/crypto/sha3.cpp
+  src/setun/bridge.cpp
 )
 target_compile_features(t81_core PUBLIC cxx_std_20)
 target_include_directories(t81_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -248,6 +249,18 @@ if(T81_BUILD_TESTS)
 
   add_executable(tisc_base81 tools/tisc_base81.cpp)
   target_link_libraries(tisc_base81 PRIVATE t81_tisc)
+
+  add_executable(setun_bridge_test tests/cpp/setun_bridge_test.cpp)
+  target_link_libraries(setun_bridge_test PRIVATE t81_core)
+
+  add_executable(tisc_opcode_matrix_test tests/cpp/tisc_opcode_matrix_test.cpp)
+  target_link_libraries(tisc_opcode_matrix_test PRIVATE t81_tisc)
+
+  add_executable(t81lang_conformance_baseline_test tests/cpp/t81lang_conformance_baseline_test.cpp)
+  target_link_libraries(t81lang_conformance_baseline_test PRIVATE t81_frontend)
+
+  add_executable(axion_recursion_guardrails_test tests/cpp/axion_recursion_guardrails_test.cpp)
+  target_link_libraries(axion_recursion_guardrails_test PRIVATE t81_core)
 
   add_executable(t81_tensor_shape_test tests/cpp/tensor_shape_test.cpp)
   target_link_libraries(t81_tensor_shape_test PRIVATE t81_core)
@@ -614,6 +627,10 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_base81_packed_test
     t81_metadata_test
     t81_tisc_base81_view_test
+    setun_bridge_test
+    tisc_opcode_matrix_test
+    t81lang_conformance_baseline_test
+    axion_recursion_guardrails_test
     t81_tensor_shape_test
     t81_ternary_arith_test
     t81_tensor_matmul_test

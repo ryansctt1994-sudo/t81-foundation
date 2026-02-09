@@ -27,6 +27,7 @@ constexpr std::size_t kDefaultStackSize = 256;
 constexpr std::size_t kDefaultHeapSize = 768;
 constexpr std::size_t kDefaultTensorSpace = 256;
 constexpr std::size_t kDefaultMetaSpace = 256;
+constexpr std::size_t kHardRecursionCeiling = 729;
 
 class Interpreter : public IVirtualMachine {
  public:
@@ -75,6 +76,8 @@ class Interpreter : public IVirtualMachine {
     state_.weights_tensor_refs.clear();
     state_.weights_tensor_handles.clear();
     state_.stack_frames.clear();
+    state_.call_depth = 0;
+    state_.contradiction_events = 0;
     state_.heap_frames.clear();
     state_.heap_ptr = layout.heap.start;
     state_.meta_ptr = layout.meta.start;
@@ -1236,6 +1239,19 @@ class Interpreter : public IVirtualMachine {
       }
       case t81::tisc::Opcode::Call: {
         if (!reg_ok(insn.b)) { trap = Trap::DecodeFault; break; }
+        if (state_.call_depth >= kHardRecursionCeiling) {
+          ++state_.contradiction_events;
+          t81::axion::Verdict recursion_verdict;
+          recursion_verdict.kind = t81::axion::VerdictKind::Deny;
+          std::ostringstream reason;
+          reason << t81::axion::reasons::kRecursionCeiling
+                 << " depth=" << state_.call_depth
+                 << " limit=" << kHardRecursionCeiling;
+          recursion_verdict.reason = reason.str();
+          record_axion_event(insn.opcode, insn.b, static_cast<std::int64_t>(state_.call_depth), recursion_verdict);
+          trap = Trap::SecurityFault;
+          break;
+        }
         auto target = state_.registers[insn.b];
         if (!check_mem(insn.opcode, static_cast<int>(target), "call", true)) { trap = Trap::DecodeFault; break; }
         if (!push_stack(static_cast<std::int64_t>(state_.pc), ValueTag::Int)) {
@@ -1243,6 +1259,7 @@ class Interpreter : public IVirtualMachine {
           trap = Trap::StackFault;
           break;
         }
+        ++state_.call_depth;
         state_.pc = static_cast<std::size_t>(target);
         break;
       }
@@ -1256,6 +1273,15 @@ class Interpreter : public IVirtualMachine {
         }
         if (tag != ValueTag::Int) { trap = Trap::TypeFault; break; }
         if (!check_mem(insn.opcode, static_cast<int>(addr), "return", true)) { trap = Trap::DecodeFault; break; }
+        if (state_.call_depth > 0) {
+          --state_.call_depth;
+        } else {
+          ++state_.contradiction_events;
+          t81::axion::Verdict contradiction_verdict;
+          contradiction_verdict.kind = t81::axion::VerdictKind::Allow;
+          contradiction_verdict.reason = std::string(t81::axion::reasons::kContradictionDetected) + " return-without-call";
+          record_axion_event(insn.opcode, insn.a, addr, contradiction_verdict);
+        }
         state_.pc = static_cast<std::size_t>(addr);
         break;
       }
@@ -1756,7 +1782,7 @@ class Interpreter : public IVirtualMachine {
     ctx.pc = pc;
     ctx.next_opcode = opcode;
     ctx.instruction_count = instruction_count_;
-    ctx.recursion_depth = state_.stack_frames.size();
+    ctx.recursion_depth = std::max(state_.stack_frames.size(), state_.call_depth);
     ctx.stack_usage = state_.layout.stack.limit - state_.sp;
     ctx.reflection_count = state_.reflection_count;
     ctx.meta_write_count = state_.meta_write_count;

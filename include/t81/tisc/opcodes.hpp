@@ -1,6 +1,8 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
+#include <string_view>
 
 namespace t81::tisc {
 // Opcode definitions per spec/tisc-spec.md. This is a subset placeholder.
@@ -91,4 +93,107 @@ enum class Opcode : std::uint8_t {
   MetaReflect,
   MetaRefine,
 };
+
+[[nodiscard]] constexpr std::string_view opcode_name(Opcode opcode) {
+  switch (opcode) {
+    case Opcode::Nop: return "Nop";
+    case Opcode::Halt: return "Halt";
+    case Opcode::LoadImm: return "LoadImm";
+    case Opcode::Load: return "Load";
+    case Opcode::Store: return "Store";
+    case Opcode::Add: return "Add";
+    case Opcode::Sub: return "Sub";
+    case Opcode::Mul: return "Mul";
+    case Opcode::Div: return "Div";
+    case Opcode::Mod: return "Mod";
+    case Opcode::Jump: return "Jump";
+    case Opcode::JumpIfZero: return "JumpIfZero";
+    case Opcode::Mov: return "Mov";
+    case Opcode::Inc: return "Inc";
+    case Opcode::Dec: return "Dec";
+    case Opcode::Cmp: return "Cmp";
+    case Opcode::Push: return "Push";
+    case Opcode::Pop: return "Pop";
+    case Opcode::TNot: return "TNot";
+    case Opcode::TAnd: return "TAnd";
+    case Opcode::TOr: return "TOr";
+    case Opcode::TXor: return "TXor";
+    case Opcode::AxRead: return "AxRead";
+    case Opcode::AxSet: return "AxSet";
+    case Opcode::AxVerify: return "AxVerify";
+    case Opcode::JumpIfNotZero: return "JumpIfNotZero";
+    case Opcode::Call: return "Call";
+    case Opcode::Ret: return "Ret";
+    case Opcode::Trap: return "Trap";
+    case Opcode::I2F: return "I2F";
+    case Opcode::F2I: return "F2I";
+    case Opcode::I2Frac: return "I2Frac";
+    case Opcode::Frac2I: return "Frac2I";
+    case Opcode::TVecAdd: return "TVecAdd";
+    case Opcode::TMatMul: return "TMatMul";
+    case Opcode::TTenDot: return "TTenDot";
+    case Opcode::FAdd: return "FAdd";
+    case Opcode::FSub: return "FSub";
+    case Opcode::FMul: return "FMul";
+    case Opcode::FDiv: return "FDiv";
+    case Opcode::FracAdd: return "FracAdd";
+    case Opcode::FracSub: return "FracSub";
+    case Opcode::FracMul: return "FracMul";
+    case Opcode::FracDiv: return "FracDiv";
+    case Opcode::SetF: return "SetF";
+    case Opcode::ChkShape: return "ChkShape";
+    case Opcode::MakeOptionSome: return "MakeOptionSome";
+    case Opcode::MakeOptionNone: return "MakeOptionNone";
+    case Opcode::MakeResultOk: return "MakeResultOk";
+    case Opcode::MakeResultErr: return "MakeResultErr";
+    case Opcode::OptionIsSome: return "OptionIsSome";
+    case Opcode::OptionUnwrap: return "OptionUnwrap";
+    case Opcode::ResultIsOk: return "ResultIsOk";
+    case Opcode::ResultUnwrapOk: return "ResultUnwrapOk";
+    case Opcode::ResultUnwrapErr: return "ResultUnwrapErr";
+    case Opcode::MakeEnumVariant: return "MakeEnumVariant";
+    case Opcode::MakeEnumVariantPayload: return "MakeEnumVariantPayload";
+    case Opcode::EnumIsVariant: return "EnumIsVariant";
+    case Opcode::EnumUnwrapPayload: return "EnumUnwrapPayload";
+    case Opcode::Neg: return "Neg";
+    case Opcode::JumpIfNegative: return "JumpIfNegative";
+    case Opcode::JumpIfPositive: return "JumpIfPositive";
+    case Opcode::Less: return "Less";
+    case Opcode::LessEqual: return "LessEqual";
+    case Opcode::Greater: return "Greater";
+    case Opcode::GreaterEqual: return "GreaterEqual";
+    case Opcode::Equal: return "Equal";
+    case Opcode::NotEqual: return "NotEqual";
+    case Opcode::StackAlloc: return "StackAlloc";
+    case Opcode::StackFree: return "StackFree";
+    case Opcode::HeapAlloc: return "HeapAlloc";
+    case Opcode::HeapFree: return "HeapFree";
+    case Opcode::WeightsLoad: return "WeightsLoad";
+    case Opcode::TExp: return "TExp";
+    case Opcode::TSqrt: return "TSqrt";
+    case Opcode::TSiLU: return "TSiLU";
+    case Opcode::TSoftmax: return "TSoftmax";
+    case Opcode::TRMSNorm: return "TRMSNorm";
+    case Opcode::TRoPE: return "TRoPE";
+    case Opcode::TVecMul: return "TVecMul";
+    case Opcode::TTranspose: return "TTranspose";
+    case Opcode::MetaRead: return "MetaRead";
+    case Opcode::MetaWrite: return "MetaWrite";
+    case Opcode::MetaReflect: return "MetaReflect";
+    case Opcode::MetaRefine: return "MetaRefine";
+  }
+  return "Unknown";
+}
+
+inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::MetaRefine) + 1> kAllOpcodes = [] {
+  std::array<Opcode, static_cast<std::size_t>(Opcode::MetaRefine) + 1> values{};
+  for (std::size_t i = 0; i < values.size(); ++i) {
+    values[i] = static_cast<Opcode>(i);
+  }
+  return values;
+}();
+
+[[nodiscard]] constexpr bool is_valid_opcode(std::uint8_t raw_opcode) {
+  return raw_opcode <= static_cast<std::uint8_t>(Opcode::MetaRefine);
+}
 }  // namespace t81::tisc

@@ -27,11 +27,10 @@ std::expected<Program, EncodingError> decode(const std::vector<std::byte>& bytes
   if (bytes.size() % kInsnSize != 0) {
     return EncodingError::Truncated;
   }
-  const std::uint8_t max_opcode = static_cast<std::uint8_t>(Opcode::TTenDot);
   for (std::size_t offset = 0; offset < bytes.size(); offset += kInsnSize) {
     Insn insn;
     const auto opcode = static_cast<std::uint8_t>(bytes[offset]);
-    if (opcode > max_opcode) {
+    if (!is_valid_opcode(opcode)) {
       return EncodingError::InvalidOpcode;
     }
     insn.opcode = static_cast<Opcode>(opcode);
