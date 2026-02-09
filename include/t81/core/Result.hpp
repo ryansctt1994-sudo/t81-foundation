@@ -4,10 +4,9 @@
 
 namespace t81 {
 
-// Alias to align the T81Lang surface type `Result[T, E]` with the core
+// Alias to align the T81Lang surface type `Result[T]` with the core
 // implementation `T81Result<T>`.
-template <typename T, typename E = T81Error>
+template <typename T>
 using Result = T81Result<T>;
 
 } // namespace t81
-

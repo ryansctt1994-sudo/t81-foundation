@@ -23,6 +23,7 @@ ______________________________________________________________________
     - **[DONE] [L] Task:** Implement the core type-checking logic within the `SemanticAnalyzer`.
     - **[DONE] [M] Task:** Implement type checking for generic types, focusing on `Option[T]` and `Result[T, E]`.
     - **[DONE] [S] Task:** Add the Option/Result end-to-end regression that now accompanies the compiler pipeline.
+    - **[DONE] [S] Task:** Fix `Result[T, E]` alias in `include/t81/core/Result.hpp` to remove unused `E`.
 
 - **[EPIC] Expand Language Feature Support:**
     - **[DONE] [L] Task:** Extend the `Parser` for `loop`/`match`.
@@ -95,6 +96,9 @@ ______________________________________________________________________
 **Goal:** Quantify and eliminate bottlenecks to move the system toward production scale.
 
 - **[EPIC] Numeric & I/O Optimization:**
+    - **[DONE] [M] Task:** Implement Balanced Base-81 representation and SIMD kernels (add/sub/neg) for Base-81 digits.
+    - **[DONE] [S] Task:** Implement Packed Base-81 blocks (5 digits -> uint32) and canonical metadata headers.
+    - **[DONE] [M] Task:** Implement Base-81 Assembler/Disassembler view for TISC bytecode.
     - **[M] Task:** Optimize multi-limb `T81BigInt` arithmetic using SIMD Karatsuba techniques.
     - **[L] Task:** Optimize CanonFS for high-throughput async persistence and retrieval.
     - **[L] Task:** Implement a HanoiVM JIT compiler prototype for compute-intensive workloads.
