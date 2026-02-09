@@ -350,11 +350,11 @@ jobs:
             -DCMAKE_CXX_COMPILER=clang++-18 \
             -DCMAKE_BUILD_TYPE=Release \
             -DT81_BUILD_FUZZ_TESTS=ON
-          cmake --build build --target frontend_fuzz_test
+          cmake --build build --target t81_frontend_fuzz_test
 
       - name: Run Fuzzer
         run: |
-          ./build/tests/cpp/frontend_fuzz_test -max_total_time=60
+          ./build/t81_frontend_fuzz_test -max_total_time=60
 
   ############################################################################
   # JOB: formal-verification

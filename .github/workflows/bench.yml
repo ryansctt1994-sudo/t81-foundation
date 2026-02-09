@@ -23,7 +23,7 @@ jobs:
           - os: ubuntu
             runs_on: ubuntu-24.04
             arch: zen4
-            cxx_flags: -O3 -march=znver4 -DNDEBUG
+            cxx_flags: -O3 -mtune=znver4 -DNDEBUG
           - os: ubuntu
             runs_on: ubuntu-24.04
             arch: native
