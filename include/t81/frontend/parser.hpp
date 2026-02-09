@@ -18,6 +18,11 @@ struct StructuralAttributes {
     std::optional<Token> anchor;
 };
 
+struct FunctionAttributes {
+    std::optional<std::int64_t> tier;
+    std::optional<Token> anchor;
+};
+
 class Parser {
 public:
     Parser(Lexer& lexer, std::string source_name = {});
@@ -58,6 +63,7 @@ private:
                                std::optional<std::int64_t>& bound_value,
                                Token& attr_token,
                                std::unique_ptr<Expr>& guard_expr);
+    std::optional<FunctionAttributes> parse_function_attributes();
     std::unique_ptr<GenericTypeExpr> parse_generic_type(Token name);
     std::optional<StructuralAttributes> parse_structural_attributes();
 

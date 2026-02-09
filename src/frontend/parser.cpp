@@ -127,6 +127,7 @@ void Parser::synchronize() {
 std::unique_ptr<Stmt> Parser::declaration() {
     try {
         auto struct_attrs = parse_structural_attributes();
+        auto function_attrs = parse_function_attributes();
         if (match({TokenType::Type})) return type_declaration();
         if (match({TokenType::Record})) return record_declaration(struct_attrs);
         if (match({TokenType::Enum})) return enum_declaration(struct_attrs);
@@ -135,6 +136,10 @@ std::unique_ptr<Stmt> Parser::declaration() {
             report_error(anchor, "Structural attributes may only decorate records or enums.");
         }
         if (match({TokenType::Fn})) return function("function");
+        if (function_attrs.has_value()) {
+            const Token& anchor = function_attrs->anchor.value_or(peek());
+            report_error(anchor, "Function attributes may only decorate functions.");
+        }
         if (match({TokenType::Var})) return var_declaration();
         if (match({TokenType::Let})) return let_declaration();
         return statement();
@@ -718,6 +723,50 @@ std::optional<StructuralAttributes> Parser::parse_structural_attributes() {
             while (!check(TokenType::RParen) && !is_at_end()) {
                 advance();
             }
+        }
+
+        consume(TokenType::RParen, "Expect ')' after attribute.");
+    }
+    if (!seen) {
+        return std::nullopt;
+    }
+    return attrs;
+}
+
+std::optional<FunctionAttributes> Parser::parse_function_attributes() {
+    FunctionAttributes attrs;
+    bool seen = false;
+    while (check(TokenType::At)) {
+        Token lookahead = _lexer.peek_next_token();
+        if (lookahead.type != TokenType::Identifier) {
+            break;
+        }
+        std::string attr_candidate{lookahead.lexeme};
+        if (attr_candidate != "tier") {
+            break;
+        }
+        match({TokenType::At});
+        Token name = consume(TokenType::Identifier, "Expect attribute name after '@'.");
+        if (!seen) {
+            attrs.anchor = name;
+        }
+        seen = true;
+        consume(TokenType::LParen, "Expect '(' after attribute name.");
+
+        if (attrs.tier.has_value()) {
+            report_error(name, "Duplicate '@tier' attribute.");
+        }
+
+        Token value = consume(TokenType::Integer, "Expect integer tier value.");
+        try {
+            std::int64_t tier = std::stoll(std::string(value.lexeme));
+            if (tier < 1 || tier > 5) {
+                report_error(value, "Tier value must be in [1, 5].");
+            } else {
+                attrs.tier = tier;
+            }
+        } catch (const std::exception&) {
+            report_error(value, "Invalid integer for tier value.");
         }
 
         consume(TokenType::RParen, "Expect ')' after attribute.");

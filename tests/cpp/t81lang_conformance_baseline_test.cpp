@@ -37,20 +37,19 @@ static void test_baseline_supported_features() {
   assert(analyzes(source, "t81lang_supported_baseline"));
 }
 
-static void test_known_gap_tier_annotation_rejected() {
+static void test_tier_annotation_supported_for_functions() {
   constexpr const char* source = R"(
     @tier(2)
     fn main() -> i32 {
       return 0;
     }
   )";
-  // Current parser only supports @bounded(...) annotations for loops.
-  assert(!analyzes(source, "t81lang_known_gap_tier_annotation"));
+  assert(analyzes(source, "t81lang_tier_annotation_supported"));
 }
 
 int main() {
   test_baseline_supported_features();
-  test_known_gap_tier_annotation_rejected();
+  test_tier_annotation_supported_for_functions();
   std::cout << "t81lang conformance baseline tests passed!\n";
   return 0;
 }
