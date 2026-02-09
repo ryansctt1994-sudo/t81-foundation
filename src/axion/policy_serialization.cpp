@@ -64,6 +64,14 @@ void Policy::serialize(std::ostream& os) const {
         write_u8(os, static_cast<uint8_t>(PolicyTag::MaxRecursion));
         write_u64(os, static_cast<uint64_t>(*max_recursion));
     }
+    if (max_reflections) {
+        write_u8(os, static_cast<uint8_t>(PolicyTag::MaxReflections));
+        write_u64(os, static_cast<uint64_t>(*max_reflections));
+    }
+    if (max_meta_writes) {
+        write_u8(os, static_cast<uint8_t>(PolicyTag::MaxMetaWrites));
+        write_u64(os, static_cast<uint64_t>(*max_meta_writes));
+    }
 
     for (const auto& loop : loops) {
         write_u8(os, static_cast<uint8_t>(PolicyTag::LoopHint));
@@ -157,6 +165,14 @@ void Policy::compile_to_bytecode() {
         emit_u8(static_cast<uint8_t>(AxionOp::LimitRecursion));
         emit_u64(static_cast<uint64_t>(*max_recursion));
     }
+    if (max_reflections) {
+        emit_u8(static_cast<uint8_t>(AxionOp::LimitReflections));
+        emit_u64(static_cast<uint64_t>(*max_reflections));
+    }
+    if (max_meta_writes) {
+        emit_u8(static_cast<uint8_t>(AxionOp::LimitMetaWrites));
+        emit_u64(static_cast<uint64_t>(*max_meta_writes));
+    }
 
     for (const auto& loop : loops) {
         emit_u8(static_cast<uint8_t>(AxionOp::RequireLoop));
@@ -220,6 +236,12 @@ t81::expected<Policy, std::string> Policy::deserialize(std::istream& is) {
                 break;
             case PolicyTag::MaxRecursion:
                 policy.max_recursion = static_cast<int64_t>(read_u64(is));
+                break;
+            case PolicyTag::MaxReflections:
+                policy.max_reflections = static_cast<int64_t>(read_u64(is));
+                break;
+            case PolicyTag::MaxMetaWrites:
+                policy.max_meta_writes = static_cast<int64_t>(read_u64(is));
                 break;
             case PolicyTag::LoopHint: {
                 LoopHint hint;

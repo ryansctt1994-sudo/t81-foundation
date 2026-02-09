@@ -74,6 +74,24 @@ Verdict PolicyEngine::execute_bytecode(const SyscallContext& ctx) {
                 }
                 break;
             }
+            case AxionOp::LimitReflections: {
+                uint64_t limit = read_u64();
+                if (ctx.reflection_count > limit) {
+                    std::ostringstream ss;
+                    ss << "Reflection count limit exceeded: count=" << ctx.reflection_count << " limit=" << limit;
+                    return Verdict{VerdictKind::Deny, ss.str()};
+                }
+                break;
+            }
+            case AxionOp::LimitMetaWrites: {
+                uint64_t limit = read_u64();
+                if (ctx.meta_write_count > limit) {
+                    std::ostringstream ss;
+                    ss << "Meta write count limit exceeded: count=" << ctx.meta_write_count << " limit=" << limit;
+                    return Verdict{VerdictKind::Deny, ss.str()};
+                }
+                break;
+            }
             case AxionOp::LimitStack: {
                 uint64_t limit = read_u64();
                 if (ctx.stack_usage > limit) {
@@ -205,6 +223,18 @@ Verdict PolicyEngine::evaluate(const SyscallContext& ctx) {
     std::ostringstream reason;
     reason << "Stack usage limit exceeded: usage=" << ctx.stack_usage
            << " limit=" << *policy_->max_stack;
+    return Verdict{VerdictKind::Deny, reason.str()};
+  }
+  if (policy_->max_reflections && ctx.reflection_count > static_cast<std::size_t>(*policy_->max_reflections)) {
+    std::ostringstream reason;
+    reason << "Reflection count limit exceeded: count=" << ctx.reflection_count
+           << " limit=" << *policy_->max_reflections;
+    return Verdict{VerdictKind::Deny, reason.str()};
+  }
+  if (policy_->max_meta_writes && ctx.meta_write_count > static_cast<std::size_t>(*policy_->max_meta_writes)) {
+    std::ostringstream reason;
+    reason << "Meta write count limit exceeded: count=" << ctx.meta_write_count
+           << " limit=" << *policy_->max_meta_writes;
     return Verdict{VerdictKind::Deny, reason.str()};
   }
   for (size_t i = 0; i < loop_reqs_.size(); ++i) {

@@ -22,7 +22,7 @@ For a detailed breakdown, see the [**System Status Report**](docs/system-status.
 With the core stack stabilized, priorities shift toward ecosystem growth and high-tier cognitive applications.
 
 - **[P0] Ecosystem & Tooling:** [IN PROGRESS] HanoiVM debugger and basic package manager implemented. VS Code extension scaffolded.
-- **[P1] High-Tier Cognition:** [IN PROGRESS] Tier 3, 4, and 5 cognitive layers defined and integrated into the promotion engine.
+- **[P1] High-Tier Cognition:** [COMPLETE] Tier 4 self-referential modeling and cognitive loops implemented and hardened with Axion. Tier 3 and 5 layers defined.
 - **[P2] Performance Optimization:** Target specific numeric and I/O bottlenecks to improve throughput for large-scale ternary workloads.
 
 A detailed list of actionable tasks for these workstreams can be found in [`TASKS.md`](TASKS.md).

@@ -20,5 +20,7 @@ struct SyscallContext {
   std::size_t recursion_depth{0};
   std::size_t instruction_count{0};
   std::size_t stack_usage{0};
+  std::size_t reflection_count{0};
+  std::size_t meta_write_count{0};
 };
 }  // namespace t81::axion

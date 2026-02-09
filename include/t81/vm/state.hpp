@@ -13,10 +13,14 @@
 #include "t81/tisc/program.hpp"
 #include "t81/axion/verdict.hpp"
 #include "t81/axion/policy.hpp"
+#include "t81/axion/reasons.hpp"
 #include "t81/vm/traps.hpp"
 #include "t81/weights.hpp"
 
 namespace t81::vm {
+
+constexpr std::size_t kMaxReflectionsPerEpoch = 81;
+constexpr std::size_t kMaxMetaWritesPerEpoch = 243;
 
 struct TraceEntry {
   std::size_t pc;
@@ -35,6 +39,7 @@ enum class ValueTag : std::uint8_t {
   OptionHandle,
   ResultHandle,
   EnumHandle,
+  ReflectionHandle,
 };
 
 struct Flags {
@@ -109,6 +114,37 @@ struct AxionEvent {
   std::int32_t tag{0};
   std::int64_t value{0};
   t81::axion::Verdict verdict;
+  t81::axion::StructuredEvent structured;
+};
+
+/**
+ * @struct ReflectionSnapshot
+ * @brief Captures a cognitive snapshot for Tier 4 reflection.
+ */
+struct ReflectionSnapshot {
+  std::size_t pc;
+  std::array<std::int64_t, 243> registers;
+  std::array<ValueTag, 243> register_tags;
+  Flags flags;
+  std::vector<TraceEntry> recent_trace;
+  uint64_t code_hash;
+};
+
+/**
+ * @struct RefinementCommand
+ * @brief Represents a single refinement command for MetaRefine.
+ */
+struct RefinementCommand {
+  enum class Op : int64_t {
+    Noop = 0,
+    WriteCode = 1,
+    WriteReg = 2,
+    WriteMem = 3,
+  };
+  Op op;
+  int64_t target;
+  int64_t value;
+  ValueTag tag;
 };
 
 // Virtual machine register file per spec/t81vm-spec.md.
@@ -143,5 +179,10 @@ struct State {
   std::size_t meta_ptr{0};
   std::vector<t81::tisc::EnumMetadata> enum_metadata;
   std::unordered_map<int, std::size_t> enum_metadata_index;
+
+  // Tier 4 Reflection
+  std::vector<ReflectionSnapshot> reflection_snapshots;
+  std::size_t reflection_count{0};
+  std::size_t meta_write_count{0};
 };
 }  // namespace t81::vm

@@ -2,6 +2,7 @@
 
 #include "t81/cog/tier4/self_model.hpp"
 #include "t81/axion/engine.hpp"
+#include "t81/vm/state.hpp"
 #include <memory>
 #include <string>
 #include <vector>
@@ -30,6 +31,11 @@ public:
     void observe(const std::string& observation);
     ReflectionTrace reflect();
     void refine();
+
+    /**
+     * @brief Consumes a reflection snapshot from the VM to update the internal model.
+     */
+    void consume_snapshot(const t81::vm::ReflectionSnapshot& snapshot);
 
     const SelfModel& get_model() const { return model_; }
 
