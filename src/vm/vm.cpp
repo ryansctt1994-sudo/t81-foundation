@@ -16,6 +16,7 @@
 
 #include "t81/axion/engine.hpp"
 #include "t81/axion/policy_engine.hpp"
+#include "t81/axion/reasons.hpp"
 #include "t81/enum_meta.hpp"
 #include "t81/vm/vm.hpp"
 #include "t81/vm/jit.hpp"
@@ -141,7 +142,7 @@ class Interpreter : public IVirtualMachine {
     }
 
     if (state_.pc >= program_.insns.size()) {
-      auto verdict = eval_axion_call("step", state_.pc, t81::tisc::Opcode::Halt);
+      auto verdict = eval_axion_call(t81::axion::reasons::kStep, state_.pc, t81::tisc::Opcode::Halt);
       if (verdict.kind == t81::axion::VerdictKind::Deny) {
         return Trap::SecurityFault;
       }
@@ -173,7 +174,7 @@ class Interpreter : public IVirtualMachine {
     }
 
     // Evaluate Axion policy before every instruction.
-    auto verdict = eval_axion_call("step", current_pc, insn.opcode);
+    auto verdict = eval_axion_call(t81::axion::reasons::kStep, current_pc, insn.opcode);
     if (verdict.kind == t81::axion::VerdictKind::Deny) {
         return Trap::SecurityFault;
     }
@@ -266,7 +267,7 @@ class Interpreter : public IVirtualMachine {
       state_.tensors.push_back(std::move(tensor));
       auto idx = state_.tensors.size();
       log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Tensor, idx, 1,
-                                "tensor slot allocated");
+                                t81::axion::reasons::kTensorAlloc);
       return static_cast<std::int64_t>(idx);
     };
     auto promote_to_tensor = [&](int reg) -> std::expected<void, Trap> {
@@ -348,7 +349,7 @@ class Interpreter : public IVirtualMachine {
       state_.floats.push_back(value);
       auto idx = state_.floats.size();
       log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Heap, idx, 1,
-                                "float slot allocated");
+                                t81::axion::reasons::kHeapAlloc);
       return static_cast<std::int64_t>(idx);
     };
     auto fraction_ptr = [this](std::int64_t handle) -> t81::T81Fraction* {
@@ -367,7 +368,7 @@ class Interpreter : public IVirtualMachine {
       state_.fractions.push_back(std::move(frac));
       auto idx = state_.fractions.size();
       log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Heap, idx, 1,
-                                "fraction slot allocated");
+                                t81::axion::reasons::kHeapAlloc);
       return static_cast<std::int64_t>(idx);
     };
     auto shape_ptr = [this](std::int64_t handle) -> const std::vector<int>* {
@@ -487,6 +488,7 @@ class Interpreter : public IVirtualMachine {
             case ValueTag::TensorHandle:
             case ValueTag::ShapeHandle:
             case ValueTag::WeightsTensorHandle:
+            case ValueTag::ReflectionHandle:
               if (lhs_val == rhs_val) return 0;
               return (lhs_val < rhs_val) ? -1 : 1;
             case ValueTag::OptionHandle: {
@@ -578,7 +580,7 @@ class Interpreter : public IVirtualMachine {
         std::size_t addr = static_cast<std::size_t>(insn.b);
         state_.registers[insn.a] = state_.memory[addr];
         state_.register_tags[insn.a] = state_.memory_tags[addr];
-        log_memory_segment_access(insn.opcode, segment_for_address(addr), addr, 1, "memory load");
+        log_memory_segment_access(insn.opcode, segment_for_address(addr), addr, 1, t81::axion::reasons::kMemLoad);
         update_flags(state_.registers[insn.a]);
         break;
       }
@@ -609,7 +611,7 @@ class Interpreter : public IVirtualMachine {
         if (!reg_ok(insn.a) || !reg_ok(insn.c)) { trap = Trap::DecodeFault; break; }
         MemorySegmentKind segment = static_cast<MemorySegmentKind>(insn.b);
         std::int64_t addr = state_.registers[insn.c];
-        auto verdict = eval_axion_call("METAREAD", current_pc, insn.opcode);
+        auto verdict = eval_axion_call(t81::axion::reasons::kMetaRead, current_pc, insn.opcode);
         if (verdict.kind == t81::axion::VerdictKind::Deny) { trap = Trap::SecurityFault; break; }
         if (segment == MemorySegmentKind::Registers) {
           if (!reg_ok(static_cast<int>(addr))) { trap = Trap::BoundsFault; break; }
@@ -645,7 +647,7 @@ class Interpreter : public IVirtualMachine {
         std::int64_t addr = state_.registers[insn.c];
         std::int64_t val = state_.registers[insn.a];
         ValueTag tag = state_.register_tags[insn.a];
-        auto verdict = eval_axion_call("METAWRITE", current_pc, insn.opcode);
+        auto verdict = eval_axion_call(t81::axion::reasons::kMetaWrite, current_pc, insn.opcode);
         if (verdict.kind == t81::axion::VerdictKind::Deny) { trap = Trap::SecurityFault; break; }
         if (segment == MemorySegmentKind::Registers) {
           if (!reg_ok(static_cast<int>(addr))) { trap = Trap::BoundsFault; break; }
@@ -676,22 +678,127 @@ class Interpreter : public IVirtualMachine {
       }
       case t81::tisc::Opcode::MetaReflect: {
         if (!reg_ok(insn.a)) { trap = Trap::DecodeFault; break; }
-        auto verdict = eval_axion_call("METAREFLECT", current_pc, insn.opcode);
+        if (state_.reflection_count >= kMaxReflectionsPerEpoch) {
+          trap = Trap::SecurityFault;
+          break;
+        }
+
+        auto verdict = eval_axion_call(t81::axion::reasons::kMetaReflect, current_pc, insn.opcode);
         if (verdict.kind == t81::axion::VerdictKind::Deny) { trap = Trap::SecurityFault; break; }
-        std::int64_t snapshot_handle = static_cast<std::int64_t>(state_.pc);
-        set_reg(insn.a, snapshot_handle, ValueTag::Int);
-        update_flags(snapshot_handle);
-        record_axion_event(insn.opcode, insn.b, snapshot_handle, verdict);
+
+        ReflectionSnapshot snapshot;
+        snapshot.pc = current_pc;
+        snapshot.registers = state_.registers;
+        snapshot.register_tags = state_.register_tags;
+        snapshot.flags = state_.flags;
+
+        // Capture recent trace (up to 81 entries)
+        std::size_t trace_start = (state_.trace.size() > 81) ? (state_.trace.size() - 81) : 0;
+        for (std::size_t i = trace_start; i < state_.trace.size(); ++i) {
+          snapshot.recent_trace.push_back(state_.trace[i]);
+        }
+
+        // Improved hash of code segment including operands
+        uint64_t h = 0;
+        for (const auto& pi : program_.insns) {
+          auto combine = [&](uint64_t v) {
+            h ^= v + 0x9e3779b9 + (h << 6) + (h >> 2);
+          };
+          combine(static_cast<uint64_t>(pi.opcode));
+          combine(static_cast<uint64_t>(pi.a));
+          combine(static_cast<uint64_t>(pi.b));
+          combine(static_cast<uint64_t>(pi.c));
+        }
+        snapshot.code_hash = h;
+
+        state_.reflection_snapshots.push_back(std::move(snapshot));
+        state_.reflection_count++;
+
+        std::int64_t handle = static_cast<std::int64_t>(state_.reflection_snapshots.size());
+        set_reg(insn.a, handle, ValueTag::ReflectionHandle);
+        update_flags(handle);
+        record_axion_event(insn.opcode, insn.b, handle, verdict);
         break;
       }
       case t81::tisc::Opcode::MetaRefine: {
         if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) { trap = Trap::DecodeFault; break; }
-        auto verdict = eval_axion_call("METAREFINE", current_pc, insn.opcode);
+        // RS1 (insn.b) = memory address of commands
+        // RS2 (insn.c) = number of commands
+
+        auto verdict = eval_axion_call(t81::axion::reasons::kMetaRefine, current_pc, insn.opcode);
         if (verdict.kind == t81::axion::VerdictKind::Deny) { trap = Trap::SecurityFault; break; }
-        std::int64_t refined_handle = state_.registers[insn.b] ^ state_.registers[insn.c];
-        set_reg(insn.a, refined_handle, ValueTag::Int);
-        update_flags(refined_handle);
-        record_axion_event(insn.opcode, insn.b, refined_handle, verdict);
+
+        std::int64_t cmd_addr = state_.registers[insn.b];
+        std::int64_t cmd_count = state_.registers[insn.c];
+
+        if (cmd_count < 0 || cmd_count > static_cast<int64_t>(kMaxMetaWritesPerEpoch)) { trap = Trap::BoundsFault; break; }
+
+        // Read commands into a temporary list for all-or-nothing atomicity
+        std::vector<RefinementCommand> commands;
+        bool read_ok = true;
+        for (int i = 0; i < cmd_count; ++i) {
+          std::size_t base = static_cast<std::size_t>(cmd_addr + i * 4);
+          if (!mem_ok(base) || !mem_ok(base + 3)) {
+            read_ok = false;
+            break;
+          }
+          RefinementCommand cmd;
+          cmd.op = static_cast<RefinementCommand::Op>(state_.memory[base]);
+          cmd.target = state_.memory[base + 1];
+          cmd.value = state_.memory[base + 2];
+          cmd.tag = static_cast<ValueTag>(state_.memory[base + 3]);
+          commands.push_back(cmd);
+        }
+
+        if (!read_ok) { trap = Trap::BoundsFault; break; }
+
+        // VALIDATION PASS (Atomicity check)
+        std::size_t future_meta_write_count = state_.meta_write_count;
+        for (const auto& cmd : commands) {
+          switch (cmd.op) {
+            case RefinementCommand::Op::WriteCode:
+              if (future_meta_write_count >= kMaxMetaWritesPerEpoch) { trap = Trap::SecurityFault; break; }
+              if (cmd.target < 0 || static_cast<std::size_t>(cmd.target) >= program_.insns.size()) { trap = Trap::BoundsFault; break; }
+              future_meta_write_count++;
+              break;
+            case RefinementCommand::Op::WriteReg:
+              if (!reg_ok(static_cast<int>(cmd.target))) { trap = Trap::BoundsFault; break; }
+              break;
+            case RefinementCommand::Op::WriteMem:
+              if (!mem_ok(static_cast<std::size_t>(cmd.target))) { trap = Trap::BoundsFault; break; }
+              break;
+            case RefinementCommand::Op::Noop:
+              break;
+          }
+          if (trap != Trap::None) break;
+        }
+
+        if (trap != Trap::None) break;
+
+        // APPLICATION PASS
+        for (const auto& cmd : commands) {
+          switch (cmd.op) {
+            case RefinementCommand::Op::WriteCode:
+              program_.insns[cmd.target].opcode = static_cast<t81::tisc::Opcode>(cmd.value);
+              state_.meta_write_count++;
+              compiled_traces_.clear(); // Invalidate JIT cache
+              break;
+            case RefinementCommand::Op::WriteReg:
+              state_.registers[cmd.target] = cmd.value;
+              state_.register_tags[cmd.target] = cmd.tag;
+              break;
+            case RefinementCommand::Op::WriteMem:
+              state_.memory[cmd.target] = cmd.value;
+              state_.memory_tags[cmd.target] = cmd.tag;
+              break;
+            case RefinementCommand::Op::Noop:
+              break;
+          }
+        }
+
+        set_reg(insn.a, 1, ValueTag::Int); // Success
+        update_flags(1);
+        record_axion_event(insn.opcode, insn.b, 1, verdict);
         break;
       }
       case t81::tisc::Opcode::TSqrt: {
@@ -766,7 +873,7 @@ class Interpreter : public IVirtualMachine {
         std::size_t addr = static_cast<std::size_t>(insn.a);
         state_.memory[addr] = state_.registers[insn.b];
         state_.memory_tags[addr] = state_.register_tags[insn.b];
-        log_memory_segment_access(insn.opcode, segment_for_address(addr), addr, 1, "memory store");
+        log_memory_segment_access(insn.opcode, segment_for_address(addr), addr, 1, t81::axion::reasons::kMemStore);
         break;
       }
       case t81::tisc::Opcode::Mul:
@@ -888,7 +995,7 @@ class Interpreter : public IVirtualMachine {
           trap = Trap::StackFault;
           break;
         }
-        log_memory_segment_access(insn.opcode, MemorySegmentKind::Stack, *addr_opt, 1, "stack push");
+        log_memory_segment_access(insn.opcode, MemorySegmentKind::Stack, *addr_opt, 1, t81::axion::reasons::kMemStore);
         break;
       }
       case t81::tisc::Opcode::Pop: {
@@ -902,7 +1009,7 @@ class Interpreter : public IVirtualMachine {
         }
         state_.register_tags[insn.a] = tag;
         update_flags(state_.registers[insn.a]);
-        log_memory_segment_access(insn.opcode, MemorySegmentKind::Stack, *addr_opt, 1, "stack pop");
+        log_memory_segment_access(insn.opcode, MemorySegmentKind::Stack, *addr_opt, 1, t81::axion::reasons::kMemLoad);
         break;
       }
       case t81::tisc::Opcode::StackAlloc: {
@@ -939,7 +1046,7 @@ class Interpreter : public IVirtualMachine {
         update_flags(addr);
         log_memory_segment_access(insn.opcode, MemorySegmentKind::Stack,
                                   static_cast<std::size_t>(addr), size,
-                                  "stack frame allocated");
+                                  t81::axion::reasons::kStackAlloc);
         break;
       }
       case t81::tisc::Opcode::StackFree: {
@@ -976,7 +1083,7 @@ class Interpreter : public IVirtualMachine {
         state_.sp = static_cast<std::size_t>(ptr + size);
         log_memory_segment_access(insn.opcode, MemorySegmentKind::Stack,
                                   static_cast<std::size_t>(ptr), size,
-                                  "stack frame freed");
+                                  t81::axion::reasons::kStackFree);
         break;
       }
       case t81::tisc::Opcode::HeapAlloc: {
@@ -1007,7 +1114,7 @@ class Interpreter : public IVirtualMachine {
         set_reg(insn.a, static_cast<std::int64_t>(addr), ValueTag::Int);
         update_flags(state_.registers[insn.a]);
         log_memory_segment_access(insn.opcode, MemorySegmentKind::Heap, addr, size,
-                                  "heap block allocated");
+                                  t81::axion::reasons::kHeapAlloc);
         break;
       }
       case t81::tisc::Opcode::HeapFree: {
@@ -1044,7 +1151,7 @@ class Interpreter : public IVirtualMachine {
         state_.heap_ptr = static_cast<std::size_t>(ptr);
         log_memory_segment_access(insn.opcode, MemorySegmentKind::Heap,
                                   static_cast<std::size_t>(ptr), size,
-                                  "heap block freed");
+                                  t81::axion::reasons::kHeapFree);
         break;
       }
       case t81::tisc::Opcode::TNot:
@@ -1080,7 +1187,7 @@ class Interpreter : public IVirtualMachine {
         break;
       case t81::tisc::Opcode::AxRead: {
         if (!reg_ok(insn.a)) { trap = Trap::DecodeFault; break; }
-        auto verdict = eval_axion_call("AXREAD", current_pc, insn.opcode);
+        auto verdict = eval_axion_call(t81::axion::reasons::kAxRead, current_pc, insn.opcode);
         std::size_t guard_addr = static_cast<std::size_t>(insn.b);
         auto guard_kind = segment_for_address(guard_addr);
         apply_segment_reason(verdict, "AxRead guard", guard_kind, guard_addr);
@@ -1098,7 +1205,7 @@ class Interpreter : public IVirtualMachine {
       case t81::tisc::Opcode::AxSet: {
         if (!reg_ok(insn.a) || !reg_ok(insn.b)) { trap = Trap::DecodeFault; break; }
         auto value = state_.registers[insn.b];
-        auto verdict = eval_axion_call("AXSET", current_pc, insn.opcode);
+        auto verdict = eval_axion_call(t81::axion::reasons::kAxSet, current_pc, insn.opcode);
         std::size_t guard_addr = 0;
         MemorySegmentKind guard_kind = MemorySegmentKind::Unknown;
         if (state_.registers[insn.a] >= 0) {
@@ -1114,7 +1221,7 @@ class Interpreter : public IVirtualMachine {
       }
       case t81::tisc::Opcode::AxVerify: {
         if (!reg_ok(insn.a)) { trap = Trap::DecodeFault; break; }
-        auto verdict = eval_axion_call("AXVERIFY", current_pc, insn.opcode);
+        auto verdict = eval_axion_call(t81::axion::reasons::kAxVerify, current_pc, insn.opcode);
         if (verdict.kind == t81::axion::VerdictKind::Deny) {
           record_axion_event(insn.opcode, insn.b, 0, verdict);
           trap = Trap::SecurityFault;
@@ -1640,6 +1747,9 @@ class Interpreter : public IVirtualMachine {
   t81::axion::Verdict eval_axion_call(std::string_view syscall,
                                       std::size_t pc,
                                       t81::tisc::Opcode opcode) {
+    if (syscall == t81::axion::reasons::kMetaRead) {
+      // Internal MetaRead check could go here
+    }
     t81::axion::SyscallContext ctx;
     ctx.caller = "t81vm";
     ctx.syscall.assign(syscall);
@@ -1648,6 +1758,8 @@ class Interpreter : public IVirtualMachine {
     ctx.instruction_count = instruction_count_;
     ctx.recursion_depth = state_.stack_frames.size();
     ctx.stack_usage = state_.layout.stack.limit - state_.sp;
+    ctx.reflection_count = state_.reflection_count;
+    ctx.meta_write_count = state_.meta_write_count;
     ctx.policy = state_.policy ? &*state_.policy : nullptr;
     ctx.trace_reasons.reserve(state_.axion_log.size());
     for (const auto& entry : state_.axion_log) {
@@ -1709,7 +1821,7 @@ class Interpreter : public IVirtualMachine {
     t81::axion::Verdict verdict;
     verdict.kind = t81::axion::VerdictKind::Allow;
     std::ostringstream reason;
-    reason << "bounds fault segment=" << to_string(kind) << " addr=" << addr << " action=" << action;
+    reason << t81::axion::reasons::kBoundsFault << " segment=" << to_string(kind) << " addr=" << addr << " action=" << action;
     verdict.reason = reason.str();
     record_axion_event(opcode, static_cast<std::int32_t>(kind), static_cast<std::int64_t>(addr),
                        verdict);
@@ -1755,8 +1867,17 @@ class Interpreter : public IVirtualMachine {
 
   void record_axion_event(t81::tisc::Opcode op, std::int32_t tag,
                           std::int64_t value, const t81::axion::Verdict& verdict) {
-    log_meta_slot("axion event");
-    push_axion_event(AxionEvent{op, tag, value, verdict});
+    log_meta_slot(t81::axion::reasons::kMetaSlotAxionEvent.data());
+    AxionEvent event;
+    event.opcode = op;
+    event.tag = tag;
+    event.value = value;
+    event.verdict = verdict;
+    event.structured.reason = verdict.reason;
+    event.structured.pc = state_.pc;
+    event.structured.handle_id = value; // often used for handles
+    event.structured.decision = (verdict.kind == t81::axion::VerdictKind::Allow) ? "allow" : "deny";
+    push_axion_event(event);
   }
 
   void run_gc_cycle_(const char* reason) {
@@ -1766,7 +1887,7 @@ class Interpreter : public IVirtualMachine {
     verdict.kind = t81::axion::VerdictKind::Allow;
     std::ostringstream os;
     // Format: 'GC cycle reason=[reason]'
-    os << "GC cycle reason=" << reason;
+    os << t81::axion::reasons::kGcCycle << " reason=" << reason;
     verdict.reason = os.str();
     record_axion_event(t81::tisc::Opcode::Trap,
                        static_cast<std::int32_t>(state_.gc_cycles),
@@ -1782,7 +1903,7 @@ class Interpreter : public IVirtualMachine {
     t81::axion::Verdict verdict;
     verdict.kind = t81::axion::VerdictKind::Allow;
     std::ostringstream reason;
-    reason << "heap compaction heap_frames=" << heap_frames
+    reason << t81::axion::reasons::kHeapCompaction << " heap_frames=" << heap_frames
            << " heap_ptr=" << heap_ptr;
     verdict.reason = reason.str();
     record_axion_event(t81::tisc::Opcode::Trap,
@@ -1794,7 +1915,7 @@ class Interpreter : public IVirtualMachine {
     t81::axion::Verdict verdict;
     verdict.kind = t81::axion::VerdictKind::Allow;
     std::ostringstream reason;
-    reason << "heap relocation from=" << from << " to=" << to << " size=" << size;
+    reason << t81::axion::reasons::kHeapRelocation << " from=" << from << " to=" << to << " size=" << size;
     verdict.reason = reason.str();
     record_axion_event(t81::tisc::Opcode::Trap,
                        static_cast<std::int32_t>(MemorySegmentKind::Heap),

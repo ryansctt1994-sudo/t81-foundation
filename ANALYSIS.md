@@ -46,5 +46,5 @@ ______________________________________________________________________
 ## 4. Supporting Systems
 
 - **CanonFS (`t81_core`):** **Stable.** The `canonfs::Driver` API is fully functional. The `PersistentDriver` implements disk-backed storage with Axion hooks, ensuring auditable writes and reads. Snapshot hashes in the `InMemoryKernel` are now derived deterministically from parent hashes and fork metadata.
-- **Axion Kernel (`t81_core`):** **Stable.** The `PolicyEngine` enforces the full set of Axion safety policies, including resource limits (instructions, recursion, stack) and trace-based requirements for loops, guards, and segment events.
+- **Axion Kernel (`t81_core`):** **Stable.** The `PolicyEngine` enforces the full set of Axion safety policies, including resource limits (instructions, recursion, stack, reflection) and trace-based requirements for loops, guards, and segment events. Hardened for Tier 4 Cognition.
 - **Tooling (`t81` CLI):** **Partial.** The `t81` command-line tool still drives compile/check/run/repl, but it now conserves Axion metadata from the frontend (`axion_policy_text`, `match_metadata_text`) and pushes it into the VM so trace output carries loop bounds and guard hints even though more advanced inspection/debugging commands are missing.

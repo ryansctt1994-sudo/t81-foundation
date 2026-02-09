@@ -18,6 +18,8 @@ enum class PolicyTag : uint8_t {
   MaxStack = 0x03,
   MaxInstructions = 0x04,
   MaxRecursion = 0x05,
+  MaxReflections = 0x0B,
+  MaxMetaWrites = 0x0C,
   LoopHint = 0x06,
   MatchGuard = 0x07,
   SegmentEvent = 0x08,
@@ -33,6 +35,8 @@ enum class AxionOp : uint8_t {
   LimitInstructions = 0x02,
   LimitStack = 0x03,
   LimitRecursion = 0x04,
+  LimitReflections = 0x0A,
+  LimitMetaWrites = 0x0B,
   RequireLoop = 0x05,
   RequireMatchGuard = 0x06,
   RequireSegmentEvent = 0x07,
@@ -76,6 +80,8 @@ struct Policy {
   std::optional<int64_t> max_stack;
   std::optional<int64_t> max_instructions;
   std::optional<int64_t> max_recursion;
+  std::optional<int64_t> max_reflections;
+  std::optional<int64_t> max_meta_writes;
   std::vector<LoopHint> loops;
   std::vector<MatchGuardRequirement> match_guards;
   std::vector<SegmentEventRequirement> segment_requirements;
@@ -195,6 +201,30 @@ inline t81::expected<Policy, std::string> parse_policy(std::string_view text) {
         return make_error("tier requires integer");
       }
       policy.tier = static_cast<int>(val.value);
+      tok = lex.next();
+      if (tok.kind != detail::PolicyToken::Kind::RParen) {
+        return make_error("expected ')'");
+      }
+      continue;
+    }
+    if (key.text == "max-reflections") {
+      auto val = lex.next();
+      if (val.kind != detail::PolicyToken::Kind::Integer) {
+        return make_error("max-reflections requires integer");
+      }
+      policy.max_reflections = val.value;
+      tok = lex.next();
+      if (tok.kind != detail::PolicyToken::Kind::RParen) {
+        return make_error("expected ')'");
+      }
+      continue;
+    }
+    if (key.text == "max-meta-writes") {
+      auto val = lex.next();
+      if (val.kind != detail::PolicyToken::Kind::Integer) {
+        return make_error("max-meta-writes requires integer");
+      }
+      policy.max_meta_writes = val.value;
       tok = lex.next();
       if (tok.kind != detail::PolicyToken::Kind::RParen) {
         return make_error("expected ')'");

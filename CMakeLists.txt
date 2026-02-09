@@ -382,6 +382,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_tier4_test tests/cpp/tier4_test.cpp)
   target_link_libraries(t81_tier4_test PRIVATE t81_core)
 
+  add_executable(t81_tier4_vm_test tests/cpp/tier4_vm_test.cpp)
+  target_link_libraries(t81_tier4_vm_test PRIVATE t81_core)
+
   add_executable(t81_jit_test tests/cpp/jit_test.cpp)
   target_link_libraries(t81_jit_test PRIVATE t81_core)
 
@@ -647,6 +650,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     axion_instruction_counter_test
     canonfs_axion_trace_test
     t81_tier4_test
+    t81_tier4_vm_test
     t81_jit_test
     e2e_axion_trace_test
     axion_policy_bytecode_test

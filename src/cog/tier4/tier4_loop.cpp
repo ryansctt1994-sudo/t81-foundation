@@ -1,6 +1,7 @@
 #include "t81/cog/tier4/tier4_loop.hpp"
 #include "t81/axion/context.hpp"
 #include <sstream>
+#include <cmath>
 
 namespace t81::cog::v1 {
 
@@ -39,6 +40,21 @@ void Tier4Loop::refine() {
         model_.confidence = 1.0f;
         model_.current_goal = "execute";
         log_reflection("refined model: confidence restored");
+    }
+}
+
+void Tier4Loop::consume_snapshot(const t81::vm::ReflectionSnapshot& snapshot) {
+    model_.add_history("Consuming VM snapshot at PC=" + std::to_string(snapshot.pc));
+    model_.add_history("CODE hash: " + std::to_string(snapshot.code_hash));
+
+    // Heuristic: decrease confidence if we see many traps in recent trace
+    int traps = 0;
+    for (const auto& entry : snapshot.recent_trace) {
+        if (entry.trap.has_value()) traps++;
+    }
+    if (traps > 0) {
+        model_.confidence *= std::pow(0.9f, static_cast<float>(traps));
+        log_reflection("detected " + std::to_string(traps) + " traps in recent trace, confidence decreased");
     }
 }
 
