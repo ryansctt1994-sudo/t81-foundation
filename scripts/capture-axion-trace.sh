@@ -20,7 +20,7 @@ if [[ ! -x "$BUILD_DIR/axion_policy_runner" ]]; then
 fi
 
 echo "Running axion_policy_runner and capturing Axion trace to $POLICY_LOG"
-"$BUILD_DIR/axion_policy_runner" > "$POLICY_LOG"
+"$BUILD_DIR/axion_policy_runner" > "$POLICY_LOG" 2>&1
 echo "Saved policy runner output ($POLICY_LOG):"
 cat "$POLICY_LOG"
 
@@ -29,7 +29,7 @@ for target in axion_heap_compaction_trace_test vm_bounds_trace_test canonfs_axio
   echo "Building $target"
   (cd "$BUILD_DIR" && cmake --build . --parallel --target "$target")
   echo "Running $target and capturing trace to $log_var"
-  "$BUILD_DIR/$target" > "$log_var"
+  "$BUILD_DIR/$target" > "$log_var" 2>&1
   echo "Saved trace output for $target ($log_var):"
   cat "$log_var"
 done

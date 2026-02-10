@@ -1,0 +1,84 @@
+name: Reproducibility Ledger
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  repro-ledger:
+    name: " ledger / reproducibility dashboard "
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build gcc-14 g++-14 python3
+
+      - name: Configure build
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=gcc-14 \
+            -DCMAKE_CXX_COMPILER=g++-14
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure --output-junit ctest-results.xml
+
+      - name: Run T3_K reproducibility gate
+        run: |
+          python3 scripts/ci/t3k_repro_gate.py \
+            --t81-bin build/t81 \
+            --workdir build/t3k-repro \
+            --hash-out build/t3k-repro/hash.txt
+
+      - name: Capture Axion traces
+        run: ./scripts/capture-axion-trace.sh
+
+      - name: Build benchmark runner
+        run: cmake --build build --parallel --target benchmark_runner
+
+      - name: Run benchmark runner
+        run: ./build/benchmarks/benchmark_runner --benchmark_format=json --benchmark_out=build/bench.json
+
+      - name: Generate reproducibility dashboard
+        run: |
+          python3 scripts/ci/generate_repro_dashboard.py \
+            --out-md build/repro/dashboard.md \
+            --out-json build/repro/dashboard.json \
+            --ctest-junit build/ctest-results.xml \
+            --t3k-hash build/t3k-repro/hash.txt \
+            --bench-json build/bench.json \
+            --axion-log build/artifacts/axion_policy_runner.log \
+            --axion-log build/artifacts/axion_heap_compaction_trace_test.log \
+            --axion-log build/artifacts/vm_bounds_trace_test.log \
+            --axion-log build/artifacts/canonfs_axion_trace_test.log
+
+      - name: Publish dashboard to job summary
+        run: cat build/repro/dashboard.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload reproducibility artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reproducibility-ledger
+          path: |
+            build/repro/dashboard.md
+            build/repro/dashboard.json
+            build/ctest-results.xml
+            build/t3k-repro/hash.txt
+            build/bench.json
+            build/artifacts/*.log
+          if-no-files-found: warn

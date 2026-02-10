@@ -9,7 +9,7 @@
       "version": "3.11"
     }
   },
-  "postCreateCommand": "cmake -S . -B build && cmake --build build -j",
+  "postCreateCommand": "cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --parallel && ctest --test-dir build --output-on-failure",
   "customizations": {
     "vscode": {
       "extensions": [

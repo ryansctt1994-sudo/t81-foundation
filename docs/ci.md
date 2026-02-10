@@ -33,6 +33,7 @@ ______________________________________________________________________
 5. **Optional helpers**
    - `./build/t81 benchmark` to refresh `docs/benchmarks.md`.
    - `cmake --build build --target t81` to recompile the CLI after changes.
+   - `python3 scripts/ci/generate_repro_dashboard.py ...` to synthesize the reproducibility ledger report (see `docs/guides/repro-ledger.md`).
 
 ## 2. GitHub Workflows
 
@@ -41,6 +42,7 @@ ______________________________________________________________________
 | `.github/workflows/ci.yml` | pushes/PRs on `main` | configures CMake, builds `t81` and Google Benchmark, runs `ctest`, publishes warnings. Mirrors local build/test commands above. |
 | `.github/workflows/codeql.yml` | nightly + PR merges | runs CodeQL analysis on main/master. |
 | `.github/workflows/bench.yml` | manually via `workflow_dispatch` | builds benchmark runner and pipeline, publishes `docs/benchmarks.md` updates. |
+| `.github/workflows/repro-ledger.yml` | weekly + `workflow_dispatch` | runs build/test + T3_K reproducibility gate + Axion trace capture + benchmark snapshot and publishes `reproducibility-ledger` dashboard artifacts. |
 | `.github/workflows/release.yml` | tag pushes (`vX.Y.Z`) | production build, docs PDF generation, exposure of release assets (see `docs/release.md`). |
 | `.github/workflows/static.yml` | pushes | runs static checks (format/lint) that are currently placeholder; extend when necessary. |
 
