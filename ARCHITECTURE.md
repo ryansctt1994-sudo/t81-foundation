@@ -1,75 +1,123 @@
 # T81 Foundation: Architecture Overview
 
-This document provides a high-level map of the T81 C++ codebase, its components, and the data flow from source code to execution.
+This document maps the current T81 codebase architecture: build graph, runtime flow, verification surfaces, and cross-repo runtime boundary contracts.
 
 ______________________________________________________________________
 
 ## 1. Guiding Principles
 
-- **Specification is the Source of Truth:** The `/spec` directory contains the formal, normative definition of the system. The C++ implementation must conform to the spec. If there is a discrepancy, the spec is considered correct.
-- **Layered & Decoupled Components:** The system is organized into distinct libraries with clear responsibilities and dependencies, managed by CMake.
-- **Header-Only Core Types:** Core data types in `t81_core` are often header-only for portability and performance, while more complex logic is in compiled `.cpp` files.
+- **Spec semantics are authoritative:** `/spec` defines normative behavior. If implementation diverges, resolve in favor of spec semantics.
+- **Determinism first:** all compiler/runtime paths must preserve reproducible outputs and auditable traces.
+- **Layered composition via CMake:** components are separated by responsibility and linked through explicit target dependencies.
+- **Optimization without semantic drift:** interpreter, trace-JIT, SIMD, and tooling must preserve canonical behavior.
 
 ______________________________________________________________________
 
-## 2. Component Overview (CMake Libraries)
+## 2. Build Graph (Authoritative Targets)
 
-The C++ codebase is structured as a set of static libraries that depend on each other. Understanding these libraries is key to understanding the architecture.
+The authoritative build graph is `CMakeLists.txt`. It includes static libraries, interface libraries, executables, tests, optional Python bindings, and optional benchmarks.
 
-| Library          | Path (`/src`, `/include`) | Responsibilities                                                                        | Core Dependencies |
-| ---------------- | ------------------------- | --------------------------------------------------------------------------------------- | ----------------- |
-| `t81_core`       | `core/`, `hanoi/`, etc.   | Foundational data types (`T81Int`, `Fraction`, `Tensor`), stubs (CanonFS, Axion), VM state. | (none)            |
-| `t81_io`         | `io/`                     | I/O utilities, primarily for loading tensors from disk.                                 | `t81_core`        |
-| `t81_tisc`       | `tisc/`                   | TISC data structures, pretty-printing, and binary encoding/decoding (`BinaryEmitter`).  | `t81_core`        |
-| `t81_frontend`   | `frontend/`               | The T81Lang compiler: Lexer, Parser, AST, Symbol Table, and IR Generator.               | `t81_tisc`        |
-| `t81_vm`         | `vm/`                     | The TISC virtual machine interface and interpreter-based execution loop.                | `t81_core`        |
+| Target | Kind | Responsibilities | Depends On |
+| --- | --- | --- | --- |
+| `t81_core` | STATIC | Core numerics, VM runtime, JIT compiler, Axion engine, CanonFS, codecs, hashing/crypto, weights internals | (none) |
+| `t81_io` | STATIC | Tensor/model I/O helpers | `t81_core` |
+| `t81_c_api` | STATIC | C ABI surface for selected runtime/core functions | `t81_core` |
+| `t81_frontend` | STATIC | Lexer, parser, semantic analyzer (T81Lang frontend) | `t81_core` |
+| `t81_tisc` | STATIC | TISC IR/binary emitter, pretty printer, binary I/O, base81 TISC views | `t81_core` |
+| `t81_vm` | INTERFACE | VM public facade target for consumers/tests | `t81_core` |
+| `t81_llvm` | INTERFACE | LLVM-facing facade target (placeholder/adapter layer) | `t81_core` |
+| `t81_cli_driver` | STATIC | CLI orchestration (compile/run/trace/repro/tools) | `t81_frontend`, `t81_tisc`, `t81_vm` |
+| `t81` | EXECUTABLE | Main CLI entry point | `t81_frontend`, `t81_tisc`, `t81_vm`, `t81_cli_driver` |
+| `t81_python` | MODULE (optional) | `pybind11` Python bindings | `t81_core`, `t81_frontend`, `t81_tisc` |
+| `benchmark_runner` (subdir) | EXECUTABLE (optional) | Benchmark suite and docs benchmark generation pipeline | `t81_core`, `t81_frontend`, `t81_tisc`, Google Benchmark |
 
-The main executable target, `t81`, acts as a command-line driver that integrates these components.
+Notes:
+- CMake currently pins `t81_core` to `cxx_std_20`; C++23 migration is incremental.
+- `BUILD.bazel` exists but is not the active authoritative build surface.
 
 ______________________________________________________________________
 
-## 3. Compilation and Execution Flow
-
-The central purpose of the T81 toolchain is to compile high-level T81Lang source code into low-level TISC bytecode, which is then executed by the virtual machine.
-
-This process flows through several distinct stages, each handled by a different component:
+## 3. End-to-End Flow
 
 ```mermaid
 graph TD
-    subgraph Toolchain
-        A["T81Lang Source (.t81)"] --> B{t81_frontend::Lexer};
-        B --> C["Token Stream"];
-        C --> D{t81_frontend::Parser};
-        D --> E["Abstract Syntax Tree (AST)"];
-        E --> F{t81_frontend::SemanticAnalyzer};
-        F --> G["Verified & Annotated AST"];
-        G --> H{t81_frontend::IRGenerator};
-        H --> I["TISC Intermediate Rep. (IR)"];
-        I --> J{t81_tisc::BinaryEmitter};
-        J --> K["TISC Bytecode"];
+    subgraph Language Toolchain
+        A["T81Lang Source (.t81)"] --> B["Lexer"]
+        B --> C["Parser"]
+        C --> D["AST"]
+        D --> E["SemanticAnalyzer"]
+        E --> F["IRGenerator"]
+        F --> G["TISC IR"]
+        G --> H["BinaryEmitter / BinaryIO"]
+        H --> I["TISC Program / Bytecode"]
     end
 
-    subgraph Execution
-        K --> L{t81_vm::VirtualMachine};
-        L --> M["Execution Result"];
+    subgraph Runtime
+        I --> J["HanoiVM Interpreter"]
+        J --> K["Trace Hotspot Detection"]
+        K --> L["Trace JIT Compile (deterministic)"]
+        L --> M["Compiled Trace Execute"]
     end
 
-    style A fill:#fff0e6,stroke:#ff9933
-    style K fill:#e6f3ff,stroke:#3399ff
-    style M fill:#e6ffe6,stroke:#33cc33
+    subgraph Safety and Audit
+        J --> N["Axion Policy Checks"]
+        M --> N
+        N --> O["Axion Events / Reasons / Verdicts"]
+    end
+
+    subgraph Model and Tensor Tooling
+        P["safetensors / gguf / t81w"] --> Q["weights tooling"]
+        Q --> R["tensor pools / handles"]
+        R --> J
+    end
 ```
 
-1.  **Lexing (`Lexer`):** The raw source code string is converted into a sequence of tokens.
-2.  **Parsing (`Parser`):** The token stream is parsed to build an Abstract Syntax Tree (AST), a hierarchical representation of the code's structure.
-3.  **Semantic Analysis (`SemanticAnalyzer`):** The AST is traversed to resolve symbols, enforce type rules, and check for semantic errors. This crucial step ensures the code is not just syntactically correct, but also logically sound.
-4.  **IR Generation (`IRGenerator`):** The verified AST is traversed to emit TISC instructions in a linear Intermediate Representation (IR).
-5.  **Binary Emission (`BinaryEmitter`):** The IR is encoded into its final, compact binary bytecode format. This involves a two-pass process to resolve jump labels.
-6.  **Execution (`VirtualMachine`):** The VM loads the TISC bytecode and executes it in a fetch-decode-execute loop.
+Primary stages:
+1. Frontend compiles `.t81` source to validated TISC IR.
+2. TISC layer serializes IR to deterministic bytecode.
+3. HanoiVM executes via interpreter, with trace-JIT on hot deterministic paths.
+4. Axion enforces policy and records boundary/fault events for replay and audit.
+5. Weights/tensor tooling feeds model tensors into runtime via canonical handles.
 
 ______________________________________________________________________
 
-## 4. Key Architectural Boundaries
+## 4. Determinism and Verification Plane
 
-- **Frontend vs. TISC:** The `t81_frontend` library is responsible for all source language processing. Its sole output is the TISC IR. It has no knowledge of the VM or binary formats.
-- **TISC vs. VM:** The `t81_tisc` library defines the *format* of the instruction set. The `t81_vm` library provides the *implementation* that executes that format. This separation allows for different backends (e.g., an interpreter, a JIT compiler) to target the same stable TISC representation.
-- **Core vs. Everything:** The `t81_core` library is foundational and must not depend on any higher-level components like the frontend or TISC. It provides the universal data structures used by all other parts of the system.
+Architecture is enforced by automated gates, not just design intent:
+
+- **Build + full test ritual:** CMake + CTest matrix in `CMakeLists.txt`.
+- **Extended fuzz/property/Axion checks:** optional but standard pre-release validation.
+- **Cross-arch reproducibility gates:** T3_K and T81Lang hash gates in CI.
+- **Repro ledger workflow:** scheduled artifact generation for reproducibility evidence.
+- **Runtime contract sync checks:** script-backed verification against runtime boundary pins.
+
+Operational sources:
+- `docs/ci.md`
+- `.github/workflows/ci.yml`
+- `.github/workflows/repro-ledger.yml`
+- `scripts/ci/t3k_repro_gate.py`
+- `scripts/ci/t81lang_repro_gate.py`
+- `scripts/check-runtime-contract-sync.py`
+
+______________________________________________________________________
+
+## 5. Runtime Contract Boundary
+
+T81 uses an explicit cross-repo runtime semantics boundary:
+
+- **`t81-foundation` owns:** normative semantics, language/ISA intent, architectural invariants.
+- **`t81-vm` owns:** executable runtime compatibility artifacts and VM host ABI contract.
+- **Pinned contract marker:** `contracts/runtime-contract.json`.
+- **Boundary policy document:** `docs/runtime-semantics-boundary.md`.
+
+This split keeps semantic governance stable while allowing runtime implementation to evolve under explicit compatibility contracts.
+
+______________________________________________________________________
+
+## 6. Key Architectural Boundaries
+
+- **Frontend vs Runtime:** `t81_frontend` produces typed/validated IR; it does not execute programs.
+- **TISC Format vs VM Execution:** `t81_tisc` defines program representation; `t81_vm` executes it via interpreter and trace-JIT.
+- **Core as substrate:** `t81_core` provides shared primitives/services (VM state, Axion, CanonFS, codecs, tensor numerics) and is the dependency root.
+- **Policy vs performance:** Axion policy checks and trace logging remain mandatory across interpreter and compiled trace paths.
+- **Model tooling vs execution:** `weights` tooling transforms/loads tensors; HanoiVM consumes handles without changing provenance semantics.
