@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Build all PDFs with Marp (directory → pdf/output/)
         uses: docker://marpteam/marp-cli:v3.6.0

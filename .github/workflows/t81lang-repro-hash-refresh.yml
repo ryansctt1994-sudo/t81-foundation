@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install dependencies
         run: |
@@ -42,7 +42,7 @@ jobs:
           cp build/t81lang-repro-refresh/hash.txt tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           commit-message: "chore(t81lang): refresh deterministic fixture hash"
           title: "chore(t81lang): refresh deterministic fixture hash"

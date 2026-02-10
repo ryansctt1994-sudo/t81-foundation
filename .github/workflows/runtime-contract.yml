@@ -18,13 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout t81-foundation
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: t81-foundation
           fetch-depth: 0
 
       - name: Checkout t81-vm
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: t81dev/t81-vm
           path: t81-vm
