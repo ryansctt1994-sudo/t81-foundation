@@ -106,7 +106,7 @@ ______________________________________________________________________
     - **[M] Task:** Implement distributed tensor sharding for high-rank ternary tensors.
 
 - **[EPIC] Deterministic T81Lang Evolution (In Progress):**
-    - **[M] Task:** Add golden AST/IR canonicalization tests and hash-based compile-repeat gates.
+    - **[DONE] [M] Task:** Add golden AST/IR canonicalization tests and hash-based compile-repeat gates.
     - **[L] Task:** Implement deterministic trace-based JIT MVP for side-effect-free numeric/tensor hot paths with Axion boundary checks.
     - **[M] Task:** Add CPU/GPU parity gates for tensor kernels before enabling backend expansion by default.
     - **[S] Task:** Keep AI-assisted CI/runtime tuning advisory-only (generate recommendations, no autonomous mutation).

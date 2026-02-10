@@ -495,6 +495,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(e2e_match_metadata_determinism_test tests/cpp/e2e_match_metadata_determinism_test.cpp)
   target_link_libraries(e2e_match_metadata_determinism_test PRIVATE t81_cli_driver t81_vm)
 
+  add_executable(e2e_ast_ir_canonical_determinism_test tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp)
+  target_link_libraries(e2e_ast_ir_canonical_determinism_test PRIVATE t81_frontend t81_core)
+
   add_executable(cli_e2e_test tests/cpp/cli_e2e_test.cpp)
   target_link_libraries(cli_e2e_test PRIVATE t81_cli_driver)
 
@@ -724,6 +727,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     e2e_print_runtime_test
     e2e_compile_determinism_test
     e2e_match_metadata_determinism_test
+    e2e_ast_ir_canonical_determinism_test
     cli_e2e_test
     t81_frontend_fuzz_test
     t81_cli_check_test
