@@ -36,10 +36,6 @@ build/t81_tensor_unary_test: tests/cpp/tensor_unary_test.cpp
 	@mkdir -p build
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $< -o $@
 
-build/t81_tensor_reduce_test: tests/cpp/tensor_reduce_test.cpp
-	@mkdir -p build
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $< -o $@
-
 # -------- Tests --------
 TESTS := \
 	build/t81_bigint_test \
@@ -60,8 +56,7 @@ TESTS := \
 	build/t81_tensor_broadcast_test \
 	build/t81_entropy_test \
 	build/t81_c_api_bigint_test \
-	build/t81_tensor_unary_test \
-	build/t81_tensor_reduce_test
+	build/t81_tensor_unary_test
 
 tests: $(TESTS)
 

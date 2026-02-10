@@ -23,7 +23,7 @@ The intent is to keep an auditable snapshot of repository composition and conver
 - Build and CI posture: **strong**
 - Determinism/repro gate posture: **strong**
 - Documentation consistency: **good**, with a few follow-up cleanup items
-- Redundancy/legacy drift: **low**, but present in selected archival and generated surfaces
+- Redundancy/legacy drift: **low**
 
 ## Key Findings
 
@@ -35,7 +35,7 @@ The intent is to keep an auditable snapshot of repository composition and conver
 
 ### 2. Redundancy Candidates
 
-- `ANALYSIS.md.archived` is a valid archive but should remain clearly marked as non-active.
+- `ANALYSIS.md.archived` has been retired from the repository.
 - Multiple generated/build directories exist in working environments (`build*` variants), which is expected locally but should stay excluded from source control.
 
 ### 3. CI Action Pinning Posture
@@ -61,8 +61,7 @@ The intent is to keep an auditable snapshot of repository composition and conver
    - Keep this `docs/audits/` folder versioned as the periodic audit snapshot.
    - Refresh snapshots on meaningful repo topology changes.
 
-2. **P1: Tighten archival labeling**
-   - Ensure archived documents are explicitly marked "historical / non-authoritative."
+2. **P1: Keep documentation ownership crisp**
    - Keep active ownership clear for `ARCHITECTURE.md`, `TASKS.md`, and `TODO.md`.
 
 3. **P1: Keep architecture sync gate required**
