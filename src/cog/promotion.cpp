@@ -5,13 +5,13 @@
 namespace t81::cog {
 Result<TierStatus> try_promote(const TierStatus& status, t81::axion::Engine& engine) {
   if (status.current == TierId::Tier5) {
-    return PromotionError::NotEligible;
+    return Result<TierStatus>(t81::unexpect, PromotionError::NotEligible);
   }
 
   t81::axion::SyscallContext ctx{{}, "system", "promote", nullptr, {}, 0, t81::tisc::Opcode::Nop};
   auto verdict = engine.evaluate(ctx);
   if (verdict.kind == t81::axion::VerdictKind::Deny) {
-    return PromotionError::AxionDenied;
+    return Result<TierStatus>(t81::unexpect, PromotionError::AxionDenied);
   }
 
   TierStatus next = status;
@@ -37,7 +37,7 @@ Result<TierStatus> try_promote(const TierStatus& status, t81::axion::Engine& eng
       next.label = "Tier5";
       break;
     default:
-      return PromotionError::NotEligible;
+      return Result<TierStatus>(t81::unexpect, PromotionError::NotEligible);
   }
   return next;
 }
@@ -72,4 +72,3 @@ bool should_promote_to_tier4(const v1::ReflectionTrace& trace) {
 }
 
 }  // namespace t81::cog
-

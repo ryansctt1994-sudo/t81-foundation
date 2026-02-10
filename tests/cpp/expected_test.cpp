@@ -9,7 +9,7 @@ void test_expected_basic() {
     assert(e.value() == 42);
     assert(*e == 42);
 
-    t81::expected<int, std::string> err("error");
+    t81::expected<int, std::string> err(t81::unexpect, "error");
     assert(!err.has_value());
     assert(err.error() == "error");
 }
@@ -51,7 +51,7 @@ void test_expected_void() {
     assert(e2.has_value());
     assert(e2.value() == 42);
 
-    t81::expected<void, int> err(404);
+    t81::expected<void, int> err(t81::unexpect, 404);
     assert(!err.has_value());
     assert(err.error() == 404);
 }

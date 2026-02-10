@@ -102,26 +102,34 @@ class PersistentDriver final : public Driver {
       override {
     auto hashed = t81::hash::hash_bytes(bytes);
     CanonRef ref{CanonHash{hashed}};
-    if (!axion_allow(OpKind::Write, ref)) return Error::CapabilityError;
-    if (!has_capability(ref.hash, CANON_PERM_WRITE)) return Error::CapabilityError;
+    if (!axion_allow(OpKind::Write, ref)) {
+      return Result<CanonRef>(t81::unexpect, Error::CapabilityError);
+    }
+    if (!has_capability(ref.hash, CANON_PERM_WRITE)) {
+      return Result<CanonRef>(t81::unexpect, Error::CapabilityError);
+    }
 
     // Check if already exists to avoid redundant writes
     auto target = object_path(root_, ref.hash);
     if (std::filesystem::exists(target)) return ref;
 
     FILE* f = fopen(target.c_str(), "wb");
-    if (!f) return Error::DecodeError;
+    if (!f) return Result<CanonRef>(t81::unexpect, Error::DecodeError);
     size_t written = fwrite(bytes.data(), 1, bytes.size(), f);
     fclose(f);
 
-    if (written != bytes.size()) return Error::DecodeError;
+    if (written != bytes.size()) return Result<CanonRef>(t81::unexpect, Error::DecodeError);
     return ref;
   }
 
   Result<std::vector<std::byte>> read_object_bytes(
       const CanonRef& ref) override {
-    if (!axion_allow(OpKind::Read, ref)) return Error::CapabilityError;
-    if (!has_capability(ref.hash, CANON_PERM_READ)) return Error::CapabilityError;
+    if (!axion_allow(OpKind::Read, ref)) {
+      return Result<std::vector<std::byte>>(t81::unexpect, Error::CapabilityError);
+    }
+    if (!has_capability(ref.hash, CANON_PERM_READ)) {
+      return Result<std::vector<std::byte>>(t81::unexpect, Error::CapabilityError);
+    }
 
     auto it = object_cache_.find(ref.hash);
     if (it != object_cache_.end()) {
@@ -134,12 +142,12 @@ class PersistentDriver final : public Driver {
 
     auto target = object_path(root_, ref.hash);
     int fd = open(target.string().c_str(), O_RDONLY);
-    if (fd < 0) return Error::NotFound;
+    if (fd < 0) return Result<std::vector<std::byte>>(t81::unexpect, Error::NotFound);
 
     struct stat st;
     if (fstat(fd, &st) < 0) {
       close(fd);
-      return Error::DecodeError;
+      return Result<std::vector<std::byte>>(t81::unexpect, Error::DecodeError);
     }
     size_t size = static_cast<size_t>(st.st_size);
 
@@ -148,7 +156,7 @@ class PersistentDriver final : public Driver {
       void* addr = mmap(nullptr, size, PROT_READ, MAP_PRIVATE, fd, 0);
       if (addr == MAP_FAILED) {
         close(fd);
-        return Error::DecodeError;
+        return Result<std::vector<std::byte>>(t81::unexpect, Error::DecodeError);
       }
       result.resize(size);
       std::memcpy(result.data(), addr, size);
@@ -169,29 +177,39 @@ class PersistentDriver final : public Driver {
   }
 
   Result<void> publish_capability(const CapabilityGrant& grant) override {
-    if (!axion_allow(OpKind::Publish, grant.target)) return Error::CapabilityError;
+    if (!axion_allow(OpKind::Publish, grant.target)) {
+      return Result<void>(t81::unexpect, Error::CapabilityError);
+    }
     auto target = capability_path(root_, grant.target.hash);
-    if (!write_capability(target, grant.perms)) return Error::DecodeError;
+    if (!write_capability(target, grant.perms)) {
+      return Result<void>(t81::unexpect, Error::DecodeError);
+    }
     has_capabilities_ = true;
     capability_cache_[grant.target.hash] = grant.perms;
     return {};
   }
 
   Result<void> revoke_capability(const CanonRef& ref) override {
-    if (!axion_allow(OpKind::Revoke, ref)) return Error::CapabilityError;
+    if (!axion_allow(OpKind::Revoke, ref)) {
+      return Result<void>(t81::unexpect, Error::CapabilityError);
+    }
     auto target = capability_path(root_, ref.hash);
     std::error_code ec;
     std::filesystem::remove(target, ec);
-    if (ec) return Error::CapabilityError;
+    if (ec) return Result<void>(t81::unexpect, Error::CapabilityError);
     has_capabilities_ = !std::filesystem::is_empty(capabilities_dir_);
     capability_cache_.erase(ref.hash);
     return {};
   }
 
   Result<void> parity_repair_subtree(const CanonRef& ref) override {
-    if (!axion_allow(OpKind::Repair, ref)) return Error::CapabilityError;
+    if (!axion_allow(OpKind::Repair, ref)) {
+      return Result<void>(t81::unexpect, Error::CapabilityError);
+    }
     auto target = object_path(root_, ref.hash);
-    if (!std::filesystem::exists(target)) return Error::NotFound;
+    if (!std::filesystem::exists(target)) {
+      return Result<void>(t81::unexpect, Error::NotFound);
+    }
     return {};
   }
 

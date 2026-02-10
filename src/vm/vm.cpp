@@ -148,7 +148,7 @@ class Interpreter : public IVirtualMachine {
 
         auto enter = eval_axion_call(t81::axion::reasons::kJitTraceEnter, trace_pc, first_opcode);
         if (enter.kind == t81::axion::VerdictKind::Deny) {
-          return Trap::SecurityFault;
+          return std::expected<void, Trap>(t81::unexpect, Trap::SecurityFault);
         }
 
         t81::axion::Verdict enter_event{t81::axion::VerdictKind::Allow, ""};
@@ -182,7 +182,7 @@ class Interpreter : public IVirtualMachine {
 
         auto exit = eval_axion_call(t81::axion::reasons::kJitTraceExit, state_.pc, first_opcode);
         if (exit.kind == t81::axion::VerdictKind::Deny) {
-          return Trap::SecurityFault;
+          return std::expected<void, Trap>(t81::unexpect, Trap::SecurityFault);
         }
 
         return {};
@@ -191,7 +191,7 @@ class Interpreter : public IVirtualMachine {
     if (state_.pc >= program_.insns.size()) {
       auto verdict = eval_axion_call(t81::axion::reasons::kStep, state_.pc, t81::tisc::Opcode::Halt);
       if (verdict.kind == t81::axion::VerdictKind::Deny) {
-        return Trap::SecurityFault;
+        return std::expected<void, Trap>(t81::unexpect, Trap::SecurityFault);
       }
       state_.halted = true;
       return {};
@@ -223,7 +223,7 @@ class Interpreter : public IVirtualMachine {
     // Evaluate Axion policy before every instruction.
     auto verdict = eval_axion_call(t81::axion::reasons::kStep, current_pc, insn.opcode);
     if (verdict.kind == t81::axion::VerdictKind::Deny) {
-        return Trap::SecurityFault;
+        return std::expected<void, Trap>(t81::unexpect, Trap::SecurityFault);
     }
 
     auto reg_ok = [this](int r) {
@@ -320,12 +320,12 @@ class Interpreter : public IVirtualMachine {
     };
     auto promote_to_tensor = [&](int reg) -> std::expected<void, Trap> {
       if (reg < 0 || static_cast<std::size_t>(reg) >= state_.registers.size()) {
-        return Trap::DecodeFault;
+        return std::expected<void, Trap>(t81::unexpect, Trap::DecodeFault);
       }
       if (state_.register_tags[reg] == ValueTag::WeightsTensorHandle) {
         auto handle = state_.registers[reg];
         const auto* native = weights_tensor(handle);
-        if (!native) return Trap::DecodeFault;
+        if (!native) return std::expected<void, Trap>(t81::unexpect, Trap::DecodeFault);
 
         std::vector<float> float_data;
         float_data.reserve(native->num_trits());
@@ -342,7 +342,7 @@ class Interpreter : public IVirtualMachine {
                 for (uint64_t packed_idx = 0; packed_idx < 26; ++packed_idx) {
                     uint8_t packed = *byte_ptr++;
                     if (packed > 242) {
-                        return Trap::DecodeFault;
+                        return std::expected<void, Trap>(t81::unexpect, Trap::DecodeFault);
                     }
                     uint8_t rem = packed;
                     for (uint64_t local = 0; local < 5; ++local, ++trit_index) {
@@ -353,7 +353,7 @@ class Interpreter : public IVirtualMachine {
                             float_data.push_back(trit * scale);
                         } else if (digit != 1) {
                             // Canonical padding requires extra trits to be zero (mapped digit=1).
-                            return Trap::DecodeFault;
+                            return std::expected<void, Trap>(t81::unexpect, Trap::DecodeFault);
                         }
                     }
                 }
@@ -1847,7 +1847,7 @@ class Interpreter : public IVirtualMachine {
 
     log_trace(insn.opcode, trap);
     if (trap != Trap::None) {
-      return {t81::unexpect, trap};
+      return std::expected<void, Trap>(t81::unexpect, trap);
     }
     return {};
   }

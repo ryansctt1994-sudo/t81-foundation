@@ -103,19 +103,19 @@ BridgeDiagnostic make_diag(BridgeError error,
 }
 
 std::expected<int, BridgeError> parse_register(std::string_view token) {
-  if (token.size() < 2) return {std::unexpect, BridgeError::InvalidRegister};
+  if (token.size() < 2) return t81::make_unexpected(BridgeError::InvalidRegister);
   if (token.front() != 'R' && token.front() != 'r') {
-    return {std::unexpect, BridgeError::InvalidRegister};
+    return t81::make_unexpected(BridgeError::InvalidRegister);
   }
   int index = -1;
   const char* begin = token.data() + 1;
   const char* end = token.data() + token.size();
   auto [ptr, ec] = std::from_chars(begin, end, index);
   if (ec != std::errc{} || ptr != end) {
-    return {std::unexpect, BridgeError::InvalidRegister};
+    return t81::make_unexpected(BridgeError::InvalidRegister);
   }
   if (index < 0 || index > 242) {
-    return {std::unexpect, BridgeError::InvalidRegister};
+    return t81::make_unexpected(BridgeError::InvalidRegister);
   }
   return index;
 }
@@ -126,7 +126,7 @@ std::expected<std::int64_t, BridgeError> parse_immediate(std::string_view token)
   const char* end = token.data() + token.size();
   auto [ptr, ec] = std::from_chars(begin, end, value);
   if (ec != std::errc{} || ptr != end) {
-    return {std::unexpect, BridgeError::InvalidImmediate};
+    return t81::make_unexpected(BridgeError::InvalidImmediate);
   }
   return value;
 }
@@ -145,11 +145,11 @@ std::expected<ParsedLine, BridgeDiagnostic> parse_source_line(std::string_view r
   if (colon != std::string::npos) {
     std::string label = trim(code.substr(0, colon));
     if (!is_valid_label(label)) {
-      return {std::unexpect, make_diag(BridgeError::InvalidLabel,
+      return t81::make_unexpected(make_diag(BridgeError::InvalidLabel,
                                        line_no,
                                        raw_line,
                                        "invalid label declaration",
-                                       label)};
+                                       label));
     }
     parsed.label = std::move(label);
     code = trim(code.substr(colon + 1));
@@ -176,28 +176,28 @@ std::expected<std::int64_t, BridgeDiagnostic> resolve_jump_target(
   }
 
   if (!labels) {
-    return {std::unexpect, make_diag(BridgeError::InvalidImmediate,
+    return t81::make_unexpected(make_diag(BridgeError::InvalidImmediate,
                                      line_no,
                                      source_line,
                                      "expected immediate jump target",
-                                     token)};
+                                     token));
   }
 
   if (!is_valid_label(token)) {
-    return {std::unexpect, make_diag(BridgeError::InvalidLabel,
+    return t81::make_unexpected(make_diag(BridgeError::InvalidLabel,
                                      line_no,
                                      source_line,
                                      "invalid jump label",
-                                     token)};
+                                     token));
   }
 
   auto it = labels->find(std::string(token));
   if (it == labels->end()) {
-    return {std::unexpect, make_diag(BridgeError::UndefinedLabel,
+    return t81::make_unexpected(make_diag(BridgeError::UndefinedLabel,
                                      line_no,
                                      source_line,
                                      "undefined label",
-                                     token)};
+                                     token));
   }
   return static_cast<std::int64_t>(it->second);
 }
@@ -208,7 +208,7 @@ std::expected<t81::tisc::Insn, BridgeDiagnostic> encode_tokens(
     std::string_view source_line,
     const std::unordered_map<std::string, std::int32_t>* labels) {
   if (tokens.empty()) {
-    return {std::unexpect, make_diag(BridgeError::EmptyInput, line_no, source_line, "empty input")};
+    return t81::make_unexpected(make_diag(BridgeError::EmptyInput, line_no, source_line, "empty input"));
   }
 
   const std::string& op = tokens[0];
@@ -216,7 +216,7 @@ std::expected<t81::tisc::Insn, BridgeDiagnostic> encode_tokens(
 
   if (op == "NOP") {
     if (tokens.size() != 1) {
-      return {std::unexpect, make_diag(BridgeError::InvalidOperand, line_no, source_line, "NOP takes no operands", tokens[0])};
+      return t81::make_unexpected(make_diag(BridgeError::InvalidOperand, line_no, source_line, "NOP takes no operands", tokens[0]));
     }
     insn.opcode = t81::tisc::Opcode::Nop;
     return insn;
@@ -224,7 +224,7 @@ std::expected<t81::tisc::Insn, BridgeDiagnostic> encode_tokens(
 
   if (op == "HALT") {
     if (tokens.size() != 1) {
-      return {std::unexpect, make_diag(BridgeError::InvalidOperand, line_no, source_line, "HALT takes no operands", tokens[0])};
+      return t81::make_unexpected(make_diag(BridgeError::InvalidOperand, line_no, source_line, "HALT takes no operands", tokens[0]));
     }
     insn.opcode = t81::tisc::Opcode::Halt;
     return insn;
@@ -232,15 +232,15 @@ std::expected<t81::tisc::Insn, BridgeDiagnostic> encode_tokens(
 
   if (op == "LOADI") {
     if (tokens.size() != 3) {
-      return {std::unexpect, make_diag(BridgeError::InvalidOperand, line_no, source_line, "LOADI expects: LOADI Rdst imm", tokens[0])};
+      return t81::make_unexpected(make_diag(BridgeError::InvalidOperand, line_no, source_line, "LOADI expects: LOADI Rdst imm", tokens[0]));
     }
     auto dst = parse_register(tokens[1]);
     if (!dst.has_value()) {
-      return {std::unexpect, make_diag(dst.error(), line_no, source_line, "invalid destination register", tokens[1])};
+      return t81::make_unexpected(make_diag(dst.error(), line_no, source_line, "invalid destination register", tokens[1]));
     }
     auto imm = parse_immediate(tokens[2]);
     if (!imm.has_value()) {
-      return {std::unexpect, make_diag(imm.error(), line_no, source_line, "invalid immediate", tokens[2])};
+      return t81::make_unexpected(make_diag(imm.error(), line_no, source_line, "invalid immediate", tokens[2]));
     }
     insn.opcode = t81::tisc::Opcode::LoadImm;
     insn.a = dst.value();
@@ -250,15 +250,15 @@ std::expected<t81::tisc::Insn, BridgeDiagnostic> encode_tokens(
 
   if (op == "MOV") {
     if (tokens.size() != 3) {
-      return {std::unexpect, make_diag(BridgeError::InvalidOperand, line_no, source_line, "MOV expects: MOV Rdst Rsrc", tokens[0])};
+      return t81::make_unexpected(make_diag(BridgeError::InvalidOperand, line_no, source_line, "MOV expects: MOV Rdst Rsrc", tokens[0]));
     }
     auto dst = parse_register(tokens[1]);
     auto src = parse_register(tokens[2]);
     if (!dst.has_value()) {
-      return {std::unexpect, make_diag(dst.error(), line_no, source_line, "invalid destination register", tokens[1])};
+      return t81::make_unexpected(make_diag(dst.error(), line_no, source_line, "invalid destination register", tokens[1]));
     }
     if (!src.has_value()) {
-      return {std::unexpect, make_diag(src.error(), line_no, source_line, "invalid source register", tokens[2])};
+      return t81::make_unexpected(make_diag(src.error(), line_no, source_line, "invalid source register", tokens[2]));
     }
     insn.opcode = t81::tisc::Opcode::Mov;
     insn.a = dst.value();
@@ -268,15 +268,15 @@ std::expected<t81::tisc::Insn, BridgeDiagnostic> encode_tokens(
 
   if (op == "ADD" || op == "SUB") {
     if (tokens.size() != 3) {
-      return {std::unexpect, make_diag(BridgeError::InvalidOperand, line_no, source_line, "ADD/SUB expect: ADD Rdst Rsrc", tokens[0])};
+      return t81::make_unexpected(make_diag(BridgeError::InvalidOperand, line_no, source_line, "ADD/SUB expect: ADD Rdst Rsrc", tokens[0]));
     }
     auto dst = parse_register(tokens[1]);
     auto src = parse_register(tokens[2]);
     if (!dst.has_value()) {
-      return {std::unexpect, make_diag(dst.error(), line_no, source_line, "invalid destination register", tokens[1])};
+      return t81::make_unexpected(make_diag(dst.error(), line_no, source_line, "invalid destination register", tokens[1]));
     }
     if (!src.has_value()) {
-      return {std::unexpect, make_diag(src.error(), line_no, source_line, "invalid source register", tokens[2])};
+      return t81::make_unexpected(make_diag(src.error(), line_no, source_line, "invalid source register", tokens[2]));
     }
     insn.opcode = (op == "ADD") ? t81::tisc::Opcode::Add : t81::tisc::Opcode::Sub;
     insn.a = dst.value();
@@ -287,15 +287,15 @@ std::expected<t81::tisc::Insn, BridgeDiagnostic> encode_tokens(
 
   if (op == "LOAD") {
     if (tokens.size() != 3) {
-      return {std::unexpect, make_diag(BridgeError::InvalidOperand, line_no, source_line, "LOAD expects: LOAD Rdst addr", tokens[0])};
+      return t81::make_unexpected(make_diag(BridgeError::InvalidOperand, line_no, source_line, "LOAD expects: LOAD Rdst addr", tokens[0]));
     }
     auto dst = parse_register(tokens[1]);
     auto addr = parse_immediate(tokens[2]);
     if (!dst.has_value()) {
-      return {std::unexpect, make_diag(dst.error(), line_no, source_line, "invalid destination register", tokens[1])};
+      return t81::make_unexpected(make_diag(dst.error(), line_no, source_line, "invalid destination register", tokens[1]));
     }
     if (!addr.has_value()) {
-      return {std::unexpect, make_diag(addr.error(), line_no, source_line, "invalid load address", tokens[2])};
+      return t81::make_unexpected(make_diag(addr.error(), line_no, source_line, "invalid load address", tokens[2]));
     }
     insn.opcode = t81::tisc::Opcode::Load;
     insn.a = dst.value();
@@ -305,15 +305,15 @@ std::expected<t81::tisc::Insn, BridgeDiagnostic> encode_tokens(
 
   if (op == "STORE") {
     if (tokens.size() != 3) {
-      return {std::unexpect, make_diag(BridgeError::InvalidOperand, line_no, source_line, "STORE expects: STORE addr Rsrc", tokens[0])};
+      return t81::make_unexpected(make_diag(BridgeError::InvalidOperand, line_no, source_line, "STORE expects: STORE addr Rsrc", tokens[0]));
     }
     auto addr = parse_immediate(tokens[1]);
     auto src = parse_register(tokens[2]);
     if (!addr.has_value()) {
-      return {std::unexpect, make_diag(addr.error(), line_no, source_line, "invalid store address", tokens[1])};
+      return t81::make_unexpected(make_diag(addr.error(), line_no, source_line, "invalid store address", tokens[1]));
     }
     if (!src.has_value()) {
-      return {std::unexpect, make_diag(src.error(), line_no, source_line, "invalid source register", tokens[2])};
+      return t81::make_unexpected(make_diag(src.error(), line_no, source_line, "invalid source register", tokens[2]));
     }
     insn.opcode = t81::tisc::Opcode::Store;
     insn.a = static_cast<std::int32_t>(addr.value());
@@ -323,11 +323,11 @@ std::expected<t81::tisc::Insn, BridgeDiagnostic> encode_tokens(
 
   if (op == "JMP") {
     if (tokens.size() != 2) {
-      return {std::unexpect, make_diag(BridgeError::InvalidOperand, line_no, source_line, "JMP expects: JMP target", tokens[0])};
+      return t81::make_unexpected(make_diag(BridgeError::InvalidOperand, line_no, source_line, "JMP expects: JMP target", tokens[0]));
     }
     auto target = resolve_jump_target(tokens[1], line_no, source_line, labels);
     if (!target.has_value()) {
-      return {std::unexpect, target.error()};
+      return t81::make_unexpected(target.error());
     }
     insn.opcode = t81::tisc::Opcode::Jump;
     insn.a = static_cast<std::int32_t>(target.value());
@@ -336,15 +336,15 @@ std::expected<t81::tisc::Insn, BridgeDiagnostic> encode_tokens(
 
   if (op == "JZ" || op == "JNZ") {
     if (tokens.size() != 3) {
-      return {std::unexpect, make_diag(BridgeError::InvalidOperand, line_no, source_line, "JZ/JNZ expect: JZ Rcond target", tokens[0])};
+      return t81::make_unexpected(make_diag(BridgeError::InvalidOperand, line_no, source_line, "JZ/JNZ expect: JZ Rcond target", tokens[0]));
     }
     auto cond = parse_register(tokens[1]);
     if (!cond.has_value()) {
-      return {std::unexpect, make_diag(cond.error(), line_no, source_line, "invalid condition register", tokens[1])};
+      return t81::make_unexpected(make_diag(cond.error(), line_no, source_line, "invalid condition register", tokens[1]));
     }
     auto target = resolve_jump_target(tokens[2], line_no, source_line, labels);
     if (!target.has_value()) {
-      return {std::unexpect, target.error()};
+      return t81::make_unexpected(target.error());
     }
     insn.opcode = (op == "JZ") ? t81::tisc::Opcode::JumpIfZero : t81::tisc::Opcode::JumpIfNotZero;
     insn.a = static_cast<std::int32_t>(target.value());
@@ -354,22 +354,22 @@ std::expected<t81::tisc::Insn, BridgeDiagnostic> encode_tokens(
 
   if (op == "JN" || op == "JP") {
     if (tokens.size() != 2) {
-      return {std::unexpect, make_diag(BridgeError::InvalidOperand, line_no, source_line, "JN/JP expect: JN target", tokens[0])};
+      return t81::make_unexpected(make_diag(BridgeError::InvalidOperand, line_no, source_line, "JN/JP expect: JN target", tokens[0]));
     }
     auto target = resolve_jump_target(tokens[1], line_no, source_line, labels);
     if (!target.has_value()) {
-      return {std::unexpect, target.error()};
+      return t81::make_unexpected(target.error());
     }
     insn.opcode = (op == "JN") ? t81::tisc::Opcode::JumpIfNegative : t81::tisc::Opcode::JumpIfPositive;
     insn.a = static_cast<std::int32_t>(target.value());
     return insn;
   }
 
-  return {std::unexpect, make_diag(BridgeError::UnsupportedMnemonic,
+  return t81::make_unexpected(make_diag(BridgeError::UnsupportedMnemonic,
                                    line_no,
                                    source_line,
                                    "unsupported mnemonic",
-                                   tokens[0])};
+                                   tokens[0]));
 }
 
 }  // namespace
@@ -391,15 +391,15 @@ std::string_view bridge_error_message(BridgeError error) {
 std::expected<t81::tisc::Insn, BridgeError> translate_line(std::string_view raw_line) {
   auto parsed = parse_source_line(raw_line, 1);
   if (!parsed.has_value()) {
-    return {std::unexpect, parsed.error().error};
+    return t81::make_unexpected(parsed.error().error);
   }
   if (parsed->tokens.empty()) {
-    return {std::unexpect, BridgeError::EmptyInput};
+    return t81::make_unexpected(BridgeError::EmptyInput);
   }
 
   auto insn = encode_tokens(parsed->tokens, 1, raw_line, nullptr);
   if (!insn.has_value()) {
-    return {std::unexpect, insn.error().error};
+    return t81::make_unexpected(insn.error().error);
   }
   return insn.value();
 }
@@ -407,7 +407,7 @@ std::expected<t81::tisc::Insn, BridgeError> translate_line(std::string_view raw_
 std::expected<t81::tisc::Program, BridgeError> translate_program(std::string_view source) {
   auto detailed = translate_program_diagnostic(source);
   if (!detailed.has_value()) {
-    return {std::unexpect, detailed.error().error};
+    return t81::make_unexpected(detailed.error().error);
   }
   return detailed.value();
 }
@@ -427,18 +427,17 @@ std::expected<t81::tisc::Program, BridgeDiagnostic> translate_program_diagnostic
 
     auto parsed = parse_source_line(raw_line, line_no);
     if (!parsed.has_value()) {
-      return {std::unexpect, parsed.error()};
+      return t81::make_unexpected(parsed.error());
     }
 
     if (parsed->label.has_value()) {
       const auto [it, inserted] = labels.emplace(*parsed->label, pc);
       if (!inserted) {
-        return {std::unexpect,
-                make_diag(BridgeError::DuplicateLabel,
+        return t81::make_unexpected(make_diag(BridgeError::DuplicateLabel,
                           line_no,
                           raw_line,
                           "duplicate label declaration",
-                          *parsed->label)};
+                          *parsed->label));
       }
     }
 
@@ -457,7 +456,7 @@ std::expected<t81::tisc::Program, BridgeDiagnostic> translate_program_diagnostic
   for (const auto& line : lines) {
     auto insn = encode_tokens(line.tokens, line.line_no, line.source_line, &labels);
     if (!insn.has_value()) {
-      return {std::unexpect, insn.error()};
+      return t81::make_unexpected(insn.error());
     }
     program.insns.push_back(insn.value());
   }

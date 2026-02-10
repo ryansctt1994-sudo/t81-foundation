@@ -18,14 +18,18 @@ class InMemoryDriver : public Driver {
     hook_ = std::move(hook);
   }
   Result<CanonRef> write_object(ObjectType, std::span<const std::byte> bytes) override {
-    if (!axion_allow(OpKind::Write, std::nullopt)) return Error::CapabilityError;
+    if (!axion_allow(OpKind::Write, std::nullopt)) {
+      return Result<CanonRef>(t81::unexpect, Error::CapabilityError);
+    }
     // Content-address using CanonHash81 over raw bytes.
     std::vector<std::uint8_t> v(bytes.size());
     std::memcpy(v.data(), bytes.data(), bytes.size());
     auto h = t81::hash::hash_bytes(v);
     CanonHash canon_hash{h};
     CanonRef ref{canon_hash};
-    if (!has_capability(ref, CANON_PERM_WRITE)) return Error::CapabilityError;
+    if (!has_capability(ref, CANON_PERM_WRITE)) {
+      return Result<CanonRef>(t81::unexpect, Error::CapabilityError);
+    }
     std::vector<std::byte> data(bytes.begin(), bytes.end());
     objects_[ref.hash] = data;
     parity_shards_[ref.hash] = ReedSolomonRepair::encode(data);
@@ -33,38 +37,54 @@ class InMemoryDriver : public Driver {
   }
 
   Result<std::vector<std::byte>> read_object_bytes(const CanonRef& ref) override {
-    if (!axion_allow(OpKind::Read, ref)) return Error::CapabilityError;
-    if (!has_capability(ref, CANON_PERM_READ)) return Error::CapabilityError;
+    if (!axion_allow(OpKind::Read, ref)) {
+      return Result<std::vector<std::byte>>(t81::unexpect, Error::CapabilityError);
+    }
+    if (!has_capability(ref, CANON_PERM_READ)) {
+      return Result<std::vector<std::byte>>(t81::unexpect, Error::CapabilityError);
+    }
     auto it = objects_.find(ref.hash);
-    if (it == objects_.end()) return Error::NotFound;
+    if (it == objects_.end()) {
+      return Result<std::vector<std::byte>>(t81::unexpect, Error::NotFound);
+    }
     return it->second;
   }
 
   Result<void> publish_capability(const CapabilityGrant& grant) override {
-    if (!axion_allow(OpKind::Publish, grant.target)) return Error::CapabilityError;
+    if (!axion_allow(OpKind::Publish, grant.target)) {
+      return Result<void>(t81::unexpect, Error::CapabilityError);
+    }
     capabilities_[grant.target.hash] = grant.perms;
     return {};
   }
 
   Result<void> revoke_capability(const CanonRef& ref) override {
-    if (!axion_allow(OpKind::Revoke, ref)) return Error::CapabilityError;
+    if (!axion_allow(OpKind::Revoke, ref)) {
+      return Result<void>(t81::unexpect, Error::CapabilityError);
+    }
     capabilities_.erase(ref.hash);
     return {};
   }
 
   Result<void> parity_repair_subtree(const CanonRef& ref) override {
-    if (!axion_allow(OpKind::Repair, ref)) return Error::CapabilityError;
+    if (!axion_allow(OpKind::Repair, ref)) {
+      return Result<void>(t81::unexpect, Error::CapabilityError);
+    }
     if (objects_.count(ref.hash)) return {};
 
     // Attempt repair from parity shards
     auto it = parity_shards_.find(ref.hash);
-    if (it == parity_shards_.end()) return Error::NotFound;
+    if (it == parity_shards_.end()) {
+      return Result<void>(t81::unexpect, Error::NotFound);
+    }
 
     const auto& shards = it->second;
     std::vector<bool> available(5, true); // Assume all 5 are there for this impl
     auto recovered = ReedSolomonRepair::repair(shards, available);
 
-    if (recovered.empty()) return Error::ParityFailure;
+    if (recovered.empty()) {
+      return Result<void>(t81::unexpect, Error::ParityFailure);
+    }
 
     // Concatenate recovered data shards
     std::vector<std::byte> full_data;

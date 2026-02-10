@@ -20,7 +20,9 @@ class InMemoryKernel : public Kernel {
   }
 
   Result<SnapshotRef> fork_snapshot(const SnapshotRef& base) override {
-    if (!snapshots_.count(base.hash)) return Error::CanonMismatch;
+    if (!snapshots_.count(base.hash)) {
+      return Result<SnapshotRef>(t81::unexpect, Error::CanonMismatch);
+    }
     // Derive a new hash deterministically by hashing the base hash string plus a fork marker.
     std::string fork_str = base.hash.h.to_string() + ".fork." + std::to_string(next_pid_);
     SnapshotRef child{t81::canonfs::CanonHash{t81::hash::hash_string(fork_str)}};
@@ -29,37 +31,43 @@ class InMemoryKernel : public Kernel {
   }
 
   Result<SnapshotRef> commit_snapshot(const SnapshotRef& snapshot) override {
-    if (!snapshots_.count(snapshot.hash)) return Error::CanonMismatch;
+    if (!snapshots_.count(snapshot.hash)) {
+      return Result<SnapshotRef>(t81::unexpect, Error::CanonMismatch);
+    }
     current_root_ = snapshot;
     return snapshot;
   }
 
   Result<void> switch_root(const SnapshotRef& snapshot) override {
-    if (!snapshots_.count(snapshot.hash)) return Error::CanonMismatch;
+    if (!snapshots_.count(snapshot.hash)) {
+      return Result<void>(t81::unexpect, Error::CanonMismatch);
+    }
     current_root_ = snapshot;
     return {};
   }
 
   Result<Pid> spawn(const SnapshotRef& snapshot) override {
-    if (!snapshots_.count(snapshot.hash)) return Error::CanonMismatch;
+    if (!snapshots_.count(snapshot.hash)) {
+      return Result<Pid>(t81::unexpect, Error::CanonMismatch);
+    }
     return static_cast<Pid>(++next_pid_);
   }
 
   Result<std::vector<std::byte>> read_object(const t81::canonfs::CanonRef& ref) override {
     auto bytes = driver_.read_object_bytes(ref);
-    if (!bytes) return Error::CapabilityMissing;
+    if (!bytes) return Result<std::vector<std::byte>>(t81::unexpect, Error::CapabilityMissing);
     return bytes.value();
   }
 
   Result<void> grant_cap(const t81::canonfs::CapabilityGrant& grant) override {
     auto res = driver_.publish_capability(grant);
-    if (!res) return Error::CapabilityRevoked;
+    if (!res) return Result<void>(t81::unexpect, Error::CapabilityRevoked);
     return {};
   }
 
   Result<void> revoke_cap(const t81::canonfs::CanonRef& ref) override {
     auto res = driver_.revoke_capability(ref);
-    if (!res) return Error::CapabilityRevoked;
+    if (!res) return Result<void>(t81::unexpect, Error::CapabilityRevoked);
     return {};
   }
 
@@ -73,7 +81,7 @@ class InMemoryKernel : public Kernel {
 
   Result<void> parity_repair(const t81::canonfs::CanonRef& ref) override {
     auto res = driver_.parity_repair_subtree(ref);
-    if (!res) return Error::RepairError;
+    if (!res) return Result<void>(t81::unexpect, Error::RepairError);
     return {};
   }
 

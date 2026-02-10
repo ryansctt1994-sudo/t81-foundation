@@ -298,7 +298,7 @@ t81::expected<Policy, std::string> Policy::deserialize(std::istream& is) {
                 break;
             }
             default:
-                return t81::expected<Policy, std::string>("Unknown policy tag");
+                return t81::expected<Policy, std::string>(t81::unexpect, "Unknown policy tag");
         }
     }
     return policy;

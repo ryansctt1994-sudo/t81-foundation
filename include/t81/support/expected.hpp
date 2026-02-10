@@ -17,6 +17,14 @@
 #if defined(__cpp_lib_expected)
 namespace t81 {
 using std::expected;
+using std::unexpect;
+using std::unexpect_t;
+using std::unexpected;
+
+template <typename E>
+unexpected<std::decay_t<E>> make_unexpected(E&& error) {
+  return unexpected<std::decay_t<E>>(std::forward<E>(error));
+}
 }
 #else
 namespace t81 {
@@ -25,6 +33,25 @@ struct unexpect_t {
   explicit unexpect_t() = default;
 };
 inline constexpr unexpect_t unexpect{};
+
+template <typename E>
+class unexpected {
+ public:
+  unexpected(const E& error) : error_(error) {}
+  unexpected(E&& error) : error_(std::move(error)) {}
+
+  E& error() & { return error_; }
+  const E& error() const& { return error_; }
+  E&& error() && { return std::move(error_); }
+
+ private:
+  E error_;
+};
+
+template <typename E>
+unexpected<std::decay_t<E>> make_unexpected(E&& error) {
+  return unexpected<std::decay_t<E>>(std::forward<E>(error));
+}
 
 // Minimal expected implementation for C++20 environments without <expected>.
 // This is intentionally simple and deterministic; it should be replaced with
@@ -45,6 +72,11 @@ class expected {
   template <typename... Args>
   expected(unexpect_t, Args&&... args)
       : has_(false), storage_(std::in_place_index<1>, std::forward<Args>(args)...) {}
+
+  expected(const unexpected<E>& unexp)
+      : has_(false), storage_(std::in_place_index<1>, unexp.error()) {}
+  expected(unexpected<E>&& unexp)
+      : has_(false), storage_(std::in_place_index<1>, std::move(unexp).error()) {}
 
   [[nodiscard]] bool has_value() const noexcept { return has_; }
   [[nodiscard]] explicit operator bool() const noexcept { return has_; }
@@ -126,6 +158,9 @@ class expected<void, E> {
   template <typename... Args>
   expected(unexpect_t, Args&&... args) : has_(false), error_(std::forward<Args>(args)...) {}
 
+  expected(const unexpected<E>& unexp) : has_(false), error_(unexp.error()) {}
+  expected(unexpected<E>&& unexp) : has_(false), error_(std::move(unexp).error()) {}
+
   [[nodiscard]] bool has_value() const noexcept { return has_; }
   [[nodiscard]] explicit operator bool() const noexcept { return has_; }
 
@@ -197,7 +232,10 @@ class expected<void, E> {
 namespace std {
 template <typename T, typename E>
 using expected = ::t81::expected<T, E>;
+template <typename E>
+using unexpected = ::t81::unexpected<E>;
 using unexpect_t = ::t81::unexpect_t;
+using ::t81::make_unexpected;
 using ::t81::unexpect;
 }
 #endif

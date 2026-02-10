@@ -25,13 +25,13 @@ std::expected<Program, EncodingError> decode(const std::vector<std::byte>& bytes
   Program program;
   constexpr std::size_t kInsnSize = 1 + 4 * 3;
   if (bytes.size() % kInsnSize != 0) {
-    return EncodingError::Truncated;
+    return std::expected<Program, EncodingError>(t81::unexpect, EncodingError::Truncated);
   }
   for (std::size_t offset = 0; offset < bytes.size(); offset += kInsnSize) {
     Insn insn;
     const auto opcode = static_cast<std::uint8_t>(bytes[offset]);
     if (!is_valid_opcode(opcode)) {
-      return EncodingError::InvalidOpcode;
+      return std::expected<Program, EncodingError>(t81::unexpect, EncodingError::InvalidOpcode);
     }
     insn.opcode = static_cast<Opcode>(opcode);
     auto read = [&bytes, offset](std::size_t index) {

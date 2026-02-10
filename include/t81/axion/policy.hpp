@@ -173,7 +173,7 @@ class PolicyLexer {
 
 inline t81::expected<Policy, std::string> parse_policy(std::string_view text) {
   auto make_error = [](std::string msg) {
-    return t81::expected<Policy, std::string>(std::move(msg));
+    return t81::expected<Policy, std::string>(t81::unexpect, std::move(msg));
   };
   detail::PolicyLexer lex(text);
   auto tok = lex.next();

@@ -5,8 +5,10 @@
 #pragma once
 #include "t81/core/T81Int.hpp"
 #include "t81/core/T81Symbol.hpp"
+#include <atomic>
 #include <cstdint>
 #include <compare>
+#include <exception>
 #include <utility>
 
 namespace t81 {
