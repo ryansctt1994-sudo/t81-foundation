@@ -67,6 +67,7 @@ struct SemanticSymbol {
     Token declaration;  // Token where the symbol was declared
     Type type;                      // Variable type or function return type
     std::vector<Type> param_types;  // Only used for functions
+    bool is_mutable = true;         // `let` bindings are immutable, `var` bindings are mutable
     bool is_defined = false;        // Functions get declared first, defined later
 };
 
@@ -237,7 +238,7 @@ private:
     // Symbol table operations
     void enter_scope();
     void exit_scope();
-    void define_symbol(const Token& name, SymbolKind kind);
+    void define_symbol(const Token& name, SymbolKind kind, bool is_mutable = true);
     SemanticSymbol* resolve_symbol(const Token& name);
     bool is_defined_in_current_scope(const std::string& name) const;
 

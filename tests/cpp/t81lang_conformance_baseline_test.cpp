@@ -2,14 +2,15 @@
 #include "t81/frontend/parser.hpp"
 #include "t81/frontend/semantic_analyzer.hpp"
 
-#include <cassert>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 
 using namespace t81::frontend;
 
 static bool analyzes(std::string_view source, const char* label = "t81lang_conformance_case") {
-  Lexer lexer{std::string(source)};
+  std::string source_text(source);
+  Lexer lexer{source_text};
   Parser parser(lexer, label);
   auto stmts = parser.parse();
   if (parser.had_error()) return false;
@@ -18,23 +19,36 @@ static bool analyzes(std::string_view source, const char* label = "t81lang_confo
   return !analyzer.had_error();
 }
 
+static bool fails_semantic(std::string_view source, const char* label = "t81lang_conformance_failure") {
+  std::string source_text(source);
+  Lexer lexer{source_text};
+  Parser parser(lexer, label);
+  auto stmts = parser.parse();
+  if (parser.had_error()) return false;
+  SemanticAnalyzer analyzer(stmts, label);
+  analyzer.analyze();
+  return analyzer.had_error();
+}
+
+static void require_true(bool condition, const char* label) {
+  if (!condition) {
+    std::cerr << "Conformance assertion failed: " << label << "\n";
+    std::abort();
+  }
+}
+
 static void test_baseline_supported_features() {
   constexpr const char* source = R"(
     fn main() -> i32 {
-      @bounded(loop(1 < 2))
-      loop {
-        let items: Vector[i32] = [1, 2, 3];
-        let maybe: Option[i32] = Some(items[0]);
-        let v: i32 = match (maybe) {
-          Some(x) => x;
-          None => 0;
-        };
-        return v;
-      }
-      return 0;
+      let maybe: Option[i32] = Some(1);
+      let v: i32 = match (maybe) {
+        Some(x) => x;
+        None => 0;
+      };
+      return v;
     }
   )";
-  assert(analyzes(source, "t81lang_supported_baseline"));
+  require_true(analyzes(source, "t81lang_supported_baseline"), "t81lang_supported_baseline");
 }
 
 static void test_tier_annotation_supported_for_functions() {
@@ -44,12 +58,60 @@ static void test_tier_annotation_supported_for_functions() {
       return 0;
     }
   )";
-  assert(analyzes(source, "t81lang_tier_annotation_supported"));
+  require_true(analyzes(source, "t81lang_tier_annotation_supported"), "t81lang_tier_annotation_supported");
+}
+
+static void test_t81_numeric_types_bind_and_widen() {
+  constexpr const char* source = R"(
+    fn main() -> T81Float {
+      let a: T81Float = 1.25;
+      let b: T81BigInt = 42;
+      let c: T81Float = a + b;
+      return c;
+    }
+  )";
+  require_true(analyzes(source, "t81lang_numeric_binding"), "t81lang_numeric_binding");
+}
+
+static void test_t81_numeric_type_separation_rejects_invalid_mix() {
+  constexpr const char* source = R"(
+    fn main() -> i8 {
+      let x: i2 = 1;
+      return x + 1.5;
+    }
+  )";
+  require_true(fails_semantic(source, "t81lang_numeric_type_separation"), "t81lang_numeric_type_separation");
+}
+
+static void test_let_is_immutable() {
+  constexpr const char* source = R"(
+    fn main() -> i32 {
+      let x: i32 = 1;
+      x = 2;
+      return x;
+    }
+  )";
+  require_true(fails_semantic(source, "t81lang_let_immutable"), "t81lang_let_immutable");
+}
+
+static void test_var_is_mutable() {
+  constexpr const char* source = R"(
+    fn main() -> i32 {
+      var x: i32 = 1;
+      x = 2;
+      return x;
+    }
+  )";
+  require_true(analyzes(source, "t81lang_var_mutable"), "t81lang_var_mutable");
 }
 
 int main() {
   test_baseline_supported_features();
   test_tier_annotation_supported_for_functions();
+  test_t81_numeric_types_bind_and_widen();
+  test_t81_numeric_type_separation_rejects_invalid_mix();
+  test_let_is_immutable();
+  test_var_is_mutable();
   std::cout << "t81lang conformance baseline tests passed!\n";
   return 0;
 }

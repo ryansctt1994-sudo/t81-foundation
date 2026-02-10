@@ -79,7 +79,7 @@ void SemanticAnalyzer::analyze() {
             if (is_defined_in_current_scope(std::string(func->name.lexeme))) {
                 error(func->name, "Function '" + std::string(func->name.lexeme) + "' is already defined.");
             } else {
-                define_symbol(func->name, SymbolKind::Function);
+                define_symbol(func->name, SymbolKind::Function, false);
             }
         }
     }
@@ -127,10 +127,10 @@ void SemanticAnalyzer::exit_scope() {
     }
 }
 
-void SemanticAnalyzer::define_symbol(const Token& name, SymbolKind kind) {
+void SemanticAnalyzer::define_symbol(const Token& name, SymbolKind kind, bool is_mutable) {
     if (!_scopes.empty()) {
         std::string name_str = std::string(name.lexeme);
-        _scopes.back()[name_str] = SemanticSymbol{kind, name, Type{}, {}, false};
+        _scopes.back()[name_str] = SemanticSymbol{kind, name, Type{}, {}, is_mutable, false};
     }
 }
 
@@ -708,7 +708,7 @@ std::any SemanticAnalyzer::visit(const VarStmt& stmt) {
     }
 
     Type final_type = declared_type.kind == Type::Kind::Unknown ? init_type : checked_declared;
-    define_symbol(stmt.name, SymbolKind::Variable);
+    define_symbol(stmt.name, SymbolKind::Variable, true);
     if (auto* symbol = resolve_symbol(stmt.name)) {
         symbol->type = final_type;
     }
@@ -740,7 +740,7 @@ std::any SemanticAnalyzer::visit(const LetStmt& stmt) {
     }
 
     Type final_type = declared_type.kind == Type::Kind::Unknown ? init_type : checked_declared;
-    define_symbol(stmt.name, SymbolKind::Variable);
+    define_symbol(stmt.name, SymbolKind::Variable, false);
     if (auto* symbol = resolve_symbol(stmt.name)) {
         symbol->type = final_type;
     }
@@ -852,7 +852,7 @@ std::any SemanticAnalyzer::visit(const ReturnStmt& stmt) {
 std::any SemanticAnalyzer::visit(const FunctionStmt& stmt) {
     SemanticSymbol* symbol = resolve_symbol(stmt.name);
     if (!symbol) {
-        define_symbol(stmt.name, SymbolKind::Function);
+        define_symbol(stmt.name, SymbolKind::Function, false);
         symbol = resolve_symbol(stmt.name);
     }
 
@@ -875,7 +875,7 @@ std::any SemanticAnalyzer::visit(const FunctionStmt& stmt) {
         if (is_defined_in_current_scope(std::string(param.name.lexeme))) {
             error(param.name, "Parameter '" + std::string(param.name.lexeme) + "' is already defined.");
         } else {
-            define_symbol(param.name, SymbolKind::Variable);
+            define_symbol(param.name, SymbolKind::Variable, false);
             if (auto* param_symbol = resolve_symbol(param.name)) {
                 param_symbol->type = param_type;
             }
@@ -1011,6 +1011,8 @@ std::any SemanticAnalyzer::visit(const AssignExpr& expr) {
     }
     if (symbol->kind != SymbolKind::Variable) {
         error(expr.name, "Cannot assign to non-variable '" + std::string(expr.name.lexeme) + "'.");
+    } else if (!symbol->is_mutable) {
+        error(expr.name, "Cannot assign to immutable binding '" + std::string(expr.name.lexeme) + "'.");
     }
 
     Type value_type = evaluate_expression(*expr.value, &symbol->type);
@@ -1852,7 +1854,7 @@ void SemanticAnalyzer::bind_pattern_symbol(const Token& name, const Type& type) 
     if (std::string_view{name.lexeme} == "_") {
         return;
     }
-    define_symbol(name, SymbolKind::Variable);
+    define_symbol(name, SymbolKind::Variable, false);
     if (auto* symbol = resolve_symbol(name)) {
         symbol->type = type;
     }
