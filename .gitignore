@@ -105,6 +105,7 @@ pnpm-lock.yaml   # optional – many teams track it now
 docs/_site/
 docs/build/
 docs/.docusaurus/
+docs/api/
 _site/
 
 # ── Jupyter ───────────────────────────────────────────────

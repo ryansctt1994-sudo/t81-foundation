@@ -26,7 +26,7 @@ ______________________________________________________________________
 
 ## 1. Where to Look
 
-- **Header bundle:** all public symbols live under `include/t81/` (organized per subsystem). Prefer the generated API reference at `docs/api/html/index.html` after running `cmake --build build --target docs`.  
+- **Header bundle:** all public symbols live under `include/t81/` (organized per subsystem). Prefer the generated API reference at `build/api/html/index.html` after running `cmake --build build --target docs`.  
 - **Namespace promise:** we expose `t81::...` (and nested namespaces such as `t81::core`, `t81::frontend`, `t81::lang`, `t81::vm`, `t81::weights`). Respect the `t81::v1` inline namespace alias for future ABI compatibility.
 - **Versioning:** the public API snapshot may evolve only when the semantic version increments; breaking exports require RFC sign-off.
 

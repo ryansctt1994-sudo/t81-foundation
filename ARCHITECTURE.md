@@ -33,7 +33,7 @@ The authoritative build graph is `CMakeLists.txt`. It includes static libraries,
 
 Notes:
 - CMake currently pins `t81_core` to `cxx_std_20`; C++23 migration is incremental.
-- `BUILD.bazel` exists but is not the active authoritative build surface.
+- CMake is the only supported authoritative build surface in this repository.
 
 ______________________________________________________________________
 

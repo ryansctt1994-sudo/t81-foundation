@@ -4,7 +4,7 @@
 PROJECT_NAME           = "T81 Foundation"
 PROJECT_NUMBER         = 1.0.0
 PROJECT_BRIEF          = "The Ternary-Native Computing Stack"
-OUTPUT_DIRECTORY       = docs/api
+OUTPUT_DIRECTORY       = build/api
 CREATE_SUBDIRS         = YES
 OUTPUT_LANGUAGE        = English
 

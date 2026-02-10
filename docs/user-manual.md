@@ -29,7 +29,7 @@ This exact pipeline is mandated by `AGENTS.md` and reiterated in `README.md`/`do
 ### First Actions
 1. Read `/spec/index.md` for the layered specification (Data Types, TISC, T81VM, T81Lang, Axion, Cognitive Tiers) so you can align new work with the formal contract.
 2. Review `docs/onboarding.md` for the first diagnostic steps and `docs/ai-quickstart.md` for agent-friendly workflows.
-3. Generate docs with `cmake --build build --target docs` and open `docs/api/html/index.html` if you need API context.
+3. Generate docs with `cmake --build build --target docs` and open `build/api/html/index.html` if you need API context.
 
 ## Core Workflows
 
@@ -140,7 +140,7 @@ Consult `policy/README` for the exact CLI flag or environment variable syntax; m
 ## Documentation & Artifact Strategy
 
 - Docs live under `docs/` (benchmarks, onboarding, quickstarts, guides, search index). Update `docs/benchmarks.md` after benchmark runs and describe new features in `docs/guides/*` or `docs/notes.md`.
-- Auto-generated API docs live under `docs/api/html` (build via `cmake --build build --target docs`).
+- Auto-generated API docs live under `build/api/html` (build via `cmake --build build --target docs`).
 - Use `docs/guides/demo-gallery.md`, `docs/guides/match-patterns.md`, and `docs/guides/vector-literals.md` to illustrate language patterns in publications.
 - Keep release notes synchronized with `docs/release.md` and `docs/hardware-roadmap.md` when shipping new behavior.
 

@@ -26,7 +26,7 @@ ______________________________________________________________________
    - `cmake --build build --parallel`
    - `ctest --test-dir build --output-on-failure`
    - Optionally, run `ctest --test-dir build -R "fuzz|property|axion" --schedule-random` before a major release.
-4. **Generate Docs:** `cmake --build build --target docs` ensures `docs/api` is current.
+4. **Generate Docs:** `cmake --build build --target docs` ensures `build/api` is current.
 5. **Tag & Push:** After verifying, create an annotated tag (`git tag -a vX.Y.Z -m "Release vX.Y.Z"`) and push both branch and tags.
 
 ## 3. Release Automation

@@ -29,7 +29,7 @@ ______________________________________________________________________
    ```bash
    cmake --build build --target docs
    ```
-   - Regenerates `docs/api/html`; open `docs/api/html/index.html` to inspect generated pages.
+   - Regenerates `build/api/html`; open `build/api/html/index.html` to inspect generated pages.
 5. **Optional helpers**
    - `./build/t81 benchmark` to refresh `docs/benchmarks.md`.
    - `cmake --build build --target t81` to recompile the CLI after changes.
@@ -54,7 +54,7 @@ ______________________________________________________________________
 - **Build errors:** rerun `cmake --build build --verbose` and inspect the compiler output for missing includes or changed flags.  
 - **Test failures:** run the failing binary from `build/tests/cpp/...` to see stdout/stderr.  
 - **CodeQL / static issues:** check GitHub comments for file references; run `codeql` locally if needed (install via GitHub CLI).  
-- **Docs mismatch:** ensure `docs/api/html` and `docs/benchmarks.md` match the current `build` artifacts before pushing.
+- **Docs mismatch:** ensure `build/api/html` and `docs/benchmarks.md` match the current `build` artifacts before pushing.
 
 ## 4. Questions for Maintainers
 

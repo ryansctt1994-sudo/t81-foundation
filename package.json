@@ -1,15 +1,15 @@
 {
   "name": "t81-foundation",
   "version": "1.0.0",
-  "description": "<div align=\"center\">",
-  "main": "index.js",
+  "description": "Metadata and docs tooling manifest for the T81 Foundation repository.",
+  "private": true,
   "directories": {
     "doc": "docs",
     "example": "examples",
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "docs:search": "node docs/search/build_index.js"
   },
   "repository": {
     "type": "git",
@@ -17,7 +17,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/t81dev/t81-foundation/issues"

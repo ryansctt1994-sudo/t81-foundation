@@ -20,5 +20,5 @@ This directory contains the living set of `[docs/guides/*](.)` articles that des
 - When you archive or replace guides, put the legacy version in `docs/` with an `.archived` suffix and mention it here so the next reader immediately knows why it is no longer active.
 
 ## Need more context?
-- Search the site index at `docs/search/` or open `docs/api/html/index.html` after running `cmake --build build --target docs`.
+- Search the site index at `docs/search/` or open `build/api/html/index.html` after running `cmake --build build --target docs`.
 - For big changes that touch semantics/automations, reference `AGENTS.md`, `spec/index.md`, and the RFC process in `spec/rfcs/template.md` before modifying any guide content.

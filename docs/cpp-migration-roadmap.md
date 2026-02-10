@@ -35,7 +35,7 @@ ______________________________________________________________________
 
 - Keep C ABI stable via `src/c_api/` wrappers over modern C++ headers.
 - New code consumes `<t81/t81.hpp>`; legacy code may continue to include `include/t81/t81.h`.
-- CMake, Bazel, and Make shims build the same headers.
+- CMake and Make shims build the same headers.
 
 **Status:**\
 Shims exist and build; new C++ headers are the preferred entrypoint, C API remains available for legacy and interop callers.
@@ -122,7 +122,7 @@ ______________________________________________________________________
 ## Phase 5 — De-risked Deprecation (**ONGOING**)
 
 - Leave thin shims in `legacy/` that forward or emit migration notes.
-- Provide Bazel/CMake wrapper targets pointing to new headers/impls.
+- Provide CMake wrapper targets pointing to new headers/impls.
 - Track per-module parity and remove `.cweb` once tests pass.
 - Mark `legacy/hanoivm/` as an immutable reference snapshot, not an active target.
 
@@ -141,14 +141,12 @@ ______________________________________________________________________
 
 - **CMake**
   - Library targets: `t81` (headers), `t81_io` (IO .cpp), plus examples/tests behind options.
-- **Bazel**
-  - `//:t81` library + `cc_binary`/`cc_test` targets for all examples/tests.
 - **Make**
   - Local dev shim (`make`, `make run-tests`).
 
 **Planned CI:**
 
-- Matrix over {CMake, Bazel, Make} × {Linux, macOS (if desired)}.
+- Matrix over {CMake, Make} × {Linux, macOS (if desired)}.
 - Jobs:
   - Configure + build.
   - Run `ctest` and `tests/harness/run_all.sh`.
@@ -216,7 +214,7 @@ When picking this up after a gap:
 
    - `cmake -S . -B build && cmake --build build -j`
    - `ctest --test-dir build -R "t81_"`
-   - Or the equivalent Bazel/Make targets.
+  - Or the equivalent Make targets.
 
 2. **Choose one active edge from Open Items:**
 
@@ -241,5 +239,5 @@ ______________________________________________________________________
 - Added entropy utilities and tests.
 - Introduced C API bridge for BigInt: `src/c_api/t81_c_api.{h,cpp}`.
 - Expanded examples: `examples/{demo.cpp,tensor_ops.cpp,axion_demo.cpp}`.
-- Updated build files (CMake, Bazel, Make) to include all new targets.
+- Updated build files (CMake and Make) to include all new targets.
 - Created `TODO.md` as the long-horizon tracker complementing this migration roadmap.

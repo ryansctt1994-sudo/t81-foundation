@@ -76,7 +76,7 @@ ______________________________________________________________________
 - **To understand the code's structure:** Read the [`ARCHITECTURE.md`](../ARCHITECTURE.md) to see how the different libraries (`t81_core`, `t81_frontend`, etc.) fit together in the deterministic ledger.
 - **To find a task to work on:** See the prioritized list of needed contributions in [`TASKS.md`](../TASKS.md).
 - **To understand the onboarding flow:** See [`docs/onboarding.md`](./onboarding.md).
-- **To explore the API:** Generate the Doxygen documentation by running `cmake --build build --target docs` and opening `docs/api/html/index.html`.
+- **To explore the API:** Generate the Doxygen documentation by running `cmake --build build --target docs` and opening `build/api/html/index.html`.
 
 ______________________________________________________________________
 

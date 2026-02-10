@@ -1,4 +1,0 @@
-var searchData=
-[
-  ['kind_0',['Kind',['../d5/d9e/structt81_1_1axion_1_1detail_1_1_policy_token.html#ae6912e5c5fb6b61ebf69dca0b9a736f4',1,'t81::axion::detail::PolicyToken::Kind'],['../d7/d62/structt81_1_1frontend_1_1_match_pattern.html#a603acf90941e0071c6bb4fcb2b5eca04',1,'t81::frontend::MatchPattern::Kind'],['../da/d8f/structt81_1_1frontend_1_1_type.html#a391cd100edc755b79eb10aedb1e161d7',1,'t81::frontend::Type::Kind'],['../d5/d58/structt81_1_1frontend_1_1_semantic_analyzer_1_1_match_metadata.html#a741d6202143e5fbfdac0a6bc6bc6ecae',1,'t81::frontend::SemanticAnalyzer::MatchMetadata::Kind'],['../d6/de0/structt81_1_1lang_1_1_literal_value.html#a01bdd2cffbe4b4f7692fc5359cc62bae',1,'t81::lang::LiteralValue::Kind'],['../de/dcd/structt81_1_1lang_1_1_match_pattern.html#a2ccc494c6b61b0f35542533ecb52ef85',1,'t81::lang::MatchPattern::Kind']]]
-];
