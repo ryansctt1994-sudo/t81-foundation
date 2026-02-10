@@ -24,6 +24,7 @@ CMakeScripts/
 install_manifest.txt
 CTestTestfile.cmake
 compile_commands.json   # ← many people WANT this tracked now (see note below)
+Testing/Temporary/
 
 # Ninja
 *.ninja_deps

@@ -10,6 +10,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 option(T81_BUILD_EXAMPLES "Build T81 C++ examples" ON)
 option(T81_BUILD_TESTS    "Build T81 C++ unit tests" ON)
 option(T81_BUILD_BENCHMARKS "Build T81 benchmark suite" ON)
+option(T81_BUILD_FUZZ_TESTS "Build frontend fuzz target" ON)
+option(T81_ENABLE_ASAN "Enable AddressSanitizer for supported compilers" OFF)
+option(T81_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer for supported compilers" OFF)
 
 # CPU feature gating used for SIMD source/flags.
 string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" T81_SYSTEM_PROCESSOR_LOWER)
@@ -27,6 +30,21 @@ endif()
 
 if(MSVC)
     add_compile_options(/wd4244 /wd4307 /wd4018 /wd4101 /wd4189)
+endif()
+
+if(NOT MSVC)
+  set(T81_SANITIZER_FLAGS "")
+  if(T81_ENABLE_ASAN)
+    list(APPEND T81_SANITIZER_FLAGS -fsanitize=address -fno-omit-frame-pointer)
+  endif()
+  if(T81_ENABLE_UBSAN)
+    list(APPEND T81_SANITIZER_FLAGS -fsanitize=undefined -fno-sanitize-recover=all -fno-omit-frame-pointer)
+  endif()
+  if(T81_SANITIZER_FLAGS)
+    add_compile_options(${T81_SANITIZER_FLAGS})
+    add_link_options(${T81_SANITIZER_FLAGS})
+    message(STATUS "Enabled sanitizers: ${T81_SANITIZER_FLAGS}")
+  endif()
 endif()
 
 # =============================================================================
@@ -507,8 +525,10 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(cli_e2e_test tests/cpp/cli_e2e_test.cpp)
   target_link_libraries(cli_e2e_test PRIVATE t81_cli_driver)
 
-  add_executable(t81_frontend_fuzz_test tests/cpp/frontend_fuzz_test.cpp)
-  target_link_libraries(t81_frontend_fuzz_test PRIVATE t81_frontend)
+  if(T81_BUILD_FUZZ_TESTS)
+    add_executable(t81_frontend_fuzz_test tests/cpp/frontend_fuzz_test.cpp)
+    target_link_libraries(t81_frontend_fuzz_test PRIVATE t81_frontend)
+  endif()
 
   add_executable(t81_t81int_test tests/cpp/test_t81int.cpp)
   target_link_libraries(t81_t81int_test PRIVATE t81_core)
@@ -741,7 +761,6 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     e2e_match_metadata_determinism_test
     e2e_ast_ir_canonical_determinism_test
     cli_e2e_test
-    t81_frontend_fuzz_test
     t81_cli_check_test
     t81_cli_pipeline_test
     t81_cli_disasm_test
@@ -772,6 +791,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   )
   if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
     list(APPEND T81_TEST_TARGETS t81_base81_simd_test)
+  endif()
+  if(T81_BUILD_FUZZ_TESTS)
+    list(APPEND T81_TEST_TARGETS t81_frontend_fuzz_test)
   endif()
   foreach(tgt IN LISTS T81_TEST_TARGETS)
     add_test(NAME ${tgt} COMMAND $<TARGET_FILE:${tgt}>)
