@@ -5,6 +5,7 @@ This report summarizes the current full-repository audit artifacts in this folde
 - `repo_tree.txt`
 - `repo_tree_expanded.txt`
 - `repo_inventory.tsv`
+- `2026-02-workflow-action-audit.md`
 
 The intent is to keep an auditable snapshot of repository composition and convert it into concrete housekeeping actions.
 
@@ -36,7 +37,12 @@ The intent is to keep an auditable snapshot of repository composition and conver
 - `ANALYSIS.md.archived` is a valid archive but should remain clearly marked as non-active.
 - Multiple generated/build directories exist in working environments (`build*` variants), which is expected locally but should stay excluded from source control.
 
-### 3. Documentation Surfaces to Keep Tight
+### 3. CI Action Pinning Posture
+
+- Current workflow audit result: `total=47`, `pinned_sha=8`, `tagged=38`, `unknown=1` (docker reference).
+- Security hardening opportunity remains: convert high-trust workflows to SHA-pinned actions with Dependabot-managed roll-forward.
+
+### 4. Documentation Surfaces to Keep Tight
 
 - `ARCHITECTURE.md` now includes drift controls and near-term workstreams.
 - `TASKS.md` and `TODO.md` remain the canonical open-work trackers and should be kept synchronized with architecture changes.
