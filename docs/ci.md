@@ -21,16 +21,23 @@ ______________________________________________________________________
    ctest --test-dir build --output-on-failure
    ```
    - The suite executes the full CTest matrix declared in `CMakeLists.txt`.
-3. **Extended suite (optional but recommended for releases)**
+   - Default language mode is C++23.
+3. **C++20 compatibility lane**
+   ```bash
+   cmake -S . -B build-cxx20 -DCMAKE_BUILD_TYPE=Release -DT81_USE_CXX23=OFF
+   cmake --build build-cxx20 --parallel
+   ctest --test-dir build-cxx20 --output-on-failure
+   ```
+4. **Extended suite (optional but recommended for releases)**
    ```bash
    ctest --test-dir build -R "fuzz|property|axion" --schedule-random
    ```
-4. **Docs**
+5. **Docs**
    ```bash
    cmake --build build --target docs
    ```
    - Regenerates `build/api/html`; open `build/api/html/index.html` to inspect generated pages.
-5. **Optional helpers**
+6. **Optional helpers**
    - `./build/t81 benchmark` to refresh `docs/benchmarks.md`.
    - `cmake --build build --target t81` to recompile the CLI after changes.
    - `./build/t81 repro-hash` to run the T81Lang fixture reproducibility gate and print the current aggregate hash.
@@ -41,7 +48,7 @@ ______________________________________________________________________
 
 | Workflow | Triggers | Key steps |
 | --- | --- | --- |
-| `.github/workflows/ci.yml` | pushes/PRs on `main` | validates docs/spec structure (including ARCHITECTURE target-table sync), configures CMake, builds `t81` and Google Benchmark, runs `ctest`, runs T3_K and T81Lang reproducibility gates on linux clang (`x86_64` + `arm64`), and compares cross-arch gate hashes. |
+| `.github/workflows/ci.yml` | pushes/PRs on `main` | validates docs/spec structure (including ARCHITECTURE target-table sync), configures CMake, builds `t81` and Google Benchmark, runs `ctest`, runs a C++ standard compatibility matrix (`-DT81_USE_CXX23=ON/OFF`) on linux clang, runs T3_K and T81Lang reproducibility gates on linux clang (`x86_64` + `arm64`), and compares cross-arch gate hashes. |
 | `.github/workflows/codeql.yml` | nightly + PR merges | runs CodeQL analysis on main/master. |
 | `.github/workflows/bench.yml` | manually via `workflow_dispatch` | builds benchmark runner and pipeline, publishes `docs/benchmarks.md` updates. |
 | `.github/workflows/repro-ledger.yml` | weekly + `workflow_dispatch` | runs build/test + T3_K reproducibility gate + Axion trace capture + benchmark snapshot and publishes `reproducibility-ledger` dashboard artifacts. |

@@ -273,6 +273,51 @@ jobs:
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
   ############################################################################
+  # JOB: cxx-standard-compat
+  ############################################################################
+  cxx-standard-compat:
+    name: " cxx-std / linux-x86_64 / clang / ${{ matrix.cxx23 }}"
+    needs: spec-and-docs
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        cxx23: [ON, OFF]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies (Ubuntu)
+        run: |
+          set -eo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build clang-18
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          set -eo pipefail
+          cmake -S . -B build-cxxstd -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=clang-18 \
+            -DCMAKE_CXX_COMPILER=clang++-18 \
+            -DT81_USE_CXX23=${{ matrix.cxx23 }}
+
+      - name: Build
+        shell: bash
+        run: |
+          set -eo pipefail
+          cmake --build build-cxxstd --parallel
+
+      - name: Test
+        shell: bash
+        run: |
+          set -eo pipefail
+          ctest --test-dir build-cxxstd --output-on-failure
+
+  ############################################################################
   # JOB: t3k-cross-arch-bit-identity
   ############################################################################
   t3k-cross-arch-bit-identity:
@@ -527,6 +572,7 @@ jobs:
     needs:
       - spec-and-docs
       - build-and-test
+      - cxx-standard-compat
       - static-analysis
       - sanitizers
       - fuzzing
@@ -539,6 +585,7 @@ jobs:
         run: |
           if [[ "${{ needs.spec-and-docs.result }}" != "success" ]]; then exit 1; fi
           if [[ "${{ needs.build-and-test.result }}" != "success" ]]; then exit 1; fi
+          if [[ "${{ needs.cxx-standard-compat.result }}" != "success" ]]; then exit 1; fi
           if [[ "${{ needs.static-analysis.result }}" != "success" ]]; then exit 1; fi
           if [[ "${{ needs.sanitizers.result }}" != "success" ]]; then exit 1; fi
           if [[ "${{ needs.fuzzing.result }}" != "success" ]]; then exit 1; fi

@@ -13,7 +13,7 @@ option(T81_BUILD_BENCHMARKS "Build T81 benchmark suite" ON)
 option(T81_BUILD_FUZZ_TESTS "Build frontend fuzz target" ON)
 option(T81_ENABLE_ASAN "Enable AddressSanitizer for supported compilers" OFF)
 option(T81_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer for supported compilers" OFF)
-option(T81_USE_CXX23 "Build with C++23 language mode (fallback: C++20)" OFF)
+option(T81_USE_CXX23 "Build with C++23 language mode (fallback: C++20)" ON)
 
 if(T81_USE_CXX23)
   set(T81_CXX_STD_FEATURE cxx_std_23)

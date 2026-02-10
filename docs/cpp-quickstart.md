@@ -11,7 +11,7 @@ ______________________________________________________________________
 
 ## 1. Prerequisites
 
-- A C++20-compliant compiler (opt-in C++23 preview via `-DT81_USE_CXX23=ON`)
+- A C++23-capable compiler (temporary fallback lane: `-DT81_USE_CXX23=OFF`)
 - CMake 3.16+
 - Ninja (recommended) or Make
 
@@ -36,6 +36,14 @@ cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
 A successful run will show all unit tests passing.
+
+To validate the temporary compatibility lane explicitly:
+
+```bash
+cmake -S . -B build-cxx20 -DCMAKE_BUILD_TYPE=Release -DT81_USE_CXX23=OFF
+cmake --build build-cxx20 --parallel
+ctest --test-dir build-cxx20 --output-on-failure
+```
 
 ______________________________________________________________________
 

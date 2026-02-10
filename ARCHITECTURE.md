@@ -32,7 +32,7 @@ The authoritative build graph is `CMakeLists.txt`. It includes static libraries,
 | `benchmark_runner` (subdir) | EXECUTABLE (optional) | Benchmark suite and docs benchmark generation pipeline | `t81_core`, `t81_frontend`, `t81_tisc`, Google Benchmark |
 
 Notes:
-- CMake supports opt-in `cxx_std_23` via `-DT81_USE_CXX23=ON`; default remains C++20 during migration.
+- CMake defaults to `cxx_std_23`; a temporary compatibility lane remains available via `-DT81_USE_CXX23=OFF`.
 - CMake is the only supported authoritative build surface in this repository.
 
 ______________________________________________________________________
