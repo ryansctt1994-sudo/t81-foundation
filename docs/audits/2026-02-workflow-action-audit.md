@@ -3,9 +3,9 @@
 ## Summary
 
 - Total `uses:` references: **47**
-- Pinned to commit SHA: **46**
+- Pinned to immutable SHA/digest: **47**
 - Tag/major-version references: **0**
-- Unclassified references: **1**
+- Unclassified references: **0**
 
 ## Tag/Major References (Migration Candidates)
 
@@ -62,16 +62,12 @@
 | `.github/workflows/toc.yml` | 23 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
 | `.github/workflows/toc.yml` | 28 | `actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405` |
 | `.github/workflows/pdf.yaml` | 17 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/pdf.yaml` | 20 | `docker://marpteam/marp-cli:v4.2.3@sha256:472c9e9203391568cd777a70455ee241ee8d16a123dbbc2329277a35b6c56fc8` |
 | `.github/workflows/pdf.yaml` | 33 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |
-
-## Unclassified References
-
-| Workflow | Line | Reference |
-| --- | ---: | --- |
-| `.github/workflows/pdf.yaml` | 20 | `docker://marpteam/marp-cli:v3.6.0` |
 
 ## Recommendation
 
-- Convert high-trust workflows (`ci.yml`, `release.yml`, `runtime-contract.yml`) to SHA-pinned actions first.
-- Keep Dependabot enabled for GitHub Actions so pinned SHAs advance through reviewable PRs.
+- Keep all workflow references pinned to immutable SHAs/digests.
+- Use Dependabot for GitHub Actions to roll forward pinned SHAs through reviewable PRs.
+- Re-run this audit after workflow edits to prevent tag regressions.
 

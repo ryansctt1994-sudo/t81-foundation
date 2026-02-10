@@ -17,6 +17,7 @@ from dataclasses import dataclass
 
 USES_PATTERN = re.compile(r"^\s*uses:\s*([^\s#]+)")
 PINNED_SHA_PATTERN = re.compile(r"^[^@]+@[0-9a-fA-F]{40}$")
+PINNED_DOCKER_DIGEST_PATTERN = re.compile(r"^docker://[^@]+@sha256:[0-9a-fA-F]{64}$")
 TAG_PATTERN = re.compile(r"^[^@]+@.+$")
 
 
@@ -28,7 +29,7 @@ class UseRef:
 
     @property
     def is_pinned_sha(self) -> bool:
-        return bool(PINNED_SHA_PATTERN.match(self.ref))
+        return bool(PINNED_SHA_PATTERN.match(self.ref) or PINNED_DOCKER_DIGEST_PATTERN.match(self.ref))
 
     @property
     def is_tag(self) -> bool:
@@ -60,7 +61,7 @@ def build_markdown(refs: list[UseRef], repo_root: pathlib.Path) -> str:
     lines.append("## Summary")
     lines.append("")
     lines.append(f"- Total `uses:` references: **{len(refs)}**")
-    lines.append(f"- Pinned to commit SHA: **{len(pinned)}**")
+    lines.append(f"- Pinned to immutable SHA/digest: **{len(pinned)}**")
     lines.append(f"- Tag/major-version references: **{len(tagged)}**")
     lines.append(f"- Unclassified references: **{len(unknown)}**")
     lines.append("")
@@ -95,12 +96,9 @@ def build_markdown(refs: list[UseRef], repo_root: pathlib.Path) -> str:
         lines.append("")
     lines.append("## Recommendation")
     lines.append("")
-    lines.append(
-        "- Convert high-trust workflows (`ci.yml`, `release.yml`, `runtime-contract.yml`) to SHA-pinned actions first."
-    )
-    lines.append(
-        "- Keep Dependabot enabled for GitHub Actions so pinned SHAs advance through reviewable PRs."
-    )
+    lines.append("- Keep all workflow references pinned to immutable SHAs/digests.")
+    lines.append("- Use Dependabot for GitHub Actions to roll forward pinned SHAs through reviewable PRs.")
+    lines.append("- Re-run this audit after workflow edits to prevent tag regressions.")
     lines.append("")
     return "\n".join(lines) + "\n"
 

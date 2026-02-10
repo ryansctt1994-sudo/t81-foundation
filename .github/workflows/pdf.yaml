@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Build all PDFs with Marp (directory → pdf/output/)
-        uses: docker://marpteam/marp-cli:v3.6.0
+        uses: docker://marpteam/marp-cli:v4.2.3@sha256:472c9e9203391568cd777a70455ee241ee8d16a123dbbc2329277a35b6c56fc8
         with:
           args: >-
             -I pdf/

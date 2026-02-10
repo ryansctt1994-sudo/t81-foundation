@@ -18,7 +18,7 @@ The intent is to keep an auditable snapshot of repository composition and conver
 
 ## Executive Readout
 
-- Overall repository health: **8.5/10**
+- Overall repository health: **9.2/10**
 - Build and CI posture: **strong**
 - Determinism/repro gate posture: **strong**
 - Documentation consistency: **good**, with a few follow-up cleanup items
@@ -39,9 +39,9 @@ The intent is to keep an auditable snapshot of repository composition and conver
 
 ### 3. CI Action Pinning Posture
 
-- Latest workflow audit result: `total=47`, `pinned_sha=46`, `tagged=0`, `unknown=1` (docker reference).
-- Hardening progress: all GitHub Action `uses:` references are now SHA-pinned across workflows.
-- Remaining opportunity: decide whether to keep or replace the `docker://marpteam/marp-cli:v3.6.0` reference with an image digest pin.
+- Latest workflow audit result: `total=47`, `pinned_sha=47`, `tagged=0`, `unknown=0`.
+- Hardening progress: all workflow `uses:` references are pinned to immutable SHAs/digests, including the Marp container image.
+- Ongoing requirement: keep Dependabot-driven SHA refreshes enabled and re-run the audit after workflow edits.
 
 ### 4. Documentation Surfaces to Keep Tight
 
@@ -81,5 +81,5 @@ At the time of this report:
 Focus the next pass on modernization and risk reduction:
 
 - Dependency/API currency review across Python/Node/CMake tooling.
-- Security posture review of CI permissions and third-party action pinning.
+- Security posture review of CI permissions and least-privilege job scopes.
 - Generated artifact policy review (what should remain versioned vs regenerated on demand).
