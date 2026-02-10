@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <limits>
+#include <locale>
 #include <memory>
 #include <optional>
 #include <sstream>
@@ -520,6 +522,69 @@ class Interpreter : public IVirtualMachine {
             }
             case ValueTag::EnumHandle:
               return std::nullopt;
+          }
+          return std::nullopt;
+        };
+
+    std::function<std::optional<std::string>(ValueTag, std::int64_t, int)> format_value =
+        [&](ValueTag tag, std::int64_t value, int depth) -> std::optional<std::string> {
+          if (depth > 8) return std::nullopt;
+          switch (tag) {
+            case ValueTag::Int:
+              return std::to_string(value);
+            case ValueTag::FloatHandle: {
+              auto* fp = float_ptr(value);
+              if (!fp) return std::nullopt;
+              double canonical = (*fp == 0.0) ? 0.0 : *fp;
+              std::ostringstream out;
+              out.imbue(std::locale::classic());
+              out.precision(std::numeric_limits<double>::max_digits10);
+              out << canonical << "t81";
+              return out.str();
+            }
+            case ValueTag::FractionHandle: {
+              auto* frac = fraction_ptr(value);
+              if (!frac) return std::nullopt;
+              return frac->num.to_string() + "/" + frac->den.to_string() + "t81";
+            }
+            case ValueTag::SymbolHandle: {
+              auto* symbol = symbol_ptr(value);
+              if (!symbol) return std::nullopt;
+              return *symbol;
+            }
+            case ValueTag::TensorHandle:
+              return "<tensor#" + std::to_string(value) + ">";
+            case ValueTag::ShapeHandle:
+              return "<shape#" + std::to_string(value) + ">";
+            case ValueTag::WeightsTensorHandle:
+              return "<weights#" + std::to_string(value) + ">";
+            case ValueTag::ReflectionHandle:
+              return "<reflection#" + std::to_string(value) + ">";
+            case ValueTag::OptionHandle: {
+              auto* opt = option_ptr(value);
+              if (!opt) return std::nullopt;
+              if (!opt->has_value) return std::string{"None"};
+              auto payload = format_value(opt->payload_tag, opt->payload, depth + 1);
+              if (!payload) return std::nullopt;
+              return "Some(" + *payload + ")";
+            }
+            case ValueTag::ResultHandle: {
+              auto* result = result_ptr(value);
+              if (!result) return std::nullopt;
+              auto payload = format_value(result->payload_tag, result->payload, depth + 1);
+              if (!payload) return std::nullopt;
+              return result->is_ok ? "Ok(" + *payload + ")" : "Err(" + *payload + ")";
+            }
+            case ValueTag::EnumHandle: {
+              auto* enum_value = enum_ptr(value);
+              if (!enum_value) return std::nullopt;
+              if (!enum_value->has_payload) {
+                return "<enum#" + std::to_string(enum_value->variant_id) + ">";
+              }
+              auto payload = format_value(enum_value->payload_tag, enum_value->payload, depth + 1);
+              if (!payload) return std::nullopt;
+              return "<enum#" + std::to_string(enum_value->variant_id) + "(" + *payload + ")>";
+            }
           }
           return std::nullopt;
         };
@@ -1291,6 +1356,13 @@ class Interpreter : public IVirtualMachine {
       case t81::tisc::Opcode::Trap:
         trap = Trap::TrapInstruction;
         break;
+      case t81::tisc::Opcode::Print: {
+        if (!reg_ok(insn.a)) { trap = Trap::DecodeFault; break; }
+        auto rendered = format_value(state_.register_tags[insn.a], state_.registers[insn.a], 0);
+        if (!rendered.has_value()) { trap = Trap::TypeFault; break; }
+        state_.printed_output.push_back(*rendered);
+        break;
+      }
       case t81::tisc::Opcode::I2F: {
         if (!reg_ok(insn.a) || !reg_ok(insn.b)) { trap = Trap::DecodeFault; break; }
         double value = static_cast<double>(state_.registers[insn.b]);

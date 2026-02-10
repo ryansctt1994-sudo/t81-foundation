@@ -237,6 +237,7 @@ std::string summarize_snippet(const std::string& snippet) {
         CASE(MetaWrite)
         CASE(MetaReflect)
         CASE(MetaRefine)
+        CASE(Print)
 #undef CASE
     }
     return "Opcode(" + std::to_string(static_cast<int>(opcode)) + ")";

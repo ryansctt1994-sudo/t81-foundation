@@ -64,6 +64,7 @@ enum class Opcode {
 
     // System
     NOP, HALT, TRAP,
+    PRINT,
     WEIGHTS_LOAD,
     META_READ, META_WRITE,
     META_REFLECT, META_REFINE,

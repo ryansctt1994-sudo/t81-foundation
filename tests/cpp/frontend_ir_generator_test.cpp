@@ -287,6 +287,30 @@ void test_match_result() {
     std::cout << "IRGeneratorTest test_match_result passed!" << std::endl;
 }
 
+void test_print_builtin_lowers_to_print_opcode() {
+    std::string source = "print(1);";
+    Lexer lexer(source);
+    Parser parser(lexer);
+    auto stmts = parser.parse();
+
+    IRGenerator generator;
+    auto program = generator.generate(stmts);
+    const auto& instructions = program.instructions();
+
+    EXPECT(!instructions.empty(), "print should produce IR");
+
+    bool has_print = false;
+    for (const auto& inst : instructions) {
+        if (inst.opcode == Opcode::PRINT) {
+            has_print = true;
+            break;
+        }
+    }
+    EXPECT(has_print, "Expected PRINT opcode for print(...)");
+
+    std::cout << "IRGeneratorTest test_print_builtin_lowers_to_print_opcode passed!" << std::endl;
+}
+
 int main() {
     test_simple_addition();
     test_if_statement();
@@ -297,6 +321,7 @@ int main() {
     test_assignment();
     test_match_option();
     test_match_result();
+    test_print_builtin_lowers_to_print_opcode();
 
     std::cout << "All IRGenerator integration tests completed!" << std::endl;
     return 0;

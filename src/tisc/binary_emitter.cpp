@@ -132,6 +132,7 @@ Opcode map_opcode(const ir::Instruction& instr) {
     case O::NOP: return Opcode::Nop;
     case O::HALT: return Opcode::Halt;
     case O::TRAP: return Opcode::Trap;
+        case O::PRINT: return Opcode::Print;
         case O::WEIGHTS_LOAD: return Opcode::WeightsLoad;
         case O::META_READ: return Opcode::MetaRead;
         case O::META_WRITE: return Opcode::MetaWrite;

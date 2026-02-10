@@ -345,6 +345,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_neg_jumps_test tests/cpp/vm_neg_jumps_test.cpp)
   target_link_libraries(t81_vm_neg_jumps_test PRIVATE t81_core)
 
+  add_executable(t81_vm_print_test tests/cpp/vm_print_test.cpp)
+  target_link_libraries(t81_vm_print_test PRIVATE t81_core)
+
   add_executable(t81_frontend_lexer_test tests/cpp/frontend_lexer_test.cpp)
   target_link_libraries(t81_frontend_lexer_test PRIVATE t81_frontend)
 
@@ -476,6 +479,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
 
   add_executable(e2e_advanced_features_test tests/cpp/e2e_advanced_features_test.cpp)
   target_link_libraries(e2e_advanced_features_test PRIVATE t81_frontend t81_tisc t81_vm)
+
+  add_executable(e2e_print_runtime_test tests/cpp/e2e_print_runtime_test.cpp)
+  target_link_libraries(e2e_print_runtime_test PRIVATE t81_frontend t81_tisc t81_vm)
 
   add_executable(cli_e2e_test tests/cpp/cli_e2e_test.cpp)
   target_link_libraries(cli_e2e_test PRIVATE t81_cli_driver)
@@ -673,6 +679,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_vm_jump_flags_test
     t81_vm_float_fraction_ops_test
     t81_vm_neg_jumps_test
+    t81_vm_print_test
     t81_limb_bohemian_add_test
     t81_limb_bohemian_mul_test
     t81_limb_booth_mul_test
@@ -701,6 +708,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     e2e_match_expression_test
     e2e_loop_statement_test
     e2e_advanced_features_test
+    e2e_print_runtime_test
     cli_e2e_test
     t81_frontend_fuzz_test
     t81_cli_check_test

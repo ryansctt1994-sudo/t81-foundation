@@ -503,6 +503,18 @@ public:
                 record_result(&expr, dest);
                 return {};
             }
+            if (func_name == "print") {
+                if (expr.arguments.size() != 1) {
+                    throw std::runtime_error("print expects exactly one argument.");
+                }
+                expr.arguments[0]->accept(*this);
+                auto value = ensure_expr_result(expr.arguments[0].get());
+                tisc::ir::Instruction instr;
+                instr.opcode = tisc::ir::Opcode::PRINT;
+                instr.operands = {value.reg};
+                emit(instr);
+                return {};
+            }
         }
         for (const auto& arg : expr.arguments) {
             arg->accept(*this);

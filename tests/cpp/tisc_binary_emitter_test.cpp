@@ -90,10 +90,27 @@ void test_all_comparison_relations() {
     std::cout << "BinaryEmitterTest test_all_comparison_relations passed!" << std::endl;
 }
 
+void test_print_opcode_mapping() {
+    IntermediateProgram ir_program;
+    ir_program.add_instruction({Opcode::PRINT, {Register{3}}});
+    ir_program.add_instruction({Opcode::HALT, {}});
+
+    t81::tisc::BinaryEmitter emitter;
+    auto program = emitter.emit(ir_program);
+
+    assert(program.insns.size() == 2);
+    assert(program.insns[0].opcode == t81::tisc::Opcode::Print);
+    assert(program.insns[0].a == 3);
+    assert(program.insns[1].opcode == t81::tisc::Opcode::Halt);
+
+    std::cout << "BinaryEmitterTest test_print_opcode_mapping passed!" << std::endl;
+}
+
 int main() {
     test_simple_program();
     test_jump();
     test_comparison_relation();
     test_all_comparison_relations();
+    test_print_opcode_mapping();
     return 0;
 }

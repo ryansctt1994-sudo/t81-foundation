@@ -159,6 +159,7 @@ struct State {
   std::vector<double> floats;
   std::vector<t81::T81Fraction> fractions;
   std::vector<std::string> symbols;
+  std::vector<std::string> printed_output;
   std::vector<std::vector<int>> shapes;
   std::vector<OptionValue> options;
   std::vector<ResultValue> results;
