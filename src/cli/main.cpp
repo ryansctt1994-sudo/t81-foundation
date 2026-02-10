@@ -229,10 +229,15 @@ Args parse_args(int argc, char* argv[]) {
         }
         else if (arg == "-h" || arg == "--help")   { a.need_help = true; }
         else if (arg.starts_with('-')) {
-            error("Unknown option: " + std::string(arg));
-            std::exit(1);
-        }
-        else {
+            // Subcommands under these top-level commands own additional flags.
+            if (a.command == "weights" || a.command == "init" || a.command == "pkg" ||
+                a.command == "policy"  || a.command == "trace") {
+                a.command_args.emplace_back(argv[i]);
+            } else {
+                error("Unknown option: " + std::string(arg));
+                std::exit(1);
+            }
+        } else {
             if (a.command == "benchmark") {
                 a.benchmark_args.emplace_back(argv[i]);
             } else if (a.command == "weights" || a.command == "init" || a.command == "pkg" || a.command == "policy" || a.command == "trace") {

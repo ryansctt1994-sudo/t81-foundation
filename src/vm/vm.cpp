@@ -292,21 +292,24 @@ class Interpreter : public IVirtualMachine {
                 float scale;
                 std::memcpy(&scale, byte_ptr, sizeof(float));
                 byte_ptr += sizeof(float);
-
-                uint64_t buffer = 0;
-                int bits = 0;
                 uint64_t count = std::min<uint64_t>(128, total_trits - offset);
-                for (uint64_t i = 0; i < 128; ++i) {
-                    while (bits < 3) {
-                        buffer = (buffer << 8) | (*byte_ptr++);
-                        bits += 8;
+                uint64_t trit_index = 0;
+                for (uint64_t packed_idx = 0; packed_idx < 26; ++packed_idx) {
+                    uint8_t packed = *byte_ptr++;
+                    if (packed > 242) {
+                        return Trap::DecodeFault;
                     }
-                    uint32_t val = (buffer >> (bits - 3)) & 0x7;
-                    bits -= 3;
-                    buffer &= (1ULL << bits) - 1; // Prevent buffer overflow by clearing consumed bits
-                    if (i < count) {
-                        float trit = static_cast<float>(static_cast<int>(val) - 1);
-                        float_data.push_back(trit * scale);
+                    uint8_t rem = packed;
+                    for (uint64_t local = 0; local < 5; ++local, ++trit_index) {
+                        uint8_t digit = static_cast<uint8_t>(rem % 3);
+                        rem = static_cast<uint8_t>(rem / 3);
+                        if (trit_index < count) {
+                            float trit = static_cast<float>(static_cast<int>(digit) - 1);
+                            float_data.push_back(trit * scale);
+                        } else if (digit != 1) {
+                            // Canonical padding requires extra trits to be zero (mapped digit=1).
+                            return Trap::DecodeFault;
+                        }
                     }
                 }
             }

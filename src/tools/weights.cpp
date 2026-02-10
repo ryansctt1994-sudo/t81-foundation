@@ -16,6 +16,7 @@
 #include <limits>
 #include <variant>
 #include <cctype>
+#include <type_traits>
 
 namespace t81::weights {
 
@@ -563,31 +564,213 @@ constexpr uint8_t trit_to_u3(Trit t) {
 
 struct T3Block {
     float scale = 0.0f;
-    uint8_t trits[48] = {};
+    uint8_t packed[26] = {};
+};
+
+constexpr uint64_t kT3KScaleBytes = sizeof(float);
+constexpr uint64_t kT3KPackedBytes = 26;
+constexpr uint64_t kT3KBlockBytes = kT3KScaleBytes + kT3KPackedBytes;
+
+void write_t3_block(std::span<uint8_t> dst, const T3Block& block) {
+    if (dst.size() != kT3KBlockBytes) {
+        throw std::runtime_error("invalid T3_K block destination size");
+    }
+    std::memcpy(dst.data(), &block.scale, sizeof(block.scale));
+    std::memcpy(dst.data() + sizeof(block.scale), block.packed, sizeof(block.packed));
+}
+
+namespace sha3_streaming {
+constexpr uint64_t kKeccakfRoundConstants[24] = {
+    0x0000000000000001ULL, 0x0000000000008082ULL, 0x800000000000808aULL,
+    0x8000000080008000ULL, 0x000000000000808bULL, 0x0000000080000001ULL,
+    0x8000000080008081ULL, 0x8000000000008009ULL, 0x000000000000008aULL,
+    0x0000000000000088ULL, 0x0000000080008009ULL, 0x000000008000000aULL,
+    0x000000008000808bULL, 0x800000000000008bULL, 0x8000000000008089ULL,
+    0x8000000000008003ULL, 0x8000000000008002ULL, 0x8000000000000080ULL,
+    0x000000000000800aULL, 0x800000008000000aULL, 0x8000000080008081ULL,
+    0x8000000000008080ULL, 0x0000000080000001ULL, 0x8000000080008008ULL
+};
+
+constexpr int kKeccakfRotc[] = {
+     1,  3,  6, 10, 15, 21, 28, 36,
+    45, 55,  2, 14, 27, 41, 56,  8,
+    25, 43, 62, 18, 39, 61, 20, 44
+};
+
+constexpr int kKeccakfPiln[] = {
+    10,  7, 11, 17, 18,  3,  5, 16,
+     8, 21, 24,  4, 15, 23, 19, 13,
+    12,  2, 20, 14, 22,  9,  6,  1
+};
+
+inline uint64_t rol(uint64_t value, int offset) noexcept {
+    return (value << offset) | (value >> (64 - offset));
+}
+
+inline uint64_t load64(const uint8_t* data) noexcept {
+    uint64_t value;
+    std::memcpy(&value, data, sizeof(value));
+    return value;
+}
+
+inline void store64(uint8_t* out, uint64_t value) noexcept {
+    std::memcpy(out, &value, sizeof(value));
+}
+
+void keccakf(uint64_t state[25]) noexcept {
+    for (int round = 0; round < 24; ++round) {
+        uint64_t bc[5];
+        for (int i = 0; i < 5; ++i) {
+            bc[i] = state[i] ^ state[i + 5] ^ state[i + 10] ^ state[i + 15] ^ state[i + 20];
+        }
+        for (int i = 0; i < 5; ++i) {
+            uint64_t temp = bc[(i + 4) % 5] ^ rol(bc[(i + 1) % 5], 1);
+            for (int j = 0; j < 25; j += 5) {
+                state[j + i] ^= temp;
+            }
+        }
+        uint64_t temp = state[1];
+        for (int i = 0; i < 24; ++i) {
+            int j = kKeccakfPiln[i];
+            uint64_t t = state[j];
+            state[j] = rol(temp, kKeccakfRotc[i]);
+            temp = t;
+        }
+        for (int i = 0; i < 5; ++i) {
+            for (int j = 0; j < 25; j += 5) {
+                uint64_t a = state[j + i];
+                uint64_t b = state[j + ((i + 1) % 5)];
+                state[j + i] = a ^ ((~b) & state[j + ((i + 2) % 5)]);
+            }
+        }
+        state[0] ^= kKeccakfRoundConstants[round];
+    }
+}
+} // namespace sha3_streaming
+
+class Sha3_512_Stream {
+public:
+    void update(std::span<const uint8_t> input) noexcept {
+        constexpr size_t kRate = 72;
+        size_t offset = 0;
+        while (offset < input.size()) {
+            size_t to_copy = std::min(kRate - buffered_, input.size() - offset);
+            std::memcpy(block_.data() + buffered_, input.data() + offset, to_copy);
+            buffered_ += to_copy;
+            offset += to_copy;
+            if (buffered_ == kRate) {
+                absorb_block(block_.data());
+                buffered_ = 0;
+                block_.fill(0);
+            }
+        }
+    }
+
+    [[nodiscard]] std::array<uint8_t, 64> finalize() noexcept {
+        constexpr size_t kRate = 72;
+        block_[buffered_] = 0x06;
+        block_[kRate - 1] |= 0x80;
+        absorb_block(block_.data());
+        std::array<uint8_t, 64> digest{};
+        size_t produced = 0;
+        while (produced < digest.size()) {
+            for (size_t lane = 0; lane < kRate / 8 && produced < digest.size(); ++lane) {
+                uint8_t lane_buffer[8];
+                sha3_streaming::store64(lane_buffer, state_[lane]);
+                for (size_t i = 0; i < 8 && produced < digest.size(); ++i) {
+                    digest[produced++] = lane_buffer[i];
+                }
+            }
+            if (produced < digest.size()) {
+                sha3_streaming::keccakf(state_.data());
+            }
+        }
+        return digest;
+    }
+
+private:
+    void absorb_block(const uint8_t* data) noexcept {
+        constexpr size_t kRate = 72;
+        for (size_t lane = 0; lane < kRate / 8; ++lane) {
+            state_[lane] ^= sha3_streaming::load64(data + lane * 8);
+        }
+        sha3_streaming::keccakf(state_.data());
+    }
+
+    std::array<uint64_t, 25> state_ {};
+    std::array<uint8_t, 72> block_ {};
+    size_t buffered_ = 0;
 };
 
 void quantize_block_t3(const float* src, T3Block& block) {
-    float amax = 0.0f;
-    for (int i = 0; i < 128; ++i) {
-        amax = std::max(amax, std::abs(src[i]));
+    constexpr int kBlockTrits = 128;
+    constexpr int kCandidateCount = 16;
+    constexpr float kTieEpsilon = 1e-7f;
+    constexpr std::array<uint8_t, 5> kPow3 = {1, 3, 9, 27, 81};
+
+    std::array<float, kBlockTrits> abs_vals{};
+    for (int i = 0; i < kBlockTrits; ++i) {
+        abs_vals[i] = std::abs(src[i]);
     }
-    block.scale = amax / 1.0f;
-    uint32_t buffer = 0;
-    int bits = 0;
-    int out_idx = 0;
-    for (int i = 0; i < 128; ++i) {
-        float x = src[i] / (block.scale + 1e-8f);
-        Trit t = (x > 0.5f) ? Trit::P : (x < -0.5f) ? Trit::M : Trit::Z;
-        uint32_t val = trit_to_u3(t);
-        buffer = (buffer << 3) | val;
-        bits += 3;
-        while (bits >= 8) {
-            bits -= 8;
-            block.trits[out_idx++] = uint8_t(buffer >> bits);
+    std::array<float, kBlockTrits> sorted_abs = abs_vals;
+    std::sort(sorted_abs.begin(), sorted_abs.end());
+
+    std::array<float, kCandidateCount> taus{};
+    for (int k = 1; k <= kCandidateCount; ++k) {
+        int idx = ((k * kBlockTrits) + kCandidateCount - 1) / kCandidateCount - 1;
+        idx = std::clamp(idx, 0, kBlockTrits - 1);
+        taus[k - 1] = sorted_abs[static_cast<size_t>(idx)];
+    }
+
+    float best_tau = taus[0];
+    float best_alpha = 0.0f;
+    float best_mse = std::numeric_limits<float>::infinity();
+    for (float tau : taus) {
+        double mag_sum = 0.0;
+        int nonzero_count = 0;
+        for (int i = 0; i < kBlockTrits; ++i) {
+            if (abs_vals[i] > tau) {
+                mag_sum += abs_vals[i];
+                ++nonzero_count;
+            }
+        }
+        float alpha = nonzero_count == 0 ? 0.0f : static_cast<float>(mag_sum / nonzero_count);
+
+        double mse = 0.0;
+        for (int i = 0; i < kBlockTrits; ++i) {
+            float q = 0.0f;
+            if (abs_vals[i] > tau) {
+                q = src[i] >= 0.0f ? 1.0f : -1.0f;
+            }
+            float err = src[i] - (alpha * q);
+            mse += static_cast<double>(err) * static_cast<double>(err);
+        }
+        float mse_f = static_cast<float>(mse / static_cast<double>(kBlockTrits));
+        if (mse_f + kTieEpsilon < best_mse ||
+            (std::abs(mse_f - best_mse) <= kTieEpsilon && tau < best_tau)) {
+            best_mse = mse_f;
+            best_tau = tau;
+            best_alpha = alpha;
         }
     }
-    if (bits > 0) {
-        block.trits[out_idx++] = uint8_t(buffer << (8 - bits));
+
+    block.scale = best_alpha;
+    std::array<uint8_t, 130> mapped{};
+    mapped.fill(static_cast<uint8_t>(trit_to_u3(Trit::Z))); // Canonical padding trits.
+    for (int i = 0; i < kBlockTrits; ++i) {
+        Trit t = Trit::Z;
+        if (abs_vals[i] > best_tau) {
+            t = src[i] >= 0.0f ? Trit::P : Trit::M;
+        }
+        mapped[static_cast<size_t>(i)] = trit_to_u3(t);
+    }
+
+    for (size_t j = 0; j < std::size(block.packed); ++j) {
+        uint16_t byte = 0;
+        for (size_t i = 0; i < 5; ++i) {
+            byte += static_cast<uint16_t>(mapped[j * 5 + i]) * kPow3[i];
+        }
+        block.packed[j] = static_cast<uint8_t>(byte);
     }
 }
 
@@ -652,65 +835,47 @@ ModelInfo detect_model(const std::vector<QuantTensorInfo>& tensors) {
     return info;
 }
 
-struct GGUFWriter {
-    std::vector<uint8_t> data;
-    std::unordered_map<std::string, uint64_t> strings;
-
-    void align(uint64_t a) {
-        while (data.size() % a) data.push_back(0);
+template <typename T>
+void append_le(std::vector<uint8_t>& out, T value) {
+    using U = std::make_unsigned_t<T>;
+    U u = static_cast<U>(value);
+    for (size_t i = 0; i < sizeof(U); ++i) {
+        out.push_back(static_cast<uint8_t>((u >> (8 * i)) & 0xFFu));
     }
+}
 
-    uint64_t add_string(const std::string& s) {
-        if (auto it = strings.find(s); it != strings.end()) return it->second;
-        uint64_t off = data.size();
-        uint64_t len = s.size();
-        for (int i = 0; i < 8; ++i) {
-            data.push_back(static_cast<uint8_t>((len >> (8 * i)) & 0xFF));
-        }
-        data.insert(data.end(), s.begin(), s.end());
-        align(32);
-        strings[s] = off;
-        return off;
-    }
+void append_string(std::vector<uint8_t>& out, const std::string& value) {
+    append_le<uint64_t>(out, static_cast<uint64_t>(value.size()));
+    out.insert(out.end(), value.begin(), value.end());
+}
 
-    void write_header(uint64_t tensor_count, uint64_t kv_count = 20) {
-        uint64_t magic = 0x46554747ULL;
-        uint32_t version = 3;
-        for (int i = 0; i < 8; ++i) data.push_back(static_cast<uint8_t>((magic >> (8 * i)) & 0xFF));
-        for (int i = 0; i < 4; ++i) data.push_back(static_cast<uint8_t>((version >> (8 * i)) & 0xFF));
-        for (int i = 0; i < 8; ++i) data.push_back(static_cast<uint8_t>((tensor_count >> (8 * i)) & 0xFF));
-        for (int i = 0; i < 8; ++i) data.push_back(static_cast<uint8_t>((kv_count >> (8 * i)) & 0xFF));
+uint64_t align_up(uint64_t value, uint64_t alignment) {
+    if (alignment == 0 || value % alignment == 0) {
+        return value;
     }
+    return value + (alignment - (value % alignment));
+}
 
-    void write_kv(const std::string& key, const std::string& value) {
-        uint32_t vtype = 9;
-        uint64_t koff = add_string(key);
-        uint64_t voff = add_string(value);
-        for (int i = 0; i < 8; ++i) data.push_back(static_cast<uint8_t>((koff >> (8 * i)) & 0xFF));
-        for (int i = 0; i < 4; ++i) data.push_back(static_cast<uint8_t>((vtype >> (8 * i)) & 0xFF));
-        for (int i = 0; i < 8; ++i) data.push_back(static_cast<uint8_t>((voff >> (8 * i)) & 0xFF));
-    }
+enum : uint32_t {
+    kGGUFTypeUInt8 = 0,
+    kGGUFTypeUInt32 = 4,
+    kGGUFTypeString = 8,
+    kGGUFTypeArray = 9,
+};
 
-    void write_kv(const std::string& key, uint32_t value) {
-        uint32_t vtype = 2;
-        uint64_t koff = add_string(key);
-        for (int i = 0; i < 8; ++i) data.push_back(static_cast<uint8_t>((koff >> (8 * i)) & 0xFF));
-        for (int i = 0; i < 4; ++i) data.push_back(static_cast<uint8_t>((vtype >> (8 * i)) & 0xFF));
-        for (int i = 0; i < 4; ++i) data.push_back(static_cast<uint8_t>((value >> (8 * i)) & 0xFF));
-    }
+constexpr uint32_t kGGUFVersion = 3;
+constexpr uint32_t kGGUFAlignment = 32;
+constexpr uint32_t kGGMLTypeT3K = 99; // Custom tensor type; requires patched ggml/llama.cpp.
 
-    void write_tensor(const std::string& name, const std::vector<uint64_t>& shape,
-                      uint32_t type, uint64_t offset) {
-        uint32_t n_dims = static_cast<uint32_t>(shape.size());
-        for (int i = 0; i < 4; ++i) data.push_back(static_cast<uint8_t>((n_dims >> (8 * i)) & 0xFF));
-        for (uint64_t d : shape) {
-            for (int i = 0; i < 8; ++i) data.push_back(static_cast<uint8_t>((d >> (8 * i)) & 0xFF));
-        }
-        for (int i = 0; i < 4; ++i) data.push_back(static_cast<uint8_t>((type >> (8 * i)) & 0xFF));
-        for (int i = 0; i < 8; ++i) data.push_back(static_cast<uint8_t>((offset >> (8 * i)) & 0xFF));
-        uint64_t name_off = add_string(name);
-        for (int i = 0; i < 8; ++i) data.push_back(static_cast<uint8_t>((name_off >> (8 * i)) & 0xFF));
-    }
+using GGUFValue = std::variant<uint32_t, std::string, std::array<uint8_t, 64>>;
+
+struct TensorPlan {
+    size_t file_index = 0;
+    QuantTensorInfo tensor;
+    std::vector<uint64_t> gguf_shape;
+    uint64_t element_count = 0;
+    uint64_t data_offset = 0;
+    uint64_t data_size = 0;
 };
 
 } // namespace
@@ -736,10 +901,15 @@ void quantize_safetensors_to_gguf(const std::filesystem::path& input,
         files.push_back(std::move(file));
     };
     if (std::filesystem::is_directory(input)) {
+        std::vector<std::filesystem::path> paths;
         for (const auto& entry : std::filesystem::directory_iterator(input)) {
             if (entry.path().extension() == ".safetensors") {
-                add_file(entry.path());
+                paths.push_back(entry.path());
             }
+        }
+        std::sort(paths.begin(), paths.end());
+        for (const auto& path : paths) {
+            add_file(path);
         }
     } else if (input.extension() == ".safetensors") {
         add_file(input);
@@ -753,74 +923,172 @@ void quantize_safetensors_to_gguf(const std::filesystem::path& input,
     for (const auto& file : files) {
         all_tensors.insert(all_tensors.end(), file.tensors.begin(), file.tensors.end());
     }
+
     ModelInfo model = detect_model(all_tensors);
-    GGUFWriter writer;
-    writer.align(32);
-    writer.write_header(0);
-    writer.write_kv("general.architecture", model.arch);
-    writer.write_kv("general.name", output.stem().string());
-    writer.write_kv("general.file_type", uint32_t(32));
-    writer.write_kv(model.arch + ".context_length", model.context_length);
-    writer.write_kv(model.arch + ".block_count", model.n_layer);
-    writer.write_kv(model.arch + ".embedding_length", model.n_embd);
-    writer.write_kv(model.arch + ".attention.head_count", model.n_head);
-    writer.write_kv("tokenizer.ggml.model", "llama");
-    writer.write_kv("tokenizer.ggml.tokens", uint32_t(0));
-    writer.write_kv("tokenizer.ggml.scores", uint32_t(0));
-    writer.align(32);
-    uint64_t tensor_count = 0;
-    for (const auto& file : files) {
-        std::ifstream f(file.path, std::ios::binary);
-        if (!f) throw std::runtime_error("cannot reopen " + file.path.string());
-        for (const auto& tensor : file.tensors) {
-            if (tensor.shape.size() < 2) continue;
-            uint64_t n_elements = 1;
-            for (uint64_t dim : tensor.shape) {
-                if (dim == 0) throw std::runtime_error("tensor dimension zero");
-                n_elements *= dim;
-            }
-            std::vector<float> float_data(n_elements);
-            f.seekg(8 + static_cast<std::streamoff>(file.header_size) + tensor.data_offset, std::ios::beg);
-            if (tensor.dtype == "F16" || tensor.dtype == "BF16") {
-                std::vector<uint16_t> raw(n_elements);
-                f.read(reinterpret_cast<char*>(raw.data()), static_cast<std::streamsize>(n_elements * 2));
-                for (uint64_t i = 0; i < n_elements; ++i) {
-                    if (tensor.dtype == "F16") {
-                        float_data[i] = fp16_to_fp32(raw[i]);
-                    } else {
-                        uint32_t bits = static_cast<uint32_t>(raw[i]) << 16;
-                        float_data[i] = std::bit_cast<float>(bits);
-                    }
-                }
-            } else if (tensor.dtype == "F32") {
-                f.read(reinterpret_cast<char*>(float_data.data()), static_cast<std::streamsize>(n_elements * 4));
-            } else {
+
+    std::vector<TensorPlan> plans;
+    plans.reserve(all_tensors.size());
+    uint64_t data_cursor = 0;
+    for (size_t file_idx = 0; file_idx < files.size(); ++file_idx) {
+        for (const auto& tensor : files[file_idx].tensors) {
+            if (tensor.shape.empty()) {
                 continue;
             }
-            uint64_t tensor_offset = writer.data.size();
-            std::vector<float> tmp(128);
-            for (uint64_t idx = 0; idx < n_elements; idx += 128) {
-                uint64_t block_count = std::min<uint64_t>(128, n_elements - idx);
-                std::copy_n(float_data.data() + idx, block_count, tmp.data());
-                if (block_count < 128) std::fill(tmp.begin() + block_count, tmp.end(), 0.0f);
-                T3Block block{};
-                quantize_block_t3(tmp.data(), block);
-                writer.data.insert(writer.data.end(),
-                                   reinterpret_cast<uint8_t*>(&block),
-                                   reinterpret_cast<uint8_t*>(&block) + sizeof(T3Block));
+            if (tensor.dtype != "F16" && tensor.dtype != "BF16" && tensor.dtype != "F32") {
+                continue;
             }
-            std::vector<uint64_t> gguf_shape = tensor.shape;
-            std::reverse(gguf_shape.begin(), gguf_shape.end());
-            writer.write_tensor(tensor.name, gguf_shape, 99, tensor_offset);
-            tensor_count++;
+
+            uint64_t n_elements = 1;
+            for (uint64_t dim : tensor.shape) {
+                if (dim == 0) {
+                    throw std::runtime_error("tensor dimension zero");
+                }
+                if (n_elements > std::numeric_limits<uint64_t>::max() / dim) {
+                    throw std::overflow_error("tensor shape overflow");
+                }
+                n_elements *= dim;
+            }
+
+            TensorPlan plan;
+            plan.file_index = file_idx;
+            plan.tensor = tensor;
+            plan.element_count = n_elements;
+            plan.gguf_shape = tensor.shape;
+            std::reverse(plan.gguf_shape.begin(), plan.gguf_shape.end());
+
+            uint64_t blocks = (n_elements + 127) / 128;
+            plan.data_size = blocks * kT3KBlockBytes;
+            plan.data_offset = align_up(data_cursor, kGGUFAlignment);
+            data_cursor = plan.data_offset + plan.data_size;
+            plans.push_back(std::move(plan));
         }
     }
-    uint64_t* count_ptr = reinterpret_cast<uint64_t*>(writer.data.data() + 16);
-    *count_ptr = tensor_count;
+
+    if (plans.empty()) {
+        throw std::runtime_error("no supported tensors found for quantization");
+    }
+
+    std::vector<uint8_t> quantized_data(static_cast<size_t>(data_cursor), 0);
+    Sha3_512_Stream source_hasher;
+
+    std::vector<float> tmp(128);
+    for (const auto& plan : plans) {
+        const auto& file = files[plan.file_index];
+        std::ifstream f(file.path, std::ios::binary);
+        if (!f) {
+            throw std::runtime_error("cannot reopen " + file.path.string());
+        }
+
+        std::vector<float> float_data(plan.element_count);
+        f.seekg(8 + static_cast<std::streamoff>(file.header_size) + plan.tensor.data_offset, std::ios::beg);
+        if (!f) {
+            throw std::runtime_error("failed to seek tensor payload for " + plan.tensor.name);
+        }
+
+        if (plan.tensor.dtype == "F16" || plan.tensor.dtype == "BF16") {
+            std::vector<uint16_t> raw(plan.element_count);
+            f.read(reinterpret_cast<char*>(raw.data()), static_cast<std::streamsize>(plan.element_count * 2));
+            if (!f) {
+                throw std::runtime_error("failed reading tensor payload for " + plan.tensor.name);
+            }
+            auto bytes = std::span<const uint8_t>(reinterpret_cast<const uint8_t*>(raw.data()),
+                                                  static_cast<size_t>(raw.size() * sizeof(uint16_t)));
+            source_hasher.update(bytes);
+            for (uint64_t i = 0; i < plan.element_count; ++i) {
+                if (plan.tensor.dtype == "F16") {
+                    float_data[i] = fp16_to_fp32(raw[i]);
+                } else {
+                    uint32_t bits = static_cast<uint32_t>(raw[i]) << 16;
+                    float_data[i] = std::bit_cast<float>(bits);
+                }
+            }
+        } else {
+            f.read(reinterpret_cast<char*>(float_data.data()), static_cast<std::streamsize>(plan.element_count * 4));
+            if (!f) {
+                throw std::runtime_error("failed reading tensor payload for " + plan.tensor.name);
+            }
+            auto bytes = std::span<const uint8_t>(reinterpret_cast<const uint8_t*>(float_data.data()),
+                                                  static_cast<size_t>(float_data.size() * sizeof(float)));
+            source_hasher.update(bytes);
+        }
+
+        uint64_t data_write_off = plan.data_offset;
+        for (uint64_t idx = 0; idx < plan.element_count; idx += 128) {
+            const uint64_t block_count = std::min<uint64_t>(128, plan.element_count - idx);
+            std::copy_n(float_data.data() + idx, block_count, tmp.data());
+            if (block_count < 128) {
+                std::fill(tmp.begin() + static_cast<std::ptrdiff_t>(block_count), tmp.end(), 0.0f);
+            }
+            T3Block block{};
+            quantize_block_t3(tmp.data(), block);
+            write_t3_block(std::span<uint8_t>(quantized_data.data() + static_cast<size_t>(data_write_off),
+                                              static_cast<size_t>(kT3KBlockBytes)),
+                           block);
+            data_write_off += kT3KBlockBytes;
+        }
+    }
+
+    const auto source_sha3 = source_hasher.finalize();
+    const std::vector<std::pair<std::string, GGUFValue>> kvs = {
+        {"general.architecture", model.arch},
+        {"general.name", output.stem().string()},
+        {"general.file_type", uint32_t(32)},
+        {"general.alignment", uint32_t(kGGUFAlignment)},
+        {model.arch + ".context_length", model.context_length},
+        {model.arch + ".block_count", model.n_layer},
+        {model.arch + ".embedding_length", model.n_embd},
+        {model.arch + ".attention.head_count", model.n_head},
+        {"tokenizer.ggml.model", std::string("llama")},
+        {"t3_k.version", uint32_t(1)},
+        {"t3_k.block_trits", uint32_t(128)},
+        {"t3_k.scale_type", uint32_t(1)},
+        {"t3_k.tau_strategy", std::string("fixed_quantile_16_min_tau")},
+        {"t3_k.source_sha3", source_sha3},
+    };
+
+    std::vector<uint8_t> meta;
+    meta.reserve(1024 + plans.size() * 64);
+    meta.insert(meta.end(), {'G', 'G', 'U', 'F'});
+    append_le<uint32_t>(meta, kGGUFVersion);
+    append_le<uint64_t>(meta, static_cast<uint64_t>(plans.size()));
+    append_le<uint64_t>(meta, static_cast<uint64_t>(kvs.size()));
+
+    for (const auto& [key, value] : kvs) {
+        append_string(meta, key);
+        if (std::holds_alternative<std::string>(value)) {
+            append_le<uint32_t>(meta, kGGUFTypeString);
+            append_string(meta, std::get<std::string>(value));
+        } else if (std::holds_alternative<uint32_t>(value)) {
+            append_le<uint32_t>(meta, kGGUFTypeUInt32);
+            append_le<uint32_t>(meta, std::get<uint32_t>(value));
+        } else {
+            append_le<uint32_t>(meta, kGGUFTypeArray);
+            append_le<uint32_t>(meta, kGGUFTypeUInt8);
+            append_le<uint64_t>(meta, static_cast<uint64_t>(std::get<std::array<uint8_t, 64>>(value).size()));
+            const auto& arr = std::get<std::array<uint8_t, 64>>(value);
+            meta.insert(meta.end(), arr.begin(), arr.end());
+        }
+    }
+
+    for (const auto& plan : plans) {
+        append_string(meta, plan.tensor.name);
+        append_le<uint32_t>(meta, static_cast<uint32_t>(plan.gguf_shape.size()));
+        for (uint64_t dim : plan.gguf_shape) {
+            append_le<uint64_t>(meta, dim);
+        }
+        append_le<uint32_t>(meta, kGGMLTypeT3K);
+        append_le<uint64_t>(meta, plan.data_offset);
+    }
+
+    const uint64_t meta_padded_size = align_up(static_cast<uint64_t>(meta.size()), kGGUFAlignment);
+    std::vector<uint8_t> file_bytes(static_cast<size_t>(meta_padded_size + data_cursor), 0);
+    std::copy(meta.begin(), meta.end(), file_bytes.begin());
+    std::copy(quantized_data.begin(), quantized_data.end(), file_bytes.begin() + static_cast<std::ptrdiff_t>(meta_padded_size));
+
     std::ofstream out(output, std::ios::binary);
     if (!out) throw std::runtime_error("cannot write " + output.string());
-    out.write(reinterpret_cast<const char*>(writer.data.data()), static_cast<std::streamsize>(writer.data.size()));
-    uint64_t mb = writer.data.size() >> 20;
+    out.write(reinterpret_cast<const char*>(file_bytes.data()), static_cast<std::streamsize>(file_bytes.size()));
+    uint64_t mb = file_bytes.size() >> 20;
     std::cout << "Success! T3_K GGUF created: " << output << " (" << mb << " MB)\n";
     std::cout << "Run with llama.cpp (latest):\n";
     std::cout << "  ./llama-cli -m " << output << " -p \"Hello\" -n 512 --color\n";
