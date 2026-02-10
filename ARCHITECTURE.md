@@ -2,6 +2,8 @@
 
 This document maps the current T81 codebase architecture: build graph, runtime flow, verification surfaces, and cross-repo runtime boundary contracts.
 
+**Status scope:** current `main` branch architecture as of February 10, 2026.
+
 ______________________________________________________________________
 
 ## 1. Guiding Principles
@@ -10,6 +12,11 @@ ______________________________________________________________________
 - **Determinism first:** all compiler/runtime paths must preserve reproducible outputs and auditable traces.
 - **Layered composition via CMake:** components are separated by responsibility and linked through explicit target dependencies.
 - **Optimization without semantic drift:** interpreter, trace-JIT, SIMD, and tooling must preserve canonical behavior.
+
+Applied examples:
+- Determinism: cross-arch CI gates compare T81Lang and T3_K artifact hashes for stable replay guarantees.
+- Layering: `t81_cli_driver` depends on frontend/TISC/VM facades rather than re-implementing runtime behavior.
+- Spec authority: behavior changes route through `spec/` and RFC flow before becoming implementation contracts.
 
 ______________________________________________________________________
 
@@ -34,6 +41,8 @@ The authoritative build graph is `CMakeLists.txt`. It includes static libraries,
 Notes:
 - CMake defaults to `cxx_std_23`; a temporary compatibility lane remains available via `-DT81_USE_CXX23=OFF`.
 - CMake is the only supported authoritative build surface in this repository.
+- Build switches: `T81_BUILD_TESTS`, `T81_BUILD_EXAMPLES`, `T81_BUILD_BENCHMARKS`, `T81_BUILD_FUZZ_TESTS`.
+- Optional external dependencies: `pybind11` (Python module) and Google Benchmark (`benchmarks/` target).
 
 ______________________________________________________________________
 
@@ -130,6 +139,10 @@ Primary stages:
 4. Axion enforces policy and records boundary/fault events for replay and audit.
 5. Weights/tensor tooling feeds model tensors into runtime via canonical handles.
 
+Failure boundaries:
+- Lexer/parser/semantic failures stop before IR emission and surface diagnostics via CLI.
+- VM/Axion faults are deterministic traps with auditable reason codes and trace events.
+
 ______________________________________________________________________
 
 ## 5. Determinism and Verification Plane
@@ -151,6 +164,14 @@ Operational sources:
 - `scripts/ci/check_architecture_targets.py`
 - `scripts/check-runtime-contract-sync.py`
 
+| Gate / Tool | Purpose | Source |
+| --- | --- | --- |
+| Build + test ritual | Compile and run deterministic baseline suite | `CMakeLists.txt`, CTest |
+| T3_K reproducibility gate | Validate cross-run/cross-arch reproducibility of T3_K artifacts | `scripts/ci/t3k_repro_gate.py` |
+| T81Lang reproducibility gate | Validate deterministic compile/hash behavior | `scripts/ci/t81lang_repro_gate.py` |
+| Architecture target sync gate | Check `ARCHITECTURE.md` target table against `CMakeLists.txt` | `scripts/ci/check_architecture_targets.py` |
+| Runtime contract sync gate | Verify runtime boundary pin and policy coherence | `scripts/check-runtime-contract-sync.py` |
+
 ______________________________________________________________________
 
 ## 6. Runtime Contract Boundary
@@ -160,7 +181,7 @@ T81 uses an explicit cross-repo runtime semantics boundary:
 - **`t81-foundation` owns:** normative semantics, language/ISA intent, architectural invariants.
 - **`t81-vm` owns:** executable runtime compatibility artifacts and VM host ABI contract.
 - **Pinned contract marker:** `contracts/runtime-contract.json`.
-- **Boundary policy document:** `docs/runtime-semantics-boundary.md`.
+- **Boundary policy document:** [`docs/runtime-semantics-boundary.md`](docs/runtime-semantics-boundary.md).
 
 This split keeps semantic governance stable while allowing runtime implementation to evolve under explicit compatibility contracts.
 
@@ -198,7 +219,17 @@ Open architecture-level items remain tracked in `TASKS.md` and `TODO.md`. Curren
 
 ______________________________________________________________________
 
-## 10. Local Verification Ritual (Single-Threaded Safe Mode)
+## 10. Glossary (Project Terms)
+
+- **Axion:** safety/policy enforcement engine that emits deterministic verdicts and trace metadata.
+- **CanonFS:** deterministic storage and retrieval substrate used by runtime/model tooling.
+- **HanoiVM / T81VM:** deterministic virtual machine that executes TISC bytecode.
+- **TISC:** Ternary instruction representation and binary format executed by HanoiVM.
+- **T3_K:** ternary quantization format/policy path used in model artifact workflows.
+
+______________________________________________________________________
+
+## 11. Local Verification Ritual (Single-Threaded Safe Mode)
 
 When host stability is constrained, run the required ritual in single-threaded mode:
 
