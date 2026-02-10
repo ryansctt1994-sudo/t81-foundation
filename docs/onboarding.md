@@ -11,7 +11,7 @@ ______________________________________________________________________
 
 ## 1. Prerequisites
 
-- macOS/Linux with a recent Clang/GCC (C++20 support).
+- macOS/Linux with a recent Clang/GCC (C++20 baseline; optional C++23 preview via `-DT81_USE_CXX23=ON`).
 - CMake 3.16 or newer.
 - Ninja (recommended) or Unix `make`.
 - Python 3.9+ for optional scripts (e.g., benchmark reports).

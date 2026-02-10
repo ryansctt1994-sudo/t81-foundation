@@ -11,7 +11,7 @@ ______________________________________________________________________
 
 ## 1. Prerequisites
 
-- A C++20 compliant compiler (e.g., GCC 10+, Clang 12+)
+- A C++20-compliant compiler (opt-in C++23 preview via `-DT81_USE_CXX23=ON`)
 - CMake 3.16+
 - Ninja (recommended) or Make
 

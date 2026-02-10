@@ -50,3 +50,4 @@ Contract-impacting runtime changes must synchronize:
 ## Verification Rule
 
 - Run `python3 scripts/check-runtime-contract-sync.py` whenever runtime-contract versions are promoted.
+- CI enforces marker drift approval (`T81_ALLOW_RUNTIME_CONTRACT_CHANGE=1`) for intentional contract marker updates.

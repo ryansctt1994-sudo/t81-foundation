@@ -13,6 +13,13 @@ option(T81_BUILD_BENCHMARKS "Build T81 benchmark suite" ON)
 option(T81_BUILD_FUZZ_TESTS "Build frontend fuzz target" ON)
 option(T81_ENABLE_ASAN "Enable AddressSanitizer for supported compilers" OFF)
 option(T81_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer for supported compilers" OFF)
+option(T81_USE_CXX23 "Build with C++23 language mode (fallback: C++20)" OFF)
+
+if(T81_USE_CXX23)
+  set(T81_CXX_STD_FEATURE cxx_std_23)
+else()
+  set(T81_CXX_STD_FEATURE cxx_std_20)
+endif()
 
 # CPU feature gating used for SIMD source/flags.
 string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" T81_SYSTEM_PROCESSOR_LOWER)
@@ -81,7 +88,7 @@ add_library(t81_core STATIC
   src/crypto/sha3.cpp
   src/setun/bridge.cpp
 )
-target_compile_features(t81_core PUBLIC cxx_std_20)
+target_compile_features(t81_core PUBLIC ${T81_CXX_STD_FEATURE})
 target_include_directories(t81_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 if(T81_IS_X86_64)
   set(T81_AVX2_SOURCE src/simd/base81_digits_avx2.cpp)
@@ -457,7 +464,7 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_cli_repl_test PRIVATE t81_cli_driver t81_tisc t81_vm)
 
   add_executable(cli_repro_hash_test tests/cpp/cli_repro_hash_test.cpp)
-  target_compile_features(cli_repro_hash_test PRIVATE cxx_std_20)
+  target_compile_features(cli_repro_hash_test PRIVATE ${T81_CXX_STD_FEATURE})
 
   add_executable(t81_cli_record_enum_test tests/cpp/cli_record_enum_test.cpp)
   target_link_libraries(t81_cli_record_enum_test PRIVATE t81_cli_driver t81_tisc t81_vm)
