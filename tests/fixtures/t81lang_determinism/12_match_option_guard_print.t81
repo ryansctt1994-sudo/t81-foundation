@@ -1,0 +1,10 @@
+fn main() -> i32 {
+  let opt: Option[i32] = Some(7);
+  let result: i32 = match (opt) {
+    Some(v) if v > 10 => 100,
+    Some(v) if v < 10 => 200,
+    None => 300
+  };
+  print(result);
+  return 0;
+}

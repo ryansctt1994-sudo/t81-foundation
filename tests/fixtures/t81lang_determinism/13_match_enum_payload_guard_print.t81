@@ -1,0 +1,15 @@
+enum Event {
+  Ping;
+  Data(i32);
+};
+
+fn main() -> i32 {
+  let e: Event = Event.Data(21);
+  let result: i32 = match (e) {
+    Ping => 0,
+    Data(v) if v > 20 => v,
+    Data(_) => 1
+  };
+  print(result);
+  return 0;
+}
