@@ -115,6 +115,18 @@ def main() -> int:
         default="",
         help="Optional path to write markdown report",
     )
+    parser.add_argument(
+        "--max-tagged",
+        type=int,
+        default=None,
+        help="Fail if tag/major-version references exceed this threshold",
+    )
+    parser.add_argument(
+        "--max-unknown",
+        type=int,
+        default=None,
+        help="Fail if unclassified references exceed this threshold",
+    )
     args = parser.parse_args()
 
     repo_root = pathlib.Path(args.repo_root).resolve()
@@ -132,6 +144,13 @@ def main() -> int:
         md_path.parent.mkdir(parents=True, exist_ok=True)
         md_path.write_text(build_markdown(refs, repo_root), encoding="utf-8")
         print(f"wrote markdown report: {md_path.relative_to(repo_root)}")
+
+    if args.max_tagged is not None and tagged > args.max_tagged:
+        print(f"ERROR: tagged references {tagged} exceed allowed maximum {args.max_tagged}")
+        return 1
+    if args.max_unknown is not None and unknown > args.max_unknown:
+        print(f"ERROR: unknown references {unknown} exceed allowed maximum {args.max_unknown}")
+        return 1
 
     return 0
 

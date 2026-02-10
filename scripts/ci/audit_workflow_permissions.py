@@ -55,6 +55,12 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=".")
     parser.add_argument("--markdown-out", default="")
+    parser.add_argument(
+        "--max-missing",
+        type=int,
+        default=None,
+        help="Fail if workflows missing explicit permissions exceed this threshold",
+    )
     args = parser.parse_args()
 
     root = pathlib.Path(args.repo_root).resolve()
@@ -103,6 +109,10 @@ def main() -> int:
         lines.append("")
         out.write_text("\n".join(lines), encoding="utf-8")
         print(f"wrote markdown report: {out.relative_to(root)}")
+
+    if args.max_missing is not None and len(missing) > args.max_missing:
+        print(f"ERROR: missing explicit permissions {len(missing)} exceed allowed maximum {args.max_missing}")
+        return 1
 
     return 0
 

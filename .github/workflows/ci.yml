@@ -62,6 +62,14 @@ jobs:
       - name: Verify ARCHITECTURE.md target table matches CMake
         run: python3 scripts/ci/check_architecture_targets.py 2>&1 | tee -a .github/logs/spec-and-docs.log
 
+      - name: Enforce workflow action pinning policy
+        run: |
+          python3 scripts/ci/audit_workflow_actions.py --max-tagged 0 --max-unknown 0 2>&1 | tee -a .github/logs/spec-and-docs.log
+
+      - name: Enforce workflow permissions policy
+        run: |
+          python3 scripts/ci/audit_workflow_permissions.py --max-missing 0 2>&1 | tee -a .github/logs/spec-and-docs.log
+
       - name: Job Failure Summary
         if: failure()
         shell: bash
