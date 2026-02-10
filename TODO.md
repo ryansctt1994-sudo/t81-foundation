@@ -1,47 +1,32 @@
 # T81 Foundation: Long-Horizon TODOs
 
-This document tracks long-term strategic goals and ecosystem enhancements that extend beyond the v1.0 milestone. For immediate, actionable tasks, see [`TASKS.md`](./TASKS.md).
+**Last Updated:** February 10, 2026
 
-## Ecosystem & Tooling [P0]
+This file tracks strategic items beyond the near-term execution queue in `TASKS.md`.
 
-- [DONE] **Python Bindings:** Initial `pybind11` wrappers for `T81Tensor`, `T729IntTensor`, `HanoiVM`, `BigInt`, `Float`, and `Fraction` implemented; expansion for full cognitive kernel support ongoing.
-- [DONE] **IDE Support:** Initial VS Code extension with syntax highlighting developed in `tools/vscode-t81`.
-- [DONE] **Package Management:** Basic `t81 pkg` command for project initialization and manifest management implemented.
-- [DONE] **Integrated Debugger:** HanoiVM debugger (`t81 debug`) with stepping, breakpoints, and state inspection implemented.
-- [DONE] **CLI Assists:** Expanded the `t81` CLI with project scaffolding (`init`), linting (`check`), `repl`, and `--benchmark`. (Code formatting tool still planned).
+## 1. Formal Methods and Proofs
 
-## High-Tier Cognition [P1]
+- [ ] Formal verification for core balanced ternary arithmetic primitives (`T81Int`, `T81BigInt`, `Fraction`).
+- [ ] Proof-oriented validation for key Axion policy invariants.
+- [ ] Expand deterministic replay proofs across compiler + VM boundaries.
 
-- [DONE] **Tier 3 Reasoning:** Tier 3, 4, and 5 cognitive layers defined and integrated into the promotion engine.
-- [ ] **Tier 4 Consciousness:** Research and implement Tier 4 layers focusing on self-referential modeling and high-tier cognitive loops.
-    - [ ] **Deliverable: Self-Referential Modeling Proofs** - Formalize mathematical proofs ensuring that Tier 4 agents correctly model their own state transitions and internal beliefs (Owner: Jules).
-    - [ ] **Deliverable: High-Tier Cognitive Loops** - Implement multi-stage `reflect -> refine` cycles in `Tier4Loop` that allow for recursive self-optimization (Owner: HanoiVM & Axion Core).
-    - [ ] **Deliverable: TISC Reflection Primitives** - Add native TISC opcodes for triggering reflection events and accessing the `META` segment's self-model (Owner: TISC ISA & VM).
-    - [ ] **Deliverable: Alignment Clause Verification** - Integrate Axion policy predicates that validate the integrity of self-models before promoting processes to Tier 5 (Owner: Axion Kernel).
-- [DONE] **T81-AGI Alignment:** Formalized and implemented `require-alignment` policies within Axion.
+## 2. Performance Architecture
 
-## Performance Optimization [P2]
+- [ ] Deep optimization of `T81BigInt` (algorithmic + SIMD layers).
+- [ ] Expand tensor backend strategy (portable scalar parity + optimized backends).
+- [ ] CanonFS scalability for larger persistent workloads with deterministic observability.
 
-- [ ] **Numeric Bottlenecks:** Optimize multi-limb `T81BigInt` arithmetic (karatsuba, SIMD acceleration).
-- [ ] **I/O Scaling:** Optimize CanonFS for high-throughput ternary data persistence and retrieval.
-- [ ] **JIT Compilation:** Explore Just-In-Time compilation for HanoiVM to improve execution speed for compute-intensive workloads.
-- [ ] **Large-Scale Tensors:** Implement distributed tensor operations for high-rank ternary tensors.
+## 3. Runtime and Execution
 
-## Core System & Verification
+- [ ] Incremental deterministic trace-JIT hardening for numeric/tensor hot paths.
+- [ ] Evaluate distributed tensor orchestration patterns that preserve replay guarantees.
 
-- [ ] **Formal Verification:** Formally verify the core balanced ternary arithmetic primitives (BigInt, Fraction).
-- [ ] **Hardware Backends:** Research and prototype physical ternary hardware backends or FPGA implementations of HanoiVM.
-- [ ] **Axion Policy Language:** Develop a domain-specific language for defining Axion safety policies.
-- [DONE] **Advanced CI Matrix:** Expanded CI to include static analysis, sanitizers, and formal logic verification scripts.
-- [DONE] **T81Lang Determinism Gates:** Added compile-twice bytecode identity and runtime `printed_output` determinism tests with golden fixtures.
-- [DONE] **Cross-Arch Determinism Verification Runs:** Linux `x86_64` + `arm64` T81Lang hash gate is enforced in CI (`t81lang-cross-arch-bit-identity`) with per-arch hash artifacts and fail-fast mismatch detection.
-- [DONE] **Determinism CLI Helper:** Added `t81 repro-hash` command to run the same fixture hash gate locally.
-- [DONE] **Golden Hash Refresh Automation:** Added workflow-driven PR automation for `t81lang_repro_hash.txt` refreshes.
-- [DONE] **C++23 Default + Compatibility Lane:** Made C++23 the default standard in CMake while preserving a CI-validated C++20 compatibility lane (`T81_USE_CXX23=OFF`).
+## 4. Ecosystem and Interop
 
-## Documentation & Community
+- [ ] Expand language bindings and integration surfaces where determinism guarantees can be preserved.
+- [ ] Strengthen downstream runtime boundary tooling (`t81-foundation` <-> `t81-vm` <-> examples).
 
-- [DONE] **Comprehensive Tutorials:** Created end-to-end tutorials for building secure, Axion-verified applications on the T81 stack.
-- [DONE] **Researcher's Guide:** Documented the mathematical foundations of the T81 cognitive tiers.
-- [DONE] **Spec Alignment:** Ensured 100% bidirectional alignment between the implementation and the NewBook specifications for v1.0 milestone.
-- [DONE] **Killer Demo:** Shipped deterministic Llama-3.2-1B block demo (`examples/llama32_demo.cpp`) with bit-identical output across platforms.
+## 5. Hardware and Future Targets
+
+- [ ] Investigate FPGA/hardware-backed ternary execution pathways.
+- [ ] Define pragmatic hardware abstraction boundaries without weakening canonical semantics.

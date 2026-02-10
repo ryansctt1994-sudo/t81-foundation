@@ -17,11 +17,12 @@
 ```bash
 git clone https://github.com/t81dev/t81-foundation.git
 cd t81-foundation
-mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j$(nproc)
-ctest --output-on-failure
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel 1
+ctest --test-dir build --output-on-failure
 ```
+
+For higher-core machines, increase `--parallel` after baseline verification.
 
 ## Why T81?
 

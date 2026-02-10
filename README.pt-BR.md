@@ -1,5 +1,7 @@
 # T81 Foundation: A Pilha de Computação Nativa Ternária
 
+> Nota de atualização: o estado técnico canônico e mais recente está em `README.md`, `ARCHITECTURE.md` e `STATUS.md`.
+
 <div align="center">
 
 <br/>

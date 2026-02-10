@@ -47,4 +47,21 @@ ______________________________________________________________________
 
 - **CanonFS (`t81_core`):** **Stable.** The `canonfs::Driver` API is fully functional. The `PersistentDriver` implements disk-backed storage with Axion hooks, ensuring auditable writes and reads. Snapshot hashes in the `InMemoryKernel` are now derived deterministically from parent hashes and fork metadata.
 - **Axion Kernel (`t81_core`):** **Stable.** The `PolicyEngine` enforces the full set of Axion safety policies, including resource limits (instructions, recursion, stack, reflection) and trace-based requirements for loops, guards, and segment events. Hardened for Tier 4 Cognition.
-- **Tooling (`t81` CLI):** **Partial.** The `t81` command-line tool still drives compile/check/run/repl, but it now conserves Axion metadata from the frontend (`axion_policy_text`, `match_metadata_text`) and pushes it into the VM so trace output carries loop bounds and guard hints even though more advanced inspection/debugging commands are missing.
+- **Tooling (`t81` CLI):** **Implemented (feature-growing).** The `t81` command-line tool drives `compile/check/run/repl` and also includes `disasm`, `debug`, and `trace replay` paths. It conserves Axion metadata from the frontend (`axion_policy_text`, `match_metadata_text`) and pushes it into the VM so trace output carries loop bounds and guard hints.
+
+______________________________________________________________________
+
+## 5. Validation Baseline (Current)
+
+- **Build mode:** CMake defaults to C++23 (`T81_USE_CXX23=ON`) with an explicit compatibility lane via `-DT81_USE_CXX23=OFF`.
+- **Core local ritual:** `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release`, `cmake --build build --parallel`, `ctest --test-dir build --output-on-failure`.
+- **Latest verified local run:** 139/139 tests passed (single-threaded validation path also clean).
+- **Determinism gates in CI:** T3_K and T81Lang reproducibility gates plus cross-arch comparison remain wired via `.github/workflows/ci.yml` and `scripts/ci/*repro_gate.py`.
+
+______________________________________________________________________
+
+## 6. Known Spec/Context Drift
+
+- Some spec/RFC prose still references a C++20-default frontend as present tense.
+- Repository implementation and CI now run with C++23 default and C++20 as a compatibility lane.
+- This drift is governance-tracked (not silently rewritten) via `spec/rfcs/RFC-0024-cxx23-default-wording-alignment.md`.

@@ -1,5 +1,7 @@
 # T81 Foundation: Стек троичных вычислений
 
+> Примечание об актуальности: каноничное и самое свежее техническое состояние описано в `README.md`, `ARCHITECTURE.md` и `STATUS.md`.
+
 <div align="center">
 <br/>
 <img src="docs/assets/img/banner.png" alt="T81 Foundation" width="100%"/>

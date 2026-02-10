@@ -1,5 +1,7 @@
 # Fundación T81: La pila de computación nativa ternaria
 
+> Nota de vigencia: el estado técnico canónico y más actualizado vive en `README.md`, `ARCHITECTURE.md` y `STATUS.md`.
+
 <div align="center">
 <br/>
 <img src="docs/assets/img/banner.png" alt="Fundación T81" width="100%"/>

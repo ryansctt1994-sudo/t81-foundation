@@ -1,156 +1,90 @@
 # Contributing to T81 Foundation
 
-Thank you for your interest in contributing to the T81 Foundation project.\
-This repository defines the core specifications for the entire T81 Ecosystem and must remain consistent, deterministic, and formally defined.\
-All contributions should follow the guidelines below to maintain coherence and correctness.
+Thanks for contributing to T81 Foundation.
+
+This repository is **spec-first** and **determinism-first**. Changes must preserve canonical behavior and reproducible outputs.
 
 ______________________________________________________________________
 
-## 1. Contribution Types
+## 1. Ground Rules
 
-### **1.1 Specification Proposals (RFCs)**
-
-For new features, architectural changes, or modifications to existing T81 components:
-
-- Submit an issue using the **RFC template**.
-- Provide a formal definition of rules, semantics, invariants, and constraints.
-- Include rationale, alternatives considered, and compatibility notes.
-- After discussion, RFCs may be accepted and merged into the `spec/` directory.
-
-### **1.2 Bug Reports**
-
-For errors, inconsistencies, or conflicting rules:
-
-- Use the **Bug Report template**.
-- Clearly identify the section and expected vs. actual behavior.
-- Provide minimal examples if helpful.
-
-### **1.3 Clarifications**
-
-If any part of the specification is underspecified or ambiguous:
-
-- Use the **Spec Clarification** template.
-- Describe the ambiguity and why it matters for implementation.
+- Specs in `spec/` are normative.
+- Do not change normative spec language (`MUST`, `SHOULD`, etc.) without an RFC.
+- Keep behavior deterministic; no hidden non-determinism.
+- Add tests for any behavior change.
 
 ______________________________________________________________________
 
-## 2. Workflow for Changes
+## 2. Contribution Workflow
 
-### **2.1 Open an Issue**
-
-All contributions begin as issues (RFC, bug, clarification).\
-No direct pull request without an associated issue.
-
-### **2.2 Discussion Phase**
-
-The community reviews and refines the issue until reaching consensus.\
-Changes may require:
-
-- revisions to wording
-- updated invariants
-- compatibility checks
-- additional examples
-
-### **2.3 Draft Pull Request**
-
-Once discussion stabilizes:
-
-- open a PR linking to the issue
-- include changes to relevant files in `spec/`, `docs/`, or `tools/`
-- follow the formatting conventions defined in the spec files
-
-### **2.4 Review & Approval**
-
-A change is approved when:
-
-- all raised concerns are resolved
-- it does not introduce undefined or nondeterministic behavior
-- all automated CI checks must pass (including tests, formatting, and link checks)
-- it maintains logical and ethical constraints
-- it adheres to Axion invariants (where relevant)
-
-### **2.5 Merge**
-
-After approval, the PR is merged and the related issue is closed.
+1. Open an issue (bug, clarification, or RFC proposal).
+2. Discuss scope and acceptance criteria.
+3. Open a PR linked to the issue.
+4. Run required local ritual before requesting review.
+5. Address review feedback; merge when checks are green.
 
 ______________________________________________________________________
 
-## 3. Style & Formatting Guidelines
+## 3. Required Local Ritual
 
-### **3.1 Markdown Structure**
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
+```
 
-- Use consistent heading levels.
-- Keep lines under ~120 characters.
-- Use code blocks for formal definitions.
+Single-threaded safe mode:
 
-### **3.2 Specification Tone**
+```bash
+cmake --build build --parallel 1
+ctest --test-dir build --output-on-failure -j1
+```
 
-- Use clear, unambiguous, normative language.
-- MUST / MUST NOT define strict rules.
-- SHOULD / SHOULD NOT express recommended practice.
-- MAY indicates optional but valid behavior.
+Optional extended suite:
 
-### **3.3 Determinism Requirement**
+```bash
+ctest --test-dir build -R "fuzz|property|axion" --schedule-random
+```
 
-All contributions must uphold:
-
-- deterministic semantics
-- base-81 and balanced ternary correctness
-- zero undefined behavior
-- reproducibility across implementations
-
-______________________________________________________________________
-
-## 4. Repository Structure Rules
-
-### **spec/**
-
-Formal, normative documents.\
-Changes require RFC-level justification.
-
-### **docs/**
-
-Explanatory or supporting documentation.\
-May evolve more flexibly.
-
-### **examples/**
-
-Minimal programs illustrating T81 concepts.\
-Must remain deterministic and spec-compliant.
-
-### **tools/**
-
-Validation or utility scripts.\
-Must not introduce nondeterministic behavior.
+See `docs/ci.md` for full CI parity commands.
 
 ______________________________________________________________________
 
-## 5. Code of Conduct
+## 4. RFC Process (Spec Changes)
 
-Contributors are expected to maintain a professional, respectful environment.\
-Focus comments and discussion on technical accuracy, clarity, and iterative improvement.
+For spec/governance changes:
 
-______________________________________________________________________
-
-## 6. Onboarding & Help Wanted
-
-We are looking for contributors to help with the following "First Good Issues":
-- SIMD optimization for `T81Tensor` kernels (AVX2, AVX-512).
-- Python bindings via `pybind11` for AI researcher integration.
-- Documentation improvements and more T81Lang examples.
-- Implementations of missing `CanonFS` specifications.
-
-If you are looking to help, check the `help wanted` and `good first issue` labels on GitHub.
-
-## 7. Recommended GitHub Topics
-
-When sharing or tagging this project, please use:
-`reproducible-research`, `ternary-logic`, `deterministic-computing`, `ai-safety`, `virtual-machine`, `tensor-algebra`, `agi`.
-
-## 8. License
-
-All contributions are accepted under the **MIT License**, consistent with the repository’s [LICENSE](LICENSE) file.
+- Add/update RFC under `spec/rfcs/`.
+- Link RFC in PR.
+- Keep behavior and wording changes traceable.
 
 ______________________________________________________________________
 
-Thank you for helping build the foundation of the T81 Ecosystem.
+## 5. Code and Docs Expectations
+
+- Public API: `include/t81/`
+- Implementation: `src/`
+- Tests: `tests/cpp/`
+- Docs: `docs/`
+
+When changing code:
+- update tests,
+- update relevant docs,
+- keep examples runnable.
+
+______________________________________________________________________
+
+## 6. Determinism and Safety
+
+All contributions must preserve:
+
+- encode/decode round-trip invariants,
+- overflow trap behavior (Axion-visible),
+- canonical serialization/replay behavior,
+- reproducibility gates (T81Lang/T3_K, where applicable).
+
+______________________________________________________________________
+
+## 7. License
+
+By contributing, you agree your changes are licensed under the repository license terms.

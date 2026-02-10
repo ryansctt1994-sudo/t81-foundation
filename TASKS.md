@@ -2,122 +2,42 @@
 
 **Last Updated:** February 10, 2026
 
-This document lists the concrete, prioritized tasks for the next development cycle, aligned with the strategic priorities in `ROADMAP.md`.
+This document tracks **active, near-term execution tasks**. Completed historical work is summarized in `CHANGELOG.md` and supporting docs.
 
 ______________________________________________________________________
 
-## How to Contribute
+## P0 — Keep Determinism Gates Green
 
-1.  Read the updated [`ROADMAP.md`](./ROADMAP.md) to understand the high-level goals.
-2.  Pick a task from the lists below, starting with **P0**.
-3.  Follow the guidelines in [`CONTRIBUTING.md`](./CONTRIBUTING.md).
+- [ ] Re-run and document the local ritual on every significant merge window:
+  - `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release`
+  - `cmake --build build --parallel`
+  - `ctest --test-dir build --output-on-failure`
+- [ ] Keep cross-arch T81Lang and T3_K reproducibility gates passing in CI.
+- [ ] Keep runtime-contract sync checks green against `t81-vm`.
 
-______________________________________________________________________
+## P1 — Performance Path
 
-### [P0] T81Lang Compiler (Completed)
+- [ ] Implement next-step `T81BigInt` acceleration (SIMD/Karatsuba path), preserving canonical behavior.
+- [ ] Profile and optimize hot tensor kernels used by demo/inference paths.
+- [ ] Improve CanonFS performance under sustained write/read workloads while preserving deterministic trace strings.
 
-**Goal:** The C++23 compiler now matches the `t81lang-spec.md`, emits Axion-aligned match/loop metadata, and the CLI (including the REPL) produces deterministic Axion traces. This critical path is complete; the compiler introduces no open blockers toward v1.0.
+## P2 — Tooling and UX
 
-- **[EPIC] Implement Semantic Analysis & Type System:**
-    - **[DONE] [M] Task:** Create the foundational `SemanticAnalyzer` class that traverses the AST.
-    - **[DONE] [L] Task:** Implement the core type-checking logic within the `SemanticAnalyzer`.
-    - **[DONE] [M] Task:** Implement type checking for generic types, focusing on `Option[T]` and `Result[T, E]`.
-    - **[DONE] [S] Task:** Add the Option/Result end-to-end regression that now accompanies the compiler pipeline.
-    - **[DONE] [S] Task:** Fix `Result[T, E]` alias in `include/t81/core/Result.hpp` to remove unused `E`.
+- [ ] Tighten CLI ergonomics/documentation parity for `disasm`, `debug`, and `trace replay` workflows.
+- [ ] Expand deterministic failure diagnostics for compile/run workflows.
+- [ ] Keep `examples/` runnable and aligned with docs (including `examples/tisc/` assets).
 
-- **[EPIC] Expand Language Feature Support:**
-    - **[DONE] [L] Task:** Extend the `Parser` for `loop`/`match`.
-    - **[DONE] [L] Task:** Lower match/loop expressions via guard-aware IR with Axion metadata.
-    - **[DONE] [M] Task:** Persist guard metadata (variants, payloads, guard expressions) through CLI/VM/Axion traces.
+## P3 — Verification and Hardening
 
-- **[EPIC] Improve Developer Experience:**
-    - **[DONE] [M] Task:** Implement robust error reporting with location-aware diagnostics.
-    - **[DONE] [M] Task:** Ship the `t81` CLI covering `compile`, `run`, `check`, and `repl`.
-
-With P0 closed, work shifts to the runtime-focused priorities below.
-
-- **[EPIC] T81Tensor & Transformer Kernels Optimization (Completed):**
-    - **[DONE] [M] Task:** Implement AVX2 acceleration for `TMatMul` in `include/t81/tensor/matmul.hpp`.
-    - **[DONE] [M] Task:** Implement SIMD horizontal sums and loop unrolling for `TMatMul` and `TRMSNorm`.
-    - **[DONE] [M] Task:** Implement fast SIMD `exp` and optimize `TRMSNorm`, `TSiLU`, and `TSoftmax` in `include/t81/tensor/llama.hpp`.
-    - **[DONE] [S] Task:** Ship the "Go Broad" killer demo: complete Llama-3.2 transformer block in `examples/llama32_demo.cpp`.
+- [ ] Expand property/fuzz coverage for frontend + IR + VM boundary invariants.
+- [ ] Add additional parity checks for backend variants against deterministic scalar references.
+- [ ] Continue Axion policy/trace regression growth for guard/segment/match paths.
 
 ______________________________________________________________________
 
-### [P1] HanoiVM & TISC Runtime (Completed)
+## Completed Highlights (Moved)
 
-**Goal:** The HanoiVM now implements the full deterministic memory model, strict segment containment, and the Axion trace engine required for v1.0.
-
-- **[EPIC] Implement the T81VM Memory Model:**
-    - **[DONE] [L] Task:** Design and implement the full stack and heap memory model as defined in `spec/t81vm-spec.md`.
-    - **[DONE] [M] Task:** Add VM instructions for stack manipulation (push, pop, stack pointers).
-
-- **[EPIC] Harden the VM:**
-    - **[DONE] [M] Task:** Improve VM fault handling. Ensure all illegal operations (e.g., division by zero, out-of-bounds memory access) result in deterministic, spec-compliant faults.
-    - **[DONE] [L] Task:** Add extensive "negative" tests for the VM that deliberately trigger faults and verify the correct behavior.
-    - **[DONE] [S] Task:** Surface match metadata hints in the Axion/trace log to confirm CLI workloads can replay guard coverage during execution.
-- **[DONE] [M] Task:** Document and verify the deterministic segment-trace strings (`stack frame allocated`, `tensor slot allocated`, `AxRead/AxSet guard …`) via `axion_policy_runner` and updated Axion trace guides so policy runners can replay RFC-0020/RFC-0009 expectations.
-
-______________________________________________________________________
-
-### [P2] Axion Kernel & CanonFS (Completed)
-
-**Goal:** The Axion Kernel and CanonFS are now fully functional and integrated into the runtime stack.
-
-- **[EPIC] Implement the Axion Kernel:**
-    - **[DONE] [M] Task:** Formalize the API between the HanoiVM and the Axion Kernel.
-    - **[DONE] [L] Task:** Implement the first set of safety policies in the Axion Kernel (e.g., Recursion Depth Limiter, Instruction Counter).
-    - **[DONE] [M] Task:** Integrate the specified Axion hooks (`AXREAD`, `AXSET`, etc.) into the VM's main dispatch loop.
-
-- **[EPIC] General Documentation & Good First Issues:**
-    - **[DONE] [S] Task:** Add more unit tests for existing data types (`T81Float`, `Tensor`).
-    - **[DONE] [S] Task:** Improve Doxygen comments on public headers in `/include/t81/`.
-    - **[DONE] [M] Task:** Update the `docs/tensor-guide.md` to reflect the current C++ `Tensor` API.
-- **[DONE] [S] Task:** Publish the `axion_policy_runner` trace output in release docs and CI artifacts to give auditors a reachable example of the required `verdict.reason` strings.
-- **[DONE] [M] Task:** Implement the persistent CanonFS driver with Axion hooks so trace regressions exercise the disk-backed store before policy predicates run.
-- **[DONE] [M] Task:** Document and implement CanonFS policy hooks that intercept `AXSET`/`AXREAD` calls, emit the canonical meta/trace strings for each write, and expose those strings to policy predicates like `(require-axion-event (reason "meta slot axion event segment=meta"))` so auditors can tie CanonFS persistence to Axion enforcement.
-
-______________________________________________________________________
-
-### [P3] High-Tier Cognition (Tier 4) (Completed)
-
-**Goal:** Implement Tier 4 cognitive layers focusing on self-referential modeling and high-tier cognitive loops.
-
-- **[EPIC] Self-Referential Modeling & Reflection:**
-    - **[DONE] [M] Task:** Formalize mathematical proofs ensuring that Tier 4 agents correctly model their own state transitions and internal beliefs. (Owner: Jules)
-    - **[DONE] [L] Task:** Implement multi-stage `reflect -> refine` cycles in `Tier4Loop` that allow for recursive self-optimization. (Owner: HanoiVM & Axion Core)
-    - **[DONE] [M] Task:** Add native TISC opcodes for triggering reflection events and accessing the `META` segment's self-model. (Owner: TISC ISA & VM)
-    - **[DONE] [S] Task:** Integrate Axion policy predicates that validate the integrity of self-models before promoting processes to Tier 5. (Owner: Axion Kernel)
-
-______________________________________________________________________
-
-### [P4] Performance & Scaling
-
-**Goal:** Quantify and eliminate bottlenecks to move the system toward production scale.
-
-- **[EPIC] Numeric & I/O Optimization:**
-    - **[DONE] [M] Task:** Implement Balanced Base-81 representation and SIMD kernels (add/sub/neg) for Base-81 digits.
-    - **[DONE] [S] Task:** Implement Packed Base-81 blocks (5 digits -> uint32) and canonical metadata headers.
-    - **[DONE] [M] Task:** Implement Base-81 Assembler/Disassembler view for TISC bytecode.
-    - **[DONE] [S] Task:** Add `t81 disasm <file.tisc>` command for deterministic bytecode inspection from the CLI.
-    - **[M] Task:** Optimize multi-limb `T81BigInt` arithmetic using SIMD Karatsuba techniques.
-    - **[L] Task:** Optimize CanonFS for high-throughput async persistence and retrieval.
-    - **[L] Task:** Implement a HanoiVM JIT compiler prototype for compute-intensive workloads.
-    - **[M] Task:** Implement distributed tensor sharding for high-rank ternary tensors.
-
-- **[EPIC] Deterministic T81Lang Evolution (In Progress):**
-    - **[DONE] [M] Task:** Add golden AST/IR canonicalization tests and hash-based compile-repeat gates.
-    - **[L] Task:** Implement deterministic trace-based JIT MVP for side-effect-free numeric/tensor hot paths with Axion boundary checks.
-    - **[DONE] [M] Task:** Add tensor backend parity gates (matmul + RMSNorm) against deterministic scalar references before enabling backend expansion by default.
-    - **[S] Task:** Keep AI-assisted CI/runtime tuning advisory-only (generate recommendations, no autonomous mutation).
-
-______________________________________________________________________
-
-### [P5] Formal Verification & Hardware
-
-**Goal:** Provide formal guarantees of correctness and explore physical ternary execution.
-
-- **[EPIC] Verification & DSL Design:**
-    - **[L] Task:** Formally verify the core balanced ternary arithmetic primitives (BigInt, Fraction).
-    - **[M] Task:** Prototype ternary hardware/FPGA backends for HanoiVM.
-    - **[M] Task:** Design and implement the Axion Policy DSL for declarative safety definitions.
+Major completed streams (compiler conformance, VM memory model, Axion/CanonFS integration, C++23 default lane) are now tracked in:
+- `CHANGELOG.md`
+- `ANALYSIS.md`
+- `docs/system-status.md`

@@ -1,5 +1,7 @@
 # T81 基金会：三进制原生计算栈
 
+> 更新说明：最权威、最新的技术状态以 `README.md`、`ARCHITECTURE.md` 与 `STATUS.md` 为准。
+
 <div align="center">
 
 <br/>

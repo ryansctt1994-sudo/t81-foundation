@@ -2,44 +2,44 @@
 
 **Last Updated:** February 10, 2026
 
-## 1. Vision for v1.0
+## 1. Current Phase
 
-The v1.0 release of the T81 Foundation will deliver a stable, documented, and production-ready implementation of the core T81 stack. The target audience is systems developers and AI/PL researchers who need a deterministic, auditable platform for advanced computation.
+T81 is in a **post-v1.0 hardening and scaling phase**:
+- Core determinism pipeline is implemented (T81Lang -> TISC -> HanoiVM -> Axion traces).
+- CanonFS/Axion runtime surfaces are implemented and covered by regression tests.
+- CI enforces cross-arch reproducibility gates and runtime-contract sync checks.
 
-"Done" for a v1.0 component means it is fully implemented per the spec, comprehensively tested, documented, and builds cleanly.
+## 2. 2026 Objectives
 
-## 2. Current Status (v1.0 Candidate)
+### P0: Production Reproducibility Surface
+- Keep deterministic build/test/repro rituals green by default.
+- Maintain cross-arch bit-identity gates for T81Lang and T3_K.
+- Keep runtime contract pinning aligned with `t81-vm`.
 
-The project has reached v1.0 feature completeness. The T81Lang compiler is stable, and the runtime environment (HanoiVM, Axion, CanonFS) is fully implemented and hardened. All 90 canonical data types are present and conform to the balanced ternary specifications. The system produces deterministic, auditable Axion traces for all operations, enabling full system verification.
+### P1: Throughput and Latency
+- Optimize multi-limb `T81BigInt` arithmetic (SIMD + algorithmic improvements).
+- Improve tensor kernel throughput on hot paths.
+- Improve CanonFS sustained throughput while preserving deterministic traces.
 
-- **Strengths:** End-to-end deterministic stack from T81Lang source to disk-backed CanonFS persistence. Robust multi-limb BigInt and high-rank tensor numerics. Comprehensive documentation and specification examples.
-- **Weaknesses:** throughput and ecosystem adoption still need work; 2026 effort remains focused on performance optimization and scaling.
+### P2: Ecosystem Adoption
+- Stabilize and expand CLI workflows (`compile`, `run`, `disasm`, `debug`, `trace replay`, `weights`).
+- Keep docs/examples synchronized with real command surfaces.
+- Expand integration pathways for downstream consumers (`t81-examples`, runtime boundary).
 
-For a detailed breakdown, see the [**System Status Report**](docs/system-status.md) and [`ANALYSIS.md`](ANALYSIS.md).
+### P3: Verification Expansion
+- Extend formal/proof-oriented coverage of arithmetic and policy invariants.
+- Expand deterministic replay and trace-equivalence checks.
 
-## 3. Strategic Priorities
+## 3. Release Discipline
 
-With the core stack stabilized, priorities shift toward ecosystem growth and high-tier cognitive applications.
+A release candidate is valid only when:
+1. `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release` succeeds.
+2. `cmake --build build --parallel` succeeds.
+3. `ctest --test-dir build --output-on-failure` passes fully.
+4. Reproducibility and runtime-contract CI gates remain green.
 
-- **[P0] Ecosystem & Tooling:** [IN PROGRESS] HanoiVM debugger and basic package manager implemented. VS Code extension scaffolded.
-- **[P1] High-Tier Cognition:** [COMPLETE] Tier 4 self-referential modeling and cognitive loops implemented and hardened with Axion. Tier 3 and 5 layers defined.
-- **[P2] Performance Optimization:** Target specific numeric and I/O bottlenecks to improve throughput for large-scale ternary workloads.
+## 4. Living Backlogs
 
-A detailed list of actionable tasks for these workstreams can be found in [`TASKS.md`](TASKS.md).
-
-## 4. Release Phases
-
-### Phase 1: Compiler Feature Completeness
-
-- **Goal:** Ship a spec-compliant T81Lang compiler with rich diagnostics and the `t81` CLI experience.
-- **Exit Criteria:** The compiler parses and type-checks the entire grammar, includes coverage for `loop`/`match` control flow, and contributes end-to-end tests for each major language feature. Compiler builds must succeed via `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release` and `cmake --build build --parallel` before any release candidate.
-
-### Phase 2: Runtime Hardening & Integration (Complete)
-
-- **Goal:** Harden the VM and integrate runtime safety layers such as Axion while validating through the required `ctest --test-dir build --output-on-failure`.
-- **Exit Criteria:** The HanoiVM memory model is complete, Axion kernel/CanonFS enforce deterministic safety (instruction counters, recursion guards), and the VM passes deterministic fault and stress tests.
-
-### Phase 3: Public v1.0 Release (Locked Down)
-
-- **Goal:** Lock down documentation, tutorials, release scripts, and contributions so the stack is ready for external adoption.
-- **Exit Criteria:** [COMPLETE] All v1.0 Definition of Done items are complete, including expanded CI (static analysis, sanitizers, fuzzing), formal verification scripts, Axion policy validation tooling, and comprehensive researcher/onboarding guides.
+- Near-term actionable work: `TASKS.md`
+- Long-horizon strategic work: `TODO.md`
+- Implementation/spec conformance notes: `ANALYSIS.md`
