@@ -232,7 +232,9 @@ Args parse_args(int argc, char* argv[]) {
         else if (arg == "-h" || arg == "--help")   { a.need_help = true; }
         else if (arg.starts_with('-')) {
             // Subcommands under these top-level commands own additional flags.
-            if (a.command == "weights" || a.command == "init" || a.command == "pkg" ||
+            if (a.command == "benchmark") {
+                a.benchmark_args.emplace_back(argv[i]);
+            } else if (a.command == "weights" || a.command == "init" || a.command == "pkg" ||
                 a.command == "repro-hash" ||
                 a.command == "policy"  || a.command == "trace") {
                 a.command_args.emplace_back(argv[i]);
@@ -278,7 +280,14 @@ int run_benchmark(const char* command_name, const Args& args) {
         return 1;
     }
 
-    std::string cmd = runner_path->string();
+    // Benchmarks intentionally trigger many overflow traps (BM_overflow_*).
+    // Mute trap stderr for this subprocess so benchmark runs don't flood logs.
+#if defined(_WIN32)
+    std::string cmd = "set T81_AXION_TRAP_STDERR=0&& ";
+#else
+    std::string cmd = "T81_AXION_TRAP_STDERR=0 ";
+#endif
+    cmd += shell_escape(runner_path->string());
     for (const auto& extra : args.benchmark_args) {
         cmd += ' ';
         cmd += shell_escape(extra);

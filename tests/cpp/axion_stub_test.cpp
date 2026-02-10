@@ -1,6 +1,8 @@
 #include <cassert>
+#include <cstdlib>
 #include <cstdint>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 #include "t81/axion/api.hpp"
@@ -69,6 +71,20 @@ int main() {
   sctx.instruction_count = 10;
   [[maybe_unused]] auto verdict_allow= cx_denied.evaluate(sctx);
   assert(verdict_allow.kind == VerdictKind::Allow);
+
+  // Overflow traps must still throw when stderr logging is suppressed.
+#if defined(_WIN32)
+  _putenv_s("T81_AXION_TRAP_STDERR", "0");
+#else
+  setenv("T81_AXION_TRAP_STDERR", "0", 1);
+#endif
+  bool threw = false;
+  try {
+    trap_overflow("test-overflow");
+  } catch (const std::overflow_error&) {
+    threw = true;
+  }
+  assert(threw);
 
   std::cout << "axion_façade tests ok\n";
   return 0;

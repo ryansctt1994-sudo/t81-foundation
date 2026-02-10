@@ -9,6 +9,8 @@
 #pragma once
 
 #include <cstdint>
+#include <cstdlib>
+#include <cstring>
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -135,7 +137,15 @@ private:
 using Context = AxionContext;
 
 [[noreturn]] inline void trap_overflow(const char* reason = "Axion overflow") {
-  std::fprintf(stderr, "Axion trap: %s\n", reason ? reason : "Axion overflow");
+  static const bool log_to_stderr = []() {
+    if (const char* v = std::getenv("T81_AXION_TRAP_STDERR")) {
+      return std::strcmp(v, "0") != 0;
+    }
+    return true;
+  }();
+  if (log_to_stderr) {
+    std::fprintf(stderr, "Axion trap: %s\n", reason ? reason : "Axion overflow");
+  }
   throw std::overflow_error(reason ? reason : "Axion overflow");
 }
 
