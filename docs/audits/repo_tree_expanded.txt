@@ -1,0 +1,2590 @@
+.
+- .clang-tidy
+- .cursorrules
+- .devcontainer
+  - devcontainer.json
+- .editorconfig
+- .gitattributes
+- .github
+  - ISSUE_TEMPLATE
+    - bug_report.md
+- .github
+  - ISSUE_TEMPLATE
+    - rfc.md
+- .github
+  - ISSUE_TEMPLATE
+    - spec_clarification.md
+- .github
+  - copilot-instructions.md
+- .github
+  - instructions
+    - spec.instructions.md
+- .github
+  - workflows
+    - bench.yml
+- .github
+  - workflows
+    - ci.yml
+- .github
+  - workflows
+    - codeql.yml
+- .github
+  - workflows
+    - pdf.yaml
+- .github
+  - workflows
+    - release.yml
+- .github
+  - workflows
+    - repro-ledger.yml
+- .github
+  - workflows
+    - runtime-contract.yml
+- .github
+  - workflows
+    - sidebar.yml
+- .github
+  - workflows
+    - static.yml
+- .github
+  - workflows
+    - t81lang-repro-hash-refresh.yml
+- .github
+  - workflows
+    - toc.yml
+- .gitignore
+- .pre-commit-config.yaml
+- AGENTS.md
+- ANALYSIS.md
+- ANALYSIS.md.archived
+- ARCHITECTURE.md
+- CHANGELOG.md
+- CLAUDE.md
+- CMakeLists.txt
+- CODEOWNERS
+- CONTRIBUTING.md
+- DESIGN.md
+- Doxyfile
+- LICENSE
+- LICENSE-GPL
+- LICENSE-MIT
+- Makefile
+- README.es.md
+- README.md
+- README.pt-BR.md
+- README.ru.md
+- README.zh-CN.md
+- ROADMAP.md
+- SECURITY.md
+- STATUS.md
+- TASKS.md
+- TODO.md
+- WHITEPAPER.md
+- _config.yaml
+- axion-guard.tisc
+- benchmarks
+  - BM_Base81SIMD.cpp
+- benchmarks
+  - BM_CanonFS.cpp
+- benchmarks
+  - BM_LimbMul.cpp
+- benchmarks
+  - BM_LlamaKernels.cpp
+- benchmarks
+  - BM_TensorMatMul.cpp
+- benchmarks
+  - CMakeLists.txt
+- benchmarks
+  - benchmark.md
+- benchmarks
+  - runner
+    - addition.cpp
+- benchmarks
+  - runner
+    - arith_throughput.cpp
+- benchmarks
+  - runner
+    - benchmark_runner.cpp
+- benchmarks
+  - runner
+    - limb_arith_throughput.cpp
+- benchmarks
+  - runner
+    - memory_bandwidth.cpp
+- benchmarks
+  - runner
+    - negation_speed.cpp
+- benchmarks
+  - runner
+    - overflow_detection.cpp
+- benchmarks
+  - runner
+    - packing_density.cpp
+- benchmarks
+  - runner
+    - roundtrip_accuracy.cpp
+- benchmarks
+  - runner
+    - t81lang_compile.cpp
+- contracts
+  - runtime-contract.json
+- docs
+  - .bundle
+    - config
+- docs
+  - T81_Foundation_Paper.tex
+- docs
+  - _config.yml
+- docs
+  - _includes
+    - sidebar.html
+- docs
+  - _includes
+    - topnav.html
+- docs
+  - _layouts
+    - default.html
+- docs
+  - _layouts
+    - page.html
+- docs
+  - _layouts
+    - spec.html
+- docs
+  - ai-quickstart.md
+- docs
+  - alignment-policy.md
+- docs
+  - archive
+    - developer-guide.md.archived
+- docs
+  - archive
+    - handover.md.archived
+- docs
+  - archive
+    - tensor-guide.md.archived
+- docs
+  - assets
+    - README.md
+- docs
+  - assets
+    - css
+      - main.css
+- docs
+  - assets
+    - img
+      - banner.png
+- docs
+  - assets
+    - js
+      - lunr.min.js
+- docs
+  - benchmarks.md
+- docs
+  - ci.md
+- docs
+  - contributing
+    - generated-artifacts.md
+- docs
+  - cpp-migration-roadmap.md
+- docs
+  - cpp-quickstart.md
+- docs
+  - debugger-guide.md
+- docs
+  - guides
+    - README.md
+- docs
+  - guides
+    - adding-a-language-feature.md
+- docs
+  - guides
+    - axion-policy-manual.md
+- docs
+  - guides
+    - axion-trace.md
+- docs
+  - guides
+    - axion-tracing-manual.md
+- docs
+  - guides
+    - axion
+      - README.md
+- docs
+  - guides
+    - base81-codecs.md
+- docs
+  - guides
+    - cli-toolkit.md
+- docs
+  - guides
+    - cli-user-manual.md
+- docs
+  - guides
+    - data-types-overview.md
+- docs
+  - guides
+    - demo-gallery.md
+- docs
+  - guides
+    - match-example.md
+- docs
+  - guides
+    - match-patterns.md
+- docs
+  - guides
+    - public-api-overview.md
+- docs
+  - guides
+    - record-enum.md
+- docs
+  - guides
+    - release-audit-manual.md
+- docs
+  - guides
+    - repro-ledger.md
+- docs
+  - guides
+    - runtime-contract-helpers.md
+- docs
+  - guides
+    - runtime-observability-manual.md
+- docs
+  - guides
+    - secure-deployment-tutorial.md
+- docs
+  - guides
+    - setun-bridge.md
+- docs
+  - guides
+    - t81lang-determinism-gates.md
+- docs
+  - guides
+    - t81lang-print-runtime.md
+- docs
+  - guides
+    - tier4-execution-contract.md
+- docs
+  - guides
+    - vector-literals.md
+- docs
+  - guides
+    - vm-opcodes.md
+- docs
+  - guides
+    - weights-integration.md
+- docs
+  - hardware-roadmap.md
+- docs
+  - index.md
+- docs
+  - jit-research.md
+- docs
+  - llama-demo-story.md
+- docs
+  - navigation.md
+- docs
+  - notes.md
+- docs
+  - onboarding.md
+- docs
+  - proposals
+    - jit-design.md
+- docs
+  - proposals
+    - t81lang-implementation-plan.md
+- docs
+  - release.md
+- docs
+  - research-guide.md
+- docs
+  - runtime-semantics-boundary.md
+- docs
+  - search
+    - README.md
+- docs
+  - search
+    - build_index.js
+- docs
+  - search
+    - search.css
+- docs
+  - search
+    - search.js
+- docs
+  - search
+    - search_index.json
+- docs
+  - spec
+- docs
+  - system-status.md
+- docs
+  - tensor-guide.md
+- docs
+  - terminology-alignment.md
+- docs
+  - tests
+- docs
+  - user-manual.md
+- examples
+  - README.md
+- examples
+  - T81Genesis.cpp
+- examples
+  - advanced_datatypes_showcase.t81
+- examples
+  - advanced_monitor.t81
+- examples
+  - all_types_showcase.t81
+- examples
+  - axion_demo.cpp
+- examples
+  - axion_guard_trace.cpp
+- examples
+  - axion_policy_runner.cpp
+- examples
+  - axion_policy_trace.cpp
+- examples
+  - bigint_demo.t81
+- examples
+  - bigint_fraction_verification.t81
+- examples
+  - canonfs_trace_demo.cpp
+- examples
+  - cell_demo.t81
+- examples
+  - data_types.t81
+- examples
+  - demo.cpp
+- examples
+  - float_demo.t81
+- examples
+  - fraction_demo.t81
+- examples
+  - graph_demo.t81
+- examples
+  - hello_world.t81
+- examples
+  - high_rank_tensor_demo.t81
+- examples
+  - ir_roundtrip.cpp
+- examples
+  - llama32_demo.cpp
+- examples
+  - match_demo.t81
+- examples
+  - matrix_demo.t81
+- examples
+  - option_result_match.t81
+- examples
+  - quaternion_demo.t81
+- examples
+  - self_patch_demo.cpp
+- examples
+  - string_demo.t81
+- examples
+  - t81_llama_bridge.hpp
+- examples
+  - tensor_demo.t81
+- examples
+  - tensor_ops.cpp
+- examples
+  - ternary_verification.t81
+- examples
+  - vector_demo.t81
+- examples
+  - weights_load_demo.t81
+- guard_match.tisc
+- include
+  - t81
+    - README.md
+- include
+  - t81
+    - axion
+      - README.md
+- include
+  - t81
+    - axion
+      - api.hpp
+- include
+  - t81
+    - axion
+      - context.hpp
+- include
+  - t81
+    - axion
+      - engine.hpp
+- include
+  - t81
+    - axion
+      - policy.hpp
+- include
+  - t81
+    - axion
+      - policy_engine.hpp
+- include
+  - t81
+    - axion
+      - reasons.hpp
+- include
+  - t81
+    - axion
+      - verdict.hpp
+- include
+  - t81
+    - bigint.hpp
+- include
+  - t81
+    - bigint
+      - divmod.hpp
+- include
+  - t81
+    - bigint
+      - gcd.hpp
+- include
+  - t81
+    - canonfs.hpp
+- include
+  - t81
+    - canonfs
+      - axion_hook.hpp
+- include
+  - t81
+    - canonfs
+      - canon_driver.hpp
+- include
+  - t81
+    - canonfs
+      - canon_types.hpp
+- include
+  - t81
+    - canonfs
+      - gf3_9.hpp
+- include
+  - t81
+    - canonfs
+      - rs_repair.hpp
+- include
+  - t81
+    - canonfs_io.hpp
+- include
+  - t81
+    - canonical.hpp
+- include
+  - t81
+    - cli
+      - driver.hpp
+- include
+  - t81
+    - cli
+      - logging.hpp
+- include
+  - t81
+    - codec
+      - README.md
+- include
+  - t81
+    - codec
+      - base243.hpp
+- include
+  - t81
+    - codec
+      - base81.hpp
+- include
+  - t81
+    - codec
+      - base81_balanced.hpp
+- include
+  - t81
+    - codec
+      - base81_packed.hpp
+- include
+  - t81
+    - codec
+      - metadata.hpp
+- include
+  - t81
+    - codec
+      - trit_packing.hpp
+- include
+  - t81
+    - cog
+      - metrics.hpp
+- include
+  - t81
+    - cog
+      - promotion.hpp
+- include
+  - t81
+    - cog
+      - tier.hpp
+- include
+  - t81
+    - cog
+      - tier4
+        - planner.hpp
+- include
+  - t81
+    - cog
+      - tier4
+        - self_model.hpp
+- include
+  - t81
+    - cog
+      - tier4
+        - tier4_loop.hpp
+- include
+  - t81
+    - config.hpp
+- include
+  - t81
+    - conversion.hpp
+- include
+  - t81
+    - core
+      - DistributedTensor.hpp
+- include
+  - t81
+    - core
+      - Option.hpp
+- include
+  - t81
+    - core
+      - README.md
+- include
+  - t81
+    - core
+      - Result.hpp
+- include
+  - t81
+    - core
+      - T81Agent.hpp
+- include
+  - t81
+    - core
+      - T81BigInt.hpp
+- include
+  - t81
+    - core
+      - T81Bytes.hpp
+- include
+  - t81
+    - core
+      - T81Category.hpp
+- include
+  - t81
+    - core
+      - T81Complex.hpp
+- include
+  - t81
+    - core
+      - T81Discovery.hpp
+- include
+  - t81
+    - core
+      - T81Entropy.hpp
+- include
+  - t81
+    - core
+      - T81Fixed.hpp
+- include
+  - t81
+    - core
+      - T81Float.hpp
+- include
+  - t81
+    - core
+      - T81Fraction.hpp
+- include
+  - t81
+    - core
+      - T81Graph.hpp
+- include
+  - t81
+    - core
+      - T81IOStream.hpp
+- include
+  - t81
+    - core
+      - T81Int.hpp
+- include
+  - t81
+    - core
+      - T81Limb.hpp
+- include
+  - t81
+    - core
+      - T81List.hpp
+- include
+  - t81
+    - core
+      - T81Map.hpp
+- include
+  - t81
+    - core
+      - T81Matrix.hpp
+- include
+  - t81
+    - core
+      - T81Maybe.hpp
+- include
+  - t81
+    - core
+      - T81Network.hpp
+- include
+  - t81
+    - core
+      - T81Polynomial.hpp
+- include
+  - t81
+    - core
+      - T81Prob.hpp
+- include
+  - t81
+    - core
+      - T81Promise.hpp
+- include
+  - t81
+    - core
+      - T81Proof.hpp
+- include
+  - t81
+    - core
+      - T81Quaternion.hpp
+- include
+  - t81
+    - core
+      - T81Qutrit.hpp
+- include
+  - t81
+    - core
+      - T81Reflection.hpp
+- include
+  - t81
+    - core
+      - T81Result.hpp
+- include
+  - t81
+    - core
+      - T81Set.hpp
+- include
+  - t81
+    - core
+      - T81Stream.hpp
+- include
+  - t81
+    - core
+      - T81String.hpp
+- include
+  - t81
+    - core
+      - T81Symbol.hpp
+- include
+  - t81
+    - core
+      - T81Tensor.hpp
+- include
+  - t81
+    - core
+      - T81Thread.hpp
+- include
+  - t81
+    - core
+      - T81Time.hpp
+- include
+  - t81
+    - core
+      - T81Tree.hpp
+- include
+  - t81
+    - core
+      - T81Uint.hpp
+- include
+  - t81
+    - core
+      - T81Vector.hpp
+- include
+  - t81
+    - core
+      - all.hpp
+- include
+  - t81
+    - core
+      - base81.hpp
+- include
+  - t81
+    - core
+      - bigint.hpp
+- include
+  - t81
+    - core
+      - cell.hpp
+- include
+  - t81
+    - core
+      - cell_packed.hpp
+- include
+  - t81
+    - core
+      - fraction.hpp
+- include
+  - t81
+    - core
+      - ids.hpp
+- include
+  - t81
+    - core
+      - packing.hpp
+- include
+  - t81
+    - core
+      - tensor.hpp
+- include
+  - t81
+    - crypto
+      - sha3.hpp
+- include
+  - t81
+    - detail
+      - README.md
+- include
+  - t81
+    - detail
+      - assert.hpp
+- include
+  - t81
+    - detail
+      - bitops.hpp
+- include
+  - t81
+    - detail
+      - bitopts.hpp
+- include
+  - t81
+    - detail
+      - msvc_compat.hpp
+- include
+  - t81
+    - entropy.hpp
+- include
+  - t81
+    - enum_meta.hpp
+- include
+  - t81
+    - fraction.hpp
+- include
+  - t81
+    - frontend
+      - README.md
+- include
+  - t81
+    - frontend
+      - ast.hpp
+- include
+  - t81
+    - frontend
+      - ir_generator.hpp
+- include
+  - t81
+    - frontend
+      - lexer.hpp
+- include
+  - t81
+    - frontend
+      - parser.hpp
+- include
+  - t81
+    - frontend
+      - semantic_analyzer.hpp
+- include
+  - t81
+    - frontend
+      - symbol_table.hpp
+- include
+  - t81
+    - hanoi
+      - error.hpp
+- include
+  - t81
+    - hanoi
+      - kernel.hpp
+- include
+  - t81
+    - hanoi
+      - types.hpp
+- include
+  - t81
+    - hash
+      - README.md
+- include
+  - t81
+    - hash
+      - base81.hpp
+- include
+  - t81
+    - hash
+      - canonhash.hpp
+- include
+  - t81
+    - io
+      - tensor_loader.hpp
+- include
+  - t81
+    - ir
+      - README.md
+- include
+  - t81
+    - ir
+      - encoding.hpp
+- include
+  - t81
+    - ir
+      - insn.hpp
+- include
+  - t81
+    - ir
+      - opcodes.hpp
+- include
+  - t81
+    - lang
+      - ast.hpp
+- include
+  - t81
+    - lang
+      - compiler.hpp
+- include
+  - t81
+    - lang
+      - numeric_format.hpp
+- include
+  - t81
+    - lang
+      - parser.hpp
+- include
+  - t81
+    - lang
+      - types.hpp
+- include
+  - t81
+    - native.hpp
+- include
+  - t81
+    - packing.hpp
+- include
+  - t81
+    - setun
+      - bridge.hpp
+- include
+  - t81
+    - simd
+      - add_helpers.hpp
+- include
+  - t81
+    - simd
+      - base81_digits.hpp
+- include
+  - t81
+    - simd
+      - prefix_scan.hpp
+- include
+  - t81
+    - support
+      - expected.hpp
+- include
+  - t81
+    - t81.hpp
+- include
+  - t81
+    - tensor.hpp
+- include
+  - t81
+    - tensor
+      - README.md
+- include
+  - t81
+    - tensor
+      - broadcast.hpp
+- include
+  - t81
+    - tensor
+      - elementwise.hpp
+- include
+  - t81
+    - tensor
+      - io
+        - tensor_loader.hpp
+- include
+  - t81
+    - tensor
+      - llama.hpp
+- include
+  - t81
+    - tensor
+      - matmul.hpp
+- include
+  - t81
+    - tensor
+      - ops.hpp
+- include
+  - t81
+    - tensor
+      - reduce.hpp
+- include
+  - t81
+    - tensor
+      - reshape.hpp
+- include
+  - t81
+    - tensor
+      - shape.hpp
+- include
+  - t81
+    - tensor
+      - slice.hpp
+- include
+  - t81
+    - tensor
+      - stats.hpp
+- include
+  - t81
+    - tensor
+      - transpose.hpp
+- include
+  - t81
+    - tensor
+      - unary.hpp
+- include
+  - t81
+    - ternary.hpp
+- include
+  - t81
+    - ternary
+      - README.md
+- include
+  - t81
+    - ternary
+      - arith.hpp
+- include
+  - t81
+    - tisc
+      - README.md
+- include
+  - t81
+    - tisc
+      - base81_view.hpp
+- include
+  - t81
+    - tisc
+      - binary.hpp
+- include
+  - t81
+    - tisc
+      - binary_emitter.hpp
+- include
+  - t81
+    - tisc
+      - binary_io.hpp
+- include
+  - t81
+    - tisc
+      - encoding.hpp
+- include
+  - t81
+    - tisc
+      - ir.hpp
+- include
+  - t81
+    - tisc
+      - opcodes.hpp
+- include
+  - t81
+    - tisc
+      - pretty_printer.hpp
+- include
+  - t81
+    - tisc
+      - program.hpp
+- include
+  - t81
+    - tisc
+      - type_alias.hpp
+- include
+  - t81
+    - traits.hpp
+- include
+  - t81
+    - transpose.hpp
+- include
+  - t81
+    - vm
+      - README.md
+- include
+  - t81
+    - vm
+      - jit.hpp
+- include
+  - t81
+    - vm
+      - state.hpp
+- include
+  - t81
+    - vm
+      - traps.hpp
+- include
+  - t81
+    - vm
+      - vm.hpp
+- include
+  - t81
+    - weights.hpp
+- legacy
+  - hanoivm
+    - BUILD.bazel
+- legacy
+  - hanoivm
+    - Cargo.toml
+- legacy
+  - hanoivm
+    - LICENSE
+- legacy
+  - hanoivm
+    - MODULE.bazel
+- legacy
+  - hanoivm
+    - Makefile
+- legacy
+  - hanoivm
+    - README.md
+- legacy
+  - hanoivm
+    - ci.yml
+- legacy
+  - hanoivm
+    - config.cweb
+- legacy
+  - hanoivm
+    - docs
+      - CHANGELOG.md
+- legacy
+  - hanoivm
+    - docs
+      - MANIFESTO.md
+- legacy
+  - hanoivm
+    - docs
+      - README.cweb
+- legacy
+  - hanoivm
+    - docs
+      - ROADMAP.md
+- legacy
+  - hanoivm
+    - docs
+      - STATUS.md
+- legacy
+  - hanoivm
+    - docs
+      - t243_t729.md
+- legacy
+  - hanoivm
+    - package.cwebpkg
+- legacy
+  - hanoivm
+    - scripts
+      - build-all.cweb
+- legacy
+  - hanoivm
+    - scripts
+      - install.cwebpkg.sh
+- legacy
+  - hanoivm
+    - scripts
+      - tangle-all.sh
+- legacy
+  - hanoivm
+    - scripts
+      - test.md
+- legacy
+  - hanoivm
+    - src
+      - README.md
+- legacy
+  - hanoivm
+    - src
+      - axion_ai
+        - README.md
+- legacy
+  - hanoivm
+    - src
+      - axion_ai
+        - ai_hook.cweb
+- legacy
+  - hanoivm
+    - src
+      - axion_ai
+        - axion-ai.cweb
+- legacy
+  - hanoivm
+    - src
+      - axion_ai
+        - axion-gaia-interface.cweb
+- legacy
+  - hanoivm
+    - src
+      - axion_ai
+        - axion_api.cweb
+- legacy
+  - hanoivm
+    - src
+      - axion_ai
+        - axion_gpu_request.cweb
+- legacy
+  - hanoivm
+    - src
+      - axion_ai
+        - meta.cweb
+- legacy
+  - hanoivm
+    - src
+      - axion_ai
+        - telemetry-cli.cweb
+- legacy
+  - hanoivm
+    - src
+      - axion_ai
+        - telemetry.json
+- legacy
+  - hanoivm
+    - src
+      - disassembler
+        - README.md
+- legacy
+  - hanoivm
+    - src
+      - disassembler
+        - disasm_hvm.cweb
+- legacy
+  - hanoivm
+    - src
+      - disassembler
+        - disassembler.cweb
+- legacy
+  - hanoivm
+    - src
+      - disassembler
+        - ghidra_hvm_plugin.cweb
+- legacy
+  - hanoivm
+    - src
+      - gpu
+        - README.md
+- legacy
+  - hanoivm
+    - src
+      - gpu
+        - cuda_handle_request.cweb
+- legacy
+  - hanoivm
+    - src
+      - gpu
+        - gaia_handle_request.cweb
+- legacy
+  - hanoivm
+    - src
+      - gpu
+        - hvm_pcie_driver.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - README.md
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - advanced_ops.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - advanced_ops_ext.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - hanoivm-core.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - hanoivm-runtime.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - hanoivm_cli.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - hanoivm_fsm.v
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - hanoivm_vm.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - hvm_firmware_entry.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - hvm_interpreter.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - hvm_loader.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - hvm_promotion.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - hvmcli.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - main_driver.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - recursive_tier_execution.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - simple_add.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - t81_patterns.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - t81_stack.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - t81recursion.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - t81recursion.h
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - ternary_arithmetic_optimization.cweb
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - ternary_base.h
+- legacy
+  - hanoivm
+    - src
+      - hanoivm_core
+        - write_simple_add.cweb
+- legacy
+  - hanoivm
+    - src
+      - lib
+        - README.md
+- legacy
+  - hanoivm
+    - src
+      - lib
+        - hvm-trit-util.cweb
+- legacy
+  - hanoivm
+    - src
+      - lib
+        - libt243.cweb
+- legacy
+  - hanoivm
+    - src
+      - lib
+        - libt729.cweb
+- legacy
+  - hanoivm
+    - src
+      - lib
+        - libt81.cweb
+- legacy
+  - hanoivm
+    - src
+      - lib
+        - nist_encryption.cweb
+- legacy
+  - hanoivm
+    - src
+      - lib
+        - t243_to_t729.cweb
+- legacy
+  - hanoivm
+    - src
+      - lib
+        - t243bigint.cweb
+- legacy
+  - hanoivm
+    - src
+      - lib
+        - t729tensor.cweb
+- legacy
+  - hanoivm
+    - src
+      - lib
+        - t729tensor_loader.cweb
+- legacy
+  - hanoivm
+    - src
+      - lib
+        - t729tensor_reshape.cweb
+- legacy
+  - hanoivm
+    - src
+      - lib
+        - t729tensor_slice.cweb
+- legacy
+  - hanoivm
+    - src
+      - lib
+        - t729tensor_to_string.cweb
+- legacy
+  - hanoivm
+    - src
+      - lib
+        - t729tensor_transpose.cweb
+- legacy
+  - hanoivm
+    - src
+      - lib
+        - t81_types_support.cweb
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - README.md
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - T81InstrFormats.td
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - T81InstrInfo.td
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - T81RegisterInfo.td
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - emit_hvm.cweb
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - hvm_assembler.cweb
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - slang_grammer.ebnf
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - t81_codegen.cweb
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - t81_compile.py
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - t81_llvm_backend.cweb
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - t81_to_hvm.cweb
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - t81asm.cweb
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - t81lang_compiler.cweb
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - t81lang_grammar.cweb
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - t81lang_irgen.cweb
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - t81lang_lexer.cweb
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - t81lang_parser.cweb
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - t81lang_semantic.cweb
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - tisc_backend.cweb
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - tisc_compiler.cweb
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - tisc_ir.cweb
+- legacy
+  - hanoivm
+    - src
+      - t81lang_compiler
+        - tisc_stdlib.cweb
+- legacy
+  - hanoivm
+    - src
+      - visualization
+        - FrameSceneBuilder.cweb
+- legacy
+  - hanoivm
+    - src
+      - visualization
+        - logviewer.cweb
+- legacy
+  - hanoivm
+    - src
+      - visualization
+        - recursion_exporter.cweb
+- notebooks
+  - 00_t81_orientation.ipynb
+- notebooks
+  - 01_balanced_ternary_playground.ipynb
+- notebooks
+  - 02_t81vm_trace_walkthrough.ipynb
+- package-lock.json
+- package.json
+- pdf
+  - HEXANARY - T2187DataTypes.pdf
+- pdf
+  - OCTANARY - T19683DataTypes.pdf
+- pdf
+  - PENTANARY - T729DataTypes.pdf
+- pdf
+  - QUATERNARY - T243DataTypes.pdf
+- pdf
+  - SEENARY - T81Bridge.pdf
+- pdf
+  - SEPTANARY - T6561DataTypes.pdf
+- pdf
+  - SETNARY - T81Setun.pdf
+- pdf
+  - TANNARY - T81Applications.pdf
+- pdf
+  - TENNARY - T81Promo.pdf
+- pdf
+  - TERNARY - T81Lang.pdf
+- pdf
+  - TOPNARY - T81Ternary.pdf
+- pdf
+  - TRCNARY - T81TrinaryExplorations.pdf
+- pdf
+  - TRENARY - T81TISC.pdf
+- pdf
+  - TRUNARY - T81Eratta.pdf
+- pdf
+  - TRYNARY - T81AxionAI.pdf
+- pdf
+  - TYNARY - T81Source.pdf
+- pdf
+  - TYRNARY - T81Analysis.pdf
+- "pdf
+  - T\316\251NARY \342\200\223 T81Recursive AGI Codex.pdf"
+- pdf
+  - build.sh
+- pdf
+  - metadata.yaml
+- pdf
+  - output
+    - test.md
+- pdf
+  - template.tex
+- policy
+  - guards.axion
+- policy
+  - tier4_alignment.axion
+- pyproject.toml
+- scripts
+  - capture-axion-trace.sh
+- scripts
+  - check-runtime-contract-sync.py
+- scripts
+  - ci
+    - check_architecture_targets.py
+- scripts
+  - ci
+    - generate_repro_dashboard.py
+- scripts
+  - ci
+    - t3k_repro_gate.py
+- scripts
+  - ci
+    - t81lang_repro_gate.py
+- scripts
+  - generate_sidebar.py
+- scripts
+  - inject_toc.py
+- scripts
+  - reproduce-llama-demo.sh
+- scripts
+  - run-canonical-runtime-demo.sh
+- scripts
+  - run-demos.sh
+- scripts
+  - verify-llama-demo.sh
+- scripts
+  - verify_ternary_logic.py
+- scripts
+  - weights-benchmark.sh
+- spec
+  - README.md
+- spec
+  - axion-kernel.md
+- spec
+  - axion-policy-grammar.md
+- spec
+  - canonfs-spec.md
+- spec
+  - cognitive-tiers.md
+- spec
+  - constitution.md
+- spec
+  - cpp-mapping.md
+- spec
+  - hanoi-kernel-spec.md
+- spec
+  - index.md
+- spec
+  - rfcs
+    - RFC-0000-t81-base-81-ternary-computing-stack.md
+- spec
+  - rfcs
+    - RFC-0001-architecture-principles.md
+- spec
+  - rfcs
+    - RFC-0002-deterministic-execution-contract.md
+- spec
+  - rfcs
+    - RFC-0003-axion-safety-model.md
+- spec
+  - rfcs
+    - RFC-0004-canonical-tensor-semantics.md
+- spec
+  - rfcs
+    - RFC-0005-tisc-v0-4-extensions.md
+- spec
+  - rfcs
+    - RFC-0006-deterministic-gc.md
+- spec
+  - rfcs
+    - RFC-0007-t81lang-standard-library.md
+- spec
+  - rfcs
+    - RFC-0008-formal-verification-harness.md
+- spec
+  - rfcs
+    - RFC-0009-axion-policy-language.md
+- spec
+  - rfcs
+    - RFC-0010-tisc-float-fraction-ops.md
+- spec
+  - rfcs
+    - RFC-0011-t81lang-grammar-update.md
+- spec
+  - rfcs
+    - RFC-0012-ternary-tensor-quantization.md
+- spec
+  - rfcs
+    - RFC-0013-ternary-matmul.md
+- spec
+  - rfcs
+    - RFC-0014-neural-primitives.md
+- spec
+  - rfcs
+    - RFC-0015-agentic-constructs.md
+- spec
+  - rfcs
+    - RFC-0016-t81-simd-limb.md
+- spec
+  - rfcs
+    - RFC-0017-introduce-t81-native.md
+- spec
+  - rfcs
+    - RFC-0018-t81-native-simd-arith.md
+- spec
+  - rfcs
+    - RFC-0019-axion-match-logging.md
+- spec
+  - rfcs
+    - RFC-0020-axion-segment-trace.md
+- spec
+  - rfcs
+    - RFC-0021-tier4-cognition.md
+- spec
+  - rfcs
+    - RFC-0022-axion-policy-language.md
+- spec
+  - rfcs
+    - RFC-0023-t81lang-print-canonical-runtime.md
+- spec
+  - rfcs
+    - index.md
+- spec
+  - spec
+    - README.md
+- spec
+  - spec
+    - t81-spec.md
+- spec
+  - t81-data-types.md
+- spec
+  - t81-overview.md
+- spec
+  - t81lang-spec.md
+- spec
+  - t81vm-spec.md
+- spec
+  - tisc-spec.md
+- src
+  - axion
+    - README.md
+- src
+  - axion
+    - axion_api.cpp
+- src
+  - axion
+    - axion_api.hpp
+- src
+  - axion
+    - axion_kernel.hpp
+- src
+  - axion
+    - axion_signal.hpp
+- src
+  - axion
+    - engine.cpp
+- src
+  - axion
+    - policy_engine.cpp
+- src
+  - axion
+    - policy_serialization.cpp
+- src
+  - bigint
+    - divmod.cpp
+- src
+  - bigint
+    - gcd.cpp
+- src
+  - c_api
+    - README.md
+- src
+  - c_api
+    - t81_c_api.cpp
+- src
+  - c_api
+    - t81_c_api.h
+- src
+  - canonfs
+    - README.md
+- src
+  - canonfs
+    - axion_hook.cpp
+- src
+  - canonfs
+    - in_memory_driver.cpp
+- src
+  - canonfs
+    - persistent_driver.cpp
+- src
+  - cli
+    - debugger.cpp
+- src
+  - cli
+    - debugger.hpp
+- src
+  - cli
+    - driver.cpp
+- src
+  - cli
+    - main.cpp
+- src
+  - codec
+    - base243.cpp
+- src
+  - codec
+    - base81.cpp
+- src
+  - codec
+    - base81_balanced.cpp
+- src
+  - codec
+    - base81_packed.cpp
+- src
+  - codec
+    - metadata.cpp
+- src
+  - codec
+    - trit_packing.cpp
+- src
+  - cog
+    - promotion.cpp
+- src
+  - cog
+    - tier4
+      - tier4_loop.cpp
+- src
+  - core
+    - bigint.cpp
+- src
+  - core
+    - fraction.cpp
+- src
+  - crypto
+    - sha3.cpp
+- src
+  - data_types
+    - test.md
+- src
+  - frontend
+    - README.md
+- src
+  - frontend
+    - lexer.cpp
+- src
+  - frontend
+    - parser.cpp
+- src
+  - frontend
+    - semantic_analyzer.cpp
+- src
+  - frontend
+    - symbol_table.cpp
+- src
+  - hanoi
+    - error.cpp
+- src
+  - hanoi
+    - in_memory_kernel.cpp
+- src
+  - hash
+    - canonhash81.cpp
+- src
+  - io
+    - README.md
+- src
+  - io
+    - tensor_loader.cpp
+- src
+  - lang
+    - test.md
+- src
+  - main.c
+- src
+  - python
+    - t81_python.cpp
+- src
+  - setun
+    - bridge.cpp
+- src
+  - simd
+    - base81_digits_avx2.cpp
+- src
+  - t81_core.h
+- src
+  - tensor
+    - stats.cpp
+- src
+  - tiers
+    - test.md
+- src
+  - tisc
+    - README.md
+- src
+  - tisc
+    - base81_view.cpp
+- src
+  - tisc
+    - binary_emitter.cpp
+- src
+  - tisc
+    - binary_io.cpp
+- src
+  - tisc
+    - encoding.cpp
+- src
+  - tisc
+    - pretty_printer.cpp
+- src
+  - tisc
+    - test.md
+- src
+  - tools
+    - weights.cpp
+- src
+  - tools
+    - weights_t81w_emitter.cpp
+- src
+  - vm
+    - README.md
+- src
+  - vm
+    - jit_compiler.cpp
+- src
+  - vm
+    - test.md
+- src
+  - vm
+    - vm.cpp
+- ternary_verification.tisc
+- tests
+  - README.md
+- tests
+  - cpp
+    - README.md
+- tests
+  - cpp
+    - axion_enum_guard_test.cpp
+- tests
+  - cpp
+    - axion_heap_compaction_trace_test.cpp
+- tests
+  - cpp
+    - axion_instruction_counter_test.cpp
+- tests
+  - cpp
+    - axion_log_determinism_test.cpp
+- tests
+  - cpp
+    - axion_loop_metadata_test.cpp
+- tests
+  - cpp
+    - axion_match_metadata_test.cpp
+- tests
+  - cpp
+    - axion_nested_guard_test.cpp
+- tests
+  - cpp
+    - axion_policy_bytecode_test.cpp
+- tests
+  - cpp
+    - axion_policy_gc_trace_test.cpp
+- tests
+  - cpp
+    - axion_policy_match_guard_test.cpp
+- tests
+  - cpp
+    - axion_policy_segment_event_test.cpp
+- tests
+  - cpp
+    - axion_recursion_guardrails_test.cpp
+- tests
+  - cpp
+    - axion_segment_trace_test.cpp
+- tests
+  - cpp
+    - axion_stub_test.cpp
+- tests
+  - cpp
+    - bigint_perf_guardrail_test.cpp
+- tests
+  - cpp
+    - bigint_roundtrip.cpp
+- tests
+  - cpp
+    - c_api_bigint_test.c
+- tests
+  - cpp
+    - canonfs_axion_trace_test.cpp
+- tests
+  - cpp
+    - canonfs_driver_test.cpp
+- tests
+  - cpp
+    - canonfs_io_test.cpp
+- tests
+  - cpp
+    - canonfs_persistent_driver_test.cpp
+- tests
+  - cpp
+    - cli_check_test.cpp
+- tests
+  - cpp
+    - cli_diagnostic_context_test.cpp
+- tests
+  - cpp
+    - cli_disasm_test.cpp
+- tests
+  - cpp
+    - cli_e2e_test.cpp
+- tests
+  - cpp
+    - cli_option_result_test.cpp
+- tests
+  - cpp
+    - cli_pipeline_test.cpp
+- tests
+  - cpp
+    - cli_record_enum_test.cpp
+- tests
+  - cpp
+    - cli_repl_test.cpp
+- tests
+  - cpp
+    - cli_repro_hash_test.cpp
+- tests
+  - cpp
+    - cli_structural_types_test.cpp
+- tests
+  - cpp
+    - codec_base243_test.cpp
+- tests
+  - cpp
+    - codec_base81_test.cpp
+- tests
+  - cpp
+    - comprehensive_test.cpp
+- tests
+  - cpp
+    - distributed_tensor_test.cpp
+- tests
+  - cpp
+    - e2e_advanced_features_test.cpp
+- tests
+  - cpp
+    - e2e_arithmetic_test.cpp
+- tests
+  - cpp
+    - e2e_ast_ir_canonical_determinism_test.cpp
+- tests
+  - cpp
+    - e2e_axion_trace_test.cpp
+- tests
+  - cpp
+    - e2e_compile_determinism_test.cpp
+- tests
+  - cpp
+    - e2e_if_statement_test.cpp
+- tests
+  - cpp
+    - e2e_let_statement_test.cpp
+- tests
+  - cpp
+    - e2e_loop_statement_test.cpp
+- tests
+  - cpp
+    - e2e_match_expression_test.cpp
+- tests
+  - cpp
+    - e2e_match_metadata_determinism_test.cpp
+- tests
+  - cpp
+    - e2e_option_result_function_test.cpp
+- tests
+  - cpp
+    - e2e_option_result_test.cpp
+- tests
+  - cpp
+    - e2e_option_type_test.cpp
+- tests
+  - cpp
+    - e2e_print_runtime_test.cpp
+- tests
+  - cpp
+    - entropy_test.cpp
+- tests
+  - cpp
+    - expected_test.cpp
+- tests
+  - cpp
+    - fraction_roundtrip.cpp
+- tests
+  - cpp
+    - frontend_fuzz_test.cpp
+- tests
+  - cpp
+    - frontend_ir_generator_relation_test.cpp
+- tests
+  - cpp
+    - frontend_ir_generator_test.cpp
+- tests
+  - cpp
+    - frontend_lexer_test.cpp
+- tests
+  - cpp
+    - frontend_parser_generics_test.cpp
+- tests
+  - cpp
+    - frontend_parser_legacy_rejection_test.cpp
+- tests
+  - cpp
+    - frontend_parser_test.cpp
+- tests
+  - cpp
+    - hanoi_integration_test.cpp
+- tests
+  - cpp
+    - hash_stub_test.cpp
+- tests
+  - cpp
+    - ir_encoding_test.cpp
+- tests
+  - cpp
+    - jit_tensor_trace_equivalence_test.cpp
+- tests
+  - cpp
+    - jit_test.cpp
+- tests
+  - cpp
+    - jit_trace_equivalence_test.cpp
+- tests
+  - cpp
+    - lang_literal_pool_test.cpp
+- tests
+  - cpp
+    - llama_kernels_test.cpp
+- tests
+  - cpp
+    - performance_advancements_test.cpp
+- tests
+  - cpp
+    - reflection_non_interference_test.cpp
+- tests
+  - cpp
+    - semantic_analyzer_equality_test.cpp
+- tests
+  - cpp
+    - semantic_analyzer_generic_test.cpp
+- tests
+  - cpp
+    - semantic_analyzer_loop_test.cpp
+- tests
+  - cpp
+    - semantic_analyzer_match_test.cpp
+- tests
+  - cpp
+    - semantic_analyzer_numeric_test.cpp
+- tests
+  - cpp
+    - semantic_analyzer_option_result_test.cpp
+- tests
+  - cpp
+    - semantic_analyzer_record_enum_test.cpp
+- tests
+  - cpp
+    - semantic_analyzer_vector_literal_test.cpp
+- tests
+  - cpp
+    - setun_bridge_test.cpp
+- tests
+  - cpp
+    - t81_numeric_format_test.cpp
+- tests
+  - cpp
+    - t81lang_conformance_baseline_test.cpp
+- tests
+  - cpp
+    - tensor_backend_parity_test.cpp
+- tests
+  - cpp
+    - tensor_broadcast_test.cpp
+- tests
+  - cpp
+    - tensor_elementwise_test.cpp
+- tests
+  - cpp
+    - tensor_loader_test.cpp
+- tests
+  - cpp
+    - tensor_matmul_test.cpp
+- tests
+  - cpp
+    - tensor_reduce_test.cpp
+- tests
+  - cpp
+    - tensor_reshape_test.cpp
+- tests
+  - cpp
+    - tensor_shape_test.cpp
+- tests
+  - cpp
+    - tensor_slice_test.cpp
+- tests
+  - cpp
+    - tensor_ternary_test.cpp
+- tests
+  - cpp
+    - tensor_transpose_test.cpp
+- tests
+  - cpp
+    - tensor_unary_test.cpp
+- tests
+  - cpp
+    - ternary_arith_test.cpp
+- tests
+  - cpp
+    - test_T81Bytes.cpp
+- tests
+  - cpp
+    - test_T81Complex.cpp
+- tests
+  - cpp
+    - test_T81Fixed.cpp
+- tests
+  - cpp
+    - test_T81Float.cpp
+- tests
+  - cpp
+    - test_T81List.cpp
+- tests
+  - cpp
+    - test_T81Map.cpp
+- tests
+  - cpp
+    - test_T81Matrix.cpp
+- tests
+  - cpp
+    - test_T81Maybe.cpp
+- tests
+  - cpp
+    - test_T81Prob.cpp
+- tests
+  - cpp
+    - test_T81Quaternion.cpp
+- tests
+  - cpp
+    - test_T81Qutrit.cpp
+- tests
+  - cpp
+    - test_T81Result.cpp
+- tests
+  - cpp
+    - test_T81Set.cpp
+- tests
+  - cpp
+    - test_T81String.cpp
+- tests
+  - cpp
+    - test_T81Symbol.cpp
+- tests
+  - cpp
+    - test_T81Tensor_transpose.cpp
+- tests
+  - cpp
+    - test_T81Time.cpp
+- tests
+  - cpp
+    - test_T81Tree.cpp
+- tests
+  - cpp
+    - test_T81Uint.cpp
+- tests
+  - cpp
+    - test_T81Vector.cpp
+- tests
+  - cpp
+    - test_axion_recursion_limit_ext.cpp
+- tests
+  - cpp
+    - test_base81_balanced.cpp
+- tests
+  - cpp
+    - test_base81_packed.cpp
+- tests
+  - cpp
+    - test_base81_simd.cpp
+- tests
+  - cpp
+    - test_bigint_multilimb_ext.cpp
+- tests
+  - cpp
+    - test_bigint_v1_baseline.cpp
+- tests
+  - cpp
+    - test_bigint_v1_perf.cpp
+- tests
+  - cpp
+    - test_division.cpp
+- tests
+  - cpp
+    - test_metadata.cpp
+- tests
+  - cpp
+    - test_t81_limb54_add.cpp
+- tests
+  - cpp
+    - test_t81_limb54_booth_mul.cpp
+- tests
+  - cpp
+    - test_t81_limb_add.cpp
+- tests
+  - cpp
+    - test_t81_limb_bohemian_add.cpp
+- tests
+  - cpp
+    - test_t81_limb_bohemian_mul.cpp
+- tests
+  - cpp
+    - test_t81_limb_booth_mul.cpp
+- tests
+  - cpp
+    - test_t81_limb_mul_wide_high.cpp
+- tests
+  - cpp
+    - test_t81_native_arith.cpp
+- tests
+  - cpp
+    - test_t81_native_conversion.cpp
+- tests
+  - cpp
+    - test_t81_simd_add_helpers.cpp
+- tests
+  - cpp
+    - test_t81int.cpp
+- tests
+  - cpp
+    - test_t81int_to_binary.cpp
+- tests
+  - cpp
+    - test_tisc_base81_view.cpp
+- tests
+  - cpp
+    - test_utils.hpp
+- tests
+  - cpp
+    - tier4_test.cpp
+- tests
+  - cpp
+    - tier4_vm_test.cpp
+- tests
+  - cpp
+    - tisc_binary_emitter_test.cpp
+- tests
+  - cpp
+    - tisc_binary_io_determinism_test.cpp
+- tests
+  - cpp
+    - tisc_encoding_test.cpp
+- tests
+  - cpp
+    - tisc_opcode_matrix_test.cpp
+- tests
+  - cpp
+    - tisc_type_alias_io_test.cpp
+- tests
+  - cpp
+    - trit_packing_test.cpp
+- tests
+  - cpp
+    - vm_bounds_test.cpp
+- tests
+  - cpp
+    - vm_bounds_trace_test.cpp
+- tests
+  - cpp
+    - vm_divmod_test.cpp
+- tests
+  - cpp
+    - vm_extended_ops_test.cpp
+- tests
+  - cpp
+    - vm_fault_test.cpp
+- tests
+  - cpp
+    - vm_float_fraction_ops_test.cpp
+- tests
+  - cpp
+    - vm_illegal_test.cpp
+- tests
+  - cpp
+    - vm_jump_flags_test.cpp
+- tests
+  - cpp
+    - vm_load_store_test.cpp
+- tests
+  - cpp
+    - vm_memory_test.cpp
+- tests
+  - cpp
+    - vm_neg_jumps_test.cpp
+- tests
+  - cpp
+    - vm_print_test.cpp
+- tests
+  - cpp
+    - vm_reflection_test.cpp
+- tests
+  - cpp
+    - vm_tensor_test.cpp
+- tests
+  - cpp
+    - vm_trace_test.cpp
+- tests
+  - cpp
+    - weights_load_test.cpp
+- tests
+  - cpp
+    - weights_quantize_test.cpp
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 01_bigint_add.out
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 01_bigint_add.t81
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 02_fraction_sub.out
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 02_fraction_sub.t81
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 03_float_literal.out
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 03_float_literal.t81
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 04_mixed_widen_float.out
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 04_mixed_widen_float.t81
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 05_bool_and_string.out
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 05_bool_and_string.t81
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 06_mixed_widen_fraction.out
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 06_mixed_widen_fraction.t81
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 07_if_else_print.out
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 07_if_else_print.t81
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 08_bounded_loop_print.out
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 08_bounded_loop_print.t81
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 09_nested_if_print.out
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 09_nested_if_print.t81
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 10_relation_bool_print.out
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 10_relation_bool_print.t81
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 11_match_option_some_print.out
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 11_match_option_some_print.t81
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 12_match_option_guard_print.out
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 12_match_option_guard_print.t81
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 13_match_enum_payload_guard_print.out
+- tests
+  - fixtures
+    - t81lang_determinism
+      - 13_match_enum_payload_guard_print.t81
+- tests
+  - fixtures
+    - t81lang_determinism
+      - t81lang_ast_ir_repro_hash.txt
+- tests
+  - fixtures
+    - t81lang_determinism
+      - t81lang_repro_hash.txt
+- tests
+  - harness
+    - README.md
+- tests
+  - harness
+    - canonical
+      - bigint.json
+- tests
+  - harness
+    - canonical
+      - fraction.json
+- tests
+  - harness
+    - canonical
+      - tensor.json
+- tests
+  - harness
+    - harness.py
+- tests
+  - harness
+    - run_all.sh
+- tests
+  - harness
+    - test_vectors
+      - arithmetic.t81
+- tests
+  - harness
+    - test_vectors
+      - control_flow.t81
+- tests
+  - harness
+    - test_vectors
+      - faults.t81
+- tests
+  - harness
+    - test_vectors
+      - lang_samples
+        - fib.t81
+- tests
+  - harness
+    - test_vectors
+      - lang_samples
+        - hello_world.t81
+- tests
+  - harness
+    - test_vectors
+      - lang_samples
+        - tensors.t81
+- tests
+  - harness
+    - test_vectors
+      - memory.t81
+- tests
+  - harness
+    - test_vectors
+      - privileged_ops.t81
+- tests
+  - harness
+    - test_vectors
+      - recursion.t81
+- tests
+  - harness
+    - test_vectors
+      - tensor_ops.t81
+- tests
+  - python
+    - test_bindings.py
+- tests
+  - python
+    - test_tensor.py
+- tools
+  - axion_policy_validator.py
+- tools
+  - ir_inspector.cpp
+- tools
+  - tisc_base81.cpp
+- tools
+  - validator.py
+- tools
+  - vscode-t81
+    - language-configuration.json
+- tools
+  - vscode-t81
+    - package.json
+- tools
+  - vscode-t81
+    - syntaxes
+      - t81.tmLanguage.json
+- verify.tisc

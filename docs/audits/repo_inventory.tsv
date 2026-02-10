@@ -1,0 +1,809 @@
+path	category	relevance	essentiality	note
+.clang-tidy	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+.cursorrules	misc	support	optional	
+.devcontainer/devcontainer.json	dev_env	developer onboarding	optional	Containerized dev env
+.editorconfig	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+.gitattributes	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+.github/ISSUE_TEMPLATE/bug_report.md	misc	support	optional	
+.github/ISSUE_TEMPLATE/rfc.md	misc	support	optional	
+.github/ISSUE_TEMPLATE/spec_clarification.md	misc	support	optional	
+.github/copilot-instructions.md	misc	support	optional	
+.github/instructions/spec.instructions.md	misc	support	optional	
+.github/workflows/bench.yml	ci	automation	essential	CI/CD and policy gates
+.github/workflows/ci.yml	ci	automation	essential	CI/CD and policy gates
+.github/workflows/codeql.yml	ci	automation	essential	CI/CD and policy gates
+.github/workflows/pdf.yaml	ci	automation	essential	CI/CD and policy gates
+.github/workflows/release.yml	ci	automation	essential	CI/CD and policy gates
+.github/workflows/repro-ledger.yml	ci	automation	essential	CI/CD and policy gates
+.github/workflows/runtime-contract.yml	ci	automation	essential	CI/CD and policy gates
+.github/workflows/sidebar.yml	ci	automation	essential	CI/CD and policy gates
+.github/workflows/static.yml	ci	automation	essential	CI/CD and policy gates
+.github/workflows/t81lang-repro-hash-refresh.yml	ci	automation	essential	CI/CD and policy gates
+.github/workflows/toc.yml	ci	automation	essential	CI/CD and policy gates
+.gitignore	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+.pre-commit-config.yaml	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+AGENTS.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+ANALYSIS.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+ANALYSIS.md.archived	archived	historical	redundant_candidate	Archived superseded doc
+ARCHITECTURE.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+CHANGELOG.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+CLAUDE.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+CMakeLists.txt	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+CODEOWNERS	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+CONTRIBUTING.md	misc	support	optional	
+DESIGN.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+Doxyfile	misc	support	optional	
+LICENSE	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+LICENSE-GPL	misc	support	optional	
+LICENSE-MIT	misc	support	optional	
+Makefile	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+README.es.md	misc	support	optional	
+README.md	misc	support	optional	
+README.pt-BR.md	misc	support	optional	
+README.ru.md	misc	support	optional	
+README.zh-CN.md	misc	support	optional	
+ROADMAP.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+SECURITY.md	misc	support	optional	
+STATUS.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+TASKS.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+TODO.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+WHITEPAPER.md	misc	support	optional	
+_config.yaml	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+axion-guard.tisc	misc	support	optional	
+benchmarks/BM_Base81SIMD.cpp	benchmark	performance	optional	Perf measurement tooling
+benchmarks/BM_CanonFS.cpp	benchmark	performance	optional	Perf measurement tooling
+benchmarks/BM_LimbMul.cpp	benchmark	performance	optional	Perf measurement tooling
+benchmarks/BM_LlamaKernels.cpp	benchmark	performance	optional	Perf measurement tooling
+benchmarks/BM_TensorMatMul.cpp	benchmark	performance	optional	Perf measurement tooling
+benchmarks/CMakeLists.txt	benchmark	performance	optional	Perf measurement tooling
+benchmarks/benchmark.md	benchmark	performance	optional	Perf measurement tooling
+benchmarks/runner/addition.cpp	benchmark	performance	optional	Perf measurement tooling
+benchmarks/runner/arith_throughput.cpp	benchmark	performance	optional	Perf measurement tooling
+benchmarks/runner/benchmark_runner.cpp	benchmark	performance	optional	Perf measurement tooling
+benchmarks/runner/limb_arith_throughput.cpp	benchmark	performance	optional	Perf measurement tooling
+benchmarks/runner/memory_bandwidth.cpp	benchmark	performance	optional	Perf measurement tooling
+benchmarks/runner/negation_speed.cpp	benchmark	performance	optional	Perf measurement tooling
+benchmarks/runner/overflow_detection.cpp	benchmark	performance	optional	Perf measurement tooling
+benchmarks/runner/packing_density.cpp	benchmark	performance	optional	Perf measurement tooling
+benchmarks/runner/roundtrip_accuracy.cpp	benchmark	performance	optional	Perf measurement tooling
+benchmarks/runner/t81lang_compile.cpp	benchmark	performance	optional	Perf measurement tooling
+contracts/runtime-contract.json	runtime_contract	cross-repo boundary	essential	Runtime compatibility contract
+docs/.bundle/config	documentation	narrative	optional	Developer/user docs
+docs/T81_Foundation_Paper.tex	documentation	narrative	optional	Developer/user docs
+docs/_config.yml	documentation	narrative	optional	Developer/user docs
+docs/_includes/sidebar.html	documentation	narrative	optional	Developer/user docs
+docs/_includes/topnav.html	documentation	narrative	optional	Developer/user docs
+docs/_layouts/default.html	documentation	narrative	optional	Developer/user docs
+docs/_layouts/page.html	documentation	narrative	optional	Developer/user docs
+docs/_layouts/spec.html	documentation	narrative	optional	Developer/user docs
+docs/ai-quickstart.md	documentation	narrative	optional	Developer/user docs
+docs/alignment-policy.md	documentation	narrative	optional	Developer/user docs
+docs/archive/developer-guide.md.archived	documentation	narrative	optional	Developer/user docs
+docs/archive/handover.md.archived	documentation	narrative	optional	Developer/user docs
+docs/archive/tensor-guide.md.archived	documentation	narrative	optional	Developer/user docs
+docs/assets/README.md	documentation	narrative	optional	Developer/user docs
+docs/assets/css/main.css	documentation	narrative	optional	Developer/user docs
+docs/assets/img/banner.png	documentation	narrative	optional	Developer/user docs
+docs/assets/js/lunr.min.js	documentation	narrative	optional	Developer/user docs
+docs/benchmarks.md	documentation	narrative	optional	Developer/user docs
+docs/ci.md	documentation	narrative	optional	Developer/user docs
+docs/contributing/generated-artifacts.md	documentation	narrative	optional	Developer/user docs
+docs/cpp-migration-roadmap.md	documentation	narrative	optional	Developer/user docs
+docs/cpp-quickstart.md	documentation	narrative	optional	Developer/user docs
+docs/debugger-guide.md	documentation	narrative	optional	Developer/user docs
+docs/guides/README.md	documentation	narrative	optional	Developer/user docs
+docs/guides/adding-a-language-feature.md	documentation	narrative	optional	Developer/user docs
+docs/guides/axion-policy-manual.md	documentation	narrative	optional	Developer/user docs
+docs/guides/axion-trace.md	documentation	narrative	optional	Developer/user docs
+docs/guides/axion-tracing-manual.md	documentation	narrative	optional	Developer/user docs
+docs/guides/axion/README.md	documentation	narrative	optional	Developer/user docs
+docs/guides/base81-codecs.md	documentation	narrative	optional	Developer/user docs
+docs/guides/cli-toolkit.md	documentation	narrative	optional	Developer/user docs
+docs/guides/cli-user-manual.md	documentation	narrative	optional	Developer/user docs
+docs/guides/data-types-overview.md	documentation	narrative	optional	Developer/user docs
+docs/guides/demo-gallery.md	documentation	narrative	optional	Developer/user docs
+docs/guides/match-example.md	documentation	narrative	optional	Developer/user docs
+docs/guides/match-patterns.md	documentation	narrative	optional	Developer/user docs
+docs/guides/public-api-overview.md	documentation	narrative	optional	Developer/user docs
+docs/guides/record-enum.md	documentation	narrative	optional	Developer/user docs
+docs/guides/release-audit-manual.md	documentation	narrative	optional	Developer/user docs
+docs/guides/repro-ledger.md	documentation	narrative	optional	Developer/user docs
+docs/guides/runtime-contract-helpers.md	documentation	narrative	optional	Developer/user docs
+docs/guides/runtime-observability-manual.md	documentation	narrative	optional	Developer/user docs
+docs/guides/secure-deployment-tutorial.md	documentation	narrative	optional	Developer/user docs
+docs/guides/setun-bridge.md	documentation	narrative	optional	Developer/user docs
+docs/guides/t81lang-determinism-gates.md	documentation	narrative	optional	Developer/user docs
+docs/guides/t81lang-print-runtime.md	documentation	narrative	optional	Developer/user docs
+docs/guides/tier4-execution-contract.md	documentation	narrative	optional	Developer/user docs
+docs/guides/vector-literals.md	documentation	narrative	optional	Developer/user docs
+docs/guides/vm-opcodes.md	documentation	narrative	optional	Developer/user docs
+docs/guides/weights-integration.md	documentation	narrative	optional	Developer/user docs
+docs/hardware-roadmap.md	documentation	narrative	optional	Developer/user docs
+docs/index.md	documentation	narrative	optional	Developer/user docs
+docs/jit-research.md	documentation	narrative	optional	Developer/user docs
+docs/llama-demo-story.md	documentation	narrative	optional	Developer/user docs
+docs/navigation.md	documentation	narrative	optional	Developer/user docs
+docs/notes.md	documentation	narrative	optional	Developer/user docs
+docs/onboarding.md	documentation	narrative	optional	Developer/user docs
+docs/proposals/jit-design.md	documentation	narrative	optional	Developer/user docs
+docs/proposals/t81lang-implementation-plan.md	documentation	narrative	optional	Developer/user docs
+docs/release.md	documentation	narrative	optional	Developer/user docs
+docs/research-guide.md	documentation	narrative	optional	Developer/user docs
+docs/runtime-semantics-boundary.md	documentation	narrative	optional	Developer/user docs
+docs/search/README.md	documentation	narrative	optional	Developer/user docs
+docs/search/build_index.js	documentation	narrative	optional	Developer/user docs
+docs/search/search.css	documentation	narrative	optional	Developer/user docs
+docs/search/search.js	documentation	narrative	optional	Developer/user docs
+docs/search/search_index.json	documentation	narrative	optional	Developer/user docs
+docs/spec	documentation	narrative	optional	Developer/user docs
+docs/system-status.md	documentation	narrative	optional	Developer/user docs
+docs/tensor-guide.md	documentation	narrative	optional	Developer/user docs
+docs/terminology-alignment.md	documentation	narrative	optional	Developer/user docs
+docs/tests	documentation	narrative	optional	Developer/user docs
+docs/user-manual.md	documentation	narrative	optional	Developer/user docs
+examples/README.md	examples	adoption	optional	Usage demos
+examples/T81Genesis.cpp	examples	adoption	optional	Usage demos
+examples/advanced_datatypes_showcase.t81	examples	adoption	optional	Usage demos
+examples/advanced_monitor.t81	examples	adoption	optional	Usage demos
+examples/all_types_showcase.t81	examples	adoption	optional	Usage demos
+examples/axion_demo.cpp	examples	adoption	optional	Usage demos
+examples/axion_guard_trace.cpp	examples	adoption	optional	Usage demos
+examples/axion_policy_runner.cpp	examples	adoption	optional	Usage demos
+examples/axion_policy_trace.cpp	examples	adoption	optional	Usage demos
+examples/bigint_demo.t81	examples	adoption	optional	Usage demos
+examples/bigint_fraction_verification.t81	examples	adoption	optional	Usage demos
+examples/canonfs_trace_demo.cpp	examples	adoption	optional	Usage demos
+examples/cell_demo.t81	examples	adoption	optional	Usage demos
+examples/data_types.t81	examples	adoption	optional	Usage demos
+examples/demo.cpp	examples	adoption	optional	Usage demos
+examples/float_demo.t81	examples	adoption	optional	Usage demos
+examples/fraction_demo.t81	examples	adoption	optional	Usage demos
+examples/graph_demo.t81	examples	adoption	optional	Usage demos
+examples/hello_world.t81	examples	adoption	optional	Usage demos
+examples/high_rank_tensor_demo.t81	examples	adoption	optional	Usage demos
+examples/ir_roundtrip.cpp	examples	adoption	optional	Usage demos
+examples/llama32_demo.cpp	examples	adoption	optional	Usage demos
+examples/match_demo.t81	examples	adoption	optional	Usage demos
+examples/matrix_demo.t81	examples	adoption	optional	Usage demos
+examples/option_result_match.t81	examples	adoption	optional	Usage demos
+examples/quaternion_demo.t81	examples	adoption	optional	Usage demos
+examples/self_patch_demo.cpp	examples	adoption	optional	Usage demos
+examples/string_demo.t81	examples	adoption	optional	Usage demos
+examples/t81_llama_bridge.hpp	examples	adoption	optional	Usage demos
+examples/tensor_demo.t81	examples	adoption	optional	Usage demos
+examples/tensor_ops.cpp	examples	adoption	optional	Usage demos
+examples/ternary_verification.t81	examples	adoption	optional	Usage demos
+examples/vector_demo.t81	examples	adoption	optional	Usage demos
+examples/weights_load_demo.t81	examples	adoption	optional	Usage demos
+guard_match.tisc	misc	support	optional	
+include/t81/README.md	public_api	contract headers	essential	Public API surface
+include/t81/axion/README.md	public_api	contract headers	essential	Public API surface
+include/t81/axion/api.hpp	public_api	contract headers	essential	Public API surface
+include/t81/axion/context.hpp	public_api	contract headers	essential	Public API surface
+include/t81/axion/engine.hpp	public_api	contract headers	essential	Public API surface
+include/t81/axion/policy.hpp	public_api	contract headers	essential	Public API surface
+include/t81/axion/policy_engine.hpp	public_api	contract headers	essential	Public API surface
+include/t81/axion/reasons.hpp	public_api	contract headers	essential	Public API surface
+include/t81/axion/verdict.hpp	public_api	contract headers	essential	Public API surface
+include/t81/bigint.hpp	public_api	contract headers	essential	Public API surface
+include/t81/bigint/divmod.hpp	public_api	contract headers	essential	Public API surface
+include/t81/bigint/gcd.hpp	public_api	contract headers	essential	Public API surface
+include/t81/canonfs.hpp	public_api	contract headers	essential	Public API surface
+include/t81/canonfs/axion_hook.hpp	public_api	contract headers	essential	Public API surface
+include/t81/canonfs/canon_driver.hpp	public_api	contract headers	essential	Public API surface
+include/t81/canonfs/canon_types.hpp	public_api	contract headers	essential	Public API surface
+include/t81/canonfs/gf3_9.hpp	public_api	contract headers	essential	Public API surface
+include/t81/canonfs/rs_repair.hpp	public_api	contract headers	essential	Public API surface
+include/t81/canonfs_io.hpp	public_api	contract headers	essential	Public API surface
+include/t81/canonical.hpp	public_api	contract headers	essential	Public API surface
+include/t81/cli/driver.hpp	public_api	contract headers	essential	Public API surface
+include/t81/cli/logging.hpp	public_api	contract headers	essential	Public API surface
+include/t81/codec/README.md	public_api	contract headers	essential	Public API surface
+include/t81/codec/base243.hpp	public_api	contract headers	essential	Public API surface
+include/t81/codec/base81.hpp	public_api	contract headers	essential	Public API surface
+include/t81/codec/base81_balanced.hpp	public_api	contract headers	essential	Public API surface
+include/t81/codec/base81_packed.hpp	public_api	contract headers	essential	Public API surface
+include/t81/codec/metadata.hpp	public_api	contract headers	essential	Public API surface
+include/t81/codec/trit_packing.hpp	public_api	contract headers	essential	Public API surface
+include/t81/cog/metrics.hpp	public_api	contract headers	essential	Public API surface
+include/t81/cog/promotion.hpp	public_api	contract headers	essential	Public API surface
+include/t81/cog/tier.hpp	public_api	contract headers	essential	Public API surface
+include/t81/cog/tier4/planner.hpp	public_api	contract headers	essential	Public API surface
+include/t81/cog/tier4/self_model.hpp	public_api	contract headers	essential	Public API surface
+include/t81/cog/tier4/tier4_loop.hpp	public_api	contract headers	essential	Public API surface
+include/t81/config.hpp	public_api	contract headers	essential	Public API surface
+include/t81/conversion.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/DistributedTensor.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/Option.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/README.md	public_api	contract headers	essential	Public API surface
+include/t81/core/Result.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Agent.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81BigInt.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Bytes.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Category.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Complex.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Discovery.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Entropy.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Fixed.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Float.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Fraction.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Graph.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81IOStream.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Int.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Limb.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81List.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Map.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Matrix.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Maybe.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Network.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Polynomial.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Prob.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Promise.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Proof.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Quaternion.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Qutrit.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Reflection.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Result.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Set.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Stream.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81String.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Symbol.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Tensor.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Thread.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Time.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Tree.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Uint.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/T81Vector.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/all.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/base81.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/bigint.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/cell.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/cell_packed.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/fraction.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/ids.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/packing.hpp	public_api	contract headers	essential	Public API surface
+include/t81/core/tensor.hpp	public_api	contract headers	essential	Public API surface
+include/t81/crypto/sha3.hpp	public_api	contract headers	essential	Public API surface
+include/t81/detail/README.md	public_api	contract headers	essential	Public API surface
+include/t81/detail/assert.hpp	public_api	contract headers	essential	Public API surface
+include/t81/detail/bitops.hpp	public_api	contract headers	essential	Public API surface
+include/t81/detail/bitopts.hpp	public_api	contract headers	essential	Public API surface
+include/t81/detail/msvc_compat.hpp	public_api	contract headers	essential	Public API surface
+include/t81/entropy.hpp	public_api	contract headers	essential	Public API surface
+include/t81/enum_meta.hpp	public_api	contract headers	essential	Public API surface
+include/t81/fraction.hpp	public_api	contract headers	essential	Public API surface
+include/t81/frontend/README.md	public_api	contract headers	essential	Public API surface
+include/t81/frontend/ast.hpp	public_api	contract headers	essential	Public API surface
+include/t81/frontend/ir_generator.hpp	public_api	contract headers	essential	Public API surface
+include/t81/frontend/lexer.hpp	public_api	contract headers	essential	Public API surface
+include/t81/frontend/parser.hpp	public_api	contract headers	essential	Public API surface
+include/t81/frontend/semantic_analyzer.hpp	public_api	contract headers	essential	Public API surface
+include/t81/frontend/symbol_table.hpp	public_api	contract headers	essential	Public API surface
+include/t81/hanoi/error.hpp	public_api	contract headers	essential	Public API surface
+include/t81/hanoi/kernel.hpp	public_api	contract headers	essential	Public API surface
+include/t81/hanoi/types.hpp	public_api	contract headers	essential	Public API surface
+include/t81/hash/README.md	public_api	contract headers	essential	Public API surface
+include/t81/hash/base81.hpp	public_api	contract headers	essential	Public API surface
+include/t81/hash/canonhash.hpp	public_api	contract headers	essential	Public API surface
+include/t81/io/tensor_loader.hpp	public_api	contract headers	essential	Public API surface
+include/t81/ir/README.md	public_api	contract headers	essential	Public API surface
+include/t81/ir/encoding.hpp	public_api	contract headers	essential	Public API surface
+include/t81/ir/insn.hpp	public_api	contract headers	essential	Public API surface
+include/t81/ir/opcodes.hpp	public_api	contract headers	essential	Public API surface
+include/t81/lang/ast.hpp	public_api	contract headers	essential	Public API surface
+include/t81/lang/compiler.hpp	public_api	contract headers	essential	Public API surface
+include/t81/lang/numeric_format.hpp	public_api	contract headers	essential	Public API surface
+include/t81/lang/parser.hpp	public_api	contract headers	essential	Public API surface
+include/t81/lang/types.hpp	public_api	contract headers	essential	Public API surface
+include/t81/native.hpp	public_api	contract headers	essential	Public API surface
+include/t81/packing.hpp	public_api	contract headers	essential	Public API surface
+include/t81/setun/bridge.hpp	public_api	contract headers	essential	Public API surface
+include/t81/simd/add_helpers.hpp	public_api	contract headers	essential	Public API surface
+include/t81/simd/base81_digits.hpp	public_api	contract headers	essential	Public API surface
+include/t81/simd/prefix_scan.hpp	public_api	contract headers	essential	Public API surface
+include/t81/support/expected.hpp	public_api	contract headers	essential	Public API surface
+include/t81/t81.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tensor.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tensor/README.md	public_api	contract headers	essential	Public API surface
+include/t81/tensor/broadcast.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tensor/elementwise.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tensor/io/tensor_loader.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tensor/llama.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tensor/matmul.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tensor/ops.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tensor/reduce.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tensor/reshape.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tensor/shape.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tensor/slice.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tensor/stats.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tensor/transpose.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tensor/unary.hpp	public_api	contract headers	essential	Public API surface
+include/t81/ternary.hpp	public_api	contract headers	essential	Public API surface
+include/t81/ternary/README.md	public_api	contract headers	essential	Public API surface
+include/t81/ternary/arith.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tisc/README.md	public_api	contract headers	essential	Public API surface
+include/t81/tisc/base81_view.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tisc/binary.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tisc/binary_emitter.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tisc/binary_io.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tisc/encoding.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tisc/ir.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tisc/opcodes.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tisc/pretty_printer.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tisc/program.hpp	public_api	contract headers	essential	Public API surface
+include/t81/tisc/type_alias.hpp	public_api	contract headers	essential	Public API surface
+include/t81/traits.hpp	public_api	contract headers	essential	Public API surface
+include/t81/transpose.hpp	public_api	contract headers	essential	Public API surface
+include/t81/vm/README.md	public_api	contract headers	essential	Public API surface
+include/t81/vm/jit.hpp	public_api	contract headers	essential	Public API surface
+include/t81/vm/state.hpp	public_api	contract headers	essential	Public API surface
+include/t81/vm/traps.hpp	public_api	contract headers	essential	Public API surface
+include/t81/vm/vm.hpp	public_api	contract headers	essential	Public API surface
+include/t81/weights.hpp	public_api	contract headers	essential	Public API surface
+legacy/hanoivm/BUILD.bazel	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/Cargo.toml	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/LICENSE	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/MODULE.bazel	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/Makefile	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/README.md	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/ci.yml	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/config.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/docs/CHANGELOG.md	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/docs/MANIFESTO.md	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/docs/README.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/docs/ROADMAP.md	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/docs/STATUS.md	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/docs/t243_t729.md	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/package.cwebpkg	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/scripts/build-all.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/scripts/install.cwebpkg.sh	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/scripts/tangle-all.sh	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/scripts/test.md	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/README.md	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/axion_ai/README.md	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/axion_ai/ai_hook.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/axion_ai/axion-ai.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/axion_ai/axion-gaia-interface.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/axion_ai/axion_api.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/axion_ai/axion_gpu_request.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/axion_ai/meta.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/axion_ai/telemetry-cli.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/axion_ai/telemetry.json	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/disassembler/README.md	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/disassembler/disasm_hvm.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/disassembler/disassembler.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/disassembler/ghidra_hvm_plugin.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/gpu/README.md	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/gpu/cuda_handle_request.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/gpu/gaia_handle_request.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/gpu/hvm_pcie_driver.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/README.md	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/advanced_ops.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/advanced_ops_ext.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/hanoivm-core.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/hanoivm-runtime.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/hanoivm_cli.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/hanoivm_fsm.v	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/hanoivm_vm.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/hvm_firmware_entry.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/hvm_interpreter.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/hvm_loader.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/hvm_promotion.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/hvmcli.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/main_driver.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/recursive_tier_execution.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/simple_add.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/t81_patterns.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/t81_stack.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/t81recursion.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/t81recursion.h	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/ternary_arithmetic_optimization.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/ternary_base.h	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/hanoivm_core/write_simple_add.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/lib/README.md	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/lib/hvm-trit-util.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/lib/libt243.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/lib/libt729.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/lib/libt81.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/lib/nist_encryption.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/lib/t243_to_t729.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/lib/t243bigint.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/lib/t729tensor.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/lib/t729tensor_loader.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/lib/t729tensor_reshape.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/lib/t729tensor_slice.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/lib/t729tensor_to_string.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/lib/t729tensor_transpose.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/lib/t81_types_support.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/README.md	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/T81InstrFormats.td	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/T81InstrInfo.td	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/T81RegisterInfo.td	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/emit_hvm.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/hvm_assembler.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/slang_grammer.ebnf	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/t81_codegen.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/t81_compile.py	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/t81_llvm_backend.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/t81_to_hvm.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/t81asm.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/t81lang_compiler.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/t81lang_grammar.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/t81lang_irgen.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/t81lang_lexer.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/t81lang_parser.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/t81lang_semantic.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/tisc_backend.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/tisc_compiler.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/tisc_ir.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/t81lang_compiler/tisc_stdlib.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/visualization/FrameSceneBuilder.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/visualization/logviewer.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+legacy/hanoivm/src/visualization/recursion_exporter.cweb	legacy_oracle	reference	optional	Frozen oracle/reference
+notebooks/00_t81_orientation.ipynb	misc	support	optional	
+notebooks/01_balanced_ternary_playground.ipynb	misc	support	optional	
+notebooks/02_t81vm_trace_walkthrough.ipynb	misc	support	optional	
+package-lock.json	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+package.json	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+pdf/HEXANARY - T2187DataTypes.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/OCTANARY - T19683DataTypes.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/PENTANARY - T729DataTypes.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/QUATERNARY - T243DataTypes.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/SEENARY - T81Bridge.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/SEPTANARY - T6561DataTypes.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/SETNARY - T81Setun.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/TANNARY - T81Applications.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/TENNARY - T81Promo.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/TERNARY - T81Lang.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/TOPNARY - T81Ternary.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/TRCNARY - T81TrinaryExplorations.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/TRENARY - T81TISC.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/TRUNARY - T81Eratta.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/TRYNARY - T81AxionAI.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/TYNARY - T81Source.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/TYRNARY - T81Analysis.pdf	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+"pdf/T\316\251NARY \342\200\223 T81Recursive AGI Codex.pdf"	misc	support	optional	
+pdf/build.sh	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/metadata.yaml	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/output/test.md	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+pdf/template.tex	pdf_asset	reference/marketing	optional	Aspirational/reference docs
+policy/guards.axion	misc	support	optional	
+policy/tier4_alignment.axion	misc	support	optional	
+pyproject.toml	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
+scripts/capture-axion-trace.sh	tooling_script	automation	essential	Build/test/repro tooling
+scripts/check-runtime-contract-sync.py	tooling_script	automation	essential	Build/test/repro tooling
+scripts/ci/check_architecture_targets.py	tooling_script	automation	essential	Build/test/repro tooling
+scripts/ci/generate_repro_dashboard.py	tooling_script	automation	essential	Build/test/repro tooling
+scripts/ci/t3k_repro_gate.py	tooling_script	automation	essential	Build/test/repro tooling
+scripts/ci/t81lang_repro_gate.py	tooling_script	automation	essential	Build/test/repro tooling
+scripts/generate_sidebar.py	tooling_script	automation	essential	Build/test/repro tooling
+scripts/inject_toc.py	tooling_script	automation	essential	Build/test/repro tooling
+scripts/reproduce-llama-demo.sh	tooling_script	automation	essential	Build/test/repro tooling
+scripts/run-canonical-runtime-demo.sh	tooling_script	automation	essential	Build/test/repro tooling
+scripts/run-demos.sh	tooling_script	automation	essential	Build/test/repro tooling
+scripts/verify-llama-demo.sh	tooling_script	automation	essential	Build/test/repro tooling
+scripts/verify_ternary_logic.py	tooling_script	automation	essential	Build/test/repro tooling
+scripts/weights-benchmark.sh	tooling_script	automation	essential	Build/test/repro tooling
+spec/README.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/axion-kernel.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/axion-policy-grammar.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/canonfs-spec.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/cognitive-tiers.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/constitution.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/cpp-mapping.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/hanoi-kernel-spec.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/index.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0000-t81-base-81-ternary-computing-stack.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0001-architecture-principles.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0002-deterministic-execution-contract.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0003-axion-safety-model.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0004-canonical-tensor-semantics.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0005-tisc-v0-4-extensions.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0006-deterministic-gc.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0007-t81lang-standard-library.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0008-formal-verification-harness.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0009-axion-policy-language.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0010-tisc-float-fraction-ops.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0011-t81lang-grammar-update.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0012-ternary-tensor-quantization.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0013-ternary-matmul.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0014-neural-primitives.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0015-agentic-constructs.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0016-t81-simd-limb.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0017-introduce-t81-native.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0018-t81-native-simd-arith.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0019-axion-match-logging.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0020-axion-segment-trace.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0021-tier4-cognition.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0022-axion-policy-language.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/RFC-0023-t81lang-print-canonical-runtime.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/rfcs/index.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/spec/README.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/spec/t81-spec.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/t81-data-types.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/t81-overview.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/t81lang-spec.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/t81vm-spec.md	spec	governance/semantics	essential	Normative or RFC/spec material
+spec/tisc-spec.md	spec	governance/semantics	essential	Normative or RFC/spec material
+src/axion/README.md	implementation	core runtime/code	essential	Production implementation
+src/axion/axion_api.cpp	implementation	core runtime/code	essential	Production implementation
+src/axion/axion_api.hpp	implementation	core runtime/code	essential	Production implementation
+src/axion/axion_kernel.hpp	implementation	core runtime/code	essential	Production implementation
+src/axion/axion_signal.hpp	implementation	core runtime/code	essential	Production implementation
+src/axion/engine.cpp	implementation	core runtime/code	essential	Production implementation
+src/axion/policy_engine.cpp	implementation	core runtime/code	essential	Production implementation
+src/axion/policy_serialization.cpp	implementation	core runtime/code	essential	Production implementation
+src/bigint/divmod.cpp	implementation	core runtime/code	essential	Production implementation
+src/bigint/gcd.cpp	implementation	core runtime/code	essential	Production implementation
+src/c_api/README.md	implementation	core runtime/code	essential	Production implementation
+src/c_api/t81_c_api.cpp	implementation	core runtime/code	essential	Production implementation
+src/c_api/t81_c_api.h	implementation	core runtime/code	essential	Production implementation
+src/canonfs/README.md	implementation	core runtime/code	essential	Production implementation
+src/canonfs/axion_hook.cpp	implementation	core runtime/code	essential	Production implementation
+src/canonfs/in_memory_driver.cpp	implementation	core runtime/code	essential	Production implementation
+src/canonfs/persistent_driver.cpp	implementation	core runtime/code	essential	Production implementation
+src/cli/debugger.cpp	implementation	core runtime/code	essential	Production implementation
+src/cli/debugger.hpp	implementation	core runtime/code	essential	Production implementation
+src/cli/driver.cpp	implementation	core runtime/code	essential	Production implementation
+src/cli/main.cpp	implementation	core runtime/code	essential	Production implementation
+src/codec/base243.cpp	implementation	core runtime/code	essential	Production implementation
+src/codec/base81.cpp	implementation	core runtime/code	essential	Production implementation
+src/codec/base81_balanced.cpp	implementation	core runtime/code	essential	Production implementation
+src/codec/base81_packed.cpp	implementation	core runtime/code	essential	Production implementation
+src/codec/metadata.cpp	implementation	core runtime/code	essential	Production implementation
+src/codec/trit_packing.cpp	implementation	core runtime/code	essential	Production implementation
+src/cog/promotion.cpp	implementation	core runtime/code	essential	Production implementation
+src/cog/tier4/tier4_loop.cpp	implementation	core runtime/code	essential	Production implementation
+src/core/bigint.cpp	implementation	core runtime/code	essential	Production implementation
+src/core/fraction.cpp	implementation	core runtime/code	essential	Production implementation
+src/crypto/sha3.cpp	implementation	core runtime/code	essential	Production implementation
+src/data_types/test.md	implementation	core runtime/code	essential	Production implementation
+src/frontend/README.md	implementation	core runtime/code	essential	Production implementation
+src/frontend/lexer.cpp	implementation	core runtime/code	essential	Production implementation
+src/frontend/parser.cpp	implementation	core runtime/code	essential	Production implementation
+src/frontend/semantic_analyzer.cpp	implementation	core runtime/code	essential	Production implementation
+src/frontend/symbol_table.cpp	implementation	core runtime/code	essential	Production implementation
+src/hanoi/error.cpp	implementation	core runtime/code	essential	Production implementation
+src/hanoi/in_memory_kernel.cpp	implementation	core runtime/code	essential	Production implementation
+src/hash/canonhash81.cpp	implementation	core runtime/code	essential	Production implementation
+src/io/README.md	implementation	core runtime/code	essential	Production implementation
+src/io/tensor_loader.cpp	implementation	core runtime/code	essential	Production implementation
+src/lang/test.md	implementation	core runtime/code	essential	Production implementation
+src/main.c	implementation	core runtime/code	essential	Production implementation
+src/python/t81_python.cpp	implementation	core runtime/code	essential	Production implementation
+src/setun/bridge.cpp	implementation	core runtime/code	essential	Production implementation
+src/simd/base81_digits_avx2.cpp	implementation	core runtime/code	essential	Production implementation
+src/t81_core.h	implementation	core runtime/code	essential	Production implementation
+src/tensor/stats.cpp	implementation	core runtime/code	essential	Production implementation
+src/tiers/test.md	implementation	core runtime/code	essential	Production implementation
+src/tisc/README.md	implementation	core runtime/code	essential	Production implementation
+src/tisc/base81_view.cpp	implementation	core runtime/code	essential	Production implementation
+src/tisc/binary_emitter.cpp	implementation	core runtime/code	essential	Production implementation
+src/tisc/binary_io.cpp	implementation	core runtime/code	essential	Production implementation
+src/tisc/encoding.cpp	implementation	core runtime/code	essential	Production implementation
+src/tisc/pretty_printer.cpp	implementation	core runtime/code	essential	Production implementation
+src/tisc/test.md	implementation	core runtime/code	essential	Production implementation
+src/tools/weights.cpp	implementation	core runtime/code	essential	Production implementation
+src/tools/weights_t81w_emitter.cpp	implementation	core runtime/code	essential	Production implementation
+src/vm/README.md	implementation	core runtime/code	essential	Production implementation
+src/vm/jit_compiler.cpp	implementation	core runtime/code	essential	Production implementation
+src/vm/test.md	implementation	core runtime/code	essential	Production implementation
+src/vm/vm.cpp	implementation	core runtime/code	essential	Production implementation
+ternary_verification.tisc	misc	support	optional	
+tests/README.md	tests	verification	essential	Regression/conformance coverage
+tests/cpp/README.md	tests	verification	essential	Regression/conformance coverage
+tests/cpp/axion_enum_guard_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/axion_heap_compaction_trace_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/axion_instruction_counter_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/axion_log_determinism_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/axion_loop_metadata_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/axion_match_metadata_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/axion_nested_guard_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/axion_policy_bytecode_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/axion_policy_gc_trace_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/axion_policy_match_guard_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/axion_policy_segment_event_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/axion_recursion_guardrails_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/axion_segment_trace_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/axion_stub_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/bigint_perf_guardrail_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/bigint_roundtrip.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/c_api_bigint_test.c	tests	verification	essential	Regression/conformance coverage
+tests/cpp/canonfs_axion_trace_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/canonfs_driver_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/canonfs_io_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/canonfs_persistent_driver_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/cli_check_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/cli_diagnostic_context_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/cli_disasm_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/cli_e2e_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/cli_option_result_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/cli_pipeline_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/cli_record_enum_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/cli_repl_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/cli_repro_hash_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/cli_structural_types_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/codec_base243_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/codec_base81_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/comprehensive_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/distributed_tensor_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/e2e_advanced_features_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/e2e_arithmetic_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/e2e_axion_trace_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/e2e_compile_determinism_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/e2e_if_statement_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/e2e_let_statement_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/e2e_loop_statement_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/e2e_match_expression_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/e2e_match_metadata_determinism_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/e2e_option_result_function_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/e2e_option_result_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/e2e_option_type_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/e2e_print_runtime_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/entropy_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/expected_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/fraction_roundtrip.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/frontend_fuzz_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/frontend_ir_generator_relation_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/frontend_ir_generator_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/frontend_lexer_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/frontend_parser_generics_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/frontend_parser_legacy_rejection_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/frontend_parser_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/hanoi_integration_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/hash_stub_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/ir_encoding_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/jit_tensor_trace_equivalence_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/jit_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/jit_trace_equivalence_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/lang_literal_pool_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/llama_kernels_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/performance_advancements_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/reflection_non_interference_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/semantic_analyzer_equality_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/semantic_analyzer_generic_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/semantic_analyzer_loop_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/semantic_analyzer_match_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/semantic_analyzer_numeric_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/semantic_analyzer_option_result_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/semantic_analyzer_record_enum_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/semantic_analyzer_vector_literal_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/setun_bridge_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/t81_numeric_format_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/t81lang_conformance_baseline_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tensor_backend_parity_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tensor_broadcast_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tensor_elementwise_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tensor_loader_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tensor_matmul_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tensor_reduce_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tensor_reshape_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tensor_shape_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tensor_slice_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tensor_ternary_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tensor_transpose_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tensor_unary_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/ternary_arith_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Bytes.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Complex.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Fixed.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Float.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81List.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Map.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Matrix.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Maybe.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Prob.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Quaternion.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Qutrit.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Result.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Set.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81String.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Symbol.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Tensor_transpose.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Time.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Tree.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Uint.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_T81Vector.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_axion_recursion_limit_ext.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_base81_balanced.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_base81_packed.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_base81_simd.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_bigint_multilimb_ext.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_bigint_v1_baseline.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_bigint_v1_perf.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_division.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_metadata.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_t81_limb54_add.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_t81_limb54_booth_mul.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_t81_limb_add.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_t81_limb_bohemian_add.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_t81_limb_bohemian_mul.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_t81_limb_booth_mul.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_t81_limb_mul_wide_high.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_t81_native_arith.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_t81_native_conversion.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_t81_simd_add_helpers.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_t81int.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_t81int_to_binary.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_tisc_base81_view.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/test_utils.hpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tier4_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tier4_vm_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tisc_binary_emitter_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tisc_binary_io_determinism_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tisc_encoding_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tisc_opcode_matrix_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/tisc_type_alias_io_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/trit_packing_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/vm_bounds_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/vm_bounds_trace_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/vm_divmod_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/vm_extended_ops_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/vm_fault_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/vm_float_fraction_ops_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/vm_illegal_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/vm_jump_flags_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/vm_load_store_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/vm_memory_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/vm_neg_jumps_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/vm_print_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/vm_reflection_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/vm_tensor_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/vm_trace_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/weights_load_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/cpp/weights_quantize_test.cpp	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/01_bigint_add.out	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/01_bigint_add.t81	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/02_fraction_sub.out	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/02_fraction_sub.t81	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/03_float_literal.out	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/03_float_literal.t81	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/04_mixed_widen_float.out	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/04_mixed_widen_float.t81	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/05_bool_and_string.out	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/05_bool_and_string.t81	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/06_mixed_widen_fraction.out	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/06_mixed_widen_fraction.t81	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/07_if_else_print.out	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/07_if_else_print.t81	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/08_bounded_loop_print.out	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/08_bounded_loop_print.t81	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/09_nested_if_print.out	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/09_nested_if_print.t81	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/10_relation_bool_print.out	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/10_relation_bool_print.t81	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/11_match_option_some_print.out	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/11_match_option_some_print.t81	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/12_match_option_guard_print.out	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/12_match_option_guard_print.t81	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/13_match_enum_payload_guard_print.out	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/13_match_enum_payload_guard_print.t81	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/t81lang_ast_ir_repro_hash.txt	tests	verification	essential	Regression/conformance coverage
+tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt	tests	verification	essential	Regression/conformance coverage
+tests/harness/README.md	tests	verification	essential	Regression/conformance coverage
+tests/harness/canonical/bigint.json	tests	verification	essential	Regression/conformance coverage
+tests/harness/canonical/fraction.json	tests	verification	essential	Regression/conformance coverage
+tests/harness/canonical/tensor.json	tests	verification	essential	Regression/conformance coverage
+tests/harness/harness.py	tests	verification	essential	Regression/conformance coverage
+tests/harness/run_all.sh	tests	verification	essential	Regression/conformance coverage
+tests/harness/test_vectors/arithmetic.t81	tests	verification	essential	Regression/conformance coverage
+tests/harness/test_vectors/control_flow.t81	tests	verification	essential	Regression/conformance coverage
+tests/harness/test_vectors/faults.t81	tests	verification	essential	Regression/conformance coverage
+tests/harness/test_vectors/lang_samples/fib.t81	tests	verification	essential	Regression/conformance coverage
+tests/harness/test_vectors/lang_samples/hello_world.t81	tests	verification	essential	Regression/conformance coverage
+tests/harness/test_vectors/lang_samples/tensors.t81	tests	verification	essential	Regression/conformance coverage
+tests/harness/test_vectors/memory.t81	tests	verification	essential	Regression/conformance coverage
+tests/harness/test_vectors/privileged_ops.t81	tests	verification	essential	Regression/conformance coverage
+tests/harness/test_vectors/recursion.t81	tests	verification	essential	Regression/conformance coverage
+tests/harness/test_vectors/tensor_ops.t81	tests	verification	essential	Regression/conformance coverage
+tests/python/test_bindings.py	tests	verification	essential	Regression/conformance coverage
+tests/python/test_tensor.py	tests	verification	essential	Regression/conformance coverage
+tools/axion_policy_validator.py	developer_tool	tooling	optional	Editor/support tooling
+tools/ir_inspector.cpp	developer_tool	tooling	optional	Editor/support tooling
+tools/tisc_base81.cpp	developer_tool	tooling	optional	Editor/support tooling
+tools/validator.py	developer_tool	tooling	optional	Editor/support tooling
+tools/vscode-t81/language-configuration.json	developer_tool	tooling	optional	Editor/support tooling
+tools/vscode-t81/package.json	developer_tool	tooling	optional	Editor/support tooling
+tools/vscode-t81/syntaxes/t81.tmLanguage.json	developer_tool	tooling	optional	Editor/support tooling
+verify.tisc	misc	support	optional	
