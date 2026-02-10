@@ -63,7 +63,7 @@ ______________________________________________________________________
 | `.github/workflows/runtime-contract.yml` | pushes/PRs + nightly + `workflow_dispatch` | validates `contracts/runtime-contract.json` against `t81-vm` contract/tag/pin and requires explicit approval for marker drift. |
 | `.github/workflows/t81lang-repro-hash-refresh.yml` | `workflow_dispatch` | regenerates `tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt` and opens an automated PR. |
 | `.github/workflows/release.yml` | tag pushes (`vX.Y.Z`) | production build, docs PDF generation, exposure of release assets (see `docs/release.md`). |
-| `.github/workflows/static.yml` | pushes | runs static checks (format/lint) that are currently placeholder; extend when necessary. |
+| `.github/workflows/static.yml` | pushes + `workflow_dispatch` | builds and publishes the docs search index (Node/Lunr/Cheerio) via an automated PR flow. |
 
 ## 3. Troubleshooting CI Failures
 

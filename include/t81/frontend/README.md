@@ -1,6 +1,6 @@
 # T81Lang Frontend Headers
 
-This directory contains the public header files for the C++20 T81Lang compiler frontend. These headers define the primary data structures and interfaces that make up the frontend's Abstract Syntax Tree (AST) and its various components.
+This directory contains the public header files for the C++23 T81Lang compiler frontend (with a temporary C++20 compatibility lane). These headers define the primary data structures and interfaces that make up the frontend's Abstract Syntax Tree (AST) and its various components.
 
 ## Key Headers
 

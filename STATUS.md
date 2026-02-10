@@ -4,13 +4,13 @@
 ***
 
 **Document Status:** Current
-**Date:** 06 February 2026  
+**Date:** 10 February 2026  
 **Author:** The T81 Foundation  
 **Primary Audience:** Staff+ C++ performance engineers, AI researchers working on reproducible inference, strategic sponsors and grant reviewers
 
 ### 1. Executive Summary
 
-The T81 Foundation is now a C++23 (header-only) deterministic, ternary-native stack whose balanced-trinary primitives (`T81Int`, `T81Float`, `T81Tensor`) interact with the compiler → TISC → HanoiVM pipeline to deliver bit-identical runs on any platform. The project just finished another compliance cycle—`cmake -S . -B build ... -G Ninja`, `cmake --build build`, and `ctest --test-dir build --output-on-failure` all succeed with 97/97 tests passing—and the weights tooling already streams T3_K GGUF tensors through the CLI, HanoiVM, and Axion policy traces without copying data.
+The T81 Foundation is now a C++23 (header-only) deterministic, ternary-native stack whose balanced-trinary primitives (`T81Int`, `T81Float`, `T81Tensor`) interact with the compiler → TISC → HanoiVM pipeline to deliver bit-identical runs on any platform. The project just finished another compliance cycle—`cmake -S . -B build ... -G Ninja`, `cmake --build build`, and `ctest --test-dir build --output-on-failure` all succeed with 139/139 tests passing—and the weights tooling already streams T3_K GGUF tensors through the CLI, HanoiVM, and Axion policy traces without copying data.
 
 Key differentiator: deterministic numerics, pure Axion traces, and explicit invariants (encode/decode round-trips, overflow traps) let you ship complete audit trails for inference workloads that never change their outputs, all while staying implementable on commodity binary hardware.
 
@@ -45,7 +45,7 @@ graph TD
         A["CPU SIMD (AVX2, AVX-512, SVE, NEON)"]
     end
 
-    subgraph "T81 Core (Header-Only C++20)"
+    subgraph "T81 Core (Header-Only C++23)"
         B["T81Int / T81Float / T81Tensor"]
         C["SIMD Trit/Tryte Primitives"]
     end

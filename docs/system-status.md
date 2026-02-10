@@ -1,6 +1,6 @@
 # T81 Foundation: System Status Report
 
-**Last Updated:** December 4, 2025
+**Last Updated:** February 10, 2026
 
 This document provides a high-level summary of the implementation status of each major component in the T81 Foundation stack. For a more detailed technical breakdown of spec conformance, see [`ANALYSIS.md`](../ANALYSIS.md).
 
@@ -64,7 +64,7 @@ ______________________________________________________________________
 
 - **Specification:** [`spec/t81lang-spec.md`](../spec/t81lang-spec.md)
 - **Status:** `Implemented`
-- **Summary:** The new C++20 frontend is now largely complete. It includes a lexer, a recursive descent parser for the full T81Lang grammar, a new semantic analysis pass for scope and symbol resolution, and an IR generator that produces valid TISC IR. Vector literals follow the canonical rules from §2.3–§2.5: elements must be numeric, the empty literal relies on a contextual `Vector[T]` type, and the analyzer feeds a canonical `T729Tensor` payload through the IR tensor pool so the VM can load it via `LoadImm/TensorHandle`. `None`, `Ok`, and `Err` are now only valid in contextual `Option[T]` or `Result[T, E]` types, the match analyzer enforces exhaustiveness and consistent arm return types, and the new semantic/CLI regressions keep the `t81` pipeline aligned with the spec.
+- **Summary:** The C++23 frontend is now largely complete. It includes a lexer, a recursive descent parser for the full T81Lang grammar, a semantic analysis pass for scope and symbol resolution, and an IR generator that produces valid TISC IR. Vector literals follow the canonical rules from §2.3–§2.5: elements must be numeric, the empty literal relies on a contextual `Vector[T]` type, and the analyzer feeds a canonical `T729Tensor` payload through the IR tensor pool so the VM can load it via `LoadImm/TensorHandle`. `None`, `Ok`, and `Err` are now only valid in contextual `Option[T]` or `Result[T, E]` types, the match analyzer enforces exhaustiveness and consistent arm return types, and semantic/CLI regressions keep the `t81` pipeline aligned with the spec.
 - **Structural types:** `record` and `enum` declarations now produce field/variant metadata so literals and field access are checked for completeness and payload compliance, and the CLI serializes those layouts/variants alongside existing type aliases so downstream tooling can trust the structure; the new [`docs/guides/record-enum.md`](../docs/guides/record-enum.md) spells out the rules and `tests/cpp/cli_structural_types_test.cpp` proves that structural types flow through the CLI pipeline.
 - **Next Steps:** Add support for advanced cognitive kernels and JIT optimizations.
 
@@ -79,7 +79,7 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-## 6. Documentation Snapshot — November 30, 2025
+## 6. Documentation Snapshot (Historical) — November 30, 2025
 
 This section summarizes the state of the project's documentation following a comprehensive overhaul.
 
@@ -89,4 +89,5 @@ This section summarizes the state of the project's documentation following a com
 
 ### Remaining Known Gaps
 
--   *None identified.* The v1.0 criteria for HanoiVM, Axion, CanonFS, and Core Numerics have been met.
+-   Performance and ecosystem adoption remain active focus areas after v1.0 feature completeness.
+-   Documentation must be kept synchronized with fast-moving benchmark and workflow changes.

@@ -1,6 +1,6 @@
 # T81 Foundation: Actionable Task List
 
-**Last Updated:** December 4, 2025
+**Last Updated:** February 10, 2026
 
 This document lists the concrete, prioritized tasks for the next development cycle, aligned with the strategic priorities in `ROADMAP.md`.
 
@@ -16,7 +16,7 @@ ______________________________________________________________________
 
 ### [P0] T81Lang Compiler (Completed)
 
-**Goal:** The C++20 compiler now matches the `t81lang-spec.md`, emits Axion-aligned match/loop metadata, and the CLI (including the REPL) produces deterministic Axion traces. This critical path is complete; the compiler introduces no open blockers toward v1.0.
+**Goal:** The C++23 compiler now matches the `t81lang-spec.md`, emits Axion-aligned match/loop metadata, and the CLI (including the REPL) produces deterministic Axion traces. This critical path is complete; the compiler introduces no open blockers toward v1.0.
 
 - **[EPIC] Implement Semantic Analysis & Type System:**
     - **[DONE] [M] Task:** Create the foundational `SemanticAnalyzer` class that traverses the AST.

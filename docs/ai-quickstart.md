@@ -39,7 +39,7 @@ T81 is a C++-first, spec-driven project with supporting Python and Node tooling.
 
 You will typically need:
 
-- C++20/23-capable compiler (e.g., Clang or GCC)
+- C++23-capable compiler (temporary C++20 compatibility lane via `-DT81_USE_CXX23=OFF`)
 - CMake and Ninja (or another supported generator)
 - Python 3.11+
 - Node.js (for docs search index tooling)

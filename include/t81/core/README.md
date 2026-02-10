@@ -1,6 +1,6 @@
 # T81 Core Data Types
 
-This directory contains the foundational data types for the T81 ecosystem. These header-only C++20 classes provide a complete suite of tools for balanced ternary computation, from primitive arithmetic to complex, higher-level constructs.
+This directory contains the foundational data types for the T81 ecosystem. These header-only C++23 classes (with temporary C++20 compatibility) provide a complete suite of tools for balanced ternary computation, from primitive arithmetic to complex, higher-level constructs.
 
 ## Canonical Data Types
 

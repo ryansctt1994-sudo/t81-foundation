@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml/badge.svg)](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![C++ Standard](https://img.shields.io/badge/C%2B%2B-20%2F23-blue.svg)](https://en.cppreference.com/w/cpp/20)
+[![C++ Standard](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://en.cppreference.com/w/cpp/23)
 
 **Solve the AI reproducibility crisis** with canonical balanced-ternary numerics, deterministic VM execution, Axion overflow trapping, and full SHA3-512 tensor provenance.
 
@@ -69,7 +69,7 @@ graph TD
         A["CPU SIMD (AVX2, AVX-512, SVE, NEON)"]
     end
 
-    subgraph "T81 Core (Header-Only C++20)"
+    subgraph "T81 Core (Header-Only C++23)"
         B["T81Int / T81Float / T81Tensor"]
         C["SIMD Trit/Tryte Primitives"]
     end

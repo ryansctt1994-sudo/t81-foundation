@@ -1,6 +1,6 @@
 # Project Roadmap
 
-**Last Updated:** December 4, 2025
+**Last Updated:** February 10, 2026
 
 ## 1. Vision for v1.0
 
@@ -13,7 +13,7 @@ The v1.0 release of the T81 Foundation will deliver a stable, documented, and pr
 The project has reached v1.0 feature completeness. The T81Lang compiler is stable, and the runtime environment (HanoiVM, Axion, CanonFS) is fully implemented and hardened. All 90 canonical data types are present and conform to the balanced ternary specifications. The system produces deterministic, auditable Axion traces for all operations, enabling full system verification.
 
 - **Strengths:** End-to-end deterministic stack from T81Lang source to disk-backed CanonFS persistence. Robust multi-limb BigInt and high-rank tensor numerics. Comprehensive documentation and specification examples.
-- **Weaknesses:** None identified for v1.0; future work will focus on performance optimization and scaling.
+- **Weaknesses:** throughput and ecosystem adoption still need work; 2026 effort remains focused on performance optimization and scaling.
 
 For a detailed breakdown, see the [**System Status Report**](docs/system-status.md) and [`ANALYSIS.md`](ANALYSIS.md).
 

@@ -1,6 +1,6 @@
-# C++20 T81Lang Frontend
+# C++23 T81Lang Frontend
 
-This directory contains the source code for the modern C++20 implementation of the T81Lang compiler frontend. Its primary responsibility is to take raw T81Lang source code and convert it into a well-formed Intermediate Representation (IR) that can be consumed by the TISC binary emitter or other backend toolchains.
+This directory contains the source code for the modern C++23 implementation of the T81Lang compiler frontend (with a temporary C++20 compatibility lane). Its primary responsibility is to take raw T81Lang source code and convert it into a well-formed Intermediate Representation (IR) that can be consumed by the TISC binary emitter or other backend toolchains.
 
 ## Components
 
@@ -10,7 +10,7 @@ The frontend is organized into a classic compiler pipeline:
 
 -   `parser.cpp`: The **Parser** consumes the token stream from the lexer and constructs an Abstract Syntax Tree (AST). The AST is a hierarchical representation of the code's structure, defined in `include/t81/frontend/ast.hpp`. This parser is a recursive-descent parser.
 
--   `semantic_analyzer.cpp`: The **Semantic Analyzer** traverses the AST and enforces the semantic rules of T81Lang. This includes type checking, scope resolution, and other validation tasks that are not captured by the grammar alone. (Note: This component is currently under active development).
+-   `semantic_analyzer.cpp`: The **Semantic Analyzer** traverses the AST and enforces the semantic rules of T81Lang. This includes type checking, scope resolution, and other validation tasks that are not captured by the grammar alone.
 
 -   `ir_generator.cpp`: The **IR Generator** walks the validated AST and emits a linear Intermediate Representation (IR) suitable for code generation. The TISC IR is defined in `include/t81/tisc/ir.hpp`.
 

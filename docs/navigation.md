@@ -10,7 +10,7 @@ Use this map before opening individual files—the Constitution, guides, tests, 
 - **Generated Artifact Policy**: [`docs/contributing/generated-artifacts.md`](contributing/generated-artifacts.md) defines what is generated and must stay out of Git.
 
 ## Domain-focused indexes
-- **Guides**: see [`docs/guides/README.md`](guides/README.md) for a categorized TOC (CLI, Axion, semantics, weights/release). If a document has moved or the content is obsolete, you will usually find the archived copy with a `.archived` suffix in `docs/` (e.g., [`docs/developer-guide.md.archived`](developer-guide.md.archived)). Consider copying the updated TOC entry here when a guide is reborn under a new name.
+- **Guides**: see [`docs/guides/README.md`](guides/README.md) for a categorized TOC (CLI, Axion, semantics, weights/release). If a document has moved or the content is obsolete, you will usually find the archived copy with a `.archived` suffix under `docs/archive/` (e.g., [`docs/archive/developer-guide.md.archived`](archive/developer-guide.md.archived)). Consider copying the updated TOC entry here when a guide is reborn under a new name.
 - **Axion guides**: the [`docs/guides/axion/README.md`](guides/axion/README.md) entry point tells you which file to open based on whether you are decoding logs, authoring policies, or capturing runtime observability traces.
 - **Documentation subtrees**:
   - `docs/benchmarks.md` summarizes the latest benchmark artifacts to keep in sync with `benchmarks/benchmark_runner`.
@@ -22,7 +22,7 @@ Use this map before opening individual files—the Constitution, guides, tests, 
 
 ## Cleanup cues
 - Files ending with `.archived` are stale references; you can delete or update them only after confirming no living document references remain. Search for them before removing lines from [`docs/guides/README.md`](guides/README.md) or `docs/navigation.md`.
-- Currently archived files that are safe to skip unless you need their history: [`docs/developer-guide.md.archived`](developer-guide.md.archived), [`docs/handover.md.archived`](handover.md.archived), and [`docs/tensor-guide.md.archived`](tensor-guide.md.archived). If any archive regains relevance, restore it under the living name and mention the change in both this map and [`docs/guides/README.md`](guides/README.md).
+- Currently archived files that are safe to skip unless you need their history: [`docs/archive/developer-guide.md.archived`](archive/developer-guide.md.archived), [`docs/archive/handover.md.archived`](archive/handover.md.archived), and [`docs/archive/tensor-guide.md.archived`](archive/tensor-guide.md.archived). If any archive regains relevance, restore it under the living name and mention the change in both this map and [`docs/guides/README.md`](guides/README.md).
 - When combining or retiring guides, create a redirect entry here and update `docs/guides/README.md` so readers immediately understand why the old file is still present.
 
 ## Need help discovering content?

@@ -182,7 +182,7 @@ The T81Lang compiler frontend is responsible for converting `.t81` source code i
 
 1.  **Lexer:** Converts source text into a stream of tokens.
 2.  **Parser:** Builds an Abstract Syntax Tree (AST) from the token stream.
-3.  **Semantic Analyzer:** (Currently a stub) Traverses the AST to check for type errors and resolve symbols. **This is a high-priority area for new development.**
+3.  **Semantic Analyzer:** Traverses the AST to check for type errors and resolve symbols (including Option/Result context rules, structural types, and match exhaustiveness).
 4.  **IR Generator:** Traverses the AST to produce a linear sequence of TISC instructions.
 
 This guide will walk you through modifying the Lexer, Parser, and IR Generator.

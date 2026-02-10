@@ -90,8 +90,8 @@ ______________________________________________________________________
 
 ## 5. Notes & Caveats
 
-- **`T81BigInt` is Partial:** The `T81BigInt` class provides arbitrary-precision storage, but its arithmetic functions are still incomplete.
-- **`Tensor` is Partial:** The `Tensor` class has a solid foundation but does not yet implement the full set of operations defined in the spec.
-- **Axion & CanonFS are Stubs:** The Axion Kernel and CanonFS are non-functional placeholders; treat every Axion trace as a promise until the policy becomes executable.
+- **Status evolves quickly:** prefer `docs/system-status.md` and `ANALYSIS.md` for current implementation parity against spec.
+- **Use the deterministic ritual:** run configure/build/test exactly as documented above before trusting local behavior.
+- **Compatibility lane:** C++23 is default; run the optional C++20 lane (`-DT81_USE_CXX23=OFF`) when validating cross-toolchain compatibility.
 
 For a detailed status of all components, see the [`System Status Report`](./system-status.md).

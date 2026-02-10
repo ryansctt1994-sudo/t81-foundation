@@ -125,6 +125,10 @@ Formalizes the APL grammar, compiler pipeline, and binary format.
 **Title:** T81Lang `print` Canonical Runtime Surface
 Proposes deterministic VM-captured output semantics and canonical formatting for `print(...)`.
 
+### [RFC-0024](RFC-0024-cxx23-default-wording-alignment.md)
+**Title:** C++23 Default Wording Alignment for Spec and Governance Docs
+Proposes wording-only alignment so spec/governance docs reflect C++23 default mode while preserving a temporary C++20 compatibility lane.
+
 ---
 
 # 2. Upcoming RFCs (Planned)

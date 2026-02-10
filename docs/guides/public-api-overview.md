@@ -64,9 +64,9 @@ ______________________________________________________________________
 
 ## 6. CanonFS & Axion Entrypoints (`include/t81/canonfs`, `include/t81/axion`)
 
-- **Status:** stubs today but considered public contracts. See spec files `spec/canonfs-spec.md` and `spec/axion-kernel.md` for normative definitions.  
-- **Thread Safety:** these APIs delegate to in-memory drivers (`src/canonfs/in_memory_driver.cpp`) and are not synchronized; wrap them before sharing across threads.  
-- **Error Handling:** the Axion engine reports verdicts through `t81::axion::Verdict`. Implementations always return `t81::axion::AllowAllEngine` or `InstructionCountingEngine` for testing until the kernel is fully functional.
+- **Status:** implemented and actively exercised by VM/CLI tests; keep spec files `spec/canonfs-spec.md` and `spec/axion-kernel.md` as the normative source.  
+- **Thread Safety:** these APIs are not globally synchronized; callers should use per-context instances or external synchronization when sharing mutable state.  
+- **Error Handling:** Axion decisions are exposed via `t81::axion::Verdict`/event metadata, and CanonFS operations report deterministic outcomes suitable for replay/audit.
 
 ## 7. Targeted Coverage Notes
 

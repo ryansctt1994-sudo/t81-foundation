@@ -41,7 +41,7 @@ ______________________________________________________________________
 - The semantic analyzer treats nested variants as enums with their own payload metadata, reusing the same binding helpers for identifiers, tuple tuples, and records so deeply nested arms stay deterministic and self-contained.
 
 ### Coding Conventions
-- **C++20 Standard:** The project uses C++20. Features should be used where they enhance clarity and safety.
+- **C++23 Standard:** The project now defaults to C++23, with a temporary C++20 compatibility lane for migration (`-DT81_USE_CXX23=OFF`). Features should be used where they enhance clarity and safety.
 - **API in `/include`:** All public APIs are defined in the `/include/t81/` directory. Implementation details reside in `/src/`.
 - **RAII and Smart Pointers:** Dynamic memory is managed using RAII. Raw `new` and `delete` are forbidden in high-level code.
 - **Test-Driven:** Non-trivial functionality requires corresponding unit tests in `/tests/cpp/`. Bug fixes must be accompanied by a regression test.

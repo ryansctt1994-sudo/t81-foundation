@@ -1,916 +1,3361 @@
-- .clang-tidy
-- .cursorrules
-- .devcontainer/
-  - devcontainer.json
-- .editorconfig
-- .gitattributes
-- .github/
-  - ISSUE_TEMPLATE/
-    - bug_report.md
-    - rfc.md
-    - spec_clarification.md
-  - copilot-instructions.md
-  - instructions/
-    - spec.instructions.md
-  - workflows/
-    - bench.yml
-    - ci.yml
-    - codeql.yml
-    - pdf.yaml
-    - release.yml
-    - repro-ledger.yml
-    - runtime-contract.yml
-    - sidebar.yml
-    - static.yml
-    - t81lang-repro-hash-refresh.yml
-    - toc.yml
-- .gitignore
-- .pre-commit-config.yaml
-- AGENTS.md
-- ANALYSIS.md
-- ANALYSIS.md.archived
-- ARCHITECTURE.md
-- CHANGELOG.md
-- CLAUDE.md
-- CMakeLists.txt
-- CODEOWNERS
-- CONTRIBUTING.md
-- DESIGN.md
-- Doxyfile
-- LICENSE
-- LICENSE-GPL
-- LICENSE-MIT
-- Makefile
-- README.es.md
-- README.md
-- README.pt-BR.md
-- README.ru.md
-- README.zh-CN.md
-- ROADMAP.md
-- SECURITY.md
-- STATUS.md
-- TASKS.md
-- TODO.md
-- WHITEPAPER.md
-- _config.yaml
-- axion-guard.tisc
-- benchmarks/
-  - BM_Base81SIMD.cpp
-  - BM_CanonFS.cpp
-  - BM_LimbMul.cpp
-  - BM_LlamaKernels.cpp
-  - BM_TensorMatMul.cpp
-  - CMakeLists.txt
-  - benchmark.md
-  - runner/
-    - addition.cpp
-    - arith_throughput.cpp
-    - benchmark_runner.cpp
-    - limb_arith_throughput.cpp
-    - memory_bandwidth.cpp
-    - negation_speed.cpp
-    - overflow_detection.cpp
-    - packing_density.cpp
-    - roundtrip_accuracy.cpp
-    - t81lang_compile.cpp
-- contracts/
-  - runtime-contract.json
-- docs/
-  - .bundle/
-    - config
-  - T81_Foundation_Paper.tex
-  - _config.yml
-  - _includes/
-    - sidebar.html
-    - topnav.html
-  - _layouts/
-    - default.html
-    - page.html
-    - spec.html
-  - ai-quickstart.md
-  - alignment-policy.md
-  - archive/
-    - developer-guide.md.archived
-    - handover.md.archived
-    - tensor-guide.md.archived
-  - assets/
-    - README.md
-    - css/
-      - main.css
-    - img/
-      - banner.png
-    - js/
-      - lunr.min.js
-  - benchmarks.md
-  - ci.md
-  - contributing/
-    - generated-artifacts.md
-  - cpp-migration-roadmap.md
-  - cpp-quickstart.md
-  - debugger-guide.md
-  - guides/
-    - README.md
-    - adding-a-language-feature.md
-    - axion-policy-manual.md
-    - axion-trace.md
-    - axion-tracing-manual.md
-    - axion/
-      - README.md
-    - base81-codecs.md
-    - cli-toolkit.md
-    - cli-user-manual.md
-    - data-types-overview.md
-    - demo-gallery.md
-    - match-example.md
-    - match-patterns.md
-    - public-api-overview.md
-    - record-enum.md
-    - release-audit-manual.md
-    - repro-ledger.md
-    - runtime-contract-helpers.md
-    - runtime-observability-manual.md
-    - secure-deployment-tutorial.md
-    - setun-bridge.md
-    - t81lang-determinism-gates.md
-    - t81lang-print-runtime.md
-    - tier4-execution-contract.md
-    - vector-literals.md
-    - vm-opcodes.md
-    - weights-integration.md
-  - hardware-roadmap.md
-  - index.md
-  - jit-research.md
-  - llama-demo-story.md
-  - navigation.md
-  - notes.md
-  - onboarding.md
-  - proposals/
-    - jit-design.md
-    - t81lang-implementation-plan.md
-  - release.md
-  - research-guide.md
-  - runtime-semantics-boundary.md
-  - search/
-    - README.md
-    - build_index.js
-    - search.css
-    - search.js
-    - search_index.json
-  - spec
-  - system-status.md
-  - tensor-guide.md
-  - terminology-alignment.md
-  - tests
-  - user-manual.md
-- examples/
-  - README.md
-  - T81Genesis.cpp
-  - advanced_datatypes_showcase.t81
-  - advanced_monitor.t81
-  - all_types_showcase.t81
-  - axion_demo.cpp
-  - axion_guard_trace.cpp
-  - axion_policy_runner.cpp
-  - axion_policy_trace.cpp
-  - bigint_demo.t81
-  - bigint_fraction_verification.t81
-  - canonfs_trace_demo.cpp
-  - cell_demo.t81
-  - data_types.t81
-  - demo.cpp
-  - float_demo.t81
-  - fraction_demo.t81
-  - graph_demo.t81
-  - hello_world.t81
-  - high_rank_tensor_demo.t81
-  - ir_roundtrip.cpp
-  - llama32_demo.cpp
-  - match_demo.t81
-  - matrix_demo.t81
-  - option_result_match.t81
-  - quaternion_demo.t81
-  - self_patch_demo.cpp
-  - string_demo.t81
-  - t81_llama_bridge.hpp
-  - tensor_demo.t81
-  - tensor_ops.cpp
-  - ternary_verification.t81
-  - vector_demo.t81
-  - weights_load_demo.t81
-- guard_match.tisc
-- include/
-  - t81/
-    - README.md
-    - axion/
-      - README.md
-      - api.hpp
-      - context.hpp
-      - engine.hpp
-      - policy.hpp
-      - policy_engine.hpp
-      - reasons.hpp
-      - verdict.hpp
-    - bigint.hpp
-    - bigint/
-      - divmod.hpp
-      - gcd.hpp
-    - canonfs.hpp
-    - canonfs/
-      - axion_hook.hpp
-      - canon_driver.hpp
-      - canon_types.hpp
-      - gf3_9.hpp
-      - rs_repair.hpp
-    - canonfs_io.hpp
-    - canonical.hpp
-    - cli/
-      - driver.hpp
-      - logging.hpp
-    - codec/
-      - README.md
-      - base243.hpp
-      - base81.hpp
-      - base81_balanced.hpp
-      - base81_packed.hpp
-      - metadata.hpp
-      - trit_packing.hpp
-    - cog/
-      - metrics.hpp
-      - promotion.hpp
-      - tier.hpp
-      - tier4/
-        - planner.hpp
-        - self_model.hpp
-        - tier4_loop.hpp
-    - config.hpp
-    - conversion.hpp
-    - core/
-      - DistributedTensor.hpp
-      - Option.hpp
-      - README.md
-      - Result.hpp
-      - T81Agent.hpp
-      - T81BigInt.hpp
-      - T81Bytes.hpp
-      - T81Category.hpp
-      - T81Complex.hpp
-      - T81Discovery.hpp
-      - T81Entropy.hpp
-      - T81Fixed.hpp
-      - T81Float.hpp
-      - T81Fraction.hpp
-      - T81Graph.hpp
-      - T81IOStream.hpp
-      - T81Int.hpp
-      - T81Limb.hpp
-      - T81List.hpp
-      - T81Map.hpp
-      - T81Matrix.hpp
-      - T81Maybe.hpp
-      - T81Network.hpp
-      - T81Polynomial.hpp
-      - T81Prob.hpp
-      - T81Promise.hpp
-      - T81Proof.hpp
-      - T81Quaternion.hpp
-      - T81Qutrit.hpp
-      - T81Reflection.hpp
-      - T81Result.hpp
-      - T81Set.hpp
-      - T81Stream.hpp
-      - T81String.hpp
-      - T81Symbol.hpp
-      - T81Tensor.hpp
-      - T81Thread.hpp
-      - T81Time.hpp
-      - T81Tree.hpp
-      - T81Uint.hpp
-      - T81Vector.hpp
-      - all.hpp
-      - base81.hpp
-      - bigint.hpp
-      - cell.hpp
-      - cell_packed.hpp
-      - fraction.hpp
-      - ids.hpp
-      - packing.hpp
-      - tensor.hpp
-    - crypto/
-      - sha3.hpp
-    - detail/
-      - README.md
-      - assert.hpp
-      - bitops.hpp
-      - bitopts.hpp
-      - msvc_compat.hpp
-    - entropy.hpp
-    - enum_meta.hpp
-    - fraction.hpp
-    - frontend/
-      - README.md
-      - ast.hpp
-      - ir_generator.hpp
-      - lexer.hpp
-      - parser.hpp
-      - semantic_analyzer.hpp
-      - symbol_table.hpp
-    - hanoi/
-      - error.hpp
-      - kernel.hpp
-      - types.hpp
-    - hash/
-      - README.md
-      - base81.hpp
-      - canonhash.hpp
-    - io/
-      - tensor_loader.hpp
-    - ir/
-      - README.md
-      - encoding.hpp
-      - insn.hpp
-      - opcodes.hpp
-    - lang/
-      - ast.hpp
-      - compiler.hpp
-      - numeric_format.hpp
-      - parser.hpp
-      - types.hpp
-    - native.hpp
-    - packing.hpp
-    - setun/
-      - bridge.hpp
-    - simd/
-      - add_helpers.hpp
-      - base81_digits.hpp
-      - prefix_scan.hpp
-    - support/
-      - expected.hpp
-    - t81.hpp
-    - tensor.hpp
-    - tensor/
-      - README.md
-      - broadcast.hpp
-      - elementwise.hpp
-      - io/
-        - tensor_loader.hpp
-      - llama.hpp
-      - matmul.hpp
-      - ops.hpp
-      - reduce.hpp
-      - reshape.hpp
-      - shape.hpp
-      - slice.hpp
-      - stats.hpp
-      - transpose.hpp
-      - unary.hpp
-    - ternary.hpp
-    - ternary/
-      - README.md
-      - arith.hpp
-    - tisc/
-      - README.md
-      - base81_view.hpp
-      - binary.hpp
-      - binary_emitter.hpp
-      - binary_io.hpp
-      - encoding.hpp
-      - ir.hpp
-      - opcodes.hpp
-      - pretty_printer.hpp
-      - program.hpp
-      - type_alias.hpp
-    - traits.hpp
-    - transpose.hpp
-    - vm/
-      - README.md
-      - jit.hpp
-      - state.hpp
-      - traps.hpp
-      - vm.hpp
-    - weights.hpp
-- legacy/
-  - hanoivm/
-    - BUILD.bazel
-    - Cargo.toml
-    - LICENSE
-    - MODULE.bazel
-    - Makefile
-    - README.md
-    - ci.yml
-    - config.cweb
-    - docs/
-      - CHANGELOG.md
-      - MANIFESTO.md
-      - README.cweb
-      - ROADMAP.md
-      - STATUS.md
-      - t243_t729.md
-    - package.cwebpkg
-    - scripts/
-      - build-all.cweb
-      - install.cwebpkg.sh
-      - tangle-all.sh
-      - test.md
-    - src/
-      - README.md
-      - axion_ai/
-        - README.md
-        - ai_hook.cweb
-        - axion-ai.cweb
-        - axion-gaia-interface.cweb
-        - axion_api.cweb
-        - axion_gpu_request.cweb
-        - meta.cweb
-        - telemetry-cli.cweb
-        - telemetry.json
-      - disassembler/
-        - README.md
-        - disasm_hvm.cweb
-        - disassembler.cweb
-        - ghidra_hvm_plugin.cweb
-      - gpu/
-        - README.md
-        - cuda_handle_request.cweb
-        - gaia_handle_request.cweb
-        - hvm_pcie_driver.cweb
-      - hanoivm_core/
-        - README.md
-        - advanced_ops.cweb
-        - advanced_ops_ext.cweb
-        - hanoivm-core.cweb
-        - hanoivm-runtime.cweb
-        - hanoivm_cli.cweb
-        - hanoivm_fsm.v
-        - hanoivm_vm.cweb
-        - hvm_firmware_entry.cweb
-        - hvm_interpreter.cweb
-        - hvm_loader.cweb
-        - hvm_promotion.cweb
-        - hvmcli.cweb
-        - main_driver.cweb
-        - recursive_tier_execution.cweb
-        - simple_add.cweb
-        - t81_patterns.cweb
-        - t81_stack.cweb
-        - t81recursion.cweb
-        - t81recursion.h
-        - ternary_arithmetic_optimization.cweb
-        - ternary_base.h
-        - write_simple_add.cweb
-      - lib/
-        - README.md
-        - hvm-trit-util.cweb
-        - libt243.cweb
-        - libt729.cweb
-        - libt81.cweb
-        - nist_encryption.cweb
-        - t243_to_t729.cweb
-        - t243bigint.cweb
-        - t729tensor.cweb
-        - t729tensor_loader.cweb
-        - t729tensor_reshape.cweb
-        - t729tensor_slice.cweb
-        - t729tensor_to_string.cweb
-        - t729tensor_transpose.cweb
-        - t81_types_support.cweb
-      - t81lang_compiler/
-        - README.md
-        - T81InstrFormats.td
-        - T81InstrInfo.td
-        - T81RegisterInfo.td
-        - emit_hvm.cweb
-        - hvm_assembler.cweb
-        - slang_grammer.ebnf
-        - t81_codegen.cweb
-        - t81_compile.py
-        - t81_llvm_backend.cweb
-        - t81_to_hvm.cweb
-        - t81asm.cweb
-        - t81lang_compiler.cweb
-        - t81lang_grammar.cweb
-        - t81lang_irgen.cweb
-        - t81lang_lexer.cweb
-        - t81lang_parser.cweb
-        - t81lang_semantic.cweb
-        - tisc_backend.cweb
-        - tisc_compiler.cweb
-        - tisc_ir.cweb
-        - tisc_stdlib.cweb
-      - visualization/
-        - FrameSceneBuilder.cweb
-        - logviewer.cweb
-        - recursion_exporter.cweb
-- notebooks/
-  - 00_t81_orientation.ipynb
-  - 01_balanced_ternary_playground.ipynb
-  - 02_t81vm_trace_walkthrough.ipynb
-- package-lock.json
-- package.json
-- pdf/
-  - HEXANARY - T2187DataTypes.pdf
-  - OCTANARY - T19683DataTypes.pdf
-  - PENTANARY - T729DataTypes.pdf
-  - QUATERNARY - T243DataTypes.pdf
-  - SEENARY - T81Bridge.pdf
-  - SEPTANARY - T6561DataTypes.pdf
-  - SETNARY - T81Setun.pdf
-  - TANNARY - T81Applications.pdf
-  - TENNARY - T81Promo.pdf
-  - TERNARY - T81Lang.pdf
-  - TOPNARY - T81Ternary.pdf
-  - TRCNARY - T81TrinaryExplorations.pdf
-  - TRENARY - T81TISC.pdf
-  - TRUNARY - T81Eratta.pdf
-  - TRYNARY - T81AxionAI.pdf
-  - TYNARY - T81Source.pdf
-  - TYRNARY - T81Analysis.pdf
-- "pdf/
-  - T\316\251NARY \342\200\223 T81Recursive AGI Codex.pdf"
-  - build.sh
-  - metadata.yaml
-  - output/
-    - test.md
-  - template.tex
-- policy/
-  - guards.axion
-  - tier4_alignment.axion
-- pyproject.toml
-- scripts/
-  - capture-axion-trace.sh
-  - check-runtime-contract-sync.py
-  - ci/
-    - check_architecture_targets.py
-    - generate_repro_dashboard.py
-    - t3k_repro_gate.py
-    - t81lang_repro_gate.py
-  - generate_sidebar.py
-  - inject_toc.py
-  - reproduce-llama-demo.sh
-  - run-canonical-runtime-demo.sh
-  - run-demos.sh
-  - verify-llama-demo.sh
-  - verify_ternary_logic.py
-  - weights-benchmark.sh
-- spec/
-  - README.md
-  - axion-kernel.md
-  - axion-policy-grammar.md
-  - canonfs-spec.md
-  - cognitive-tiers.md
-  - constitution.md
-  - cpp-mapping.md
-  - hanoi-kernel-spec.md
-  - index.md
-  - rfcs/
-    - RFC-0000-t81-base-81-ternary-computing-stack.md
-    - RFC-0001-architecture-principles.md
-    - RFC-0002-deterministic-execution-contract.md
-    - RFC-0003-axion-safety-model.md
-    - RFC-0004-canonical-tensor-semantics.md
-    - RFC-0005-tisc-v0-4-extensions.md
-    - RFC-0006-deterministic-gc.md
-    - RFC-0007-t81lang-standard-library.md
-    - RFC-0008-formal-verification-harness.md
-    - RFC-0009-axion-policy-language.md
-    - RFC-0010-tisc-float-fraction-ops.md
-    - RFC-0011-t81lang-grammar-update.md
-    - RFC-0012-ternary-tensor-quantization.md
-    - RFC-0013-ternary-matmul.md
-    - RFC-0014-neural-primitives.md
-    - RFC-0015-agentic-constructs.md
-    - RFC-0016-t81-simd-limb.md
-    - RFC-0017-introduce-t81-native.md
-    - RFC-0018-t81-native-simd-arith.md
-    - RFC-0019-axion-match-logging.md
-    - RFC-0020-axion-segment-trace.md
-    - RFC-0021-tier4-cognition.md
-    - RFC-0022-axion-policy-language.md
-    - RFC-0023-t81lang-print-canonical-runtime.md
-    - index.md
-  - spec/
-    - README.md
-    - t81-spec.md
-  - t81-data-types.md
-  - t81-overview.md
-  - t81lang-spec.md
-  - t81vm-spec.md
-  - tisc-spec.md
-- src/
-  - axion/
-    - README.md
-    - axion_api.cpp
-    - axion_api.hpp
-    - axion_kernel.hpp
-    - axion_signal.hpp
-    - engine.cpp
-    - policy_engine.cpp
-    - policy_serialization.cpp
-  - bigint/
-    - divmod.cpp
-    - gcd.cpp
-  - c_api/
-    - README.md
-    - t81_c_api.cpp
-    - t81_c_api.h
-  - canonfs/
-    - README.md
-    - axion_hook.cpp
-    - in_memory_driver.cpp
-    - persistent_driver.cpp
-  - cli/
-    - debugger.cpp
-    - debugger.hpp
-    - driver.cpp
-    - main.cpp
-  - codec/
-    - base243.cpp
-    - base81.cpp
-    - base81_balanced.cpp
-    - base81_packed.cpp
-    - metadata.cpp
-    - trit_packing.cpp
-  - cog/
-    - promotion.cpp
-    - tier4/
-      - tier4_loop.cpp
-  - core/
-    - bigint.cpp
-    - fraction.cpp
-  - crypto/
-    - sha3.cpp
-  - data_types/
-    - test.md
-  - frontend/
-    - README.md
-    - lexer.cpp
-    - parser.cpp
-    - semantic_analyzer.cpp
-    - symbol_table.cpp
-  - hanoi/
-    - error.cpp
-    - in_memory_kernel.cpp
-  - hash/
-    - canonhash81.cpp
-  - io/
-    - README.md
-    - tensor_loader.cpp
-  - lang/
-    - test.md
-  - main.c
-  - python/
-    - t81_python.cpp
-  - setun/
-    - bridge.cpp
-  - simd/
-    - base81_digits_avx2.cpp
-  - t81_core.h
-  - tensor/
-    - stats.cpp
-  - tiers/
-    - test.md
-  - tisc/
-    - README.md
-    - base81_view.cpp
-    - binary_emitter.cpp
-    - binary_io.cpp
-    - encoding.cpp
-    - pretty_printer.cpp
-    - test.md
-  - tools/
-    - weights.cpp
-    - weights_t81w_emitter.cpp
-  - vm/
-    - README.md
-    - jit_compiler.cpp
-    - test.md
-    - vm.cpp
-- ternary_verification.tisc
-- tests/
-  - README.md
-  - cpp/
-    - README.md
-    - axion_enum_guard_test.cpp
-    - axion_heap_compaction_trace_test.cpp
-    - axion_instruction_counter_test.cpp
-    - axion_log_determinism_test.cpp
-    - axion_loop_metadata_test.cpp
-    - axion_match_metadata_test.cpp
-    - axion_nested_guard_test.cpp
-    - axion_policy_bytecode_test.cpp
-    - axion_policy_gc_trace_test.cpp
-    - axion_policy_match_guard_test.cpp
-    - axion_policy_segment_event_test.cpp
-    - axion_recursion_guardrails_test.cpp
-    - axion_segment_trace_test.cpp
-    - axion_stub_test.cpp
-    - bigint_perf_guardrail_test.cpp
-    - bigint_roundtrip.cpp
-    - c_api_bigint_test.c
-    - canonfs_axion_trace_test.cpp
-    - canonfs_driver_test.cpp
-    - canonfs_io_test.cpp
-    - canonfs_persistent_driver_test.cpp
-    - cli_check_test.cpp
-    - cli_diagnostic_context_test.cpp
-    - cli_disasm_test.cpp
-    - cli_e2e_test.cpp
-    - cli_option_result_test.cpp
-    - cli_pipeline_test.cpp
-    - cli_record_enum_test.cpp
-    - cli_repl_test.cpp
-    - cli_repro_hash_test.cpp
-    - cli_structural_types_test.cpp
-    - codec_base243_test.cpp
-    - codec_base81_test.cpp
-    - comprehensive_test.cpp
-    - distributed_tensor_test.cpp
-    - e2e_advanced_features_test.cpp
-    - e2e_arithmetic_test.cpp
-    - e2e_ast_ir_canonical_determinism_test.cpp
-    - e2e_axion_trace_test.cpp
-    - e2e_compile_determinism_test.cpp
-    - e2e_if_statement_test.cpp
-    - e2e_let_statement_test.cpp
-    - e2e_loop_statement_test.cpp
-    - e2e_match_expression_test.cpp
-    - e2e_match_metadata_determinism_test.cpp
-    - e2e_option_result_function_test.cpp
-    - e2e_option_result_test.cpp
-    - e2e_option_type_test.cpp
-    - e2e_print_runtime_test.cpp
-    - entropy_test.cpp
-    - expected_test.cpp
-    - fraction_roundtrip.cpp
-    - frontend_fuzz_test.cpp
-    - frontend_ir_generator_relation_test.cpp
-    - frontend_ir_generator_test.cpp
-    - frontend_lexer_test.cpp
-    - frontend_parser_generics_test.cpp
-    - frontend_parser_legacy_rejection_test.cpp
-    - frontend_parser_test.cpp
-    - hanoi_integration_test.cpp
-    - hash_stub_test.cpp
-    - ir_encoding_test.cpp
-    - jit_tensor_trace_equivalence_test.cpp
-    - jit_test.cpp
-    - jit_trace_equivalence_test.cpp
-    - lang_literal_pool_test.cpp
-    - llama_kernels_test.cpp
-    - performance_advancements_test.cpp
-    - reflection_non_interference_test.cpp
-    - semantic_analyzer_equality_test.cpp
-    - semantic_analyzer_generic_test.cpp
-    - semantic_analyzer_loop_test.cpp
-    - semantic_analyzer_match_test.cpp
-    - semantic_analyzer_numeric_test.cpp
-    - semantic_analyzer_option_result_test.cpp
-    - semantic_analyzer_record_enum_test.cpp
-    - semantic_analyzer_vector_literal_test.cpp
-    - setun_bridge_test.cpp
-    - t81_numeric_format_test.cpp
-    - t81lang_conformance_baseline_test.cpp
-    - tensor_backend_parity_test.cpp
-    - tensor_broadcast_test.cpp
-    - tensor_elementwise_test.cpp
-    - tensor_loader_test.cpp
-    - tensor_matmul_test.cpp
-    - tensor_reduce_test.cpp
-    - tensor_reshape_test.cpp
-    - tensor_shape_test.cpp
-    - tensor_slice_test.cpp
-    - tensor_ternary_test.cpp
-    - tensor_transpose_test.cpp
-    - tensor_unary_test.cpp
-    - ternary_arith_test.cpp
-    - test_T81Bytes.cpp
-    - test_T81Complex.cpp
-    - test_T81Fixed.cpp
-    - test_T81Float.cpp
-    - test_T81List.cpp
-    - test_T81Map.cpp
-    - test_T81Matrix.cpp
-    - test_T81Maybe.cpp
-    - test_T81Prob.cpp
-    - test_T81Quaternion.cpp
-    - test_T81Qutrit.cpp
-    - test_T81Result.cpp
-    - test_T81Set.cpp
-    - test_T81String.cpp
-    - test_T81Symbol.cpp
-    - test_T81Tensor_transpose.cpp
-    - test_T81Time.cpp
-    - test_T81Tree.cpp
-    - test_T81Uint.cpp
-    - test_T81Vector.cpp
-    - test_axion_recursion_limit_ext.cpp
-    - test_base81_balanced.cpp
-    - test_base81_packed.cpp
-    - test_base81_simd.cpp
-    - test_bigint_multilimb_ext.cpp
-    - test_bigint_v1_baseline.cpp
-    - test_bigint_v1_perf.cpp
-    - test_division.cpp
-    - test_metadata.cpp
-    - test_t81_limb54_add.cpp
-    - test_t81_limb54_booth_mul.cpp
-    - test_t81_limb_add.cpp
-    - test_t81_limb_bohemian_add.cpp
-    - test_t81_limb_bohemian_mul.cpp
-    - test_t81_limb_booth_mul.cpp
-    - test_t81_limb_mul_wide_high.cpp
-    - test_t81_native_arith.cpp
-    - test_t81_native_conversion.cpp
-    - test_t81_simd_add_helpers.cpp
-    - test_t81int.cpp
-    - test_t81int_to_binary.cpp
-    - test_tisc_base81_view.cpp
-    - test_utils.hpp
-    - tier4_test.cpp
-    - tier4_vm_test.cpp
-    - tisc_binary_emitter_test.cpp
-    - tisc_binary_io_determinism_test.cpp
-    - tisc_encoding_test.cpp
-    - tisc_opcode_matrix_test.cpp
-    - tisc_type_alias_io_test.cpp
-    - trit_packing_test.cpp
-    - vm_bounds_test.cpp
-    - vm_bounds_trace_test.cpp
-    - vm_divmod_test.cpp
-    - vm_extended_ops_test.cpp
-    - vm_fault_test.cpp
-    - vm_float_fraction_ops_test.cpp
-    - vm_illegal_test.cpp
-    - vm_jump_flags_test.cpp
-    - vm_load_store_test.cpp
-    - vm_memory_test.cpp
-    - vm_neg_jumps_test.cpp
-    - vm_print_test.cpp
-    - vm_reflection_test.cpp
-    - vm_tensor_test.cpp
-    - vm_trace_test.cpp
-    - weights_load_test.cpp
-    - weights_quantize_test.cpp
-  - fixtures/
-    - t81lang_determinism/
-      - 01_bigint_add.out
-      - 01_bigint_add.t81
-      - 02_fraction_sub.out
-      - 02_fraction_sub.t81
-      - 03_float_literal.out
-      - 03_float_literal.t81
-      - 04_mixed_widen_float.out
-      - 04_mixed_widen_float.t81
-      - 05_bool_and_string.out
-      - 05_bool_and_string.t81
-      - 06_mixed_widen_fraction.out
-      - 06_mixed_widen_fraction.t81
-      - 07_if_else_print.out
-      - 07_if_else_print.t81
-      - 08_bounded_loop_print.out
-      - 08_bounded_loop_print.t81
-      - 09_nested_if_print.out
-      - 09_nested_if_print.t81
-      - 10_relation_bool_print.out
-      - 10_relation_bool_print.t81
-      - 11_match_option_some_print.out
-      - 11_match_option_some_print.t81
-      - 12_match_option_guard_print.out
-      - 12_match_option_guard_print.t81
-      - 13_match_enum_payload_guard_print.out
-      - 13_match_enum_payload_guard_print.t81
-      - t81lang_ast_ir_repro_hash.txt
-      - t81lang_repro_hash.txt
-  - harness/
-    - README.md
-    - canonical/
-      - bigint.json
-      - fraction.json
-      - tensor.json
-    - harness.py
-    - run_all.sh
-    - test_vectors/
-      - arithmetic.t81
-      - control_flow.t81
-      - faults.t81
-      - lang_samples/
-        - fib.t81
-        - hello_world.t81
-        - tensors.t81
-      - memory.t81
-      - privileged_ops.t81
-      - recursion.t81
-      - tensor_ops.t81
-  - python/
-    - test_bindings.py
-    - test_tensor.py
-- tools/
-  - axion_policy_validator.py
-  - ir_inspector.cpp
-  - tisc_base81.cpp
-  - validator.py
-  - vscode-t81/
-    - language-configuration.json
-    - package.json
-    - syntaxes/
-      - t81.tmLanguage.json
-- verify.tisc
+.
+.devcontainer
+.github
+.github/ISSUE_TEMPLATE
+.github/instructions
+.github/workflows
+.venv
+.venv/bin
+.venv/include
+.venv/lib
+.venv/lib/python3.14
+.venv/lib/python3.14/site-packages
+.venv/lib/python3.14/site-packages/pip
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/cachecontrol
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/certifi
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/dependency_groups
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/distlib
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/distro
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/idna
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/msgpack
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/packaging
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/pkg_resources
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/platformdirs
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/pygments
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/pyproject_hooks
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/requests
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/resolvelib
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/rich
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/tomli
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/tomli_w
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/truststore
+.venv/lib/python3.14/site-packages/pip-25.3.dist-info/licenses/src/pip/_vendor/urllib3
+.venv/lib/python3.14/site-packages/pip/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal
+.venv/lib/python3.14/site-packages/pip/_internal/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/cli
+.venv/lib/python3.14/site-packages/pip/_internal/cli/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/commands
+.venv/lib/python3.14/site-packages/pip/_internal/commands/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/distributions
+.venv/lib/python3.14/site-packages/pip/_internal/distributions/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/index
+.venv/lib/python3.14/site-packages/pip/_internal/index/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/locations
+.venv/lib/python3.14/site-packages/pip/_internal/locations/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/metadata
+.venv/lib/python3.14/site-packages/pip/_internal/metadata/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/metadata/importlib
+.venv/lib/python3.14/site-packages/pip/_internal/metadata/importlib/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/models
+.venv/lib/python3.14/site-packages/pip/_internal/models/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/network
+.venv/lib/python3.14/site-packages/pip/_internal/network/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/operations
+.venv/lib/python3.14/site-packages/pip/_internal/operations/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/operations/build
+.venv/lib/python3.14/site-packages/pip/_internal/operations/build/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/operations/install
+.venv/lib/python3.14/site-packages/pip/_internal/operations/install/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/req
+.venv/lib/python3.14/site-packages/pip/_internal/req/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/resolution
+.venv/lib/python3.14/site-packages/pip/_internal/resolution/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/resolution/legacy
+.venv/lib/python3.14/site-packages/pip/_internal/resolution/legacy/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/resolution/resolvelib
+.venv/lib/python3.14/site-packages/pip/_internal/resolution/resolvelib/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/utils
+.venv/lib/python3.14/site-packages/pip/_internal/utils/__pycache__
+.venv/lib/python3.14/site-packages/pip/_internal/vcs
+.venv/lib/python3.14/site-packages/pip/_internal/vcs/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor
+.venv/lib/python3.14/site-packages/pip/_vendor/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/cachecontrol
+.venv/lib/python3.14/site-packages/pip/_vendor/cachecontrol/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/cachecontrol/caches
+.venv/lib/python3.14/site-packages/pip/_vendor/cachecontrol/caches/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/certifi
+.venv/lib/python3.14/site-packages/pip/_vendor/certifi/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/dependency_groups
+.venv/lib/python3.14/site-packages/pip/_vendor/dependency_groups/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/distlib
+.venv/lib/python3.14/site-packages/pip/_vendor/distlib/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/distro
+.venv/lib/python3.14/site-packages/pip/_vendor/distro/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/idna
+.venv/lib/python3.14/site-packages/pip/_vendor/idna/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/msgpack
+.venv/lib/python3.14/site-packages/pip/_vendor/msgpack/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/packaging
+.venv/lib/python3.14/site-packages/pip/_vendor/packaging/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/packaging/licenses
+.venv/lib/python3.14/site-packages/pip/_vendor/packaging/licenses/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/pkg_resources
+.venv/lib/python3.14/site-packages/pip/_vendor/pkg_resources/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/platformdirs
+.venv/lib/python3.14/site-packages/pip/_vendor/platformdirs/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/pygments
+.venv/lib/python3.14/site-packages/pip/_vendor/pygments/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/pygments/filters
+.venv/lib/python3.14/site-packages/pip/_vendor/pygments/filters/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/pygments/formatters
+.venv/lib/python3.14/site-packages/pip/_vendor/pygments/formatters/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/pygments/lexers
+.venv/lib/python3.14/site-packages/pip/_vendor/pygments/lexers/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/pygments/styles
+.venv/lib/python3.14/site-packages/pip/_vendor/pygments/styles/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/pyproject_hooks
+.venv/lib/python3.14/site-packages/pip/_vendor/pyproject_hooks/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/pyproject_hooks/_in_process
+.venv/lib/python3.14/site-packages/pip/_vendor/pyproject_hooks/_in_process/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/requests
+.venv/lib/python3.14/site-packages/pip/_vendor/requests/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/resolvelib
+.venv/lib/python3.14/site-packages/pip/_vendor/resolvelib/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/resolvelib/resolvers
+.venv/lib/python3.14/site-packages/pip/_vendor/resolvelib/resolvers/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/rich
+.venv/lib/python3.14/site-packages/pip/_vendor/rich/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/tomli
+.venv/lib/python3.14/site-packages/pip/_vendor/tomli/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/tomli_w
+.venv/lib/python3.14/site-packages/pip/_vendor/tomli_w/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/truststore
+.venv/lib/python3.14/site-packages/pip/_vendor/truststore/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/urllib3
+.venv/lib/python3.14/site-packages/pip/_vendor/urllib3/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/urllib3/contrib
+.venv/lib/python3.14/site-packages/pip/_vendor/urllib3/contrib/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/urllib3/contrib/_securetransport
+.venv/lib/python3.14/site-packages/pip/_vendor/urllib3/contrib/_securetransport/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/urllib3/packages
+.venv/lib/python3.14/site-packages/pip/_vendor/urllib3/packages/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/urllib3/packages/backports
+.venv/lib/python3.14/site-packages/pip/_vendor/urllib3/packages/backports/__pycache__
+.venv/lib/python3.14/site-packages/pip/_vendor/urllib3/util
+.venv/lib/python3.14/site-packages/pip/_vendor/urllib3/util/__pycache__
+.venv/lib/python3.14/site-packages/pypdf
+.venv/lib/python3.14/site-packages/pypdf-6.7.0.dist-info
+.venv/lib/python3.14/site-packages/pypdf-6.7.0.dist-info/licenses
+.venv/lib/python3.14/site-packages/pypdf/__pycache__
+.venv/lib/python3.14/site-packages/pypdf/_codecs
+.venv/lib/python3.14/site-packages/pypdf/_codecs/__pycache__
+.venv/lib/python3.14/site-packages/pypdf/_crypt_providers
+.venv/lib/python3.14/site-packages/pypdf/_crypt_providers/__pycache__
+.venv/lib/python3.14/site-packages/pypdf/_text_extraction
+.venv/lib/python3.14/site-packages/pypdf/_text_extraction/__pycache__
+.venv/lib/python3.14/site-packages/pypdf/_text_extraction/_layout_mode
+.venv/lib/python3.14/site-packages/pypdf/_text_extraction/_layout_mode/__pycache__
+.venv/lib/python3.14/site-packages/pypdf/annotations
+.venv/lib/python3.14/site-packages/pypdf/annotations/__pycache__
+.venv/lib/python3.14/site-packages/pypdf/generic
+.venv/lib/python3.14/site-packages/pypdf/generic/__pycache__
+Testing
+Testing/Temporary
+benchmarks
+benchmarks/runner
+build
+build-ci-check
+build-ci-check/CMakeFiles
+build-ci-check/CMakeFiles/4.2.3
+build-ci-check/CMakeFiles/4.2.3/CompilerIdC
+build-ci-check/CMakeFiles/4.2.3/CompilerIdC/tmp
+build-ci-check/CMakeFiles/4.2.3/CompilerIdCXX
+build-ci-check/CMakeFiles/4.2.3/CompilerIdCXX/tmp
+build-ci-check/CMakeFiles/CMakeScratch
+build-ci-check/CMakeFiles/CMakeTmp
+build-ci-check/CMakeFiles/axion_demo.dir
+build-ci-check/CMakeFiles/axion_demo.dir/examples
+build-ci-check/CMakeFiles/axion_guard_trace.dir
+build-ci-check/CMakeFiles/axion_guard_trace.dir/examples
+build-ci-check/CMakeFiles/axion_heap_compaction_trace_test.dir
+build-ci-check/CMakeFiles/axion_heap_compaction_trace_test.dir/tests
+build-ci-check/CMakeFiles/axion_heap_compaction_trace_test.dir/tests/cpp
+build-ci-check/CMakeFiles/axion_nested_guard_test.dir
+build-ci-check/CMakeFiles/axion_nested_guard_test.dir/tests
+build-ci-check/CMakeFiles/axion_nested_guard_test.dir/tests/cpp
+build-ci-check/CMakeFiles/axion_policy_runner.dir
+build-ci-check/CMakeFiles/axion_policy_runner.dir/examples
+build-ci-check/CMakeFiles/axion_policy_trace.dir
+build-ci-check/CMakeFiles/axion_policy_trace.dir/examples
+build-ci-check/CMakeFiles/canonfs_trace_demo.dir
+build-ci-check/CMakeFiles/canonfs_trace_demo.dir/examples
+build-ci-check/CMakeFiles/e2e_axion_trace_test.dir
+build-ci-check/CMakeFiles/e2e_axion_trace_test.dir/tests
+build-ci-check/CMakeFiles/e2e_axion_trace_test.dir/tests/cpp
+build-ci-check/CMakeFiles/llama32_demo.dir
+build-ci-check/CMakeFiles/llama32_demo.dir/examples
+build-ci-check/CMakeFiles/pkgRedirects
+build-ci-check/CMakeFiles/t81.dir
+build-ci-check/CMakeFiles/t81.dir/src
+build-ci-check/CMakeFiles/t81.dir/src/cli
+build-ci-check/CMakeFiles/t81_c_api.dir
+build-ci-check/CMakeFiles/t81_c_api.dir/src
+build-ci-check/CMakeFiles/t81_c_api.dir/src/c_api
+build-ci-check/CMakeFiles/t81_cli_driver.dir
+build-ci-check/CMakeFiles/t81_cli_driver.dir/src
+build-ci-check/CMakeFiles/t81_cli_driver.dir/src/cli
+build-ci-check/CMakeFiles/t81_core.dir
+build-ci-check/CMakeFiles/t81_core.dir/src
+build-ci-check/CMakeFiles/t81_core.dir/src/axion
+build-ci-check/CMakeFiles/t81_core.dir/src/bigint
+build-ci-check/CMakeFiles/t81_core.dir/src/canonfs
+build-ci-check/CMakeFiles/t81_core.dir/src/codec
+build-ci-check/CMakeFiles/t81_core.dir/src/cog
+build-ci-check/CMakeFiles/t81_core.dir/src/cog/tier4
+build-ci-check/CMakeFiles/t81_core.dir/src/core
+build-ci-check/CMakeFiles/t81_core.dir/src/crypto
+build-ci-check/CMakeFiles/t81_core.dir/src/hanoi
+build-ci-check/CMakeFiles/t81_core.dir/src/hash
+build-ci-check/CMakeFiles/t81_core.dir/src/tisc
+build-ci-check/CMakeFiles/t81_core.dir/src/tools
+build-ci-check/CMakeFiles/t81_core.dir/src/vm
+build-ci-check/CMakeFiles/t81_demo.dir
+build-ci-check/CMakeFiles/t81_demo.dir/examples
+build-ci-check/CMakeFiles/t81_frontend.dir
+build-ci-check/CMakeFiles/t81_frontend.dir/src
+build-ci-check/CMakeFiles/t81_frontend.dir/src/frontend
+build-ci-check/CMakeFiles/t81_io.dir
+build-ci-check/CMakeFiles/t81_io.dir/src
+build-ci-check/CMakeFiles/t81_io.dir/src/io
+build-ci-check/CMakeFiles/t81_ir_roundtrip.dir
+build-ci-check/CMakeFiles/t81_ir_roundtrip.dir/examples
+build-ci-check/CMakeFiles/t81_python.dir
+build-ci-check/CMakeFiles/t81_python.dir/src
+build-ci-check/CMakeFiles/t81_python.dir/src/python
+build-ci-check/CMakeFiles/t81_tensor_ops.dir
+build-ci-check/CMakeFiles/t81_tensor_ops.dir/examples
+build-ci-check/CMakeFiles/t81_tisc.dir
+build-ci-check/CMakeFiles/t81_tisc.dir/src
+build-ci-check/CMakeFiles/t81_tisc.dir/src/tisc
+build-ci-check/_deps
+build-ci-check/_deps/googlebenchmark-build
+build-ci-check/_deps/googlebenchmark-build/CMakeFiles
+build-ci-check/_deps/googlebenchmark-build/src
+build-ci-check/_deps/googlebenchmark-build/src/CMakeFiles
+build-ci-check/_deps/googlebenchmark-build/src/CMakeFiles/Export
+build-ci-check/_deps/googlebenchmark-build/src/CMakeFiles/Export/d56d27b88fbb159d81f220d5e4f5f598
+build-ci-check/_deps/googlebenchmark-build/src/CMakeFiles/benchmark.dir
+build-ci-check/_deps/googlebenchmark-build/src/CMakeFiles/benchmark_main.dir
+build-ci-check/_deps/googlebenchmark-src
+build-ci-check/_deps/googlebenchmark-src/.github
+build-ci-check/_deps/googlebenchmark-src/.github/ISSUE_TEMPLATE
+build-ci-check/_deps/googlebenchmark-src/.github/workflows
+build-ci-check/_deps/googlebenchmark-src/bazel
+build-ci-check/_deps/googlebenchmark-src/bindings
+build-ci-check/_deps/googlebenchmark-src/bindings/python
+build-ci-check/_deps/googlebenchmark-src/bindings/python/google_benchmark
+build-ci-check/_deps/googlebenchmark-src/cmake
+build-ci-check/_deps/googlebenchmark-src/cmake/Modules
+build-ci-check/_deps/googlebenchmark-src/docs
+build-ci-check/_deps/googlebenchmark-src/docs/assets
+build-ci-check/_deps/googlebenchmark-src/docs/assets/images
+build-ci-check/_deps/googlebenchmark-src/include
+build-ci-check/_deps/googlebenchmark-src/include/benchmark
+build-ci-check/_deps/googlebenchmark-src/src
+build-ci-check/_deps/googlebenchmark-src/test
+build-ci-check/_deps/googlebenchmark-src/tools
+build-ci-check/_deps/googlebenchmark-src/tools/gbench
+build-ci-check/_deps/googlebenchmark-src/tools/gbench/Inputs
+build-ci-check/_deps/googlebenchmark-subbuild
+build-ci-check/_deps/googlebenchmark-subbuild/CMakeFiles
+build-ci-check/_deps/googlebenchmark-subbuild/CMakeFiles/4.2.3
+build-ci-check/_deps/googlebenchmark-subbuild/CMakeFiles/googlebenchmark-populate.dir
+build-ci-check/_deps/googlebenchmark-subbuild/CMakeFiles/pkgRedirects
+build-ci-check/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix
+build-ci-check/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix/src
+build-ci-check/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix/src/googlebenchmark-populate-stamp
+build-ci-check/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix/tmp
+build-ci-check/benchmarks
+build-ci-check/benchmarks/CMakeFiles
+build-ci-check/benchmarks/CMakeFiles/benchmark_runner.dir
+build-ci-check/benchmarks/CMakeFiles/benchmark_runner.dir/runner
+build-cxx20
+build-cxx20/CMakeFiles
+build-cxx20/CMakeFiles/4.2.3
+build-cxx20/CMakeFiles/4.2.3/CompilerIdC
+build-cxx20/CMakeFiles/4.2.3/CompilerIdC/tmp
+build-cxx20/CMakeFiles/4.2.3/CompilerIdCXX
+build-cxx20/CMakeFiles/4.2.3/CompilerIdCXX/tmp
+build-cxx20/CMakeFiles/CMakeTmp
+build-cxx20/CMakeFiles/axion_demo.dir
+build-cxx20/CMakeFiles/axion_demo.dir/examples
+build-cxx20/CMakeFiles/axion_enum_guard_test.dir
+build-cxx20/CMakeFiles/axion_enum_guard_test.dir/tests
+build-cxx20/CMakeFiles/axion_enum_guard_test.dir/tests/cpp
+build-cxx20/CMakeFiles/axion_guard_trace.dir
+build-cxx20/CMakeFiles/axion_guard_trace.dir/examples
+build-cxx20/CMakeFiles/axion_heap_compaction_trace_test.dir
+build-cxx20/CMakeFiles/axion_heap_compaction_trace_test.dir/tests
+build-cxx20/CMakeFiles/axion_heap_compaction_trace_test.dir/tests/cpp
+build-cxx20/CMakeFiles/axion_instruction_counter_test.dir
+build-cxx20/CMakeFiles/axion_instruction_counter_test.dir/tests
+build-cxx20/CMakeFiles/axion_instruction_counter_test.dir/tests/cpp
+build-cxx20/CMakeFiles/axion_loop_metadata_test.dir
+build-cxx20/CMakeFiles/axion_loop_metadata_test.dir/tests
+build-cxx20/CMakeFiles/axion_loop_metadata_test.dir/tests/cpp
+build-cxx20/CMakeFiles/axion_match_metadata_test.dir
+build-cxx20/CMakeFiles/axion_match_metadata_test.dir/tests
+build-cxx20/CMakeFiles/axion_match_metadata_test.dir/tests/cpp
+build-cxx20/CMakeFiles/axion_nested_guard_test.dir
+build-cxx20/CMakeFiles/axion_nested_guard_test.dir/tests
+build-cxx20/CMakeFiles/axion_nested_guard_test.dir/tests/cpp
+build-cxx20/CMakeFiles/axion_policy_bytecode_test.dir
+build-cxx20/CMakeFiles/axion_policy_bytecode_test.dir/tests
+build-cxx20/CMakeFiles/axion_policy_bytecode_test.dir/tests/cpp
+build-cxx20/CMakeFiles/axion_policy_gc_trace_test.dir
+build-cxx20/CMakeFiles/axion_policy_gc_trace_test.dir/tests
+build-cxx20/CMakeFiles/axion_policy_gc_trace_test.dir/tests/cpp
+build-cxx20/CMakeFiles/axion_policy_match_guard_test.dir
+build-cxx20/CMakeFiles/axion_policy_match_guard_test.dir/tests
+build-cxx20/CMakeFiles/axion_policy_match_guard_test.dir/tests/cpp
+build-cxx20/CMakeFiles/axion_policy_runner.dir
+build-cxx20/CMakeFiles/axion_policy_runner.dir/examples
+build-cxx20/CMakeFiles/axion_policy_segment_event_test.dir
+build-cxx20/CMakeFiles/axion_policy_segment_event_test.dir/tests
+build-cxx20/CMakeFiles/axion_policy_segment_event_test.dir/tests/cpp
+build-cxx20/CMakeFiles/axion_policy_trace.dir
+build-cxx20/CMakeFiles/axion_policy_trace.dir/examples
+build-cxx20/CMakeFiles/axion_recursion_guardrails_test.dir
+build-cxx20/CMakeFiles/axion_recursion_guardrails_test.dir/tests
+build-cxx20/CMakeFiles/axion_recursion_guardrails_test.dir/tests/cpp
+build-cxx20/CMakeFiles/bigint_perf_guardrail_test.dir
+build-cxx20/CMakeFiles/bigint_perf_guardrail_test.dir/tests
+build-cxx20/CMakeFiles/bigint_perf_guardrail_test.dir/tests/cpp
+build-cxx20/CMakeFiles/canonfs_axion_trace_test.dir
+build-cxx20/CMakeFiles/canonfs_axion_trace_test.dir/tests
+build-cxx20/CMakeFiles/canonfs_axion_trace_test.dir/tests/cpp
+build-cxx20/CMakeFiles/canonfs_persistent_driver_test.dir
+build-cxx20/CMakeFiles/canonfs_persistent_driver_test.dir/tests
+build-cxx20/CMakeFiles/canonfs_persistent_driver_test.dir/tests/cpp
+build-cxx20/CMakeFiles/canonfs_trace_demo.dir
+build-cxx20/CMakeFiles/canonfs_trace_demo.dir/examples
+build-cxx20/CMakeFiles/cli_e2e_test.dir
+build-cxx20/CMakeFiles/cli_e2e_test.dir/tests
+build-cxx20/CMakeFiles/cli_e2e_test.dir/tests/cpp
+build-cxx20/CMakeFiles/cli_repro_hash_test.dir
+build-cxx20/CMakeFiles/cli_repro_hash_test.dir/tests
+build-cxx20/CMakeFiles/cli_repro_hash_test.dir/tests/cpp
+build-cxx20/CMakeFiles/docs.dir
+build-cxx20/CMakeFiles/e2e_advanced_features_test.dir
+build-cxx20/CMakeFiles/e2e_advanced_features_test.dir/tests
+build-cxx20/CMakeFiles/e2e_advanced_features_test.dir/tests/cpp
+build-cxx20/CMakeFiles/e2e_arithmetic_test.dir
+build-cxx20/CMakeFiles/e2e_arithmetic_test.dir/tests
+build-cxx20/CMakeFiles/e2e_arithmetic_test.dir/tests/cpp
+build-cxx20/CMakeFiles/e2e_ast_ir_canonical_determinism_test.dir
+build-cxx20/CMakeFiles/e2e_ast_ir_canonical_determinism_test.dir/tests
+build-cxx20/CMakeFiles/e2e_ast_ir_canonical_determinism_test.dir/tests/cpp
+build-cxx20/CMakeFiles/e2e_axion_trace_test.dir
+build-cxx20/CMakeFiles/e2e_axion_trace_test.dir/tests
+build-cxx20/CMakeFiles/e2e_axion_trace_test.dir/tests/cpp
+build-cxx20/CMakeFiles/e2e_compile_determinism_test.dir
+build-cxx20/CMakeFiles/e2e_compile_determinism_test.dir/tests
+build-cxx20/CMakeFiles/e2e_compile_determinism_test.dir/tests/cpp
+build-cxx20/CMakeFiles/e2e_if_statement_test.dir
+build-cxx20/CMakeFiles/e2e_if_statement_test.dir/tests
+build-cxx20/CMakeFiles/e2e_if_statement_test.dir/tests/cpp
+build-cxx20/CMakeFiles/e2e_let_statement_test.dir
+build-cxx20/CMakeFiles/e2e_let_statement_test.dir/tests
+build-cxx20/CMakeFiles/e2e_let_statement_test.dir/tests/cpp
+build-cxx20/CMakeFiles/e2e_loop_statement_test.dir
+build-cxx20/CMakeFiles/e2e_loop_statement_test.dir/tests
+build-cxx20/CMakeFiles/e2e_loop_statement_test.dir/tests/cpp
+build-cxx20/CMakeFiles/e2e_match_expression_test.dir
+build-cxx20/CMakeFiles/e2e_match_expression_test.dir/tests
+build-cxx20/CMakeFiles/e2e_match_expression_test.dir/tests/cpp
+build-cxx20/CMakeFiles/e2e_match_metadata_determinism_test.dir
+build-cxx20/CMakeFiles/e2e_match_metadata_determinism_test.dir/tests
+build-cxx20/CMakeFiles/e2e_match_metadata_determinism_test.dir/tests/cpp
+build-cxx20/CMakeFiles/e2e_option_result_function_test.dir
+build-cxx20/CMakeFiles/e2e_option_result_function_test.dir/tests
+build-cxx20/CMakeFiles/e2e_option_result_function_test.dir/tests/cpp
+build-cxx20/CMakeFiles/e2e_option_result_test.dir
+build-cxx20/CMakeFiles/e2e_option_result_test.dir/tests
+build-cxx20/CMakeFiles/e2e_option_result_test.dir/tests/cpp
+build-cxx20/CMakeFiles/e2e_option_type_test.dir
+build-cxx20/CMakeFiles/e2e_option_type_test.dir/tests
+build-cxx20/CMakeFiles/e2e_option_type_test.dir/tests/cpp
+build-cxx20/CMakeFiles/e2e_print_runtime_test.dir
+build-cxx20/CMakeFiles/e2e_print_runtime_test.dir/tests
+build-cxx20/CMakeFiles/e2e_print_runtime_test.dir/tests/cpp
+build-cxx20/CMakeFiles/ir_inspector.dir
+build-cxx20/CMakeFiles/ir_inspector.dir/tools
+build-cxx20/CMakeFiles/jit_tensor_trace_equivalence_test.dir
+build-cxx20/CMakeFiles/jit_tensor_trace_equivalence_test.dir/tests
+build-cxx20/CMakeFiles/jit_tensor_trace_equivalence_test.dir/tests/cpp
+build-cxx20/CMakeFiles/jit_trace_equivalence_test.dir
+build-cxx20/CMakeFiles/jit_trace_equivalence_test.dir/tests
+build-cxx20/CMakeFiles/jit_trace_equivalence_test.dir/tests/cpp
+build-cxx20/CMakeFiles/llama32_demo.dir
+build-cxx20/CMakeFiles/llama32_demo.dir/examples
+build-cxx20/CMakeFiles/llama_kernels_test.dir
+build-cxx20/CMakeFiles/llama_kernels_test.dir/tests
+build-cxx20/CMakeFiles/llama_kernels_test.dir/tests/cpp
+build-cxx20/CMakeFiles/performance_advancements_test.dir
+build-cxx20/CMakeFiles/performance_advancements_test.dir/tests
+build-cxx20/CMakeFiles/performance_advancements_test.dir/tests/cpp
+build-cxx20/CMakeFiles/pkgRedirects
+build-cxx20/CMakeFiles/setun_bridge_test.dir
+build-cxx20/CMakeFiles/setun_bridge_test.dir/tests
+build-cxx20/CMakeFiles/setun_bridge_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81.dir
+build-cxx20/CMakeFiles/t81.dir/src
+build-cxx20/CMakeFiles/t81.dir/src/cli
+build-cxx20/CMakeFiles/t81_axion_log_determinism_test.dir
+build-cxx20/CMakeFiles/t81_axion_log_determinism_test.dir/tests
+build-cxx20/CMakeFiles/t81_axion_log_determinism_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_axion_stub_test.dir
+build-cxx20/CMakeFiles/t81_axion_stub_test.dir/tests
+build-cxx20/CMakeFiles/t81_axion_stub_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_base81_balanced_test.dir
+build-cxx20/CMakeFiles/t81_base81_balanced_test.dir/tests
+build-cxx20/CMakeFiles/t81_base81_balanced_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_base81_packed_test.dir
+build-cxx20/CMakeFiles/t81_base81_packed_test.dir/tests
+build-cxx20/CMakeFiles/t81_base81_packed_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_bigint_test.dir
+build-cxx20/CMakeFiles/t81_bigint_test.dir/tests
+build-cxx20/CMakeFiles/t81_bigint_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_bigint_v1_baseline_test.dir
+build-cxx20/CMakeFiles/t81_bigint_v1_baseline_test.dir/tests
+build-cxx20/CMakeFiles/t81_bigint_v1_baseline_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_bigint_v1_perf.dir
+build-cxx20/CMakeFiles/t81_bigint_v1_perf.dir/tests
+build-cxx20/CMakeFiles/t81_bigint_v1_perf.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_bytes_test.dir
+build-cxx20/CMakeFiles/t81_bytes_test.dir/tests
+build-cxx20/CMakeFiles/t81_bytes_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_c_api.dir
+build-cxx20/CMakeFiles/t81_c_api.dir/src
+build-cxx20/CMakeFiles/t81_c_api.dir/src/c_api
+build-cxx20/CMakeFiles/t81_c_api_bigint_test.dir
+build-cxx20/CMakeFiles/t81_c_api_bigint_test.dir/tests
+build-cxx20/CMakeFiles/t81_c_api_bigint_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_canonfs_driver_test.dir
+build-cxx20/CMakeFiles/t81_canonfs_driver_test.dir/tests
+build-cxx20/CMakeFiles/t81_canonfs_driver_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_canonfs_io_test.dir
+build-cxx20/CMakeFiles/t81_canonfs_io_test.dir/tests
+build-cxx20/CMakeFiles/t81_canonfs_io_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_cli_check_test.dir
+build-cxx20/CMakeFiles/t81_cli_check_test.dir/tests
+build-cxx20/CMakeFiles/t81_cli_check_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_cli_diagnostic_context_test.dir
+build-cxx20/CMakeFiles/t81_cli_diagnostic_context_test.dir/tests
+build-cxx20/CMakeFiles/t81_cli_diagnostic_context_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_cli_disasm_test.dir
+build-cxx20/CMakeFiles/t81_cli_disasm_test.dir/tests
+build-cxx20/CMakeFiles/t81_cli_disasm_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_cli_driver.dir
+build-cxx20/CMakeFiles/t81_cli_driver.dir/src
+build-cxx20/CMakeFiles/t81_cli_driver.dir/src/cli
+build-cxx20/CMakeFiles/t81_cli_option_result_test.dir
+build-cxx20/CMakeFiles/t81_cli_option_result_test.dir/tests
+build-cxx20/CMakeFiles/t81_cli_option_result_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_cli_pipeline_test.dir
+build-cxx20/CMakeFiles/t81_cli_pipeline_test.dir/tests
+build-cxx20/CMakeFiles/t81_cli_pipeline_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_cli_record_enum_test.dir
+build-cxx20/CMakeFiles/t81_cli_record_enum_test.dir/tests
+build-cxx20/CMakeFiles/t81_cli_record_enum_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_cli_repl_test.dir
+build-cxx20/CMakeFiles/t81_cli_repl_test.dir/tests
+build-cxx20/CMakeFiles/t81_cli_repl_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_cli_structural_types_test.dir
+build-cxx20/CMakeFiles/t81_cli_structural_types_test.dir/tests
+build-cxx20/CMakeFiles/t81_cli_structural_types_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_codec_base243_test.dir
+build-cxx20/CMakeFiles/t81_codec_base243_test.dir/tests
+build-cxx20/CMakeFiles/t81_codec_base243_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_codec_base81_test.dir
+build-cxx20/CMakeFiles/t81_codec_base81_test.dir/tests
+build-cxx20/CMakeFiles/t81_codec_base81_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_complex_test.dir
+build-cxx20/CMakeFiles/t81_complex_test.dir/tests
+build-cxx20/CMakeFiles/t81_complex_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_core.dir
+build-cxx20/CMakeFiles/t81_core.dir/src
+build-cxx20/CMakeFiles/t81_core.dir/src/axion
+build-cxx20/CMakeFiles/t81_core.dir/src/bigint
+build-cxx20/CMakeFiles/t81_core.dir/src/canonfs
+build-cxx20/CMakeFiles/t81_core.dir/src/codec
+build-cxx20/CMakeFiles/t81_core.dir/src/cog
+build-cxx20/CMakeFiles/t81_core.dir/src/cog/tier4
+build-cxx20/CMakeFiles/t81_core.dir/src/core
+build-cxx20/CMakeFiles/t81_core.dir/src/crypto
+build-cxx20/CMakeFiles/t81_core.dir/src/hanoi
+build-cxx20/CMakeFiles/t81_core.dir/src/hash
+build-cxx20/CMakeFiles/t81_core.dir/src/setun
+build-cxx20/CMakeFiles/t81_core.dir/src/tisc
+build-cxx20/CMakeFiles/t81_core.dir/src/tools
+build-cxx20/CMakeFiles/t81_core.dir/src/vm
+build-cxx20/CMakeFiles/t81_demo.dir
+build-cxx20/CMakeFiles/t81_demo.dir/examples
+build-cxx20/CMakeFiles/t81_distributed_tensor_test.dir
+build-cxx20/CMakeFiles/t81_distributed_tensor_test.dir/tests
+build-cxx20/CMakeFiles/t81_distributed_tensor_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_division_test.dir
+build-cxx20/CMakeFiles/t81_division_test.dir/tests
+build-cxx20/CMakeFiles/t81_division_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_entropy_test.dir
+build-cxx20/CMakeFiles/t81_entropy_test.dir/tests
+build-cxx20/CMakeFiles/t81_entropy_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_expected_test.dir
+build-cxx20/CMakeFiles/t81_expected_test.dir/tests
+build-cxx20/CMakeFiles/t81_expected_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_fixed_test.dir
+build-cxx20/CMakeFiles/t81_fixed_test.dir/tests
+build-cxx20/CMakeFiles/t81_fixed_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_float_test.dir
+build-cxx20/CMakeFiles/t81_float_test.dir/tests
+build-cxx20/CMakeFiles/t81_float_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_fraction_test.dir
+build-cxx20/CMakeFiles/t81_fraction_test.dir/tests
+build-cxx20/CMakeFiles/t81_fraction_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_frontend.dir
+build-cxx20/CMakeFiles/t81_frontend.dir/src
+build-cxx20/CMakeFiles/t81_frontend.dir/src/frontend
+build-cxx20/CMakeFiles/t81_frontend_fuzz_test.dir
+build-cxx20/CMakeFiles/t81_frontend_fuzz_test.dir/tests
+build-cxx20/CMakeFiles/t81_frontend_fuzz_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_frontend_ir_generator_test.dir
+build-cxx20/CMakeFiles/t81_frontend_ir_generator_test.dir/tests
+build-cxx20/CMakeFiles/t81_frontend_ir_generator_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_frontend_lexer_test.dir
+build-cxx20/CMakeFiles/t81_frontend_lexer_test.dir/tests
+build-cxx20/CMakeFiles/t81_frontend_lexer_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_frontend_parser_generics_test.dir
+build-cxx20/CMakeFiles/t81_frontend_parser_generics_test.dir/tests
+build-cxx20/CMakeFiles/t81_frontend_parser_generics_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_frontend_parser_legacy_rejection_test.dir
+build-cxx20/CMakeFiles/t81_frontend_parser_legacy_rejection_test.dir/tests
+build-cxx20/CMakeFiles/t81_frontend_parser_legacy_rejection_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_frontend_parser_test.dir
+build-cxx20/CMakeFiles/t81_frontend_parser_test.dir/tests
+build-cxx20/CMakeFiles/t81_frontend_parser_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_hanoi_integration_test.dir
+build-cxx20/CMakeFiles/t81_hanoi_integration_test.dir/tests
+build-cxx20/CMakeFiles/t81_hanoi_integration_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_hash_stub_test.dir
+build-cxx20/CMakeFiles/t81_hash_stub_test.dir/tests
+build-cxx20/CMakeFiles/t81_hash_stub_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_io.dir
+build-cxx20/CMakeFiles/t81_io.dir/src
+build-cxx20/CMakeFiles/t81_io.dir/src/io
+build-cxx20/CMakeFiles/t81_ir_encoding_test.dir
+build-cxx20/CMakeFiles/t81_ir_encoding_test.dir/tests
+build-cxx20/CMakeFiles/t81_ir_encoding_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_ir_roundtrip.dir
+build-cxx20/CMakeFiles/t81_ir_roundtrip.dir/examples
+build-cxx20/CMakeFiles/t81_jit_test.dir
+build-cxx20/CMakeFiles/t81_jit_test.dir/tests
+build-cxx20/CMakeFiles/t81_jit_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_limb54_add_test.dir
+build-cxx20/CMakeFiles/t81_limb54_add_test.dir/tests
+build-cxx20/CMakeFiles/t81_limb54_add_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_limb54_booth_mul_test.dir
+build-cxx20/CMakeFiles/t81_limb54_booth_mul_test.dir/tests
+build-cxx20/CMakeFiles/t81_limb54_booth_mul_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_limb_add_test.dir
+build-cxx20/CMakeFiles/t81_limb_add_test.dir/tests
+build-cxx20/CMakeFiles/t81_limb_add_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_limb_bohemian_add_test.dir
+build-cxx20/CMakeFiles/t81_limb_bohemian_add_test.dir/tests
+build-cxx20/CMakeFiles/t81_limb_bohemian_add_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_limb_bohemian_mul_test.dir
+build-cxx20/CMakeFiles/t81_limb_bohemian_mul_test.dir/tests
+build-cxx20/CMakeFiles/t81_limb_bohemian_mul_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_limb_booth_mul_test.dir
+build-cxx20/CMakeFiles/t81_limb_booth_mul_test.dir/tests
+build-cxx20/CMakeFiles/t81_limb_booth_mul_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_limb_mul_wide_high_test.dir
+build-cxx20/CMakeFiles/t81_limb_mul_wide_high_test.dir/tests
+build-cxx20/CMakeFiles/t81_limb_mul_wide_high_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_list_test.dir
+build-cxx20/CMakeFiles/t81_list_test.dir/tests
+build-cxx20/CMakeFiles/t81_list_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_map_test.dir
+build-cxx20/CMakeFiles/t81_map_test.dir/tests
+build-cxx20/CMakeFiles/t81_map_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_matrix_test.dir
+build-cxx20/CMakeFiles/t81_matrix_test.dir/tests
+build-cxx20/CMakeFiles/t81_matrix_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_maybe_test.dir
+build-cxx20/CMakeFiles/t81_maybe_test.dir/tests
+build-cxx20/CMakeFiles/t81_maybe_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_metadata_test.dir
+build-cxx20/CMakeFiles/t81_metadata_test.dir/tests
+build-cxx20/CMakeFiles/t81_metadata_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_native_arith_test.dir
+build-cxx20/CMakeFiles/t81_native_arith_test.dir/tests
+build-cxx20/CMakeFiles/t81_native_arith_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_native_conversion_test.dir
+build-cxx20/CMakeFiles/t81_native_conversion_test.dir/tests
+build-cxx20/CMakeFiles/t81_native_conversion_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_numeric_format_test.dir
+build-cxx20/CMakeFiles/t81_numeric_format_test.dir/tests
+build-cxx20/CMakeFiles/t81_numeric_format_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_prob_test.dir
+build-cxx20/CMakeFiles/t81_prob_test.dir/tests
+build-cxx20/CMakeFiles/t81_prob_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_python.dir
+build-cxx20/CMakeFiles/t81_python.dir/src
+build-cxx20/CMakeFiles/t81_python.dir/src/python
+build-cxx20/CMakeFiles/t81_quaternion_test.dir
+build-cxx20/CMakeFiles/t81_quaternion_test.dir/tests
+build-cxx20/CMakeFiles/t81_quaternion_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_qutrit_test.dir
+build-cxx20/CMakeFiles/t81_qutrit_test.dir/tests
+build-cxx20/CMakeFiles/t81_qutrit_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_reflection_non_interference_test.dir
+build-cxx20/CMakeFiles/t81_reflection_non_interference_test.dir/tests
+build-cxx20/CMakeFiles/t81_reflection_non_interference_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_result_test.dir
+build-cxx20/CMakeFiles/t81_result_test.dir/tests
+build-cxx20/CMakeFiles/t81_result_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_semantic_analyzer_equality_test.dir
+build-cxx20/CMakeFiles/t81_semantic_analyzer_equality_test.dir/tests
+build-cxx20/CMakeFiles/t81_semantic_analyzer_equality_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_semantic_analyzer_generic_test.dir
+build-cxx20/CMakeFiles/t81_semantic_analyzer_generic_test.dir/tests
+build-cxx20/CMakeFiles/t81_semantic_analyzer_generic_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_semantic_analyzer_loop_test.dir
+build-cxx20/CMakeFiles/t81_semantic_analyzer_loop_test.dir/tests
+build-cxx20/CMakeFiles/t81_semantic_analyzer_loop_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_semantic_analyzer_match_test.dir
+build-cxx20/CMakeFiles/t81_semantic_analyzer_match_test.dir/tests
+build-cxx20/CMakeFiles/t81_semantic_analyzer_match_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_semantic_analyzer_numeric_test.dir
+build-cxx20/CMakeFiles/t81_semantic_analyzer_numeric_test.dir/tests
+build-cxx20/CMakeFiles/t81_semantic_analyzer_numeric_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_semantic_analyzer_option_result_test.dir
+build-cxx20/CMakeFiles/t81_semantic_analyzer_option_result_test.dir/tests
+build-cxx20/CMakeFiles/t81_semantic_analyzer_option_result_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_semantic_analyzer_record_enum_test.dir
+build-cxx20/CMakeFiles/t81_semantic_analyzer_record_enum_test.dir/tests
+build-cxx20/CMakeFiles/t81_semantic_analyzer_record_enum_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_semantic_analyzer_vector_literal_test.dir
+build-cxx20/CMakeFiles/t81_semantic_analyzer_vector_literal_test.dir/tests
+build-cxx20/CMakeFiles/t81_semantic_analyzer_vector_literal_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_set_test.dir
+build-cxx20/CMakeFiles/t81_set_test.dir/tests
+build-cxx20/CMakeFiles/t81_set_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_simd_add_helpers_test.dir
+build-cxx20/CMakeFiles/t81_simd_add_helpers_test.dir/tests
+build-cxx20/CMakeFiles/t81_simd_add_helpers_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_string_test.dir
+build-cxx20/CMakeFiles/t81_string_test.dir/tests
+build-cxx20/CMakeFiles/t81_string_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_symbol_test.dir
+build-cxx20/CMakeFiles/t81_symbol_test.dir/tests
+build-cxx20/CMakeFiles/t81_symbol_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_t81int_test.dir
+build-cxx20/CMakeFiles/t81_t81int_test.dir/tests
+build-cxx20/CMakeFiles/t81_t81int_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_t81int_to_binary_test.dir
+build-cxx20/CMakeFiles/t81_t81int_to_binary_test.dir/tests
+build-cxx20/CMakeFiles/t81_t81int_to_binary_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tensor_broadcast_test.dir
+build-cxx20/CMakeFiles/t81_tensor_broadcast_test.dir/tests
+build-cxx20/CMakeFiles/t81_tensor_broadcast_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tensor_elementwise_test.dir
+build-cxx20/CMakeFiles/t81_tensor_elementwise_test.dir/tests
+build-cxx20/CMakeFiles/t81_tensor_elementwise_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tensor_loader_test.dir
+build-cxx20/CMakeFiles/t81_tensor_loader_test.dir/tests
+build-cxx20/CMakeFiles/t81_tensor_loader_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tensor_matmul_test.dir
+build-cxx20/CMakeFiles/t81_tensor_matmul_test.dir/tests
+build-cxx20/CMakeFiles/t81_tensor_matmul_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tensor_ops.dir
+build-cxx20/CMakeFiles/t81_tensor_ops.dir/examples
+build-cxx20/CMakeFiles/t81_tensor_reduce_test.dir
+build-cxx20/CMakeFiles/t81_tensor_reduce_test.dir/tests
+build-cxx20/CMakeFiles/t81_tensor_reduce_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tensor_reshape_test.dir
+build-cxx20/CMakeFiles/t81_tensor_reshape_test.dir/tests
+build-cxx20/CMakeFiles/t81_tensor_reshape_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tensor_shape_test.dir
+build-cxx20/CMakeFiles/t81_tensor_shape_test.dir/tests
+build-cxx20/CMakeFiles/t81_tensor_shape_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tensor_slice_test.dir
+build-cxx20/CMakeFiles/t81_tensor_slice_test.dir/tests
+build-cxx20/CMakeFiles/t81_tensor_slice_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tensor_ternary_test.dir
+build-cxx20/CMakeFiles/t81_tensor_ternary_test.dir/tests
+build-cxx20/CMakeFiles/t81_tensor_ternary_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tensor_transpose_test.dir
+build-cxx20/CMakeFiles/t81_tensor_transpose_test.dir/tests
+build-cxx20/CMakeFiles/t81_tensor_transpose_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tensor_unary_test.dir
+build-cxx20/CMakeFiles/t81_tensor_unary_test.dir/tests
+build-cxx20/CMakeFiles/t81_tensor_unary_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_ternary_arith_test.dir
+build-cxx20/CMakeFiles/t81_ternary_arith_test.dir/tests
+build-cxx20/CMakeFiles/t81_ternary_arith_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tier4_test.dir
+build-cxx20/CMakeFiles/t81_tier4_test.dir/tests
+build-cxx20/CMakeFiles/t81_tier4_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tier4_vm_test.dir
+build-cxx20/CMakeFiles/t81_tier4_vm_test.dir/tests
+build-cxx20/CMakeFiles/t81_tier4_vm_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_time_test.dir
+build-cxx20/CMakeFiles/t81_time_test.dir/tests
+build-cxx20/CMakeFiles/t81_time_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tisc.dir
+build-cxx20/CMakeFiles/t81_tisc.dir/src
+build-cxx20/CMakeFiles/t81_tisc.dir/src/tisc
+build-cxx20/CMakeFiles/t81_tisc_base81_view_test.dir
+build-cxx20/CMakeFiles/t81_tisc_base81_view_test.dir/tests
+build-cxx20/CMakeFiles/t81_tisc_base81_view_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tisc_binary_emitter_test.dir
+build-cxx20/CMakeFiles/t81_tisc_binary_emitter_test.dir/tests
+build-cxx20/CMakeFiles/t81_tisc_binary_emitter_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tisc_binary_io_determinism_test.dir
+build-cxx20/CMakeFiles/t81_tisc_binary_io_determinism_test.dir/tests
+build-cxx20/CMakeFiles/t81_tisc_binary_io_determinism_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tisc_encoding_test.dir
+build-cxx20/CMakeFiles/t81_tisc_encoding_test.dir/tests
+build-cxx20/CMakeFiles/t81_tisc_encoding_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tisc_type_alias_io_test.dir
+build-cxx20/CMakeFiles/t81_tisc_type_alias_io_test.dir/tests
+build-cxx20/CMakeFiles/t81_tisc_type_alias_io_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_tree_test.dir
+build-cxx20/CMakeFiles/t81_tree_test.dir/tests
+build-cxx20/CMakeFiles/t81_tree_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_trit_packing_test.dir
+build-cxx20/CMakeFiles/t81_trit_packing_test.dir/tests
+build-cxx20/CMakeFiles/t81_trit_packing_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_uint_test.dir
+build-cxx20/CMakeFiles/t81_uint_test.dir/tests
+build-cxx20/CMakeFiles/t81_uint_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_vector_test.dir
+build-cxx20/CMakeFiles/t81_vector_test.dir/tests
+build-cxx20/CMakeFiles/t81_vector_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_vm_bounds_test.dir
+build-cxx20/CMakeFiles/t81_vm_bounds_test.dir/tests
+build-cxx20/CMakeFiles/t81_vm_bounds_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_vm_divmod_test.dir
+build-cxx20/CMakeFiles/t81_vm_divmod_test.dir/tests
+build-cxx20/CMakeFiles/t81_vm_divmod_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_vm_fault_test.dir
+build-cxx20/CMakeFiles/t81_vm_fault_test.dir/tests
+build-cxx20/CMakeFiles/t81_vm_fault_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_vm_float_fraction_ops_test.dir
+build-cxx20/CMakeFiles/t81_vm_float_fraction_ops_test.dir/tests
+build-cxx20/CMakeFiles/t81_vm_float_fraction_ops_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_vm_illegal_test.dir
+build-cxx20/CMakeFiles/t81_vm_illegal_test.dir/tests
+build-cxx20/CMakeFiles/t81_vm_illegal_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_vm_jump_flags_test.dir
+build-cxx20/CMakeFiles/t81_vm_jump_flags_test.dir/tests
+build-cxx20/CMakeFiles/t81_vm_jump_flags_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_vm_load_store_test.dir
+build-cxx20/CMakeFiles/t81_vm_load_store_test.dir/tests
+build-cxx20/CMakeFiles/t81_vm_load_store_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_vm_memory_test.dir
+build-cxx20/CMakeFiles/t81_vm_memory_test.dir/tests
+build-cxx20/CMakeFiles/t81_vm_memory_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_vm_neg_jumps_test.dir
+build-cxx20/CMakeFiles/t81_vm_neg_jumps_test.dir/tests
+build-cxx20/CMakeFiles/t81_vm_neg_jumps_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_vm_print_test.dir
+build-cxx20/CMakeFiles/t81_vm_print_test.dir/tests
+build-cxx20/CMakeFiles/t81_vm_print_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_vm_tensor_test.dir
+build-cxx20/CMakeFiles/t81_vm_tensor_test.dir/tests
+build-cxx20/CMakeFiles/t81_vm_tensor_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_vm_trace_test.dir
+build-cxx20/CMakeFiles/t81_vm_trace_test.dir/tests
+build-cxx20/CMakeFiles/t81_vm_trace_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_weights_load_test.dir
+build-cxx20/CMakeFiles/t81_weights_load_test.dir/tests
+build-cxx20/CMakeFiles/t81_weights_load_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81_weights_quantize_test.dir
+build-cxx20/CMakeFiles/t81_weights_quantize_test.dir/tests
+build-cxx20/CMakeFiles/t81_weights_quantize_test.dir/tests/cpp
+build-cxx20/CMakeFiles/t81lang_conformance_baseline_test.dir
+build-cxx20/CMakeFiles/t81lang_conformance_baseline_test.dir/tests
+build-cxx20/CMakeFiles/t81lang_conformance_baseline_test.dir/tests/cpp
+build-cxx20/CMakeFiles/tensor_backend_parity_test.dir
+build-cxx20/CMakeFiles/tensor_backend_parity_test.dir/tests
+build-cxx20/CMakeFiles/tensor_backend_parity_test.dir/tests/cpp
+build-cxx20/CMakeFiles/test_T81Tensor_transpose.dir
+build-cxx20/CMakeFiles/test_T81Tensor_transpose.dir/tests
+build-cxx20/CMakeFiles/test_T81Tensor_transpose.dir/tests/cpp
+build-cxx20/CMakeFiles/test_bigint_multilimb_ext.dir
+build-cxx20/CMakeFiles/test_bigint_multilimb_ext.dir/tests
+build-cxx20/CMakeFiles/test_bigint_multilimb_ext.dir/tests/cpp
+build-cxx20/CMakeFiles/tisc_base81.dir
+build-cxx20/CMakeFiles/tisc_base81.dir/tools
+build-cxx20/CMakeFiles/tisc_opcode_matrix_test.dir
+build-cxx20/CMakeFiles/tisc_opcode_matrix_test.dir/tests
+build-cxx20/CMakeFiles/tisc_opcode_matrix_test.dir/tests/cpp
+build-cxx20/CMakeFiles/vm_bounds_trace_test.dir
+build-cxx20/CMakeFiles/vm_bounds_trace_test.dir/tests
+build-cxx20/CMakeFiles/vm_bounds_trace_test.dir/tests/cpp
+build-cxx20/CMakeFiles/vm_extended_ops_test.dir
+build-cxx20/CMakeFiles/vm_extended_ops_test.dir/tests
+build-cxx20/CMakeFiles/vm_extended_ops_test.dir/tests/cpp
+build-cxx20/Testing
+build-cxx20/Testing/Temporary
+build-cxx20/_deps
+build-cxx20/_deps/googlebenchmark-build
+build-cxx20/_deps/googlebenchmark-build/CMakeFiles
+build-cxx20/_deps/googlebenchmark-build/src
+build-cxx20/_deps/googlebenchmark-build/src/CMakeFiles
+build-cxx20/_deps/googlebenchmark-build/src/CMakeFiles/Export
+build-cxx20/_deps/googlebenchmark-build/src/CMakeFiles/Export/d56d27b88fbb159d81f220d5e4f5f598
+build-cxx20/_deps/googlebenchmark-build/src/CMakeFiles/benchmark.dir
+build-cxx20/_deps/googlebenchmark-build/src/CMakeFiles/benchmark_main.dir
+build-cxx20/_deps/googlebenchmark-src
+build-cxx20/_deps/googlebenchmark-src/.github
+build-cxx20/_deps/googlebenchmark-src/.github/ISSUE_TEMPLATE
+build-cxx20/_deps/googlebenchmark-src/.github/workflows
+build-cxx20/_deps/googlebenchmark-src/bazel
+build-cxx20/_deps/googlebenchmark-src/bindings
+build-cxx20/_deps/googlebenchmark-src/bindings/python
+build-cxx20/_deps/googlebenchmark-src/bindings/python/google_benchmark
+build-cxx20/_deps/googlebenchmark-src/cmake
+build-cxx20/_deps/googlebenchmark-src/cmake/Modules
+build-cxx20/_deps/googlebenchmark-src/docs
+build-cxx20/_deps/googlebenchmark-src/docs/assets
+build-cxx20/_deps/googlebenchmark-src/docs/assets/images
+build-cxx20/_deps/googlebenchmark-src/include
+build-cxx20/_deps/googlebenchmark-src/include/benchmark
+build-cxx20/_deps/googlebenchmark-src/src
+build-cxx20/_deps/googlebenchmark-src/test
+build-cxx20/_deps/googlebenchmark-src/tools
+build-cxx20/_deps/googlebenchmark-src/tools/gbench
+build-cxx20/_deps/googlebenchmark-src/tools/gbench/Inputs
+build-cxx20/_deps/googlebenchmark-subbuild
+build-cxx20/_deps/googlebenchmark-subbuild/CMakeFiles
+build-cxx20/_deps/googlebenchmark-subbuild/CMakeFiles/4.2.3
+build-cxx20/_deps/googlebenchmark-subbuild/CMakeFiles/googlebenchmark-populate.dir
+build-cxx20/_deps/googlebenchmark-subbuild/CMakeFiles/pkgRedirects
+build-cxx20/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix
+build-cxx20/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix/src
+build-cxx20/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix/src/googlebenchmark-populate-stamp
+build-cxx20/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix/tmp
+build-cxx20/benchmarks
+build-cxx20/benchmarks/CMakeFiles
+build-cxx20/benchmarks/CMakeFiles/benchmark_runner.dir
+build-cxx20/benchmarks/CMakeFiles/benchmark_runner.dir/runner
+build-cxx23
+build-cxx23/CMakeFiles
+build-cxx23/CMakeFiles/4.2.3
+build-cxx23/CMakeFiles/4.2.3/CompilerIdC
+build-cxx23/CMakeFiles/4.2.3/CompilerIdC/tmp
+build-cxx23/CMakeFiles/4.2.3/CompilerIdCXX
+build-cxx23/CMakeFiles/4.2.3/CompilerIdCXX/tmp
+build-cxx23/CMakeFiles/CMakeScratch
+build-cxx23/CMakeFiles/CMakeTmp
+build-cxx23/CMakeFiles/axion_demo.dir
+build-cxx23/CMakeFiles/axion_demo.dir/examples
+build-cxx23/CMakeFiles/axion_enum_guard_test.dir
+build-cxx23/CMakeFiles/axion_enum_guard_test.dir/tests
+build-cxx23/CMakeFiles/axion_enum_guard_test.dir/tests/cpp
+build-cxx23/CMakeFiles/axion_guard_trace.dir
+build-cxx23/CMakeFiles/axion_guard_trace.dir/examples
+build-cxx23/CMakeFiles/axion_heap_compaction_trace_test.dir
+build-cxx23/CMakeFiles/axion_heap_compaction_trace_test.dir/tests
+build-cxx23/CMakeFiles/axion_heap_compaction_trace_test.dir/tests/cpp
+build-cxx23/CMakeFiles/axion_instruction_counter_test.dir
+build-cxx23/CMakeFiles/axion_instruction_counter_test.dir/tests
+build-cxx23/CMakeFiles/axion_instruction_counter_test.dir/tests/cpp
+build-cxx23/CMakeFiles/axion_loop_metadata_test.dir
+build-cxx23/CMakeFiles/axion_loop_metadata_test.dir/tests
+build-cxx23/CMakeFiles/axion_loop_metadata_test.dir/tests/cpp
+build-cxx23/CMakeFiles/axion_match_metadata_test.dir
+build-cxx23/CMakeFiles/axion_match_metadata_test.dir/tests
+build-cxx23/CMakeFiles/axion_match_metadata_test.dir/tests/cpp
+build-cxx23/CMakeFiles/axion_nested_guard_test.dir
+build-cxx23/CMakeFiles/axion_nested_guard_test.dir/tests
+build-cxx23/CMakeFiles/axion_nested_guard_test.dir/tests/cpp
+build-cxx23/CMakeFiles/axion_policy_bytecode_test.dir
+build-cxx23/CMakeFiles/axion_policy_bytecode_test.dir/tests
+build-cxx23/CMakeFiles/axion_policy_bytecode_test.dir/tests/cpp
+build-cxx23/CMakeFiles/axion_policy_gc_trace_test.dir
+build-cxx23/CMakeFiles/axion_policy_gc_trace_test.dir/tests
+build-cxx23/CMakeFiles/axion_policy_gc_trace_test.dir/tests/cpp
+build-cxx23/CMakeFiles/axion_policy_match_guard_test.dir
+build-cxx23/CMakeFiles/axion_policy_match_guard_test.dir/tests
+build-cxx23/CMakeFiles/axion_policy_match_guard_test.dir/tests/cpp
+build-cxx23/CMakeFiles/axion_policy_runner.dir
+build-cxx23/CMakeFiles/axion_policy_runner.dir/examples
+build-cxx23/CMakeFiles/axion_policy_segment_event_test.dir
+build-cxx23/CMakeFiles/axion_policy_segment_event_test.dir/tests
+build-cxx23/CMakeFiles/axion_policy_segment_event_test.dir/tests/cpp
+build-cxx23/CMakeFiles/axion_policy_trace.dir
+build-cxx23/CMakeFiles/axion_policy_trace.dir/examples
+build-cxx23/CMakeFiles/axion_recursion_guardrails_test.dir
+build-cxx23/CMakeFiles/axion_recursion_guardrails_test.dir/tests
+build-cxx23/CMakeFiles/axion_recursion_guardrails_test.dir/tests/cpp
+build-cxx23/CMakeFiles/bigint_perf_guardrail_test.dir
+build-cxx23/CMakeFiles/bigint_perf_guardrail_test.dir/tests
+build-cxx23/CMakeFiles/bigint_perf_guardrail_test.dir/tests/cpp
+build-cxx23/CMakeFiles/canonfs_axion_trace_test.dir
+build-cxx23/CMakeFiles/canonfs_axion_trace_test.dir/tests
+build-cxx23/CMakeFiles/canonfs_axion_trace_test.dir/tests/cpp
+build-cxx23/CMakeFiles/canonfs_persistent_driver_test.dir
+build-cxx23/CMakeFiles/canonfs_persistent_driver_test.dir/tests
+build-cxx23/CMakeFiles/canonfs_persistent_driver_test.dir/tests/cpp
+build-cxx23/CMakeFiles/canonfs_trace_demo.dir
+build-cxx23/CMakeFiles/canonfs_trace_demo.dir/examples
+build-cxx23/CMakeFiles/cli_e2e_test.dir
+build-cxx23/CMakeFiles/cli_e2e_test.dir/tests
+build-cxx23/CMakeFiles/cli_e2e_test.dir/tests/cpp
+build-cxx23/CMakeFiles/cli_repro_hash_test.dir
+build-cxx23/CMakeFiles/cli_repro_hash_test.dir/tests
+build-cxx23/CMakeFiles/cli_repro_hash_test.dir/tests/cpp
+build-cxx23/CMakeFiles/docs.dir
+build-cxx23/CMakeFiles/e2e_advanced_features_test.dir
+build-cxx23/CMakeFiles/e2e_advanced_features_test.dir/tests
+build-cxx23/CMakeFiles/e2e_advanced_features_test.dir/tests/cpp
+build-cxx23/CMakeFiles/e2e_arithmetic_test.dir
+build-cxx23/CMakeFiles/e2e_arithmetic_test.dir/tests
+build-cxx23/CMakeFiles/e2e_arithmetic_test.dir/tests/cpp
+build-cxx23/CMakeFiles/e2e_ast_ir_canonical_determinism_test.dir
+build-cxx23/CMakeFiles/e2e_ast_ir_canonical_determinism_test.dir/tests
+build-cxx23/CMakeFiles/e2e_ast_ir_canonical_determinism_test.dir/tests/cpp
+build-cxx23/CMakeFiles/e2e_axion_trace_test.dir
+build-cxx23/CMakeFiles/e2e_axion_trace_test.dir/tests
+build-cxx23/CMakeFiles/e2e_axion_trace_test.dir/tests/cpp
+build-cxx23/CMakeFiles/e2e_compile_determinism_test.dir
+build-cxx23/CMakeFiles/e2e_compile_determinism_test.dir/tests
+build-cxx23/CMakeFiles/e2e_compile_determinism_test.dir/tests/cpp
+build-cxx23/CMakeFiles/e2e_if_statement_test.dir
+build-cxx23/CMakeFiles/e2e_if_statement_test.dir/tests
+build-cxx23/CMakeFiles/e2e_if_statement_test.dir/tests/cpp
+build-cxx23/CMakeFiles/e2e_let_statement_test.dir
+build-cxx23/CMakeFiles/e2e_let_statement_test.dir/tests
+build-cxx23/CMakeFiles/e2e_let_statement_test.dir/tests/cpp
+build-cxx23/CMakeFiles/e2e_loop_statement_test.dir
+build-cxx23/CMakeFiles/e2e_loop_statement_test.dir/tests
+build-cxx23/CMakeFiles/e2e_loop_statement_test.dir/tests/cpp
+build-cxx23/CMakeFiles/e2e_match_expression_test.dir
+build-cxx23/CMakeFiles/e2e_match_expression_test.dir/tests
+build-cxx23/CMakeFiles/e2e_match_expression_test.dir/tests/cpp
+build-cxx23/CMakeFiles/e2e_match_metadata_determinism_test.dir
+build-cxx23/CMakeFiles/e2e_match_metadata_determinism_test.dir/tests
+build-cxx23/CMakeFiles/e2e_match_metadata_determinism_test.dir/tests/cpp
+build-cxx23/CMakeFiles/e2e_option_result_function_test.dir
+build-cxx23/CMakeFiles/e2e_option_result_function_test.dir/tests
+build-cxx23/CMakeFiles/e2e_option_result_function_test.dir/tests/cpp
+build-cxx23/CMakeFiles/e2e_option_result_test.dir
+build-cxx23/CMakeFiles/e2e_option_result_test.dir/tests
+build-cxx23/CMakeFiles/e2e_option_result_test.dir/tests/cpp
+build-cxx23/CMakeFiles/e2e_option_type_test.dir
+build-cxx23/CMakeFiles/e2e_option_type_test.dir/tests
+build-cxx23/CMakeFiles/e2e_option_type_test.dir/tests/cpp
+build-cxx23/CMakeFiles/e2e_print_runtime_test.dir
+build-cxx23/CMakeFiles/e2e_print_runtime_test.dir/tests
+build-cxx23/CMakeFiles/e2e_print_runtime_test.dir/tests/cpp
+build-cxx23/CMakeFiles/ir_inspector.dir
+build-cxx23/CMakeFiles/ir_inspector.dir/tools
+build-cxx23/CMakeFiles/jit_tensor_trace_equivalence_test.dir
+build-cxx23/CMakeFiles/jit_tensor_trace_equivalence_test.dir/tests
+build-cxx23/CMakeFiles/jit_tensor_trace_equivalence_test.dir/tests/cpp
+build-cxx23/CMakeFiles/jit_trace_equivalence_test.dir
+build-cxx23/CMakeFiles/jit_trace_equivalence_test.dir/tests
+build-cxx23/CMakeFiles/jit_trace_equivalence_test.dir/tests/cpp
+build-cxx23/CMakeFiles/llama32_demo.dir
+build-cxx23/CMakeFiles/llama32_demo.dir/examples
+build-cxx23/CMakeFiles/llama_kernels_test.dir
+build-cxx23/CMakeFiles/llama_kernels_test.dir/tests
+build-cxx23/CMakeFiles/llama_kernels_test.dir/tests/cpp
+build-cxx23/CMakeFiles/performance_advancements_test.dir
+build-cxx23/CMakeFiles/performance_advancements_test.dir/tests
+build-cxx23/CMakeFiles/performance_advancements_test.dir/tests/cpp
+build-cxx23/CMakeFiles/pkgRedirects
+build-cxx23/CMakeFiles/setun_bridge_test.dir
+build-cxx23/CMakeFiles/setun_bridge_test.dir/tests
+build-cxx23/CMakeFiles/setun_bridge_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81.dir
+build-cxx23/CMakeFiles/t81.dir/src
+build-cxx23/CMakeFiles/t81.dir/src/cli
+build-cxx23/CMakeFiles/t81_axion_log_determinism_test.dir
+build-cxx23/CMakeFiles/t81_axion_log_determinism_test.dir/tests
+build-cxx23/CMakeFiles/t81_axion_log_determinism_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_axion_stub_test.dir
+build-cxx23/CMakeFiles/t81_axion_stub_test.dir/tests
+build-cxx23/CMakeFiles/t81_axion_stub_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_base81_balanced_test.dir
+build-cxx23/CMakeFiles/t81_base81_balanced_test.dir/tests
+build-cxx23/CMakeFiles/t81_base81_balanced_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_base81_packed_test.dir
+build-cxx23/CMakeFiles/t81_base81_packed_test.dir/tests
+build-cxx23/CMakeFiles/t81_base81_packed_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_bigint_test.dir
+build-cxx23/CMakeFiles/t81_bigint_test.dir/tests
+build-cxx23/CMakeFiles/t81_bigint_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_bigint_v1_baseline_test.dir
+build-cxx23/CMakeFiles/t81_bigint_v1_baseline_test.dir/tests
+build-cxx23/CMakeFiles/t81_bigint_v1_baseline_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_bigint_v1_perf.dir
+build-cxx23/CMakeFiles/t81_bigint_v1_perf.dir/tests
+build-cxx23/CMakeFiles/t81_bigint_v1_perf.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_bytes_test.dir
+build-cxx23/CMakeFiles/t81_bytes_test.dir/tests
+build-cxx23/CMakeFiles/t81_bytes_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_c_api.dir
+build-cxx23/CMakeFiles/t81_c_api.dir/src
+build-cxx23/CMakeFiles/t81_c_api.dir/src/c_api
+build-cxx23/CMakeFiles/t81_c_api_bigint_test.dir
+build-cxx23/CMakeFiles/t81_c_api_bigint_test.dir/tests
+build-cxx23/CMakeFiles/t81_c_api_bigint_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_canonfs_driver_test.dir
+build-cxx23/CMakeFiles/t81_canonfs_driver_test.dir/tests
+build-cxx23/CMakeFiles/t81_canonfs_driver_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_canonfs_io_test.dir
+build-cxx23/CMakeFiles/t81_canonfs_io_test.dir/tests
+build-cxx23/CMakeFiles/t81_canonfs_io_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_cli_check_test.dir
+build-cxx23/CMakeFiles/t81_cli_check_test.dir/tests
+build-cxx23/CMakeFiles/t81_cli_check_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_cli_diagnostic_context_test.dir
+build-cxx23/CMakeFiles/t81_cli_diagnostic_context_test.dir/tests
+build-cxx23/CMakeFiles/t81_cli_diagnostic_context_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_cli_disasm_test.dir
+build-cxx23/CMakeFiles/t81_cli_disasm_test.dir/tests
+build-cxx23/CMakeFiles/t81_cli_disasm_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_cli_driver.dir
+build-cxx23/CMakeFiles/t81_cli_driver.dir/src
+build-cxx23/CMakeFiles/t81_cli_driver.dir/src/cli
+build-cxx23/CMakeFiles/t81_cli_option_result_test.dir
+build-cxx23/CMakeFiles/t81_cli_option_result_test.dir/tests
+build-cxx23/CMakeFiles/t81_cli_option_result_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_cli_pipeline_test.dir
+build-cxx23/CMakeFiles/t81_cli_pipeline_test.dir/tests
+build-cxx23/CMakeFiles/t81_cli_pipeline_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_cli_record_enum_test.dir
+build-cxx23/CMakeFiles/t81_cli_record_enum_test.dir/tests
+build-cxx23/CMakeFiles/t81_cli_record_enum_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_cli_repl_test.dir
+build-cxx23/CMakeFiles/t81_cli_repl_test.dir/tests
+build-cxx23/CMakeFiles/t81_cli_repl_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_cli_structural_types_test.dir
+build-cxx23/CMakeFiles/t81_cli_structural_types_test.dir/tests
+build-cxx23/CMakeFiles/t81_cli_structural_types_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_codec_base243_test.dir
+build-cxx23/CMakeFiles/t81_codec_base243_test.dir/tests
+build-cxx23/CMakeFiles/t81_codec_base243_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_codec_base81_test.dir
+build-cxx23/CMakeFiles/t81_codec_base81_test.dir/tests
+build-cxx23/CMakeFiles/t81_codec_base81_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_complex_test.dir
+build-cxx23/CMakeFiles/t81_complex_test.dir/tests
+build-cxx23/CMakeFiles/t81_complex_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_core.dir
+build-cxx23/CMakeFiles/t81_core.dir/src
+build-cxx23/CMakeFiles/t81_core.dir/src/axion
+build-cxx23/CMakeFiles/t81_core.dir/src/bigint
+build-cxx23/CMakeFiles/t81_core.dir/src/canonfs
+build-cxx23/CMakeFiles/t81_core.dir/src/codec
+build-cxx23/CMakeFiles/t81_core.dir/src/cog
+build-cxx23/CMakeFiles/t81_core.dir/src/cog/tier4
+build-cxx23/CMakeFiles/t81_core.dir/src/core
+build-cxx23/CMakeFiles/t81_core.dir/src/crypto
+build-cxx23/CMakeFiles/t81_core.dir/src/hanoi
+build-cxx23/CMakeFiles/t81_core.dir/src/hash
+build-cxx23/CMakeFiles/t81_core.dir/src/setun
+build-cxx23/CMakeFiles/t81_core.dir/src/tisc
+build-cxx23/CMakeFiles/t81_core.dir/src/tools
+build-cxx23/CMakeFiles/t81_core.dir/src/vm
+build-cxx23/CMakeFiles/t81_demo.dir
+build-cxx23/CMakeFiles/t81_demo.dir/examples
+build-cxx23/CMakeFiles/t81_distributed_tensor_test.dir
+build-cxx23/CMakeFiles/t81_distributed_tensor_test.dir/tests
+build-cxx23/CMakeFiles/t81_distributed_tensor_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_division_test.dir
+build-cxx23/CMakeFiles/t81_division_test.dir/tests
+build-cxx23/CMakeFiles/t81_division_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_entropy_test.dir
+build-cxx23/CMakeFiles/t81_entropy_test.dir/tests
+build-cxx23/CMakeFiles/t81_entropy_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_expected_test.dir
+build-cxx23/CMakeFiles/t81_expected_test.dir/tests
+build-cxx23/CMakeFiles/t81_expected_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_fixed_test.dir
+build-cxx23/CMakeFiles/t81_fixed_test.dir/tests
+build-cxx23/CMakeFiles/t81_fixed_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_float_test.dir
+build-cxx23/CMakeFiles/t81_float_test.dir/tests
+build-cxx23/CMakeFiles/t81_float_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_fraction_test.dir
+build-cxx23/CMakeFiles/t81_fraction_test.dir/tests
+build-cxx23/CMakeFiles/t81_fraction_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_frontend.dir
+build-cxx23/CMakeFiles/t81_frontend.dir/src
+build-cxx23/CMakeFiles/t81_frontend.dir/src/frontend
+build-cxx23/CMakeFiles/t81_frontend_fuzz_test.dir
+build-cxx23/CMakeFiles/t81_frontend_fuzz_test.dir/tests
+build-cxx23/CMakeFiles/t81_frontend_fuzz_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_frontend_ir_generator_test.dir
+build-cxx23/CMakeFiles/t81_frontend_ir_generator_test.dir/tests
+build-cxx23/CMakeFiles/t81_frontend_ir_generator_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_frontend_lexer_test.dir
+build-cxx23/CMakeFiles/t81_frontend_lexer_test.dir/tests
+build-cxx23/CMakeFiles/t81_frontend_lexer_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_frontend_parser_generics_test.dir
+build-cxx23/CMakeFiles/t81_frontend_parser_generics_test.dir/tests
+build-cxx23/CMakeFiles/t81_frontend_parser_generics_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_frontend_parser_legacy_rejection_test.dir
+build-cxx23/CMakeFiles/t81_frontend_parser_legacy_rejection_test.dir/tests
+build-cxx23/CMakeFiles/t81_frontend_parser_legacy_rejection_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_frontend_parser_test.dir
+build-cxx23/CMakeFiles/t81_frontend_parser_test.dir/tests
+build-cxx23/CMakeFiles/t81_frontend_parser_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_hanoi_integration_test.dir
+build-cxx23/CMakeFiles/t81_hanoi_integration_test.dir/tests
+build-cxx23/CMakeFiles/t81_hanoi_integration_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_hash_stub_test.dir
+build-cxx23/CMakeFiles/t81_hash_stub_test.dir/tests
+build-cxx23/CMakeFiles/t81_hash_stub_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_io.dir
+build-cxx23/CMakeFiles/t81_io.dir/src
+build-cxx23/CMakeFiles/t81_io.dir/src/io
+build-cxx23/CMakeFiles/t81_ir_encoding_test.dir
+build-cxx23/CMakeFiles/t81_ir_encoding_test.dir/tests
+build-cxx23/CMakeFiles/t81_ir_encoding_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_ir_roundtrip.dir
+build-cxx23/CMakeFiles/t81_ir_roundtrip.dir/examples
+build-cxx23/CMakeFiles/t81_jit_test.dir
+build-cxx23/CMakeFiles/t81_jit_test.dir/tests
+build-cxx23/CMakeFiles/t81_jit_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_limb54_add_test.dir
+build-cxx23/CMakeFiles/t81_limb54_add_test.dir/tests
+build-cxx23/CMakeFiles/t81_limb54_add_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_limb54_booth_mul_test.dir
+build-cxx23/CMakeFiles/t81_limb54_booth_mul_test.dir/tests
+build-cxx23/CMakeFiles/t81_limb54_booth_mul_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_limb_add_test.dir
+build-cxx23/CMakeFiles/t81_limb_add_test.dir/tests
+build-cxx23/CMakeFiles/t81_limb_add_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_limb_bohemian_add_test.dir
+build-cxx23/CMakeFiles/t81_limb_bohemian_add_test.dir/tests
+build-cxx23/CMakeFiles/t81_limb_bohemian_add_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_limb_bohemian_mul_test.dir
+build-cxx23/CMakeFiles/t81_limb_bohemian_mul_test.dir/tests
+build-cxx23/CMakeFiles/t81_limb_bohemian_mul_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_limb_booth_mul_test.dir
+build-cxx23/CMakeFiles/t81_limb_booth_mul_test.dir/tests
+build-cxx23/CMakeFiles/t81_limb_booth_mul_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_limb_mul_wide_high_test.dir
+build-cxx23/CMakeFiles/t81_limb_mul_wide_high_test.dir/tests
+build-cxx23/CMakeFiles/t81_limb_mul_wide_high_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_list_test.dir
+build-cxx23/CMakeFiles/t81_list_test.dir/tests
+build-cxx23/CMakeFiles/t81_list_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_map_test.dir
+build-cxx23/CMakeFiles/t81_map_test.dir/tests
+build-cxx23/CMakeFiles/t81_map_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_matrix_test.dir
+build-cxx23/CMakeFiles/t81_matrix_test.dir/tests
+build-cxx23/CMakeFiles/t81_matrix_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_maybe_test.dir
+build-cxx23/CMakeFiles/t81_maybe_test.dir/tests
+build-cxx23/CMakeFiles/t81_maybe_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_metadata_test.dir
+build-cxx23/CMakeFiles/t81_metadata_test.dir/tests
+build-cxx23/CMakeFiles/t81_metadata_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_native_arith_test.dir
+build-cxx23/CMakeFiles/t81_native_arith_test.dir/tests
+build-cxx23/CMakeFiles/t81_native_arith_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_native_conversion_test.dir
+build-cxx23/CMakeFiles/t81_native_conversion_test.dir/tests
+build-cxx23/CMakeFiles/t81_native_conversion_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_numeric_format_test.dir
+build-cxx23/CMakeFiles/t81_numeric_format_test.dir/tests
+build-cxx23/CMakeFiles/t81_numeric_format_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_prob_test.dir
+build-cxx23/CMakeFiles/t81_prob_test.dir/tests
+build-cxx23/CMakeFiles/t81_prob_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_python.dir
+build-cxx23/CMakeFiles/t81_python.dir/src
+build-cxx23/CMakeFiles/t81_python.dir/src/python
+build-cxx23/CMakeFiles/t81_quaternion_test.dir
+build-cxx23/CMakeFiles/t81_quaternion_test.dir/tests
+build-cxx23/CMakeFiles/t81_quaternion_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_qutrit_test.dir
+build-cxx23/CMakeFiles/t81_qutrit_test.dir/tests
+build-cxx23/CMakeFiles/t81_qutrit_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_reflection_non_interference_test.dir
+build-cxx23/CMakeFiles/t81_reflection_non_interference_test.dir/tests
+build-cxx23/CMakeFiles/t81_reflection_non_interference_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_result_test.dir
+build-cxx23/CMakeFiles/t81_result_test.dir/tests
+build-cxx23/CMakeFiles/t81_result_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_semantic_analyzer_equality_test.dir
+build-cxx23/CMakeFiles/t81_semantic_analyzer_equality_test.dir/tests
+build-cxx23/CMakeFiles/t81_semantic_analyzer_equality_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_semantic_analyzer_generic_test.dir
+build-cxx23/CMakeFiles/t81_semantic_analyzer_generic_test.dir/tests
+build-cxx23/CMakeFiles/t81_semantic_analyzer_generic_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_semantic_analyzer_loop_test.dir
+build-cxx23/CMakeFiles/t81_semantic_analyzer_loop_test.dir/tests
+build-cxx23/CMakeFiles/t81_semantic_analyzer_loop_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_semantic_analyzer_match_test.dir
+build-cxx23/CMakeFiles/t81_semantic_analyzer_match_test.dir/tests
+build-cxx23/CMakeFiles/t81_semantic_analyzer_match_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_semantic_analyzer_numeric_test.dir
+build-cxx23/CMakeFiles/t81_semantic_analyzer_numeric_test.dir/tests
+build-cxx23/CMakeFiles/t81_semantic_analyzer_numeric_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_semantic_analyzer_option_result_test.dir
+build-cxx23/CMakeFiles/t81_semantic_analyzer_option_result_test.dir/tests
+build-cxx23/CMakeFiles/t81_semantic_analyzer_option_result_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_semantic_analyzer_record_enum_test.dir
+build-cxx23/CMakeFiles/t81_semantic_analyzer_record_enum_test.dir/tests
+build-cxx23/CMakeFiles/t81_semantic_analyzer_record_enum_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_semantic_analyzer_vector_literal_test.dir
+build-cxx23/CMakeFiles/t81_semantic_analyzer_vector_literal_test.dir/tests
+build-cxx23/CMakeFiles/t81_semantic_analyzer_vector_literal_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_set_test.dir
+build-cxx23/CMakeFiles/t81_set_test.dir/tests
+build-cxx23/CMakeFiles/t81_set_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_simd_add_helpers_test.dir
+build-cxx23/CMakeFiles/t81_simd_add_helpers_test.dir/tests
+build-cxx23/CMakeFiles/t81_simd_add_helpers_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_string_test.dir
+build-cxx23/CMakeFiles/t81_string_test.dir/tests
+build-cxx23/CMakeFiles/t81_string_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_symbol_test.dir
+build-cxx23/CMakeFiles/t81_symbol_test.dir/tests
+build-cxx23/CMakeFiles/t81_symbol_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_t81int_test.dir
+build-cxx23/CMakeFiles/t81_t81int_test.dir/tests
+build-cxx23/CMakeFiles/t81_t81int_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_t81int_to_binary_test.dir
+build-cxx23/CMakeFiles/t81_t81int_to_binary_test.dir/tests
+build-cxx23/CMakeFiles/t81_t81int_to_binary_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tensor_broadcast_test.dir
+build-cxx23/CMakeFiles/t81_tensor_broadcast_test.dir/tests
+build-cxx23/CMakeFiles/t81_tensor_broadcast_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tensor_elementwise_test.dir
+build-cxx23/CMakeFiles/t81_tensor_elementwise_test.dir/tests
+build-cxx23/CMakeFiles/t81_tensor_elementwise_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tensor_loader_test.dir
+build-cxx23/CMakeFiles/t81_tensor_loader_test.dir/tests
+build-cxx23/CMakeFiles/t81_tensor_loader_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tensor_matmul_test.dir
+build-cxx23/CMakeFiles/t81_tensor_matmul_test.dir/tests
+build-cxx23/CMakeFiles/t81_tensor_matmul_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tensor_ops.dir
+build-cxx23/CMakeFiles/t81_tensor_ops.dir/examples
+build-cxx23/CMakeFiles/t81_tensor_reduce_test.dir
+build-cxx23/CMakeFiles/t81_tensor_reduce_test.dir/tests
+build-cxx23/CMakeFiles/t81_tensor_reduce_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tensor_reshape_test.dir
+build-cxx23/CMakeFiles/t81_tensor_reshape_test.dir/tests
+build-cxx23/CMakeFiles/t81_tensor_reshape_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tensor_shape_test.dir
+build-cxx23/CMakeFiles/t81_tensor_shape_test.dir/tests
+build-cxx23/CMakeFiles/t81_tensor_shape_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tensor_slice_test.dir
+build-cxx23/CMakeFiles/t81_tensor_slice_test.dir/tests
+build-cxx23/CMakeFiles/t81_tensor_slice_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tensor_ternary_test.dir
+build-cxx23/CMakeFiles/t81_tensor_ternary_test.dir/tests
+build-cxx23/CMakeFiles/t81_tensor_ternary_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tensor_transpose_test.dir
+build-cxx23/CMakeFiles/t81_tensor_transpose_test.dir/tests
+build-cxx23/CMakeFiles/t81_tensor_transpose_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tensor_unary_test.dir
+build-cxx23/CMakeFiles/t81_tensor_unary_test.dir/tests
+build-cxx23/CMakeFiles/t81_tensor_unary_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_ternary_arith_test.dir
+build-cxx23/CMakeFiles/t81_ternary_arith_test.dir/tests
+build-cxx23/CMakeFiles/t81_ternary_arith_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tier4_test.dir
+build-cxx23/CMakeFiles/t81_tier4_test.dir/tests
+build-cxx23/CMakeFiles/t81_tier4_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tier4_vm_test.dir
+build-cxx23/CMakeFiles/t81_tier4_vm_test.dir/tests
+build-cxx23/CMakeFiles/t81_tier4_vm_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_time_test.dir
+build-cxx23/CMakeFiles/t81_time_test.dir/tests
+build-cxx23/CMakeFiles/t81_time_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tisc.dir
+build-cxx23/CMakeFiles/t81_tisc.dir/src
+build-cxx23/CMakeFiles/t81_tisc.dir/src/tisc
+build-cxx23/CMakeFiles/t81_tisc_base81_view_test.dir
+build-cxx23/CMakeFiles/t81_tisc_base81_view_test.dir/tests
+build-cxx23/CMakeFiles/t81_tisc_base81_view_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tisc_binary_emitter_test.dir
+build-cxx23/CMakeFiles/t81_tisc_binary_emitter_test.dir/tests
+build-cxx23/CMakeFiles/t81_tisc_binary_emitter_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tisc_binary_io_determinism_test.dir
+build-cxx23/CMakeFiles/t81_tisc_binary_io_determinism_test.dir/tests
+build-cxx23/CMakeFiles/t81_tisc_binary_io_determinism_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tisc_encoding_test.dir
+build-cxx23/CMakeFiles/t81_tisc_encoding_test.dir/tests
+build-cxx23/CMakeFiles/t81_tisc_encoding_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tisc_type_alias_io_test.dir
+build-cxx23/CMakeFiles/t81_tisc_type_alias_io_test.dir/tests
+build-cxx23/CMakeFiles/t81_tisc_type_alias_io_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_tree_test.dir
+build-cxx23/CMakeFiles/t81_tree_test.dir/tests
+build-cxx23/CMakeFiles/t81_tree_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_trit_packing_test.dir
+build-cxx23/CMakeFiles/t81_trit_packing_test.dir/tests
+build-cxx23/CMakeFiles/t81_trit_packing_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_uint_test.dir
+build-cxx23/CMakeFiles/t81_uint_test.dir/tests
+build-cxx23/CMakeFiles/t81_uint_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_vector_test.dir
+build-cxx23/CMakeFiles/t81_vector_test.dir/tests
+build-cxx23/CMakeFiles/t81_vector_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_vm_bounds_test.dir
+build-cxx23/CMakeFiles/t81_vm_bounds_test.dir/tests
+build-cxx23/CMakeFiles/t81_vm_bounds_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_vm_divmod_test.dir
+build-cxx23/CMakeFiles/t81_vm_divmod_test.dir/tests
+build-cxx23/CMakeFiles/t81_vm_divmod_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_vm_fault_test.dir
+build-cxx23/CMakeFiles/t81_vm_fault_test.dir/tests
+build-cxx23/CMakeFiles/t81_vm_fault_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_vm_float_fraction_ops_test.dir
+build-cxx23/CMakeFiles/t81_vm_float_fraction_ops_test.dir/tests
+build-cxx23/CMakeFiles/t81_vm_float_fraction_ops_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_vm_illegal_test.dir
+build-cxx23/CMakeFiles/t81_vm_illegal_test.dir/tests
+build-cxx23/CMakeFiles/t81_vm_illegal_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_vm_jump_flags_test.dir
+build-cxx23/CMakeFiles/t81_vm_jump_flags_test.dir/tests
+build-cxx23/CMakeFiles/t81_vm_jump_flags_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_vm_load_store_test.dir
+build-cxx23/CMakeFiles/t81_vm_load_store_test.dir/tests
+build-cxx23/CMakeFiles/t81_vm_load_store_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_vm_memory_test.dir
+build-cxx23/CMakeFiles/t81_vm_memory_test.dir/tests
+build-cxx23/CMakeFiles/t81_vm_memory_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_vm_neg_jumps_test.dir
+build-cxx23/CMakeFiles/t81_vm_neg_jumps_test.dir/tests
+build-cxx23/CMakeFiles/t81_vm_neg_jumps_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_vm_print_test.dir
+build-cxx23/CMakeFiles/t81_vm_print_test.dir/tests
+build-cxx23/CMakeFiles/t81_vm_print_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_vm_tensor_test.dir
+build-cxx23/CMakeFiles/t81_vm_tensor_test.dir/tests
+build-cxx23/CMakeFiles/t81_vm_tensor_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_vm_trace_test.dir
+build-cxx23/CMakeFiles/t81_vm_trace_test.dir/tests
+build-cxx23/CMakeFiles/t81_vm_trace_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_weights_load_test.dir
+build-cxx23/CMakeFiles/t81_weights_load_test.dir/tests
+build-cxx23/CMakeFiles/t81_weights_load_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81_weights_quantize_test.dir
+build-cxx23/CMakeFiles/t81_weights_quantize_test.dir/tests
+build-cxx23/CMakeFiles/t81_weights_quantize_test.dir/tests/cpp
+build-cxx23/CMakeFiles/t81lang_conformance_baseline_test.dir
+build-cxx23/CMakeFiles/t81lang_conformance_baseline_test.dir/tests
+build-cxx23/CMakeFiles/t81lang_conformance_baseline_test.dir/tests/cpp
+build-cxx23/CMakeFiles/tensor_backend_parity_test.dir
+build-cxx23/CMakeFiles/tensor_backend_parity_test.dir/tests
+build-cxx23/CMakeFiles/tensor_backend_parity_test.dir/tests/cpp
+build-cxx23/CMakeFiles/test_T81Tensor_transpose.dir
+build-cxx23/CMakeFiles/test_T81Tensor_transpose.dir/tests
+build-cxx23/CMakeFiles/test_T81Tensor_transpose.dir/tests/cpp
+build-cxx23/CMakeFiles/test_bigint_multilimb_ext.dir
+build-cxx23/CMakeFiles/test_bigint_multilimb_ext.dir/tests
+build-cxx23/CMakeFiles/test_bigint_multilimb_ext.dir/tests/cpp
+build-cxx23/CMakeFiles/tisc_base81.dir
+build-cxx23/CMakeFiles/tisc_base81.dir/tools
+build-cxx23/CMakeFiles/tisc_opcode_matrix_test.dir
+build-cxx23/CMakeFiles/tisc_opcode_matrix_test.dir/tests
+build-cxx23/CMakeFiles/tisc_opcode_matrix_test.dir/tests/cpp
+build-cxx23/CMakeFiles/vm_bounds_trace_test.dir
+build-cxx23/CMakeFiles/vm_bounds_trace_test.dir/tests
+build-cxx23/CMakeFiles/vm_bounds_trace_test.dir/tests/cpp
+build-cxx23/CMakeFiles/vm_extended_ops_test.dir
+build-cxx23/CMakeFiles/vm_extended_ops_test.dir/tests
+build-cxx23/CMakeFiles/vm_extended_ops_test.dir/tests/cpp
+build-cxx23/Testing
+build-cxx23/Testing/Temporary
+build-cxx23/_deps
+build-cxx23/_deps/googlebenchmark-build
+build-cxx23/_deps/googlebenchmark-build/CMakeFiles
+build-cxx23/_deps/googlebenchmark-build/src
+build-cxx23/_deps/googlebenchmark-build/src/CMakeFiles
+build-cxx23/_deps/googlebenchmark-build/src/CMakeFiles/Export
+build-cxx23/_deps/googlebenchmark-build/src/CMakeFiles/Export/d56d27b88fbb159d81f220d5e4f5f598
+build-cxx23/_deps/googlebenchmark-build/src/CMakeFiles/benchmark.dir
+build-cxx23/_deps/googlebenchmark-build/src/CMakeFiles/benchmark_main.dir
+build-cxx23/_deps/googlebenchmark-src
+build-cxx23/_deps/googlebenchmark-src/.github
+build-cxx23/_deps/googlebenchmark-src/.github/ISSUE_TEMPLATE
+build-cxx23/_deps/googlebenchmark-src/.github/workflows
+build-cxx23/_deps/googlebenchmark-src/bazel
+build-cxx23/_deps/googlebenchmark-src/bindings
+build-cxx23/_deps/googlebenchmark-src/bindings/python
+build-cxx23/_deps/googlebenchmark-src/bindings/python/google_benchmark
+build-cxx23/_deps/googlebenchmark-src/cmake
+build-cxx23/_deps/googlebenchmark-src/cmake/Modules
+build-cxx23/_deps/googlebenchmark-src/docs
+build-cxx23/_deps/googlebenchmark-src/docs/assets
+build-cxx23/_deps/googlebenchmark-src/docs/assets/images
+build-cxx23/_deps/googlebenchmark-src/include
+build-cxx23/_deps/googlebenchmark-src/include/benchmark
+build-cxx23/_deps/googlebenchmark-src/src
+build-cxx23/_deps/googlebenchmark-src/test
+build-cxx23/_deps/googlebenchmark-src/tools
+build-cxx23/_deps/googlebenchmark-src/tools/gbench
+build-cxx23/_deps/googlebenchmark-src/tools/gbench/Inputs
+build-cxx23/_deps/googlebenchmark-subbuild
+build-cxx23/_deps/googlebenchmark-subbuild/CMakeFiles
+build-cxx23/_deps/googlebenchmark-subbuild/CMakeFiles/4.2.3
+build-cxx23/_deps/googlebenchmark-subbuild/CMakeFiles/googlebenchmark-populate.dir
+build-cxx23/_deps/googlebenchmark-subbuild/CMakeFiles/pkgRedirects
+build-cxx23/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix
+build-cxx23/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix/src
+build-cxx23/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix/src/googlebenchmark-populate-stamp
+build-cxx23/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix/tmp
+build-cxx23/benchmarks
+build-cxx23/benchmarks/CMakeFiles
+build-cxx23/benchmarks/CMakeFiles/benchmark_runner.dir
+build-cxx23/benchmarks/CMakeFiles/benchmark_runner.dir/runner
+build-sanitize-check
+build-sanitize-check/CMakeFiles
+build-sanitize-check/CMakeFiles/4.2.3
+build-sanitize-check/CMakeFiles/4.2.3/CompilerIdC
+build-sanitize-check/CMakeFiles/4.2.3/CompilerIdC/tmp
+build-sanitize-check/CMakeFiles/4.2.3/CompilerIdCXX
+build-sanitize-check/CMakeFiles/4.2.3/CompilerIdCXX/tmp
+build-sanitize-check/CMakeFiles/CMakeScratch
+build-sanitize-check/CMakeFiles/CMakeTmp
+build-sanitize-check/CMakeFiles/axion_demo.dir
+build-sanitize-check/CMakeFiles/axion_demo.dir/examples
+build-sanitize-check/CMakeFiles/axion_enum_guard_test.dir
+build-sanitize-check/CMakeFiles/axion_enum_guard_test.dir/tests
+build-sanitize-check/CMakeFiles/axion_enum_guard_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/axion_guard_trace.dir
+build-sanitize-check/CMakeFiles/axion_guard_trace.dir/examples
+build-sanitize-check/CMakeFiles/axion_heap_compaction_trace_test.dir
+build-sanitize-check/CMakeFiles/axion_heap_compaction_trace_test.dir/tests
+build-sanitize-check/CMakeFiles/axion_heap_compaction_trace_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/axion_instruction_counter_test.dir
+build-sanitize-check/CMakeFiles/axion_instruction_counter_test.dir/tests
+build-sanitize-check/CMakeFiles/axion_instruction_counter_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/axion_loop_metadata_test.dir
+build-sanitize-check/CMakeFiles/axion_loop_metadata_test.dir/tests
+build-sanitize-check/CMakeFiles/axion_loop_metadata_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/axion_match_metadata_test.dir
+build-sanitize-check/CMakeFiles/axion_match_metadata_test.dir/tests
+build-sanitize-check/CMakeFiles/axion_match_metadata_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/axion_nested_guard_test.dir
+build-sanitize-check/CMakeFiles/axion_nested_guard_test.dir/tests
+build-sanitize-check/CMakeFiles/axion_nested_guard_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/axion_policy_bytecode_test.dir
+build-sanitize-check/CMakeFiles/axion_policy_bytecode_test.dir/tests
+build-sanitize-check/CMakeFiles/axion_policy_bytecode_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/axion_policy_gc_trace_test.dir
+build-sanitize-check/CMakeFiles/axion_policy_gc_trace_test.dir/tests
+build-sanitize-check/CMakeFiles/axion_policy_gc_trace_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/axion_policy_match_guard_test.dir
+build-sanitize-check/CMakeFiles/axion_policy_match_guard_test.dir/tests
+build-sanitize-check/CMakeFiles/axion_policy_match_guard_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/axion_policy_runner.dir
+build-sanitize-check/CMakeFiles/axion_policy_runner.dir/examples
+build-sanitize-check/CMakeFiles/axion_policy_segment_event_test.dir
+build-sanitize-check/CMakeFiles/axion_policy_segment_event_test.dir/tests
+build-sanitize-check/CMakeFiles/axion_policy_segment_event_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/axion_policy_trace.dir
+build-sanitize-check/CMakeFiles/axion_policy_trace.dir/examples
+build-sanitize-check/CMakeFiles/axion_recursion_guardrails_test.dir
+build-sanitize-check/CMakeFiles/axion_recursion_guardrails_test.dir/tests
+build-sanitize-check/CMakeFiles/axion_recursion_guardrails_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/bigint_perf_guardrail_test.dir
+build-sanitize-check/CMakeFiles/bigint_perf_guardrail_test.dir/tests
+build-sanitize-check/CMakeFiles/bigint_perf_guardrail_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/canonfs_axion_trace_test.dir
+build-sanitize-check/CMakeFiles/canonfs_axion_trace_test.dir/tests
+build-sanitize-check/CMakeFiles/canonfs_axion_trace_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/canonfs_persistent_driver_test.dir
+build-sanitize-check/CMakeFiles/canonfs_persistent_driver_test.dir/tests
+build-sanitize-check/CMakeFiles/canonfs_persistent_driver_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/canonfs_trace_demo.dir
+build-sanitize-check/CMakeFiles/canonfs_trace_demo.dir/examples
+build-sanitize-check/CMakeFiles/cli_e2e_test.dir
+build-sanitize-check/CMakeFiles/cli_e2e_test.dir/tests
+build-sanitize-check/CMakeFiles/cli_e2e_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/cli_repro_hash_test.dir
+build-sanitize-check/CMakeFiles/cli_repro_hash_test.dir/tests
+build-sanitize-check/CMakeFiles/cli_repro_hash_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/docs.dir
+build-sanitize-check/CMakeFiles/e2e_advanced_features_test.dir
+build-sanitize-check/CMakeFiles/e2e_advanced_features_test.dir/tests
+build-sanitize-check/CMakeFiles/e2e_advanced_features_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/e2e_arithmetic_test.dir
+build-sanitize-check/CMakeFiles/e2e_arithmetic_test.dir/tests
+build-sanitize-check/CMakeFiles/e2e_arithmetic_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/e2e_ast_ir_canonical_determinism_test.dir
+build-sanitize-check/CMakeFiles/e2e_ast_ir_canonical_determinism_test.dir/tests
+build-sanitize-check/CMakeFiles/e2e_ast_ir_canonical_determinism_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/e2e_axion_trace_test.dir
+build-sanitize-check/CMakeFiles/e2e_axion_trace_test.dir/tests
+build-sanitize-check/CMakeFiles/e2e_axion_trace_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/e2e_compile_determinism_test.dir
+build-sanitize-check/CMakeFiles/e2e_compile_determinism_test.dir/tests
+build-sanitize-check/CMakeFiles/e2e_compile_determinism_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/e2e_if_statement_test.dir
+build-sanitize-check/CMakeFiles/e2e_if_statement_test.dir/tests
+build-sanitize-check/CMakeFiles/e2e_if_statement_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/e2e_let_statement_test.dir
+build-sanitize-check/CMakeFiles/e2e_let_statement_test.dir/tests
+build-sanitize-check/CMakeFiles/e2e_let_statement_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/e2e_loop_statement_test.dir
+build-sanitize-check/CMakeFiles/e2e_loop_statement_test.dir/tests
+build-sanitize-check/CMakeFiles/e2e_loop_statement_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/e2e_match_expression_test.dir
+build-sanitize-check/CMakeFiles/e2e_match_expression_test.dir/tests
+build-sanitize-check/CMakeFiles/e2e_match_expression_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/e2e_match_metadata_determinism_test.dir
+build-sanitize-check/CMakeFiles/e2e_match_metadata_determinism_test.dir/tests
+build-sanitize-check/CMakeFiles/e2e_match_metadata_determinism_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/e2e_option_result_function_test.dir
+build-sanitize-check/CMakeFiles/e2e_option_result_function_test.dir/tests
+build-sanitize-check/CMakeFiles/e2e_option_result_function_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/e2e_option_result_test.dir
+build-sanitize-check/CMakeFiles/e2e_option_result_test.dir/tests
+build-sanitize-check/CMakeFiles/e2e_option_result_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/e2e_option_type_test.dir
+build-sanitize-check/CMakeFiles/e2e_option_type_test.dir/tests
+build-sanitize-check/CMakeFiles/e2e_option_type_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/e2e_print_runtime_test.dir
+build-sanitize-check/CMakeFiles/e2e_print_runtime_test.dir/tests
+build-sanitize-check/CMakeFiles/e2e_print_runtime_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/ir_inspector.dir
+build-sanitize-check/CMakeFiles/ir_inspector.dir/tools
+build-sanitize-check/CMakeFiles/jit_tensor_trace_equivalence_test.dir
+build-sanitize-check/CMakeFiles/jit_tensor_trace_equivalence_test.dir/tests
+build-sanitize-check/CMakeFiles/jit_tensor_trace_equivalence_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/jit_trace_equivalence_test.dir
+build-sanitize-check/CMakeFiles/jit_trace_equivalence_test.dir/tests
+build-sanitize-check/CMakeFiles/jit_trace_equivalence_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/llama32_demo.dir
+build-sanitize-check/CMakeFiles/llama32_demo.dir/examples
+build-sanitize-check/CMakeFiles/llama_kernels_test.dir
+build-sanitize-check/CMakeFiles/llama_kernels_test.dir/tests
+build-sanitize-check/CMakeFiles/llama_kernels_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/performance_advancements_test.dir
+build-sanitize-check/CMakeFiles/performance_advancements_test.dir/tests
+build-sanitize-check/CMakeFiles/performance_advancements_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/pkgRedirects
+build-sanitize-check/CMakeFiles/setun_bridge_test.dir
+build-sanitize-check/CMakeFiles/setun_bridge_test.dir/tests
+build-sanitize-check/CMakeFiles/setun_bridge_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81.dir
+build-sanitize-check/CMakeFiles/t81.dir/src
+build-sanitize-check/CMakeFiles/t81.dir/src/cli
+build-sanitize-check/CMakeFiles/t81_axion_log_determinism_test.dir
+build-sanitize-check/CMakeFiles/t81_axion_log_determinism_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_axion_log_determinism_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_axion_stub_test.dir
+build-sanitize-check/CMakeFiles/t81_axion_stub_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_axion_stub_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_base81_balanced_test.dir
+build-sanitize-check/CMakeFiles/t81_base81_balanced_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_base81_balanced_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_base81_packed_test.dir
+build-sanitize-check/CMakeFiles/t81_base81_packed_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_base81_packed_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_bigint_test.dir
+build-sanitize-check/CMakeFiles/t81_bigint_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_bigint_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_bigint_v1_baseline_test.dir
+build-sanitize-check/CMakeFiles/t81_bigint_v1_baseline_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_bigint_v1_baseline_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_bigint_v1_perf.dir
+build-sanitize-check/CMakeFiles/t81_bigint_v1_perf.dir/tests
+build-sanitize-check/CMakeFiles/t81_bigint_v1_perf.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_bytes_test.dir
+build-sanitize-check/CMakeFiles/t81_bytes_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_bytes_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_c_api.dir
+build-sanitize-check/CMakeFiles/t81_c_api.dir/src
+build-sanitize-check/CMakeFiles/t81_c_api.dir/src/c_api
+build-sanitize-check/CMakeFiles/t81_c_api_bigint_test.dir
+build-sanitize-check/CMakeFiles/t81_c_api_bigint_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_c_api_bigint_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_canonfs_driver_test.dir
+build-sanitize-check/CMakeFiles/t81_canonfs_driver_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_canonfs_driver_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_canonfs_io_test.dir
+build-sanitize-check/CMakeFiles/t81_canonfs_io_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_canonfs_io_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_cli_check_test.dir
+build-sanitize-check/CMakeFiles/t81_cli_check_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_cli_check_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_cli_diagnostic_context_test.dir
+build-sanitize-check/CMakeFiles/t81_cli_diagnostic_context_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_cli_diagnostic_context_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_cli_disasm_test.dir
+build-sanitize-check/CMakeFiles/t81_cli_disasm_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_cli_disasm_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_cli_driver.dir
+build-sanitize-check/CMakeFiles/t81_cli_driver.dir/src
+build-sanitize-check/CMakeFiles/t81_cli_driver.dir/src/cli
+build-sanitize-check/CMakeFiles/t81_cli_option_result_test.dir
+build-sanitize-check/CMakeFiles/t81_cli_option_result_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_cli_option_result_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_cli_pipeline_test.dir
+build-sanitize-check/CMakeFiles/t81_cli_pipeline_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_cli_pipeline_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_cli_record_enum_test.dir
+build-sanitize-check/CMakeFiles/t81_cli_record_enum_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_cli_record_enum_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_cli_repl_test.dir
+build-sanitize-check/CMakeFiles/t81_cli_repl_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_cli_repl_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_cli_structural_types_test.dir
+build-sanitize-check/CMakeFiles/t81_cli_structural_types_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_cli_structural_types_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_codec_base243_test.dir
+build-sanitize-check/CMakeFiles/t81_codec_base243_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_codec_base243_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_codec_base81_test.dir
+build-sanitize-check/CMakeFiles/t81_codec_base81_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_codec_base81_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_complex_test.dir
+build-sanitize-check/CMakeFiles/t81_complex_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_complex_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_core.dir
+build-sanitize-check/CMakeFiles/t81_core.dir/src
+build-sanitize-check/CMakeFiles/t81_core.dir/src/axion
+build-sanitize-check/CMakeFiles/t81_core.dir/src/bigint
+build-sanitize-check/CMakeFiles/t81_core.dir/src/canonfs
+build-sanitize-check/CMakeFiles/t81_core.dir/src/codec
+build-sanitize-check/CMakeFiles/t81_core.dir/src/cog
+build-sanitize-check/CMakeFiles/t81_core.dir/src/cog/tier4
+build-sanitize-check/CMakeFiles/t81_core.dir/src/core
+build-sanitize-check/CMakeFiles/t81_core.dir/src/crypto
+build-sanitize-check/CMakeFiles/t81_core.dir/src/hanoi
+build-sanitize-check/CMakeFiles/t81_core.dir/src/hash
+build-sanitize-check/CMakeFiles/t81_core.dir/src/setun
+build-sanitize-check/CMakeFiles/t81_core.dir/src/tisc
+build-sanitize-check/CMakeFiles/t81_core.dir/src/tools
+build-sanitize-check/CMakeFiles/t81_core.dir/src/vm
+build-sanitize-check/CMakeFiles/t81_demo.dir
+build-sanitize-check/CMakeFiles/t81_demo.dir/examples
+build-sanitize-check/CMakeFiles/t81_distributed_tensor_test.dir
+build-sanitize-check/CMakeFiles/t81_distributed_tensor_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_distributed_tensor_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_division_test.dir
+build-sanitize-check/CMakeFiles/t81_division_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_division_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_entropy_test.dir
+build-sanitize-check/CMakeFiles/t81_entropy_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_entropy_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_expected_test.dir
+build-sanitize-check/CMakeFiles/t81_expected_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_expected_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_fixed_test.dir
+build-sanitize-check/CMakeFiles/t81_fixed_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_fixed_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_float_test.dir
+build-sanitize-check/CMakeFiles/t81_float_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_float_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_fraction_test.dir
+build-sanitize-check/CMakeFiles/t81_fraction_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_fraction_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_frontend.dir
+build-sanitize-check/CMakeFiles/t81_frontend.dir/src
+build-sanitize-check/CMakeFiles/t81_frontend.dir/src/frontend
+build-sanitize-check/CMakeFiles/t81_frontend_fuzz_test.dir
+build-sanitize-check/CMakeFiles/t81_frontend_fuzz_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_frontend_fuzz_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_frontend_ir_generator_test.dir
+build-sanitize-check/CMakeFiles/t81_frontend_ir_generator_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_frontend_ir_generator_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_frontend_lexer_test.dir
+build-sanitize-check/CMakeFiles/t81_frontend_lexer_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_frontend_lexer_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_frontend_parser_generics_test.dir
+build-sanitize-check/CMakeFiles/t81_frontend_parser_generics_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_frontend_parser_generics_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_frontend_parser_legacy_rejection_test.dir
+build-sanitize-check/CMakeFiles/t81_frontend_parser_legacy_rejection_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_frontend_parser_legacy_rejection_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_frontend_parser_test.dir
+build-sanitize-check/CMakeFiles/t81_frontend_parser_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_frontend_parser_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_hanoi_integration_test.dir
+build-sanitize-check/CMakeFiles/t81_hanoi_integration_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_hanoi_integration_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_hash_stub_test.dir
+build-sanitize-check/CMakeFiles/t81_hash_stub_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_hash_stub_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_io.dir
+build-sanitize-check/CMakeFiles/t81_io.dir/src
+build-sanitize-check/CMakeFiles/t81_io.dir/src/io
+build-sanitize-check/CMakeFiles/t81_ir_encoding_test.dir
+build-sanitize-check/CMakeFiles/t81_ir_encoding_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_ir_encoding_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_ir_roundtrip.dir
+build-sanitize-check/CMakeFiles/t81_ir_roundtrip.dir/examples
+build-sanitize-check/CMakeFiles/t81_jit_test.dir
+build-sanitize-check/CMakeFiles/t81_jit_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_jit_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_limb54_add_test.dir
+build-sanitize-check/CMakeFiles/t81_limb54_add_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_limb54_add_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_limb54_booth_mul_test.dir
+build-sanitize-check/CMakeFiles/t81_limb54_booth_mul_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_limb54_booth_mul_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_limb_add_test.dir
+build-sanitize-check/CMakeFiles/t81_limb_add_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_limb_add_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_limb_bohemian_add_test.dir
+build-sanitize-check/CMakeFiles/t81_limb_bohemian_add_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_limb_bohemian_add_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_limb_bohemian_mul_test.dir
+build-sanitize-check/CMakeFiles/t81_limb_bohemian_mul_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_limb_bohemian_mul_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_limb_booth_mul_test.dir
+build-sanitize-check/CMakeFiles/t81_limb_booth_mul_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_limb_booth_mul_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_limb_mul_wide_high_test.dir
+build-sanitize-check/CMakeFiles/t81_limb_mul_wide_high_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_limb_mul_wide_high_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_list_test.dir
+build-sanitize-check/CMakeFiles/t81_list_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_list_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_map_test.dir
+build-sanitize-check/CMakeFiles/t81_map_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_map_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_matrix_test.dir
+build-sanitize-check/CMakeFiles/t81_matrix_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_matrix_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_maybe_test.dir
+build-sanitize-check/CMakeFiles/t81_maybe_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_maybe_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_metadata_test.dir
+build-sanitize-check/CMakeFiles/t81_metadata_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_metadata_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_native_arith_test.dir
+build-sanitize-check/CMakeFiles/t81_native_arith_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_native_arith_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_native_conversion_test.dir
+build-sanitize-check/CMakeFiles/t81_native_conversion_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_native_conversion_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_numeric_format_test.dir
+build-sanitize-check/CMakeFiles/t81_numeric_format_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_numeric_format_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_prob_test.dir
+build-sanitize-check/CMakeFiles/t81_prob_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_prob_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_python.dir
+build-sanitize-check/CMakeFiles/t81_python.dir/src
+build-sanitize-check/CMakeFiles/t81_python.dir/src/python
+build-sanitize-check/CMakeFiles/t81_quaternion_test.dir
+build-sanitize-check/CMakeFiles/t81_quaternion_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_quaternion_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_qutrit_test.dir
+build-sanitize-check/CMakeFiles/t81_qutrit_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_qutrit_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_reflection_non_interference_test.dir
+build-sanitize-check/CMakeFiles/t81_reflection_non_interference_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_reflection_non_interference_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_result_test.dir
+build-sanitize-check/CMakeFiles/t81_result_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_result_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_equality_test.dir
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_equality_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_equality_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_generic_test.dir
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_generic_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_generic_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_loop_test.dir
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_loop_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_loop_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_match_test.dir
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_match_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_match_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_numeric_test.dir
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_numeric_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_numeric_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_option_result_test.dir
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_option_result_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_option_result_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_record_enum_test.dir
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_record_enum_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_record_enum_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_vector_literal_test.dir
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_vector_literal_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_semantic_analyzer_vector_literal_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_set_test.dir
+build-sanitize-check/CMakeFiles/t81_set_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_set_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_simd_add_helpers_test.dir
+build-sanitize-check/CMakeFiles/t81_simd_add_helpers_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_simd_add_helpers_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_string_test.dir
+build-sanitize-check/CMakeFiles/t81_string_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_string_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_symbol_test.dir
+build-sanitize-check/CMakeFiles/t81_symbol_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_symbol_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_t81int_test.dir
+build-sanitize-check/CMakeFiles/t81_t81int_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_t81int_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_t81int_to_binary_test.dir
+build-sanitize-check/CMakeFiles/t81_t81int_to_binary_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_t81int_to_binary_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tensor_broadcast_test.dir
+build-sanitize-check/CMakeFiles/t81_tensor_broadcast_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tensor_broadcast_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tensor_elementwise_test.dir
+build-sanitize-check/CMakeFiles/t81_tensor_elementwise_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tensor_elementwise_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tensor_loader_test.dir
+build-sanitize-check/CMakeFiles/t81_tensor_loader_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tensor_loader_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tensor_matmul_test.dir
+build-sanitize-check/CMakeFiles/t81_tensor_matmul_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tensor_matmul_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tensor_ops.dir
+build-sanitize-check/CMakeFiles/t81_tensor_ops.dir/examples
+build-sanitize-check/CMakeFiles/t81_tensor_reduce_test.dir
+build-sanitize-check/CMakeFiles/t81_tensor_reduce_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tensor_reduce_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tensor_reshape_test.dir
+build-sanitize-check/CMakeFiles/t81_tensor_reshape_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tensor_reshape_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tensor_shape_test.dir
+build-sanitize-check/CMakeFiles/t81_tensor_shape_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tensor_shape_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tensor_slice_test.dir
+build-sanitize-check/CMakeFiles/t81_tensor_slice_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tensor_slice_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tensor_ternary_test.dir
+build-sanitize-check/CMakeFiles/t81_tensor_ternary_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tensor_ternary_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tensor_transpose_test.dir
+build-sanitize-check/CMakeFiles/t81_tensor_transpose_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tensor_transpose_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tensor_unary_test.dir
+build-sanitize-check/CMakeFiles/t81_tensor_unary_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tensor_unary_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_ternary_arith_test.dir
+build-sanitize-check/CMakeFiles/t81_ternary_arith_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_ternary_arith_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tier4_test.dir
+build-sanitize-check/CMakeFiles/t81_tier4_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tier4_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tier4_vm_test.dir
+build-sanitize-check/CMakeFiles/t81_tier4_vm_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tier4_vm_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_time_test.dir
+build-sanitize-check/CMakeFiles/t81_time_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_time_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tisc.dir
+build-sanitize-check/CMakeFiles/t81_tisc.dir/src
+build-sanitize-check/CMakeFiles/t81_tisc.dir/src/tisc
+build-sanitize-check/CMakeFiles/t81_tisc_base81_view_test.dir
+build-sanitize-check/CMakeFiles/t81_tisc_base81_view_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tisc_base81_view_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tisc_binary_emitter_test.dir
+build-sanitize-check/CMakeFiles/t81_tisc_binary_emitter_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tisc_binary_emitter_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tisc_binary_io_determinism_test.dir
+build-sanitize-check/CMakeFiles/t81_tisc_binary_io_determinism_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tisc_binary_io_determinism_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tisc_encoding_test.dir
+build-sanitize-check/CMakeFiles/t81_tisc_encoding_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tisc_encoding_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tisc_type_alias_io_test.dir
+build-sanitize-check/CMakeFiles/t81_tisc_type_alias_io_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tisc_type_alias_io_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_tree_test.dir
+build-sanitize-check/CMakeFiles/t81_tree_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_tree_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_trit_packing_test.dir
+build-sanitize-check/CMakeFiles/t81_trit_packing_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_trit_packing_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_uint_test.dir
+build-sanitize-check/CMakeFiles/t81_uint_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_uint_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_vector_test.dir
+build-sanitize-check/CMakeFiles/t81_vector_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_vector_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_vm_bounds_test.dir
+build-sanitize-check/CMakeFiles/t81_vm_bounds_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_vm_bounds_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_vm_divmod_test.dir
+build-sanitize-check/CMakeFiles/t81_vm_divmod_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_vm_divmod_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_vm_fault_test.dir
+build-sanitize-check/CMakeFiles/t81_vm_fault_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_vm_fault_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_vm_float_fraction_ops_test.dir
+build-sanitize-check/CMakeFiles/t81_vm_float_fraction_ops_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_vm_float_fraction_ops_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_vm_illegal_test.dir
+build-sanitize-check/CMakeFiles/t81_vm_illegal_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_vm_illegal_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_vm_jump_flags_test.dir
+build-sanitize-check/CMakeFiles/t81_vm_jump_flags_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_vm_jump_flags_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_vm_load_store_test.dir
+build-sanitize-check/CMakeFiles/t81_vm_load_store_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_vm_load_store_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_vm_memory_test.dir
+build-sanitize-check/CMakeFiles/t81_vm_memory_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_vm_memory_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_vm_neg_jumps_test.dir
+build-sanitize-check/CMakeFiles/t81_vm_neg_jumps_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_vm_neg_jumps_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_vm_print_test.dir
+build-sanitize-check/CMakeFiles/t81_vm_print_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_vm_print_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_vm_tensor_test.dir
+build-sanitize-check/CMakeFiles/t81_vm_tensor_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_vm_tensor_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_vm_trace_test.dir
+build-sanitize-check/CMakeFiles/t81_vm_trace_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_vm_trace_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_weights_load_test.dir
+build-sanitize-check/CMakeFiles/t81_weights_load_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_weights_load_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81_weights_quantize_test.dir
+build-sanitize-check/CMakeFiles/t81_weights_quantize_test.dir/tests
+build-sanitize-check/CMakeFiles/t81_weights_quantize_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/t81lang_conformance_baseline_test.dir
+build-sanitize-check/CMakeFiles/t81lang_conformance_baseline_test.dir/tests
+build-sanitize-check/CMakeFiles/t81lang_conformance_baseline_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/tensor_backend_parity_test.dir
+build-sanitize-check/CMakeFiles/tensor_backend_parity_test.dir/tests
+build-sanitize-check/CMakeFiles/tensor_backend_parity_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/test_T81Tensor_transpose.dir
+build-sanitize-check/CMakeFiles/test_T81Tensor_transpose.dir/tests
+build-sanitize-check/CMakeFiles/test_T81Tensor_transpose.dir/tests/cpp
+build-sanitize-check/CMakeFiles/test_bigint_multilimb_ext.dir
+build-sanitize-check/CMakeFiles/test_bigint_multilimb_ext.dir/tests
+build-sanitize-check/CMakeFiles/test_bigint_multilimb_ext.dir/tests/cpp
+build-sanitize-check/CMakeFiles/tisc_base81.dir
+build-sanitize-check/CMakeFiles/tisc_base81.dir/tools
+build-sanitize-check/CMakeFiles/tisc_opcode_matrix_test.dir
+build-sanitize-check/CMakeFiles/tisc_opcode_matrix_test.dir/tests
+build-sanitize-check/CMakeFiles/tisc_opcode_matrix_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/vm_bounds_trace_test.dir
+build-sanitize-check/CMakeFiles/vm_bounds_trace_test.dir/tests
+build-sanitize-check/CMakeFiles/vm_bounds_trace_test.dir/tests/cpp
+build-sanitize-check/CMakeFiles/vm_extended_ops_test.dir
+build-sanitize-check/CMakeFiles/vm_extended_ops_test.dir/tests
+build-sanitize-check/CMakeFiles/vm_extended_ops_test.dir/tests/cpp
+build-sanitize-check/_deps
+build-sanitize-check/_deps/googlebenchmark-build
+build-sanitize-check/_deps/googlebenchmark-build/CMakeFiles
+build-sanitize-check/_deps/googlebenchmark-build/src
+build-sanitize-check/_deps/googlebenchmark-build/src/CMakeFiles
+build-sanitize-check/_deps/googlebenchmark-build/src/CMakeFiles/Export
+build-sanitize-check/_deps/googlebenchmark-build/src/CMakeFiles/Export/d56d27b88fbb159d81f220d5e4f5f598
+build-sanitize-check/_deps/googlebenchmark-build/src/CMakeFiles/benchmark.dir
+build-sanitize-check/_deps/googlebenchmark-build/src/CMakeFiles/benchmark_main.dir
+build-sanitize-check/_deps/googlebenchmark-src
+build-sanitize-check/_deps/googlebenchmark-src/.github
+build-sanitize-check/_deps/googlebenchmark-src/.github/ISSUE_TEMPLATE
+build-sanitize-check/_deps/googlebenchmark-src/.github/workflows
+build-sanitize-check/_deps/googlebenchmark-src/bazel
+build-sanitize-check/_deps/googlebenchmark-src/bindings
+build-sanitize-check/_deps/googlebenchmark-src/bindings/python
+build-sanitize-check/_deps/googlebenchmark-src/bindings/python/google_benchmark
+build-sanitize-check/_deps/googlebenchmark-src/cmake
+build-sanitize-check/_deps/googlebenchmark-src/cmake/Modules
+build-sanitize-check/_deps/googlebenchmark-src/docs
+build-sanitize-check/_deps/googlebenchmark-src/docs/assets
+build-sanitize-check/_deps/googlebenchmark-src/docs/assets/images
+build-sanitize-check/_deps/googlebenchmark-src/include
+build-sanitize-check/_deps/googlebenchmark-src/include/benchmark
+build-sanitize-check/_deps/googlebenchmark-src/src
+build-sanitize-check/_deps/googlebenchmark-src/test
+build-sanitize-check/_deps/googlebenchmark-src/tools
+build-sanitize-check/_deps/googlebenchmark-src/tools/gbench
+build-sanitize-check/_deps/googlebenchmark-src/tools/gbench/Inputs
+build-sanitize-check/_deps/googlebenchmark-subbuild
+build-sanitize-check/_deps/googlebenchmark-subbuild/CMakeFiles
+build-sanitize-check/_deps/googlebenchmark-subbuild/CMakeFiles/4.2.3
+build-sanitize-check/_deps/googlebenchmark-subbuild/CMakeFiles/googlebenchmark-populate.dir
+build-sanitize-check/_deps/googlebenchmark-subbuild/CMakeFiles/pkgRedirects
+build-sanitize-check/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix
+build-sanitize-check/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix/src
+build-sanitize-check/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix/src/googlebenchmark-populate-stamp
+build-sanitize-check/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix/tmp
+build-sanitize-check/benchmarks
+build-sanitize-check/benchmarks/CMakeFiles
+build-sanitize-check/benchmarks/CMakeFiles/benchmark_runner.dir
+build-sanitize-check/benchmarks/CMakeFiles/benchmark_runner.dir/runner
+build/.cmake
+build/.cmake/api
+build/.cmake/api/v1
+build/.cmake/api/v1/query
+build/.cmake/api/v1/query/client-vscode
+build/.cmake/api/v1/reply
+build/CMakeFiles
+build/CMakeFiles/4.2.3
+build/CMakeFiles/4.2.3/CompilerIdC
+build/CMakeFiles/4.2.3/CompilerIdC/tmp
+build/CMakeFiles/4.2.3/CompilerIdCXX
+build/CMakeFiles/4.2.3/CompilerIdCXX/tmp
+build/CMakeFiles/CMakeTmp
+build/CMakeFiles/axion_demo.dir
+build/CMakeFiles/axion_demo.dir/examples
+build/CMakeFiles/axion_enum_guard_test.dir
+build/CMakeFiles/axion_enum_guard_test.dir/tests
+build/CMakeFiles/axion_enum_guard_test.dir/tests/cpp
+build/CMakeFiles/axion_guard_trace.dir
+build/CMakeFiles/axion_guard_trace.dir/examples
+build/CMakeFiles/axion_heap_compaction_trace_test.dir
+build/CMakeFiles/axion_heap_compaction_trace_test.dir/tests
+build/CMakeFiles/axion_heap_compaction_trace_test.dir/tests/cpp
+build/CMakeFiles/axion_instruction_counter_test.dir
+build/CMakeFiles/axion_instruction_counter_test.dir/tests
+build/CMakeFiles/axion_instruction_counter_test.dir/tests/cpp
+build/CMakeFiles/axion_loop_metadata_test.dir
+build/CMakeFiles/axion_loop_metadata_test.dir/tests
+build/CMakeFiles/axion_loop_metadata_test.dir/tests/cpp
+build/CMakeFiles/axion_match_metadata_test.dir
+build/CMakeFiles/axion_match_metadata_test.dir/tests
+build/CMakeFiles/axion_match_metadata_test.dir/tests/cpp
+build/CMakeFiles/axion_nested_guard_test.dir
+build/CMakeFiles/axion_nested_guard_test.dir/tests
+build/CMakeFiles/axion_nested_guard_test.dir/tests/cpp
+build/CMakeFiles/axion_overflow_test.dir
+build/CMakeFiles/axion_overflow_test.dir/tests
+build/CMakeFiles/axion_overflow_test.dir/tests/cpp
+build/CMakeFiles/axion_policy_bytecode_test.dir
+build/CMakeFiles/axion_policy_bytecode_test.dir/tests
+build/CMakeFiles/axion_policy_bytecode_test.dir/tests/cpp
+build/CMakeFiles/axion_policy_gc_trace_test.dir
+build/CMakeFiles/axion_policy_gc_trace_test.dir/tests
+build/CMakeFiles/axion_policy_gc_trace_test.dir/tests/cpp
+build/CMakeFiles/axion_policy_match_guard_test.dir
+build/CMakeFiles/axion_policy_match_guard_test.dir/tests
+build/CMakeFiles/axion_policy_match_guard_test.dir/tests/cpp
+build/CMakeFiles/axion_policy_runner.dir
+build/CMakeFiles/axion_policy_runner.dir/examples
+build/CMakeFiles/axion_policy_segment_event_test.dir
+build/CMakeFiles/axion_policy_segment_event_test.dir/tests
+build/CMakeFiles/axion_policy_segment_event_test.dir/tests/cpp
+build/CMakeFiles/axion_policy_trace.dir
+build/CMakeFiles/axion_policy_trace.dir/examples
+build/CMakeFiles/axion_recursion_guardrails_test.dir
+build/CMakeFiles/axion_recursion_guardrails_test.dir/tests
+build/CMakeFiles/axion_recursion_guardrails_test.dir/tests/cpp
+build/CMakeFiles/bigint_perf_guardrail_test.dir
+build/CMakeFiles/bigint_perf_guardrail_test.dir/tests
+build/CMakeFiles/bigint_perf_guardrail_test.dir/tests/cpp
+build/CMakeFiles/canonfs_axion_trace_test.dir
+build/CMakeFiles/canonfs_axion_trace_test.dir/tests
+build/CMakeFiles/canonfs_axion_trace_test.dir/tests/cpp
+build/CMakeFiles/canonfs_persistent_driver_test.dir
+build/CMakeFiles/canonfs_persistent_driver_test.dir/tests
+build/CMakeFiles/canonfs_persistent_driver_test.dir/tests/cpp
+build/CMakeFiles/canonfs_trace_demo.dir
+build/CMakeFiles/canonfs_trace_demo.dir/examples
+build/CMakeFiles/cli_e2e_test.dir
+build/CMakeFiles/cli_e2e_test.dir/tests
+build/CMakeFiles/cli_e2e_test.dir/tests/cpp
+build/CMakeFiles/cli_repro_hash_test.dir
+build/CMakeFiles/cli_repro_hash_test.dir/tests
+build/CMakeFiles/cli_repro_hash_test.dir/tests/cpp
+build/CMakeFiles/e2e_advanced_features_test.dir
+build/CMakeFiles/e2e_advanced_features_test.dir/tests
+build/CMakeFiles/e2e_advanced_features_test.dir/tests/cpp
+build/CMakeFiles/e2e_arithmetic_test.dir
+build/CMakeFiles/e2e_arithmetic_test.dir/tests
+build/CMakeFiles/e2e_arithmetic_test.dir/tests/cpp
+build/CMakeFiles/e2e_ast_ir_canonical_determinism_test.dir
+build/CMakeFiles/e2e_ast_ir_canonical_determinism_test.dir/tests
+build/CMakeFiles/e2e_ast_ir_canonical_determinism_test.dir/tests/cpp
+build/CMakeFiles/e2e_axion_trace_test.dir
+build/CMakeFiles/e2e_axion_trace_test.dir/tests
+build/CMakeFiles/e2e_axion_trace_test.dir/tests/cpp
+build/CMakeFiles/e2e_compile_determinism_test.dir
+build/CMakeFiles/e2e_compile_determinism_test.dir/tests
+build/CMakeFiles/e2e_compile_determinism_test.dir/tests/cpp
+build/CMakeFiles/e2e_if_statement_test.dir
+build/CMakeFiles/e2e_if_statement_test.dir/tests
+build/CMakeFiles/e2e_if_statement_test.dir/tests/cpp
+build/CMakeFiles/e2e_let_statement_test.dir
+build/CMakeFiles/e2e_let_statement_test.dir/tests
+build/CMakeFiles/e2e_let_statement_test.dir/tests/cpp
+build/CMakeFiles/e2e_loop_statement_test.dir
+build/CMakeFiles/e2e_loop_statement_test.dir/tests
+build/CMakeFiles/e2e_loop_statement_test.dir/tests/cpp
+build/CMakeFiles/e2e_match_expression_test.dir
+build/CMakeFiles/e2e_match_expression_test.dir/tests
+build/CMakeFiles/e2e_match_expression_test.dir/tests/cpp
+build/CMakeFiles/e2e_match_metadata_determinism_test.dir
+build/CMakeFiles/e2e_match_metadata_determinism_test.dir/tests
+build/CMakeFiles/e2e_match_metadata_determinism_test.dir/tests/cpp
+build/CMakeFiles/e2e_option_result_function_test.dir
+build/CMakeFiles/e2e_option_result_function_test.dir/tests
+build/CMakeFiles/e2e_option_result_function_test.dir/tests/cpp
+build/CMakeFiles/e2e_option_result_test.dir
+build/CMakeFiles/e2e_option_result_test.dir/tests
+build/CMakeFiles/e2e_option_result_test.dir/tests/cpp
+build/CMakeFiles/e2e_option_type_test.dir
+build/CMakeFiles/e2e_option_type_test.dir/tests
+build/CMakeFiles/e2e_option_type_test.dir/tests/cpp
+build/CMakeFiles/e2e_print_runtime_test.dir
+build/CMakeFiles/e2e_print_runtime_test.dir/tests
+build/CMakeFiles/e2e_print_runtime_test.dir/tests/cpp
+build/CMakeFiles/ir_inspector.dir
+build/CMakeFiles/ir_inspector.dir/tools
+build/CMakeFiles/jit_tensor_trace_equivalence_test.dir
+build/CMakeFiles/jit_tensor_trace_equivalence_test.dir/tests
+build/CMakeFiles/jit_tensor_trace_equivalence_test.dir/tests/cpp
+build/CMakeFiles/jit_trace_equivalence_test.dir
+build/CMakeFiles/jit_trace_equivalence_test.dir/tests
+build/CMakeFiles/jit_trace_equivalence_test.dir/tests/cpp
+build/CMakeFiles/llama32_demo.dir
+build/CMakeFiles/llama32_demo.dir/examples
+build/CMakeFiles/llama_kernels_test.dir
+build/CMakeFiles/llama_kernels_test.dir/tests
+build/CMakeFiles/llama_kernels_test.dir/tests/cpp
+build/CMakeFiles/overflow_roundtrip_test.dir
+build/CMakeFiles/overflow_roundtrip_test.dir/tests
+build/CMakeFiles/overflow_roundtrip_test.dir/tests/cpp
+build/CMakeFiles/performance_advancements_test.dir
+build/CMakeFiles/performance_advancements_test.dir/tests
+build/CMakeFiles/performance_advancements_test.dir/tests/cpp
+build/CMakeFiles/pkgRedirects
+build/CMakeFiles/setun_bridge_test.dir
+build/CMakeFiles/setun_bridge_test.dir/tests
+build/CMakeFiles/setun_bridge_test.dir/tests/cpp
+build/CMakeFiles/t81.dir
+build/CMakeFiles/t81.dir/src
+build/CMakeFiles/t81.dir/src/cli
+build/CMakeFiles/t81_axion_log_determinism_test.dir
+build/CMakeFiles/t81_axion_log_determinism_test.dir/tests
+build/CMakeFiles/t81_axion_log_determinism_test.dir/tests/cpp
+build/CMakeFiles/t81_axion_stub_test.dir
+build/CMakeFiles/t81_axion_stub_test.dir/tests
+build/CMakeFiles/t81_axion_stub_test.dir/tests/cpp
+build/CMakeFiles/t81_base81_balanced_test.dir
+build/CMakeFiles/t81_base81_balanced_test.dir/tests
+build/CMakeFiles/t81_base81_balanced_test.dir/tests/cpp
+build/CMakeFiles/t81_base81_packed_test.dir
+build/CMakeFiles/t81_base81_packed_test.dir/tests
+build/CMakeFiles/t81_base81_packed_test.dir/tests/cpp
+build/CMakeFiles/t81_base81_simd_test.dir
+build/CMakeFiles/t81_base81_simd_test.dir/tests
+build/CMakeFiles/t81_base81_simd_test.dir/tests/cpp
+build/CMakeFiles/t81_bigint_test.dir
+build/CMakeFiles/t81_bigint_test.dir/tests
+build/CMakeFiles/t81_bigint_test.dir/tests/cpp
+build/CMakeFiles/t81_bigint_v1_baseline_test.dir
+build/CMakeFiles/t81_bigint_v1_baseline_test.dir/tests
+build/CMakeFiles/t81_bigint_v1_baseline_test.dir/tests/cpp
+build/CMakeFiles/t81_bigint_v1_perf.dir
+build/CMakeFiles/t81_bigint_v1_perf.dir/tests
+build/CMakeFiles/t81_bigint_v1_perf.dir/tests/cpp
+build/CMakeFiles/t81_bytes_test.dir
+build/CMakeFiles/t81_bytes_test.dir/tests
+build/CMakeFiles/t81_bytes_test.dir/tests/cpp
+build/CMakeFiles/t81_c_api.dir
+build/CMakeFiles/t81_c_api.dir/src
+build/CMakeFiles/t81_c_api.dir/src/c_api
+build/CMakeFiles/t81_c_api_bigint_test.dir
+build/CMakeFiles/t81_c_api_bigint_test.dir/tests
+build/CMakeFiles/t81_c_api_bigint_test.dir/tests/cpp
+build/CMakeFiles/t81_canonfs_driver_test.dir
+build/CMakeFiles/t81_canonfs_driver_test.dir/tests
+build/CMakeFiles/t81_canonfs_driver_test.dir/tests/cpp
+build/CMakeFiles/t81_canonfs_io_test.dir
+build/CMakeFiles/t81_canonfs_io_test.dir/tests
+build/CMakeFiles/t81_canonfs_io_test.dir/tests/cpp
+build/CMakeFiles/t81_cli_check_test.dir
+build/CMakeFiles/t81_cli_check_test.dir/tests
+build/CMakeFiles/t81_cli_check_test.dir/tests/cpp
+build/CMakeFiles/t81_cli_diagnostic_context_test.dir
+build/CMakeFiles/t81_cli_diagnostic_context_test.dir/tests
+build/CMakeFiles/t81_cli_diagnostic_context_test.dir/tests/cpp
+build/CMakeFiles/t81_cli_disasm_test.dir
+build/CMakeFiles/t81_cli_disasm_test.dir/tests
+build/CMakeFiles/t81_cli_disasm_test.dir/tests/cpp
+build/CMakeFiles/t81_cli_driver.dir
+build/CMakeFiles/t81_cli_driver.dir/src
+build/CMakeFiles/t81_cli_driver.dir/src/cli
+build/CMakeFiles/t81_cli_option_result_test.dir
+build/CMakeFiles/t81_cli_option_result_test.dir/tests
+build/CMakeFiles/t81_cli_option_result_test.dir/tests/cpp
+build/CMakeFiles/t81_cli_pipeline_test.dir
+build/CMakeFiles/t81_cli_pipeline_test.dir/tests
+build/CMakeFiles/t81_cli_pipeline_test.dir/tests/cpp
+build/CMakeFiles/t81_cli_record_enum_test.dir
+build/CMakeFiles/t81_cli_record_enum_test.dir/tests
+build/CMakeFiles/t81_cli_record_enum_test.dir/tests/cpp
+build/CMakeFiles/t81_cli_repl_test.dir
+build/CMakeFiles/t81_cli_repl_test.dir/tests
+build/CMakeFiles/t81_cli_repl_test.dir/tests/cpp
+build/CMakeFiles/t81_cli_structural_types_test.dir
+build/CMakeFiles/t81_cli_structural_types_test.dir/tests
+build/CMakeFiles/t81_cli_structural_types_test.dir/tests/cpp
+build/CMakeFiles/t81_codec_base243_test.dir
+build/CMakeFiles/t81_codec_base243_test.dir/tests
+build/CMakeFiles/t81_codec_base243_test.dir/tests/cpp
+build/CMakeFiles/t81_codec_base81_test.dir
+build/CMakeFiles/t81_codec_base81_test.dir/tests
+build/CMakeFiles/t81_codec_base81_test.dir/tests/cpp
+build/CMakeFiles/t81_complex_test.dir
+build/CMakeFiles/t81_complex_test.dir/tests
+build/CMakeFiles/t81_complex_test.dir/tests/cpp
+build/CMakeFiles/t81_core.dir
+build/CMakeFiles/t81_core.dir/src
+build/CMakeFiles/t81_core.dir/src/axion
+build/CMakeFiles/t81_core.dir/src/bigint
+build/CMakeFiles/t81_core.dir/src/canonfs
+build/CMakeFiles/t81_core.dir/src/codec
+build/CMakeFiles/t81_core.dir/src/cog
+build/CMakeFiles/t81_core.dir/src/cog/tier4
+build/CMakeFiles/t81_core.dir/src/core
+build/CMakeFiles/t81_core.dir/src/crypto
+build/CMakeFiles/t81_core.dir/src/hanoi
+build/CMakeFiles/t81_core.dir/src/hash
+build/CMakeFiles/t81_core.dir/src/setun
+build/CMakeFiles/t81_core.dir/src/simd
+build/CMakeFiles/t81_core.dir/src/tisc
+build/CMakeFiles/t81_core.dir/src/tools
+build/CMakeFiles/t81_core.dir/src/vm
+build/CMakeFiles/t81_demo.dir
+build/CMakeFiles/t81_demo.dir/examples
+build/CMakeFiles/t81_distributed_tensor_test.dir
+build/CMakeFiles/t81_distributed_tensor_test.dir/tests
+build/CMakeFiles/t81_distributed_tensor_test.dir/tests/cpp
+build/CMakeFiles/t81_division_test.dir
+build/CMakeFiles/t81_division_test.dir/tests
+build/CMakeFiles/t81_division_test.dir/tests/cpp
+build/CMakeFiles/t81_entropy_test.dir
+build/CMakeFiles/t81_entropy_test.dir/tests
+build/CMakeFiles/t81_entropy_test.dir/tests/cpp
+build/CMakeFiles/t81_expected_test.dir
+build/CMakeFiles/t81_expected_test.dir/tests
+build/CMakeFiles/t81_expected_test.dir/tests/cpp
+build/CMakeFiles/t81_fixed_test.dir
+build/CMakeFiles/t81_fixed_test.dir/tests
+build/CMakeFiles/t81_fixed_test.dir/tests/cpp
+build/CMakeFiles/t81_float_test.dir
+build/CMakeFiles/t81_float_test.dir/tests
+build/CMakeFiles/t81_float_test.dir/tests/cpp
+build/CMakeFiles/t81_fraction_test.dir
+build/CMakeFiles/t81_fraction_test.dir/tests
+build/CMakeFiles/t81_fraction_test.dir/tests/cpp
+build/CMakeFiles/t81_frontend.dir
+build/CMakeFiles/t81_frontend.dir/src
+build/CMakeFiles/t81_frontend.dir/src/frontend
+build/CMakeFiles/t81_frontend_fuzz_test.dir
+build/CMakeFiles/t81_frontend_fuzz_test.dir/tests
+build/CMakeFiles/t81_frontend_fuzz_test.dir/tests/cpp
+build/CMakeFiles/t81_frontend_ir_generator_test.dir
+build/CMakeFiles/t81_frontend_ir_generator_test.dir/tests
+build/CMakeFiles/t81_frontend_ir_generator_test.dir/tests/cpp
+build/CMakeFiles/t81_frontend_lexer_test.dir
+build/CMakeFiles/t81_frontend_lexer_test.dir/tests
+build/CMakeFiles/t81_frontend_lexer_test.dir/tests/cpp
+build/CMakeFiles/t81_frontend_parser_generics_test.dir
+build/CMakeFiles/t81_frontend_parser_generics_test.dir/tests
+build/CMakeFiles/t81_frontend_parser_generics_test.dir/tests/cpp
+build/CMakeFiles/t81_frontend_parser_legacy_rejection_test.dir
+build/CMakeFiles/t81_frontend_parser_legacy_rejection_test.dir/tests
+build/CMakeFiles/t81_frontend_parser_legacy_rejection_test.dir/tests/cpp
+build/CMakeFiles/t81_frontend_parser_test.dir
+build/CMakeFiles/t81_frontend_parser_test.dir/tests
+build/CMakeFiles/t81_frontend_parser_test.dir/tests/cpp
+build/CMakeFiles/t81_hanoi_integration_test.dir
+build/CMakeFiles/t81_hanoi_integration_test.dir/tests
+build/CMakeFiles/t81_hanoi_integration_test.dir/tests/cpp
+build/CMakeFiles/t81_hash_stub_test.dir
+build/CMakeFiles/t81_hash_stub_test.dir/tests
+build/CMakeFiles/t81_hash_stub_test.dir/tests/cpp
+build/CMakeFiles/t81_io.dir
+build/CMakeFiles/t81_io.dir/src
+build/CMakeFiles/t81_io.dir/src/io
+build/CMakeFiles/t81_ir_encoding_test.dir
+build/CMakeFiles/t81_ir_encoding_test.dir/tests
+build/CMakeFiles/t81_ir_encoding_test.dir/tests/cpp
+build/CMakeFiles/t81_ir_roundtrip.dir
+build/CMakeFiles/t81_ir_roundtrip.dir/examples
+build/CMakeFiles/t81_jit_test.dir
+build/CMakeFiles/t81_jit_test.dir/tests
+build/CMakeFiles/t81_jit_test.dir/tests/cpp
+build/CMakeFiles/t81_lang_literal_pool_test.dir
+build/CMakeFiles/t81_lang_literal_pool_test.dir/tests
+build/CMakeFiles/t81_lang_literal_pool_test.dir/tests/cpp
+build/CMakeFiles/t81_limb54_add_test.dir
+build/CMakeFiles/t81_limb54_add_test.dir/tests
+build/CMakeFiles/t81_limb54_add_test.dir/tests/cpp
+build/CMakeFiles/t81_limb54_booth_mul_test.dir
+build/CMakeFiles/t81_limb54_booth_mul_test.dir/tests
+build/CMakeFiles/t81_limb54_booth_mul_test.dir/tests/cpp
+build/CMakeFiles/t81_limb_add_test.dir
+build/CMakeFiles/t81_limb_add_test.dir/tests
+build/CMakeFiles/t81_limb_add_test.dir/tests/cpp
+build/CMakeFiles/t81_limb_bohemian_add_test.dir
+build/CMakeFiles/t81_limb_bohemian_add_test.dir/tests
+build/CMakeFiles/t81_limb_bohemian_add_test.dir/tests/cpp
+build/CMakeFiles/t81_limb_bohemian_mul_test.dir
+build/CMakeFiles/t81_limb_bohemian_mul_test.dir/tests
+build/CMakeFiles/t81_limb_bohemian_mul_test.dir/tests/cpp
+build/CMakeFiles/t81_limb_booth_mul_test.dir
+build/CMakeFiles/t81_limb_booth_mul_test.dir/tests
+build/CMakeFiles/t81_limb_booth_mul_test.dir/tests/cpp
+build/CMakeFiles/t81_limb_mul_wide_high_test.dir
+build/CMakeFiles/t81_limb_mul_wide_high_test.dir/tests
+build/CMakeFiles/t81_limb_mul_wide_high_test.dir/tests/cpp
+build/CMakeFiles/t81_list_test.dir
+build/CMakeFiles/t81_list_test.dir/tests
+build/CMakeFiles/t81_list_test.dir/tests/cpp
+build/CMakeFiles/t81_map_test.dir
+build/CMakeFiles/t81_map_test.dir/tests
+build/CMakeFiles/t81_map_test.dir/tests/cpp
+build/CMakeFiles/t81_matrix_test.dir
+build/CMakeFiles/t81_matrix_test.dir/tests
+build/CMakeFiles/t81_matrix_test.dir/tests/cpp
+build/CMakeFiles/t81_maybe_test.dir
+build/CMakeFiles/t81_maybe_test.dir/tests
+build/CMakeFiles/t81_maybe_test.dir/tests/cpp
+build/CMakeFiles/t81_metadata_test.dir
+build/CMakeFiles/t81_metadata_test.dir/tests
+build/CMakeFiles/t81_metadata_test.dir/tests/cpp
+build/CMakeFiles/t81_native_arith_test.dir
+build/CMakeFiles/t81_native_arith_test.dir/tests
+build/CMakeFiles/t81_native_arith_test.dir/tests/cpp
+build/CMakeFiles/t81_native_conversion_test.dir
+build/CMakeFiles/t81_native_conversion_test.dir/tests
+build/CMakeFiles/t81_native_conversion_test.dir/tests/cpp
+build/CMakeFiles/t81_numeric_format_test.dir
+build/CMakeFiles/t81_numeric_format_test.dir/tests
+build/CMakeFiles/t81_numeric_format_test.dir/tests/cpp
+build/CMakeFiles/t81_prob_test.dir
+build/CMakeFiles/t81_prob_test.dir/tests
+build/CMakeFiles/t81_prob_test.dir/tests/cpp
+build/CMakeFiles/t81_python.dir
+build/CMakeFiles/t81_python.dir/src
+build/CMakeFiles/t81_python.dir/src/python
+build/CMakeFiles/t81_quaternion_test.dir
+build/CMakeFiles/t81_quaternion_test.dir/tests
+build/CMakeFiles/t81_quaternion_test.dir/tests/cpp
+build/CMakeFiles/t81_qutrit_test.dir
+build/CMakeFiles/t81_qutrit_test.dir/tests
+build/CMakeFiles/t81_qutrit_test.dir/tests/cpp
+build/CMakeFiles/t81_reflection_non_interference_test.dir
+build/CMakeFiles/t81_reflection_non_interference_test.dir/tests
+build/CMakeFiles/t81_reflection_non_interference_test.dir/tests/cpp
+build/CMakeFiles/t81_result_test.dir
+build/CMakeFiles/t81_result_test.dir/tests
+build/CMakeFiles/t81_result_test.dir/tests/cpp
+build/CMakeFiles/t81_semantic_analyzer_equality_test.dir
+build/CMakeFiles/t81_semantic_analyzer_equality_test.dir/tests
+build/CMakeFiles/t81_semantic_analyzer_equality_test.dir/tests/cpp
+build/CMakeFiles/t81_semantic_analyzer_generic_test.dir
+build/CMakeFiles/t81_semantic_analyzer_generic_test.dir/tests
+build/CMakeFiles/t81_semantic_analyzer_generic_test.dir/tests/cpp
+build/CMakeFiles/t81_semantic_analyzer_loop_test.dir
+build/CMakeFiles/t81_semantic_analyzer_loop_test.dir/tests
+build/CMakeFiles/t81_semantic_analyzer_loop_test.dir/tests/cpp
+build/CMakeFiles/t81_semantic_analyzer_match_test.dir
+build/CMakeFiles/t81_semantic_analyzer_match_test.dir/tests
+build/CMakeFiles/t81_semantic_analyzer_match_test.dir/tests/cpp
+build/CMakeFiles/t81_semantic_analyzer_numeric_test.dir
+build/CMakeFiles/t81_semantic_analyzer_numeric_test.dir/tests
+build/CMakeFiles/t81_semantic_analyzer_numeric_test.dir/tests/cpp
+build/CMakeFiles/t81_semantic_analyzer_option_result_test.dir
+build/CMakeFiles/t81_semantic_analyzer_option_result_test.dir/tests
+build/CMakeFiles/t81_semantic_analyzer_option_result_test.dir/tests/cpp
+build/CMakeFiles/t81_semantic_analyzer_record_enum_test.dir
+build/CMakeFiles/t81_semantic_analyzer_record_enum_test.dir/tests
+build/CMakeFiles/t81_semantic_analyzer_record_enum_test.dir/tests/cpp
+build/CMakeFiles/t81_semantic_analyzer_vector_literal_test.dir
+build/CMakeFiles/t81_semantic_analyzer_vector_literal_test.dir/tests
+build/CMakeFiles/t81_semantic_analyzer_vector_literal_test.dir/tests/cpp
+build/CMakeFiles/t81_set_test.dir
+build/CMakeFiles/t81_set_test.dir/tests
+build/CMakeFiles/t81_set_test.dir/tests/cpp
+build/CMakeFiles/t81_simd_add_helpers_test.dir
+build/CMakeFiles/t81_simd_add_helpers_test.dir/tests
+build/CMakeFiles/t81_simd_add_helpers_test.dir/tests/cpp
+build/CMakeFiles/t81_string_test.dir
+build/CMakeFiles/t81_string_test.dir/tests
+build/CMakeFiles/t81_string_test.dir/tests/cpp
+build/CMakeFiles/t81_symbol_test.dir
+build/CMakeFiles/t81_symbol_test.dir/tests
+build/CMakeFiles/t81_symbol_test.dir/tests/cpp
+build/CMakeFiles/t81_t81int_test.dir
+build/CMakeFiles/t81_t81int_test.dir/tests
+build/CMakeFiles/t81_t81int_test.dir/tests/cpp
+build/CMakeFiles/t81_t81int_to_binary_test.dir
+build/CMakeFiles/t81_t81int_to_binary_test.dir/tests
+build/CMakeFiles/t81_t81int_to_binary_test.dir/tests/cpp
+build/CMakeFiles/t81_tensor_broadcast_test.dir
+build/CMakeFiles/t81_tensor_broadcast_test.dir/tests
+build/CMakeFiles/t81_tensor_broadcast_test.dir/tests/cpp
+build/CMakeFiles/t81_tensor_elementwise_test.dir
+build/CMakeFiles/t81_tensor_elementwise_test.dir/tests
+build/CMakeFiles/t81_tensor_elementwise_test.dir/tests/cpp
+build/CMakeFiles/t81_tensor_loader_test.dir
+build/CMakeFiles/t81_tensor_loader_test.dir/tests
+build/CMakeFiles/t81_tensor_loader_test.dir/tests/cpp
+build/CMakeFiles/t81_tensor_matmul_test.dir
+build/CMakeFiles/t81_tensor_matmul_test.dir/tests
+build/CMakeFiles/t81_tensor_matmul_test.dir/tests/cpp
+build/CMakeFiles/t81_tensor_ops.dir
+build/CMakeFiles/t81_tensor_ops.dir/examples
+build/CMakeFiles/t81_tensor_reduce_test.dir
+build/CMakeFiles/t81_tensor_reduce_test.dir/tests
+build/CMakeFiles/t81_tensor_reduce_test.dir/tests/cpp
+build/CMakeFiles/t81_tensor_reshape_test.dir
+build/CMakeFiles/t81_tensor_reshape_test.dir/tests
+build/CMakeFiles/t81_tensor_reshape_test.dir/tests/cpp
+build/CMakeFiles/t81_tensor_shape_test.dir
+build/CMakeFiles/t81_tensor_shape_test.dir/tests
+build/CMakeFiles/t81_tensor_shape_test.dir/tests/cpp
+build/CMakeFiles/t81_tensor_slice_test.dir
+build/CMakeFiles/t81_tensor_slice_test.dir/tests
+build/CMakeFiles/t81_tensor_slice_test.dir/tests/cpp
+build/CMakeFiles/t81_tensor_ternary_test.dir
+build/CMakeFiles/t81_tensor_ternary_test.dir/tests
+build/CMakeFiles/t81_tensor_ternary_test.dir/tests/cpp
+build/CMakeFiles/t81_tensor_transpose_test.dir
+build/CMakeFiles/t81_tensor_transpose_test.dir/tests
+build/CMakeFiles/t81_tensor_transpose_test.dir/tests/cpp
+build/CMakeFiles/t81_tensor_unary_test.dir
+build/CMakeFiles/t81_tensor_unary_test.dir/tests
+build/CMakeFiles/t81_tensor_unary_test.dir/tests/cpp
+build/CMakeFiles/t81_ternary_arith_test.dir
+build/CMakeFiles/t81_ternary_arith_test.dir/tests
+build/CMakeFiles/t81_ternary_arith_test.dir/tests/cpp
+build/CMakeFiles/t81_tier4_test.dir
+build/CMakeFiles/t81_tier4_test.dir/tests
+build/CMakeFiles/t81_tier4_test.dir/tests/cpp
+build/CMakeFiles/t81_tier4_vm_test.dir
+build/CMakeFiles/t81_tier4_vm_test.dir/tests
+build/CMakeFiles/t81_tier4_vm_test.dir/tests/cpp
+build/CMakeFiles/t81_time_test.dir
+build/CMakeFiles/t81_time_test.dir/tests
+build/CMakeFiles/t81_time_test.dir/tests/cpp
+build/CMakeFiles/t81_tisc.dir
+build/CMakeFiles/t81_tisc.dir/src
+build/CMakeFiles/t81_tisc.dir/src/tisc
+build/CMakeFiles/t81_tisc_base81_view_test.dir
+build/CMakeFiles/t81_tisc_base81_view_test.dir/tests
+build/CMakeFiles/t81_tisc_base81_view_test.dir/tests/cpp
+build/CMakeFiles/t81_tisc_binary_emitter_test.dir
+build/CMakeFiles/t81_tisc_binary_emitter_test.dir/tests
+build/CMakeFiles/t81_tisc_binary_emitter_test.dir/tests/cpp
+build/CMakeFiles/t81_tisc_binary_io_determinism_test.dir
+build/CMakeFiles/t81_tisc_binary_io_determinism_test.dir/tests
+build/CMakeFiles/t81_tisc_binary_io_determinism_test.dir/tests/cpp
+build/CMakeFiles/t81_tisc_encoding_test.dir
+build/CMakeFiles/t81_tisc_encoding_test.dir/tests
+build/CMakeFiles/t81_tisc_encoding_test.dir/tests/cpp
+build/CMakeFiles/t81_tisc_type_alias_io_test.dir
+build/CMakeFiles/t81_tisc_type_alias_io_test.dir/tests
+build/CMakeFiles/t81_tisc_type_alias_io_test.dir/tests/cpp
+build/CMakeFiles/t81_tree_test.dir
+build/CMakeFiles/t81_tree_test.dir/tests
+build/CMakeFiles/t81_tree_test.dir/tests/cpp
+build/CMakeFiles/t81_trit_packing_test.dir
+build/CMakeFiles/t81_trit_packing_test.dir/tests
+build/CMakeFiles/t81_trit_packing_test.dir/tests/cpp
+build/CMakeFiles/t81_uint_test.dir
+build/CMakeFiles/t81_uint_test.dir/tests
+build/CMakeFiles/t81_uint_test.dir/tests/cpp
+build/CMakeFiles/t81_vector_test.dir
+build/CMakeFiles/t81_vector_test.dir/tests
+build/CMakeFiles/t81_vector_test.dir/tests/cpp
+build/CMakeFiles/t81_vm_bounds_test.dir
+build/CMakeFiles/t81_vm_bounds_test.dir/tests
+build/CMakeFiles/t81_vm_bounds_test.dir/tests/cpp
+build/CMakeFiles/t81_vm_divmod_test.dir
+build/CMakeFiles/t81_vm_divmod_test.dir/tests
+build/CMakeFiles/t81_vm_divmod_test.dir/tests/cpp
+build/CMakeFiles/t81_vm_fault_test.dir
+build/CMakeFiles/t81_vm_fault_test.dir/tests
+build/CMakeFiles/t81_vm_fault_test.dir/tests/cpp
+build/CMakeFiles/t81_vm_float_fraction_ops_test.dir
+build/CMakeFiles/t81_vm_float_fraction_ops_test.dir/tests
+build/CMakeFiles/t81_vm_float_fraction_ops_test.dir/tests/cpp
+build/CMakeFiles/t81_vm_illegal_test.dir
+build/CMakeFiles/t81_vm_illegal_test.dir/tests
+build/CMakeFiles/t81_vm_illegal_test.dir/tests/cpp
+build/CMakeFiles/t81_vm_jump_flags_test.dir
+build/CMakeFiles/t81_vm_jump_flags_test.dir/tests
+build/CMakeFiles/t81_vm_jump_flags_test.dir/tests/cpp
+build/CMakeFiles/t81_vm_load_store_test.dir
+build/CMakeFiles/t81_vm_load_store_test.dir/tests
+build/CMakeFiles/t81_vm_load_store_test.dir/tests/cpp
+build/CMakeFiles/t81_vm_memory_test.dir
+build/CMakeFiles/t81_vm_memory_test.dir/tests
+build/CMakeFiles/t81_vm_memory_test.dir/tests/cpp
+build/CMakeFiles/t81_vm_neg_jumps_test.dir
+build/CMakeFiles/t81_vm_neg_jumps_test.dir/tests
+build/CMakeFiles/t81_vm_neg_jumps_test.dir/tests/cpp
+build/CMakeFiles/t81_vm_print_test.dir
+build/CMakeFiles/t81_vm_print_test.dir/tests
+build/CMakeFiles/t81_vm_print_test.dir/tests/cpp
+build/CMakeFiles/t81_vm_tensor_test.dir
+build/CMakeFiles/t81_vm_tensor_test.dir/tests
+build/CMakeFiles/t81_vm_tensor_test.dir/tests/cpp
+build/CMakeFiles/t81_vm_trace_test.dir
+build/CMakeFiles/t81_vm_trace_test.dir/tests
+build/CMakeFiles/t81_vm_trace_test.dir/tests/cpp
+build/CMakeFiles/t81_weights_load_test.dir
+build/CMakeFiles/t81_weights_load_test.dir/tests
+build/CMakeFiles/t81_weights_load_test.dir/tests/cpp
+build/CMakeFiles/t81_weights_quantize_test.dir
+build/CMakeFiles/t81_weights_quantize_test.dir/tests
+build/CMakeFiles/t81_weights_quantize_test.dir/tests/cpp
+build/CMakeFiles/t81lang_conformance_baseline_test.dir
+build/CMakeFiles/t81lang_conformance_baseline_test.dir/tests
+build/CMakeFiles/t81lang_conformance_baseline_test.dir/tests/cpp
+build/CMakeFiles/tensor_backend_parity_test.dir
+build/CMakeFiles/tensor_backend_parity_test.dir/tests
+build/CMakeFiles/tensor_backend_parity_test.dir/tests/cpp
+build/CMakeFiles/test_T81Tensor_transpose.dir
+build/CMakeFiles/test_T81Tensor_transpose.dir/tests
+build/CMakeFiles/test_T81Tensor_transpose.dir/tests/cpp
+build/CMakeFiles/test_bigint_multilimb_ext.dir
+build/CMakeFiles/test_bigint_multilimb_ext.dir/tests
+build/CMakeFiles/test_bigint_multilimb_ext.dir/tests/cpp
+build/CMakeFiles/tisc_base81.dir
+build/CMakeFiles/tisc_base81.dir/tools
+build/CMakeFiles/tisc_opcode_matrix_test.dir
+build/CMakeFiles/tisc_opcode_matrix_test.dir/tests
+build/CMakeFiles/tisc_opcode_matrix_test.dir/tests/cpp
+build/CMakeFiles/vm_bounds_trace_test.dir
+build/CMakeFiles/vm_bounds_trace_test.dir/tests
+build/CMakeFiles/vm_bounds_trace_test.dir/tests/cpp
+build/CMakeFiles/vm_extended_ops_test.dir
+build/CMakeFiles/vm_extended_ops_test.dir/tests
+build/CMakeFiles/vm_extended_ops_test.dir/tests/cpp
+build/Testing
+build/Testing/20260207-1259
+build/Testing/Temporary
+build/_deps
+build/_deps/googlebenchmark-build
+build/_deps/googlebenchmark-build/CMakeFiles
+build/_deps/googlebenchmark-build/src
+build/_deps/googlebenchmark-build/src/CMakeFiles
+build/_deps/googlebenchmark-build/src/CMakeFiles/Export
+build/_deps/googlebenchmark-build/src/CMakeFiles/Export/d56d27b88fbb159d81f220d5e4f5f598
+build/_deps/googlebenchmark-build/src/CMakeFiles/benchmark.dir
+build/_deps/googlebenchmark-build/src/CMakeFiles/benchmark_main.dir
+build/_deps/googlebenchmark-src
+build/_deps/googlebenchmark-src/.github
+build/_deps/googlebenchmark-src/.github/ISSUE_TEMPLATE
+build/_deps/googlebenchmark-src/.github/workflows
+build/_deps/googlebenchmark-src/bazel
+build/_deps/googlebenchmark-src/bindings
+build/_deps/googlebenchmark-src/bindings/python
+build/_deps/googlebenchmark-src/bindings/python/google_benchmark
+build/_deps/googlebenchmark-src/cmake
+build/_deps/googlebenchmark-src/cmake/Modules
+build/_deps/googlebenchmark-src/docs
+build/_deps/googlebenchmark-src/docs/assets
+build/_deps/googlebenchmark-src/docs/assets/images
+build/_deps/googlebenchmark-src/include
+build/_deps/googlebenchmark-src/include/benchmark
+build/_deps/googlebenchmark-src/src
+build/_deps/googlebenchmark-src/test
+build/_deps/googlebenchmark-src/tools
+build/_deps/googlebenchmark-src/tools/gbench
+build/_deps/googlebenchmark-src/tools/gbench/Inputs
+build/_deps/googlebenchmark-subbuild
+build/_deps/googlebenchmark-subbuild/CMakeFiles
+build/_deps/googlebenchmark-subbuild/CMakeFiles/4.2.3
+build/_deps/googlebenchmark-subbuild/CMakeFiles/googlebenchmark-populate.dir
+build/_deps/googlebenchmark-subbuild/CMakeFiles/pkgRedirects
+build/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix
+build/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix/src
+build/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix/src/googlebenchmark-populate-stamp
+build/_deps/googlebenchmark-subbuild/googlebenchmark-populate-prefix/tmp
+build/artifacts
+build/benchmarks
+build/benchmarks/CMakeFiles
+build/benchmarks/CMakeFiles/benchmark_runner.dir
+build/benchmarks/CMakeFiles/benchmark_runner.dir/runner
+build/build
+build/repro
+build/t3k-repro
+build/t3k-repro-local
+build/t81lang-repro
+contracts
+docs
+docs/.bundle
+docs/_includes
+docs/_layouts
+docs/api
+docs/api/html
+docs/api/html/d0
+docs/api/html/d0/d0a
+docs/api/html/d0/d12
+docs/api/html/d0/d16
+docs/api/html/d0/d18
+docs/api/html/d0/d29
+docs/api/html/d0/d2b
+docs/api/html/d0/d2e
+docs/api/html/d0/d2f
+docs/api/html/d0/d34
+docs/api/html/d0/d46
+docs/api/html/d0/d53
+docs/api/html/d0/d5a
+docs/api/html/d0/d5e
+docs/api/html/d0/d65
+docs/api/html/d0/d6c
+docs/api/html/d0/d6e
+docs/api/html/d0/d73
+docs/api/html/d0/d75
+docs/api/html/d0/d7b
+docs/api/html/d0/d82
+docs/api/html/d0/d86
+docs/api/html/d0/d88
+docs/api/html/d0/d97
+docs/api/html/d0/d9a
+docs/api/html/d0/d9b
+docs/api/html/d0/da9
+docs/api/html/d0/db3
+docs/api/html/d0/db4
+docs/api/html/d0/db7
+docs/api/html/d0/dc0
+docs/api/html/d0/dc1
+docs/api/html/d0/dc5
+docs/api/html/d0/dcc
+docs/api/html/d0/dcf
+docs/api/html/d0/ddf
+docs/api/html/d0/de5
+docs/api/html/d0/de6
+docs/api/html/d0/dea
+docs/api/html/d0/df5
+docs/api/html/d1
+docs/api/html/d1/d08
+docs/api/html/d1/d10
+docs/api/html/d1/d14
+docs/api/html/d1/d1b
+docs/api/html/d1/d1c
+docs/api/html/d1/d1f
+docs/api/html/d1/d21
+docs/api/html/d1/d23
+docs/api/html/d1/d38
+docs/api/html/d1/d42
+docs/api/html/d1/d48
+docs/api/html/d1/d4c
+docs/api/html/d1/d4d
+docs/api/html/d1/d4e
+docs/api/html/d1/d63
+docs/api/html/d1/d6b
+docs/api/html/d1/d6f
+docs/api/html/d1/d72
+docs/api/html/d1/d73
+docs/api/html/d1/d78
+docs/api/html/d1/d7b
+docs/api/html/d1/d82
+docs/api/html/d1/d8e
+docs/api/html/d1/d97
+docs/api/html/d1/dac
+docs/api/html/d1/db4
+docs/api/html/d1/db5
+docs/api/html/d1/dc2
+docs/api/html/d1/dc3
+docs/api/html/d1/dc5
+docs/api/html/d1/dc7
+docs/api/html/d1/dd0
+docs/api/html/d1/dd1
+docs/api/html/d1/dd7
+docs/api/html/d1/de1
+docs/api/html/d1/df3
+docs/api/html/d1/df8
+docs/api/html/d2
+docs/api/html/d2/d05
+docs/api/html/d2/d07
+docs/api/html/d2/d16
+docs/api/html/d2/d1b
+docs/api/html/d2/d1f
+docs/api/html/d2/d25
+docs/api/html/d2/d27
+docs/api/html/d2/d37
+docs/api/html/d2/d3d
+docs/api/html/d2/d3f
+docs/api/html/d2/d47
+docs/api/html/d2/d52
+docs/api/html/d2/d54
+docs/api/html/d2/d5d
+docs/api/html/d2/d5f
+docs/api/html/d2/d61
+docs/api/html/d2/d67
+docs/api/html/d2/d6c
+docs/api/html/d2/d76
+docs/api/html/d2/d89
+docs/api/html/d2/d8c
+docs/api/html/d2/d92
+docs/api/html/d2/da3
+docs/api/html/d2/daa
+docs/api/html/d2/dae
+docs/api/html/d2/daf
+docs/api/html/d2/db6
+docs/api/html/d2/dbc
+docs/api/html/d2/dbd
+docs/api/html/d2/dc4
+docs/api/html/d2/dd2
+docs/api/html/d2/dd4
+docs/api/html/d2/ddb
+docs/api/html/d2/de3
+docs/api/html/d2/def
+docs/api/html/d2/df5
+docs/api/html/d2/df7
+docs/api/html/d3
+docs/api/html/d3/d01
+docs/api/html/d3/d0d
+docs/api/html/d3/d10
+docs/api/html/d3/d16
+docs/api/html/d3/d1e
+docs/api/html/d3/d2a
+docs/api/html/d3/d30
+docs/api/html/d3/d31
+docs/api/html/d3/d35
+docs/api/html/d3/d4d
+docs/api/html/d3/d58
+docs/api/html/d3/d59
+docs/api/html/d3/d5f
+docs/api/html/d3/d60
+docs/api/html/d3/d65
+docs/api/html/d3/d6b
+docs/api/html/d3/d6e
+docs/api/html/d3/d77
+docs/api/html/d3/d78
+docs/api/html/d3/d81
+docs/api/html/d3/d8a
+docs/api/html/d3/d8b
+docs/api/html/d3/d92
+docs/api/html/d3/da5
+docs/api/html/d3/db6
+docs/api/html/d3/dbe
+docs/api/html/d3/dc4
+docs/api/html/d3/dcc
+docs/api/html/d3/dd5
+docs/api/html/d3/de0
+docs/api/html/d3/de1
+docs/api/html/d3/de9
+docs/api/html/d3/dfa
+docs/api/html/d3/dfd
+docs/api/html/d4
+docs/api/html/d4/d01
+docs/api/html/d4/d05
+docs/api/html/d4/d0b
+docs/api/html/d4/d10
+docs/api/html/d4/d28
+docs/api/html/d4/d30
+docs/api/html/d4/d34
+docs/api/html/d4/d38
+docs/api/html/d4/d3b
+docs/api/html/d4/d3c
+docs/api/html/d4/d44
+docs/api/html/d4/d45
+docs/api/html/d4/d48
+docs/api/html/d4/d4a
+docs/api/html/d4/d4c
+docs/api/html/d4/d4d
+docs/api/html/d4/d55
+docs/api/html/d4/d68
+docs/api/html/d4/d79
+docs/api/html/d4/d82
+docs/api/html/d4/d89
+docs/api/html/d4/d93
+docs/api/html/d4/d94
+docs/api/html/d4/d95
+docs/api/html/d4/d97
+docs/api/html/d4/da1
+docs/api/html/d4/dac
+docs/api/html/d4/dad
+docs/api/html/d4/db0
+docs/api/html/d4/db3
+docs/api/html/d4/db7
+docs/api/html/d4/dbf
+docs/api/html/d4/dce
+docs/api/html/d4/dd1
+docs/api/html/d4/dd6
+docs/api/html/d4/de2
+docs/api/html/d4/de7
+docs/api/html/d4/df0
+docs/api/html/d4/df1
+docs/api/html/d4/df3
+docs/api/html/d4/dfe
+docs/api/html/d4/dff
+docs/api/html/d5
+docs/api/html/d5/d06
+docs/api/html/d5/d07
+docs/api/html/d5/d08
+docs/api/html/d5/d10
+docs/api/html/d5/d14
+docs/api/html/d5/d15
+docs/api/html/d5/d18
+docs/api/html/d5/d1a
+docs/api/html/d5/d1e
+docs/api/html/d5/d21
+docs/api/html/d5/d23
+docs/api/html/d5/d29
+docs/api/html/d5/d2f
+docs/api/html/d5/d36
+docs/api/html/d5/d38
+docs/api/html/d5/d3f
+docs/api/html/d5/d41
+docs/api/html/d5/d46
+docs/api/html/d5/d4a
+docs/api/html/d5/d4c
+docs/api/html/d5/d4d
+docs/api/html/d5/d58
+docs/api/html/d5/d5b
+docs/api/html/d5/d5e
+docs/api/html/d5/d64
+docs/api/html/d5/d71
+docs/api/html/d5/d74
+docs/api/html/d5/d78
+docs/api/html/d5/d79
+docs/api/html/d5/d7f
+docs/api/html/d5/d93
+docs/api/html/d5/d95
+docs/api/html/d5/d98
+docs/api/html/d5/d9e
+docs/api/html/d5/daa
+docs/api/html/d5/dac
+docs/api/html/d5/dad
+docs/api/html/d5/dae
+docs/api/html/d5/db3
+docs/api/html/d5/db9
+docs/api/html/d5/dbf
+docs/api/html/d5/dc2
+docs/api/html/d5/dc7
+docs/api/html/d5/dca
+docs/api/html/d5/dcc
+docs/api/html/d5/dd7
+docs/api/html/d5/dd9
+docs/api/html/d5/de0
+docs/api/html/d5/de3
+docs/api/html/d5/de6
+docs/api/html/d5/def
+docs/api/html/d5/df3
+docs/api/html/d6
+docs/api/html/d6/d04
+docs/api/html/d6/d05
+docs/api/html/d6/d18
+docs/api/html/d6/d1a
+docs/api/html/d6/d26
+docs/api/html/d6/d38
+docs/api/html/d6/d39
+docs/api/html/d6/d3a
+docs/api/html/d6/d3f
+docs/api/html/d6/d41
+docs/api/html/d6/d5d
+docs/api/html/d6/d61
+docs/api/html/d6/d66
+docs/api/html/d6/d6a
+docs/api/html/d6/d6d
+docs/api/html/d6/d6f
+docs/api/html/d6/d76
+docs/api/html/d6/d7a
+docs/api/html/d6/d7c
+docs/api/html/d6/d93
+docs/api/html/d6/d94
+docs/api/html/d6/d96
+docs/api/html/d6/d97
+docs/api/html/d6/da3
+docs/api/html/d6/da7
+docs/api/html/d6/dac
+docs/api/html/d6/db5
+docs/api/html/d6/dbb
+docs/api/html/d6/dbe
+docs/api/html/d6/dc2
+docs/api/html/d6/dc6
+docs/api/html/d6/dc7
+docs/api/html/d6/dcb
+docs/api/html/d6/de0
+docs/api/html/d6/df3
+docs/api/html/d6/df7
+docs/api/html/d6/df9
+docs/api/html/d6/dfd
+docs/api/html/d6/dff
+docs/api/html/d7
+docs/api/html/d7/d08
+docs/api/html/d7/d0d
+docs/api/html/d7/d1a
+docs/api/html/d7/d26
+docs/api/html/d7/d28
+docs/api/html/d7/d29
+docs/api/html/d7/d2d
+docs/api/html/d7/d3f
+docs/api/html/d7/d41
+docs/api/html/d7/d46
+docs/api/html/d7/d55
+docs/api/html/d7/d58
+docs/api/html/d7/d5c
+docs/api/html/d7/d62
+docs/api/html/d7/d64
+docs/api/html/d7/d6c
+docs/api/html/d7/d70
+docs/api/html/d7/d7e
+docs/api/html/d7/d7f
+docs/api/html/d7/d83
+docs/api/html/d7/d84
+docs/api/html/d7/d8b
+docs/api/html/d7/d9b
+docs/api/html/d7/da2
+docs/api/html/d7/da3
+docs/api/html/d7/da8
+docs/api/html/d7/da9
+docs/api/html/d7/db0
+docs/api/html/d7/db2
+docs/api/html/d7/db7
+docs/api/html/d7/dc3
+docs/api/html/d7/dc5
+docs/api/html/d7/dca
+docs/api/html/d7/de5
+docs/api/html/d7/dea
+docs/api/html/d7/dee
+docs/api/html/d7/def
+docs/api/html/d7/df4
+docs/api/html/d7/df6
+docs/api/html/d7/dfb
+docs/api/html/d7/dfe
+docs/api/html/d7/dff
+docs/api/html/d8
+docs/api/html/d8/d09
+docs/api/html/d8/d0f
+docs/api/html/d8/d11
+docs/api/html/d8/d12
+docs/api/html/d8/d1c
+docs/api/html/d8/d2f
+docs/api/html/d8/d30
+docs/api/html/d8/d3f
+docs/api/html/d8/d41
+docs/api/html/d8/d4a
+docs/api/html/d8/d52
+docs/api/html/d8/d56
+docs/api/html/d8/d61
+docs/api/html/d8/d6e
+docs/api/html/d8/d6f
+docs/api/html/d8/d73
+docs/api/html/d8/d74
+docs/api/html/d8/d7d
+docs/api/html/d8/d8f
+docs/api/html/d8/d93
+docs/api/html/d8/d97
+docs/api/html/d8/d99
+docs/api/html/d8/d9a
+docs/api/html/d8/da9
+docs/api/html/d8/db6
+docs/api/html/d8/db7
+docs/api/html/d8/dba
+docs/api/html/d8/dbe
+docs/api/html/d8/dc4
+docs/api/html/d8/dc7
+docs/api/html/d8/dca
+docs/api/html/d8/dcc
+docs/api/html/d8/dcd
+docs/api/html/d8/dd0
+docs/api/html/d8/dd2
+docs/api/html/d8/dd3
+docs/api/html/d8/dd5
+docs/api/html/d8/de3
+docs/api/html/d8/de9
+docs/api/html/d8/ded
+docs/api/html/d8/df4
+docs/api/html/d8/df9
+docs/api/html/d8/dfd
+docs/api/html/d9
+docs/api/html/d9/d00
+docs/api/html/d9/d0a
+docs/api/html/d9/d0f
+docs/api/html/d9/d12
+docs/api/html/d9/d16
+docs/api/html/d9/d17
+docs/api/html/d9/d30
+docs/api/html/d9/d3e
+docs/api/html/d9/d44
+docs/api/html/d9/d45
+docs/api/html/d9/d49
+docs/api/html/d9/d50
+docs/api/html/d9/d5a
+docs/api/html/d9/d5f
+docs/api/html/d9/d79
+docs/api/html/d9/d7b
+docs/api/html/d9/d8a
+docs/api/html/d9/d92
+docs/api/html/d9/d96
+docs/api/html/d9/d99
+docs/api/html/d9/d9d
+docs/api/html/d9/da1
+docs/api/html/d9/da2
+docs/api/html/d9/dac
+docs/api/html/d9/db4
+docs/api/html/d9/dba
+docs/api/html/d9/dbb
+docs/api/html/d9/dcb
+docs/api/html/d9/dd0
+docs/api/html/d9/dd5
+docs/api/html/d9/de8
+docs/api/html/d9/dee
+docs/api/html/d9/df0
+docs/api/html/d9/df4
+docs/api/html/d9/df6
+docs/api/html/da
+docs/api/html/da/d04
+docs/api/html/da/d0b
+docs/api/html/da/d0c
+docs/api/html/da/d0f
+docs/api/html/da/d11
+docs/api/html/da/d16
+docs/api/html/da/d24
+docs/api/html/da/d25
+docs/api/html/da/d35
+docs/api/html/da/d3b
+docs/api/html/da/d3d
+docs/api/html/da/d46
+docs/api/html/da/d47
+docs/api/html/da/d4b
+docs/api/html/da/d51
+docs/api/html/da/d5a
+docs/api/html/da/d5c
+docs/api/html/da/d5e
+docs/api/html/da/d63
+docs/api/html/da/d67
+docs/api/html/da/d73
+docs/api/html/da/d78
+docs/api/html/da/d89
+docs/api/html/da/d8a
+docs/api/html/da/d8f
+docs/api/html/da/d92
+docs/api/html/da/d9a
+docs/api/html/da/da2
+docs/api/html/da/da7
+docs/api/html/da/daa
+docs/api/html/da/dad
+docs/api/html/da/db2
+docs/api/html/da/db4
+docs/api/html/da/db7
+docs/api/html/da/db9
+docs/api/html/da/dc7
+docs/api/html/da/dc8
+docs/api/html/da/dd2
+docs/api/html/da/dd4
+docs/api/html/da/dd5
+docs/api/html/da/ddb
+docs/api/html/da/ddc
+docs/api/html/da/ddd
+docs/api/html/da/dde
+docs/api/html/da/de7
+docs/api/html/da/df6
+docs/api/html/da/dfb
+docs/api/html/db
+docs/api/html/db/d0a
+docs/api/html/db/d0c
+docs/api/html/db/d14
+docs/api/html/db/d26
+docs/api/html/db/d2b
+docs/api/html/db/d2d
+docs/api/html/db/d2e
+docs/api/html/db/d30
+docs/api/html/db/d32
+docs/api/html/db/d39
+docs/api/html/db/d3e
+docs/api/html/db/d41
+docs/api/html/db/d49
+docs/api/html/db/d4e
+docs/api/html/db/d4f
+docs/api/html/db/d55
+docs/api/html/db/d57
+docs/api/html/db/d5a
+docs/api/html/db/d61
+docs/api/html/db/d74
+docs/api/html/db/d7c
+docs/api/html/db/d7d
+docs/api/html/db/d81
+docs/api/html/db/d8c
+docs/api/html/db/d9b
+docs/api/html/db/d9c
+docs/api/html/db/da2
+docs/api/html/db/da4
+docs/api/html/db/da9
+docs/api/html/db/dad
+docs/api/html/db/db4
+docs/api/html/db/dc5
+docs/api/html/db/dc8
+docs/api/html/db/dc9
+docs/api/html/db/dda
+docs/api/html/db/ddd
+docs/api/html/db/de6
+docs/api/html/db/df0
+docs/api/html/db/df6
+docs/api/html/db/df7
+docs/api/html/db/dfc
+docs/api/html/db/dfe
+docs/api/html/dc
+docs/api/html/dc/d01
+docs/api/html/dc/d06
+docs/api/html/dc/d08
+docs/api/html/dc/d0c
+docs/api/html/dc/d0d
+docs/api/html/dc/d10
+docs/api/html/dc/d18
+docs/api/html/dc/d19
+docs/api/html/dc/d24
+docs/api/html/dc/d2c
+docs/api/html/dc/d31
+docs/api/html/dc/d32
+docs/api/html/dc/d35
+docs/api/html/dc/d3a
+docs/api/html/dc/d3c
+docs/api/html/dc/d3d
+docs/api/html/dc/d4e
+docs/api/html/dc/d4f
+docs/api/html/dc/d5c
+docs/api/html/dc/d60
+docs/api/html/dc/d66
+docs/api/html/dc/d6a
+docs/api/html/dc/d6d
+docs/api/html/dc/d73
+docs/api/html/dc/d75
+docs/api/html/dc/d77
+docs/api/html/dc/d78
+docs/api/html/dc/d80
+docs/api/html/dc/d85
+docs/api/html/dc/d86
+docs/api/html/dc/d88
+docs/api/html/dc/d8c
+docs/api/html/dc/d8f
+docs/api/html/dc/d93
+docs/api/html/dc/d94
+docs/api/html/dc/d9a
+docs/api/html/dc/d9c
+docs/api/html/dc/da7
+docs/api/html/dc/da8
+docs/api/html/dc/dae
+docs/api/html/dc/dd3
+docs/api/html/dc/dd4
+docs/api/html/dc/dd8
+docs/api/html/dc/ddd
+docs/api/html/dc/dee
+docs/api/html/dc/df0
+docs/api/html/dc/df9
+docs/api/html/dc/dfe
+docs/api/html/dd
+docs/api/html/dd/d00
+docs/api/html/dd/d0b
+docs/api/html/dd/d0e
+docs/api/html/dd/d14
+docs/api/html/dd/d17
+docs/api/html/dd/d27
+docs/api/html/dd/d32
+docs/api/html/dd/d37
+docs/api/html/dd/d3b
+docs/api/html/dd/d3c
+docs/api/html/dd/d3d
+docs/api/html/dd/d41
+docs/api/html/dd/d45
+docs/api/html/dd/d49
+docs/api/html/dd/d60
+docs/api/html/dd/d62
+docs/api/html/dd/d66
+docs/api/html/dd/d71
+docs/api/html/dd/d84
+docs/api/html/dd/d92
+docs/api/html/dd/d9d
+docs/api/html/dd/da0
+docs/api/html/dd/da5
+docs/api/html/dd/da6
+docs/api/html/dd/db0
+docs/api/html/dd/db1
+docs/api/html/dd/db3
+docs/api/html/dd/dc8
+docs/api/html/dd/dd0
+docs/api/html/dd/dd1
+docs/api/html/dd/dd8
+docs/api/html/dd/ddb
+docs/api/html/dd/de3
+docs/api/html/dd/de5
+docs/api/html/dd/de6
+docs/api/html/dd/de9
+docs/api/html/dd/dea
+docs/api/html/dd/df0
+docs/api/html/de
+docs/api/html/de/d01
+docs/api/html/de/d0c
+docs/api/html/de/d1b
+docs/api/html/de/d1c
+docs/api/html/de/d26
+docs/api/html/de/d28
+docs/api/html/de/d2c
+docs/api/html/de/d35
+docs/api/html/de/d36
+docs/api/html/de/d3e
+docs/api/html/de/d42
+docs/api/html/de/d45
+docs/api/html/de/d46
+docs/api/html/de/d51
+docs/api/html/de/d56
+docs/api/html/de/d63
+docs/api/html/de/d6f
+docs/api/html/de/d73
+docs/api/html/de/d74
+docs/api/html/de/d79
+docs/api/html/de/d85
+docs/api/html/de/d86
+docs/api/html/de/d88
+docs/api/html/de/d8a
+docs/api/html/de/d97
+docs/api/html/de/d9d
+docs/api/html/de/da0
+docs/api/html/de/da1
+docs/api/html/de/da4
+docs/api/html/de/db2
+docs/api/html/de/dcd
+docs/api/html/de/dd0
+docs/api/html/de/dd1
+docs/api/html/de/dd9
+docs/api/html/de/de5
+docs/api/html/de/dec
+docs/api/html/de/def
+docs/api/html/de/df0
+docs/api/html/df
+docs/api/html/df/d0a
+docs/api/html/df/d0c
+docs/api/html/df/d11
+docs/api/html/df/d14
+docs/api/html/df/d1c
+docs/api/html/df/d21
+docs/api/html/df/d25
+docs/api/html/df/d2d
+docs/api/html/df/d31
+docs/api/html/df/d34
+docs/api/html/df/d46
+docs/api/html/df/d4b
+docs/api/html/df/d50
+docs/api/html/df/d54
+docs/api/html/df/d5b
+docs/api/html/df/d73
+docs/api/html/df/d79
+docs/api/html/df/d7d
+docs/api/html/df/d7f
+docs/api/html/df/d83
+docs/api/html/df/d8f
+docs/api/html/df/d93
+docs/api/html/df/da5
+docs/api/html/df/db6
+docs/api/html/df/db8
+docs/api/html/df/dba
+docs/api/html/df/dc5
+docs/api/html/df/dc9
+docs/api/html/df/de3
+docs/api/html/df/de6
+docs/api/html/df/df0
+docs/api/html/df/df1
+docs/api/html/df/df7
+docs/api/html/df/dfb
+docs/api/html/search
+docs/archive
+docs/assets
+docs/assets/css
+docs/assets/img
+docs/assets/js
+docs/audits
+docs/contributing
+docs/guides
+docs/guides/axion
+docs/proposals
+docs/search
+examples
+examples/tisc
+include
+include/t81
+include/t81/axion
+include/t81/bigint
+include/t81/canonfs
+include/t81/cli
+include/t81/codec
+include/t81/cog
+include/t81/cog/tier4
+include/t81/core
+include/t81/crypto
+include/t81/detail
+include/t81/frontend
+include/t81/hanoi
+include/t81/hash
+include/t81/io
+include/t81/ir
+include/t81/lang
+include/t81/setun
+include/t81/simd
+include/t81/support
+include/t81/tensor
+include/t81/tensor/io
+include/t81/ternary
+include/t81/tisc
+include/t81/vm
+legacy
+legacy/hanoivm
+legacy/hanoivm/docs
+legacy/hanoivm/scripts
+legacy/hanoivm/src
+legacy/hanoivm/src/axion_ai
+legacy/hanoivm/src/disassembler
+legacy/hanoivm/src/gpu
+legacy/hanoivm/src/hanoivm_core
+legacy/hanoivm/src/lib
+legacy/hanoivm/src/t81lang_compiler
+legacy/hanoivm/src/visualization
+notebooks
+pdf
+pdf/output
+policy
+scripts
+scripts/ci
+scripts/ci/__pycache__
+scripts/notebooks
+spec
+spec/rfcs
+spec/spec
+src
+src/axion
+src/bigint
+src/c_api
+src/canonfs
+src/cli
+src/codec
+src/cog
+src/cog/tier4
+src/core
+src/crypto
+src/data_types
+src/frontend
+src/hanoi
+src/hash
+src/io
+src/lang
+src/python
+src/setun
+src/simd
+src/tensor
+src/tiers
+src/tisc
+src/tools
+src/vm
+t81lib
+tests
+tests/cpp
+tests/fixtures
+tests/fixtures/t81lang_determinism
+tests/harness
+tests/harness/canonical
+tests/harness/test_vectors
+tests/harness/test_vectors/lang_samples
+tests/python
+tools
+tools/vscode-t81
+tools/vscode-t81/syntaxes

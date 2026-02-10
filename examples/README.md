@@ -17,3 +17,4 @@ cmake --build build
 - `demo.cpp` — basic BigInt + Tensor dot example.
 - `tensor_ops.cpp` — transpose, slice, reshape on a small matrix.
 - `ir_roundtrip.cpp` — encode/decode a tiny IR program and print it.
+- `tisc/` — sample precompiled `.tisc` binaries used for runtime/disasm/debug examples.

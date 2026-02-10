@@ -24,7 +24,7 @@ path	category	relevance	essentiality	note
 .pre-commit-config.yaml	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
 AGENTS.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
 ANALYSIS.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
-ANALYSIS.md.archived	archived	historical	redundant_candidate	Archived superseded doc
+docs/archive/analysis.md.archived	archived	historical	redundant_candidate	Archived superseded doc
 ARCHITECTURE.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
 CHANGELOG.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
 CLAUDE.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
@@ -49,7 +49,7 @@ TASKS.md	repo_root_control	governance/build/docs	essential	Repository control/en
 TODO.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
 WHITEPAPER.md	misc	support	optional	
 _config.yaml	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
-axion-guard.tisc	misc	support	optional	
+examples/tisc/axion-guard.tisc	misc	support	optional	
 benchmarks/BM_Base81SIMD.cpp	benchmark	performance	optional	Perf measurement tooling
 benchmarks/BM_CanonFS.cpp	benchmark	performance	optional	Perf measurement tooling
 benchmarks/BM_LimbMul.cpp	benchmark	performance	optional	Perf measurement tooling
@@ -175,7 +175,7 @@ examples/tensor_ops.cpp	examples	adoption	optional	Usage demos
 examples/ternary_verification.t81	examples	adoption	optional	Usage demos
 examples/vector_demo.t81	examples	adoption	optional	Usage demos
 examples/weights_load_demo.t81	examples	adoption	optional	Usage demos
-guard_match.tisc	misc	support	optional	
+examples/tisc/guard_match.tisc	misc	support	optional	
 include/t81/README.md	public_api	contract headers	essential	Public API surface
 include/t81/axion/README.md	public_api	contract headers	essential	Public API surface
 include/t81/axion/api.hpp	public_api	contract headers	essential	Public API surface
@@ -589,7 +589,7 @@ src/vm/README.md	implementation	core runtime/code	essential	Production implement
 src/vm/jit_compiler.cpp	implementation	core runtime/code	essential	Production implementation
 src/vm/test.md	implementation	core runtime/code	essential	Production implementation
 src/vm/vm.cpp	implementation	core runtime/code	essential	Production implementation
-ternary_verification.tisc	misc	support	optional	
+examples/tisc/ternary_verification.tisc	misc	support	optional	
 tests/README.md	tests	verification	essential	Regression/conformance coverage
 tests/cpp/README.md	tests	verification	essential	Regression/conformance coverage
 tests/cpp/axion_enum_guard_test.cpp	tests	verification	essential	Regression/conformance coverage
@@ -806,4 +806,4 @@ tools/validator.py	developer_tool	tooling	optional	Editor/support tooling
 tools/vscode-t81/language-configuration.json	developer_tool	tooling	optional	Editor/support tooling
 tools/vscode-t81/package.json	developer_tool	tooling	optional	Editor/support tooling
 tools/vscode-t81/syntaxes/t81.tmLanguage.json	developer_tool	tooling	optional	Editor/support tooling
-verify.tisc	misc	support	optional	
+examples/tisc/verify.tisc	misc	support	optional	

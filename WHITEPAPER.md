@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The **T81 Foundation** delivers a ternary-native, cognition-first stack built around deterministic numerics, a principled virtual machine (HanoiVM + TISC), and the C++20 compiler of **T81Lang**. This whitepaper inventories every major component implemented so far, summarizes the semantic/IR guarantees we now uphold, and highlights the tooling, CLI, and documentation that keep the stack aligned with the constitutional constraints from `AGENTS.md`.
+The **T81 Foundation** delivers a ternary-native, cognition-first stack built around deterministic numerics, a principled virtual machine (HanoiVM + TISC), and the C++23 compiler/toolchain of **T81Lang** (with a temporary C++20 compatibility lane). This whitepaper inventories every major component implemented so far, summarizes the semantic/IR guarantees we now uphold, and highlights the tooling, CLI, and documentation that keep the stack aligned with the constitutional constraints from `AGENTS.md`.
 
 ## Repository Overview
 
