@@ -73,6 +73,28 @@ static void test_t81_numeric_types_bind_and_widen() {
   require_true(analyzes(source, "t81lang_numeric_binding"), "t81lang_numeric_binding");
 }
 
+static void test_base81_integer_infers_bigint() {
+  constexpr const char* source = R"(
+    fn main() -> T81BigInt {
+      let x = 12t81;
+      let y: T81BigInt = x;
+      return y;
+    }
+  )";
+  require_true(analyzes(source, "t81lang_base81_integer_infers_bigint"), "t81lang_base81_integer_infers_bigint");
+}
+
+static void test_base81_integer_does_not_silently_narrow_to_i32() {
+  constexpr const char* source = R"(
+    fn main() -> i32 {
+      let x = 12t81;
+      let y: i32 = x;
+      return y;
+    }
+  )";
+  require_true(fails_semantic(source, "t81lang_base81_integer_no_narrow"), "t81lang_base81_integer_no_narrow");
+}
+
 static void test_t81_numeric_type_separation_rejects_invalid_mix() {
   constexpr const char* source = R"(
     fn main() -> i8 {
@@ -109,6 +131,8 @@ int main() {
   test_baseline_supported_features();
   test_tier_annotation_supported_for_functions();
   test_t81_numeric_types_bind_and_widen();
+  test_base81_integer_infers_bigint();
+  test_base81_integer_does_not_silently_narrow_to_i32();
   test_t81_numeric_type_separation_rejects_invalid_mix();
   test_let_is_immutable();
   test_var_is_mutable();

@@ -1602,8 +1602,9 @@ std::any SemanticAnalyzer::visit(const LiteralExpr& expr) {
         case TokenType::False:
             return Type{Type::Kind::Bool};
         case TokenType::Integer:
-        case TokenType::Base81Integer:
             return Type{Type::Kind::I32};
+        case TokenType::Base81Integer:
+            return Type{Type::Kind::BigInt};
         case TokenType::Float:
         case TokenType::Base81Float:
             return Type{Type::Kind::Float};
