@@ -16,10 +16,12 @@ ______________________________________________________________________
    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
    cmake --build build --parallel
    ```
+   - Shortcut: `make cmake-configure && make cmake-build`
 2. **Unit tests**
    ```bash
    ctest --test-dir build --output-on-failure
    ```
+   - Shortcut: `make cmake-test`
    - The suite executes the full CTest matrix declared in `CMakeLists.txt`.
    - Default language mode is C++23.
 3. **C++20 compatibility lane**
@@ -48,6 +50,7 @@ ______________________________________________________________________
    - `python3 scripts/ci/audit_workflow_actions.py --max-tagged 0 --max-unknown 0` to enforce CI pinning policy (no tag/unclassified `uses:` references).
    - `python3 scripts/ci/audit_workflow_permissions.py --max-missing 0` to enforce explicit permissions on all workflows.
    - `./scripts/ci/run_workflow_audits.sh` or `make audit-governance` to run both governance audits in strict mode with one command.
+   - `make cmake-ritual` to run the single-threaded local build/test ritual end-to-end.
 
 ## 2. GitHub Workflows
 

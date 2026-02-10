@@ -2,10 +2,24 @@ CXX       ?= g++
 CXXFLAGS  ?= -std=c++20 -O2 -Wall -Wextra
 INCLUDES  := -Iinclude -Isrc
 CC		  ?= cc
+BUILD_DIR ?= build
 
-# Default target
+# Default target (legacy ad-hoc example/test binaries)
 .PHONY: all
-all: demo examples tests
+all: examples tests
+
+# CMake-first developer workflow (authoritative)
+.PHONY: cmake-configure cmake-build cmake-test cmake-ritual
+cmake-configure:
+	cmake -S . -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Release
+
+cmake-build:
+	cmake --build $(BUILD_DIR) --parallel 1
+
+cmake-test:
+	ctest --test-dir $(BUILD_DIR) --output-on-failure -j1
+
+cmake-ritual: cmake-configure cmake-build cmake-test
 
 # -------- Examples --------
 EXAMPLES := \
