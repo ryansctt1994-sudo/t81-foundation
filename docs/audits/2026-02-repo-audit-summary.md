@@ -39,9 +39,9 @@ The intent is to keep an auditable snapshot of repository composition and conver
 
 ### 3. CI Action Pinning Posture
 
-- Latest workflow audit result: `total=47`, `pinned_sha=31`, `tagged=15`, `unknown=1` (docker reference).
-- Hardening progress: high-trust workflows `ci.yml` and `runtime-contract.yml` are now SHA-pinned for third-party actions.
-- Remaining opportunity: migrate the remaining tag-based references in lower-risk workflows with Dependabot-managed roll-forward.
+- Latest workflow audit result: `total=47`, `pinned_sha=46`, `tagged=0`, `unknown=1` (docker reference).
+- Hardening progress: all GitHub Action `uses:` references are now SHA-pinned across workflows.
+- Remaining opportunity: decide whether to keep or replace the `docker://marpteam/marp-cli:v3.6.0` reference with an image digest pin.
 
 ### 4. Documentation Surfaces to Keep Tight
 

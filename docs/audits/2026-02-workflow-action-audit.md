@@ -3,34 +3,21 @@
 ## Summary
 
 - Total `uses:` references: **47**
-- Pinned to commit SHA: **31**
-- Tag/major-version references: **15**
+- Pinned to commit SHA: **46**
+- Tag/major-version references: **0**
 - Unclassified references: **1**
 
 ## Tag/Major References (Migration Candidates)
 
 | Workflow | Line | Reference |
 | --- | ---: | --- |
-| `.github/workflows/bench.yml` | 63 | `actions/upload-artifact@v4` |
-| `.github/workflows/repro-ledger.yml` | 19 | `actions/checkout@v6` |
-| `.github/workflows/repro-ledger.yml` | 85 | `actions/upload-artifact@v4` |
-| `.github/workflows/sidebar.yml` | 23 | `actions/checkout@v6` |
-| `.github/workflows/sidebar.yml` | 28 | `actions/setup-python@v6` |
-| `.github/workflows/sidebar.yml` | 45 | `peter-evans/create-pull-request@v8` |
-| `.github/workflows/static.yml` | 22 | `actions/checkout@v6` |
-| `.github/workflows/static.yml` | 27 | `actions/setup-node@v6` |
-| `.github/workflows/static.yml` | 48 | `peter-evans/create-pull-request@v8` |
-| `.github/workflows/t81lang-repro-hash-refresh.yml` | 17 | `actions/checkout@v6` |
-| `.github/workflows/t81lang-repro-hash-refresh.yml` | 45 | `peter-evans/create-pull-request@v8` |
-| `.github/workflows/toc.yml` | 23 | `actions/checkout@v6` |
-| `.github/workflows/toc.yml` | 28 | `actions/setup-python@v6` |
-| `.github/workflows/pdf.yaml` | 17 | `actions/checkout@v6` |
-| `.github/workflows/pdf.yaml` | 33 | `actions/upload-artifact@v4` |
+| n/a | n/a | n/a |
 
 ## SHA-Pinned References
 
 | Workflow | Line | Reference |
 | --- | ---: | --- |
+| `.github/workflows/bench.yml` | 63 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |
 | `.github/workflows/ci.yml` | 26 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
 | `.github/workflows/ci.yml` | 29 | `actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405` |
 | `.github/workflows/ci.yml` | 41 | `lycheeverse/lychee-action@a8c4c7cb88f0c7386610c35eb25108e448569cb0` |
@@ -60,8 +47,22 @@
 | `.github/workflows/release.yml` | 51 | `anchore/sbom-action@fbfd9c6c189226748411491745178e0c2017392d` |
 | `.github/workflows/release.yml` | 57 | `sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad` |
 | `.github/workflows/release.yml` | 68 | `softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe` |
+| `.github/workflows/repro-ledger.yml` | 19 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/repro-ledger.yml` | 85 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |
 | `.github/workflows/runtime-contract.yml` | 21 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
 | `.github/workflows/runtime-contract.yml` | 27 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/sidebar.yml` | 23 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/sidebar.yml` | 28 | `actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405` |
+| `.github/workflows/sidebar.yml` | 45 | `peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0` |
+| `.github/workflows/static.yml` | 22 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/static.yml` | 27 | `actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238` |
+| `.github/workflows/static.yml` | 48 | `peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0` |
+| `.github/workflows/t81lang-repro-hash-refresh.yml` | 17 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/t81lang-repro-hash-refresh.yml` | 45 | `peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0` |
+| `.github/workflows/toc.yml` | 23 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/toc.yml` | 28 | `actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405` |
+| `.github/workflows/pdf.yaml` | 17 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/pdf.yaml` | 33 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |
 
 ## Unclassified References
 

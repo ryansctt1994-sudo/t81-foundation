@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Build all PDFs with Marp (directory → pdf/output/)
         uses: docker://marpteam/marp-cli:v3.6.0
@@ -30,7 +30,7 @@ jobs:
           MARP_USER: root:root
 
       - name: Upload PDFs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: t81-spec-pdfs
           path: pdf/output/*.pdf
