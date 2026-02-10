@@ -367,6 +367,21 @@ public:
     friend T81BigInt operator+(const T81BigInt& a, const T81BigInt& b) {
         if (a.is_zero()) return b;
         if (b.is_zero()) return a;
+        // Fast path: single-limb values avoid chunk expansion and carry normalization.
+        if (a.limbs_.size() == 1 && b.limbs_.size() == 1) {
+            try {
+                T81BigInt res;
+                res.limbs_.clear();
+                res.limbs_.push_back(a.negative_ ? -a.limbs_[0] : a.limbs_[0]);
+                Limb rhs = b.negative_ ? -b.limbs_[0] : b.limbs_[0];
+                res.limbs_[0] = res.limbs_[0] + rhs;
+                res.negative_ = false;
+                res.normalize();
+                return res;
+            } catch (const std::overflow_error&) {
+                // Fall through to chunk/Karatsuba pipeline for promotion.
+            }
+        }
         auto ac = get_chunks_static(a);
         auto bc = get_chunks_static(b);
         size_t n = std::max(ac.size(), bc.size());
@@ -556,6 +571,19 @@ public:
 
     friend T81BigInt operator*(const T81BigInt& a, const T81BigInt& b) {
         if (a.is_zero() || b.is_zero()) return T81BigInt::zero();
+        // Fast path: single-limb products are common in language/runtime pipelines.
+        if (a.limbs_.size() == 1 && b.limbs_.size() == 1) {
+            try {
+                T81BigInt res;
+                res.limbs_.clear();
+                res.limbs_.push_back(a.limbs_[0] * b.limbs_[0]);
+                res.negative_ = (a.negative_ != b.negative_);
+                res.normalize();
+                return res;
+            } catch (const std::overflow_error&) {
+                // Fall through to chunk/Karatsuba pipeline for promotion.
+            }
+        }
         auto ac = get_chunks_static(a);
         auto bc = get_chunks_static(b);
         std::vector<int128_t> rc = karatsuba_mul_(ac, bc);

@@ -453,6 +453,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_jit_test tests/cpp/jit_test.cpp)
   target_link_libraries(t81_jit_test PRIVATE t81_core)
 
+  add_executable(jit_trace_equivalence_test tests/cpp/jit_trace_equivalence_test.cpp)
+  target_link_libraries(jit_trace_equivalence_test PRIVATE t81_vm)
+
   add_executable(axion_loop_metadata_test tests/cpp/axion_loop_metadata_test.cpp)
   target_link_libraries(axion_loop_metadata_test PRIVATE t81_cli_driver t81_tisc t81_vm)
 
@@ -618,6 +621,12 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(t81_distributed_tensor_test tests/cpp/distributed_tensor_test.cpp)
   target_link_libraries(t81_distributed_tensor_test PRIVATE t81_core)
 
+  add_executable(tensor_backend_parity_test tests/cpp/tensor_backend_parity_test.cpp)
+  target_link_libraries(tensor_backend_parity_test PRIVATE t81_core)
+
+  add_executable(bigint_perf_guardrail_test tests/cpp/bigint_perf_guardrail_test.cpp)
+  target_link_libraries(bigint_perf_guardrail_test PRIVATE t81_core)
+
   enable_testing()
   set(T81_TEST_TARGETS
     t81_float_test
@@ -746,13 +755,16 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_tier4_test
     t81_tier4_vm_test
     t81_jit_test
+    jit_trace_equivalence_test
     e2e_axion_trace_test
     axion_policy_bytecode_test
     test_bigint_multilimb_ext
     t81_bigint_v1_perf
+    bigint_perf_guardrail_test
     test_T81Tensor_transpose
     performance_advancements_test
     t81_distributed_tensor_test
+    tensor_backend_parity_test
   )
   if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
     list(APPEND T81_TEST_TARGETS t81_base81_simd_test)
