@@ -818,6 +818,8 @@ execute_process(
     ERROR_QUIET
 )
 if(pybind11_DIR)
+  set(PYBIND11_FINDPYTHON ON)
+  find_package(Python REQUIRED COMPONENTS Interpreter Development)
   find_package(pybind11 REQUIRED)
   pybind11_add_module(t81_python src/python/t81_python.cpp)
   target_link_libraries(t81_python PRIVATE t81_core t81_frontend t81_tisc)

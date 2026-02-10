@@ -37,6 +37,7 @@ This document tracks long-term strategic goals and ecosystem enhancements that e
 - [DONE] **Cross-Arch Determinism Verification Runs:** Linux `x86_64` + `arm64` T81Lang hash gate is enforced in CI (`t81lang-cross-arch-bit-identity`) with per-arch hash artifacts and fail-fast mismatch detection.
 - [DONE] **Determinism CLI Helper:** Added `t81 repro-hash` command to run the same fixture hash gate locally.
 - [DONE] **Golden Hash Refresh Automation:** Added workflow-driven PR automation for `t81lang_repro_hash.txt` refreshes.
+- [DONE] **C++23 Default + Compatibility Lane:** Made C++23 the default standard in CMake while preserving a CI-validated C++20 compatibility lane (`T81_USE_CXX23=OFF`).
 
 ## Documentation & Community
 
