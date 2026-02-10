@@ -22,6 +22,12 @@ This plan translates the broader `T81Lang` vision into a deterministic implement
 2. Hash-based gate verifying repeated compile emits identical `.tisc`.
 3. Cross-arch conformance harness for representative language fixtures.
 
+Current implementation note:
+
+- `tests/cpp/e2e_compile_determinism_test.cpp` enforces compile-twice bytecode
+  identity (`tisc::encode`) and SHA3-512 digest equality, and also verifies
+  runtime `printed_output` stability across both compile passes.
+
 ### Phase C: Deterministic JIT MVP
 
 1. Trace-based JIT for side-effect-free numeric/tensor hot paths only.

@@ -56,3 +56,19 @@ If a register/tag pair is invalid for formatting, the VM raises a deterministic
   - `tests/cpp/vm_print_test.cpp`
 - End-to-end frontend compile -> VM execution print capture:
   - `tests/cpp/e2e_print_runtime_test.cpp`
+
+## Determinism Gate
+
+`print(...)` output now participates in a compile determinism gate:
+
+- Compile the same source twice via `t81::cli::build_program_from_source(...)`.
+- Encode both `t81::tisc::Program` values and assert byte-for-byte equality.
+- Hash both bytecode blobs with `SHA3-512` and assert equal digests.
+- Run both programs and assert identical `State::printed_output`.
+
+Primary test:
+
+- `tests/cpp/e2e_compile_determinism_test.cpp`
+
+This ensures runtime-visible output is deterministic together with canonical
+bytecode generation, not just VM opcode behavior in isolation.
