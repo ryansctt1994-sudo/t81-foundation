@@ -97,6 +97,7 @@ Operational sources:
 - `.github/workflows/repro-ledger.yml`
 - `scripts/ci/t3k_repro_gate.py`
 - `scripts/ci/t81lang_repro_gate.py`
+- `scripts/ci/check_architecture_targets.py`
 - `scripts/check-runtime-contract-sync.py`
 
 ______________________________________________________________________
@@ -121,3 +122,43 @@ ______________________________________________________________________
 - **Core as substrate:** `t81_core` provides shared primitives/services (VM state, Axion, CanonFS, codecs, tensor numerics) and is the dependency root.
 - **Policy vs performance:** Axion policy checks and trace logging remain mandatory across interpreter and compiled trace paths.
 - **Model tooling vs execution:** `weights` tooling transforms/loads tensors; HanoiVM consumes handles without changing provenance semantics.
+
+______________________________________________________________________
+
+## 7. Architecture Drift Controls
+
+- **Target-table sync gate:** `scripts/ci/check_architecture_targets.py` verifies that this document's build-target table matches `CMakeLists.txt`.
+- **Runtime boundary sync gate:** `scripts/check-runtime-contract-sync.py` verifies runtime contract pinning and policy documents are coherent.
+- **Cross-arch reproducibility gates:** CI compares deterministic artifacts across architecture lanes for T81Lang and T3_K workflows.
+
+These controls are required to keep architecture documentation operationally accurate rather than aspirational.
+
+______________________________________________________________________
+
+## 8. Near-Term Architecture Work (Open)
+
+Open architecture-level items remain tracked in `TASKS.md` and `TODO.md`. Current active streams:
+
+- **Deterministic trace-JIT MVP hardening:** side-effect-free numeric/tensor hot-path compilation with Axion boundary checks.
+- **BigInt performance path:** SIMD/Karatsuba-oriented multi-limb optimizations without changing canonical arithmetic semantics.
+- **CanonFS scalability path:** higher-throughput persistence and retrieval while preserving deterministic traceability.
+- **Distributed tensor path:** sharding/runtime orchestration for higher-rank tensor workloads under deterministic replay constraints.
+- **Formal verification path:** proofs for core balanced ternary arithmetic primitives and policy-safety envelopes.
+
+______________________________________________________________________
+
+## 9. Local Verification Ritual (Single-Threaded Safe Mode)
+
+When host stability is constrained, run the required ritual in single-threaded mode:
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel 1
+ctest --test-dir build --output-on-failure -j1
+```
+
+Optional extended suite (single-threaded):
+
+```bash
+ctest --test-dir build -R "fuzz|property|axion" --schedule-random -j1
+```
