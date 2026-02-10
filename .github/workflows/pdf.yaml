@@ -8,6 +8,9 @@ on:
       - 'pdf/**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build-pdfs:
     runs-on: ubuntu-latest

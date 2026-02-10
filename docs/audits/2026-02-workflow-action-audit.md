@@ -39,18 +39,18 @@
 | `.github/workflows/ci.yml` | 487 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
 | `.github/workflows/ci.yml` | 516 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
 | `.github/workflows/ci.yml` | 544 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
-| `.github/workflows/codeql.yml` | 32 | `actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5` |
-| `.github/workflows/codeql.yml` | 35 | `github/codeql-action/init@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8` |
-| `.github/workflows/codeql.yml` | 40 | `github/codeql-action/autobuild@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8` |
-| `.github/workflows/codeql.yml` | 43 | `github/codeql-action/analyze@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8` |
+| `.github/workflows/codeql.yml` | 33 | `actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5` |
+| `.github/workflows/codeql.yml` | 36 | `github/codeql-action/init@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8` |
+| `.github/workflows/codeql.yml` | 41 | `github/codeql-action/autobuild@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8` |
+| `.github/workflows/codeql.yml` | 44 | `github/codeql-action/analyze@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8` |
 | `.github/workflows/release.yml` | 33 | `actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5` |
 | `.github/workflows/release.yml` | 51 | `anchore/sbom-action@fbfd9c6c189226748411491745178e0c2017392d` |
 | `.github/workflows/release.yml` | 57 | `sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad` |
 | `.github/workflows/release.yml` | 68 | `softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe` |
 | `.github/workflows/repro-ledger.yml` | 19 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
 | `.github/workflows/repro-ledger.yml` | 85 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |
-| `.github/workflows/runtime-contract.yml` | 21 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
-| `.github/workflows/runtime-contract.yml` | 27 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/runtime-contract.yml` | 24 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/runtime-contract.yml` | 30 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
 | `.github/workflows/sidebar.yml` | 23 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
 | `.github/workflows/sidebar.yml` | 28 | `actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405` |
 | `.github/workflows/sidebar.yml` | 45 | `peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0` |
@@ -61,9 +61,9 @@
 | `.github/workflows/t81lang-repro-hash-refresh.yml` | 45 | `peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0` |
 | `.github/workflows/toc.yml` | 23 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
 | `.github/workflows/toc.yml` | 28 | `actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405` |
-| `.github/workflows/pdf.yaml` | 17 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
-| `.github/workflows/pdf.yaml` | 20 | `docker://marpteam/marp-cli:v4.2.3@sha256:472c9e9203391568cd777a70455ee241ee8d16a123dbbc2329277a35b6c56fc8` |
-| `.github/workflows/pdf.yaml` | 33 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |
+| `.github/workflows/pdf.yaml` | 20 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/pdf.yaml` | 23 | `docker://marpteam/marp-cli:v4.2.3@sha256:472c9e9203391568cd777a70455ee241ee8d16a123dbbc2329277a35b6c56fc8` |
+| `.github/workflows/pdf.yaml` | 36 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |
 
 ## Recommendation
 

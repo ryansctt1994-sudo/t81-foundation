@@ -6,6 +6,7 @@ This report summarizes the current full-repository audit artifacts in this folde
 - `repo_tree_expanded.txt`
 - `repo_inventory.tsv`
 - `2026-02-workflow-action-audit.md`
+- `2026-02-workflow-permissions-audit.md`
 
 The intent is to keep an auditable snapshot of repository composition and convert it into concrete housekeeping actions.
 
@@ -43,7 +44,13 @@ The intent is to keep an auditable snapshot of repository composition and conver
 - Hardening progress: all workflow `uses:` references are pinned to immutable SHAs/digests, including the Marp container image.
 - Ongoing requirement: keep Dependabot-driven SHA refreshes enabled and re-run the audit after workflow edits.
 
-### 4. Documentation Surfaces to Keep Tight
+### 4. CI Permissions Posture
+
+- Latest workflow permissions audit: `total=11`, `explicit=11`, `missing=0`, `write_scoped=6`.
+- Hardening progress: restrictive `permissions` blocks are now explicit across all workflows, including read-only scopes on validation-only pipelines.
+- Ongoing requirement: keep write scopes constrained to mutation/release workflows only.
+
+### 5. Documentation Surfaces to Keep Tight
 
 - `ARCHITECTURE.md` now includes drift controls and near-term workstreams.
 - `TASKS.md` and `TODO.md` remain the canonical open-work trackers and should be kept synchronized with architecture changes.

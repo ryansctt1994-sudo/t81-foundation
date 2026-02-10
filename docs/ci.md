@@ -44,6 +44,7 @@ ______________________________________________________________________
    - `python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --fixtures-dir tests/fixtures/t81lang_determinism --workdir build/t81lang-repro --hash-out build/t81lang-repro/hash.txt` to run T81Lang compile reproducibility gates locally.
    - `python3 scripts/ci/generate_repro_dashboard.py ...` to synthesize the reproducibility ledger report (see `docs/guides/repro-ledger.md`).
    - `python3 scripts/ci/audit_workflow_actions.py --markdown-out docs/audits/2026-02-workflow-action-audit.md` to snapshot workflow action pinning posture and migration candidates.
+   - `python3 scripts/ci/audit_workflow_permissions.py --markdown-out docs/audits/2026-02-workflow-permissions-audit.md` to snapshot workflow permissions posture and least-privilege drift.
 
 ## 2. GitHub Workflows
 
