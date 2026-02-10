@@ -36,6 +36,7 @@ This makes output verifiable in tests and reproducible across runs.
 Current VM formatting rules:
 
 - Integer register value: decimal string (example: `42`)
+- Boolean: `true` or `false`
 - Float handle: locale-stable decimal with `t81` suffix (example: `1.25t81`)
 - Fraction handle: `num/den` with `t81` suffix (example: `22/7t81`)
 - Symbol/string handle: symbol text (example: `alpha`)

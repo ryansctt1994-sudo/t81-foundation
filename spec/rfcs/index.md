@@ -121,6 +121,10 @@ Defines self-referential cognitive loops and tier-aware planners.
 **Title:** Axion Policy Language Evolution
 Formalizes the APL grammar, compiler pipeline, and binary format.
 
+### [RFC-0023](RFC-0023-t81lang-print-canonical-runtime.md)
+**Title:** T81Lang `print` Canonical Runtime Surface
+Proposes deterministic VM-captured output semantics and canonical formatting for `print(...)`.
+
 ---
 
 # 2. Upcoming RFCs (Planned)

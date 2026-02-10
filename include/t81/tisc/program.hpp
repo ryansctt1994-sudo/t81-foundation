@@ -14,6 +14,7 @@
 namespace t81::tisc {
 enum class LiteralKind : std::uint8_t {
   Int = 0,
+  Bool,
   FloatHandle,
   FractionHandle,
   SymbolHandle,

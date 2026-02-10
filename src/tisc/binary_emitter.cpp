@@ -1,6 +1,7 @@
 #include "t81/tisc/binary_emitter.hpp"
 #include <unordered_map>
 #include <stdexcept>
+#include <string>
 
 namespace t81 {
 namespace tisc {
@@ -173,6 +174,7 @@ Program BinaryEmitter::emit(const ir::IntermediateProgram& ir_program) {
         if (instr.opcode != ir::Opcode::LABEL) {
             Insn vm_insn;
             vm_insn.opcode = map_opcode(instr);
+            vm_insn.literal_kind = instr.literal_kind;
 
             if (!instr.operands.empty()) {
                 if (std::holds_alternative<ir::Register>(instr.operands[0])) {
@@ -201,9 +203,21 @@ Program BinaryEmitter::emit(const ir::IntermediateProgram& ir_program) {
             }
 
             if (instr.text_literal.has_value()) {
-                int symbol_index = ensure_symbol(*instr.text_literal);
-                vm_insn.b = symbol_index;
-                vm_insn.literal_kind = instr.literal_kind;
+                switch (instr.literal_kind) {
+                    case LiteralKind::FloatHandle: {
+                        double parsed = std::stod(*instr.text_literal);
+                        program.float_pool.push_back(parsed);
+                        vm_insn.b = static_cast<std::int64_t>(program.float_pool.size());
+                        break;
+                    }
+                    case LiteralKind::SymbolHandle: {
+                        int symbol_index = ensure_symbol(*instr.text_literal);
+                        vm_insn.b = symbol_index;
+                        break;
+                    }
+                    default:
+                        throw std::runtime_error("Unsupported text literal kind in binary emitter.");
+                }
             }
 
             program.insns.push_back(vm_insn);

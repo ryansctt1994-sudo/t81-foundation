@@ -30,6 +30,7 @@ struct TraceEntry {
 
 enum class ValueTag : std::uint8_t {
   Int = 0,
+  Bool,
   FloatHandle,
   FractionHandle,
   SymbolHandle,

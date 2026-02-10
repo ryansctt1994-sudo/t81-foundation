@@ -57,7 +57,29 @@ public:
                     break;
                 case t81::tisc::Opcode::LoadImm:
                     state.registers[insn.a] = insn.b;
-                    state.register_tags[insn.a] = (insn.literal_kind == t81::tisc::LiteralKind::Int) ? ValueTag::Int : ValueTag::SymbolHandle;
+                    switch (insn.literal_kind) {
+                        case t81::tisc::LiteralKind::Int:
+                            state.register_tags[insn.a] = ValueTag::Int;
+                            break;
+                        case t81::tisc::LiteralKind::Bool:
+                            state.register_tags[insn.a] = ValueTag::Bool;
+                            break;
+                        case t81::tisc::LiteralKind::FloatHandle:
+                            state.register_tags[insn.a] = ValueTag::FloatHandle;
+                            break;
+                        case t81::tisc::LiteralKind::FractionHandle:
+                            state.register_tags[insn.a] = ValueTag::FractionHandle;
+                            break;
+                        case t81::tisc::LiteralKind::SymbolHandle:
+                            state.register_tags[insn.a] = ValueTag::SymbolHandle;
+                            break;
+                        case t81::tisc::LiteralKind::TensorHandle:
+                            state.register_tags[insn.a] = ValueTag::TensorHandle;
+                            break;
+                        case t81::tisc::LiteralKind::ShapeHandle:
+                            state.register_tags[insn.a] = ValueTag::ShapeHandle;
+                            break;
+                    }
                     break;
                 case t81::tisc::Opcode::Less:
                     state.registers[insn.a] = (state.registers[insn.b] < state.registers[insn.c]) ? 1 : 0;

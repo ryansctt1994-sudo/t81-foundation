@@ -211,6 +211,7 @@ class Interpreter : public IVirtualMachine {
     };
     auto literal_kind_to_tag = [](t81::tisc::LiteralKind kind) -> ValueTag {
       switch (kind) {
+        case t81::tisc::LiteralKind::Bool: return ValueTag::Bool;
         case t81::tisc::LiteralKind::FloatHandle: return ValueTag::FloatHandle;
         case t81::tisc::LiteralKind::FractionHandle: return ValueTag::FractionHandle;
         case t81::tisc::LiteralKind::SymbolHandle: return ValueTag::SymbolHandle;
@@ -473,6 +474,9 @@ class Interpreter : public IVirtualMachine {
             case ValueTag::Int:
               if (lhs_val == rhs_val) return 0;
               return (lhs_val < rhs_val) ? -1 : 1;
+            case ValueTag::Bool:
+              if (lhs_val == rhs_val) return 0;
+              return (lhs_val < rhs_val) ? -1 : 1;
             case ValueTag::FloatHandle: {
               auto lhs = float_ptr(lhs_val);
               auto rhs = float_ptr(rhs_val);
@@ -532,6 +536,8 @@ class Interpreter : public IVirtualMachine {
           switch (tag) {
             case ValueTag::Int:
               return std::to_string(value);
+            case ValueTag::Bool:
+              return value != 0 ? "true" : "false";
             case ValueTag::FloatHandle: {
               auto* fp = float_ptr(value);
               if (!fp) return std::nullopt;

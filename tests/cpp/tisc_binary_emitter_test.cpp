@@ -106,11 +106,32 @@ void test_print_opcode_mapping() {
     std::cout << "BinaryEmitterTest test_print_opcode_mapping passed!" << std::endl;
 }
 
+void test_float_literal_pool_mapping() {
+    IntermediateProgram ir_program;
+    Instruction load_float{Opcode::LOADI, {Register{1}}};
+    load_float.literal_kind = t81::tisc::LiteralKind::FloatHandle;
+    load_float.text_literal = "1.25";
+    ir_program.add_instruction(load_float);
+    ir_program.add_instruction({Opcode::HALT, {}});
+
+    t81::tisc::BinaryEmitter emitter;
+    auto program = emitter.emit(ir_program);
+
+    assert(program.float_pool.size() == 1);
+    assert(program.float_pool[0] == 1.25);
+    assert(program.insns[0].opcode == t81::tisc::Opcode::LoadImm);
+    assert(program.insns[0].literal_kind == t81::tisc::LiteralKind::FloatHandle);
+    assert(program.insns[0].b == 1);
+
+    std::cout << "BinaryEmitterTest test_float_literal_pool_mapping passed!" << std::endl;
+}
+
 int main() {
     test_simple_program();
     test_jump();
     test_comparison_relation();
     test_all_comparison_relations();
     test_print_opcode_mapping();
+    test_float_literal_pool_mapping();
     return 0;
 }

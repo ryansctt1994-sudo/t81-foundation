@@ -10,6 +10,8 @@
 #include "t81/tisc/ir.hpp"
 #include <any>
 #include <iostream>
+#include <limits>
+#include <locale>
 #include <optional>
 #include <sstream>
 #include <stdexcept>
@@ -74,6 +76,26 @@ inline std::string escape_metadata_string(std::string_view input) {
         out.push_back(c);
     }
     return out;
+}
+
+inline std::string strip_t81_suffix(std::string_view literal) {
+    std::string value(literal);
+    constexpr std::string_view suffix = "t81";
+    if (value.size() >= suffix.size() &&
+        value.compare(value.size() - suffix.size(), suffix.size(), suffix) == 0) {
+        value.erase(value.size() - suffix.size());
+    }
+    return value;
+}
+
+inline int64_t parse_base81_integer_literal(std::string_view literal) {
+    std::string value = strip_t81_suffix(literal);
+    return std::stoll(value);
+}
+
+inline double parse_base81_float_literal(std::string_view literal) {
+    std::string value = strip_t81_suffix(literal);
+    return std::stod(value);
 }
 
 class IRGenerator : public ExprVisitor, public StmtVisitor {
@@ -400,10 +422,45 @@ public:
             record_result(&expr, dest);
             return {};
         }
-        std::string_view lexeme = expr.value.lexeme;
-        int64_t value = std::stoll(std::string{lexeme});
-        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        if (expr.value.type == TokenType::True || expr.value.type == TokenType::False) {
+            auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+            auto instr = tisc::ir::Instruction{
+                tisc::ir::Opcode::LOADI,
+                {dest.reg, tisc::ir::Immediate{expr.value.type == TokenType::True ? 1 : 0}}
+            };
+            instr.primitive = tisc::ir::PrimitiveKind::Boolean;
+            instr.literal_kind = tisc::LiteralKind::Bool;
+            emit(instr);
+            record_result(&expr, dest);
+            return {};
+        }
+        if (expr.value.type == TokenType::Float || expr.value.type == TokenType::Base81Float) {
+            const double parsed =
+                (expr.value.type == TokenType::Base81Float)
+                    ? parse_base81_float_literal(expr.value.lexeme)
+                    : std::stod(std::string(expr.value.lexeme));
+            std::ostringstream out;
+            out.imbue(std::locale::classic());
+            out.precision(std::numeric_limits<double>::max_digits10);
+            out << parsed;
 
+            auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Float);
+            tisc::ir::Instruction instr;
+            instr.opcode = tisc::ir::Opcode::LOADI;
+            instr.operands = {dest.reg};
+            instr.literal_kind = tisc::LiteralKind::FloatHandle;
+            instr.text_literal = out.str();
+            instr.primitive = tisc::ir::PrimitiveKind::Float;
+            emit(instr);
+            record_result(&expr, dest);
+            return {};
+        }
+
+        const int64_t value =
+            (expr.value.type == TokenType::Base81Integer)
+                ? parse_base81_integer_literal(expr.value.lexeme)
+                : std::stoll(std::string(expr.value.lexeme));
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
         auto instr = tisc::ir::Instruction{
             tisc::ir::Opcode::LOADI,
             {dest.reg, tisc::ir::Immediate{value}}

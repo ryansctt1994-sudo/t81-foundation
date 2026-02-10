@@ -24,10 +24,14 @@ int main() {
     program.insns.push_back({tisc::Opcode::LoadImm, 2, 1, 0, tisc::LiteralKind::FloatHandle});
     program.insns.push_back({tisc::Opcode::LoadImm, 3, 1, 0, tisc::LiteralKind::FractionHandle});
     program.insns.push_back({tisc::Opcode::LoadImm, 4, 1, 0, tisc::LiteralKind::SymbolHandle});
+    program.insns.push_back({tisc::Opcode::LoadImm, 5, 1, 0, tisc::LiteralKind::Bool});
+    program.insns.push_back({tisc::Opcode::LoadImm, 6, 0, 0, tisc::LiteralKind::Bool});
     program.insns.push_back({tisc::Opcode::Print, 1, 0, 0});
     program.insns.push_back({tisc::Opcode::Print, 2, 0, 0});
     program.insns.push_back({tisc::Opcode::Print, 3, 0, 0});
     program.insns.push_back({tisc::Opcode::Print, 4, 0, 0});
+    program.insns.push_back({tisc::Opcode::Print, 5, 0, 0});
+    program.insns.push_back({tisc::Opcode::Print, 6, 0, 0});
     program.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
 
     auto vm = vm::make_interpreter_vm();
@@ -36,11 +40,13 @@ int main() {
     assert(run.has_value());
 
     [[maybe_unused]] const auto& out = vm->state().printed_output;
-    assert(out.size() == 4);
+    assert(out.size() == 6);
     assert(out[0] == "42");
     assert(out[1] == "1.25t81");
     assert(out[2] == "22/7t81");
     assert(out[3] == "alpha");
+    assert(out[4] == "true");
+    assert(out[5] == "false");
   }
 
   {
