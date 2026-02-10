@@ -90,6 +90,7 @@ Commands:
   disasm  <file.tisc>                  Print human-readable TISC disassembly
   debug   <file.t81|.tisc>             Compile (if needed) and start debugger
   check   <file.t81>                   Syntax-check only
+  repro-hash [fixtures_dir]            Run T81Lang determinism fixture hash gate
   init    <project_name>               Scaffold a new T81 project
   pkg     <command> [args]             T81 package manager (init, check)
   lint    <file.t81>                   Alias for check; performs semantic analysis
@@ -232,6 +233,7 @@ Args parse_args(int argc, char* argv[]) {
         else if (arg.starts_with('-')) {
             // Subcommands under these top-level commands own additional flags.
             if (a.command == "weights" || a.command == "init" || a.command == "pkg" ||
+                a.command == "repro-hash" ||
                 a.command == "policy"  || a.command == "trace") {
                 a.command_args.emplace_back(argv[i]);
             } else {
@@ -241,7 +243,7 @@ Args parse_args(int argc, char* argv[]) {
         } else {
             if (a.command == "benchmark") {
                 a.benchmark_args.emplace_back(argv[i]);
-            } else if (a.command == "weights" || a.command == "init" || a.command == "pkg" || a.command == "policy" || a.command == "trace") {
+            } else if (a.command == "weights" || a.command == "init" || a.command == "pkg" || a.command == "repro-hash" || a.command == "policy" || a.command == "trace") {
                 a.command_args.emplace_back(argv[i]);
             } else {
                 if (!a.input.empty()) {
@@ -479,6 +481,75 @@ int run_policy(const Args& args) {
     return 1;
 }
 
+std::optional<fs::path> find_repro_gate_script(const fs::path& exe_path) {
+    std::vector<fs::path> candidates = {
+        fs::current_path() / "scripts/ci/t81lang_repro_gate.py",
+        exe_path.parent_path().parent_path() / "scripts/ci/t81lang_repro_gate.py",
+        exe_path.parent_path() / "scripts/ci/t81lang_repro_gate.py",
+    };
+    for (const auto& path : candidates) {
+        if (fs::exists(path)) {
+            return path;
+        }
+    }
+    return std::nullopt;
+}
+
+int run_repro_hash(const char* command_name, const Args& args) {
+    fs::path exe_path = fs::absolute(fs::path(command_name));
+    auto script_path = find_repro_gate_script(exe_path);
+    if (!script_path) {
+        error("Could not locate scripts/ci/t81lang_repro_gate.py");
+        return 1;
+    }
+
+    fs::path repo_root = script_path->parent_path().parent_path().parent_path();
+    const std::string fixtures_arg = args.command_args.empty()
+        ? "tests/fixtures/t81lang_determinism"
+        : args.command_args[0];
+    const std::string expected_arg = args.command_args.empty()
+        ? "tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt"
+        : (fs::path(args.command_args[0]) / "t81lang_repro_hash.txt").string();
+
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
+    std::uniform_int_distribution<uint64_t> dist;
+    fs::path workdir = fs::temp_directory_path() /
+        ("t81-repro-hash-" + std::to_string(dist(gen)));
+    fs::path hash_out = workdir / "hash.txt";
+
+    std::string cmd = "cd " + shell_escape(repo_root.string()) +
+                      " && python3 " + shell_escape(script_path->string()) +
+                      " --t81-bin " + shell_escape(exe_path.string()) +
+                      " --fixtures-dir " + shell_escape(fixtures_arg) +
+                      " --workdir " + shell_escape(workdir.string()) +
+                      " --hash-out " + shell_escape(hash_out.string()) +
+                      " --expected-hash-file " + shell_escape(expected_arg);
+
+    int status = std::system(cmd.c_str());
+    if (status == -1) {
+        error("Failed to execute t81lang_repro_gate.py");
+        return 1;
+    }
+    int rc = decode_system_status(status);
+    if (rc != 0) {
+        return rc;
+    }
+
+    std::ifstream in(hash_out);
+    if (!in) {
+        error("Failed to read reproducibility hash output");
+        return 1;
+    }
+    std::string hash;
+    std::getline(in, hash);
+    std::cout << hash << "\n";
+
+    std::error_code ignore_ec;
+    fs::remove_all(workdir, ignore_ec);
+    return 0;
+}
+
 // ──────────────────────────────────────────────────────────────
 // Main
 // ──────────────────────────────────────────────────────────────
@@ -570,6 +641,9 @@ int main(int argc, char* argv[]) {
 
         } else if (args.command == "benchmark") {
             return run_benchmark(argv[0], args);
+
+        } else if (args.command == "repro-hash") {
+            return run_repro_hash(argv[0], args);
 
         } else if (args.command == "init") {
             if (args.command_args.empty()) {

@@ -95,6 +95,22 @@ python3 scripts/ci/t81lang_repro_gate.py \
 The checked-in hash file (`tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt`)
 acts as a golden value. CI fails if fixture compile output drifts unexpectedly.
 
+Run the equivalent CLI helper:
+
+```bash
+./build/t81 repro-hash
+```
+
+Optional fixture directory override:
+
+```bash
+./build/t81 repro-hash tests/fixtures/t81lang_determinism
+```
+
+Maintainers can refresh the tracked golden hash through:
+
+- `.github/workflows/t81lang-repro-hash-refresh.yml`
+
 ## Interpretation
 
 - Pass: compile + runtime determinism contract holds for this fixture.

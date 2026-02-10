@@ -35,6 +35,8 @@ This document tracks long-term strategic goals and ecosystem enhancements that e
 - [DONE] **Advanced CI Matrix:** Expanded CI to include static analysis, sanitizers, and formal logic verification scripts.
 - [DONE] **T81Lang Determinism Gates:** Added compile-twice bytecode identity and runtime `printed_output` determinism tests with golden fixtures.
 - [ ] **Cross-Arch Determinism Verification Runs:** Keep Linux `x86_64` + `arm64` T81Lang hash gate green in CI and investigate any drift immediately.
+- [DONE] **Determinism CLI Helper:** Added `t81 repro-hash` command to run the same fixture hash gate locally.
+- [DONE] **Golden Hash Refresh Automation:** Added workflow-driven PR automation for `t81lang_repro_hash.txt` refreshes.
 
 ## Documentation & Community
 

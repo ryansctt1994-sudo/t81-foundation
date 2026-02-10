@@ -33,6 +33,7 @@ ______________________________________________________________________
 5. **Optional helpers**
    - `./build/t81 benchmark` to refresh `docs/benchmarks.md`.
    - `cmake --build build --target t81` to recompile the CLI after changes.
+   - `./build/t81 repro-hash` to run the T81Lang fixture reproducibility gate and print the current aggregate hash.
    - `python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --fixtures-dir tests/fixtures/t81lang_determinism --workdir build/t81lang-repro --hash-out build/t81lang-repro/hash.txt` to run T81Lang compile reproducibility gates locally.
    - `python3 scripts/ci/generate_repro_dashboard.py ...` to synthesize the reproducibility ledger report (see `docs/guides/repro-ledger.md`).
 
@@ -44,6 +45,7 @@ ______________________________________________________________________
 | `.github/workflows/codeql.yml` | nightly + PR merges | runs CodeQL analysis on main/master. |
 | `.github/workflows/bench.yml` | manually via `workflow_dispatch` | builds benchmark runner and pipeline, publishes `docs/benchmarks.md` updates. |
 | `.github/workflows/repro-ledger.yml` | weekly + `workflow_dispatch` | runs build/test + T3_K reproducibility gate + Axion trace capture + benchmark snapshot and publishes `reproducibility-ledger` dashboard artifacts. |
+| `.github/workflows/t81lang-repro-hash-refresh.yml` | `workflow_dispatch` | regenerates `tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt` and opens an automated PR. |
 | `.github/workflows/release.yml` | tag pushes (`vX.Y.Z`) | production build, docs PDF generation, exposure of release assets (see `docs/release.md`). |
 | `.github/workflows/static.yml` | pushes | runs static checks (format/lint) that are currently placeholder; extend when necessary. |
 
@@ -58,3 +60,16 @@ ______________________________________________________________________
 
 - Are there additional sanitizers (ASan, UBSan) or platforms (Linux, macOS) we should add to `ci.yml`?  
 - Should `ci.yml` publish artifacts (docs PDFs, benchmarks) for downstream users? Document expectations here if so.
+
+## 5. Required Checks Setup
+
+Branch protection cannot be declared from repository source. Configure it in
+GitHub settings and mark these checks as required:
+
+- `gate / t3k cross-arch bit-identity`
+- `gate / t81lang cross-arch bit-identity`
+
+Recommended additional required checks:
+
+- `build / linux-x86_64 / clang`
+- `build / linux-arm64 / clang`

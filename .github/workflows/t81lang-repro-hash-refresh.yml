@@ -1,0 +1,53 @@
+name: T81Lang Repro Hash Refresh
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh-hash:
+    name: " refresh / t81lang fixture hash "
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake ninja-build gcc-14 g++-14 python3
+
+      - name: Configure build
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=gcc-14 \
+            -DCMAKE_CXX_COMPILER=g++-14
+
+      - name: Build CLI
+        run: cmake --build build --parallel --target t81
+
+      - name: Regenerate fixture hash
+        run: |
+          python3 scripts/ci/t81lang_repro_gate.py \
+            --t81-bin build/t81 \
+            --fixtures-dir tests/fixtures/t81lang_determinism \
+            --workdir build/t81lang-repro-refresh \
+            --hash-out build/t81lang-repro-refresh/hash.txt
+          cp build/t81lang-repro-refresh/hash.txt tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore(t81lang): refresh deterministic fixture hash"
+          title: "chore(t81lang): refresh deterministic fixture hash"
+          body: |
+            Automated update of `tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt`
+            after running the canonical T81Lang reproducibility gate.
+          branch: chore/t81lang-repro-hash-refresh
+          delete-branch: true

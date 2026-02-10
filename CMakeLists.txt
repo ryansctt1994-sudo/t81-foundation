@@ -438,6 +438,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_cli_repl_test tests/cpp/cli_repl_test.cpp)
   target_link_libraries(t81_cli_repl_test PRIVATE t81_cli_driver t81_tisc t81_vm)
 
+  add_executable(cli_repro_hash_test tests/cpp/cli_repro_hash_test.cpp)
+  target_compile_features(cli_repro_hash_test PRIVATE cxx_std_20)
+
   add_executable(t81_cli_record_enum_test tests/cpp/cli_record_enum_test.cpp)
   target_link_libraries(t81_cli_record_enum_test PRIVATE t81_cli_driver t81_tisc t81_vm)
 
@@ -749,6 +752,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   foreach(tgt IN LISTS T81_TEST_TARGETS)
     add_test(NAME ${tgt} COMMAND $<TARGET_FILE:${tgt}>)
   endforeach()
+  add_test(NAME t81_cli_repro_hash_test COMMAND $<TARGET_FILE:cli_repro_hash_test> $<TARGET_FILE:t81>)
 endif()
 
 # =============================================================================
