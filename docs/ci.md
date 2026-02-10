@@ -47,6 +47,7 @@ ______________________________________________________________________
    - `python3 scripts/ci/audit_workflow_permissions.py --markdown-out docs/audits/2026-02-workflow-permissions-audit.md` to snapshot workflow permissions posture and least-privilege drift.
    - `python3 scripts/ci/audit_workflow_actions.py --max-tagged 0 --max-unknown 0` to enforce CI pinning policy (no tag/unclassified `uses:` references).
    - `python3 scripts/ci/audit_workflow_permissions.py --max-missing 0` to enforce explicit permissions on all workflows.
+   - `./scripts/ci/run_workflow_audits.sh` or `make audit-governance` to run both governance audits in strict mode with one command.
 
 ## 2. GitHub Workflows
 

@@ -175,6 +175,10 @@ run-examples: examples
 	@./build/t81_ir_roundtrip
 	@./build/axion_demo
 
+.PHONY: audit-governance
+audit-governance:
+	@./scripts/ci/run_workflow_audits.sh
+
 # Clean
 .PHONY: clean
 clean:
