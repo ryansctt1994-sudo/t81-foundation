@@ -1,0 +1,6 @@
+fn main() -> i32 {
+  let a: T81BigInt = 12t81;
+  let b: T81BigInt = 5t81;
+  print(a + b);
+  return 0;
+}

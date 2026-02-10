@@ -209,6 +209,17 @@ jobs:
             --workdir build/t3k-repro \
             --hash-out build/t3k-repro/hash.txt 2>&1 | tee -a .github/logs/build-and-test.log
 
+      - name: Run T81Lang compile determinism gates
+        if: matrix.compiler == 'clang' && (matrix.platform == 'linux-x86_64' || matrix.platform == 'linux-arm64')
+        shell: bash
+        run: |
+          set -eo pipefail
+          python3 scripts/ci/t81lang_repro_gate.py \
+            --t81-bin build/t81 \
+            --fixtures-dir tests/fixtures/t81lang_determinism \
+            --workdir build/t81lang-repro \
+            --hash-out build/t81lang-repro/hash.txt 2>&1 | tee -a .github/logs/build-and-test.log
+
       - name: Upload build artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -225,6 +236,14 @@ jobs:
         with:
           name: t3k-hash-${{ matrix.platform }}-${{ matrix.compiler }}
           path: build/t3k-repro/hash.txt
+          if-no-files-found: error
+
+      - name: Upload T81Lang hash artifact
+        if: matrix.compiler == 'clang' && (matrix.platform == 'linux-x86_64' || matrix.platform == 'linux-arm64')
+        uses: actions/upload-artifact@v4
+        with:
+          name: t81lang-hash-${{ matrix.platform }}-${{ matrix.compiler }}
+          path: build/t81lang-repro/hash.txt
           if-no-files-found: error
 
       - name: Show ccache stats
@@ -268,6 +287,45 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: t3k-hash-linux-arm64-clang
+          path: hashes/arm64
+
+      - name: Compare cross-arch hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          x86_hash="$(tr -d ' \n\r' < hashes/x86_64/hash.txt)"
+          arm_hash="$(tr -d ' \n\r' < hashes/arm64/hash.txt)"
+          echo "x86_64 hash: ${x86_hash}"
+          echo "arm64  hash: ${arm_hash}"
+          if [ -z "${x86_hash}" ] || [ -z "${arm_hash}" ]; then
+            echo "::error::missing one or both hash values"
+            exit 1
+          fi
+          if [ "${x86_hash}" != "${arm_hash}" ]; then
+            echo "::error::cross-arch bit identity failed"
+            exit 1
+          fi
+          echo "Cross-arch bit identity passed."
+
+  ############################################################################
+  # JOB: t81lang-cross-arch-bit-identity
+  ############################################################################
+  t81lang-cross-arch-bit-identity:
+    name: " gate / t81lang cross-arch bit-identity "
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download x86_64 T81Lang hash
+        uses: actions/download-artifact@v4
+        with:
+          name: t81lang-hash-linux-x86_64-clang
+          path: hashes/x86_64
+
+      - name: Download arm64 T81Lang hash
+        uses: actions/download-artifact@v4
+        with:
+          name: t81lang-hash-linux-arm64-clang
           path: hashes/arm64
 
       - name: Compare cross-arch hashes

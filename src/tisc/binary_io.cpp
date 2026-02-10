@@ -32,6 +32,37 @@ void read_vector(std::istream& is, std::vector<T>& vec) {
     }
 }
 
+void write_insn_vector(std::ostream& os, const std::vector<t81::tisc::Insn>& vec) {
+    uint64_t size = vec.size();
+    os.write(reinterpret_cast<const char*>(&size), sizeof(size));
+    for (const auto& insn : vec) {
+        const auto opcode = static_cast<uint8_t>(insn.opcode);
+        os.write(reinterpret_cast<const char*>(&opcode), sizeof(opcode));
+        os.write(reinterpret_cast<const char*>(&insn.a), sizeof(insn.a));
+        os.write(reinterpret_cast<const char*>(&insn.b), sizeof(insn.b));
+        os.write(reinterpret_cast<const char*>(&insn.c), sizeof(insn.c));
+        const auto literal_kind = static_cast<uint8_t>(insn.literal_kind);
+        os.write(reinterpret_cast<const char*>(&literal_kind), sizeof(literal_kind));
+    }
+}
+
+void read_insn_vector(std::istream& is, std::vector<t81::tisc::Insn>& vec) {
+    uint64_t size = 0;
+    is.read(reinterpret_cast<char*>(&size), sizeof(size));
+    vec.resize(size);
+    for (auto& insn : vec) {
+        uint8_t opcode = 0;
+        is.read(reinterpret_cast<char*>(&opcode), sizeof(opcode));
+        insn.opcode = static_cast<t81::tisc::Opcode>(opcode);
+        is.read(reinterpret_cast<char*>(&insn.a), sizeof(insn.a));
+        is.read(reinterpret_cast<char*>(&insn.b), sizeof(insn.b));
+        is.read(reinterpret_cast<char*>(&insn.c), sizeof(insn.c));
+        uint8_t literal_kind = 0;
+        is.read(reinterpret_cast<char*>(&literal_kind), sizeof(literal_kind));
+        insn.literal_kind = static_cast<t81::tisc::LiteralKind>(literal_kind);
+    }
+}
+
 // --- Specializations for Complex Types ---
 
 // std::string
@@ -239,7 +270,7 @@ void save_program(const Program& program, const std::string& path) {
         throw std::runtime_error("Could not open file for writing: " + path);
     }
 
-    write_vector(file, program.insns);
+    write_insn_vector(file, program.insns);
     write_vector(file, program.float_pool);
     write_serializable_vector(file, program.fraction_pool);
     write_vector_string(file, program.symbol_pool);
@@ -266,7 +297,7 @@ Program load_program(const std::string& path) {
     }
 
     Program program;
-    read_vector(file, program.insns);
+    read_insn_vector(file, program.insns);
     read_vector(file, program.float_pool);
     read_serializable_vector(file, program.fraction_pool);
     read_vector_string(file, program.symbol_pool);

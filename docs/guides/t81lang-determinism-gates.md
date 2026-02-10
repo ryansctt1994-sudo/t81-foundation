@@ -43,6 +43,19 @@ produce identical:
 
 The fixture also asserts expected canonical output values.
 
+### 4) Golden fixture pack
+
+The compile/runtime gate is exercised over a fixture set in:
+
+- `tests/fixtures/t81lang_determinism/*.t81`
+- `tests/fixtures/t81lang_determinism/*.out`
+
+Each fixture enforces:
+
+- compile pass A == compile pass B (bytecode)
+- SHA3-512 hash(pass A) == hash(pass B)
+- run output(pass A) == run output(pass B) == golden `.out`
+
 ## Local verification commands
 
 Run the full repository ritual:
@@ -57,6 +70,16 @@ Run only determinism-focused tests:
 
 ```bash
 ctest --test-dir build -R "e2e_compile_determinism_test|e2e_print_runtime_test|t81_vm_print_test" --output-on-failure
+```
+
+Run the CLI reproducibility script used in CI:
+
+```bash
+python3 scripts/ci/t81lang_repro_gate.py \
+  --t81-bin build/t81 \
+  --fixtures-dir tests/fixtures/t81lang_determinism \
+  --workdir build/t81lang-repro \
+  --hash-out build/t81lang-repro/hash.txt
 ```
 
 ## Interpretation

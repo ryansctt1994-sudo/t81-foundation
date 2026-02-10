@@ -1,0 +1,6 @@
+fn main() -> i32 {
+  let i: T81BigInt = 2t81;
+  let q: T81Fraction = 22/7t81;
+  print(i + q);
+  return 0;
+}

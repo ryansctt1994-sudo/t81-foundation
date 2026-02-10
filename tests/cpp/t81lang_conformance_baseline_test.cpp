@@ -73,6 +73,30 @@ static void test_t81_numeric_types_bind_and_widen() {
   require_true(analyzes(source, "t81lang_numeric_binding"), "t81lang_numeric_binding");
 }
 
+static void test_t81_mixed_numeric_widening_matrix() {
+  constexpr const char* bigint_float = R"(
+    fn main() -> T81Float {
+      let i: T81BigInt = 3t81;
+      let f: T81Float = 1.5t81;
+      let out: T81Float = i * f;
+      return out;
+    }
+  )";
+  require_true(analyzes(bigint_float, "t81lang_widen_bigint_float"),
+               "t81lang_widen_bigint_float");
+
+  constexpr const char* bigint_fraction = R"(
+    fn main() -> T81Fraction {
+      let i: T81BigInt = 2t81;
+      let q: T81Fraction = 22/7t81;
+      let out: T81Fraction = i + q;
+      return out;
+    }
+  )";
+  require_true(analyzes(bigint_fraction, "t81lang_widen_bigint_fraction"),
+               "t81lang_widen_bigint_fraction");
+}
+
 static void test_base81_integer_infers_bigint() {
   constexpr const char* source = R"(
     fn main() -> T81BigInt {
@@ -178,6 +202,7 @@ int main() {
   test_baseline_supported_features();
   test_tier_annotation_supported_for_functions();
   test_t81_numeric_types_bind_and_widen();
+  test_t81_mixed_numeric_widening_matrix();
   test_base81_integer_infers_bigint();
   test_base81_integer_does_not_silently_narrow_to_i32();
   test_base81_fraction_literal_is_native_t81fraction();

@@ -1,0 +1,6 @@
+fn main() -> i32 {
+  let i: T81BigInt = 3t81;
+  let f: T81Float = 1.5t81;
+  print(i * f);
+  return 0;
+}

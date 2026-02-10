@@ -20,7 +20,7 @@ ______________________________________________________________________
    ```bash
    ctest --test-dir build --output-on-failure
    ```
-   - The suite currently executes 65 targeted binaries (see `tests/cpp/*.cpp` in `CMakeLists.txt`).
+   - The suite executes the full CTest matrix declared in `CMakeLists.txt`.
 3. **Extended suite (optional but recommended for releases)**
    ```bash
    ctest --test-dir build -R "fuzz|property|axion" --schedule-random
@@ -33,13 +33,14 @@ ______________________________________________________________________
 5. **Optional helpers**
    - `./build/t81 benchmark` to refresh `docs/benchmarks.md`.
    - `cmake --build build --target t81` to recompile the CLI after changes.
+   - `python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --fixtures-dir tests/fixtures/t81lang_determinism --workdir build/t81lang-repro --hash-out build/t81lang-repro/hash.txt` to run T81Lang compile reproducibility gates locally.
    - `python3 scripts/ci/generate_repro_dashboard.py ...` to synthesize the reproducibility ledger report (see `docs/guides/repro-ledger.md`).
 
 ## 2. GitHub Workflows
 
 | Workflow | Triggers | Key steps |
 | --- | --- | --- |
-| `.github/workflows/ci.yml` | pushes/PRs on `main` | configures CMake, builds `t81` and Google Benchmark, runs `ctest`, publishes warnings. Mirrors local build/test commands above. |
+| `.github/workflows/ci.yml` | pushes/PRs on `main` | configures CMake, builds `t81` and Google Benchmark, runs `ctest`, runs T3_K and T81Lang reproducibility gates on linux clang (`x86_64` + `arm64`), and compares cross-arch gate hashes. |
 | `.github/workflows/codeql.yml` | nightly + PR merges | runs CodeQL analysis on main/master. |
 | `.github/workflows/bench.yml` | manually via `workflow_dispatch` | builds benchmark runner and pipeline, publishes `docs/benchmarks.md` updates. |
 | `.github/workflows/repro-ledger.yml` | weekly + `workflow_dispatch` | runs build/test + T3_K reproducibility gate + Axion trace capture + benchmark snapshot and publishes `reproducibility-ledger` dashboard artifacts. |

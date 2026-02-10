@@ -1,0 +1,5 @@
+fn main() -> i32 {
+  let f: T81Float = 1.20t81;
+  print(f);
+  return 0;
+}

@@ -33,6 +33,8 @@ This document tracks long-term strategic goals and ecosystem enhancements that e
 - [ ] **Hardware Backends:** Research and prototype physical ternary hardware backends or FPGA implementations of HanoiVM.
 - [ ] **Axion Policy Language:** Develop a domain-specific language for defining Axion safety policies.
 - [DONE] **Advanced CI Matrix:** Expanded CI to include static analysis, sanitizers, and formal logic verification scripts.
+- [DONE] **T81Lang Determinism Gates:** Added compile-twice bytecode identity and runtime `printed_output` determinism tests with golden fixtures.
+- [ ] **Cross-Arch Determinism Verification Runs:** Keep Linux `x86_64` + `arm64` T81Lang hash gate green in CI and investigate any drift immediately.
 
 ## Documentation & Community
 

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 
 using namespace t81;
@@ -116,10 +117,34 @@ static void test_runtime_arithmetic_for_t81_numeric_families() {
   assert(output[2] == "3/1t81");
 }
 
+static void test_base81_float_parse_print_roundtrip_is_stable() {
+  const std::vector<std::string_view> literals = {
+      "1.20t81",
+      "0.5t81",
+      "-2.25t81",
+      "123456.5t81",
+      "0.1t81",
+  };
+
+  for (const auto literal : literals) {
+    const std::string source_a =
+        "fn main() -> i32 { let x: T81Float = " + std::string(literal) + "; print(x); return 0; }";
+    const auto output_a = run_and_capture_prints(source_a);
+    assert(output_a.size() == 1);
+
+    const std::string source_b =
+        "fn main() -> i32 { let x: T81Float = " + output_a[0] + "; print(x); return 0; }";
+    const auto output_b = run_and_capture_prints(source_b);
+    assert(output_b.size() == 1);
+    assert(output_b[0] == output_a[0]);
+  }
+}
+
 int main() {
   test_print_runtime_captures_scalars_in_order();
   test_print_runtime_supports_t81_literals_and_bool();
   test_runtime_arithmetic_for_t81_numeric_families();
+  test_base81_float_parse_print_roundtrip_is_stable();
   std::cout << "e2e print runtime test passed!\n";
   return 0;
 }
