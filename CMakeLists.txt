@@ -265,6 +265,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81lang_conformance_baseline_test tests/cpp/t81lang_conformance_baseline_test.cpp)
   target_link_libraries(t81lang_conformance_baseline_test PRIVATE t81_frontend)
 
+  add_executable(t81_numeric_format_test tests/cpp/t81_numeric_format_test.cpp)
+  target_link_libraries(t81_numeric_format_test PRIVATE t81_core)
+
   add_executable(axion_recursion_guardrails_test tests/cpp/axion_recursion_guardrails_test.cpp)
   target_link_libraries(axion_recursion_guardrails_test PRIVATE t81_core)
 
@@ -639,6 +642,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     setun_bridge_test
     tisc_opcode_matrix_test
     t81lang_conformance_baseline_test
+    t81_numeric_format_test
     axion_recursion_guardrails_test
     t81_tensor_shape_test
     t81_ternary_arith_test

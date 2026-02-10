@@ -1198,6 +1198,22 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
             }
             return Type{Type::Kind::I32};
         }
+        if (func_name == "print") {
+            if (arg_types.size() != 1) {
+                error(var_expr->name, "The 'print' builtin expects exactly one argument.");
+                return make_error_type();
+            }
+            const Type& arg = arg_types[0];
+            const bool supported =
+                is_primitive_numeric_type(arg) ||
+                arg.kind == Type::Kind::String ||
+                arg.kind == Type::Kind::Bool;
+            if (!supported) {
+                error(var_expr->name, "The 'print' builtin requires a scalar T81 numeric, bool, or string argument.");
+                return make_error_type();
+            }
+            return Type{Type::Kind::Void};
+        }
 
         auto* symbol = resolve_symbol(var_expr->name);
         if (!symbol) {

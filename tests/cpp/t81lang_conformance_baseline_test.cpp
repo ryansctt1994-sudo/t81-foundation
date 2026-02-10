@@ -127,6 +127,31 @@ static void test_base81_fraction_literal_does_not_silently_narrow() {
   require_true(fails_semantic(source, "t81lang_base81_fraction_no_narrow"), "t81lang_base81_fraction_no_narrow");
 }
 
+static void test_print_builtin_accepts_native_t81_numerics() {
+  constexpr const char* source = R"(
+    fn main() -> i32 {
+      let i: T81BigInt = 12t81;
+      let f: T81Float = 1.20t81;
+      let q: T81Fraction = 22/7t81;
+      print(i);
+      print(f);
+      print(q);
+      return 0;
+    }
+  )";
+  require_true(analyzes(source, "t81lang_print_builtin_numerics"), "t81lang_print_builtin_numerics");
+}
+
+static void test_print_builtin_rejects_bad_arity() {
+  constexpr const char* source = R"(
+    fn main() -> i32 {
+      print();
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(source, "t81lang_print_builtin_bad_arity"), "t81lang_print_builtin_bad_arity");
+}
+
 static void test_let_is_immutable() {
   constexpr const char* source = R"(
     fn main() -> i32 {
@@ -157,6 +182,8 @@ int main() {
   test_base81_integer_does_not_silently_narrow_to_i32();
   test_base81_fraction_literal_is_native_t81fraction();
   test_base81_fraction_literal_does_not_silently_narrow();
+  test_print_builtin_accepts_native_t81_numerics();
+  test_print_builtin_rejects_bad_arity();
   test_t81_numeric_type_separation_rejects_invalid_mix();
   test_let_is_immutable();
   test_var_is_mutable();
