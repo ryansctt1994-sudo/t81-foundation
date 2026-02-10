@@ -339,13 +339,13 @@ jobs:
 
     steps:
       - name: Download x86_64 T3_K hash
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: t3k-hash-linux-x86_64-clang
           path: hashes/x86_64
 
       - name: Download arm64 T3_K hash
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: t3k-hash-linux-arm64-clang
           path: hashes/arm64
@@ -384,13 +384,13 @@ jobs:
 
     steps:
       - name: Download x86_64 T81Lang hash
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: t81lang-hash-linux-x86_64-clang
           path: hashes/x86_64
 
       - name: Download arm64 T81Lang hash
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: t81lang-hash-linux-arm64-clang
           path: hashes/arm64
