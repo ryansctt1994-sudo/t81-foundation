@@ -1,4 +1,6 @@
 #include "t81/vm/jit.hpp"
+#include "t81/tensor/llama.hpp"
+#include "t81/tensor/matmul.hpp"
 #include <iostream>
 
 namespace t81::vm {
@@ -10,6 +12,20 @@ public:
     std::size_t size() const override { return insns_.size(); }
 
     std::size_t execute(State& state) override {
+        auto reg_ok = [&state](int r) {
+            return r >= 0 && static_cast<std::size_t>(r) < state.registers.size();
+        };
+        auto tensor_ptr = [&state](std::int64_t handle) -> t81::T729Tensor* {
+            if (handle <= 0) return nullptr;
+            const auto idx = static_cast<std::size_t>(handle - 1);
+            if (idx >= state.tensors.size()) return nullptr;
+            return &state.tensors[idx];
+        };
+        auto alloc_tensor = [&state](t81::T729Tensor tensor) -> std::int64_t {
+            state.tensors.push_back(std::move(tensor));
+            return static_cast<std::int64_t>(state.tensors.size());
+        };
+
         std::size_t instructions_executed = 0;
         for (const auto& insn : insns_) {
             instructions_executed++;
@@ -81,6 +97,47 @@ public:
                             break;
                     }
                     break;
+                case t81::tisc::Opcode::TMatMul: {
+                    if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+                        stop_trace = true;
+                        break;
+                    }
+                    if (state.register_tags[insn.b] != ValueTag::TensorHandle ||
+                        state.register_tags[insn.c] != ValueTag::TensorHandle) {
+                        stop_trace = true;
+                        break;
+                    }
+                    auto ta = tensor_ptr(state.registers[insn.b]);
+                    auto tb = tensor_ptr(state.registers[insn.c]);
+                    if (!ta || !tb || ta->rank() != 2 || tb->rank() != 2 ||
+                        ta->shape()[1] != tb->shape()[0]) {
+                        stop_trace = true;
+                        break;
+                    }
+                    state.registers[insn.a] = alloc_tensor(t81::ops::matmul(*ta, *tb));
+                    state.register_tags[insn.a] = ValueTag::TensorHandle;
+                    break;
+                }
+                case t81::tisc::Opcode::TRMSNorm: {
+                    if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+                        stop_trace = true;
+                        break;
+                    }
+                    if (state.register_tags[insn.b] != ValueTag::TensorHandle ||
+                        state.register_tags[insn.c] != ValueTag::TensorHandle) {
+                        stop_trace = true;
+                        break;
+                    }
+                    auto t = tensor_ptr(state.registers[insn.b]);
+                    auto w = tensor_ptr(state.registers[insn.c]);
+                    if (!t || !w || t->rank() == 0 || w->rank() != 1 || w->shape()[0] != t->shape().back()) {
+                        stop_trace = true;
+                        break;
+                    }
+                    state.registers[insn.a] = alloc_tensor(t81::ops::rmsnorm(*t, *w));
+                    state.register_tags[insn.a] = ValueTag::TensorHandle;
+                    break;
+                }
                 case t81::tisc::Opcode::Less:
                     state.registers[insn.a] = (state.registers[insn.b] < state.registers[insn.c]) ? 1 : 0;
                     state.register_tags[insn.a] = ValueTag::Int;
@@ -148,6 +205,8 @@ void JitCompiler::record_instruction(const t81::tisc::Insn& insn) {
         case t81::tisc::Opcode::LoadImm:
         case t81::tisc::Opcode::Less:
         case t81::tisc::Opcode::Equal:
+        case t81::tisc::Opcode::TMatMul:
+        case t81::tisc::Opcode::TRMSNorm:
             trace_buffer_.push_back(insn);
             break;
         case t81::tisc::Opcode::Jump:

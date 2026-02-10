@@ -142,7 +142,49 @@ class Interpreter : public IVirtualMachine {
     // Check if we have a compiled trace for the current PC.
     auto trace_it = compiled_traces_.find(state_.pc);
     if (trace_it != compiled_traces_.end()) {
-        instruction_count_ += trace_it->second->execute(state_);
+        const std::size_t trace_pc = state_.pc;
+        const auto first_opcode =
+            trace_pc < program_.insns.size() ? program_.insns[trace_pc].opcode : t81::tisc::Opcode::Halt;
+
+        auto enter = eval_axion_call(t81::axion::reasons::kJitTraceEnter, trace_pc, first_opcode);
+        if (enter.kind == t81::axion::VerdictKind::Deny) {
+          return Trap::SecurityFault;
+        }
+
+        t81::axion::Verdict enter_event{t81::axion::VerdictKind::Allow, ""};
+        {
+          std::ostringstream reason;
+          reason << t81::axion::reasons::kJitTraceEnter
+                 << " pc=" << trace_pc
+                 << " trace-len=" << trace_it->second->size();
+          enter_event.reason = reason.str();
+        }
+        record_axion_event(t81::tisc::Opcode::Nop,
+                           static_cast<std::int32_t>(trace_it->second->size()),
+                           static_cast<std::int64_t>(trace_pc),
+                           enter_event);
+
+        const std::size_t executed = trace_it->second->execute(state_);
+        instruction_count_ += executed;
+
+        t81::axion::Verdict exit_event{t81::axion::VerdictKind::Allow, ""};
+        {
+          std::ostringstream reason;
+          reason << t81::axion::reasons::kJitTraceExit
+                 << " pc=" << state_.pc
+                 << " executed=" << executed;
+          exit_event.reason = reason.str();
+        }
+        record_axion_event(t81::tisc::Opcode::Nop,
+                           static_cast<std::int32_t>(executed),
+                           static_cast<std::int64_t>(state_.pc),
+                           exit_event);
+
+        auto exit = eval_axion_call(t81::axion::reasons::kJitTraceExit, state_.pc, first_opcode);
+        if (exit.kind == t81::axion::VerdictKind::Deny) {
+          return Trap::SecurityFault;
+        }
+
         return {};
     }
 

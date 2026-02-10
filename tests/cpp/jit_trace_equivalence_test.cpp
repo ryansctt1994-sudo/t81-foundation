@@ -71,6 +71,21 @@ void test_jit_trace_equivalence_and_determinism() {
   assert(a.pc == b.pc);
   assert(a.halted == b.halted);
   assert(a.trace_reasons == b.trace_reasons);
+  bool saw_enter = false;
+  bool saw_exit = false;
+  for (const auto& reason : a.trace_reasons) {
+    if (reason.find("jit trace enter") != std::string::npos) {
+      saw_enter = true;
+    }
+    if (reason.find("jit trace exit") != std::string::npos) {
+      saw_exit = true;
+    }
+  }
+  if (!saw_enter || !saw_exit) {
+    std::cerr << "missing jit boundary reasons: enter=" << saw_enter
+              << " exit=" << saw_exit << "\n";
+    assert(false);
+  }
 
   // Sanity-check the arithmetic result for this loop.
   // r1 = 100, r2 = 1 + ... + 100 = 5050.

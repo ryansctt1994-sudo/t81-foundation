@@ -456,6 +456,9 @@ if(T81_BUILD_TESTS)
   add_executable(jit_trace_equivalence_test tests/cpp/jit_trace_equivalence_test.cpp)
   target_link_libraries(jit_trace_equivalence_test PRIVATE t81_vm)
 
+  add_executable(jit_tensor_trace_equivalence_test tests/cpp/jit_tensor_trace_equivalence_test.cpp)
+  target_link_libraries(jit_tensor_trace_equivalence_test PRIVATE t81_vm)
+
   add_executable(axion_loop_metadata_test tests/cpp/axion_loop_metadata_test.cpp)
   target_link_libraries(axion_loop_metadata_test PRIVATE t81_cli_driver t81_tisc t81_vm)
 
@@ -756,6 +759,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_tier4_vm_test
     t81_jit_test
     jit_trace_equivalence_test
+    jit_tensor_trace_equivalence_test
     e2e_axion_trace_test
     axion_policy_bytecode_test
     test_bigint_multilimb_ext
