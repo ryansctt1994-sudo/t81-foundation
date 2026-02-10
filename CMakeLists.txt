@@ -390,6 +390,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_tisc_type_alias_io_test tests/cpp/tisc_type_alias_io_test.cpp)
   target_link_libraries(t81_tisc_type_alias_io_test PRIVATE t81_tisc)
 
+  add_executable(t81_tisc_binary_io_determinism_test tests/cpp/tisc_binary_io_determinism_test.cpp)
+  target_link_libraries(t81_tisc_binary_io_determinism_test PRIVATE t81_tisc t81_core)
+
   add_executable(t81_semantic_analyzer_loop_test tests/cpp/semantic_analyzer_loop_test.cpp)
   target_link_libraries(t81_semantic_analyzer_loop_test PRIVATE t81_frontend)
 
@@ -706,6 +709,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_semantic_analyzer_numeric_test
     t81_tisc_binary_emitter_test
     t81_tisc_type_alias_io_test
+    t81_tisc_binary_io_determinism_test
     e2e_option_result_test
     e2e_option_type_test
     e2e_match_expression_test

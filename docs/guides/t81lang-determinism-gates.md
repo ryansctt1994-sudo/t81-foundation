@@ -56,6 +56,15 @@ Each fixture enforces:
 - SHA3-512 hash(pass A) == hash(pass B)
 - run output(pass A) == run output(pass B) == golden `.out`
 
+### 5) Binary serialization determinism regression
+
+Test: `tests/cpp/tisc_binary_io_determinism_test.cpp`
+
+This guard asserts that saving the same `tisc::Program` twice produces identical
+`.tisc` bytes and identical SHA3-512 hashes, then round-trips through
+`load_program(...)` to verify critical instruction fields (including
+`literal_kind`) are preserved.
+
 ## Local verification commands
 
 Run the full repository ritual:
@@ -89,6 +98,28 @@ python3 scripts/ci/t81lang_repro_gate.py \
 - Fail at hash equality with byte mismatch: same root cause as above.
 - Fail at printed output equality only: runtime formatting or value-tag handling
   diverged while bytecode remained stable.
+
+## Hash Mismatch Triage
+
+Use this order to localize drift quickly:
+
+1. CLI compile output:
+   - run `t81 compile <fixture>.t81 -o pass_a.tisc` and repeat for `pass_b.tisc`
+   - compare with `cmp -l pass_a.tisc pass_b.tisc`
+2. In-process encode path:
+   - run `e2e_compile_determinism_test`
+   - if in-process is stable but CLI is unstable, inspect file serialization
+3. Frontend pipeline:
+   - lexer/parser diagnostics first
+   - then semantic analysis differences
+4. IR/binary lowering:
+   - check `frontend_ir_generator_test` and `t81_tisc_binary_emitter_test`
+5. Program serialization:
+   - run `t81_tisc_binary_io_determinism_test`
+   - focus on field-wise writes (avoid raw struct/padding writes)
+6. Runtime output only mismatch:
+   - run `e2e_print_runtime_test` and `t81_vm_print_test`
+   - inspect tag-to-format mapping in VM print path
 
 ## Related docs
 

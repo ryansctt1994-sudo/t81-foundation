@@ -1,0 +1,9 @@
+fn main() -> i32 {
+  let x: i32 = 2;
+  if (x < 1) {
+    print(1);
+  } else {
+    print(123);
+  }
+  return 0;
+}

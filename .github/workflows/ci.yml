@@ -306,6 +306,12 @@ jobs:
             exit 1
           fi
           echo "Cross-arch bit identity passed."
+          {
+            echo "### T3_K Cross-Arch Hash Check"
+            echo "- x86_64: \`${x86_hash}\`"
+            echo "- arm64: \`${arm_hash}\`"
+            echo "- verdict: PASS"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   ############################################################################
   # JOB: t81lang-cross-arch-bit-identity
@@ -345,6 +351,12 @@ jobs:
             exit 1
           fi
           echo "Cross-arch bit identity passed."
+          {
+            echo "### T81Lang Cross-Arch Hash Check"
+            echo "- x86_64: \`${x86_hash}\`"
+            echo "- arm64: \`${arm_hash}\`"
+            echo "- verdict: PASS"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   ############################################################################
   # JOB: benchmarks
