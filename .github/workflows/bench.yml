@@ -7,7 +7,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write   # Needed to push badge updates
+  contents: write
+  pull-requests: write
 
 concurrency:
   group: bench
@@ -92,17 +93,32 @@ jobs:
 
       - name: Update README
         run: |
-          sed -i '' -e '/<!-- T81-SPEED-START -->/,/<!-- T81-SPEED-END -->/c\
-          <!-- T81-SPEED-START -->\
-          \
-          ![T81 Speed Oracle](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ft81dev%2Ft81-foundation%2Fmain%2F.github%2Fbadges%2Ft81-speed.json&style=for-the-badge)\
-          \
-          <!-- T81-SPEED-END -->' README.md || true
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("README.md")
+          text = p.read_text(encoding="utf-8")
+          start = "<!-- T81-SPEED-START -->"
+          end = "<!-- T81-SPEED-END -->"
+          replacement = """<!-- T81-SPEED-START -->
 
-      - name: Commit results
-        run: |
-          git config user.name "T81 Speed Oracle"
-          git config user.email "oracle@t81.dev"
-          git add .github/badges/t81-speed.json README.md
-          git commit -m "oracle(bench): speed is now ${PERF} Gops/s" || echo "No changes"
-          git push || echo "Protected branch policy blocked direct push; skipping."
+          ![T81 Speed Oracle](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ft81dev%2Ft81-foundation%2Fmain%2F.github%2Fbadges%2Ft81-speed.json&style=for-the-badge)
+
+          <!-- T81-SPEED-END -->"""
+          if start in text and end in text:
+            before, rest = text.split(start, 1)
+            _, after = rest.split(end, 1)
+            p.write_text(before + replacement + after, encoding="utf-8")
+          PY
+
+      - name: Create Pull Request with benchmark updates
+        id: cpr
+        continue-on-error: true
+        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: auto/bench-speed-oracle
+          delete-branch: true
+          title: "chore(bench): refresh speed oracle badge"
+          body: "Automated benchmark badge/README refresh from `benchmark_runner`."
+          commit-message: "chore(bench): refresh speed oracle badge [ci skip]"
+          labels: benchmarks,automated

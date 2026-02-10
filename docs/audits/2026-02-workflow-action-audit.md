@@ -2,8 +2,8 @@
 
 ## Summary
 
-- Total `uses:` references: **47**
-- Pinned to immutable SHA/digest: **47**
+- Total `uses:` references: **49**
+- Pinned to immutable SHA/digest: **49**
 - Tag/major-version references: **0**
 - Unclassified references: **0**
 
@@ -17,28 +17,29 @@
 
 | Workflow | Line | Reference |
 | --- | ---: | --- |
-| `.github/workflows/bench.yml` | 63 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |
+| `.github/workflows/bench.yml` | 64 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |
+| `.github/workflows/bench.yml` | 116 | `peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0` |
 | `.github/workflows/ci.yml` | 26 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
 | `.github/workflows/ci.yml` | 29 | `actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405` |
 | `.github/workflows/ci.yml` | 41 | `lycheeverse/lychee-action@a8c4c7cb88f0c7386610c35eb25108e448569cb0` |
-| `.github/workflows/ci.yml` | 113 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
-| `.github/workflows/ci.yml` | 152 | `actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830` |
+| `.github/workflows/ci.yml` | 121 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
 | `.github/workflows/ci.yml` | 160 | `actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830` |
-| `.github/workflows/ci.yml` | 171 | `ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756` |
-| `.github/workflows/ci.yml` | 229 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |
-| `.github/workflows/ci.yml` | 239 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |
+| `.github/workflows/ci.yml` | 168 | `actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830` |
+| `.github/workflows/ci.yml` | 179 | `ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756` |
+| `.github/workflows/ci.yml` | 237 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |
 | `.github/workflows/ci.yml` | 247 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |
-| `.github/workflows/ci.yml` | 289 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
-| `.github/workflows/ci.yml` | 330 | `actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093` |
-| `.github/workflows/ci.yml` | 336 | `actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093` |
-| `.github/workflows/ci.yml` | 375 | `actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093` |
-| `.github/workflows/ci.yml` | 381 | `actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093` |
-| `.github/workflows/ci.yml` | 419 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
-| `.github/workflows/ci.yml` | 443 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |
-| `.github/workflows/ci.yml` | 461 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
-| `.github/workflows/ci.yml` | 487 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
-| `.github/workflows/ci.yml` | 516 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
-| `.github/workflows/ci.yml` | 544 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/ci.yml` | 255 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |
+| `.github/workflows/ci.yml` | 297 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/ci.yml` | 338 | `actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093` |
+| `.github/workflows/ci.yml` | 344 | `actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093` |
+| `.github/workflows/ci.yml` | 383 | `actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093` |
+| `.github/workflows/ci.yml` | 389 | `actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093` |
+| `.github/workflows/ci.yml` | 427 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/ci.yml` | 451 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |
+| `.github/workflows/ci.yml` | 469 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/ci.yml` | 495 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/ci.yml` | 524 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/ci.yml` | 552 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
 | `.github/workflows/codeql.yml` | 33 | `actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5` |
 | `.github/workflows/codeql.yml` | 36 | `github/codeql-action/init@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8` |
 | `.github/workflows/codeql.yml` | 41 | `github/codeql-action/autobuild@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8` |
@@ -59,8 +60,9 @@
 | `.github/workflows/static.yml` | 48 | `peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0` |
 | `.github/workflows/t81lang-repro-hash-refresh.yml` | 17 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
 | `.github/workflows/t81lang-repro-hash-refresh.yml` | 45 | `peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0` |
-| `.github/workflows/toc.yml` | 23 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
-| `.github/workflows/toc.yml` | 28 | `actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405` |
+| `.github/workflows/toc.yml` | 24 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
+| `.github/workflows/toc.yml` | 29 | `actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405` |
+| `.github/workflows/toc.yml` | 48 | `peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0` |
 | `.github/workflows/pdf.yaml` | 20 | `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` |
 | `.github/workflows/pdf.yaml` | 23 | `docker://marpteam/marp-cli:v4.2.3@sha256:472c9e9203391568cd777a70455ee241ee8d16a123dbbc2329277a35b6c56fc8` |
 | `.github/workflows/pdf.yaml` | 36 | `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` |

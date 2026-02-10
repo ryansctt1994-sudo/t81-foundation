@@ -40,13 +40,13 @@ The intent is to keep an auditable snapshot of repository composition and conver
 
 ### 3. CI Action Pinning Posture
 
-- Latest workflow audit result: `total=47`, `pinned_sha=47`, `tagged=0`, `unknown=0`.
+- Latest workflow audit result: `total=49`, `pinned_sha=49`, `tagged=0`, `unknown=0`.
 - Hardening progress: all workflow `uses:` references are pinned to immutable SHAs/digests, including the Marp container image.
 - Ongoing requirement: keep Dependabot-driven SHA refreshes enabled and re-run the audit after workflow edits.
 
 ### 4. CI Permissions Posture
 
-- Latest workflow permissions audit: `total=11`, `explicit=11`, `missing=0`, `write_scoped=6`.
+- Latest workflow permissions audit: `total=11`, `explicit=11`, `missing=0`, `write_scoped=7`.
 - Hardening progress: restrictive `permissions` blocks are now explicit across all workflows, including read-only scopes on validation-only pipelines.
 - Ongoing requirement: keep write scopes constrained to mutation/release workflows only.
 

@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   inject-toc:
@@ -41,22 +42,18 @@ jobs:
       - name: Inject Table of Contents into Markdown files
         run: python3 scripts/inject_toc.py
 
-      # Only push when we are actually on main
-      - name: Commit & push only if TOCs changed
-        if: github.ref == 'refs/heads/main'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add docs/**/*.md spec/**/*.md *.md || true
-
-          if git diff --quiet --staged; then
-            echo "No TOC changes detected – nothing to commit"
-            exit 0
-          fi
-
-          git commit -m "chore(docs): regenerate Tables of Contents [ci skip]"
-          git push origin HEAD:main
+      - name: Create Pull Request with TOC updates
+        id: cpr
+        continue-on-error: true
+        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: auto/toc-refresh
+          delete-branch: true
+          title: "chore(docs): regenerate Tables of Contents"
+          body: "Automated run of `scripts/inject_toc.py`."
+          commit-message: "chore(docs): regenerate Tables of Contents [ci skip]"
+          labels: documentation,automated
 
       - name: Success summary
         if: success()
