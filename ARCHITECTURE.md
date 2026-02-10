@@ -37,7 +37,58 @@ Notes:
 
 ______________________________________________________________________
 
-## 3. End-to-End Flow
+## 3. Concurrent Workstream View
+
+The repository is developed as multiple active streams that share deterministic contracts and CI gates.
+
+```mermaid
+graph LR
+    subgraph A["Language + VM Stream"]
+        A1["T81Lang Frontend"]
+        A2["TISC Tooling"]
+        A3["HanoiVM + Trace-JIT"]
+        A1 --> A2 --> A3
+    end
+
+    subgraph B["Numerics + Runtime Substrate"]
+        B1["T81Int / T81Float / T81BigInt"]
+        B2["Tensor + CanonFS"]
+        B3["Axion Safety Engine"]
+        B1 --> B2 --> B3
+    end
+
+    subgraph C["Model + Quantization Stream"]
+        C1["weights import/info"]
+        C2["T3_K Quantization + Policy Gates"]
+        C3["GGUF / t81w Artifacts"]
+        C1 --> C2 --> C3
+    end
+
+    subgraph D["Verification + Governance"]
+        D1["CTest + Fuzz/Property"]
+        D2["Repro Gates (T3_K, T81Lang)"]
+        D3["Runtime Contract Sync"]
+        D4["Spec + RFC Governance"]
+        D1 --> D2 --> D3 --> D4
+    end
+
+    A3 --> D1
+    B3 --> D1
+    C3 --> D2
+    D4 --> A1
+    D4 --> B1
+    D4 --> C1
+```
+
+How to read this:
+- `Language + VM` produces and executes deterministic bytecode.
+- `Numerics + Runtime` defines canonical arithmetic/tensor behavior and policy enforcement.
+- `Model + Quantization` produces reproducible model artifacts (`t81w` and GGUF/T3_K).
+- `Verification + Governance` continuously validates all streams and feeds requirements back into implementation.
+
+______________________________________________________________________
+
+## 4. End-to-End Flow
 
 ```mermaid
 graph TD
@@ -81,7 +132,7 @@ Primary stages:
 
 ______________________________________________________________________
 
-## 4. Determinism and Verification Plane
+## 5. Determinism and Verification Plane
 
 Architecture is enforced by automated gates, not just design intent:
 
@@ -102,7 +153,7 @@ Operational sources:
 
 ______________________________________________________________________
 
-## 5. Runtime Contract Boundary
+## 6. Runtime Contract Boundary
 
 T81 uses an explicit cross-repo runtime semantics boundary:
 
@@ -115,7 +166,7 @@ This split keeps semantic governance stable while allowing runtime implementatio
 
 ______________________________________________________________________
 
-## 6. Key Architectural Boundaries
+## 7. Key Architectural Boundaries
 
 - **Frontend vs Runtime:** `t81_frontend` produces typed/validated IR; it does not execute programs.
 - **TISC Format vs VM Execution:** `t81_tisc` defines program representation; `t81_vm` executes it via interpreter and trace-JIT.
@@ -125,7 +176,7 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-## 7. Architecture Drift Controls
+## 8. Architecture Drift Controls
 
 - **Target-table sync gate:** `scripts/ci/check_architecture_targets.py` verifies that this document's build-target table matches `CMakeLists.txt`.
 - **Runtime boundary sync gate:** `scripts/check-runtime-contract-sync.py` verifies runtime contract pinning and policy documents are coherent.
@@ -135,7 +186,7 @@ These controls are required to keep architecture documentation operationally acc
 
 ______________________________________________________________________
 
-## 8. Near-Term Architecture Work (Open)
+## 9. Near-Term Architecture Work (Open)
 
 Open architecture-level items remain tracked in `TASKS.md` and `TODO.md`. Current active streams:
 
@@ -147,7 +198,7 @@ Open architecture-level items remain tracked in `TASKS.md` and `TODO.md`. Curren
 
 ______________________________________________________________________
 
-## 9. Local Verification Ritual (Single-Threaded Safe Mode)
+## 10. Local Verification Ritual (Single-Threaded Safe Mode)
 
 When host stability is constrained, run the required ritual in single-threaded mode:
 
