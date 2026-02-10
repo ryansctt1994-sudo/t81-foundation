@@ -105,6 +105,28 @@ static void test_t81_numeric_type_separation_rejects_invalid_mix() {
   require_true(fails_semantic(source, "t81lang_numeric_type_separation"), "t81lang_numeric_type_separation");
 }
 
+static void test_base81_fraction_literal_is_native_t81fraction() {
+  constexpr const char* source = R"(
+    fn main() -> T81Fraction {
+      let x = 22/7t81;
+      let y: T81Fraction = x;
+      return y;
+    }
+  )";
+  require_true(analyzes(source, "t81lang_base81_fraction_native"), "t81lang_base81_fraction_native");
+}
+
+static void test_base81_fraction_literal_does_not_silently_narrow() {
+  constexpr const char* source = R"(
+    fn main() -> i32 {
+      let x = 22/7t81;
+      let y: i32 = x;
+      return y;
+    }
+  )";
+  require_true(fails_semantic(source, "t81lang_base81_fraction_no_narrow"), "t81lang_base81_fraction_no_narrow");
+}
+
 static void test_let_is_immutable() {
   constexpr const char* source = R"(
     fn main() -> i32 {
@@ -133,6 +155,8 @@ int main() {
   test_t81_numeric_types_bind_and_widen();
   test_base81_integer_infers_bigint();
   test_base81_integer_does_not_silently_narrow_to_i32();
+  test_base81_fraction_literal_is_native_t81fraction();
+  test_base81_fraction_literal_does_not_silently_narrow();
   test_t81_numeric_type_separation_rejects_invalid_mix();
   test_let_is_immutable();
   test_var_is_mutable();

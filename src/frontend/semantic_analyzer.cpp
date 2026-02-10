@@ -44,6 +44,19 @@ std::optional<float> parse_numeric_literal_value(const t81::frontend::Token& tok
             return std::nullopt;
     }
 }
+
+bool is_base81_fraction_literal_expr(const t81::frontend::Expr& left,
+                                     const t81::frontend::Expr& right) {
+    using t81::frontend::LiteralExpr;
+    using t81::frontend::TokenType;
+    const auto* left_lit = dynamic_cast<const LiteralExpr*>(&left);
+    const auto* right_lit = dynamic_cast<const LiteralExpr*>(&right);
+    if (!left_lit || !right_lit) {
+        return false;
+    }
+    return left_lit->value.type == TokenType::Integer &&
+           right_lit->value.type == TokenType::Base81Integer;
+}
 } // namespace
 
 namespace t81 {
@@ -1024,6 +1037,11 @@ std::any SemanticAnalyzer::visit(const AssignExpr& expr) {
 }
 
 std::any SemanticAnalyzer::visit(const BinaryExpr& expr) {
+    if (expr.op.type == TokenType::Slash &&
+        is_base81_fraction_literal_expr(*expr.left, *expr.right)) {
+        return Type{Type::Kind::Fraction};
+    }
+
     Type left_type = evaluate_expression(*expr.left);
     Type right_type = evaluate_expression(*expr.right);
 
