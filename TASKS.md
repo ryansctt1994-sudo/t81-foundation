@@ -99,10 +99,17 @@ ______________________________________________________________________
     - **[DONE] [M] Task:** Implement Balanced Base-81 representation and SIMD kernels (add/sub/neg) for Base-81 digits.
     - **[DONE] [S] Task:** Implement Packed Base-81 blocks (5 digits -> uint32) and canonical metadata headers.
     - **[DONE] [M] Task:** Implement Base-81 Assembler/Disassembler view for TISC bytecode.
+    - **[DONE] [S] Task:** Add `t81 disasm <file.tisc>` command for deterministic bytecode inspection from the CLI.
     - **[M] Task:** Optimize multi-limb `T81BigInt` arithmetic using SIMD Karatsuba techniques.
     - **[L] Task:** Optimize CanonFS for high-throughput async persistence and retrieval.
     - **[L] Task:** Implement a HanoiVM JIT compiler prototype for compute-intensive workloads.
     - **[M] Task:** Implement distributed tensor sharding for high-rank ternary tensors.
+
+- **[EPIC] Deterministic T81Lang Evolution (In Progress):**
+    - **[M] Task:** Add golden AST/IR canonicalization tests and hash-based compile-repeat gates.
+    - **[L] Task:** Implement deterministic trace-based JIT MVP for side-effect-free numeric/tensor hot paths with Axion boundary checks.
+    - **[M] Task:** Add CPU/GPU parity gates for tensor kernels before enabling backend expansion by default.
+    - **[S] Task:** Keep AI-assisted CI/runtime tuning advisory-only (generate recommendations, no autonomous mutation).
 
 ______________________________________________________________________
 

@@ -87,6 +87,7 @@ Usage: )" << prog << R"( <command> [options] [args]
 Commands:
   compile <file.t81> [-o <file.tisc>]   Compile T81Lang → TISC bytecode
   run     <file.t81|.tisc>             Compile (if needed) and execute
+  disasm  <file.tisc>                  Print human-readable TISC disassembly
   debug   <file.t81|.tisc>             Compile (if needed) and start debugger
   check   <file.t81>                   Syntax-check only
   init    <project_name>               Scaffold a new T81 project
@@ -488,7 +489,7 @@ int main(int argc, char* argv[]) {
         if (args.need_help)    { print_usage(argv[0]); return 0; }
         if (args.need_version) { print_version();    return 0; }
 
-        bool needs_input = (args.command == "compile" || args.command == "run" || args.command == "debug" || args.command == "check" || args.command == "lint");
+        bool needs_input = (args.command == "compile" || args.command == "run" || args.command == "disasm" || args.command == "debug" || args.command == "check" || args.command == "lint");
         if (args.command.empty() || (needs_input && args.input.empty())) {
             print_usage(argv[0]);
             return 1;
@@ -539,6 +540,13 @@ int main(int argc, char* argv[]) {
                 error("run expects .t81 or .tisc file");
                 return 1;
             }
+
+        } else if (args.command == "disasm") {
+            if (ext == ".tisc") {
+                return t81::cli::disasm_tisc(args.input);
+            }
+            error("disasm expects a .tisc file");
+            return 1;
 
         } else if (args.command == "debug") {
             if (ext == ".t81") {

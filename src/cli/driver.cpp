@@ -14,6 +14,7 @@
 #include <cctype>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <optional>
 #include <sstream>
@@ -148,7 +149,7 @@ std::string summarize_snippet(const std::string& snippet) {
     return summary;
 }
 
-inline std::string opcode_name(t81::tisc::Opcode opcode) {
+[[maybe_unused]] inline std::string opcode_name(t81::tisc::Opcode opcode) {
     switch (opcode) {
 #define CASE(name) case t81::tisc::Opcode::name: return #name;
         CASE(Nop)
@@ -859,6 +860,43 @@ int run_tisc(const fs::path& path) {
     }
 
     info("Program terminated normally");
+    return 0;
+}
+
+int disasm_tisc(const fs::path& path) {
+    verbose("Loading TISC program for disassembly: " + path.string());
+
+    auto program = t81::tisc::load_program(path.string());
+    std::cout << "; t81 disasm " << path.string() << "\n";
+    std::cout << "; instructions=" << program.insns.size()
+              << " floats=" << program.float_pool.size()
+              << " fractions=" << program.fraction_pool.size()
+              << " symbols=" << program.symbol_pool.size()
+              << " tensors=" << program.tensor_pool.size()
+              << " shapes=" << program.shape_pool.size() << "\n";
+
+    if (!program.type_aliases.empty()) {
+        std::cout << "; type_aliases:\n";
+        for (const auto& alias : program.type_aliases) {
+            std::cout << ";   " << format_structural_alias(alias) << "\n";
+        }
+    }
+    if (!program.enum_metadata.empty()) {
+        std::cout << "; enums:\n";
+        for (const auto& meta : program.enum_metadata) {
+            std::cout << ";   " << meta.name << " (id=" << meta.enum_id << ")\n";
+        }
+    }
+
+    for (size_t pc = 0; pc < program.insns.size(); ++pc) {
+        const auto& insn = program.insns[pc];
+        std::cout << std::setw(4) << std::setfill('0') << pc << std::setfill(' ')
+                  << ": " << t81::tisc::opcode_name(insn.opcode)
+                  << " a=" << insn.a
+                  << " b=" << insn.b
+                  << " c=" << insn.c
+                  << " lit=" << static_cast<int>(insn.literal_kind) << "\n";
+    }
     return 0;
 }
 
