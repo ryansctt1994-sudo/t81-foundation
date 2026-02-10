@@ -64,8 +64,8 @@ static void test_tier_annotation_supported_for_functions() {
 static void test_t81_numeric_types_bind_and_widen() {
   constexpr const char* source = R"(
     fn main() -> T81Float {
-      let a: T81Float = 1.25;
-      let b: T81BigInt = 42;
+      let a: T81Float = 1.20t81;
+      let b: T81BigInt = 12t81;
       let c: T81Float = a + b;
       return c;
     }

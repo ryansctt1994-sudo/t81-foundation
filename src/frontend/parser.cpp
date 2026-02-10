@@ -448,7 +448,8 @@ std::unique_ptr<Expr> Parser::primary() {
         return match_expression();
     }
 
-    if (match({TokenType::False, TokenType::True, TokenType::Integer, TokenType::Float, TokenType::String})) {
+    if (match({TokenType::False, TokenType::True, TokenType::Integer, TokenType::Float,
+               TokenType::Base81Integer, TokenType::Base81Float, TokenType::String})) {
         return std::make_unique<LiteralExpr>(previous());
     }
 

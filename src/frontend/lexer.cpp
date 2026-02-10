@@ -158,19 +158,20 @@ Token Lexer::string() {
 Token Lexer::number() {
     while (is_digit(peek())) advance();
 
+    bool is_float_literal = false;
     if (peek() == '.' && is_digit(peek_next())) {
+        is_float_literal = true;
         advance();
         while (is_digit(peek())) advance();
-        return make_token(TokenType::Float);
     }
 
     if (peek() == 't' && peek_next() == '8' &&
         (_current + 2 < _source.end()) && *(_current + 2) == '1') {
         advance(); advance(); advance();
-        return make_token(TokenType::Base81Integer);
+        return make_token(is_float_literal ? TokenType::Base81Float : TokenType::Base81Integer);
     }
 
-    return make_token(TokenType::Integer);
+    return make_token(is_float_literal ? TokenType::Float : TokenType::Integer);
 }
 
 Token Lexer::identifier() {

@@ -67,5 +67,22 @@ fn main() -> i32 {
 
     std::cout << "All lexer tests passed!" << std::endl;
 
+    const char* base81_source = "let i = 12t81; let f = 1.20t81;";
+    std::vector<ExpectedToken> base81_expected = {
+        {TokenType::Let, "let", 1, 1},
+        {TokenType::Identifier, "i", 1, 5},
+        {TokenType::Equal, "=", 1, 7},
+        {TokenType::Base81Integer, "12t81", 1, 9},
+        {TokenType::Semicolon, ";", 1, 14},
+        {TokenType::Let, "let", 1, 16},
+        {TokenType::Identifier, "f", 1, 20},
+        {TokenType::Equal, "=", 1, 22},
+        {TokenType::Base81Float, "1.20t81", 1, 24},
+        {TokenType::Semicolon, ";", 1, 31},
+    };
+    test_sequence(base81_source, base81_expected);
+
+    std::cout << "Base-81 lexer tests passed!" << std::endl;
+
     return 0;
 }

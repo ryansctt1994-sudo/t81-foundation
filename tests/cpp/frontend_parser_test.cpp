@@ -55,5 +55,19 @@ int main() {
 
     std::cout << "Loop parser test passed!" << std::endl;
 
+    std::string base81_source = R"(
+        fn main() -> i32 {
+            let i: T81BigInt = 12t81;
+            let f: T81Float = 1.20t81;
+            return 0;
+        }
+    )";
+    Lexer base81_lexer(base81_source);
+    Parser base81_parser(base81_lexer);
+    auto base81_stmts = base81_parser.parse();
+
+    assert(!base81_parser.had_error());
+    assert(base81_stmts.size() == 1);
+
     return 0;
 }
