@@ -23,6 +23,11 @@ def main() -> int:
     ap.add_argument("--fixtures-dir", required=True)
     ap.add_argument("--workdir", required=True)
     ap.add_argument("--hash-out", required=True)
+    ap.add_argument(
+        "--expected-hash-file",
+        default=None,
+        help="Optional path to a checked-in expected aggregate hash; mismatches fail the gate.",
+    )
     args = ap.parse_args()
 
     t81_bin = Path(args.t81_bin)
@@ -63,6 +68,18 @@ def main() -> int:
     final_hash = aggregate.hexdigest()
     hash_out.parent.mkdir(parents=True, exist_ok=True)
     hash_out.write_text(final_hash + "\n", encoding="utf-8")
+
+    if args.expected_hash_file:
+        expected_path = Path(args.expected_hash_file)
+        if not expected_path.exists():
+            raise RuntimeError(f"missing expected hash file: {expected_path}")
+        expected_hash = expected_path.read_text(encoding="utf-8").strip()
+        if expected_hash != final_hash:
+            raise RuntimeError(
+                "unexpected t81lang reproducibility hash drift: "
+                f"expected={expected_hash} actual={final_hash}"
+            )
+
     print(f"T81Lang gates passed: fixtures={len(fixture_paths)} hash={final_hash}")
     return 0
 

@@ -1,0 +1,9 @@
+fn main() -> i32 {
+  let opt: Option[i32] = Some(123);
+  let result: i32 = match (opt) {
+    Some(value) => value,
+    None => 42
+  };
+  print(result);
+  return 0;
+}

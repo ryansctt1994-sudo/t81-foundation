@@ -33,6 +33,9 @@ def parse_ctest_junit(path: Path) -> dict[str, int]:
 def parse_t3k_hash(path: Path) -> str:
     return path.read_text(encoding="utf-8").strip()
 
+def parse_t81lang_hash(path: Path) -> str:
+    return path.read_text(encoding="utf-8").strip()
+
 
 def parse_bench_json(path: Path) -> dict[str, object]:
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -93,6 +96,8 @@ def main() -> int:
     ap.add_argument("--out-json", required=True)
     ap.add_argument("--ctest-junit", required=True)
     ap.add_argument("--t3k-hash", required=True)
+    ap.add_argument("--t81lang-hash", required=True)
+    ap.add_argument("--t81lang-fixtures-dir", required=True)
     ap.add_argument("--bench-json", required=True)
     ap.add_argument(
         "--axion-log",
@@ -104,11 +109,15 @@ def main() -> int:
 
     ctest_junit = Path(args.ctest_junit)
     t3k_hash = Path(args.t3k_hash)
+    t81lang_hash = Path(args.t81lang_hash)
+    t81lang_fixtures_dir = Path(args.t81lang_fixtures_dir)
     bench_json = Path(args.bench_json)
     axion_logs = [Path(p) for p in args.axion_log]
 
     ctest = parse_ctest_junit(ctest_junit)
     t3k_sha256 = parse_t3k_hash(t3k_hash)
+    t81lang_sha256 = parse_t81lang_hash(t81lang_hash)
+    t81lang_fixture_count = len(list(t81lang_fixtures_dir.glob("*.t81")))
     bench = parse_bench_json(bench_json)
     axion = [
         {
@@ -124,6 +133,7 @@ def main() -> int:
     artifacts = [
         artifact_row(ctest_junit),
         artifact_row(t3k_hash),
+        artifact_row(t81lang_hash),
         artifact_row(bench_json),
     ]
     artifacts.extend(
@@ -133,7 +143,13 @@ def main() -> int:
     )
 
     generated_at = dt.datetime.now(tz=dt.timezone.utc).isoformat()
-    overall_ok = ctest["failures"] == 0 and ctest["errors"] == 0 and len(t3k_sha256) == 64
+    overall_ok = (
+        ctest["failures"] == 0
+        and ctest["errors"] == 0
+        and len(t3k_sha256) == 64
+        and len(t81lang_sha256) == 64
+        and t81lang_fixture_count >= 1
+    )
 
     payload = {
         "generated_at_utc": generated_at,
@@ -141,6 +157,10 @@ def main() -> int:
         "ctest": ctest,
         "t3k_repro_gate": {
             "sha256": t3k_sha256,
+        },
+        "t81lang_repro_gate": {
+            "sha256": t81lang_sha256,
+            "fixture_count": t81lang_fixture_count,
         },
         "benchmarks": bench,
         "axion_traces": axion,
@@ -170,6 +190,11 @@ def main() -> int:
         "## T3_K Repro Gate",
         "",
         f"- Cross-run SHA-256 (fixture quantization): `{t3k_sha256}`",
+        "",
+        "## T81Lang Repro Gate",
+        "",
+        f"- Cross-run SHA-256 (fixture compile set): `{t81lang_sha256}`",
+        f"- Fixture count: `{t81lang_fixture_count}`",
         "",
         "## Benchmark Snapshot",
         "",

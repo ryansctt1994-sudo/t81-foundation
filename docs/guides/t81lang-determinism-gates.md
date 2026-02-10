@@ -88,8 +88,12 @@ python3 scripts/ci/t81lang_repro_gate.py \
   --t81-bin build/t81 \
   --fixtures-dir tests/fixtures/t81lang_determinism \
   --workdir build/t81lang-repro \
-  --hash-out build/t81lang-repro/hash.txt
+  --hash-out build/t81lang-repro/hash.txt \
+  --expected-hash-file tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt
 ```
+
+The checked-in hash file (`tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt`)
+acts as a golden value. CI fails if fixture compile output drifts unexpectedly.
 
 ## Interpretation
 

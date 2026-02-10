@@ -311,6 +311,13 @@ ______________________________________________________________________
 
 Compilation to TISC follows **eight deterministic stages**.
 
+Determinism enforcement is not advisory: repository CI MUST run compile
+reproducibility gates over the canonical fixture pack
+(`tests/fixtures/t81lang_determinism/*.t81`) and verify the aggregate fixture
+hash against the tracked golden file
+(`tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt`) on both Linux
+`x86_64` and Linux `arm64` runners.
+
 ### Stage 1 — Lexing
 
 Produces a canonical stream of tokens.

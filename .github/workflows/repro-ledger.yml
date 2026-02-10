@@ -44,6 +44,15 @@ jobs:
             --workdir build/t3k-repro \
             --hash-out build/t3k-repro/hash.txt
 
+      - name: Run T81Lang reproducibility gate
+        run: |
+          python3 scripts/ci/t81lang_repro_gate.py \
+            --t81-bin build/t81 \
+            --fixtures-dir tests/fixtures/t81lang_determinism \
+            --workdir build/t81lang-repro \
+            --hash-out build/t81lang-repro/hash.txt \
+            --expected-hash-file tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt
+
       - name: Capture Axion traces
         run: ./scripts/capture-axion-trace.sh
 
@@ -60,6 +69,8 @@ jobs:
             --out-json build/repro/dashboard.json \
             --ctest-junit build/ctest-results.xml \
             --t3k-hash build/t3k-repro/hash.txt \
+            --t81lang-hash build/t81lang-repro/hash.txt \
+            --t81lang-fixtures-dir tests/fixtures/t81lang_determinism \
             --bench-json build/bench.json \
             --axion-log build/artifacts/axion_policy_runner.log \
             --axion-log build/artifacts/axion_heap_compaction_trace_test.log \
@@ -79,6 +90,7 @@ jobs:
             build/repro/dashboard.json
             build/ctest-results.xml
             build/t3k-repro/hash.txt
+            build/t81lang-repro/hash.txt
             build/bench.json
             build/artifacts/*.log
           if-no-files-found: warn
