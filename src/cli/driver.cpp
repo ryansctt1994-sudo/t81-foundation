@@ -635,6 +635,7 @@ void print_repl_history(const std::vector<std::string>& buffer_lines,
 }  // namespace
 
 int repl(const std::shared_ptr<t81::weights::ModelFile>& weights_model,
+         const std::optional<fs::path>& policy_path,
          std::istream& input) {
     info("Entering T81 interactive REPL. Type ':quit' or ':exit' to leave; submit an empty line to run.");
     std::string buffer;
@@ -643,6 +644,17 @@ int repl(const std::shared_ptr<t81::weights::ModelFile>& weights_model,
     std::unique_ptr<t81::vm::IVirtualMachine> last_vm;
     std::shared_ptr<t81::weights::ModelFile> active_model = weights_model;
     std::optional<fs::path> attached_model_path;
+
+    std::string policy_content;
+    if (policy_path) {
+        std::ifstream ifs(*policy_path);
+        if (ifs) {
+            policy_content.assign((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+            info("Loaded Axion policy from " + policy_path->string());
+        } else {
+            error("Could not open policy file: " + policy_path->string());
+        }
+    }
 
     auto ensure_newline = [&]() {
         if (!buffer.empty() && buffer.back() != '\n') {
@@ -674,6 +686,9 @@ int repl(const std::shared_ptr<t81::weights::ModelFile>& weights_model,
             clear_buffer();
             return false;
         }
+        if (!policy_content.empty()) {
+            program->axion_policy_text = policy_content;
+        }
         auto vm = t81::vm::make_interpreter_vm();
         vm->load_program(*program);
         auto result = vm->run_to_halt();
@@ -682,11 +697,16 @@ int repl(const std::shared_ptr<t81::weights::ModelFile>& weights_model,
         if (executed_snippets.size() > kHistoryLimit) {
             executed_snippets.erase(executed_snippets.begin());
         }
+        for (const auto& line : last_vm->state().printed_output) {
+            std::cout << line << "\n";
+        }
+
         if (!result) {
             error("Execution trapped: " + t81::vm::to_string(result.error()));
             clear_buffer();
             return false;
         }
+
         info("Execution completed");
         clear_buffer();
         return true;
@@ -843,17 +863,32 @@ int repl(const std::shared_ptr<t81::weights::ModelFile>& weights_model,
     return 0;
 }
 
-int run_tisc(const fs::path& path) {
+int run_tisc(const fs::path& path, const std::optional<fs::path>& policy_path) {
     verbose("Loading TISC program: " + path.string());
 
     auto program = t81::tisc::load_program(path.string());
     verbose("Program loaded (" + std::to_string(program.insns.size()) + " insns)");
+
+    if (policy_path) {
+        verbose("Loading Axion policy: " + policy_path->string());
+        std::ifstream ifs(*policy_path);
+        if (!ifs) {
+            error("Could not open policy file: " + policy_path->string());
+            return 1;
+        }
+        std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+        program.axion_policy_text = content;
+    }
 
     auto vm = t81::vm::make_interpreter_vm();
     vm->load_program(program);
 
     verbose("Executing...");
     auto result = vm->run_to_halt();
+
+    for (const auto& line : vm->state().printed_output) {
+        std::cout << line << "\n";
+    }
 
     if (!result) {
         error("Execution trapped: " + t81::vm::to_string(result.error()));
@@ -901,10 +936,22 @@ int disasm_tisc(const fs::path& path) {
     return 0;
 }
 
-int debug_tisc(const fs::path& path) {
+int debug_tisc(const fs::path& path, const std::optional<fs::path>& policy_path) {
     verbose("Loading TISC program for debugging: " + path.string());
 
     auto program = t81::tisc::load_program(path.string());
+
+    if (policy_path) {
+        verbose("Loading Axion policy for debugging: " + policy_path->string());
+        std::ifstream ifs(*policy_path);
+        if (!ifs) {
+            error("Could not open policy file: " + policy_path->string());
+            return 1;
+        }
+        std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+        program.axion_policy_text = content;
+    }
+
     auto vm = t81::vm::make_interpreter_vm();
     vm->load_program(program);
 

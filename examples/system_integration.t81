@@ -1,0 +1,74 @@
+// T81 Architecture Showcase: System Integration Demo
+// This file demonstrates the functional coalescence of T81Lang, HanoiVM, and Axion.
+//
+// Current Architecture Coalescence Status:
+// - T81Lang: Supports high-level features like Option/Result, Match, and Loops.
+// - HanoiVM: Executes TISC bytecode with deterministic memory segments and Axion hooks.
+// - Axion: Enforces safety policies based on resource limits and trace event requirements.
+//
+// NOTE: Some features like custom Record/Enum field access and user-defined function calls
+// are currently in the process of being integrated into the IR Generator.
+
+fn main() -> i32 {
+    print("--- T81 System Integration Demo ---");
+
+    // demonstrating basic arithmetic and variables
+    let x1 = 10;
+    let y1 = 20;
+    print("X: ");
+    print(x1);
+    print("Y: ");
+    print(y1);
+
+    let sum1 = x1 + y1;
+    print("Sum: ");
+    print(sum1);
+
+    // demonstrating Option type and match expression
+    var maybe_sum1: Option[i32] = None();
+    if (sum1 > 100) {
+        maybe_sum1 = Some(sum1);
+    }
+
+    let res1 = match (maybe_sum1) {
+        Some(val) => val;
+        None => 0;
+    };
+
+    if (res1 > 0) {
+        print("Large result detected!");
+    } else {
+        print("Result is within normal bounds.");
+    }
+
+    // demonstrating another test case
+    let x2 = 80;
+    let y2 = 50;
+    print("X: ");
+    print(x2);
+    print("Y: ");
+    print(y2);
+
+    let sum2 = x2 + y2;
+    print("Sum: ");
+    print(sum2);
+
+    var maybe_sum2: Option[i32] = None();
+    if (sum2 > 100) {
+        maybe_sum2 = Some(sum2);
+    }
+
+    let res2 = match (maybe_sum2) {
+        Some(val) => val;
+        None => 0;
+    };
+
+    if (res2 > 0) {
+        print("Large result detected!");
+    } else {
+        print("Result is within normal bounds.");
+    }
+
+    print("--- Demo Finished ---");
+    return 0;
+}

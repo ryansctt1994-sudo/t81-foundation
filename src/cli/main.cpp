@@ -201,6 +201,7 @@ struct Args {
     std::vector<std::string> benchmark_args;
     std::vector<std::string> command_args;
     std::optional<fs::path> weights_model;
+    std::optional<fs::path> policy;
 };
 
 Args parse_args(int argc, char* argv[]) {
@@ -228,6 +229,10 @@ Args parse_args(int argc, char* argv[]) {
         else if (arg == "--weights-model") {
             if (++i >= argc) { error("Missing argument after --weights-model"); std::exit(1); }
             a.weights_model = fs::path(argv[i]);
+        }
+        else if (arg == "--policy") {
+            if (++i >= argc) { error("Missing argument after --policy"); std::exit(1); }
+            a.policy = fs::path(argv[i]);
         }
         else if (arg == "-h" || arg == "--help")   { a.need_help = true; }
         else if (arg.starts_with('-')) {
@@ -592,6 +597,9 @@ int main(int argc, char* argv[]) {
         if (args.command == "compile") {
             fs::path out = args.output.value_or(args.input.stem().string() + ".tisc");
             if (ext == ".t81") {
+                // If a policy is provided during compile, we should probably embed it.
+                // However, our current compile function doesn't take a policy path.
+                // For now, let's just pass it if we extend compile later.
                 return t81::cli::compile(args.input, out, {}, {}, weights_model_ptr);
             } else if (ext == ".t81w") {
                 try {
@@ -613,9 +621,9 @@ int main(int argc, char* argv[]) {
                 TempTiscFile temp(args.input.stem().string());
                 int rc = t81::cli::compile(args.input, temp.path, {}, {}, weights_model_ptr);
                 if (rc != 0) return rc;
-                return t81::cli::run_tisc(temp.path);
+                return t81::cli::run_tisc(temp.path, args.policy);
             } else if (ext == ".tisc") {
-                return t81::cli::run_tisc(args.input);
+                return t81::cli::run_tisc(args.input, args.policy);
             } else {
                 error("run expects .t81 or .tisc file");
                 return 1;
@@ -633,9 +641,9 @@ int main(int argc, char* argv[]) {
                 TempTiscFile temp(args.input.stem().string());
                 int rc = t81::cli::compile(args.input, temp.path, {}, {}, weights_model_ptr);
                 if (rc != 0) return rc;
-                return t81::cli::debug_tisc(temp.path);
+                return t81::cli::debug_tisc(temp.path, args.policy);
             } else if (ext == ".tisc") {
-                return t81::cli::debug_tisc(args.input);
+                return t81::cli::debug_tisc(args.input, args.policy);
             } else {
                 error("debug expects .t81 or .tisc file");
                 return 1;
@@ -678,7 +686,7 @@ int main(int argc, char* argv[]) {
             return 1;
 
         } else if (args.command == "repl") {
-            return t81::cli::repl(weights_model_ptr);
+            return t81::cli::repl(weights_model_ptr, args.policy);
 
         } else if (args.command == "weights") {
             return run_weights(args);
