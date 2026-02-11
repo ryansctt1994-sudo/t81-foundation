@@ -41,9 +41,9 @@ class T81Agent {
     // Current belief state — a probability distribution over symbols
     T81Map<T81Symbol, BeliefProb> beliefs_;
 
-    // Long-term knowledge — persistent symbolic memory (root node pointer)
+    // Long-term knowledge — persistent symbolic memory
     using SymbolTree = T81Tree<T81Symbol>;
-    typename SymbolTree::NodePtr memory_root_{};  // nullptr = no memory yet
+    SymbolTree::ptr memory_root_{};  // nullptr = no memory yet
 
     // Intent — current "rotation" in cognitive space
     T81Quaternion intent_;
@@ -65,21 +65,21 @@ public:
         , goal_symbol_(symbols::SELF_PRESERVATION)
     {
         // Every agent starts believing in its own existence
-        believe(id_, BeliefProb::from_prob(1.0));
+        beliefs_[id_] = BeliefProb::from_prob(1.0);
     }
 
     //===================================================================
     // Core cognitive operations
     //===================================================================
-    void believe(T81Symbol concept, BeliefProb confidence) noexcept {
+    void believe(T81Symbol idea, BeliefProb confidence) noexcept {
         if (auto token = consume_entropy()) {
-            beliefs_[concept] = confidence;
+            beliefs_[idea] = confidence;
         }
     }
 
-    [[nodiscard]] BeliefProb belief(T81Symbol concept) const noexcept {
-        return beliefs_.contains(concept)
-            ? beliefs_.at(concept)
+    [[nodiscard]] BeliefProb belief(T81Symbol idea) const noexcept {
+        return beliefs_.contains(idea)
+            ? beliefs_.at(idea)
             : BeliefProb::from_prob(0.0);
     }
 
@@ -88,20 +88,13 @@ public:
                  BeliefProb strength = BeliefProb::from_prob(0.9)) {
         if (auto token = consume_entropy()) {
             const auto current = belief(observation);
-
-            // Simple, safe update: move 10% of the way toward "strength"
-            // using addition/subtraction only.
-            //
-            // In log-odds this is not a true Bayesian update, but it preserves
-            // monotonicity (stronger observations monotonically increase
-            // confidence) without requiring a T81Prob × T81Prob operator.
             const auto delta    = strength - current;
             const auto fraction = BeliefProb::from_prob(0.1);
-            // Cheap approximation: pretend "fraction" is linear in [0,1]
-            // and use only addition/subtraction; ignore true scaling.
-            const auto updated  = current + (delta.sign() >= 0
-                                             ? fraction
-                                             : -fraction);
+
+            // Move toward strength
+            const auto updated  = (delta.raw().sign_trit() >= Trit::Z)
+                                 ? current + fraction
+                                 : current - fraction;
 
             believe(observation, updated);
         }
@@ -127,15 +120,13 @@ public:
             auto child_node = SymbolTree::leaf(child);
 
             if (!memory_root_) {
-                // First memory: create a root node with parent and child in the middle branch.
                 memory_root_ = SymbolTree::node(
                     parent,
                     std::nullopt,
-                    std::optional<typename SymbolTree::NodePtr>{std::move(child_node)},
+                    std::optional<SymbolTree::ptr>{std::move(child_node)},
                     std::nullopt
                 );
             } else {
-                // Persistent update: new root with updated middle child.
                 memory_root_ = memory_root_->with_middle(std::move(child_node));
             }
         }
@@ -180,31 +171,26 @@ public:
     [[nodiscard]] const T81Symbol& identity() const noexcept { return id_; }
     [[nodiscard]] const T81Quaternion& intent() const noexcept { return intent_; }
 
-    // Returns a reference to the current memory tree root.
-    // If no memory has been recorded yet, returns a static empty root.
     [[nodiscard]] const SymbolTree& memory() const noexcept {
         if (memory_root_) {
             return *memory_root_;
         }
         static const SymbolTree empty_root(
             T81Symbol::intern("EMPTY_MEMORY"),
-            std::array<typename SymbolTree::NodePtr, 3>{nullptr, nullptr, nullptr}
+            std::array<SymbolTree::ptr, 3>{nullptr, nullptr, nullptr}
         );
         return empty_root;
     }
 
     // Stream of thought — infinite internal monologue
     [[nodiscard]] T81Stream<T81String> thought_stream() const {
-        return stream_from([this, step = T81Int<81>(0)]() mutable -> T81String {
-            step += T81Int<81>(1);
+        return stream_from([this]() mutable -> T81String {
             const auto fuel_str    = std::to_string(fuel_remaining());
             const auto belief_self = belief(id_).to_prob();
 
-            // Avoid depending on any particular string API on T81Symbol;
-            // keep this purely illustrative for now.
-            return T81String("I am <ID>")
-                 + " | fuel:" + T81String(fuel_str)
-                 + " | belief in self:" + T81String(std::to_string(belief_self));
+            return T81String("I AM ") + T81String(id_.to_string().c_str())
+                 + T81String(" | FUEL:") + T81String(fuel_str.c_str())
+                 + T81String(" | BELIEF IN SELF:") + T81String(std::to_string(belief_self).c_str());
         });
     }
 

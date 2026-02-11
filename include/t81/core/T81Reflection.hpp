@@ -1,20 +1,12 @@
 /**
  * @file T81Reflection.hpp
- * @brief Minimal reflection wrapper for values.
- *
- * T81Reflection<T> holds:
- *   • a copy of the reflected value
- *   • a type symbol
- *   • an instance symbol
- *
- * This avoids any dependency on entropy, probabilities, or global logs.
+ * @brief Minimal reflection wrapper for values with metadata.
  */
-
 #pragma once
 
 #include "t81/core/T81Symbol.hpp"
-
 #include <utility>
+#include <vector>
 
 namespace t81 {
 
@@ -27,6 +19,7 @@ private:
     T         value_;
     T81Symbol type_symbol_;
     T81Symbol instance_id_;
+    std::vector<T81Symbol> tags_;
 
 public:
     T81Reflection(const T& value,
@@ -46,6 +39,9 @@ public:
     [[nodiscard]] const T& value() const noexcept { return value_; }
     [[nodiscard]] T81Symbol type_symbol() const noexcept { return type_symbol_; }
     [[nodiscard]] T81Symbol instance_id() const noexcept { return instance_id_; }
+
+    void add_tag(T81Symbol tag) { tags_.push_back(tag); }
+    [[nodiscard]] const std::vector<T81Symbol>& tags() const noexcept { return tags_; }
 };
 
 } // namespace t81
