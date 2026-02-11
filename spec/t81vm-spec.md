@@ -195,6 +195,17 @@ Memory is divided into logical segments:
 
 The actual physical layout is implementation-defined, but the **logical semantics** MUST match this specification.
 
+### 4.1.1 Block Alignment
+
+Memory MUST be divided into **ternary-aligned blocks**. Standard block sizes for compliance are:
+
+- **81 bytes** (Primary Block)
+- **729 bytes** (Superblock / 3⁶ bytes)
+- **6561 bytes** (Meta-block)
+- **19683 bytes** (Canonical block)
+
+HanoiVM segment boundaries SHOULD be aligned to at least the Superblock (729 bytes) size to ensure Base-81 compatibility.
+
 ______________________________________________________________________
 
 ### 4.2 Addressing

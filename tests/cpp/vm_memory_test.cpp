@@ -48,22 +48,22 @@ int dump_axion_log_and_fail(const t81::vm::State& state, const char* label) {
 int main() {
     t81::tisc::Insn stack_alloc{};
     stack_alloc.opcode = t81::tisc::Opcode::StackAlloc;
-    stack_alloc.a = 0;
+    stack_alloc.a = 1;
     stack_alloc.b = 16;
 
     t81::tisc::Insn stack_alloc2{};
     stack_alloc2.opcode = t81::tisc::Opcode::StackAlloc;
-    stack_alloc2.a = 1;
+    stack_alloc2.a = 2;
     stack_alloc2.b = 32;
 
     t81::tisc::Insn stack_free{};
     stack_free.opcode = t81::tisc::Opcode::StackFree;
-    stack_free.a = 1;
+    stack_free.a = 2;
     stack_free.b = 32;
 
     t81::tisc::Insn stack_free0{};
     stack_free0.opcode = t81::tisc::Opcode::StackFree;
-    stack_free0.a = 0;
+    stack_free0.a = 1;
     stack_free0.b = 16;
 
     t81::tisc::Insn halt{};
@@ -73,7 +73,8 @@ int main() {
         [[maybe_unused]] auto vm= run_program({stack_alloc, stack_free0, halt});
         T81_TEST_CHECK(vm->state().stack_frames.empty());
         T81_TEST_CHECK(vm->state().sp == vm->state().layout.stack.limit);
-        T81_TEST_CHECK(vm->state().registers[0] >= static_cast<std::int64_t>(vm->state().layout.code.limit));
+        T81_TEST_CHECK(vm->state().registers[1] >= static_cast<std::int64_t>(vm->state().layout.code.limit));
+        T81_TEST_CHECK(vm->state().registers[0] == 0);
         const auto& log = vm->state().axion_log;
         [[maybe_unused]] bool saw_alloc= false;
         [[maybe_unused]] bool saw_free= false;

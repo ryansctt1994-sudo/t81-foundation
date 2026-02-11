@@ -8,6 +8,7 @@
 - Core stack is implemented and operational across numerics, language frontend, TISC serialization, VM execution, and Axion/CanonFS enforcement.
 - C++23 is the default build language mode; C++20 remains a compatibility lane.
 - Current local validation baseline passes full ritual (`139/139` tests in latest run).
+- Ecosystem compliance with T81 v1.1.0-canonical specification is now enforced across HanoiVM and TISC tools.
 
 ## 2. What Is Stable
 
