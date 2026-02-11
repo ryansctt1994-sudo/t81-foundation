@@ -254,8 +254,8 @@ ______________________________________________________________________
 
 - **Axion:** safety/policy enforcement engine that emits deterministic verdicts and trace metadata.
 - **CanonFS:** deterministic storage and retrieval substrate used by runtime/model tooling.
-- **HanoiVM / T81VM:** deterministic virtual machine that executes TISC bytecode.
-- **TISC:** Ternary instruction representation and binary format executed by HanoiVM.
+- HanoiVM / T81VM: deterministic virtual machine that executes TISC bytecode with 81 registers and Base-81 alignment.
+- TISC: Ternary instruction representation and binary format executed by HanoiVM. Supports 81 registers (R0-R80) including the Axion System Window.
 - **T3_K:** ternary quantization format/policy path used in model artifact workflows.
 
 ______________________________________________________________________

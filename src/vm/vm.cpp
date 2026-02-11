@@ -91,6 +91,7 @@ class Interpreter : public IVirtualMachine {
     for (std::size_t i = 0; i < state_.enum_metadata.size(); ++i) {
       state_.enum_metadata_index[state_.enum_metadata[i].enum_id] = i;
     }
+    sync_system_registers();
     state_.policy.reset();
     state_.gc_cycles = 0;
     instructions_since_gc_ = 0;
@@ -283,10 +284,12 @@ class Interpreter : public IVirtualMachine {
       }
     };
     auto set_reg = [this](int reg, std::int64_t value, ValueTag tag) {
+      if (reg == 0 || (reg >= 75 && reg <= 80)) return;
       state_.registers[reg] = value;
       state_.register_tags[reg] = tag;
     };
     auto copy_reg = [this](int dst, int src) {
+      if (dst == 0 || (dst >= 75 && dst <= 80)) return;
       state_.registers[dst] = state_.registers[src];
       state_.register_tags[dst] = state_.register_tags[src];
     };
@@ -1156,6 +1159,10 @@ class Interpreter : public IVirtualMachine {
         const auto& stack = state_.layout.stack;
         if (!stack.valid()) { trap = Trap::DecodeFault; break; }
         std::size_t size = static_cast<std::size_t>(insn.b);
+        // Enforce 81-byte block alignment
+        if (size % 81 != 0) {
+          size = ((size / 81) + 1) * 81;
+        }
         std::size_t available = state_.sp - stack.start;
         if (size > available) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Stack,
@@ -1191,6 +1198,11 @@ class Interpreter : public IVirtualMachine {
         if (!reg_ok(insn.a)) { trap = Trap::DecodeFault; break; }
         if (insn.b < 0) { trap = Trap::DecodeFault; break; }
         const auto& stack = state_.layout.stack;
+        std::size_t size = static_cast<std::size_t>(insn.b);
+        // Enforce 81-byte block alignment
+        if (size % 81 != 0) {
+          size = ((size / 81) + 1) * 81;
+        }
         if (!stack.valid()) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, 0, "stack frame free");
           trap = Trap::StackFault;
@@ -1202,7 +1214,6 @@ class Interpreter : public IVirtualMachine {
           trap = Trap::StackFault;
           break;
         }
-        std::size_t size = static_cast<std::size_t>(insn.b);
         std::int64_t ptr = state_.registers[insn.a];
         if (!stack.contains(static_cast<std::size_t>(ptr))) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Stack,
@@ -1230,6 +1241,10 @@ class Interpreter : public IVirtualMachine {
         if (!heap.valid()) { trap = Trap::DecodeFault; break; }
         if (insn.b < 0) { trap = Trap::DecodeFault; break; }
         std::size_t size = static_cast<std::size_t>(insn.b);
+        // Enforce 81-byte block alignment
+        if (size % 81 != 0) {
+          size = ((size / 81) + 1) * 81;
+        }
         if (size > heap.size()) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Heap,
                            static_cast<int>(heap.limit), "heap block allocate");
@@ -1271,6 +1286,10 @@ class Interpreter : public IVirtualMachine {
           break;
         }
         std::size_t size = static_cast<std::size_t>(insn.b);
+        // Enforce 81-byte block alignment
+        if (size % 81 != 0) {
+          size = ((size / 81) + 1) * 81;
+        }
         std::int64_t ptr = state_.registers[insn.a];
         if (!heap.contains(static_cast<std::size_t>(ptr))) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Heap,
@@ -1864,6 +1883,7 @@ class Interpreter : public IVirtualMachine {
       run_gc_cycle_("interval");
     }
 
+    sync_system_registers();
     log_trace(insn.opcode, trap);
     if (trap != Trap::None) {
       return std::expected<void, Trap>(t81::unexpect, trap);
@@ -1885,6 +1905,7 @@ class Interpreter : public IVirtualMachine {
     if (idx < 0 || static_cast<std::size_t>(idx) >= state_.registers.size()) {
       return;
     }
+    if (idx == 0 || (idx >= 75 && idx <= 80)) return;
     state_.registers[idx] = value;
     state_.register_tags[idx] = tag;
 
@@ -1897,6 +1918,35 @@ class Interpreter : public IVirtualMachine {
   }
 
  private:
+  void sync_system_registers() {
+    state_.registers[0] = 0;
+    state_.register_tags[0] = ValueTag::Int;
+
+    // R75: Global Tick
+    state_.registers[75] = static_cast<std::int64_t>(instruction_count_);
+    state_.register_tags[75] = ValueTag::Int;
+
+    // R76: Lineage Root Hash (Stub: using a fixed value for now)
+    state_.registers[76] = 0xDE7A81;
+    state_.register_tags[76] = ValueTag::Int;
+
+    // R77: Current Entropy Signature (Stub)
+    state_.registers[77] = static_cast<std::int64_t>(state_.contradiction_events);
+    state_.register_tags[77] = ValueTag::Int;
+
+    // R78: Active Constitutional Mask (Stub: Θ₁-Θ₉ enabled)
+    state_.registers[78] = 0x1FF;
+    state_.register_tags[78] = ValueTag::Int;
+
+    // R79: Recursion Depth Counter
+    state_.registers[79] = static_cast<std::int64_t>(std::max(state_.stack_frames.size(), state_.call_depth));
+    state_.register_tags[79] = ValueTag::Int;
+
+    // R80: Axion Seal / Capability Word
+    state_.registers[80] = state_.halted ? 0 : 1;
+    state_.register_tags[80] = ValueTag::Int;
+  }
+
   std::int64_t intern_weights_tensor(std::string_view name) {
     if (name.empty() || !state_.weights_model) return 0;
     auto key = std::string(name);
