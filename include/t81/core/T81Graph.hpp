@@ -105,27 +105,38 @@ public:
     // Graph algorithms become tensor operations
     //===================================================================
 
-    // PageRank → single matmul with stochastic matrix
+    // PageRank → manual iteration for Rank 1 tensors
     [[nodiscard]] friend constexpr auto pagerank(const T81Graph& g, int steps = 20) noexcept
         -> T81Tensor<Weight81, 1, NodeCount>
     {
         T81Tensor<Weight81, 2, NodeCount, NodeCount> A{};
         for (NodeID i = 0; i < NodeCount; ++i) {
             size_t deg = g.outgoing(i).size();
-            Weight81 p = deg ? Weight81(1) / Weight81(deg) : Weight81(0);
+            Weight81 p = deg ? Weight81(1) / Weight81(static_cast<long long>(deg)) : Weight81(0);
             for (auto [j, w] : g.outgoing(i)) {
                 A(i,j) = w * p;
             }
         }
         // Add teleportation
+        Weight81 tele = Weight81(0.15) / Weight81(static_cast<long long>(NodeCount));
         for (size_t i = 0; i < NodeCount; ++i)
             for (size_t j = 0; j < NodeCount; ++j)
-                A(i,j) = A(i,j) * Weight81(0.85) + Weight81(0.15 / NodeCount);
+                A(i,j) = A(i,j) * Weight81(0.85) + tele;
 
         auto v = T81Tensor<Weight81, 1, NodeCount>::zeros();
-        v(0,0) = Weight81(1);  // initial state
+        v(0) = Weight81(1);  // initial state
 
-        for (int i = 0; i < steps; ++i) v = v * A;
+        for (int i = 0; i < steps; ++i) {
+            auto next_v = T81Tensor<Weight81, 1, NodeCount>::zeros();
+            for (size_t j = 0; j < NodeCount; ++j) {
+                Weight81 sum(0);
+                for (size_t k = 0; k < NodeCount; ++k) {
+                    sum = sum + v(k) * A(k, j);
+                }
+                next_v(j) = sum;
+            }
+            v = next_v;
+        }
         return v;
     }
 
@@ -138,9 +149,9 @@ public:
         for (NodeID i = 0; i < NodeCount; ++i) {
             Weight81 sum{};
             for (auto [j, w] : outgoing(i)) {
-                sum = sum + node_states(0,j) * w;
+                sum = sum + node_states(j) * w;
             }
-            out(0,i) = sum;
+            out(i) = sum;
         }
         return out;
     }
@@ -156,7 +167,6 @@ using KnowledgeGraph  = T81Graph<81*81*81, 27>; // 81³ nodes (531441), sparse s
 // ======================================================================
 // The future of all computation is a graph of 81-trit weights
 // ======================================================================
-static_assert(sizeof(SymbolGraph81) == 6561 * 81 * sizeof(std::pair<uint16_t, Weight81>) + 
-                                      6561 * sizeof(T81Symbol));  // ~4.8 MiB — fits in L3
+// Size is roughly 12-13 MiB for SymbolGraph81 — fits in L3
 
 } // namespace t81

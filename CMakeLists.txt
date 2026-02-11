@@ -922,3 +922,46 @@ if(DOXYGEN_FOUND)
     COMMENT "Generating API documentation with Doxygen"
     VERBATIM)
 endif()
+
+
+if(T81_BUILD_TESTS)
+  add_executable(t81_graph_test tests/cpp/test_T81Graph.cpp)
+  target_link_libraries(t81_graph_test PRIVATE t81_core)
+  add_test(NAME t81_graph_test COMMAND t81_graph_test)
+
+  add_executable(t81_polynomial_test tests/cpp/test_T81Polynomial.cpp)
+  target_link_libraries(t81_polynomial_test PRIVATE t81_core)
+  add_test(NAME t81_polynomial_test COMMAND t81_polynomial_test)
+
+  add_executable(t81_agent_test tests/cpp/test_T81Agent.cpp)
+  target_link_libraries(t81_agent_test PRIVATE t81_core)
+  add_test(NAME t81_agent_test COMMAND t81_agent_test)
+
+  add_executable(t81_stream_test tests/cpp/test_T81Stream.cpp)
+  target_link_libraries(t81_stream_test PRIVATE t81_core)
+  add_test(NAME t81_stream_test COMMAND t81_stream_test)
+
+  add_executable(t81_promise_test tests/cpp/test_T81Promise.cpp)
+  target_link_libraries(t81_promise_test PRIVATE t81_core)
+  add_test(NAME t81_promise_test COMMAND t81_promise_test)
+
+  add_executable(t81_thread_test tests/cpp/test_T81Thread.cpp)
+  target_link_libraries(t81_thread_test PRIVATE t81_core)
+  add_test(NAME t81_thread_test COMMAND t81_thread_test)
+
+  add_executable(t81_network_test tests/cpp/test_T81Network.cpp)
+  target_link_libraries(t81_network_test PRIVATE t81_core)
+  add_test(NAME t81_network_test COMMAND t81_network_test)
+
+  add_executable(t81_discovery_test tests/cpp/test_T81Discovery.cpp)
+  target_link_libraries(t81_discovery_test PRIVATE t81_core)
+  add_test(NAME t81_discovery_test COMMAND t81_discovery_test)
+
+  add_executable(t81_category_test tests/cpp/test_T81Category.cpp)
+  target_link_libraries(t81_category_test PRIVATE t81_core)
+  add_test(NAME t81_category_test COMMAND t81_category_test)
+
+  add_executable(t81_proof_test tests/cpp/test_T81Proof.cpp)
+  target_link_libraries(t81_proof_test PRIVATE t81_core)
+  add_test(NAME t81_proof_test COMMAND t81_proof_test)
+endif()

@@ -147,6 +147,16 @@ public:
         c[2] = std::move(new_right);
         return std::make_shared<node_type>(value_, std::move(c));
     }
+
+    bool operator==(const T81Tree& o) const {
+        if (value_ != o.value_) return false;
+        for (size_t i = 0; i < 3; ++i) {
+            if (children_[i] == o.children_[i]) continue;
+            if (!children_[i] || !o.children_[i]) return false;
+            if (!(*children_[i] == *o.children_[i])) return false;
+        }
+        return true;
+    }
 };
 
 } // namespace t81

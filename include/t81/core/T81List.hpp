@@ -37,8 +37,8 @@ namespace t81 {
 // T81List<E> – dynamic sequence with ternary-friendly constraints
 // ======================================================================
 template <typename E>
-    // relaxed upper bound to support larger payloads like T81Entropy
-    requires (!std::is_void_v<E> && (sizeof(E) <= 64))
+    // relaxed upper bound to support larger payloads like T81Entropy or T81Reflection
+    requires (!std::is_void_v<E> && (sizeof(E) <= 256))
 class T81List {
 public:
     using value_type      = E;
