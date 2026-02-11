@@ -157,6 +157,7 @@ Architecture is enforced by automated gates, not just design intent:
 
 Operational sources:
 - `docs/ci.md`
+- `docs/system-integration.md`
 - `.github/workflows/ci.yml`
 - `.github/workflows/repro-ledger.yml`
 - `scripts/ci/t3k_repro_gate.py`

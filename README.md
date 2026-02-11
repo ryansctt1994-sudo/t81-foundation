@@ -126,6 +126,7 @@ Primary gate surfaces:
 
 Reference docs:
 - [`docs/ci.md`](docs/ci.md)
+- [`docs/system-integration.md`](docs/system-integration.md)
 - [`STATUS.md`](STATUS.md)
 - [`TASKS.md`](TASKS.md)
 - [`ROADMAP.md`](ROADMAP.md)
@@ -145,6 +146,7 @@ T81 uses an explicit runtime boundary contract:
 
 ## Further Reading
 - [`ARCHITECTURE.md`](ARCHITECTURE.md)
+- [`docs/system-integration.md`](docs/system-integration.md)
 - [`ANALYSIS.md`](ANALYSIS.md)
 - [`CHANGELOG.md`](CHANGELOG.md)
 - [`docs/research-guide.md`](docs/research-guide.md)
