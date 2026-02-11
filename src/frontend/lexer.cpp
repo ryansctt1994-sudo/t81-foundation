@@ -38,7 +38,8 @@ const std::unordered_map<std::string_view, TokenType> KEYWORDS = {
     {"i8", TokenType::I8},         {"i2", TokenType::I2},
     {"T81BigInt", TokenType::T81BigInt}, {"T81Float", TokenType::T81Float},
     {"T81Fraction", TokenType::T81Fraction},
-    {"vector", TokenType::Vector}, {"matrix", TokenType::Matrix},
+    {"T81String", TokenType::String}, {"T81Vector", TokenType::T81Vector},
+    {"matrix", TokenType::Matrix},
     {"tensor", TokenType::Tensor}, {"graph", TokenType::Graph},
 };
 

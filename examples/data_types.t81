@@ -1,17 +1,12 @@
 fn main() -> i32 {
-    let first: i32 = 7;
-    let second: i32 = 5;
-    let sum: i32 = first + second;
-
-    let ratio: T81Float = 2.5t81;
-    let adjusted: T81Float = ratio + 1.5t81;
-
-    let big: T81BigInt = 12t81;
-    let result: T81BigInt = big + 5t81;
-
-    print(sum);
-    print(adjusted);
-    print(result);
-
+    // Basic types showcase
+    let greeting: T81String = "Hello, T81!";
+    let ratio: T81Float = 3.14159t81;
+    let big: T81BigInt = 123456789t81;
+    
+    print(greeting);
+    print(ratio);
+    print(big);
+    
     return 0;
 }

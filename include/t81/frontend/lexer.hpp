@@ -27,7 +27,7 @@ enum class TokenType {
     // Type Keywords
     Void, Bool, I32, I16, I8, I2,
     T81BigInt, T81Float, T81Fraction,
-    Vector, Matrix, Tensor, Graph,
+    T81String, T81Vector, Matrix, Tensor, Graph,
 
     // Literals
     Integer,

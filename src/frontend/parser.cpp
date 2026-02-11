@@ -11,6 +11,7 @@
 #include "t81/frontend/parser.hpp"
 #include <cctype>
 #include <iostream>
+#include "t81/frontend/semantic_analyzer.hpp"
 
 namespace t81 {
 namespace frontend {
@@ -807,15 +808,40 @@ bool Parser::try_parse_enum_literal(const Token& token, Token& enum_name, Token&
     return true;
 }
 
+// Helper function to convert Type to string representation
+std::string type_to_string(const Type& type) {
+    switch (type.kind) {
+        case Type::Kind::Void: return "Void";
+        case Type::Kind::Bool: return "Bool";
+        case Type::Kind::I2: return "I2";
+        case Type::Kind::I8: return "I8";
+        case Type::Kind::I16: return "I16";
+        case Type::Kind::I32: return "I32";
+        case Type::Kind::T81BigInt: return "T81BigInt";
+        case Type::Kind::T81Float: return "T81Float";
+        case Type::Kind::T81Fraction: return "T81Fraction";
+        case Type::Kind::Vector: return "Vector";
+        case Type::Kind::Matrix: return "Matrix";
+        case Type::Kind::Tensor: return "Tensor";
+        case Type::Kind::Graph: return "Graph";
+        case Type::Kind::String: return "T81String";
+        case Type::Kind::Constant: return "const(" + type.custom_name + ")";
+        case Type::Kind::Custom: return type.custom_name;
+        case Type::Kind::Unknown: return "<unknown>";
+        case Type::Kind::Error: return "<error>";
+    }
+    return result;
+}
+
 std::unique_ptr<GenericTypeExpr> Parser::parse_generic_type(Token name) {
     consume(TokenType::LBracket, "Expect '[' after generic type name.");
     std::array<std::unique_ptr<Expr>, 8> parameters;
     size_t param_count = 0;
     std::string_view type_name{name.lexeme};
-
+    
     // First parameter must be a type.
     parameters[param_count++] = type();
-
+    
     // Subsequent parameters are constant value expressions (structural-result types are treated specially).
     while (match({TokenType::Comma})) {
         if (param_count >= 8) {
@@ -842,7 +868,8 @@ bool Parser::is_type_start() {
            check(TokenType::I32) || check(TokenType::I16) || check(TokenType::I8) || check(TokenType::I2) ||
            check(TokenType::Bool) || check(TokenType::Void) ||
            check(TokenType::T81BigInt) || check(TokenType::T81Float) || check(TokenType::T81Fraction) ||
-           check(TokenType::Vector) || check(TokenType::Matrix) || check(TokenType::Tensor) || check(TokenType::Graph);
+           check(TokenType::T81Vector) || check(TokenType::Matrix) || check(TokenType::Tensor) || check(TokenType::Graph) ||
+           check(TokenType::String);
 }
 
 // Parses a type expression.

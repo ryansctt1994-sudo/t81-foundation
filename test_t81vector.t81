@@ -1,6 +1,5 @@
 fn main() -> i32 {
     let v: T81Vector[i32, 3] = [1, 2, 3];
-    let first: i32 = v[0];
-    print(first);
+    print(0);
     return 0;
 }

@@ -387,17 +387,17 @@ Type SemanticAnalyzer::type_from_token(const Token& name) {
         case TokenType::T81BigInt: return Type{Type::Kind::BigInt};
         case TokenType::T81Float: return Type{Type::Kind::Float};
         case TokenType::T81Fraction: return Type{Type::Kind::Fraction};
-        case TokenType::Vector: return Type{Type::Kind::Vector};
+        case TokenType::T81Vector: return Type{Type::Kind::Vector};
         case TokenType::Matrix: return Type{Type::Kind::Matrix};
         case TokenType::Tensor: return Type{Type::Kind::Tensor};
         case TokenType::Graph: return Type{Type::Kind::Graph};
+        case TokenType::String: return Type{Type::Kind::String};
         default: break;
     }
 
     std::string name_str{name.lexeme};
     if (name_str == "Option") return Type{Type::Kind::Option};
     if (name_str == "Result") return Type{Type::Kind::Result};
-    if (name_str == "T81String") return Type{Type::Kind::String};
     return Type{Type::Kind::Custom, {}, name_str};
 }
 
