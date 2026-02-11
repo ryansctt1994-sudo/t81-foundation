@@ -1,134 +1,154 @@
-# T81 Foundation – Ternary-Native Deterministic Computing
+# T81 Foundation
 
 [![CI](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml/badge.svg)](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![C++ Standard](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://en.cppreference.com/w/cpp/23)
 
-**Solve the AI reproducibility crisis** with canonical balanced-ternary numerics, deterministic VM execution, Axion overflow trapping, and full SHA3-512 tensor provenance.
+Deterministic ternary-native computing stack for auditable compilation and execution:
 
-> We turn the AI reproducibility crisis into a deterministic ledger. T81 is a production-ready stack that proves every model, tensor, and trace can be audited, replayed, and trusted.
+`T81Lang -> TISC -> HanoiVM (+ Axion policy/traces)`
+
+The project is in a **post-v1.0 hardening and scaling phase**.
+
+## What T81 Focuses On
+- Deterministic compile and runtime behavior
+- Metadata-preserving language/toolchain pipeline
+- Reproducibility gates and traceability in CI
+- Policy-aware runtime execution (Axion)
 
 ## Core Guarantees
-- **Bit-for-bit reproducible** models, traces, and execution paths.
-- **No silent overflow/underflow** via Axion safety hooks.
-- **Audit-ready execution** with replayable bytecode and SHA3-512 provenance.
+- **Deterministic pipeline:** stable semantics from source to VM execution
+- **Auditable artifacts:** TISC binaries, policy text, and trace surfaces are inspectable
+- **Reproducibility enforcement:** CI gates for T81Lang/T3_K and runtime-contract sync
+- **Safety hooks:** Axion policy engine and deterministic trap/trace behavior
 
-## Quick Start (30 seconds)
+## Architecture (High-Level)
+```mermaid
+graph TD
+    subgraph Lang[Language & Build]
+      A[T81Lang Source .t81] --> B[Lexer / Parser]
+      B --> C[Semantic Analyzer]
+      C --> D[TISC IR + Structural Metadata]
+      D --> E[Binary Emitter / BinaryIO]
+      E --> F[TISC Program .tisc]
+    end
+
+    subgraph Runtime[Runtime]
+      F --> G[HanoiVM Interpreter]
+      G --> H[Trace Hotspot Detection]
+      H --> I[Trace JIT deterministic]
+      I --> J[Compiled Trace Execution]
+    end
+
+    subgraph Policy[Policy & Audit]
+      G --> K[Axion Policy Engine]
+      J --> K
+      K --> L[Axion Events / Verdict Reasons]
+    end
+
+    subgraph Data[Model & Tensor Path]
+      M[weights import/info/quantize] --> N[t81w / GGUF / Tensor Pools]
+      N --> G
+    end
+
+    subgraph Gates[Determinism Gates]
+      O[CTest + Property/Fuzz Slices]
+      P[T81Lang Repro Hash Gate]
+      Q[T3_K Repro Gate]
+      R[Runtime Contract Sync Gate]
+    end
+
+    D --> O
+    F --> O
+    M --> Q
+    C --> P
+    K --> O
+    R --> G
+```
+
+For the authoritative, detailed architecture: [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
+## Quick Start
 ```bash
 git clone https://github.com/t81dev/t81-foundation.git
 cd t81-foundation
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --parallel 1
+cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
 
-For higher-core machines, increase `--parallel` after baseline verification.
-
-## Why T81?
-
-Standard IEEE 754 floating-point paths often diverge across environments, leading to drift in AI models. T81 enforces **canonical balanced-ternary** numerics where every operation is deterministic and verifiable.
-
-| Feature | Standard Binary (FP32/64) | T81 Foundation |
-| :--- | :--- | :--- |
-| **Reproducibility** | Environment-dependent (drift) | Bit-identical across all platforms |
-| **Overflow** | Silent or `inf`/`NaN` | Axion deterministic trap |
-| **Auditability** | Opaque binary blobs | SHA3-512 provenance & traces |
-| **Numerics** | Binary Floating Point | Balanced Ternary (Base-81) |
-
-```cpp
-// Axion Guarantee
-t81::axion::Context axion;
-auto value = t81::T81Int<81>::kMaxValue;
-auto result = value + t81::T81Int<81>(1); // Axion traps overflow before corruption
-```
-
-## Try an Example
-Check out `examples/` or run a minimal T81Lang snippet:
-
-**Hello T81 (`examples/hello_world.t81`)**
-```rust
-fn main() {
-  let msg = T81String("Hello, World!")
-  stdout << msg
-}
-```
-
-Run a benchmark:
+Single-threaded safe mode:
 ```bash
-./build/t81 benchmark matmul --size=1024
+cmake --build build --parallel 1
+ctest --test-dir build --output-on-failure -j1
 ```
 
-Run the canonical ecosystem consumer path:
+## CLI Surface
+Common workflows:
 ```bash
-scripts/run-canonical-runtime-demo.sh
+# Compile / run
+t81 compile examples/hello_world.t81 -o build/hello.tisc
+t81 run build/hello.tisc
+
+# Inspect / debug
+t81 disasm build/hello.tisc
+t81 debug build/hello.tisc
+
+# Diagnostics / reproducibility
+t81 check examples/hello_world.t81
+t81 repro-hash tests/fixtures/t81lang_determinism
+
+# Trace workflows
+t81 trace show trace.txt
+t81 trace diff trace_a.txt trace_b.txt
+t81 trace replay build/hello.tisc trace.txt
 ```
 
-## Architecture
-```mermaid
-graph TD
-    subgraph "Hardware"
-        A["CPU SIMD (AVX2, AVX-512, SVE, NEON)"]
-    end
-
-    subgraph "T81 Core (Header-Only C++23)"
-        B["T81Int / T81Float / T81Tensor"]
-        C["SIMD Trit/Tryte Primitives"]
-    end
-
-    subgraph "Toolchain"
-        E["T81Lang Frontend"]
-        F["TISC IR"]
-        G["Bytecode Emitter"]
-    end
-
-    subgraph "Runtime"
-        H["HanoiVM"]
-        I["Axion Safety Kernel"]
-    end
-
-    subgraph "Ecosystem"
-        J["t81 CLI"]
-        K["Weights Tooling → T3_K"]
-    end
-
-    A --> C
-    C --> B
-    B --> K
-
-    E --> F
-    F --> G
-    G --> H
-
-    I --> H
-
-    J --> E
-    J --> H
-    J --> K
+Model tooling:
+```bash
+t81 weights import model.safetensors -o model.t81w
+t81 weights info model.t81w
+t81 weights quantize model.safetensors --to-gguf model.gguf
 ```
+
+See full command help:
+```bash
+t81 help
+```
+
+## Determinism & CI Gates
+Primary gate surfaces:
+- Full build/test matrix in `.github/workflows/ci.yml`
+- T81Lang reproducibility gate (`scripts/ci/t81lang_repro_gate.py`)
+- T3_K reproducibility gate (`scripts/ci/t3k_repro_gate.py`)
+- Runtime contract sync (`scripts/check-runtime-contract-sync.py`)
+- Architecture target-table sync (`scripts/ci/check_architecture_targets.py`)
+
+Reference docs:
+- [`docs/ci.md`](docs/ci.md)
+- [`STATUS.md`](STATUS.md)
+- [`TASKS.md`](TASKS.md)
+- [`ROADMAP.md`](ROADMAP.md)
 
 ## Repository Map
+- [`include/t81/`](include/t81/): public API headers
+- [`src/`](src/): frontend, TISC, VM, Axion, CanonFS, CLI implementation
+- [`tests/`](tests/): conformance, determinism, VM/e2e, property slices
+- [`docs/`](docs/): guides, status, benchmarks, runtime boundary docs
+- [`spec/`](spec/): normative semantics and governance inputs
+- [`examples/`](examples/): runnable samples and demos
 
-| Compass | Purpose |
-| :--- | :--- |
-| [`spec/`](spec/) | Constitutional governance; normative semantics only change through RFCs. |
-| [`include/t81/`](include/t81/) | Public `t81::v1` headers; add APIs here with Axion-safe guarantees. |
-| [`src/`](src/) | Implementation of compiler, HanoiVM, tensor tooling, and benchmarks. |
-| [`tests/`](tests/) | Automated proofs of determinism; every API change gets coverage. |
-| [`benchmarks/`](benchmarks/) | Benchmark generators and runners that power `docs/benchmarks.md`. |
-| [`docs/`](docs/) | Manifest insights, benchmark reports, onboarding guides, and system status. |
-| [`examples/`](examples/) | Canonical T81Lang demos and deployment snippets. |
+## Runtime Boundary
+T81 uses an explicit runtime boundary contract:
+- Marker: [`contracts/runtime-contract.json`](contracts/runtime-contract.json)
+- Boundary policy: [`docs/runtime-semantics-boundary.md`](docs/runtime-semantics-boundary.md)
 
-[→ Full documentation](docs/) · [Specification](spec/) · [Whitepaper](WHITEPAPER.md) · [Roadmap](ROADMAP.md)
+## Further Reading
+- [`ARCHITECTURE.md`](ARCHITECTURE.md)
+- [`ANALYSIS.md`](ANALYSIS.md)
+- [`CHANGELOG.md`](CHANGELOG.md)
+- [`docs/research-guide.md`](docs/research-guide.md)
+- [`docs/ai-quickstart.md`](docs/ai-quickstart.md)
 
-## Ecosystem Runtime Boundary
-
-- Runtime marker: `contracts/runtime-contract.json`
-- Boundary policy: `docs/runtime-semantics-boundary.md`
-- Sync check: `python3 scripts/check-runtime-contract-sync.py`
-- Canonical consumer examples: `../t81-examples` (`runtime-v0.5` e2e bundle)
-- Foundation `examples/`: reference/research demos (not the primary contract promotion lane)
-
-### Release v1.0 Resources
-- **[Researcher's Guide](./docs/research-guide.md)**: Deep dive into balanced ternary and cognitive tiers.
-- **[Secure Deployment Tutorial](./docs/guides/secure-deployment-tutorial.md)**: End-to-end guide for verified apps.
-- **[Ecosystem Tools](./tools/axion_policy_validator.py)**: Policy validation and audit tooling.
+## License
+This repository is licensed under MIT (see [`LICENSE`](LICENSE)).
