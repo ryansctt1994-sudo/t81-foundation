@@ -1,12 +1,17 @@
-# Spec Mirror: `/docs/spec/spec`
+# `spec/spec` (Historical Companion)
 
-This mini subtree hosts the [`t81-spec.md`](t81-spec.md) narrative that supplements the main `/spec/` constitution. It exists primarily to keep the published docs site aligned with the deeper specification.
+This subtree contains long-form narrative material, primarily `t81-spec.md`.
 
-## What lives here
-- [`t81-spec.md`](t81-spec.md)—a single, high-level companion piece that ties together the layered spec documents (`spec/t81-data-types.md`, `spec/tisc-spec.md`, etc.) and highlights user-facing summaries.
+## Status
+- `t81-spec.md` is non-normative historical/companion content.
+- Normative requirements live in the top-level `spec/*.md` suite.
 
-## How to use it
-- Treat this README as your entry point: read [`t81-spec.md`](t81-spec.md) when you want a condensed, web-friendly synopsis after consulting the canonical `/spec/` sources.
-- Do **not** edit this file directly unless you are refreshing the rendered site; all normative updates must land in `/spec/` (and, if needed, follow the RFC process in [`spec/rfcs`](../rfcs)).
+## Usage
+- Use this content for background context and historical rationale.
+- Do not treat it as the source of truth for implementation decisions unless a section has been explicitly promoted into top-level specs.
 
-When rebuilding docs, rerun `cmake --build build --target docs` so `docs/spec/spec/t81-spec.md` stays in sync with the authoritative spec text.
+## Promotion Rule
+If any section here becomes normative:
+1. Copy/port it into the appropriate top-level `spec/*.md` file.
+2. Add explicit cross-links in `spec/index.md`.
+3. Keep this subtree marked as historical companion text.

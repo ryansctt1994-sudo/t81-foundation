@@ -4,6 +4,7 @@ status: draft
 author: Jules
 date: 2026-02-10
 vote: +1
+supersedes: RFC-0009 (upon acceptance)
 ---
 
 ## 1. Abstract

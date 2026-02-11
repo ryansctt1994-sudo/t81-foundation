@@ -10,7 +10,7 @@ vote: +1
 This RFC defines the implementation of Tier 4 Cognition in the T81 stack. Tier 4 introduces self-referential cognitive loops, where the system can inspect, trace, and refine its own decision-making process through deterministic Axion-guarded layers.
 
 ## 2. Motivation
-While Tiers 1-3 cover basic logic, arithmetic, and reasoning, Tier 4 is required for higher-order reflection. Current "Tier 4" implementations are stubs. To achieve "High-Tier Cognition" as outlined in `TODO.md`, we need a formal way for agents to model their own state and execution paths.
+While Tiers 1-3 cover basic logic, arithmetic, and reasoning, Tier 4 is required for higher-order reflection. Current "Tier 4" implementations are stubs. To achieve high-tier cognition goals, we need a formal way for agents to model their own state and execution paths.
 
 ## 3. Proposal
 

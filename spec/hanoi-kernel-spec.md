@@ -1,4 +1,11 @@
-## title: Hanoi Kernel — Reference Specification v0.1.1 (Unified) version: 0.1.1 status: Final Draft — Reference Implementation Authorized category: Kernel created: 2025-11-22 updated: 2025-11-22
+---
+title: Hanoi Kernel — Reference Specification (Unified)
+version: 0.1.1
+status: final-draft
+category: kernel
+created: 2025-11-22
+updated: 2025-11-22
+---
 
 # Hanoi Kernel v0.1.1
 

@@ -6,6 +6,7 @@ Version 0.1 — Draft (Standards Track)\
 Status: Draft\
 Author: Axion Governance Council\
 Applies to: Axion, T81VM, T81Lang, Cognitive Tiers
+Supersession note: RFC-0022 is the preferred forward evolution path and is expected to supersede this RFC upon acceptance.
 
 ______________________________________________________________________
 

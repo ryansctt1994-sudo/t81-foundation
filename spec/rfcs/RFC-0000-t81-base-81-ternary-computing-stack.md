@@ -121,8 +121,8 @@ This RFC introduces a new stack; no backwards compatibility is required. Profile
 
 ## Reference Implementations (Informative)
 
-- Canonical Specs: `/mnt/data/v1.1.0-canonical.md`, `/mnt/data/hanoi-kernel-spec.md`, `/mnt/data/canonfs-spec.md`
-- Background: `/mnt/data/TYNARY - T81Source.pdf`, `/mnt/data/Hanoi Source Code Compendium.pdf`, `/mnt/data/AllBooks.md`
+- Canonical specs in this repository: `spec/index.md`, `spec/hanoi-kernel-spec.md`, `spec/canonfs-spec.md`
+- RFC catalog: `spec/rfcs/index.md`
 
 ## Decision
 

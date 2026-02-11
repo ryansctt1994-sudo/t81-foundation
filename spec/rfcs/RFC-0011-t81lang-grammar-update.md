@@ -15,7 +15,7 @@ This RFC proposes to officially adopt the modern, feature-rich grammar found in 
 
 # Motivation
 
-The current T81Lang grammar documented in `t81lang-spec.md` is significantly less advanced than the designs explored in the legacy codebase. The analysis in `ANALYSIS.md` revealed that:
+The current T81Lang grammar documented in `t81lang-spec.md` is significantly less advanced than the designs explored in the legacy codebase. Internal review of legacy artifacts revealed that:
 
 1. **`slang_grammer.ebnf`** describes a much more powerful and modern language, with features essential for building complex, modular systems.
 2. The legacy Python prototype (`t81_compile.py`) already implements some of these modern features (e.g., annotations), indicating that this is the intended direction of the language.

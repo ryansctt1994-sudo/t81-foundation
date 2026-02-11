@@ -13,11 +13,11 @@ nav:
 
 ______________________________________________________________________
 
-[← Back to Spec Index](t81-overview.md)
+[← Back to Spec Index](index.md)
 
 # T81 Overview
 
-Version 0.1 — Draft
+Version 0.2 — Draft
 
 This document provides the conceptual and architectural overview of the T81 Ecosystem.\
 It defines the purpose, philosophical grounding, and structural layout of the entire computation stack.

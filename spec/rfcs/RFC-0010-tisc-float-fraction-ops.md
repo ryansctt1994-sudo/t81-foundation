@@ -19,7 +19,7 @@ Define first-class arithmetic opcodes for `T81Float` and `T81Fraction` so that:
 2. T81Lang may lower non-`T81Int` expressions to deterministic TISC sequences.
 3. T81VM tracks literal/value pools deterministically and surfaces results to Axion.
 
-This RFC does not change literal syntax (already specified in `spec/v1.1.0-canonical.md §5.3`) but introduces new opcodes plus compiler/VM obligations.
+This RFC does not change literal syntax (already specified in `spec/t81lang-spec.md`) but introduces new opcodes plus compiler/VM obligations.
 
 # Motivation
 

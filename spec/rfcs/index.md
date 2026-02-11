@@ -1,196 +1,47 @@
-# T81 Foundation — RFC Index
-Version 0.2
+# T81 RFC Index
 
-The T81 Foundation uses **RFCs (Request for Comments)** to propose, discuss, and standardize extensions or changes to the architecture.  
-RFCs complement the main specification suite by capturing:
+This index tracks RFC status and intended disposition.
 
-- new design proposals
-- cross-layer improvements
-- philosophical foundations
-- safety and determinism frameworks
-- formal extensions and experimental features
+## Status Legend
+- `draft`: active authoring
+- `proposed`: under formal review
+- `accepted`: design accepted, pending/ongoing integration
+- `integrated`: merged into normative specs
+- `superseded`: replaced by a newer RFC
+- `rejected`: closed without adoption
 
-All RFCs follow the standard structure:
+## RFC Catalog
+| RFC | Title | Status | Notes |
+|---|---|---|---|
+| RFC-0000 | T81 Base-81 Ternary Computing Stack | draft | Foundational umbrella document |
+| RFC-0001 | Architecture Principles | draft | Candidate for partial integration into `t81-overview.md` |
+| RFC-0002 | Deterministic Execution Contract | draft | Cross-layer invariants |
+| RFC-0003 | Axion Safety Model | draft | Axion threat/safety model |
+| RFC-0004 | Canonical Tensor Semantics | draft | Tensor semantics harmonization |
+| RFC-0005 | TISC v0.4 Extensions | draft | ISA extension planning |
+| RFC-0006 | Deterministic GC | draft | VM reclaim semantics |
+| RFC-0007 | T81Lang Standard Library | draft | Stdlib contract definition |
+| RFC-0008 | Formal Verification Harness | draft | Proof/replay harness design |
+| RFC-0009 | Axion Policy Language (APL) | draft | Superseded path by RFC-0022 once accepted |
+| RFC-0010 | TISC Float/Fraction Ops | draft | Non-integer opcode plan |
+| RFC-0011 | T81Lang Grammar Modernization | draft | Grammar evolution proposal |
+| RFC-0012 | Ternary Tensor Quantization | draft | AI-native data representation |
+| RFC-0013 | Ternary Matmul | draft | Trit-packed matmul path |
+| RFC-0014 | Neural Primitives | draft | `train`/`infer` language constructs |
+| RFC-0015 | Agentic Constructs | draft | First-class agent model |
+| RFC-0016 | SIMD Limb | proposed | SIMD arithmetic proposal |
+| RFC-0017 | Introduce T81 Native | proposed | Register-native type proposal |
+| RFC-0018 | T81 Native SIMD Arithmetic | proposed | Follow-on SIMD arithmetic details |
+| RFC-0019 | Axion Match Logging | draft | Guard/loop metadata auditing |
+| RFC-0020 | Axion Segment Trace | draft | Segment trace semantics |
+| RFC-0021 | Tier4 Cognition | draft | Tier-4 reflection/cognition proposal |
+| RFC-0022 | Axion Policy Language Evolution | draft | Preferred evolution track for APL |
+| RFC-0023 | T81Lang Print Canonical Runtime | draft | Deterministic print/runtime surface |
+| RFC-0024 | C++23 Wording Alignment | draft | Documentation/process wording alignment |
 
-- RFC-NNNN — Title  
-- Version — Draft / Proposal / Accepted  
-- Applies To — affected layers  
-- Summary  
-- Motivation  
-- Design / Specification  
-- Rationale  
-- Backwards Compatibility  
-- Security Considerations  
-- Open Questions  
+## Active Consolidations
+- APL track: RFC-0022 is the forward path; RFC-0009 is retained for provenance until formal supersession.
 
----
-
-# 1. Core RFCs (Foundational)
-
-These RFCs define the **fundamental principles** of the T81 ecosystem.
-
-### [RFC-0000](RFC-0000-t81-base-81-ternary-computing-stack.md)
-**Title:** T81: Base-81 Ternary Computing Stack  
-Defines a post-binary computing model leveraging balanced ternary (−1, 0, +1) and Base-81 encodings to maximize information density and determinism for AI-centric workloads.
-
-### [RFC-0001](RFC-0001-architecture-principles.md)
-**Title:** T81 Architecture Principles  
-Defines the philosophical and engineering motivations behind T81: determinism, canonical semantics, tiered reasoning, and ternary-native computation.
-
-### [RFC-0002](RFC-0002-deterministic-execution-contract.md)
-**Title:** Deterministic Execution Contract (DEC)  
-Defines the cross-layer determinism invariants that govern Data Types, TISC, VM, Lang, Axion, and Cognitive Tiers.
-
-### [RFC-0003](RFC-0003-axion-safety-model.md)
-**Title:** Axion Safety Model  
-Defines Axion’s supervisory role, safety constraints, privilege model, recursion control, cognitive limits, and fault semantics.
-
-### [RFC-0004](RFC-0004-canonical-tensor-semantics.md)
-**Title:** Canonical Tensor Semantics  
-Formalizes tensor shape/rank rules, tensor pools, and Axion-visible metadata so every layer treats tensors identically.
-
-### [RFC-0005](RFC-0005-tisc-v0-4-extensions.md)
-**Title:** TISC v0.4 Extensions  
-Specifies the next ISA revision, including structural constructors, vector helpers, shape guards, and version-reporting opcodes.
-
-### [RFC-0006](RFC-0006-deterministic-gc.md)
-**Title:** Deterministic GC & Memory Reclamation  
-Defines the deterministic garbage collector (mark/sweep order, safepoints, Axion hooks) required by the VM spec.
-
-### [RFC-0007](RFC-0007-t81lang-standard-library.md)
-**Title:** T81Lang Standard Library  
-Introduces the canonical, versioned standard library modules for deterministic arithmetic, tensor helpers, Option/Result combinators, and Axion-safe I/O.
-
-### [RFC-0008](RFC-0008-formal-verification-harness.md)
-**Title:** T81 Formal Verification Harness  
-Describes the canonical trace format, reference replayer, and SMT interface used to prove determinism end-to-end.
-
-### [RFC-0009](RFC-0009-axion-policy-language.md)
-**Title:** Axion Policy Language  
-Defines the declarative DSL that encodes recursion/shape/opcode policies enforced by Axion at runtime.
-
-### [RFC-0010](RFC-0010-tisc-float-fraction-ops.md)
-**Title:** TISC Float and Fraction Operations  
-Specifies the TISC opcodes and semantics for `T81Float` and `T81Fraction` arithmetic, ensuring deterministic handling of non-integer types.
-
-### [RFC-0011](RFC-0011-t81lang-grammar-update.md)
-**Title:** T81Lang Grammar Modernization  
-Proposes the adoption of the advanced EBNF grammar from legacy sources to serve as the new baseline for the T81Lang C++ toolchain.
-
-### [RFC-0012](RFC-0012-ternary-tensor-quantization.md)
-**Title:** TernaryTensor Type and Balanced-Trit Quantization  
-Introduces AI-native types (`Trit`, `TernaryTensor`) and a `quantize` expression for efficient, deterministic handling of neural network weights.
-
-### [RFC-0013](RFC-0013-ternary-matmul.md)
-**Title:** Ternary Matrix Multiply (`**`) and Trit-Packed Lowering  
-Proposes the `**` operator for efficient, ternary-native matrix multiplication on `TernaryTensor` types.
-
-### [RFC-0014](RFC-0014-neural-primitives.md)
-**Title:** Neural Forward and Training Primitives  
-Introduces high-level `train` and `infer` statements for safe, deterministic, and optimizable neural network operations.
-
-### [RFC-0015](RFC-0015-agentic-constructs.md)
-**Title:** First-Class Agents and Tiered Recursive Cognition  
-Proposes the `agent` construct for encapsulating state and behaviors, enabling tiered cognition and recursive AI systems.
-
-### [RFC-0016](RFC-0016-t81-simd-limb.md)
-**Title:** T81 SIMD Limb
-Specifies SIMD-accelerated 27-trit limb operations.
-
-### [RFC-0017](RFC-0017-introduce-t81-native.md)
-**Title:** Introduce T81 Native
-Proposes the T81 Native interface for direct hardware interaction.
-
-### [RFC-0018](RFC-0018-t81-native-simd-arith.md)
-**Title:** T81 Native SIMD Arithmetic
-Extends T81 Native with SIMD-optimized arithmetic kernels.
-
-### [RFC-0019](RFC-0019-axion-match-logging.md)
-**Title:** Axion Match Logging
-Defines deterministic logging for match expressions and guards.
-
-### [RFC-0020](RFC-0020-axion-segment-trace.md)
-**Title:** Axion Segment Trace
-Specifies canonical trace strings for memory segment transitions.
-
-### [RFC-0021](RFC-0021-tier4-cognition.md)
-**Title:** Tier 4 Cognition
-Defines self-referential cognitive loops and tier-aware planners.
-
-### [RFC-0022](RFC-0022-axion-policy-language.md)
-**Title:** Axion Policy Language Evolution
-Formalizes the APL grammar, compiler pipeline, and binary format.
-
-### [RFC-0023](RFC-0023-t81lang-print-canonical-runtime.md)
-**Title:** T81Lang `print` Canonical Runtime Surface
-Proposes deterministic VM-captured output semantics and canonical formatting for `print(...)`.
-
-### [RFC-0024](RFC-0024-cxx23-default-wording-alignment.md)
-**Title:** C++23 Default Wording Alignment for Spec and Governance Docs
-Proposes wording-only alignment so spec/governance docs reflect C++23 default mode while preserving a temporary C++20 compatibility lane.
-
----
-
-# 2. Upcoming RFCs (Planned)
-
-The following numbers are reserved for future proposals that build on the
-foundation above:
-
-- **RFC-0100+** — experimental items listed in Section 3 below
-
----
-
-# 3. Experimental RFCs (Optional Future)
-
-These RFCs capture long-term or high-concept ideas that may graduate into standards.
-
-- **RFC-0100 — Symbolic Reasoning Optimizer**
-- **RFC-0101 — Deterministic Parallel Tensor Engine**
-- **RFC-0102 — Tier-5 Reflective Metacognition**
-- **RFC-0103 — Verified Transformations for T81Lang**
-- **RFC-0104 — Cross-Language Canonical VM Target**
-- **RFC-0105 — Axion Coherence Index & Cognitive Stability Metrics**
-
----
-
-# 4. Contributing to RFCs
-
-To propose an RFC:
-
-1. Fork the repository.
-2. Create a file under `rfcs/RFC-NNNN-title.md`.
-3. Use the standard RFC template.
-4. Submit a Pull Request.
-5. Discuss the proposal in Issues and the PR thread.
-6. Once accepted, move the RFC to the “Core” section.
-
-RFC numbering is global and monotonic.
-
----
-
-# 5. Status Levels
-
-RFCs exist in one of the following states:
-
-- **Draft** — Not finalized.
-- **Proposal** — Open for community review.
-- **Accepted** — Approved for inclusion in standards.
-- **Integrated** — Fully specified and merged.
-- **Superseded** — Replaced by a newer RFC.
-
----
-
-# 6. Cross-References
-
-- Main Spec Index → `../spec/index.md`
-- TISC Spec → `../spec/tisc-spec.md`
-- T81VM Spec → `../spec/t81vm-spec.md`
-- Axion Kernel Spec → `../spec/axion-kernel.md`
-- Cognitive Tiers → `../spec/cognitive-tiers.md`
-
----
-
-# 7. Conclusion
-
-This RFC Index serves as the authoritative directory for all active, planned, and future RFCs in the T81 Foundation.  
-It unifies the proposal process, improves traceability, and provides a clear roadmap for the evolution of the architecture.
+## Authoring
+- Start from `spec/rfcs/template.md`.
+- Update this index whenever RFC status changes.

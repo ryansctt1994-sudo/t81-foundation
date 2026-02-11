@@ -1,13 +1,22 @@
-# Documentation-spec Mirror
+# `spec` (Canonical)
 
-This folder duplicates the canonical specification for delivery to the static site. The authoritative texts live under `/spec/`, so treat this subtree as an `npm run docs` artifact that should stay in sync with the constitution (see [`spec/index.md`](../spec/index.md)).
+This directory is the authoritative specification source for the T81 stack.
 
-## Contents
-- [`axion-kernel.md`](axion-kernel.md), [`tisc-spec.md`](tisc-spec.md), [`t81vm-spec.md`](t81vm-spec.md), [`t81lang-spec.md`](t81lang-spec.md), [`t81-data-types.md`](t81-data-types.md), and [`cognitive-tiers.md`](cognitive-tiers.md) match the corresponding files in `/spec/`. Use them for quick browsing on the rendered site.
-- [`constitution.md`](constitution.md), [`cpp-mapping.md`](cpp-mapping.md), [`canonfs-spec.md`](canonfs-spec.md), [`hanoi-kernel-spec.md`](hanoi-kernel-spec.md), and [`t81-overview.md`](t81-overview.md) provide supplemental context; defer to the upstream `/spec/` version for normative decisions.
-- [`rfcs/`](rfcs/) mirrors `spec/rfcs/` for publications but should not be edited here directly. Always edit `spec/rfcs/*` and regenerate `docs` as part of the build.
-- The [`spec/`](spec/) subdirectory inside this folder currently mirrors the same `spec/` tree — treat it as a navigation convenience for documentation consumers.
+## Scope
+- Normative architecture/specification documents (`t81lang`, `tisc`, `t81vm`, Axion, data types, etc.).
+- RFC proposals and their lifecycle (`spec/rfcs`).
+- Supplemental standards-track specs (for example CanonFS/Hanoi).
 
-## Keeping it aligned
-- When a spec file changes, rerun `cmake --build build --target docs` to regenerate the `docs/spec/*` set or update it manually while confirming parity.
-- Do not introduce new normative text here without corresponding `/spec/` updates and, if necessary, an RFC (see `spec/rfcs/template.md`).
+## Canonical Rule
+- Edit normative text in `spec/` first.
+- Generated or published documentation mirrors (for example `docs/spec`) must not diverge from this directory.
+
+## Navigation
+- Start with `spec/index.md`.
+- RFC process and templates live in `spec/rfcs/README.md` and `spec/rfcs/template.md`.
+- Historical long-form narrative lives in `spec/spec/t81-spec.md` and is non-normative unless explicitly promoted.
+
+## Update Workflow
+1. Update target spec or RFC in `spec/`.
+2. Update indexes (`spec/index.md`, `spec/rfcs/index.md`) when status/links change.
+3. Run docs generation/publish workflow if needed.
