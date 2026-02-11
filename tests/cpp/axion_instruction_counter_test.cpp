@@ -1,11 +1,19 @@
 #include "t81/axion/engine.hpp"
 #include "t81/tisc/program.hpp"
 #include "t81/vm/vm.hpp"
-#include <cassert>
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 
 void test_instruction_counter_axion_engine() {
+    auto expect = [](bool cond, const char* msg) -> bool {
+        if (!cond) {
+            std::cerr << "axion_instruction_counter_test failure: " << msg << "\n";
+            return false;
+        }
+        return true;
+    };
+
     // Create an Axion engine that allows a maximum of 5 instructions.
     [[maybe_unused]] auto engine= t81::axion::make_instruction_counting_engine(5);
 
@@ -29,9 +37,13 @@ void test_instruction_counter_axion_engine() {
     // Run the VM and expect a security fault.
     [[maybe_unused]] auto result= vm->run_to_halt();
 
-    assert(!result.has_value() && "VM should have halted with a trap");
-    assert(result.error() == t81::vm::Trap::SecurityFault &&
-           "VM did not halt with a SecurityFault");
+    if (!expect(!result.has_value(), "VM should have halted with a trap")) {
+        std::exit(1);
+    }
+    if (!expect(result.error() == t81::vm::Trap::SecurityFault,
+                "VM did not halt with a SecurityFault")) {
+        std::exit(1);
+    }
 
     std::cout << "AxionTest test_instruction_counter_axion_engine passed!"
               << std::endl;

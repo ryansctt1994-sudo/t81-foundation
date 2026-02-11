@@ -3,7 +3,6 @@
 #include "t81/tisc/binary_io.hpp"
 #include "t81/vm/vm.hpp"
 
-#include <cassert>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -28,6 +27,14 @@ void write_source(const fs::path& path, std::string_view contents) {
 } // namespace
 
 int main() {
+    auto expect = [](bool cond, const char* msg) -> bool {
+        if (!cond) {
+            std::cerr << "axion_loop_metadata_test failure: " << msg << "\n";
+            return false;
+        }
+        return true;
+    };
+
     try {
     const std::string program = R"(
         fn main() -> i32 {
@@ -54,15 +61,17 @@ int main() {
         std::cerr << "Failed to compile loop test source\n";
         return rc;
     }
-    assert(fs::exists(tisc_path));
+    if (!expect(fs::exists(tisc_path), "compiled .tisc output missing")) return 1;
     std::cerr << "after compile" << std::endl;
 
     [[maybe_unused]] auto compiled= t81::tisc::load_program(tisc_path.string());
     std::cerr << "after load_program load" << std::endl;
     std::cerr << "policy text: " << compiled.axion_policy_text << std::endl;
-    assert(!compiled.axion_policy_text.empty());
-    assert(compiled.axion_policy_text.find("(policy") != std::string::npos);
-    assert(compiled.axion_policy_text.find("(loop") != std::string::npos);
+    if (!expect(!compiled.axion_policy_text.empty(), "missing policy text")) return 1;
+    if (!expect(compiled.axion_policy_text.find("(policy") != std::string::npos,
+                "policy text missing '(policy'")) return 1;
+    if (!expect(compiled.axion_policy_text.find("(loop") != std::string::npos,
+                "policy text missing '(loop'")) return 1;
 
     [[maybe_unused]] auto parsed= t81::axion::parse_policy(compiled.axion_policy_text);
     if (!parsed.has_value()) {

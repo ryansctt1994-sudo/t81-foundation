@@ -2,7 +2,6 @@
 #include "t81/tisc/binary_io.hpp"
 #include "t81/vm/vm.hpp"
 
-#include <cassert>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -28,6 +27,14 @@ void write_source(const fs::path& path, std::string_view contents) {
 } // namespace
 
 int main() {
+    auto expect = [](bool cond, const char* msg) -> bool {
+        if (!cond) {
+            std::cerr << "axion_match_metadata_test failure: " << msg << "\n";
+            return false;
+        }
+        return true;
+    };
+
     try {
         const std::string program = R"(
             fn main() -> i32 {
@@ -51,8 +58,9 @@ int main() {
         }
 
         [[maybe_unused]] auto compiled= t81::tisc::load_program(tisc_path.string());
-        assert(!compiled.match_metadata_text.empty());
-        assert(compiled.match_metadata_text.find("(payload") != std::string::npos);
+        if (!expect(!compiled.match_metadata_text.empty(), "missing match metadata text")) return 1;
+        if (!expect(compiled.match_metadata_text.find("(payload") != std::string::npos,
+                    "match metadata missing payload info")) return 1;
 
         [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
         vm->load_program(compiled);
