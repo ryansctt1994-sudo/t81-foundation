@@ -1,26 +1,25 @@
-# C++23 T81Lang Frontend
+# `src/frontend`
 
-This directory contains the source code for the modern C++23 implementation of the T81Lang compiler frontend (with a temporary C++20 compatibility lane). Its primary responsibility is to take raw T81Lang source code and convert it into a well-formed Intermediate Representation (IR) that can be consumed by the TISC binary emitter or other backend toolchains.
+Implementation of the T81Lang frontend pipeline.
 
-## Components
+## Scope
+- Lexing and parsing
+- Semantic analysis
+- IR generation for downstream TISC tooling
 
-The frontend is organized into a classic compiler pipeline:
+## Key Files
+- `lexer.cpp`: tokenization.
+- `parser.cpp`: AST construction.
+- `semantic_analyzer.cpp`: typing/semantic checks.
+- `ir_generator.cpp`: AST to TISC IR lowering.
+- `symbol_table.cpp`: scoped symbol management.
 
--   `lexer.cpp`: The **Lexer** (or scanner) is responsible for reading the source text and converting it into a stream of tokens. It handles the low-level character-by-character processing.
+## Related Interfaces
+- `include/t81/frontend/ast.hpp`
+- `include/t81/frontend/lexer.hpp`
+- `include/t81/frontend/parser.hpp`
+- `include/t81/frontend/semantic_analyzer.hpp`
 
--   `parser.cpp`: The **Parser** consumes the token stream from the lexer and constructs an Abstract Syntax Tree (AST). The AST is a hierarchical representation of the code's structure, defined in `include/t81/frontend/ast.hpp`. This parser is a recursive-descent parser.
-
--   `semantic_analyzer.cpp`: The **Semantic Analyzer** traverses the AST and enforces the semantic rules of T81Lang. This includes type checking, scope resolution, and other validation tasks that are not captured by the grammar alone.
-
--   `ir_generator.cpp`: The **IR Generator** walks the validated AST and emits a linear Intermediate Representation (IR) suitable for code generation. The TISC IR is defined in `include/t81/tisc/ir.hpp`.
-
--   `symbol_table.cpp`: Provides a symbol table implementation used by the parser and semantic analyzer to track identifiers, types, and scopes.
-
-## Workflow
-
-The typical data flow through the frontend is as follows:
-
-1.  `T81Lang Source Text` -> **Lexer** -> `Token Stream`
-2.  `Token Stream` -> **Parser** -> `Abstract Syntax Tree (AST)`
-3.  `AST` -> **Semantic Analyzer** -> `Validated & Annotated AST`
-4.  `Validated AST` -> **IR Generator** -> `TISC Intermediate Representation`
+## Notes
+- Keep diagnostics stable and actionable.
+- Preserve canonical behavior for equivalent source inputs.

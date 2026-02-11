@@ -1,32 +1,14 @@
-# T81 Test Harness
+# `tests/harness`
 
-This directory contains the official testing infrastructure for T81 implementations.
+Shared harness scripts/utilities for orchestrating deterministic test runs.
 
-## Goals
+## Purpose
+- Standardize local + CI execution flows.
+- Reduce duplication across multi-step integration checks.
 
-- Validate deterministic execution
-- Validate TISC instruction semantics
-- Validate VM memory model
-- Validate canonical data types
-- Validate Axion privileged boundaries
-- Validate shape/tensor safety
-- Validate recursion and reasoning limits
+## Usage
+- Run harness entry points from repository root unless noted otherwise.
+- Keep output stable so CI diffs are meaningful.
 
-## Running
-
-./run_all.sh
-
-This:
-
-1. runs each test vector
-2. captures deterministic traces
-3. re-runs the same program
-4. validates 100% identical trace output
-5. performs canonicalization checks
-6. validates fault behavior
-
-For CI use, simply call `run_all.sh` from GitHub Actions.
-
-## Adding Tests
-
-Place `.t81` bytecode files or `.t81lang` source files inside `test_vectors/`.
+## Notes
+- If a harness script changes observable behavior, update dependent test docs and CI jobs.
