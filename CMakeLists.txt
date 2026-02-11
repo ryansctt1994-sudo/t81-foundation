@@ -194,6 +194,14 @@ endif()
 # All tests — exactly as you wrote them
 # =============================================================================
 if(T81_BUILD_TESTS)
+  include(FetchContent)
+  FetchContent_Declare(
+    asio
+    GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
+    GIT_TAG asio-1-30-2
+  )
+  FetchContent_MakeAvailable(asio)
+
   add_executable(t81_bigint_test tests/cpp/bigint_roundtrip.cpp)
   target_link_libraries(t81_bigint_test PRIVATE t81_core)
 
@@ -950,11 +958,11 @@ if(T81_BUILD_TESTS)
   add_test(NAME t81_thread_test COMMAND t81_thread_test)
 
   add_executable(t81_network_test tests/cpp/test_T81Network.cpp)
-  target_link_libraries(t81_network_test PRIVATE t81_core)
+  target_link_libraries(t81_network_test PRIVATE t81_core asio)
   add_test(NAME t81_network_test COMMAND t81_network_test)
 
   add_executable(t81_discovery_test tests/cpp/test_T81Discovery.cpp)
-  target_link_libraries(t81_discovery_test PRIVATE t81_core)
+  target_link_libraries(t81_discovery_test PRIVATE t81_core asio)
   add_test(NAME t81_discovery_test COMMAND t81_discovery_test)
 
   add_executable(t81_category_test tests/cpp/test_T81Category.cpp)
