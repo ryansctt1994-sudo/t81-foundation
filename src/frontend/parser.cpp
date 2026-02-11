@@ -817,20 +817,22 @@ std::string type_to_string(const Type& type) {
         case Type::Kind::I8: return "I8";
         case Type::Kind::I16: return "I16";
         case Type::Kind::I32: return "I32";
-        case Type::Kind::T81BigInt: return "T81BigInt";
-        case Type::Kind::T81Float: return "T81Float";
-        case Type::Kind::T81Fraction: return "T81Fraction";
+        case Type::Kind::BigInt: return "T81BigInt";
+        case Type::Kind::Float: return "T81Float";
+        case Type::Kind::Fraction: return "T81Fraction";
         case Type::Kind::Vector: return "Vector";
         case Type::Kind::Matrix: return "Matrix";
         case Type::Kind::Tensor: return "Tensor";
         case Type::Kind::Graph: return "Graph";
+        case Type::Kind::Option: return "Option";
+        case Type::Kind::Result: return "Result";
         case Type::Kind::String: return "T81String";
         case Type::Kind::Constant: return "const(" + type.custom_name + ")";
         case Type::Kind::Custom: return type.custom_name;
         case Type::Kind::Unknown: return "<unknown>";
         case Type::Kind::Error: return "<error>";
     }
-    return result;
+    return "<error>";
 }
 
 std::unique_ptr<GenericTypeExpr> Parser::parse_generic_type(Token name) {

@@ -18,7 +18,7 @@ static const std::vector<std::string>& alphabet_vec() {
     // 36..61
     "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
     // 62..80 (spec order, first 19 symbols)
-    "+","−","×","÷","=","<",">","≤","≥","≠","≈","∞","λ","μ","π","σ","τ","ω","Γ"
+    "-","−","×","÷","=","<",">","≤","≥","≠","≈","∞","λ","μ","π","σ","τ","ω","Γ"
   };
   static_assert(81 == 81, "alphabet size compile guard"); // intentional; we validate below.
   return kAlphabet;
