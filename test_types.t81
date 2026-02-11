@@ -1,0 +1,7 @@
+fn main() -> i32 {
+    // Test with different primitive types
+    let vec_bool: Vector[bool, 3] = [true, false, true];
+    let vec_i16: Vector[i16, 2] = [1, 2];
+    print(0);
+    return 0;
+}

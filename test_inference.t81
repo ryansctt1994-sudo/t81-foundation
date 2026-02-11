@@ -1,0 +1,9 @@
+fn create_vector() -> Vector[i32, 3] {
+    return [1, 2, 3];
+}
+
+fn main() -> i32 {
+    let v: Vector[i32, 3] = create_vector();
+    print(0);
+    return 0;
+}
