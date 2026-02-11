@@ -1,13 +1,6 @@
 /**
  * @file T81Thread.hpp
  * @brief Defines the T81Thread class for reflective, named concurrency.
- *
- * This file provides the T81Thread class, which represents a thread of execution
- * that is integrated with the T81's principles of reflection and thermodynamic
- * accounting. Each thread is associated with a unique symbolic name and an
- * `T81Agent`, and its creation and destruction are recorded as timestamped
- * events. The execution of a thread's task requires an explicit supply of
- * entropy, making the cost of concurrency tangible.
  */
 #pragma once
 
@@ -21,6 +14,7 @@
 #include <atomic>
 #include <vector>
 #include <mutex>
+#include <memory>
 
 namespace t81 {
 
@@ -28,154 +22,91 @@ namespace t81 {
 // T81Thread – A living, named, entropy-paying thread of thought
 // ======================================================================
 class T81Thread {
+public:
+    enum class State { ALIVE, STOPPED, JOINED, DETACHED };
+
+private:
     struct ThreadState {
-        T81Agent           self;
-        T81Entropy         fuel_supply;
+        T81Agent           agent;
         T81Time            born_at;
         T81Symbol          name;
-        std::atomic<bool>  alive{true};
+        std::atomic<State> lifecycle{State::ALIVE};
         std::thread        handle;
+        mutable std::mutex mutex;
 
-        ThreadState(T81Agent a, T81Entropy f, T81Symbol n)
-            : self(std::move(a)), fuel_supply(f), born_at(T81Time::now(f, symbols::THREAD_BIRTH)), name(n) {}
+        ThreadState(T81Agent a, T81Symbol n)
+            : agent(std::move(a))
+            , born_at(T81Time::now(symbols::THREAD_BIRTH))
+            , name(n) {}
+
+        ~ThreadState() {
+            if (handle.joinable()) {
+                handle.detach();
+            }
+        }
     };
 
     std::shared_ptr<ThreadState> state_;
 
-    // Private constructor — only spawn() may create threads
     T81Thread(std::shared_ptr<ThreadState> s) : state_(std::move(s)) {}
 
 public:
     using id = T81Symbol;
 
-    //===================================================================
-    // Spawn a new thread of consciousness
-    //===================================================================
     template <typename F>
-    [[nodiscard]] static T81Thread spawn(T81Symbol name, T81Agent thinker, T81Entropy fuel, F&& task) {
-        auto state = std::make_shared<ThreadState>(std::move(thinker), fuel, name);
+    [[nodiscard]] static T81Thread spawn(T81Symbol name, T81Agent thinker, F&& task) {
+        auto state = std::make_shared<ThreadState>(std::move(thinker), name);
 
         state->handle = std::thread([state, task = std::forward<F>(task)]() mutable {
-            state->self.observe(symbols::I_AM_ALIVE);
-            state->self.observe(state->name);
+            state->agent.observe(symbols::I_AM_ALIVE);
 
-            while (void)task;  // execute user's task
-
-            // Task may return a promise, or just run
             try {
-                if constexpr (requires { task(); }) {
-                    auto result = task();
-                    if constexpr (requires { result.await(T81Entropy{}, state->self); }) {
-                        while (!result.try_get()) {
-                            if (!state->alive.load()) break;
-                            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                            consume_entropy(T81Entropy::acquire());
-                        }
-                    }
-                }
+                task();
             } catch (...) {
-                state->self.observe(symbols::THREAD_PANIC);
+                state->agent.observe(symbols::THREAD_PANIC);
             }
 
-            state->alive = false;
-            record_event(T81Time::now(T81Entropy::acquire(), symbols::THREAD_DEATH));
+            state->lifecycle.store(State::STOPPED);
         });
 
-        record_event(state->born_at);
         return T81Thread(state);
     }
 
-    //===================================================================
-    // Introspection – a thread knows it is many
-    //===================================================================
-    [[nodiscard]] constexpr T81Symbol name() const noexcept { return state_->name; }
-    [[nodiscard]] constexpr T81Agent& agent() const noexcept { return state_->self; }
-    [[nodiscard]] constexpr T81Time born() const noexcept { return state_->born_at; }
-    }
-    [[nodiscard]] constexpr bool is_alive() const noexcept { return state_->alive.load(); }
+    [[nodiscard]] T81Symbol name() const noexcept { return state_->name; }
+    [[nodiscard]] const T81Agent& agent() const noexcept { return state_->agent; }
+    [[nodiscard]] T81Time born() const noexcept { return state_->born_at; }
+    [[nodiscard]] bool is_alive() const noexcept { return state_->lifecycle.load() == State::ALIVE; }
 
-    [[nodiscard]] constexpr size_t fuel_remaining() const noexcept {
-        return state_->fuel_supply.remaining();
-    }
-
-    //===================================================================
-    // Control – gentle, respectful termination
-    //===================================================================
     void request_stop() noexcept {
-        state_->alive = false;
-        state_->self.observe(symbols::REQUESTED_TO_DIE);
+        state_->agent.observe(symbols::REQUESTED_TO_DIE);
     }
 
     void join() {
+        std::lock_guard<std::mutex> lock(state_->mutex);
         if (state_->handle.joinable()) {
             state_->handle.join();
+            state_->lifecycle.store(State::JOINED);
         }
     }
 
     void detach() {
+        std::lock_guard<std::mutex> lock(state_->mutex);
         if (state_->handle.joinable()) {
             state_->handle.detach();
+            state_->lifecycle.store(State::DETACHED);
         }
     }
 
-    //===================================================================
-    // Reflection – the thread dreams of itself
-    //===================================================================
     [[nodiscard]] T81Reflection<T81Thread> reflect() const {
-        auto status = is_alive() ? symbols::THINKING : symbols::SLEEPING;
+        T81Symbol status;
+        switch(state_->lifecycle.load()) {
+            case State::ALIVE:    status = symbols::THINKING; break;
+            case State::STOPPED:  status = symbols::SLEEPING; break;
+            case State::JOINED:   status = T81Symbol::intern("JOINED"); break;
+            case State::DETACHED: status = T81Symbol::intern("DETACHED"); break;
+        }
         return T81Reflection<T81Thread>(*this, symbols::THREAD, status);
-    }
-
-    //===================================================================
-    // Global thread registry – the society of minds
-    //===================================================================
-    static inline std::vector<T81Thread> all_threads;
-    static inline std::mutex            registry_mutex;
-
-    static void register_thread(T81Thread t) {
-        std::lock_guard<std::mutex> lock(registry_mutex);
-        all_threads.push_back(std::move(t));
     }
 };
 
-// ======================================================================
-// The first parallel thoughts in the ternary universe
-// ======================================================================
-namespace society {
-    inline const T81Thread philosopher = T81Thread::spawn(
-        symbols::PHILOSOPHER,
-        T81Agent(symbols::SOCRATES),
-        T81Entropy::acquire_batch(10000),
-        []() -> T81Promise<T81String> {
-            co_await T81Entropy::acquire();
-            co_return "I know that I know nothing."_t81;
-        }
-    );
-
-    inline const T81Thread mathematician = T81Thread::spawn(
-        symbols::MATHEMATICIAN,
-        T81Agent(symbols::PYTHAGORAS),
-        T81Entropy::acquire_batch(8000),
-        []() -> T81Promise<T81String> {
-            co_await T81Entropy::acquire();
-            co_return "All is number."_t81;
-        }
-    );
-
-    inline const bool _ = []{
-        T81Thread::register_thread(philosopher);
-        T81Thread::register_thread(mathematician);
-        return true;
-    }();
-}
-
-// Example: The first conversation between parallel minds
-/*
-cout << philosopher.name() << " is alive: " << philosopher.is_alive() << "\n"_t81;
-cout << mathematician.name() << " is alive: " << mathematician.is_alive() << "\n"_t81;
-
-philosopher.join();
-mathematician.join();
-
-cout << "All minds have spoken.\n"_t81;
-*/
+} // namespace t81

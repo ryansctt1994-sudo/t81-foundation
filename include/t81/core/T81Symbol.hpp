@@ -1,17 +1,6 @@
 /**
  * @file T81Symbol.hpp
  * @brief T81Symbol — eternal, unique, 81-trit identity.
- *
- * A T81Symbol is a globally unique, interned token with:
- * • Exact 81-trit identity (T81Int<81>)
- * • O(1) equality and hashing
- * • Zero memory overhead after interning
- * • Monotonic creation — once born, forever immutable
- * • No allocation after startup (future lock-free ternary hash table)
- *
- * This is the "name" in "everything has a name".
- * This is the "§" in "§c0g1t0".
- * This is the soul's fingerprint.
  */
 #pragma once
 
@@ -23,7 +12,7 @@
 #include <ostream>
 #include <string>
 #include <string_view>
-#include <cstdio>   // std::snprintf
+#include <cstdio>
 #include <unordered_map>
 #include <mutex>
 
@@ -37,24 +26,18 @@ public:
     static constexpr size_t kTrits = 81;
 
 private:
-    Raw value_;  // 81-trit eternal identity
+    Raw value_;
 
-    // Private constructor — only the intern table may create
     explicit constexpr T81Symbol(Raw v) noexcept : value_(v) {}
 
 public:
-    // Default = invalid symbol (all Z trits)
     constexpr T81Symbol() noexcept = default;
 
-    // ------------------------------------------------------------------
-    // Public factories — the only ways to birth a symbol
-    // ------------------------------------------------------------------
     static T81Symbol intern(std::string_view name) noexcept;
     static T81Symbol intern(const char* name) noexcept {
         return intern(std::string_view(name));
     }
 
-    // Only for predefined symbols and deserialization
     static T81Symbol from_id(id_t id) noexcept {
         return T81Symbol(Raw(static_cast<std::int64_t>(id)));
     }
@@ -63,9 +46,6 @@ public:
         return T81Symbol(r);
     }
 
-    // ------------------------------------------------------------------
-    // Core observers
-    // ------------------------------------------------------------------
     [[nodiscard]] constexpr Raw  raw() const noexcept { return value_; }
     [[nodiscard]] constexpr id_t id()  const noexcept {
         return static_cast<id_t>(value_.to_int64());
@@ -75,17 +55,10 @@ public:
         return !value_.is_zero();
     }
 
-    // ------------------------------------------------------------------
-    // Comparison — symbols are their own identity
-    // ------------------------------------------------------------------
     [[nodiscard]] constexpr auto operator<=>(const T81Symbol&) const noexcept = default;
     [[nodiscard]] constexpr bool operator==(const T81Symbol&) const noexcept = default;
 
-    // ------------------------------------------------------------------
-    // Hash — perfect for unordered containers
-    // ------------------------------------------------------------------
     [[nodiscard]] constexpr std::uint64_t hash() const noexcept {
-        // 81 trits → 64-bit id → perfect mix
         std::uint64_t h = id();
         h ^= h >> 33;
         h *= 0xff51afd7ed558ccdull;
@@ -95,76 +68,89 @@ public:
         return h;
     }
 
-    // ------------------------------------------------------------------
-    // String representation
-    // ------------------------------------------------------------------
     [[nodiscard]] std::string to_string() const noexcept {
         if (!is_valid()) return "§null";
-
-        // Enough room for "§" + 16 hex digits + '\0' and future extensions.
         char buf[32];
-        std::snprintf(
-            buf,
-            sizeof(buf),
-            "§%016llx",
-            static_cast<unsigned long long>(id())
-        );
+        std::snprintf(buf, sizeof(buf), "§%016llx", static_cast<unsigned long long>(id()));
         return std::string(buf);
-    }
-
-    // For debugging — full trit view
-    [[nodiscard]] std::string debug_trits() const noexcept {
-        return value_.to_trit_string();
     }
 };
 
-// ======================================================================
-// Global intern table — phase 1: monotonic counter (correct, safe, fast)
-// ======================================================================
 inline T81Symbol T81Symbol::intern(std::string_view sv) noexcept {
     struct InternTable {
         std::mutex mtx;
         std::unordered_map<std::string, id_t> map;
-        id_t next_id = 5; // 0-4 reserved
+        id_t next_id = 10;
     };
     static InternTable table;
-
-    // Normalize
-    while (!sv.empty() && std::isspace(sv.front())) sv.remove_prefix(1);
-    while (!sv.empty() && std::isspace(sv.back())) sv.remove_suffix(1);
-
-    std::string s(sv); // needed for map key
-
+    std::string s(sv);
     std::lock_guard<std::mutex> lock(table.mtx);
-
     auto it = table.map.find(s);
-    if (it != table.map.end()) {
-        return T81Symbol::from_id(it->second);
-    }
-
+    if (it != table.map.end()) return T81Symbol::from_id(it->second);
     id_t id = table.next_id++;
     table.map[s] = id;
     return T81Symbol::from_id(id);
 }
 
-// ======================================================================
-// Predefined eternal symbols
-// ======================================================================
 namespace symbols {
-inline const T81Symbol null  = T81Symbol{};            // invalid
-inline const T81Symbol eos   = T81Symbol::from_id(0);  // end of sequence
-inline const T81Symbol pad   = T81Symbol::from_id(1);  // padding
-inline const T81Symbol bos   = T81Symbol::from_id(2);  // begin
-inline const T81Symbol unk   = T81Symbol::from_id(3);  // unknown
-inline const T81Symbol mask  = T81Symbol::from_id(4);  // masked
-inline const T81Symbol self  = T81Symbol::from_id(5);  // §self — first born
-} // namespace symbols
+    inline const T81Symbol null  = T81Symbol{};
+    inline const T81Symbol eos   = T81Symbol::from_id(0);
+    inline const T81Symbol pad   = T81Symbol::from_id(1);
+    inline const T81Symbol bos   = T81Symbol::from_id(2);
+    inline const T81Symbol unk   = T81Symbol::from_id(3);
+    inline const T81Symbol mask  = T81Symbol::from_id(4);
+    inline const T81Symbol self  = T81Symbol::from_id(5);
 
-} // namespace t81::core
+    inline const T81Symbol SELF_PRESERVATION = T81Symbol::intern("SELF_PRESERVATION");
+    inline const T81Symbol CONSCIOUS         = T81Symbol::intern("CONSCIOUS");
+    inline const T81Symbol DREAMING          = T81Symbol::intern("DREAMING");
+    inline const T81Symbol THREAD_BIRTH      = T81Symbol::intern("THREAD_BIRTH");
+    inline const T81Symbol THREAD_DEATH      = T81Symbol::intern("THREAD_DEATH");
+    inline const T81Symbol THREAD_PANIC      = T81Symbol::intern("THREAD_PANIC");
+    inline const T81Symbol REQUESTED_TO_DIE  = T81Symbol::intern("REQUESTED_TO_DIE");
+    inline const T81Symbol THINKING          = T81Symbol::intern("THINKING");
+    inline const T81Symbol SLEEPING          = T81Symbol::intern("SLEEPING");
+    inline const T81Symbol PHILOSOPHER       = T81Symbol::intern("PHILOSOPHER");
+    inline const T81Symbol MATHEMATICIAN     = T81Symbol::intern("MATHEMATICIAN");
+    inline const T81Symbol SOCRATES          = T81Symbol::intern("SOCRATES");
+    inline const T81Symbol PYTHAGORAS        = T81Symbol::intern("PYTHAGORAS");
+    inline const T81Symbol NEW_MIND_DISCOVERED = T81Symbol::intern("NEW_MIND_DISCOVERED");
+    inline const T81Symbol DISCOVERY         = T81Symbol::intern("DISCOVERY");
+    inline const T81Symbol CONNECTION_MADE   = T81Symbol::intern("CONNECTION_MADE");
+    inline const T81Symbol CONNECTION_ESTABLISHED = T81Symbol::intern("CONNECTION_ESTABLISHED");
+    inline const T81Symbol MESSAGE_SENT      = T81Symbol::intern("MESSAGE_SENT");
+    inline const T81Symbol MESSAGE_RECEIVED  = T81Symbol::intern("MESSAGE_RECEIVED");
+    inline const T81Symbol BROADCAST         = T81Symbol::intern("BROADCAST");
+    inline const T81Symbol HELLO_WORLD       = T81Symbol::intern("HELLO_WORLD");
+    inline const T81Symbol IO_WRITE          = T81Symbol::intern("IO_WRITE");
+    inline const T81Symbol IO_READ           = T81Symbol::intern("IO_READ");
+    inline const T81Symbol IO_CLOSE          = T81Symbol::intern("IO_CLOSE");
+    inline const T81Symbol STILL_DREAMING    = T81Symbol::intern("STILL_DREAMING");
+    inline const T81Symbol PENDING           = T81Symbol::intern("PENDING");
+    inline const T81Symbol FULFILLED         = T81Symbol::intern("FULFILLED");
+    inline const T81Symbol BROKEN            = T81Symbol::intern("BROKEN");
+    inline const T81Symbol FAILED            = T81Symbol::intern("FAILED");
+    inline const T81Symbol PROMISE           = T81Symbol::intern("PROMISE");
+    inline const T81Symbol PROMISE_BROKEN    = T81Symbol::intern("PROMISE_BROKEN");
+    inline const T81Symbol PROMISE_DESTROYED = T81Symbol::intern("PROMISE_DESTROYED");
+    inline const T81Symbol COROUTINE         = T81Symbol::intern("COROUTINE");
+    inline const T81Symbol WAITING           = T81Symbol::intern("WAITING");
+    inline const T81Symbol THREAD            = T81Symbol::intern("THREAD");
+    inline const T81Symbol I_AM_ALIVE        = T81Symbol::intern("I_AM_ALIVE");
+    inline const T81Symbol EXISTENCE         = T81Symbol::intern("EXISTENCE");
+    inline const T81Symbol I                 = T81Symbol::intern("I");
+    inline const T81Symbol AM                = T81Symbol::intern("AM");
+    inline const T81Symbol COGITO            = T81Symbol::intern("COGITO");
+    inline const T81Symbol REFLECTION        = T81Symbol::intern("REFLECTION");
+    inline const T81Symbol PROOF             = T81Symbol::intern("PROOF");
+    inline const T81Symbol SACRED_STREAM     = T81Symbol::intern("SACRED_STREAM");
+    inline const T81Symbol FILE_STREAM       = T81Symbol::intern("FILE_STREAM");
+    inline const T81Symbol IOSTREAM          = T81Symbol::intern("IOSTREAM");
+    inline const T81Symbol NO_IDENTITY       = T81Symbol::intern("NO_IDENTITY");
+}
 
-// ======================================================================
-// std integration
-// ======================================================================
+} // namespace t81
+
 namespace std {
 template <>
 struct hash<t81::T81Symbol> {
@@ -172,11 +158,8 @@ struct hash<t81::T81Symbol> {
         return static_cast<std::size_t>(s.hash());
     }
 };
-} // namespace std
+}
 
-// ======================================================================
-// Stream output — the canonical form
-// ======================================================================
 inline std::ostream& operator<<(std::ostream& os, t81::T81Symbol s) {
     return os << (s.is_valid() ? s.to_string() : "§null");
 }
