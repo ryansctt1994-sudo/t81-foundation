@@ -124,8 +124,8 @@ struct AxionEvent {
  */
 struct ReflectionSnapshot {
   std::size_t pc;
-  std::array<std::int64_t, 243> registers;
-  std::array<ValueTag, 243> register_tags;
+  std::array<std::int64_t, 81> registers;
+  std::array<ValueTag, 81> register_tags;
   Flags flags;
   std::vector<TraceEntry> recent_trace;
   uint64_t code_hash;
@@ -150,8 +150,8 @@ struct RefinementCommand {
 
 // Virtual machine register file per spec/t81vm-spec.md.
 struct State {
-  std::array<std::int64_t, 243> registers{}; // R0..R242
-  std::array<ValueTag, 243> register_tags{};
+  std::array<std::int64_t, 81> registers{}; // R0..R80
+  std::array<ValueTag, 81> register_tags{};
   std::vector<std::int64_t> memory;
   std::vector<ValueTag> memory_tags;
   MemoryLayout layout{};
