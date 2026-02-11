@@ -6,7 +6,7 @@ This file tracks strategic items beyond the near-term execution queue in `TASKS.
 
 ## 1. Formal Methods and Proofs
 
-- [ ] Formal verification for core balanced ternary arithmetic primitives (`T81Int`, `T81BigInt`, `Fraction`).
+- [ ] Formal verification for core balanced ternary arithmetic primitives (`T81Int`, `T81BigInt`, `T81Fraction`).
 - [ ] Proof-oriented validation for key Axion policy invariants.
 - [ ] Expand deterministic replay proofs across compiler + VM boundaries.
 
