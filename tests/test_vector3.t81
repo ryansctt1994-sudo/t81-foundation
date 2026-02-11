@@ -1,6 +1,0 @@
-fn main() -> i32 {
-    // Test what happens with Vector keyword
-    let vec: Vector = [1, 2, 3];
-    print(0);
-    return 0;
-}

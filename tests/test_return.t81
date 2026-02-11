@@ -1,9 +1,0 @@
-fn test() -> Vector[i32, 3] {
-    return [1, 2, 3];
-}
-
-fn main() -> i32 {
-    let v = test();
-    print(0);
-    return 0;
-}

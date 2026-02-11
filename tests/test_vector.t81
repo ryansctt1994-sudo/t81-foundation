@@ -1,8 +1,0 @@
-fn main() -> i32 {
-    // Test basic vector
-    let vec: Vector[i32, 3] = [1, 2, 3];
-    let first = vec[0];
-    
-    print(first);
-    return 0;
-}
