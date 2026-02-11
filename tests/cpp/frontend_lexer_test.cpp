@@ -1,6 +1,5 @@
 #include "t81/frontend/lexer.hpp"
 #include <vector>
-#include <cassert>
 #include <iostream>
 
 using namespace t81::frontend;
@@ -12,10 +11,29 @@ struct ExpectedToken {
     [[maybe_unused]] int column;
 };
 
-void test_sequence(const char* source, const std::vector<ExpectedToken>& expected_tokens) {
+bool test_sequence(const char* source, const std::vector<ExpectedToken>& expected_tokens) {
+    auto expect = [](bool cond, const char* msg) -> bool {
+        if (!cond) {
+            std::cerr << "frontend_lexer_test failure: " << msg << "\n";
+            return false;
+        }
+        return true;
+    };
+
     Lexer lexer(source);
     [[maybe_unused]] std::vector<Token> tokens= lexer.all_tokens();
-    assert(tokens.size() == expected_tokens.size() + 1); // +1 for EOF
+    if (tokens.size() != expected_tokens.size() + 1) {
+        std::cerr << "frontend_lexer_test token count mismatch: expected "
+                  << (expected_tokens.size() + 1) << " got " << tokens.size() << "\n";
+        for (size_t i = 0; i < tokens.size(); ++i) {
+            const auto& tok = tokens[i];
+            std::cerr << "  [" << i << "] type=" << static_cast<int>(tok.type)
+                      << " lexeme='" << tok.lexeme
+                      << "' line=" << tok.line
+                      << " col=" << tok.column << "\n";
+        }
+        return false;
+    }
 
     for (size_t i = 0; i < expected_tokens.size(); ++i) {
         const auto& actual = tokens[i];
@@ -25,12 +43,13 @@ void test_sequence(const char* source, const std::vector<ExpectedToken>& expecte
             std::cerr << "  Expected: Type=" << static_cast<int>(expected.type) << ", Lexeme='" << expected.lexeme << "', Line=" << expected.line << ", Col=" << expected.column << std::endl;
             std::cerr << "  Actual:   Type=" << static_cast<int>(actual.type) << ", Lexeme='" << actual.lexeme << "', Line=" << actual.line << ", Col=" << actual.column << std::endl;
         }
-        assert(actual.type == expected.type);
-        assert(actual.lexeme == expected.lexeme);
-        assert(actual.line == expected.line);
-        assert(actual.column == expected.column);
+        if (!expect(actual.type == expected.type, "token type mismatch")) return false;
+        if (!expect(actual.lexeme == expected.lexeme, "token lexeme mismatch")) return false;
+        if (!expect(actual.line == expected.line, "token line mismatch")) return false;
+        if (!expect(actual.column == expected.column, "token column mismatch")) return false;
     }
-    assert(tokens.back().type == TokenType::Eof);
+    if (!expect(tokens.back().type == TokenType::Eof, "missing EOF token")) return false;
+    return true;
 }
 
 int main() {
@@ -38,7 +57,7 @@ int main() {
     const char* source = R"(module my_mod;
 
 fn main() -> i32 {
-    [[maybe_unused]] let x= 1;
+    let x = 1;
     return x;
 }
 )";
@@ -63,7 +82,7 @@ fn main() -> i32 {
         {TokenType::Semicolon, ";", 5, 13},
         {TokenType::RBrace, "}", 6, 1},
     };
-    test_sequence(source, expected);
+    if (!test_sequence(source, expected)) return 1;
 
     std::cout << "All lexer tests passed!" << std::endl;
 
@@ -80,7 +99,7 @@ fn main() -> i32 {
         {TokenType::Base81Float, "1.20t81", 1, 24},
         {TokenType::Semicolon, ";", 1, 31},
     };
-    test_sequence(base81_source, base81_expected);
+    if (!test_sequence(base81_source, base81_expected)) return 1;
 
     std::cout << "Base-81 lexer tests passed!" << std::endl;
 

@@ -1,5 +1,5 @@
 #include "t81/cli/driver.hpp"
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -25,11 +25,11 @@ int main() {
 
     // Compile the source file
     [[maybe_unused]] int compile_result= t81::cli::compile(t81_file, tisc_file);
-    assert(compile_result == 0 && "CLI compile command failed");
+    T81_TEST_CHECK(compile_result == 0);
 
     // Run the compiled TISC binary
     [[maybe_unused]] int run_result= t81::cli::run_tisc(tisc_file);
-    assert(run_result == 0 && "CLI run command failed");
+    T81_TEST_CHECK(run_result == 0);
 
     // Clean up temporary files
     fs::remove(t81_file);

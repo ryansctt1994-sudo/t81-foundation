@@ -3,7 +3,7 @@
 #include "t81/tisc/opcodes.hpp"
 #include "t81/vm/vm.hpp"
 
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -16,7 +16,7 @@ std::unique_ptr<t81::vm::IVirtualMachine> run_program(const std::vector<t81::tis
     [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
     vm->load_program(program);
     [[maybe_unused]] auto result= vm->run_to_halt();
-    assert(result.has_value());
+    T81_TEST_CHECK(result.has_value());
     return vm;
 }
 
@@ -28,7 +28,7 @@ t81::vm::Trap run_expected_trap(const std::vector<t81::tisc::Insn>& insns) {
     [[maybe_unused]] auto result= vm->run_to_halt();
     if (result.has_value()) {
         std::cerr << "Expected trap but got success! pc=" << vm->state().pc << " halted=" << vm->state().halted << std::endl;
-        assert(false);
+        T81_TEST_CHECK(false);
     }
     return result.error();
 }
@@ -71,9 +71,9 @@ int main() {
 
     {
         [[maybe_unused]] auto vm= run_program({stack_alloc, stack_free0, halt});
-        assert(vm->state().stack_frames.empty());
-        assert(vm->state().sp == vm->state().layout.stack.limit);
-        assert(vm->state().registers[0] >= static_cast<std::int64_t>(vm->state().layout.code.limit));
+        T81_TEST_CHECK(vm->state().stack_frames.empty());
+        T81_TEST_CHECK(vm->state().sp == vm->state().layout.stack.limit);
+        T81_TEST_CHECK(vm->state().registers[0] >= static_cast<std::int64_t>(vm->state().layout.code.limit));
         const auto& log = vm->state().axion_log;
         [[maybe_unused]] bool saw_alloc= false;
         [[maybe_unused]] bool saw_free= false;
@@ -94,13 +94,13 @@ int main() {
 
     {
         [[maybe_unused]] auto vm= run_program({stack_alloc, stack_alloc2, stack_free, stack_free0, halt});
-        assert(vm->state().stack_frames.empty());
-        assert(vm->state().sp == vm->state().layout.stack.limit);
+        T81_TEST_CHECK(vm->state().stack_frames.empty());
+        T81_TEST_CHECK(vm->state().sp == vm->state().layout.stack.limit);
     }
 
     {
         [[maybe_unused]] auto trap= run_expected_trap({stack_alloc, stack_alloc2, stack_free0, halt});
-        assert(trap == t81::vm::Trap::StackFault);
+        T81_TEST_CHECK(trap == t81::vm::Trap::StackFault);
     }
 
     t81::tisc::Insn stack_overflow{};
@@ -113,8 +113,8 @@ int main() {
         [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
         vm->load_program(program);
         [[maybe_unused]] auto result= vm->run_to_halt();
-        assert(!result.has_value());
-        assert(result.error() == t81::vm::Trap::StackFault);
+        T81_TEST_CHECK(!result.has_value());
+        T81_TEST_CHECK(result.error() == t81::vm::Trap::StackFault);
         const auto& log = vm->state().axion_log;
         [[maybe_unused]] bool saw_stack_bounds= false;
         for (const auto& entry : log) {
@@ -141,8 +141,8 @@ int main() {
 
     {
         [[maybe_unused]] auto vm= run_program({heap_alloc, heap_free, halt});
-        assert(vm->state().heap_frames.empty());
-        assert(vm->state().heap_ptr == vm->state().layout.heap.start);
+        T81_TEST_CHECK(vm->state().heap_frames.empty());
+        T81_TEST_CHECK(vm->state().heap_ptr == vm->state().layout.heap.start);
         const auto& log = vm->state().axion_log;
         [[maybe_unused]] bool saw_alloc= false;
         [[maybe_unused]] bool saw_free= false;
@@ -163,7 +163,7 @@ int main() {
 
     {
         [[maybe_unused]] auto trap= run_expected_trap({heap_alloc, heap_alloc, heap_free, halt});
-        assert(trap == t81::vm::Trap::DecodeFault);
+        T81_TEST_CHECK(trap == t81::vm::Trap::DecodeFault);
     }
 
     t81::tisc::Insn heap_big{};
@@ -176,8 +176,8 @@ int main() {
         [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
         vm->load_program(program);
         [[maybe_unused]] auto result= vm->run_to_halt();
-        assert(!result.has_value());
-        assert(result.error() == t81::vm::Trap::BoundsFault);
+        T81_TEST_CHECK(!result.has_value());
+        T81_TEST_CHECK(result.error() == t81::vm::Trap::BoundsFault);
         const auto& log = vm->state().axion_log;
         [[maybe_unused]] bool saw_heap_bounds= false;
         for (const auto& entry : log) {
@@ -232,7 +232,7 @@ int main() {
         }
         if (!saw_store || !saw_load)
             return dump_axion_log_and_fail(vm->state(), "meta segment access");
-        assert(saw_store && saw_load);
+        T81_TEST_CHECK(saw_store && saw_load);
     }
 
     {
@@ -246,7 +246,7 @@ int main() {
         [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
         vm->load_program(program);
         [[maybe_unused]] auto result= vm->run_to_halt();
-        assert(!result.has_value());
+        T81_TEST_CHECK(!result.has_value());
 
         [[maybe_unused]] bool saw_bounds= false;
         for (const auto& entry : vm->state().axion_log) {
@@ -277,7 +277,7 @@ int main() {
         vm->load_program(program);
 
         [[maybe_unused]] auto result= vm->run_to_halt();
-        assert(!result.has_value());
+        T81_TEST_CHECK(!result.has_value());
 
         [[maybe_unused]] bool saw_bounds= false;
         for (const auto& entry : vm->state().axion_log) {
@@ -326,7 +326,7 @@ int main() {
         [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
         vm->load_program(program);
         [[maybe_unused]] auto result= vm->run_to_halt();
-        assert(!result.has_value());
+        T81_TEST_CHECK(!result.has_value());
 
         [[maybe_unused]] bool saw_tensor_bounds= false;
         for (const auto& entry : vm->state().axion_log) {

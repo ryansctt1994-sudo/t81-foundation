@@ -1,6 +1,5 @@
 #include "t81/cli/driver.hpp"
 
-#include <cassert>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -28,6 +27,14 @@ void write_source(const fs::path& path, std::string_view contents) {
 } // namespace
 
 int main() {
+    auto expect = [](bool cond, const char* msg) -> bool {
+        if (!cond) {
+            std::cerr << "cli_pipeline_test failure: " << msg << "\n";
+            return false;
+        }
+        return true;
+    };
+
     const std::string minimal_program = R"(
         fn main() -> i32 {
             return 0;
@@ -40,11 +47,11 @@ int main() {
     success_tisc.replace_extension(".tisc");
 
     [[maybe_unused]] int compile_rc= t81::cli::compile(success_src, success_tisc);
-    assert(compile_rc == 0);
-    assert(fs::exists(success_tisc));
+    if (!expect(compile_rc == 0, "compile(success) returned non-zero")) return 1;
+    if (!expect(fs::exists(success_tisc), "compiled .tisc output missing")) return 1;
 
     [[maybe_unused]] int run_rc= t81::cli::run_tisc(success_tisc);
-    assert(run_rc == 0);
+    if (!expect(run_rc == 0, "run_tisc(success) returned non-zero")) return 1;
 
     fs::remove(success_src);
     fs::remove(success_tisc);
@@ -66,16 +73,16 @@ int main() {
     [[maybe_unused]] int bad_rc= t81::cli::compile(fail_src, fail_tisc);
     std::cerr.rdbuf(old);
 
-    assert(bad_rc != 0);
+    if (!expect(bad_rc != 0, "compile(fail) unexpectedly succeeded")) return 1;
     [[maybe_unused]] std::string output= captured.str();
-    assert(output.find("Cannot assign initializer") != std::string::npos);
+    if (!expect(output.find("Cannot assign initializer") != std::string::npos, "expected diagnostic text missing")) return 1;
 
     [[maybe_unused]] size_t path_pos= output.find(fail_src.string());
-    assert(path_pos != std::string::npos);
+    if (!expect(path_pos != std::string::npos, "diagnostic missing source path")) return 1;
     [[maybe_unused]] size_t first_colon= output.find(':', path_pos + fail_src.string().size());
-    assert(first_colon != std::string::npos);
-    assert(output.find(":", first_colon + 1) != std::string::npos);
-    assert(output.find("error:", first_colon + 1) != std::string::npos);
+    if (!expect(first_colon != std::string::npos, "diagnostic missing line separator")) return 1;
+    if (!expect(output.find(":", first_colon + 1) != std::string::npos, "diagnostic missing column separator")) return 1;
+    if (!expect(output.find("error:", first_colon + 1) != std::string::npos, "diagnostic missing error marker")) return 1;
 
     fs::remove(fail_src);
     if (fs::exists(fail_tisc)) {

@@ -162,6 +162,10 @@ Operational sources:
 - `scripts/ci/t3k_repro_gate.py`
 - `scripts/ci/t81lang_repro_gate.py`
 - `scripts/ci/check_architecture_targets.py`
+- `scripts/ci/check_legacy_core_numeric_includes.py`
+- `scripts/ci/check_legacy_core_numeric_type_usage.py`
+- `scripts/ci/check_legacy_v1_numeric_includes.py`
+- `scripts/ci/check_core_numeric_wrapper_thinness.py`
 - `scripts/check-runtime-contract-sync.py`
 
 | Gate / Tool | Purpose | Source |
@@ -170,6 +174,10 @@ Operational sources:
 | T3_K reproducibility gate | Validate cross-run/cross-arch reproducibility of T3_K artifacts | `scripts/ci/t3k_repro_gate.py` |
 | T81Lang reproducibility gate | Validate deterministic compile/hash behavior | `scripts/ci/t81lang_repro_gate.py` |
 | Architecture target sync gate | Check `ARCHITECTURE.md` target table against `CMakeLists.txt` | `scripts/ci/check_architecture_targets.py` |
+| Legacy numeric include policy gate | Block new includes of compatibility-only `t81/core/{bigint,fraction}.hpp` | `scripts/ci/check_legacy_core_numeric_includes.py` |
+| Legacy numeric type-usage policy gate | Block new source-level use of compatibility-only `t81::core::{BigInt,Fraction}` | `scripts/ci/check_legacy_core_numeric_type_usage.py` |
+| Legacy v1 implementation include policy gate | Block new includes of migration-only `t81/core/{T81BigInt,T81Fraction}.hpp` | `scripts/ci/check_legacy_v1_numeric_includes.py` |
+| Core wrapper thinness policy gate | Keep `src/core/{bigint,fraction}.cpp` adapter-only and block arithmetic implementation tokens | `scripts/ci/check_core_numeric_wrapper_thinness.py` |
 | Runtime contract sync gate | Verify runtime boundary pin and policy coherence | `scripts/check-runtime-contract-sync.py` |
 
 ______________________________________________________________________
@@ -197,7 +205,29 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-## 8. Architecture Drift Controls
+## 8. Numeric API Consolidation and Compatibility
+
+The repository now treats canonical numeric types as the primary API and keeps
+legacy core numerics as compatibility shims:
+
+- Canonical path for new code:
+  - `t81/bigint.hpp` (`t81::T81BigInt`)
+  - `t81/fraction.hpp` (`t81::T81Fraction`)
+  - `t81::v1` numerics for performance-oriented code paths
+- Compatibility path (legacy callers):
+  - `t81::core::BigInt` now delegates to canonical `t81::T81BigInt`
+  - `t81::core::Fraction` formatting canonicalizes through `t81::T81Fraction`
+
+Migration policy:
+- Do not add new feature work to `t81::core::{BigInt,Fraction}`.
+- Keep compatibility behavior stable until explicit removal RFC.
+- Route new arithmetic/perf work through canonical headers and `t81::v1`.
+- Treat `t81/core/{T81BigInt,T81Fraction}.hpp` as migration-only implementation
+  headers and block new direct includes via CI policy gates.
+
+______________________________________________________________________
+
+## 9. Architecture Drift Controls
 
 - **Target-table sync gate:** `scripts/ci/check_architecture_targets.py` verifies that this document's build-target table matches `CMakeLists.txt`.
 - **Runtime boundary sync gate:** `scripts/check-runtime-contract-sync.py` verifies runtime contract pinning and policy documents are coherent.
@@ -207,7 +237,7 @@ These controls are required to keep architecture documentation operationally acc
 
 ______________________________________________________________________
 
-## 9. Near-Term Architecture Work (Open)
+## 10. Near-Term Architecture Work (Open)
 
 Open architecture-level items remain tracked in `TASKS.md` and `TODO.md`. Current active streams:
 
@@ -219,7 +249,7 @@ Open architecture-level items remain tracked in `TASKS.md` and `TODO.md`. Curren
 
 ______________________________________________________________________
 
-## 10. Glossary (Project Terms)
+## 11. Glossary (Project Terms)
 
 - **Axion:** safety/policy enforcement engine that emits deterministic verdicts and trace metadata.
 - **CanonFS:** deterministic storage and retrieval substrate used by runtime/model tooling.
@@ -229,7 +259,7 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-## 11. Local Verification Ritual (Single-Threaded Safe Mode)
+## 12. Local Verification Ritual (Single-Threaded Safe Mode)
 
 When host stability is constrained, run the required ritual in single-threaded mode:
 

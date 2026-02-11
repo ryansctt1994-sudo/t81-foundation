@@ -1,10 +1,20 @@
 #include "t81/vm/jit.hpp"
 #include "t81/vm/state.hpp"
 #include "t81/tisc/program.hpp"
-#include <cassert>
 #include <iostream>
+#include <string>
 
 using namespace t81::vm;
+
+namespace {
+bool expect(bool cond, const std::string& message) {
+    if (!cond) {
+        std::cerr << "jit_test failure: " << message << "\n";
+        return false;
+    }
+    return true;
+}
+}
 
 int main() {
     std::cout << "Starting HanoiVM JIT Prototype test...\n";
@@ -29,16 +39,44 @@ int main() {
     insn2.a = 3; insn2.b = 0; insn2.c = 1;
     compiler.record_instruction(insn2);
 
-    [[maybe_unused]] auto trace= compiler.compile();
-    assert(trace != nullptr);
+    [[maybe_unused]] auto trace = compiler.compile();
+    if (!expect(trace != nullptr, "trace compilation returned null")) {
+        return 1;
+    }
 
-    trace->execute(state);
+    [[maybe_unused]] auto exec = trace->execute(state);
 
     std::cout << "R0: " << state.registers[0] << " (Expected 30)\n";
     std::cout << "R3: " << state.registers[3] << " (Expected 300)\n";
 
-    assert(state.registers[0] == 30);
-    assert(state.registers[3] == 300);
+    if (!expect(state.registers[0] == 30, "R0 mismatch after Add")) {
+        return 1;
+    }
+    if (!expect(state.registers[3] == 300, "R3 mismatch after Mul")) {
+        return 1;
+    }
+
+    // Guard/deopt behavior: tensor trace op on non-tensor tags should return a
+    // deterministic guard-deopt classification.
+    JitCompiler deopt_compiler;
+    deopt_compiler.start_tracing(0);
+    t81::tisc::Insn tmatmul{};
+    tmatmul.opcode = t81::tisc::Opcode::TMatMul;
+    tmatmul.a = 0;
+    tmatmul.b = 1;
+    tmatmul.c = 2;
+    deopt_compiler.record_instruction(tmatmul);
+    auto deopt_trace = deopt_compiler.compile();
+    if (!expect(deopt_trace != nullptr, "deopt trace compilation returned null")) {
+        return 1;
+    }
+    [[maybe_unused]] const auto deopt_result = deopt_trace->execute(state);
+    if (!expect(deopt_result.instructions_executed == 1, "guard deopt instruction count mismatch")) {
+        return 1;
+    }
+    if (!expect(deopt_result.exit_kind == JitTrace::ExitKind::GuardDeopt, "guard deopt exit kind mismatch")) {
+        return 1;
+    }
 
     std::cout << "HanoiVM JIT Prototype test passed!\n";
     return 0;

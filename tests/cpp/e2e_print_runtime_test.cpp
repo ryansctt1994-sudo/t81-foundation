@@ -5,7 +5,7 @@
 #include "t81/tisc/binary_emitter.hpp"
 #include "t81/vm/vm.hpp"
 
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -58,10 +58,10 @@ static void test_print_runtime_captures_scalars_in_order() {
   )";
 
   const auto output = run_and_capture_prints(source);
-  assert(output.size() == 3);
-  assert(output[0] == "42");
-  assert(output[1] == "alpha");
-  assert(output[2] == "7");
+  T81_TEST_CHECK(output.size() == 3);
+  T81_TEST_CHECK(output[0] == "42");
+  T81_TEST_CHECK(output[1] == "alpha");
+  T81_TEST_CHECK(output[2] == "7");
 }
 
 static void test_print_runtime_supports_t81_literals_and_bool() {
@@ -80,12 +80,12 @@ static void test_print_runtime_supports_t81_literals_and_bool() {
   )";
 
   const auto output = run_and_capture_prints(source);
-  assert(output.size() == 5);
-  assert(output[0] == "12");
-  assert(output[1].find("t81") != std::string::npos);
-  assert(output[2] == "22/7t81");
-  assert(output[3] == "true");
-  assert(output[4] == "false");
+  T81_TEST_CHECK(output.size() == 5);
+  T81_TEST_CHECK(output[0] == "12");
+  T81_TEST_CHECK(output[1].find("t81") != std::string::npos);
+  T81_TEST_CHECK(output[2] == "22/7t81");
+  T81_TEST_CHECK(output[3] == "true");
+  T81_TEST_CHECK(output[4] == "false");
 }
 
 static void test_runtime_arithmetic_for_t81_numeric_families() {
@@ -111,10 +111,10 @@ static void test_runtime_arithmetic_for_t81_numeric_families() {
   )";
 
   const auto output = run_and_capture_prints(source);
-  assert(output.size() == 3);
-  assert(output[0] == "17");
-  assert(output[1] == "0.5t81");
-  assert(output[2] == "3/1t81");
+  T81_TEST_CHECK(output.size() == 3);
+  T81_TEST_CHECK(output[0] == "17");
+  T81_TEST_CHECK(output[1] == "0.5t81");
+  T81_TEST_CHECK(output[2] == "3/1t81");
 }
 
 static void test_base81_float_parse_print_roundtrip_is_stable() {
@@ -130,13 +130,13 @@ static void test_base81_float_parse_print_roundtrip_is_stable() {
     const std::string source_a =
         "fn main() -> i32 { let x: T81Float = " + std::string(literal) + "; print(x); return 0; }";
     const auto output_a = run_and_capture_prints(source_a);
-    assert(output_a.size() == 1);
+    T81_TEST_CHECK(output_a.size() == 1);
 
     const std::string source_b =
         "fn main() -> i32 { let x: T81Float = " + output_a[0] + "; print(x); return 0; }";
     const auto output_b = run_and_capture_prints(source_b);
-    assert(output_b.size() == 1);
-    assert(output_b[0] == output_a[0]);
+    T81_TEST_CHECK(output_b.size() == 1);
+    T81_TEST_CHECK(output_b[0] == output_a[0]);
   }
 }
 

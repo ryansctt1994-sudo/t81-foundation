@@ -1,4 +1,4 @@
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <string>
 
 #include "t81/bigint.hpp"
@@ -37,16 +37,16 @@ int main() {
     auto vm = vm::make_interpreter_vm();
     vm->load_program(program);
     [[maybe_unused]] auto run = vm->run_to_halt();
-    assert(run.has_value());
+    T81_TEST_CHECK(run.has_value());
 
     [[maybe_unused]] const auto& out = vm->state().printed_output;
-    assert(out.size() == 6);
-    assert(out[0] == "42");
-    assert(out[1] == "1.25t81");
-    assert(out[2] == "22/7t81");
-    assert(out[3] == "alpha");
-    assert(out[4] == "true");
-    assert(out[5] == "false");
+    T81_TEST_CHECK(out.size() == 6);
+    T81_TEST_CHECK(out[0] == "42");
+    T81_TEST_CHECK(out[1] == "1.25t81");
+    T81_TEST_CHECK(out[2] == "22/7t81");
+    T81_TEST_CHECK(out[3] == "alpha");
+    T81_TEST_CHECK(out[4] == "true");
+    T81_TEST_CHECK(out[5] == "false");
   }
 
   {
@@ -56,8 +56,8 @@ int main() {
     auto vm = vm::make_interpreter_vm();
     vm->load_program(program);
     [[maybe_unused]] auto run = vm->run_to_halt();
-    assert(!run.has_value());
-    assert(run.error() == vm::Trap::TypeFault);
+    T81_TEST_CHECK(!run.has_value());
+    T81_TEST_CHECK(run.error() == vm::Trap::TypeFault);
   }
 
   return 0;

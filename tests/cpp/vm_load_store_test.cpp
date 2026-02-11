@@ -1,4 +1,4 @@
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <t81/vm/vm.hpp>
 #include <t81/tisc/program.hpp>
 
@@ -15,9 +15,9 @@ int main() {
   [[maybe_unused]] auto vm= vm::make_interpreter_vm();
   vm->load_program(p);
   [[maybe_unused]] auto res= vm->run_to_halt();
-  assert(res.has_value());
-  assert(vm->state().memory[5] == 7);
-  assert(vm->state().registers[1] == 7);
+  T81_TEST_CHECK(res.has_value());
+  T81_TEST_CHECK(vm->state().memory[5] == 7);
+  T81_TEST_CHECK(vm->state().registers[1] == 7);
 
   // Invalid memory should trap
   [[maybe_unused]] tisc::Program bad;
@@ -25,8 +25,8 @@ int main() {
   bad.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
   vm->load_program(bad);
   [[maybe_unused]] auto step= vm->step();
-  assert(!step.has_value());
-  assert(step.error() == vm::Trap::BoundsFault);
+  T81_TEST_CHECK(!step.has_value());
+  T81_TEST_CHECK(step.error() == vm::Trap::BoundsFault);
 
   return 0;
 }

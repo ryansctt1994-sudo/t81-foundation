@@ -1,4 +1,4 @@
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <t81/vm/vm.hpp>
 #include <t81/tisc/program.hpp>
 
@@ -12,10 +12,10 @@ int main() {
   [[maybe_unused]] auto vm= vm::make_interpreter_vm();
   vm->load_program(p);
   auto r = vm->step(); // load imm ok
-  assert(r.has_value());
+  T81_TEST_CHECK(r.has_value());
   r = vm->step();
-  assert(!r.has_value());
-  assert(r.error() == vm::Trap::BoundsFault);
+  T81_TEST_CHECK(!r.has_value());
+  T81_TEST_CHECK(r.error() == vm::Trap::BoundsFault);
 
   return 0;
 }

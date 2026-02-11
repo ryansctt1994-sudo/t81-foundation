@@ -59,13 +59,18 @@
 // ---------- Canonical v1.1 surface ----------
 #include "t81/canonical.hpp"
 
-// ---------- Modern core (spec-driven) ----------
+// ---------- Modern core (spec-driven, canonical for new code) ----------
 #include "t81/support/expected.hpp"
 #include "t81/core/base81.hpp"
 #include "t81/core/bigint.hpp"
 #include "t81/core/fraction.hpp"
 #include "t81/core/tensor.hpp"
 #include "t81/core/ids.hpp"
+
+// NOTE:
+// New code should prefer canonical numeric headers (`t81/bigint.hpp`,
+// `t81/fraction.hpp`) and `t81::v1` types. The `t81::core::{BigInt,Fraction}`
+// surface remains as a compatibility shim.
 
 // ---------- TISC ISA ----------
 #include "t81/tisc/opcodes.hpp"

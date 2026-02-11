@@ -2,7 +2,6 @@
 #include "t81/tisc/binary_io.hpp"
 #include "t81/tisc/program.hpp"
 
-#include <cassert>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
@@ -12,13 +11,23 @@
 
 namespace fs = std::filesystem;
 
+static bool expect(bool cond, const char* msg) {
+  if (!cond) {
+    std::cerr << "tisc_binary_io_determinism_test failure: " << msg << "\n";
+    return false;
+  }
+  return true;
+}
+
 static std::vector<uint8_t> read_u8(const fs::path& path) {
   std::ifstream in(path, std::ios::binary);
-  assert(in);
+  if (!expect(static_cast<bool>(in), "failed to open binary output")) {
+    return {};
+  }
   return std::vector<uint8_t>(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
 
-static void test_save_program_is_bit_stable_for_same_program() {
+static bool test_save_program_is_bit_stable_for_same_program() {
   t81::tisc::Program program;
   program.insns.push_back({t81::tisc::Opcode::LoadImm, 1, 42, 0, t81::tisc::LiteralKind::Int});
   program.insns.push_back({t81::tisc::Opcode::LoadImm, 2, 1, 0, t81::tisc::LiteralKind::Bool});
@@ -38,23 +47,37 @@ static void test_save_program_is_bit_stable_for_same_program() {
 
   const auto b1 = read_u8(f1);
   const auto b2 = read_u8(f2);
-  assert(b1 == b2);
+  if (!expect(!b1.empty() && !b2.empty(), "serialized outputs are unexpectedly empty")) {
+    return false;
+  }
+  if (!expect(b1 == b2, "binary outputs diverged for identical program")) {
+    return false;
+  }
 
   const auto h1 = t81::crypto::sha3_512_hex(b1);
   const auto h2 = t81::crypto::sha3_512_hex(b2);
-  assert(h1 == h2);
+  if (!expect(h1 == h2, "hash outputs diverged for identical program")) {
+    return false;
+  }
 
   const auto loaded = t81::tisc::load_program(f1.string());
-  assert(loaded.insns.size() == program.insns.size());
-  assert(loaded.insns[1].literal_kind == t81::tisc::LiteralKind::Bool);
+  if (!expect(loaded.insns.size() == program.insns.size(), "loaded instruction count mismatch")) {
+    return false;
+  }
+  if (!expect(loaded.insns[1].literal_kind == t81::tisc::LiteralKind::Bool, "literal kind roundtrip mismatch")) {
+    return false;
+  }
 
   std::error_code ec;
   fs::remove(f1, ec);
   fs::remove(f2, ec);
+  return true;
 }
 
 int main() {
-  test_save_program_is_bit_stable_for_same_program();
+  if (!test_save_program_is_bit_stable_for_same_program()) {
+    return 1;
+  }
   std::cout << "tisc binary io determinism test passed!\n";
   return 0;
 }

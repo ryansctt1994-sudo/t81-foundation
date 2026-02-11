@@ -255,7 +255,12 @@ public:
     return result;
   }
 
-  // Exact division (a / b) when remainder is zero. Throws otherwise.
+  // Division with legacy fast-path semantics:
+  // - throws on b == 0
+  // - returns 0 when |a| < |b|
+  // - otherwise performs exact division and throws if remainder != 0
+  //
+  // For Euclidean quotient/remainder, use t81::divmod().
   static T81BigInt div(const T81BigInt& a, const T81BigInt& b) {
     if (is_zero(b)) throw std::domain_error("BigInt div by zero");
     if (is_zero(a)) return zero();
@@ -417,6 +422,35 @@ private:
     uq = zero();
     ur = ua;
     if (cmp(ua, ub) < 0) return;
+
+    // Hot path: one-limb divisor. Use base-81 long division in O(n).
+    if (ub.d_.size() == 1) {
+      const uint16_t d = ub.d_[0];
+      if (d == 1) {
+        uq = ua;
+        ur = zero();
+        return;
+      }
+
+      uq.sign_ = Sign::Pos;
+      uq.d_.assign(ua.d_.size(), 0);
+
+      uint32_t rem = 0;
+      for (std::size_t i = ua.d_.size(); i-- > 0;) {
+        const uint32_t cur = rem * kRadix + ua.d_[i];
+        uq.d_[i] = static_cast<uint8_t>(cur / d);
+        rem = cur % d;
+      }
+
+      uq.trim_();
+      if (rem == 0) {
+        ur = zero();
+      } else {
+        ur = T81BigInt::from_i64(static_cast<int64_t>(rem));
+      }
+      return;
+    }
+
     const T81BigInt one_val = one();
 
     while (cmp(ur, ub) >= 0) {
@@ -542,3 +576,11 @@ inline T81BigInt T81BigInt::from_base81_string(std::string_view s) {
 using T243BigInt = T81BigInt;
 
 } // namespace t81
+
+// Staged namespace-convergence contract:
+// `t81::v1::T81BigInt` is currently occupied by the legacy implementation in
+// `t81/core/T81BigInt.hpp`. Expose canonical numeric entry points under
+// non-colliding names for migration.
+namespace t81::v1 {
+using CanonicalBigInt = ::t81::T81BigInt;
+}

@@ -1,6 +1,6 @@
 #include <algorithm>
-#include <cassert>
 #include <filesystem>
+#include <iostream>
 #include <span>
 #include <string>
 #include <vector>
@@ -34,10 +34,18 @@ int main() {
 
   auto write_res = driver->write_object(
       ObjectType::Blob, std::span<const std::byte>(bytes.data(), bytes.size()));
-  assert(write_res.has_value());
+  if (!write_res.has_value()) {
+    std::cerr << "canonfs_axion_trace_test failure: write_object failed\n";
+    std::filesystem::remove_all(workdir);
+    return 1;
+  }
 
   [[maybe_unused]] auto read_res= driver->read_object_bytes(write_res.value());
-  assert(read_res.has_value());
+  if (!read_res.has_value()) {
+    std::cerr << "canonfs_axion_trace_test failure: read_object_bytes failed\n";
+    std::filesystem::remove_all(workdir);
+    return 1;
+  }
 
   const auto& trace = axion_trace();
   if (!std::any_of(trace.begin(), trace.end(), [](auto& entry) {

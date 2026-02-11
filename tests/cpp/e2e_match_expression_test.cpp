@@ -6,7 +6,7 @@
 #include "t81/vm/vm.hpp"
 #include "t81/vm/state.hpp"
 
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -18,11 +18,11 @@ int64_t run_e2e_test(const std::string& source) {
     frontend::Lexer lexer(source);
     frontend::Parser parser(lexer);
     [[maybe_unused]] auto stmts= parser.parse();
-    assert(!parser.had_error());
+    T81_TEST_CHECK(!parser.had_error());
 
     frontend::SemanticAnalyzer analyzer(stmts);
     analyzer.analyze();
-    assert(!analyzer.had_error());
+    T81_TEST_CHECK(!analyzer.had_error());
 
     [[maybe_unused]] frontend::IRGenerator ir_gen;
     ir_gen.attach_semantic_analyzer(&analyzer);
@@ -51,7 +51,7 @@ int main() {
     )";
 
     [[maybe_unused]] int64_t result= run_e2e_test(match_test_source);
-    assert(result == 123);
+    T81_TEST_CHECK(result == 123);
 
     std::cout << "E2E match expression test passed!" << std::endl;
     return 0;

@@ -1,4 +1,4 @@
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <t81/vm/vm.hpp>
 #include <t81/tisc/program.hpp>
 
@@ -15,10 +15,10 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(p);
     [[maybe_unused]] auto r= vm->run_to_halt();
-    assert(r.has_value());
-    assert(vm->state().registers[1] == -42);
-    assert(vm->state().flags.negative);
-    assert(!vm->state().flags.zero);
+    T81_TEST_CHECK(r.has_value());
+    T81_TEST_CHECK(vm->state().registers[1] == -42);
+    T81_TEST_CHECK(vm->state().flags.negative);
+    T81_TEST_CHECK(!vm->state().flags.zero);
   }
 
   // Test JumpIfNegative opcode.
@@ -34,8 +34,8 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(p);
     [[maybe_unused]] auto r= vm->run_to_halt();
-    assert(r.has_value());
-    assert(vm->state().registers[1] == 0);
+    T81_TEST_CHECK(r.has_value());
+    T81_TEST_CHECK(vm->state().registers[1] == 0);
   }
 
   // Test JumpIfPositive opcode.
@@ -51,8 +51,8 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(p);
     [[maybe_unused]] auto r= vm->run_to_halt();
-    assert(r.has_value());
-    assert(vm->state().registers[1] == 0);
+    T81_TEST_CHECK(r.has_value());
+    T81_TEST_CHECK(vm->state().registers[1] == 0);
   }
 
   // Test JumpIfNegative fall-through.
@@ -68,8 +68,8 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(p);
     [[maybe_unused]] auto r= vm->run_to_halt();
-    assert(r.has_value());
-    assert(vm->state().registers[1] == 99);
+    T81_TEST_CHECK(r.has_value());
+    T81_TEST_CHECK(vm->state().registers[1] == 99);
   }
 
   // Test JumpIfPositive fall-through.
@@ -85,8 +85,8 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(p);
     [[maybe_unused]] auto r= vm->run_to_halt();
-    assert(r.has_value());
-    assert(vm->state().registers[1] == 99);
+    T81_TEST_CHECK(r.has_value());
+    T81_TEST_CHECK(vm->state().registers[1] == 99);
   }
 
   // Test chained Neg and JumpIfNegative.
@@ -101,8 +101,8 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(p);
     [[maybe_unused]] auto r= vm->run_to_halt();
-    assert(r.has_value());
-    assert(vm->state().registers[1] == 0);
+    T81_TEST_CHECK(r.has_value());
+    T81_TEST_CHECK(vm->state().registers[1] == 0);
   }
 
   return 0;

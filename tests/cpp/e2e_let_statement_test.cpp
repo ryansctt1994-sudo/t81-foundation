@@ -3,7 +3,7 @@
 #include "t81/frontend/parser.hpp"
 #include "t81/tisc/binary_emitter.hpp"
 #include "t81/vm/vm.hpp"
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <iostream>
 #include <vector>
 
@@ -13,7 +13,7 @@ void test_let_statement_e2e() {
     t81::frontend::Parser parser(lexer);
     [[maybe_unused]] auto stmts= parser.parse();
 
-    assert(!parser.had_error() && "Parsing failed");
+    T81_TEST_CHECK(!parser.had_error() && "Parsing failed");
 
     [[maybe_unused]] t81::frontend::IRGenerator generator;
     [[maybe_unused]] auto ir_program= generator.generate(stmts);
@@ -26,7 +26,7 @@ void test_let_statement_e2e() {
     vm->run_to_halt();
 
     // Per TISC calling convention, the return value is in R0.
-    assert(vm->state().registers[0] == 42 && "VM register R0 has incorrect value");
+    T81_TEST_CHECK(vm->state().registers[0] == 42 && "VM register R0 has incorrect value");
 
     std::cout << "E2ETest test_let_statement_e2e passed!" << std::endl;
 }

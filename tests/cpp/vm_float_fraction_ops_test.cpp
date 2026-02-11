@@ -1,4 +1,4 @@
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <cmath>
 
 #include "t81/bigint.hpp"
@@ -20,8 +20,12 @@ int main() {
   {
     [[maybe_unused]] tisc::Program program;
     program.float_pool = {1.5, -0.5};
-    program.insns.push_back({tisc::Opcode::LoadImm, 1, 1, 0});
-    program.insns.push_back({tisc::Opcode::LoadImm, 2, 2, 0});
+    tisc::Insn f1{tisc::Opcode::LoadImm, 1, 1, 0};
+    f1.literal_kind = tisc::LiteralKind::FloatHandle;
+    program.insns.push_back(f1);
+    tisc::Insn f2{tisc::Opcode::LoadImm, 2, 2, 0};
+    f2.literal_kind = tisc::LiteralKind::FloatHandle;
+    program.insns.push_back(f2);
     program.insns.push_back({tisc::Opcode::FAdd, 3, 1, 2});
     program.insns.push_back({tisc::Opcode::FSub, 4, 1, 2});
     program.insns.push_back({tisc::Opcode::FMul, 5, 1, 2});
@@ -31,38 +35,46 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(program);
     [[maybe_unused]] auto run= vm->run_to_halt();
-    assert(run.has_value());
+    T81_TEST_CHECK(run.has_value());
     const auto& floats = vm->state().floats;
-    assert(floats.size() == 6);
+    T81_TEST_CHECK(floats.size() == 6);
     auto nearly_equal = [](double lhs, double rhs) {
       return std::fabs(lhs - rhs) < 1e-12;
     };
-    assert(nearly_equal(floats[2], 1.0));    // FAdd
-    assert(nearly_equal(floats[3], 2.0));    // FSub
-    assert(nearly_equal(floats[4], -0.75));  // FMul
-    assert(nearly_equal(floats[5], -3.0));   // FDiv
+    T81_TEST_CHECK(nearly_equal(floats[2], 1.0));    // FAdd
+    T81_TEST_CHECK(nearly_equal(floats[3], 2.0));    // FSub
+    T81_TEST_CHECK(nearly_equal(floats[4], -0.75));  // FMul
+    T81_TEST_CHECK(nearly_equal(floats[5], -3.0));   // FDiv
   }
 
   // Float divide-by-zero traps.
   {
     [[maybe_unused]] tisc::Program program;
     program.float_pool = {1.0, 0.0};
-    program.insns.push_back({tisc::Opcode::LoadImm, 1, 1, 0});
-    program.insns.push_back({tisc::Opcode::LoadImm, 2, 2, 0});
+    tisc::Insn f1{tisc::Opcode::LoadImm, 1, 1, 0};
+    f1.literal_kind = tisc::LiteralKind::FloatHandle;
+    program.insns.push_back(f1);
+    tisc::Insn f2{tisc::Opcode::LoadImm, 2, 2, 0};
+    f2.literal_kind = tisc::LiteralKind::FloatHandle;
+    program.insns.push_back(f2);
     program.insns.push_back({tisc::Opcode::FDiv, 3, 1, 2});
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(program);
     [[maybe_unused]] auto run= vm->run_to_halt();
-    assert(!run.has_value());
-    assert(run.error() == vm::Trap::DivisionFault);
+    T81_TEST_CHECK(!run.has_value());
+    T81_TEST_CHECK(run.error() == vm::Trap::DivisionFault);
   }
 
   // Fraction opcodes mirror float behavior.
   {
     [[maybe_unused]] tisc::Program program;
     program.fraction_pool = {make_fraction(1, 2), make_fraction(2, 3)};
-    program.insns.push_back({tisc::Opcode::LoadImm, 1, 1, 0});
-    program.insns.push_back({tisc::Opcode::LoadImm, 2, 2, 0});
+    tisc::Insn q1{tisc::Opcode::LoadImm, 1, 1, 0};
+    q1.literal_kind = tisc::LiteralKind::FractionHandle;
+    program.insns.push_back(q1);
+    tisc::Insn q2{tisc::Opcode::LoadImm, 2, 2, 0};
+    q2.literal_kind = tisc::LiteralKind::FractionHandle;
+    program.insns.push_back(q2);
     program.insns.push_back({tisc::Opcode::FracAdd, 3, 1, 2});
     program.insns.push_back({tisc::Opcode::FracSub, 4, 1, 2});
     program.insns.push_back({tisc::Opcode::FracMul, 5, 1, 2});
@@ -72,27 +84,31 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(program);
     [[maybe_unused]] auto run= vm->run_to_halt();
-    assert(run.has_value());
+    T81_TEST_CHECK(run.has_value());
     const auto& fracs = vm->state().fractions;
-    assert(fracs.size() == 6);
-    assert(fracs[2].num.to_int64() == 7 && fracs[2].den.to_int64() == 6);   // add
-    assert(fracs[3].num.to_int64() == -1 && fracs[3].den.to_int64() == 6);  // sub
-    assert(fracs[4].num.to_int64() == 1 && fracs[4].den.to_int64() == 3);   // mul
-    assert(fracs[5].num.to_int64() == 3 && fracs[5].den.to_int64() == 4);   // div
+    T81_TEST_CHECK(fracs.size() == 6);
+    T81_TEST_CHECK(fracs[2].num.to_int64() == 7 && fracs[2].den.to_int64() == 6);   // add
+    T81_TEST_CHECK(fracs[3].num.to_int64() == -1 && fracs[3].den.to_int64() == 6);  // sub
+    T81_TEST_CHECK(fracs[4].num.to_int64() == 1 && fracs[4].den.to_int64() == 3);   // mul
+    T81_TEST_CHECK(fracs[5].num.to_int64() == 3 && fracs[5].den.to_int64() == 4);   // div
   }
 
   // Fraction divide-by-zero traps.
   {
     [[maybe_unused]] tisc::Program program;
     program.fraction_pool = {make_fraction(1, 2), make_fraction(0, 1)};
-    program.insns.push_back({tisc::Opcode::LoadImm, 1, 1, 0});
-    program.insns.push_back({tisc::Opcode::LoadImm, 2, 2, 0});
+    tisc::Insn q1{tisc::Opcode::LoadImm, 1, 1, 0};
+    q1.literal_kind = tisc::LiteralKind::FractionHandle;
+    program.insns.push_back(q1);
+    tisc::Insn q2{tisc::Opcode::LoadImm, 2, 2, 0};
+    q2.literal_kind = tisc::LiteralKind::FractionHandle;
+    program.insns.push_back(q2);
     program.insns.push_back({tisc::Opcode::FracDiv, 3, 1, 2});
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(program);
     [[maybe_unused]] auto run= vm->run_to_halt();
-    assert(!run.has_value());
-    assert(run.error() == vm::Trap::DivisionFault);
+    T81_TEST_CHECK(!run.has_value());
+    T81_TEST_CHECK(run.error() == vm::Trap::DivisionFault);
   }
 
   // Float comparisons influence flags.
@@ -108,9 +124,9 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(program);
     [[maybe_unused]] auto run= vm->run_to_halt();
-    assert(run.has_value());
-    assert(vm->state().flags.zero == false);
-    assert(vm->state().flags.negative == true);
+    T81_TEST_CHECK(run.has_value());
+    T81_TEST_CHECK(vm->state().flags.zero == false);
+    T81_TEST_CHECK(vm->state().flags.negative == true);
   }
 
   // Fraction comparisons influence flags.
@@ -126,9 +142,9 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(program);
     [[maybe_unused]] auto run= vm->run_to_halt();
-    assert(run.has_value());
-    assert(vm->state().flags.zero == false);
-    assert(vm->state().flags.negative == false);
+    T81_TEST_CHECK(run.has_value());
+    T81_TEST_CHECK(vm->state().flags.zero == false);
+    T81_TEST_CHECK(vm->state().flags.negative == false);
   }
 
   return 0;

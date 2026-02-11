@@ -1,10 +1,18 @@
-#include <cassert>
 #include <t81/vm/vm.hpp>
 #include <t81/tisc/program.hpp>
+#include <iostream>
 
 using namespace t81;
 
 int main() {
+  auto expect = [](bool cond, const char* msg) -> bool {
+    if (!cond) {
+      std::cerr << "vm_jump_flags_test failure: " << msg << "\n";
+      return false;
+    }
+    return true;
+  };
+
   // Branch taken when zero; ensures flags and PC update match spec intent.
   {
     [[maybe_unused]] tisc::Program p;
@@ -20,12 +28,12 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(p);
     [[maybe_unused]] auto r= vm->run_to_halt();
-    assert(r.has_value());
+    if (!expect(r.has_value(), "zero-branch run unexpectedly trapped")) return 1;
     // r1 should remain zero because branch skipped pc2.
-    assert(vm->state().registers[1] == 0);
+    if (!expect(vm->state().registers[1] == 0, "zero-branch did not skip pc2")) return 1;
     // zero flag should reflect last result (from LoadImm r0 = 0).
-    assert(vm->state().flags.zero);
-    assert(!vm->state().flags.negative);
+    if (!expect(vm->state().flags.zero, "zero flag not set")) return 1;
+    if (!expect(!vm->state().flags.negative, "negative flag unexpectedly set")) return 1;
   }
 
   // Invalid jump target should trap and be logged.
@@ -36,10 +44,10 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(p);
     [[maybe_unused]] auto r= vm->step();
-    assert(!r.has_value());
-    assert(r.error() == vm::Trap::DecodeFault);
-    assert(!vm->state().trace.empty());
-    assert(vm->state().trace.back().trap.has_value());
+    if (!expect(!r.has_value(), "invalid jump did not trap")) return 1;
+    if (!expect(r.error() == vm::Trap::DecodeFault, "invalid jump trap type mismatch")) return 1;
+    if (!expect(!vm->state().trace.empty(), "trace missing after invalid jump")) return 1;
+    if (!expect(vm->state().trace.back().trap.has_value(), "last trace missing trap marker")) return 1;
   }
 
   // Jump-if-nonzero should branch.
@@ -52,8 +60,8 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(p);
     [[maybe_unused]] auto r= vm->run_to_halt();
-    assert(r.has_value());
-    assert(vm->state().registers[1] == 0);
+    if (!expect(r.has_value(), "nonzero-branch run unexpectedly trapped")) return 1;
+    if (!expect(vm->state().registers[1] == 0, "nonzero-branch did not skip pc2")) return 1;
   }
 
   // Call/Ret stack handling and Trap instruction.
@@ -69,10 +77,10 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(p);
     [[maybe_unused]] auto r= vm->run_to_halt();
-    assert(!r.has_value());
-    assert(r.error() == vm::Trap::TrapInstruction);
-    assert(vm->state().registers[1] == 42);
-    assert(vm->state().registers[2] == 7);
+    if (!expect(!r.has_value(), "Trap instruction did not fault")) return 1;
+    if (!expect(r.error() == vm::Trap::TrapInstruction, "Trap instruction fault type mismatch")) return 1;
+    if (!expect(vm->state().registers[1] == 42, "call body register value mismatch")) return 1;
+    if (!expect(vm->state().registers[2] == 7, "post-return register value mismatch")) return 1;
   }
 
   return 0;

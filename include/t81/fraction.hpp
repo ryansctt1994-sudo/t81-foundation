@@ -108,3 +108,10 @@ private:
 };
 
 } // namespace t81
+
+// Staged namespace-convergence contract:
+// keep canonical fraction available in `t81::v1` under a non-colliding name
+// while legacy `t81::v1::T81Fraction` remains supported.
+namespace t81::v1 {
+using CanonicalFraction = ::t81::T81Fraction;
+}

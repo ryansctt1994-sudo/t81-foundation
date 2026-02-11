@@ -1,10 +1,18 @@
-#include <cassert>
 #include <t81/vm/vm.hpp>
 #include <t81/tisc/program.hpp>
+#include <iostream>
 
 using namespace t81;
 
 int main() {
+  auto expect = [](bool cond, const char* msg) -> bool {
+    if (!cond) {
+      std::cerr << "vm_trace_test failure: " << msg << "\n";
+      return false;
+    }
+    return true;
+  };
+
   [[maybe_unused]] tisc::Program p;
   for (int i = 0; i < 80; ++i) {
     p.insns.push_back({tisc::Opcode::Nop, 0, 0, 0});
@@ -16,18 +24,18 @@ int main() {
   [[maybe_unused]] auto vm= vm::make_interpreter_vm();
   vm->load_program(p);
   [[maybe_unused]] auto r1= vm->step();
-  assert(r1.has_value());
+  if (!expect(r1.has_value(), "first step unexpectedly trapped")) return 1;
   std::expected<void, vm::Trap> r2;
   while (true) {
     r2 = vm->step();
     if (!r2.has_value()) break;
   }
-  assert(r2.error() == vm::Trap::DecodeFault);
-  assert(!vm->state().trace.empty());
+  if (!expect(r2.error() == vm::Trap::BoundsFault, "expected BoundsFault trap")) return 1;
+  if (!expect(!vm->state().trace.empty(), "trace buffer unexpectedly empty")) return 1;
   [[maybe_unused]] auto last= vm->state().trace.back();
-  assert(last.trap.has_value());
-  assert(vm->state().policy.has_value());
-  assert(vm->state().policy->tier == 2);
-  assert(vm->state().gc_cycles > 0);
+  if (!expect(last.trap.has_value(), "last trace entry missing trap marker")) return 1;
+  if (!expect(vm->state().policy.has_value(), "policy metadata missing")) return 1;
+  if (!expect(vm->state().policy->tier == 2, "unexpected loaded policy tier")) return 1;
+  if (!expect(vm->state().gc_cycles > 0, "GC cycle counter did not advance")) return 1;
   return 0;
 }

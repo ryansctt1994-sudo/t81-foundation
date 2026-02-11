@@ -164,28 +164,46 @@ class Interpreter : public IVirtualMachine {
                            static_cast<std::int64_t>(trace_pc),
                            enter_event);
 
-        const std::size_t executed = trace_it->second->execute(state_);
-        instruction_count_ += executed;
+        const auto exec_result = trace_it->second->execute(state_);
+        instruction_count_ += exec_result.instructions_executed;
 
         t81::axion::Verdict exit_event{t81::axion::VerdictKind::Allow, ""};
         {
           std::ostringstream reason;
-          reason << t81::axion::reasons::kJitTraceExit
+          const bool deopt = exec_result.exit_kind == JitTrace::ExitKind::GuardDeopt;
+          reason << (deopt ? t81::axion::reasons::kJitTraceDeopt
+                           : t81::axion::reasons::kJitTraceExit)
                  << " pc=" << state_.pc
-                 << " executed=" << executed;
+                 << " executed=" << exec_result.instructions_executed
+                 << " exit-kind=";
+          switch (exec_result.exit_kind) {
+            case JitTrace::ExitKind::Completed: reason << "completed"; break;
+            case JitTrace::ExitKind::Branch: reason << "branch"; break;
+            case JitTrace::ExitKind::GuardDeopt: reason << "guard-deopt"; break;
+          }
           exit_event.reason = reason.str();
         }
         record_axion_event(t81::tisc::Opcode::Nop,
-                           static_cast<std::int32_t>(executed),
+                           static_cast<std::int32_t>(exec_result.instructions_executed),
                            static_cast<std::int64_t>(state_.pc),
                            exit_event);
 
-        auto exit = eval_axion_call(t81::axion::reasons::kJitTraceExit, state_.pc, first_opcode);
+        const auto exit_reason =
+            exec_result.exit_kind == JitTrace::ExitKind::GuardDeopt
+                ? t81::axion::reasons::kJitTraceDeopt
+                : t81::axion::reasons::kJitTraceExit;
+        auto exit = eval_axion_call(exit_reason, state_.pc, first_opcode);
         if (exit.kind == t81::axion::VerdictKind::Deny) {
           return std::expected<void, Trap>(t81::unexpect, Trap::SecurityFault);
         }
 
-        return {};
+        if (exec_result.exit_kind != JitTrace::ExitKind::GuardDeopt) {
+          return {};
+        }
+
+        // Guard deopt: invalidate the trace at this entry and continue with
+        // interpreter execution from the resumed PC in this same step.
+        compiled_traces_.erase(trace_pc);
     }
 
     if (state_.pc >= program_.insns.size()) {
@@ -213,9 +231,10 @@ class Interpreter : public IVirtualMachine {
     if (jit_compiler_.is_tracing()) {
         jit_compiler_.record_instruction(insn);
         if (!jit_compiler_.is_tracing()) {
+            const auto trace_start_pc = jit_compiler_.trace_start_pc();
             auto trace = jit_compiler_.compile();
             if (trace) {
-                compiled_traces_[current_pc] = std::move(trace);
+                compiled_traces_[trace_start_pc] = std::move(trace);
             }
         }
     }

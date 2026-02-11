@@ -53,6 +53,7 @@ constexpr std::string_view kAxSet = "AXSET";
 constexpr std::string_view kAxVerify = "AXVERIFY";
 constexpr std::string_view kJitTraceEnter = "jit trace enter";
 constexpr std::string_view kJitTraceExit = "jit trace exit";
+constexpr std::string_view kJitTraceDeopt = "jit trace deopt";
 constexpr std::string_view kEnumGuard = "enum guard";
 constexpr std::string_view kEnumPayload = "enum payload";
 constexpr std::string_view kMetaSlotAxionEvent = "axion event";

@@ -2,7 +2,6 @@
 #include "t81/tisc/opcodes.hpp"
 #include "t81/vm/vm.hpp"
 
-#include <cassert>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -58,7 +57,10 @@ int main() {
     [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
     vm->load_program(program);
     [[maybe_unused]] auto result= vm->run_to_halt();
-    assert(result.has_value());
+    if (!result.has_value()) {
+        std::cerr << "axion_segment_trace_test failure: vm run trapped\n";
+        return 1;
+    }
 
     [[maybe_unused]] bool saw_tensor= false;
     [[maybe_unused]] bool saw_axread= false;
@@ -80,7 +82,15 @@ int main() {
             saw_meta = true;
         }
     }
-    assert(saw_tensor); assert(saw_axread); assert(saw_axset); assert(saw_meta); std::cout << "Axion segment trace snippet:\n";
+    if (!saw_tensor || !saw_axread || !saw_axset || !saw_meta) {
+        std::cerr << "axion_segment_trace_test failure: missing expected axion segment events"
+                  << " tensor=" << saw_tensor
+                  << " axread=" << saw_axread
+                  << " axset=" << saw_axset
+                  << " meta=" << saw_meta << "\n";
+        return 1;
+    }
+    std::cout << "Axion segment trace snippet:\n";
     for (const auto& entry : vm->state().axion_log) {
         std::cout << "  opcode=" << static_cast<int>(entry.opcode)
                   << " reason=\"" << entry.verdict.reason << "\"\n";

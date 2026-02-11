@@ -200,6 +200,33 @@ if(T81_BUILD_TESTS)
   add_executable(t81_fraction_test tests/cpp/fraction_roundtrip.cpp)
   target_link_libraries(t81_fraction_test PRIVATE t81_core)
 
+  add_executable(t81_bigint_properties_test tests/cpp/bigint_properties_test.cpp)
+  target_link_libraries(t81_bigint_properties_test PRIVATE t81_core)
+
+  add_executable(t81_bigint_division_edge_properties_test tests/cpp/bigint_division_edge_properties_test.cpp)
+  target_link_libraries(t81_bigint_division_edge_properties_test PRIVATE t81_core)
+
+  add_executable(t81_bigint_division_semantics_test tests/cpp/bigint_division_semantics_test.cpp)
+  target_link_libraries(t81_bigint_division_semantics_test PRIVATE t81_core)
+
+  add_executable(t81_bigint_gcd_divmod_property_test tests/cpp/bigint_gcd_divmod_property_test.cpp)
+  target_link_libraries(t81_bigint_gcd_divmod_property_test PRIVATE t81_core)
+
+  add_executable(t81_fraction_properties_test tests/cpp/fraction_properties_test.cpp)
+  target_link_libraries(t81_fraction_properties_test PRIVATE t81_core)
+
+  add_executable(t81_core_numeric_compat_test tests/cpp/core_numeric_compat_test.cpp)
+  target_link_libraries(t81_core_numeric_compat_test PRIVATE t81_core)
+
+  add_executable(t81_core_bigint_compat_properties_test tests/cpp/core_bigint_compat_properties_test.cpp)
+  target_link_libraries(t81_core_bigint_compat_properties_test PRIVATE t81_core)
+
+  add_executable(t81_core_fraction_compat_properties_test tests/cpp/core_fraction_compat_properties_test.cpp)
+  target_link_libraries(t81_core_fraction_compat_properties_test PRIVATE t81_core)
+
+  add_executable(t81_v1_canonical_numeric_contract_test tests/cpp/v1_canonical_numeric_contract_test.cpp)
+  target_link_libraries(t81_v1_canonical_numeric_contract_test PRIVATE t81_core)
+
   add_executable(t81_tensor_transpose_test tests/cpp/tensor_transpose_test.cpp)
   target_link_libraries(t81_tensor_transpose_test PRIVATE t81_core)
 
@@ -355,6 +382,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_trace_test tests/cpp/vm_trace_test.cpp)
   target_link_libraries(t81_vm_trace_test PRIVATE t81_core)
 
+  add_executable(t81_vm_determinism_property_test tests/cpp/vm_determinism_property_test.cpp)
+  target_link_libraries(t81_vm_determinism_property_test PRIVATE t81_core)
+
   add_executable(vm_extended_ops_test tests/cpp/vm_extended_ops_test.cpp)
   target_link_libraries(vm_extended_ops_test PRIVATE t81_core)
 
@@ -417,6 +447,8 @@ if(T81_BUILD_TESTS)
 
   add_executable(t81_tisc_binary_io_determinism_test tests/cpp/tisc_binary_io_determinism_test.cpp)
   target_link_libraries(t81_tisc_binary_io_determinism_test PRIVATE t81_tisc t81_core)
+  add_executable(t81_tisc_binary_metadata_roundtrip_property_test tests/cpp/tisc_binary_metadata_roundtrip_property_test.cpp)
+  target_link_libraries(t81_tisc_binary_metadata_roundtrip_property_test PRIVATE t81_tisc t81_core)
 
   add_executable(t81_semantic_analyzer_loop_test tests/cpp/semantic_analyzer_loop_test.cpp)
   target_link_libraries(t81_semantic_analyzer_loop_test PRIVATE t81_frontend)
@@ -665,6 +697,15 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_t81int_test
     t81_bigint_test
     t81_fraction_test
+    t81_bigint_properties_test
+    t81_bigint_division_edge_properties_test
+    t81_bigint_division_semantics_test
+    t81_bigint_gcd_divmod_property_test
+    t81_fraction_properties_test
+    t81_core_numeric_compat_test
+    t81_core_bigint_compat_properties_test
+    t81_core_fraction_compat_properties_test
+    t81_v1_canonical_numeric_contract_test
     t81_complex_test
     t81_prob_test
     t81_symbol_test
@@ -728,6 +769,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_canonfs_driver_test
     t81_weights_load_test
     t81_vm_trace_test
+    t81_vm_determinism_property_test
     vm_extended_ops_test
     llama_kernels_test
     t81_vm_jump_flags_test
@@ -758,7 +800,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_tisc_binary_emitter_test
     t81_tisc_type_alias_io_test
     t81_tisc_binary_io_determinism_test
+    t81_tisc_binary_metadata_roundtrip_property_test
     e2e_option_result_test
+    e2e_option_result_function_test
     e2e_option_type_test
     e2e_match_expression_test
     e2e_loop_statement_test
@@ -806,6 +850,41 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     add_test(NAME ${tgt} COMMAND $<TARGET_FILE:${tgt}>)
   endforeach()
   add_test(NAME t81_cli_repro_hash_test COMMAND $<TARGET_FILE:cli_repro_hash_test> $<TARGET_FILE:t81>)
+  add_test(
+    NAME t81_legacy_core_numeric_include_policy_test
+    COMMAND python3 ${CMAKE_SOURCE_DIR}/tests/ci/check_legacy_core_numeric_includes_test.py
+  )
+  set_tests_properties(t81_legacy_core_numeric_include_policy_test PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  )
+  add_test(
+    NAME t81_legacy_core_numeric_type_usage_policy_test
+    COMMAND python3 ${CMAKE_SOURCE_DIR}/tests/ci/check_legacy_core_numeric_type_usage_test.py
+  )
+  set_tests_properties(t81_legacy_core_numeric_type_usage_policy_test PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  )
+  add_test(
+    NAME t81_legacy_v1_numeric_include_policy_test
+    COMMAND python3 ${CMAKE_SOURCE_DIR}/tests/ci/check_legacy_v1_numeric_includes_test.py
+  )
+  set_tests_properties(t81_legacy_v1_numeric_include_policy_test PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  )
+  add_test(
+    NAME t81_core_numeric_wrapper_thinness_policy_test
+    COMMAND python3 ${CMAKE_SOURCE_DIR}/tests/ci/check_core_numeric_wrapper_thinness_test.py
+  )
+  set_tests_properties(t81_core_numeric_wrapper_thinness_policy_test PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  )
+  add_test(
+    NAME t81_v1_canonical_numeric_alias_usage_policy_test
+    COMMAND python3 ${CMAKE_SOURCE_DIR}/tests/ci/check_v1_canonical_numeric_alias_usage_test.py
+  )
+  set_tests_properties(t81_v1_canonical_numeric_alias_usage_policy_test PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  )
 endif()
 
 # =============================================================================

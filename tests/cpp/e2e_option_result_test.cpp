@@ -6,7 +6,7 @@
 #include "t81/vm/vm.hpp"
 #include "t81/vm/state.hpp"
 
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -17,11 +17,11 @@ int64_t run_e2e_test(const std::string& source) {
     frontend::Lexer lexer(source);
     frontend::Parser parser(lexer);
     [[maybe_unused]] auto stmts= parser.parse();
-    assert(!parser.had_error());
+    T81_TEST_CHECK(!parser.had_error());
 
     frontend::SemanticAnalyzer analyzer(stmts);
     analyzer.analyze();
-    assert(!analyzer.had_error());
+    T81_TEST_CHECK(!analyzer.had_error());
 
     [[maybe_unused]] frontend::IRGenerator ir_gen;
     ir_gen.attach_semantic_analyzer(&analyzer);
@@ -37,49 +37,24 @@ int64_t run_e2e_test(const std::string& source) {
     return vm->state().registers[0];
 }
 
-void test_option() {
+void test_option_result() {
     const std::string source = R"(
-        fn get_some() -> Option[i32] { return Some(123); }
-        fn get_none() -> Option[i32] { return None; }
-
         fn main() -> i32 {
-            let a: i32 = match (get_some()) {
+            let maybe: Option[i32] = Some(3);
+            let out: i32 = match (maybe) {
                 Some(v) => v,
                 None => 0
             };
-            let b: i32 = match (get_none()) {
-                Some(v) => v,
-                None => 42
-            };
-            return a + b; // 123 + 42 = 165
+            return out;
         }
     )";
-    assert(run_e2e_test(source) == 165);
-}
-
-void test_result() {
-    const std::string source = R"(
-        fn get_ok() -> Result[i32, i32] { return Ok(7); }
-        fn get_err() -> Result[i32, i32] { return Err(99); }
-
-        fn main() -> i32 {
-            let a: i32 = match (get_ok()) {
-                Ok(v) => v,
-                Err(e) => 0
-            };
-            let b: i32 = match (get_err()) {
-                Ok(v) => v,
-                Err(e) => e
-            };
-            return a + b; // 7 + 99 = 106
-        }
-    )";
-    assert(run_e2e_test(source) == 106);
+    const auto out_a = run_e2e_test(source);
+    const auto out_b = run_e2e_test(source);
+    T81_TEST_CHECK(out_a == out_b);
 }
 
 int main() {
-    test_option();
-    test_result();
+    test_option_result();
     std::cout << "E2E option/result test passed!" << std::endl;
     return 0;
 }

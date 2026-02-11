@@ -1,4 +1,3 @@
-#include <cassert>
 #include <cctype>
 #include <cstdlib>
 #include <filesystem>
@@ -17,6 +16,14 @@ static bool is_hex_hash(const std::string& value) {
 }
 
 int main(int argc, char* argv[]) {
+  auto expect = [](bool cond, const char* msg) -> bool {
+    if (!cond) {
+      std::cerr << "cli_repro_hash_test failure: " << msg << "\n";
+      return false;
+    }
+    return true;
+  };
+
   if (argc < 2) {
     std::cerr << "cli_repro_hash_test expects argv[1]=path to t81 binary\n";
     return 1;
@@ -37,7 +44,7 @@ int main(int argc, char* argv[]) {
   }
 
   std::ifstream in(out_path);
-  assert(in && "expected repro hash output file");
+  if (!expect(static_cast<bool>(in), "expected repro hash output file")) return 1;
   std::string line;
   std::string last_non_empty;
   while (std::getline(in, line)) {

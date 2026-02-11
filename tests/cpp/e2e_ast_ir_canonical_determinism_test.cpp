@@ -8,7 +8,7 @@
 
 #include <algorithm>
 #include <array>
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
@@ -500,7 +500,7 @@ void test_ast_ir_compile_repeat_hash_gate() {
     }
   }
   std::sort(fixtures.begin(), fixtures.end());
-  assert(!fixtures.empty());
+  T81_TEST_CHECK(!fixtures.empty());
 
   std::ostringstream aggregate;
   aggregate << "t81lang-ast-ir-canon-v1\n";
@@ -509,8 +509,8 @@ void test_ast_ir_compile_repeat_hash_gate() {
     const std::string source = read_text(fixture);
     const auto pass_a = compile_to_canon(source, fixture.string());
     const auto pass_b = compile_to_canon(source, fixture.string());
-    assert(pass_a.ast == pass_b.ast);
-    assert(pass_a.ir == pass_b.ir);
+    T81_TEST_CHECK(pass_a.ast == pass_b.ast);
+    T81_TEST_CHECK(pass_a.ir == pass_b.ir);
 
     const auto ast_hash = crypto::sha3_512_hex(as_u8(pass_a.ast));
     const auto ir_hash = crypto::sha3_512_hex(as_u8(pass_a.ir));

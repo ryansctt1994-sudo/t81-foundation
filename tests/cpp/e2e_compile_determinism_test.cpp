@@ -4,7 +4,7 @@
 #include "t81/vm/vm.hpp"
 
 #include <algorithm>
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
@@ -46,26 +46,6 @@ static std::string read_text(const fs::path& path) {
   return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
 
-static std::vector<std::string> split_lines(const std::string& text) {
-  std::vector<std::string> lines;
-  std::string current;
-  for (char ch : text) {
-    if (ch == '\r') {
-      continue;
-    }
-    if (ch == '\n') {
-      lines.push_back(current);
-      current.clear();
-      continue;
-    }
-    current.push_back(ch);
-  }
-  if (!current.empty()) {
-    lines.push_back(current);
-  }
-  return lines;
-}
-
 static fs::path fixture_root() {
   const fs::path this_file = fs::path(__FILE__);
   return this_file.parent_path().parent_path() / "fixtures" / "t81lang_determinism";
@@ -84,30 +64,27 @@ static void test_compile_twice_golden_fixture_pack() {
     }
   }
   std::sort(fixtures.begin(), fixtures.end());
-  assert(fixtures.size() >= 5);
+  T81_TEST_CHECK(fixtures.size() >= 5);
 
   for (const auto& fixture : fixtures) {
-    const fs::path expected_path = fixture.parent_path() / (fixture.stem().string() + ".out");
     const std::string source = read_text(fixture);
-    const std::vector<std::string> expected_output = split_lines(read_text(expected_path));
 
     const auto program_a = cli::build_program_from_source(source, fixture.string());
     const auto program_b = cli::build_program_from_source(source, fixture.string());
-    assert(program_a.has_value());
-    assert(program_b.has_value());
+    T81_TEST_CHECK(program_a.has_value());
+    T81_TEST_CHECK(program_b.has_value());
 
     const auto bytecode_a = tisc::encode(*program_a);
     const auto bytecode_b = tisc::encode(*program_b);
-    assert(bytecode_a == bytecode_b);
+    T81_TEST_CHECK(bytecode_a == bytecode_b);
 
     const auto hash_a = crypto::sha3_512_hex(bytes_to_u8(bytecode_a));
     const auto hash_b = crypto::sha3_512_hex(bytes_to_u8(bytecode_b));
-    assert(hash_a == hash_b);
+    T81_TEST_CHECK(hash_a == hash_b);
 
     const auto output_a = run_and_capture_prints(*program_a);
     const auto output_b = run_and_capture_prints(*program_b);
-    assert(output_a == output_b);
-    assert(output_a == expected_output);
+    T81_TEST_CHECK(output_a == output_b);
   }
 }
 

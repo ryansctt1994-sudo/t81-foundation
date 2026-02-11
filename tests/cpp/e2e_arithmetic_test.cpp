@@ -3,7 +3,7 @@
 #include "t81/frontend/parser.hpp"
 #include "t81/tisc/binary_emitter.hpp"
 #include "t81/vm/vm.hpp"
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <iostream>
 
 void test_addition() {
@@ -12,7 +12,7 @@ void test_addition() {
     t81::frontend::Parser parser(lexer);
     [[maybe_unused]] auto stmts= parser.parse();
 
-    assert(!parser.had_error() && "Parsing failed");
+    T81_TEST_CHECK(!parser.had_error() && "Parsing failed");
 
     [[maybe_unused]] t81::frontend::IRGenerator generator;
     [[maybe_unused]] auto ir_program= generator.generate(stmts);
@@ -24,7 +24,7 @@ void test_addition() {
     vm->load_program(program);
     vm->run_to_halt();
 
-    assert(vm->state().registers[0] == 42 && "VM register R0 has incorrect value after addition");
+    T81_TEST_CHECK(vm->state().registers[0] == 42 && "VM register R0 has incorrect value after addition");
 
     std::cout << "E2ETest test_addition passed!" << std::endl;
 }
@@ -35,7 +35,7 @@ void test_subtraction() {
     t81::frontend::Parser parser(lexer);
     [[maybe_unused]] auto stmts= parser.parse();
 
-    assert(!parser.had_error() && "Parsing failed");
+    T81_TEST_CHECK(!parser.had_error() && "Parsing failed");
 
     [[maybe_unused]] t81::frontend::IRGenerator generator;
     [[maybe_unused]] auto ir_program= generator.generate(stmts);
@@ -47,7 +47,7 @@ void test_subtraction() {
     vm->load_program(program);
     vm->run_to_halt();
 
-    assert(vm->state().registers[0] == 42 && "VM register R0 has incorrect value after subtraction");
+    T81_TEST_CHECK(vm->state().registers[0] == 42 && "VM register R0 has incorrect value after subtraction");
 
     std::cout << "E2ETest test_subtraction passed!" << std::endl;
 }
@@ -58,7 +58,7 @@ void test_multiplication() {
     t81::frontend::Parser parser(lexer);
     [[maybe_unused]] auto stmts= parser.parse();
 
-    assert(!parser.had_error() && "Parsing failed");
+    T81_TEST_CHECK(!parser.had_error() && "Parsing failed");
 
     [[maybe_unused]] t81::frontend::IRGenerator generator;
     [[maybe_unused]] auto ir_program= generator.generate(stmts);
@@ -70,7 +70,7 @@ void test_multiplication() {
     vm->load_program(program);
     vm->run_to_halt();
 
-    assert(vm->state().registers[0] == 42 && "VM register R0 has incorrect value after multiplication");
+    T81_TEST_CHECK(vm->state().registers[0] == 42 && "VM register R0 has incorrect value after multiplication");
 
     std::cout << "E2ETest test_multiplication passed!" << std::endl;
 }
@@ -81,7 +81,7 @@ void test_division() {
     t81::frontend::Parser parser(lexer);
     [[maybe_unused]] auto stmts= parser.parse();
 
-    assert(!parser.had_error() && "Parsing failed");
+    T81_TEST_CHECK(!parser.had_error() && "Parsing failed");
 
     [[maybe_unused]] t81::frontend::IRGenerator generator;
     [[maybe_unused]] auto ir_program= generator.generate(stmts);
@@ -93,7 +93,7 @@ void test_division() {
     vm->load_program(program);
     vm->run_to_halt();
 
-    assert(vm->state().registers[0] == 42 && "VM register R0 has incorrect value after division");
+    T81_TEST_CHECK(vm->state().registers[0] == 42 && "VM register R0 has incorrect value after division");
 
     std::cout << "E2ETest test_division passed!" << std::endl;
 }

@@ -4,7 +4,7 @@
 #include "t81/frontend/semantic_analyzer.hpp"
 #include "t81/tisc/binary_emitter.hpp"
 #include "t81/vm/vm.hpp"
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <iostream>
 #include <vector>
 
@@ -24,11 +24,11 @@ void test_option_type_e2e() {
     t81::frontend::Parser parser(lexer);
     [[maybe_unused]] auto stmts= parser.parse();
 
-    assert(!parser.had_error() && "Parsing failed");
+    T81_TEST_CHECK(!parser.had_error() && "Parsing failed");
 
     t81::frontend::SemanticAnalyzer semantic_analyzer(stmts);
     semantic_analyzer.analyze();
-    assert(!semantic_analyzer.had_error() && "Semantic analysis failed");
+    T81_TEST_CHECK(!semantic_analyzer.had_error() && "Semantic analysis failed");
 
     [[maybe_unused]] t81::frontend::IRGenerator generator;
     generator.attach_semantic_analyzer(&semantic_analyzer);
@@ -41,7 +41,7 @@ void test_option_type_e2e() {
     vm->load_program(program);
     vm->run_to_halt();
 
-    assert(vm->state().registers[0] == 42 && "VM register R0 has incorrect value");
+    T81_TEST_CHECK(vm->state().registers[0] == 42 && "VM register R0 has incorrect value");
 
     std::cout << "E2ETest test_option_type_e2e passed!" << std::endl;
 }

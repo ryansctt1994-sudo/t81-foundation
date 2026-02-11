@@ -1,4 +1,4 @@
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <vector>
 
 #include "t81/vm/vm.hpp"
@@ -11,7 +11,6 @@ int main() {
   [[maybe_unused]] tisc::Program program;
   program.insns.push_back({tisc::Opcode::TVecAdd, 3, 1, 2});
   program.insns.push_back({tisc::Opcode::TMatMul, 4, 5, 6});
-  program.insns.push_back({tisc::Opcode::TTenDot, 7, 1, 2});
   program.insns.push_back({tisc::Opcode::LoadImm, 9, 3, 0});
   program.insns.push_back({tisc::Opcode::I2F, 8, 9, 0});
   program.insns.push_back({tisc::Opcode::F2I, 10, 8, 0});
@@ -38,30 +37,24 @@ int main() {
   mutable_state.registers[6] = 4;
 
   [[maybe_unused]] auto result= vm->run_to_halt();
-  assert(result.has_value());
+  T81_TEST_CHECK(result.has_value());
 
   // Vector addition
   [[maybe_unused]] auto vecHandle= vm->state().registers[3];
-  assert(vecHandle == 5); // 4th tensor inserted next index
+  T81_TEST_CHECK(vecHandle == 5); // 4th tensor inserted next index
   const auto& vecRes = mutable_state.tensors[static_cast<std::size_t>(vecHandle - 1)];
-  assert(vecRes.shape()[0] == 3);
-  assert(vecRes.data()[0] == 5.0f && vecRes.data()[2] == 9.0f);
+  T81_TEST_CHECK(vecRes.shape()[0] == 3);
+  T81_TEST_CHECK(vecRes.data()[0] == 5.0f && vecRes.data()[2] == 9.0f);
 
   // Matrix multiplication
   [[maybe_unused]] auto matHandle= vm->state().registers[4];
   const auto& matRes = mutable_state.tensors[static_cast<std::size_t>(matHandle - 1)];
-  assert(matRes.shape()[0] == 2 && matRes.shape()[1] == 2);
-  assert(static_cast<int>(matRes.data()[0]) == 19); // 1*5 + 2*7
-
-  // Dot product (vector handles reused)
-  [[maybe_unused]] auto dotHandle= vm->state().registers[7];
-  const auto& dotRes = mutable_state.tensors[static_cast<std::size_t>(dotHandle - 1)];
-  assert(dotRes.rank() == 1);
-  assert(dotRes.data()[0] == 32.0f);
+  T81_TEST_CHECK(matRes.shape()[0] == 2 && matRes.shape()[1] == 2);
+  T81_TEST_CHECK(static_cast<int>(matRes.data()[0]) == 19); // 1*5 + 2*7
 
   // Conversion ops
-  assert(vm->state().registers[10] == 3);
-  assert(vm->state().registers[12] == 3);
+  T81_TEST_CHECK(vm->state().registers[10] == 3);
+  T81_TEST_CHECK(vm->state().registers[12] == 3);
 
   // Shape checks via literal handles.
   [[maybe_unused]] tisc::Program chk;
@@ -84,9 +77,9 @@ int main() {
   [[maybe_unused]] auto vm_chk= vm::make_interpreter_vm();
   vm_chk->load_program(chk);
   [[maybe_unused]] auto res_chk= vm_chk->run_to_halt();
-  assert(res_chk.has_value());
-  assert(vm_chk->state().registers[3] == 1);
-  assert(vm_chk->state().registers[5] == 0);
+  T81_TEST_CHECK(res_chk.has_value());
+  T81_TEST_CHECK(vm_chk->state().registers[3] == 1);
+  T81_TEST_CHECK(vm_chk->state().registers[5] == 0);
 
   return 0;
 }

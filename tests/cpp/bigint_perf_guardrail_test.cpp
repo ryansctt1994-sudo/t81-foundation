@@ -1,12 +1,18 @@
 #include "t81/bigint.hpp"
 
-#include <cassert>
 #include <chrono>
 #include <iostream>
 
 int main() {
   using namespace t81;
   using Clock = std::chrono::steady_clock;
+  auto expect = [](bool cond, const char* msg) -> bool {
+    if (!cond) {
+      std::cerr << "bigint_perf_guardrail_test failure: " << msg << "\n";
+      return false;
+    }
+    return true;
+  };
 
   // Guardrail target: this exercises the single-limb fast paths heavily.
   T81BigInt a = T81BigInt::from_i64(123456789);
@@ -25,7 +31,7 @@ int main() {
 
   // Deterministic correctness check.
   const auto expected = (a - b) * T81BigInt::from_i64(kIters);
-  assert(acc == expected);
+  if (!expect(acc == expected, "deterministic correctness check failed")) return 1;
 
   // Coarse performance guardrail to catch major regressions.
   // This bound is intentionally loose for CI variability.

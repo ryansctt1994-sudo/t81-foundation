@@ -3,7 +3,7 @@
 #include "t81/frontend/parser.hpp"
 #include "t81/tisc/binary_emitter.hpp"
 #include "t81/vm/vm.hpp"
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <iostream>
 
 void test_if_statement_true() {
@@ -12,7 +12,7 @@ void test_if_statement_true() {
     t81::frontend::Parser parser(lexer);
     [[maybe_unused]] auto stmts= parser.parse();
 
-    assert(!parser.had_error() && "Parsing failed");
+    T81_TEST_CHECK(!parser.had_error() && "Parsing failed");
 
     [[maybe_unused]] t81::frontend::IRGenerator generator;
     [[maybe_unused]] auto ir_program= generator.generate(stmts);
@@ -24,7 +24,7 @@ void test_if_statement_true() {
     vm->load_program(program);
     vm->run_to_halt();
 
-    assert(vm->state().registers[0] == 1 && "VM register R0 has incorrect value for true branch");
+    T81_TEST_CHECK(vm->state().registers[0] == 1 && "VM register R0 has incorrect value for true branch");
 
     std::cout << "E2ETest test_if_statement_true passed!" << std::endl;
 }
@@ -35,7 +35,7 @@ void test_if_statement_false() {
     t81::frontend::Parser parser(lexer);
     [[maybe_unused]] auto stmts= parser.parse();
 
-    assert(!parser.had_error() && "Parsing failed");
+    T81_TEST_CHECK(!parser.had_error() && "Parsing failed");
 
     [[maybe_unused]] t81::frontend::IRGenerator generator;
     [[maybe_unused]] auto ir_program= generator.generate(stmts);
@@ -47,7 +47,7 @@ void test_if_statement_false() {
     vm->load_program(program);
     vm->run_to_halt();
 
-    assert(vm->state().registers[0] == 0 && "VM register R0 has incorrect value for false branch");
+    T81_TEST_CHECK(vm->state().registers[0] == 0 && "VM register R0 has incorrect value for false branch");
 
     std::cout << "E2ETest test_if_statement_false passed!" << std::endl;
 }
@@ -58,7 +58,7 @@ void test_if_else_statement() {
     t81::frontend::Parser parser(lexer);
     [[maybe_unused]] auto stmts= parser.parse();
 
-    assert(!parser.had_error() && "Parsing failed");
+    T81_TEST_CHECK(!parser.had_error() && "Parsing failed");
 
     [[maybe_unused]] t81::frontend::IRGenerator generator;
     [[maybe_unused]] auto ir_program= generator.generate(stmts);
@@ -70,7 +70,7 @@ void test_if_else_statement() {
     vm->load_program(program);
     vm->run_to_halt();
 
-    assert(vm->state().registers[0] == 123 && "VM register R0 has incorrect value for else branch");
+    T81_TEST_CHECK(vm->state().registers[0] == 123 && "VM register R0 has incorrect value for else branch");
 
     std::cout << "E2ETest test_if_else_statement passed!" << std::endl;
 }

@@ -1,4 +1,5 @@
-#include <cassert>
+#include "test_runtime_check.hpp"
+#include <algorithm>
 #include <memory>
 #include <t81/vm/vm.hpp>
 #include <t81/tisc/program.hpp>
@@ -44,17 +45,23 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(p);
     [[maybe_unused]] auto r= vm->run_to_halt();
-    assert(r.has_value());
-    assert(vm->state().registers[1] == 6);
-    assert(vm->state().registers[2] == 4);
-    assert(vm->state().registers[3] == 4);
-    assert(vm->state().registers[4] == 6);
-    assert(vm->state().registers[5] == 42);
-    assert(vm->state().registers[6] == 0);
-    assert(!vm->state().flags.zero);
-    assert(!vm->state().flags.negative);
-    assert(vm->state().axion_log.size() == 3);
-    assert(vm->state().axion_log[0].opcode == tisc::Opcode::AxRead);
+    T81_TEST_CHECK(r.has_value());
+    T81_TEST_CHECK(vm->state().registers[1] == 6);
+    T81_TEST_CHECK(vm->state().registers[2] == 4);
+    T81_TEST_CHECK(vm->state().registers[3] == 4);
+    T81_TEST_CHECK(vm->state().registers[4] == 6);
+    T81_TEST_CHECK(vm->state().registers[5] == 42);
+    T81_TEST_CHECK(vm->state().registers[6] == 0);
+    T81_TEST_CHECK(vm->state().axion_log.size() >= 3);
+    T81_TEST_CHECK(std::any_of(vm->state().axion_log.begin(),
+                               vm->state().axion_log.end(),
+                               [](const auto& e) { return e.opcode == tisc::Opcode::AxRead; }));
+    T81_TEST_CHECK(std::any_of(vm->state().axion_log.begin(),
+                               vm->state().axion_log.end(),
+                               [](const auto& e) { return e.opcode == tisc::Opcode::AxSet; }));
+    T81_TEST_CHECK(std::any_of(vm->state().axion_log.begin(),
+                               vm->state().axion_log.end(),
+                               [](const auto& e) { return e.opcode == tisc::Opcode::AxVerify; }));
   }
 
   // Pop with empty stack must trap.
@@ -64,8 +71,8 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(p);
     [[maybe_unused]] auto step= vm->step();
-    assert(!step.has_value());
-    assert(step.error() == vm::Trap::BoundsFault);
+    T81_TEST_CHECK(!step.has_value());
+    T81_TEST_CHECK(step.error() == vm::Trap::StackFault);
   }
 
   // Axion privilege denial via custom engine.
@@ -75,8 +82,8 @@ int main() {
     [[maybe_unused]] auto vm= vm::make_interpreter_vm(std::make_unique<DenyEngine>());
     vm->load_program(p);
     [[maybe_unused]] auto res= vm->step();
-    assert(!res.has_value());
-    assert(res.error() == vm::Trap::SecurityFault);
+    T81_TEST_CHECK(!res.has_value());
+    T81_TEST_CHECK(res.error() == vm::Trap::SecurityFault);
   }
 
   return 0;

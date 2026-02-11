@@ -2,7 +2,7 @@
 #include "t81/vm/vm.hpp"
 
 #include <algorithm>
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -90,20 +90,20 @@ static void test_guarded_match_metadata_is_deterministic() {
 
     const auto program_a = cli::build_program_from_source(source, source_path.string());
     const auto program_b = cli::build_program_from_source(source, source_path.string());
-    assert(program_a.has_value());
-    assert(program_b.has_value());
+    T81_TEST_CHECK(program_a.has_value());
+    T81_TEST_CHECK(program_b.has_value());
 
-    assert(program_a->match_metadata_text == program_b->match_metadata_text);
+    T81_TEST_CHECK(program_a->match_metadata_text == program_b->match_metadata_text);
     if (program_a->match_metadata_text.find("guard-expr") == std::string::npos) {
       throw std::runtime_error("Missing guard-expr metadata for fixture: " + name);
     }
 
     const auto run_a = run_and_collect(*program_a);
     const auto run_b = run_and_collect(*program_b);
-    assert(run_a.printed == expected);
-    assert(run_b.printed == expected);
-    assert(run_a.match_reasons == run_b.match_reasons);
-    assert(!run_a.match_reasons.empty());
+    T81_TEST_CHECK(run_a.printed == expected);
+    T81_TEST_CHECK(run_b.printed == expected);
+    T81_TEST_CHECK(run_a.match_reasons == run_b.match_reasons);
+    T81_TEST_CHECK(!run_a.match_reasons.empty());
   }
 }
 

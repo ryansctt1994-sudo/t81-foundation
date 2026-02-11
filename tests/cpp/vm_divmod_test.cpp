@@ -1,4 +1,4 @@
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <t81/vm/vm.hpp>
 #include <t81/tisc/program.hpp>
 
@@ -16,9 +16,9 @@ int main() {
   [[maybe_unused]] auto vm= vm::make_interpreter_vm();
   vm->load_program(p);
   [[maybe_unused]] auto res= vm->run_to_halt();
-  assert(res.has_value());
-  assert(vm->state().registers[2] == 10 / 3);
-  assert(vm->state().registers[3] == 10 % 3);
+  T81_TEST_CHECK(res.has_value());
+  T81_TEST_CHECK(vm->state().registers[2] == 10 / 3);
+  T81_TEST_CHECK(vm->state().registers[3] == 10 % 3);
 
   // Divide by zero should trap
   [[maybe_unused]] tisc::Program bad;
@@ -28,12 +28,12 @@ int main() {
   [[maybe_unused]] auto vm2= vm::make_interpreter_vm();
   vm2->load_program(bad);
   [[maybe_unused]] auto step= vm2->step();
-  assert(step.has_value()); // first load
+  T81_TEST_CHECK(step.has_value()); // first load
   step = vm2->step();
-  assert(step.has_value()); // second load
+  T81_TEST_CHECK(step.has_value()); // second load
   step = vm2->step();
-  assert(!step.has_value());
-  assert(step.error() == vm::Trap::DivisionFault);
+  T81_TEST_CHECK(!step.has_value());
+  T81_TEST_CHECK(step.error() == vm::Trap::DivisionFault);
 
   return 0;
 }

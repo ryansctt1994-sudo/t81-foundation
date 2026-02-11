@@ -3,7 +3,6 @@
 #include "t81/vm/vm.hpp"
 
 #include <cmath>
-#include <cassert>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -15,6 +14,14 @@ using t81::tisc::Insn;
 using t81::tisc::LiteralKind;
 using t81::tisc::Opcode;
 using t81::tisc::Program;
+
+bool expect(bool cond, const std::string& message) {
+  if (!cond) {
+    std::cerr << "jit_tensor_trace_equivalence_test failure: " << message << "\n";
+    return false;
+  }
+  return true;
+}
 
 Insn make_tensor_handle_imm(int reg, std::int64_t handle) {
   Insn insn{Opcode::LoadImm, reg, handle, 0};
@@ -53,17 +60,26 @@ struct Snapshot {
 Snapshot run_once(const Program& p) {
   auto vm = t81::vm::make_interpreter_vm();
   vm->load_program(p);
-  [[maybe_unused]] auto run = vm->run_to_halt();
-  assert(run.has_value());
+  auto run = vm->run_to_halt();
+  if (!run.has_value()) {
+    std::cerr << "run_to_halt trap=" << static_cast<int>(run.error()) << "\n";
+    return {};
+  }
 
   Snapshot out;
   const auto& st = vm->state();
   out.regs.assign(st.registers.begin(), st.registers.end());
   out.tags.assign(st.register_tags.begin(), st.register_tags.end());
   const auto final_handle = st.registers[6];
-  assert(final_handle > 0);
+  if (final_handle <= 0) {
+    std::cerr << "final tensor handle invalid: " << final_handle << "\n";
+    return {};
+  }
   const auto idx = static_cast<size_t>(final_handle - 1);
-  assert(idx < st.tensors.size());
+  if (idx >= st.tensors.size()) {
+    std::cerr << "final tensor handle out of range: " << final_handle << "\n";
+    return {};
+  }
   out.final_tensor = st.tensors[idx];
   for (const auto& entry : st.axion_log) {
     out.reasons.push_back(entry.verdict.reason);
@@ -71,50 +87,64 @@ Snapshot run_once(const Program& p) {
   return out;
 }
 
-void assert_tensor_close(const T729Tensor& a, const T729Tensor& b) {
-  assert(a.shape() == b.shape());
-  assert(a.data().size() == b.data().size());
+bool tensor_close(const T729Tensor& a, const T729Tensor& b) {
+  if (!expect(a.shape() == b.shape(), "tensor shapes diverged")) return false;
+  if (!expect(a.data().size() == b.data().size(), "tensor data sizes diverged")) return false;
   for (size_t i = 0; i < a.data().size(); ++i) {
     const float diff = std::abs(a.data()[i] - b.data()[i]);
     if (diff > 1e-5f) {
       std::cerr << "tensor mismatch at " << i << ": " << a.data()[i] << " vs " << b.data()[i]
                 << " diff=" << diff << "\n";
-      assert(false);
+      return false;
     }
   }
+  return true;
 }
 
-void test_jit_tensor_trace_equivalence_and_boundary_logs() {
+bool test_jit_tensor_trace_equivalence_and_boundary_logs() {
   const Program p = make_hot_tensor_program();
   const auto a = run_once(p);
   const auto b = run_once(p);
 
-  assert(a.regs == b.regs);
-  assert(a.tags == b.tags);
-  assert_tensor_close(a.final_tensor, b.final_tensor);
-  assert(a.reasons == b.reasons);
+  if (!expect(!a.regs.empty(), "tensor snapshot A is empty")) return false;
+  if (!expect(!b.regs.empty(), "tensor snapshot B is empty")) return false;
+  if (!expect(a.regs == b.regs, "tensor register snapshots diverged")) return false;
+  if (!expect(a.tags == b.tags, "tensor register-tag snapshots diverged")) return false;
+  if (!tensor_close(a.final_tensor, b.final_tensor)) return false;
+  if (!expect(a.reasons == b.reasons, "tensor trace reasons diverged")) return false;
 
   bool saw_enter = false;
   bool saw_exit = false;
+  bool saw_enter_at_loop_pc = false;
+  bool saw_exit_kind = false;
   for (const auto& reason : a.reasons) {
     if (reason.find("jit trace enter") != std::string::npos) {
       saw_enter = true;
+      if (reason.find("pc=4") != std::string::npos) {
+        saw_enter_at_loop_pc = true;
+      }
     }
     if (reason.find("jit trace exit") != std::string::npos) {
       saw_exit = true;
+      if (reason.find("exit-kind=") != std::string::npos) {
+        saw_exit_kind = true;
+      }
     }
   }
-  if (!saw_enter || !saw_exit) {
+  if (!saw_enter || !saw_exit || !saw_enter_at_loop_pc || !saw_exit_kind) {
     std::cerr << "missing jit tensor boundary reasons: enter=" << saw_enter
-              << " exit=" << saw_exit << "\n";
-    assert(false);
+              << " exit=" << saw_exit
+              << " enter_pc4=" << saw_enter_at_loop_pc
+              << " exit_kind=" << saw_exit_kind << "\n";
+    return expect(false, "missing JIT tensor boundary logs");
   }
+  return true;
 }
 
 }  // namespace
 
 int main() {
-  test_jit_tensor_trace_equivalence_and_boundary_logs();
+  if (!test_jit_tensor_trace_equivalence_and_boundary_logs()) return 1;
   std::cout << "jit tensor trace equivalence test passed\n";
   return 0;
 }

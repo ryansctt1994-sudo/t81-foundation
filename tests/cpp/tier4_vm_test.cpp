@@ -2,7 +2,7 @@
 #include "t81/axion/engine.hpp"
 #include "t81/axion/policy_engine.hpp"
 #include "t81/cog/tier4/tier4_loop.hpp"
-#include <cassert>
+#include "test_runtime_check.hpp"
 #include <iostream>
 #include <vector>
 
@@ -19,18 +19,16 @@ void run_tier4_test() {
 
     // Prepare TISC program
     // R0: counter
-    // R1: heap address for commands
+    // R1: heap address for commands (set by fixture before run)
     // R2: handle from MetaReflect
     // R3: MetaRefine result
     Program program;
     program.insns = {
         {Opcode::LoadImm, 0, 0},        // 0: R0 = 0
         {Opcode::MetaReflect, 2, 0, 0}, // 1: R2 = handle
-        {Opcode::LoadImm, 1, 100},      // 2: R1 = 100 (heap start-ish, depends on VM layout)
-        // Commands in memory (to be written by test setup for simplicity, or we could use LOADI/STORE)
-        {Opcode::LoadImm, 3, 1},        // 3: R3 = 1 (count)
-        {Opcode::MetaRefine, 3, 1, 3},  // 4: R3 = MetaRefine(addr=R1, count=R3)
-        {Opcode::Halt}                  // 5
+        {Opcode::LoadImm, 3, 1},        // 2: R3 = 1 (count)
+        {Opcode::MetaRefine, 3, 1, 3},  // 3: R3 = MetaRefine(addr=R1, count=R3)
+        {Opcode::Halt}                  // 4
     };
 
     vm->load_program(program);
@@ -50,10 +48,10 @@ void run_tier4_test() {
 
     // Step through the program
     auto res = vm->run_to_halt(100);
-    assert(res.has_value());
-    assert(state.registers[0] == 42);
-    assert(state.registers[3] == 1); // Success
-    assert(state.reflection_count == 1);
+    T81_TEST_CHECK(res.has_value());
+    T81_TEST_CHECK(state.registers[0] == 42);
+    T81_TEST_CHECK(state.registers[3] == 1); // Success
+    T81_TEST_CHECK(state.reflection_count == 1);
 
     std::cout << "Tier 4 E2E VM Test passed!\n";
 }
@@ -78,10 +76,10 @@ void run_determinism_test() {
     State s1 = run_once();
     State s2 = run_once();
 
-    assert(s1.registers[0] == s2.registers[0]);
-    assert(s1.axion_log.size() == s2.axion_log.size());
+    T81_TEST_CHECK(s1.registers[0] == s2.registers[0]);
+    T81_TEST_CHECK(s1.axion_log.size() == s2.axion_log.size());
     for (size_t i = 0; i < s1.axion_log.size(); ++i) {
-        assert(s1.axion_log[i].verdict.reason == s2.axion_log[i].verdict.reason);
+        T81_TEST_CHECK(s1.axion_log[i].verdict.reason == s2.axion_log[i].verdict.reason);
     }
 
     std::cout << "Tier 4 Determinism Test passed!\n";
@@ -104,8 +102,8 @@ void run_denial_test() {
     vm->load_program(program);
     auto res = vm->run_to_halt(10);
 
-    assert(!res.has_value());
-    assert(res.error() == Trap::SecurityFault);
+    T81_TEST_CHECK(!res.has_value());
+    T81_TEST_CHECK(res.error() == Trap::SecurityFault);
 
     std::cout << "Tier 4 Denial Test passed!\n";
 }
