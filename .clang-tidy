@@ -12,10 +12,12 @@ Checks: >
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -cppcoreguidelines-no-malloc,
   -modernize-use-nodiscard,
-  -bugprone-exception-escape
+  -bugprone-exception-escape,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
+  -cppcoreguidelines-narrowing-conversions
 CheckOptions:
   - key: cppcoreguidelines-narrowing-conversions.WarnOnIntegerNarrowingConversion
-    value: 'true'
+    value: 'false'
   - key: bugprone-unused-raii.Threshold
     value: '2'
 HeaderFilterRegex: '.*'

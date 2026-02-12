@@ -200,7 +200,16 @@ if(T81_BUILD_TESTS)
     GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
     GIT_TAG asio-1-30-2
   )
-  FetchContent_MakeAvailable(asio)
+  FetchContent_GetProperties(asio)
+  if(NOT asio_POPULATED)
+    FetchContent_Populate(asio)
+    # Define asio as an interface library if not already defined
+    if(NOT TARGET asio)
+      add_library(asio INTERFACE)
+      target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/include)
+      target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
+    endif()
+  endif()
 
   add_executable(t81_bigint_test tests/cpp/bigint_roundtrip.cpp)
   target_link_libraries(t81_bigint_test PRIVATE t81_core)
