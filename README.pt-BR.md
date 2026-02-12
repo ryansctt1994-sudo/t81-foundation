@@ -23,7 +23,7 @@ Verifique você mesmo as afirmações em 4 etapas:
 
 1. **Compile e execute Hello World**
 
-``bash
+```bash
 
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --parallel
 
@@ -31,20 +31,20 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --parallel
 
 ./build/t81 run hello.tisc
 
-``
+```
 
 2. **Executar o Determinismo**
 
-``bash
+```bash
 
 # Verificar o hash de reprodutibilidade entre arquiteturas
 python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
 
-``
+```
 
 3. **Executar uma Demonstração em VM**
 
-``bash
+```bash
 
 ./build/t81_demo
 
@@ -52,7 +52,7 @@ python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
 
 4. **Inspecionar um Artefato de Rastreamento**
 
-``bash
+```bash
 
 ./build/t81 trace show trace.txt
 
@@ -174,4 +174,25 @@ t81 help
 ```
 
 ## Mapa do repositório
-- [`include/t81/`](include/t81/): public A
+- [`include/t81/`](include/t81/): public API headers
+- [`src/`](src/): frontend, TISC, VM, Axion, CanonFS, implementação de CLI
+- [`tests/`](tests/): conformidade, determinismo, VM/e2e, fatias de propriedade
+- [`docs/`](docs/): guias, status, benchmarks, documentação de limites de tempo de execução
+- [`spec/`](spec/): semântica normativa e entradas de governança
+- [`examples/`](examples/): exemplos e demonstrações executáveis
+
+## Limite de Tempo de Execução
+O T81 usa um contrato de limite de tempo de execução explícito:
+- Marcador: [`contracts/runtime-contract.json`](contracts/runtime-contract.json)
+- Política de limite: [`docs/runtime-semantics-boundary.md`](docs/runtime-semantics-boundary.md)
+
+## Leitura Adicional
+- [`ARCHITECTURE.md`](ARCHITECTURE.md)
+- [`docs/system-integration.md`](docs/system-integration.md)
+- [`ANALYSIS.md`](ANALYSIS.md)
+- [`CHANGELOG.md`](CHANGELOG.md)
+- [`docs/research-guide.md`](docs/research-guide.md)
+- [`docs/ai-quickstart.md`](docs/ai-quickstart.md)
+
+## Licença
+Este repositório está licenciado sob a licença MIT (consulte [`LICENSE`](LICENSE)).
