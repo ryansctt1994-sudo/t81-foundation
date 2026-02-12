@@ -18,11 +18,11 @@ namespace t81 {
 using asio::ip::tcp;
 
 struct T81Endpoint {
-    T81String host;
+    std::string host;
     uint16_t  port;
 
-    constexpr T81Endpoint(T81String h, uint16_t p) : host(std::move(h)), port(p) {}
-    [[nodiscard]] std::string to_string() const { return host.str() + ":" + std::to_string(port); }
+    T81Endpoint(std::string h, uint16_t p) : host(std::move(h)), port(p) {}
+    [[nodiscard]] std::string to_string() const { return host + ":" + std::to_string(port); }
 
     bool operator<(const T81Endpoint& o) const {
         if (host != o.host) return host < o.host;
@@ -69,7 +69,7 @@ public:
 
         tcp::socket sock(universe().ioc_);
         asio::error_code ec;
-        auto addr = asio::ip::make_address(remote.host.str(), ec);
+        auto addr = asio::ip::make_address(remote.host, ec);
         if (ec) {
              return T81Result<tcp::socket>::failure(T81Symbol::intern("INVALID_ADDRESS"),
                 T81String("INVALID ADDRESS: ") + T81String(ec.message().c_str()));

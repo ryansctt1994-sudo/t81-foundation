@@ -206,7 +206,7 @@ if(T81_BUILD_TESTS)
     # Define asio as an interface library if not already defined
     if(NOT TARGET asio)
       add_library(asio INTERFACE)
-      target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/include)
+      target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
       target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
     endif()
   endif()

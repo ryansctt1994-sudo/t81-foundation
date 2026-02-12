@@ -1,4 +1,5 @@
 #include "t81/core/T81Category.hpp"
+#undef NDEBUG
 #include <cassert>
 #include <iostream>
 
