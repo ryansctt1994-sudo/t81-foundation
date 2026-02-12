@@ -4,12 +4,9 @@
  *
  * Design notes:
  *   • Internally stores a sign bit and one or more T81Int "limbs".
- *   • Current implementation is intentionally conservative: it only supports
- *     values that fit safely in a signed 64-bit integer and delegates all
- *     arithmetic to int64_t, using T81Int as the underlying storage.
- *   • This makes T81BigInt a safe, future-extensible façade: the API is
- *     arbitrary-precision–friendly, while the implementation remains
- *     simple and well-defined for now.
+ *   • Supports arbitrary-precision arithmetic via multi-limb representation.
+ *   • Multiplication uses Karatsuba algorithm for large values.
+ *   • Addition/Subtraction uses chunk-based carry propagation.
  */
 
 #pragma once
@@ -543,14 +540,14 @@ public:
                 r[i] = (i < nx ? x[i] : 0) + (i < ny ? y[i] : 0);
             }
 
-            int128_t carry = 0;
-            const int128_t B = 7625597484987LL;
-            const int128_t halfB = (B - 1) / 2;
+            int64_t carry = 0;
+            constexpr int64_t B = 7625597484987LL;
+            constexpr int64_t halfB = (B - 1) / 2;
             for (size_t j = 0; j < r.size() || carry != 0; ++j) {
                 if (j >= r.size()) r.push_back(0);
-                int128_t val = r[j] + carry;
-                int128_t q = (val >= 0) ? (val + halfB) / B : (val - halfB) / B;
-                r[j] = static_cast<int64_t>(val - q * B);
+                int64_t val = r[j] + carry;
+                int64_t q = (val >= 0) ? (val + halfB) / B : (val - halfB) / B;
+                r[j] = val - q * B;
                 carry = q;
             }
             return r;

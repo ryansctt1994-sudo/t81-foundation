@@ -12,7 +12,7 @@ This file tracks strategic items beyond the near-term execution queue in `TASKS.
 
 ## 2. Performance Architecture
 
-- [ ] Deep optimization of `T81BigInt` (algorithmic + SIMD layers).
+- [x] Deep optimization of `T81BigInt` (algorithmic + SIMD layers).
 - [ ] Expand tensor backend strategy (portable scalar parity + optimized backends).
 - [ ] CanonFS scalability for larger persistent workloads with deterministic observability.
 
