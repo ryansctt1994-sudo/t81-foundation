@@ -124,7 +124,7 @@ A developer writes a script to sum a series of values. The language enforces str
 let iterations = 100;
 var sum = 0;
 
-for i in 1..iterations {
+for i in (1..iterations) {
     sum = sum + i;
 }
 
@@ -188,12 +188,12 @@ A developer writes a program to perform a single layer of inference. It assumes 
 **`inference.t81`**
 ```t81
 // Load model weights from a content-addressed store
-let weights = Tensor::load("sha3:4158a421...");
-let input = Tensor::from_list([1.0, 0.0, -1.0]);
+let weights = Tensor.load("sha3:4158a421...");
+let input = Tensor.from_list([1.0, 0.0, 2.0]);
 
 // Perform the gated multiplication
 let result = input.matmul(weights);
-print(result);
+// print(result);
 ```
 
 ### Step 2: Governance Definition (Axion Policy)
@@ -234,12 +234,12 @@ A developer writes a "learning" loop that observes its own performance and attem
 // Observe a performance metric
 let metric = observe_performance();
 
-if metric < threshold {
+if (metric < threshold) {
     // Reflect on current bytecode and refine it
     reflect {
-        let current_logic = read_code(0x10); // Read instruction at 0x10
+        let current_logic = read_code(16); // Read instruction at 16 (0x10)
         let refined_logic = optimize(current_logic);
-        refine(0x10, refined_logic); // Propose a patch
+        refine(16, refined_logic); // Propose a patch
     }
 }
 ```

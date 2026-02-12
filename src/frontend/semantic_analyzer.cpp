@@ -1235,6 +1235,17 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
             }
             return Type{Type::Kind::I32};
         }
+        if (func_name == "Tensor.from_list") {
+            if (arg_types.size() != 1) {
+                error(var_expr->name, "Tensor.from_list expects a single argument.");
+                return make_error_type();
+            }
+            if (arg_types[0].kind != Type::Kind::Vector && arg_types[0].kind != Type::Kind::I32) {
+                error(var_expr->name, "Tensor.from_list expects a Vector or Tensor handle.");
+                return make_error_type();
+            }
+            return Type{Type::Kind::Tensor};
+        }
         if (func_name == "read_code") {
             if (arg_types.size() != 1) {
                 error(var_expr->name, "read_code expects 1 argument.");
@@ -1260,7 +1271,7 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
             return Type{Type::Kind::I32};
         }
         if (func_name == "optimize") {
-            return Type{Type::Kind::Void};
+            return Type{Type::Kind::I32};
         }
         if (func_name == "print") {
             if (arg_types.size() != 1) {
