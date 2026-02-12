@@ -89,7 +89,7 @@ public:
         if (auto token = consume_entropy()) {
             const auto current = belief(observation);
             const auto delta    = strength - current;
-            const auto fraction = BeliefProb::from_prob(0.1);
+            const auto fraction = BeliefProb::from_prob(0.55); // Small positive step
 
             // Move toward strength
             const auto updated  = (delta.raw().sign_trit() >= Trit::Z)
@@ -183,14 +183,14 @@ public:
     }
 
     // Stream of thought — infinite internal monologue
-    [[nodiscard]] T81Stream<T81String> thought_stream() const {
-        return stream_from([this]() mutable -> T81String {
+    [[nodiscard]] T81Stream<std::string> thought_stream() const {
+        return stream_from([this]() mutable -> std::string {
             const auto fuel_str    = std::to_string(fuel_remaining());
             const auto belief_self = belief(id_).to_prob();
 
-            return T81String("I AM ") + T81String(id_.to_string().c_str())
-                 + T81String(" | FUEL:") + T81String(fuel_str.c_str())
-                 + T81String(" | BELIEF IN SELF:") + T81String(std::to_string(belief_self).c_str());
+            return "I AM " + id_.to_string()
+                 + " | FUEL:" + fuel_str
+                 + " | BELIEF IN SELF:" + std::to_string(belief_self);
         });
     }
 

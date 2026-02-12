@@ -32,7 +32,8 @@ public:
             return T81Promise(std::coroutine_handle<promise_type>::from_promise(*this));
         }
 
-        std::suspend_always initial_suspend() noexcept { return {}; }
+        // Eager execution: start immediately
+        std::suspend_never initial_suspend() noexcept { return {}; }
         std::suspend_always final_suspend() noexcept { return {}; }
 
         void return_value(T v) noexcept {
@@ -66,7 +67,7 @@ public:
     using value_type = T;
 
     explicit T81Promise(handle_type h) noexcept : coro_(h) {
-        if (coro_) coro_.resume();
+        // Coroutine starts eagerly via initial_suspend returning suspend_never
     }
 
     ~T81Promise() { if (coro_) coro_.destroy(); }

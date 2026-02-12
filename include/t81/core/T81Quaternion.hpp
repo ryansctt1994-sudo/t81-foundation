@@ -129,25 +129,15 @@ public:
         const T81Quaternion& a,
         const T81Quaternion& b
     ) noexcept {
-        // Let:
-        //   a = (aw + ax i) + (ay j + az k)
-        //   b = (bw + bx i) + (by j + bz k)
-        //
-        // Encoded as complex pairs:
-        //   a.real_imag_ = aw + ax·i
-        //   a.j_k_       = ay + az·i
-        //   likewise for b.
-        const Complex ac    = a.real_imag_ * b.real_imag_;
-        const Complex bd    = a.j_k_ * b.j_k_.conj();
-        const Complex ab_cd = a.real_imag_ * b.j_k_;
-        const Complex cd_ab = a.j_k_ * b.real_imag_;
+        const auto aw = a.w(); const auto ax = a.x(); const auto ay = a.y(); const auto az = a.z();
+        const auto bw = b.w(); const auto bx = b.x(); const auto by = b.y(); const auto bz = b.z();
 
-        const Scalar w = ac.real() - bd.real();
-        const Scalar x = ac.imag() + bd.imag();
-        const Scalar y = ab_cd.real() + cd_ab.real();
-        const Scalar z = ab_cd.imag() - cd_ab.imag();
-
-        return T81Quaternion(w, x, y, z);
+        return T81Quaternion(
+            aw * bw - ax * bx - ay * by - az * bz,
+            aw * bx + ax * bw + ay * bz - az * by,
+            aw * by - ax * bz + ay * bw + az * bx,
+            aw * bz + ax * by - ay * bx + az * bw
+        );
     }
 
     // Scalar multiplication (Quaternion * Scalar)

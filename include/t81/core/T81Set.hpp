@@ -1,13 +1,6 @@
 /**
  * @file T81Set.hpp
  * @brief Defines the T81Set class, an immutable, ternary-native set.
- *
- * This file provides the `T81Set<T>` class, an immutable, hash-based set that
- * is implemented on top of the `T81Map`. It offers pure functional-style
- * operations (e.g., `insert`, `erase` return new sets) and is designed for
- * perfect membership testing, particularly when using `T81Symbol` as the key
- * type. It supports standard set-theoretic operations like union, intersection,
- * and difference.
  */
 #pragma once
 
@@ -27,32 +20,50 @@
 
 namespace t81 {
 
-// ======================================================================
-// T81Set<T> – Mathematical set with perfect membership testing
-// ======================================================================
 template <typename T>
 class T81Set {
-    // Internally: T81Map<T, std::monostate> — value is irrelevant
     T81Map<T, std::monostate> elements_;
 
 public:
     using value_type     = T;
     using size_type      = std::size_t;
-    using const_iterator = typename T81Map<T, std::monostate>::const_iterator;
 
-    //===================================================================
-    // Construction
-    //===================================================================
+    struct const_iterator {
+        typename T81Map<T, std::monostate>::const_iterator impl;
+
+        const_iterator(typename T81Map<T, std::monostate>::const_iterator it) : impl(it) {}
+        const_iterator() = default;
+
+        [[nodiscard]] bool operator==(const const_iterator& o) const noexcept = default;
+
+        const_iterator& operator++() noexcept {
+            ++impl;
+            return *this;
+        }
+
+        const_iterator operator++(int) noexcept {
+            const_iterator tmp = *this;
+            ++impl;
+            return tmp;
+        }
+
+        [[nodiscard]] const T& operator*() const noexcept {
+            return impl.key();
+        }
+
+        [[nodiscard]] const T* operator->() const noexcept {
+            return &impl.key();
+        }
+    };
+
     constexpr T81Set() noexcept = default;
 
-    // From initializer list
     constexpr T81Set(std::initializer_list<T> init) {
         for (const auto& elem : init) {
             elements_[elem] = {};
         }
     }
 
-    // From any input range [first, last)
     template <typename InputIt>
     constexpr T81Set(InputIt first, InputIt last) {
         for (; first != last; ++first) {
@@ -60,9 +71,6 @@ public:
         }
     }
 
-    //===================================================================
-    // Modifiers – pure functional style (return new set)
-    //===================================================================
     [[nodiscard]] constexpr T81Set insert(const T& value) const {
         T81Set copy = *this;
         copy.elements_[value] = {};
@@ -90,9 +98,6 @@ public:
         return copy;
     }
 
-    //===================================================================
-    // Queries – O(1) average, O(log₃ n) worst-case
-    //===================================================================
     [[nodiscard]] constexpr bool contains(const T& value) const noexcept {
         return elements_.contains(value);
     }
@@ -105,22 +110,19 @@ public:
         return elements_.empty();
     }
 
-    //===================================================================
-    // Set operations – pure, lazy, exact
-    //===================================================================
     [[nodiscard]] constexpr T81Set union_with(const T81Set& other) const {
         T81Set result = *this;
-        for (const auto& [key, _] : other.elements_) {
-            result.elements_[key] = {};
+        for (const auto& elem : other) {
+            result.elements_[elem] = {};
         }
         return result;
     }
 
     [[nodiscard]] constexpr T81Set intersection_with(const T81Set& other) const {
         T81Set result;
-        for (const auto& [key, _] : elements_) {
-            if (other.contains(key)) {
-                result.elements_[key] = {};
+        for (const auto& elem : *this) {
+            if (other.contains(elem)) {
+                result.elements_[elem] = {};
             }
         }
         return result;
@@ -128,8 +130,8 @@ public:
 
     [[nodiscard]] constexpr T81Set difference_from(const T81Set& other) const {
         T81Set result = *this;
-        for (const auto& [key, _] : other.elements_) {
-            result.elements_.erase(key);
+        for (const auto& elem : other) {
+            result.elements_.erase(elem);
         }
         return result;
     }
@@ -139,8 +141,8 @@ public:
     }
 
     [[nodiscard]] constexpr bool subset_of(const T81Set& other) const {
-        for (const auto& [key, _] : elements_) {
-            if (!other.contains(key)) {
+        for (const auto& elem : *this) {
+            if (!other.contains(elem)) {
                 return false;
             }
         }
@@ -151,32 +153,20 @@ public:
         return other.subset_of(*this);
     }
 
-    //===================================================================
-    // Iteration
-    //===================================================================
-    [[nodiscard]] constexpr const_iterator begin() const noexcept { return elements_.begin(); }
-    [[nodiscard]] constexpr const_iterator end()   const noexcept { return elements_.end(); }
+    [[nodiscard]] constexpr const_iterator begin() const noexcept { return const_iterator{elements_.begin()}; }
+    [[nodiscard]] constexpr const_iterator end()   const noexcept { return const_iterator{elements_.end()}; }
 
-    //===================================================================
-    // Conversion
-    //===================================================================
     [[nodiscard]] constexpr T81List<T> to_list() const {
         T81List<T> list;
-        for (const auto& [key, _] : elements_) {
-            list.push_back(key);
+        for (const auto& elem : *this) {
+            list.push_back(elem);
         }
         return list;
     }
 
-    //===================================================================
-    // Comparison
-    //===================================================================
     [[nodiscard]] constexpr auto operator<=>(const T81Set& o) const noexcept = default;
     [[nodiscard]] constexpr bool operator==(const T81Set&) const noexcept = default;
 
-    //===================================================================
-    // Operators
-    //===================================================================
     [[nodiscard]] friend constexpr T81Set operator|(const T81Set& a, const T81Set& b) noexcept {
         return a.union_with(b);
     }
@@ -190,33 +180,14 @@ public:
     }
 };
 
-// ======================================================================
-// Deduction guides
-// ======================================================================
 template <typename... Ts>
 T81Set(Ts...) -> T81Set<std::common_type_t<Ts...>>;
 
 template <typename T>
 T81Set(std::initializer_list<T>) -> T81Set<T>;
 
-// ======================================================================
-// Common sets in the ternary world
-// ======================================================================
 using SymbolSet  = T81Set<T81Symbol>;
 using TokenSet   = T81Set<std::uint32_t>;
 using ConceptSet = T81Set<T81String>;
-
-// ======================================================================
-// Example: This is how the future reasons with pure sets
-// ======================================================================
-/*
-constexpr auto mammals = T81Set{symbols::HUMAN, symbols::DOG, symbols::CAT};
-constexpr auto mortals = T81Set{symbols::HUMAN, symbols::SOCRATES};
-
-auto socrates_is_mortal  = mortals.contains(symbols::SOCRATES);
-auto all_humans_mortal   = (mammals & mortals).size() == mammals.size();
-
-static_assert(socrates_is_mortal);
-*/
 
 } // namespace t81
