@@ -6,7 +6,7 @@ This file tracks strategic items beyond the near-term execution queue in `TASKS.
 
 ## 1. Formal Methods and Proofs
 
-- [ ] Formal verification for core balanced ternary arithmetic primitives (`T81Int`, `T81BigInt`, `T81Fraction`).
+- [ ] Formal verification for core balanced ternary arithmetic primitives (`T81Int`, `T81BigInt`, `T81Fraction`, `T81Prob`).
 - [ ] Proof-oriented validation for key Axion policy invariants.
 - [ ] Expand deterministic replay proofs across compiler + VM boundaries.
 
@@ -19,6 +19,7 @@ This file tracks strategic items beyond the near-term execution queue in `TASKS.
 ## 3. Runtime and Execution
 
 - [ ] Incremental deterministic trace-JIT hardening for numeric/tensor hot paths.
+- [ ] Native trace-JIT backend prototype (x86_64/ARM64) with deterministic mmap.
 - [ ] Evaluate distributed tensor orchestration patterns that preserve replay guarantees.
 
 ## 4. Ecosystem and Interop

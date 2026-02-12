@@ -216,6 +216,36 @@ No floating approximations allowed.
 
 ______________________________________________________________________
 
+## 2.5 T81Prob
+
+### Definition
+
+A native log-odds probability representation using:
+
+- **log-odds**: `T81Int<N>` (typically 27 trits)
+- stored in fixed-point base-φ (golden ratio) or natural log scale
+
+### Canonicalization Rules
+
+1. Value is stored as `log(p / (1-p))` scaled to fixed-point integer.
+2. `T81Int` representation MUST be canonical (no leading zeros).
+3. Special values:
+   - `0` (zero) represents p=0.5 (log-odds 0).
+   - `kMinValue` represents p=0 (minus infinity log-odds).
+   - `kMaxValue` represents p=1 (plus infinity log-odds).
+
+### Arithmetic
+
+Operations are performed in log-space:
+
+- `+` (addition): component-wise addition of log-odds (Bayesian update).
+- `softmax`: implemented as `log_softmax` via deterministic ternary addition.
+- `cmp`: standard integer comparison on log-odds values.
+
+All operations MUST be deterministic and overflow-checked.
+
+______________________________________________________________________
+
 # 3. Composite Types
 
 ## 3.1 Arrays
