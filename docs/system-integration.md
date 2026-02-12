@@ -282,9 +282,37 @@ The result is a program that can **autonomously optimize** while remaining withi
 
 This example demonstrates the simultaneous interaction of the language, distributed tensors, persistent storage, and self-modifying cognition.
 
-### The Scenario
-A T81Lang program orchestrates a distributed matrix multiplication across multiple shards. It detects a bottleneck and use Tier 4 reflection to patch its own communication logic.
+**`distributed_inference.t81`**
+```t81
+// Load model shards from CanonFS
+let shard_a = Tensor.load("sha3:1234abcd...");
+let shard_b = Tensor.load("sha3:5678efgh...");
 
+// Perform distributed matrix multiplication
+let result = shard_a.matmul(shard_b);
+
+// Measure performance (conceptual)
+let latency = observe_performance();
+
+if (latency > 100) {
+    reflect {
+        // Read and optimize sharding logic
+        let logic = read_code(32);
+        refine(32, optimize(logic));
+    }
+}
+```
+
+**`distributed_policy.apl`**
+```apl
+(policy
+  (max-instructions 2000)
+  (max-tensor-memory 512MB)
+  (require-reflection-cycle 3)
+  (allowed-tensor-hashes ["sha3:1234abcd..." "sha3:5678efgh..."]))
+```
+
+### The Coalescence
 1.  **Orchestration (T81Lang):** The program loads model shards from **CanonFS**, identifying them by their `CanonHash81`.
 2.  **Distributed Execution (HanoiVM + ShardedT729Tensor):** The VM executes `TMatMul` across sharded handles. **Axion** monitors the network/memory bounds defined in the policy.
 3.  **Performance Reflection (Tier 4):** The program observes a latency spike. It invokes `reflect {}`, reads the bytecode of its sharding loop via `MetaRead`, and proposes a more efficient sharding strategy using `MetaRefine`.
@@ -297,9 +325,32 @@ A T81Lang program orchestrates a distributed matrix multiplication across multip
 
 This example showcases the integration of core containers, persistent storage, and reflective evolution.
 
-### The Scenario
-An autonomous database engine manages a `T81Tree` stored on **CanonFS**. It evolves its own indexing algorithm based on query patterns.
+**`evolutionary_db.t81`**
+```t81
+let db = T81Tree();
 
+// ... database loop ...
+    let depth = query("some_key");
+
+    if (depth > max_depth) {
+        reflect {
+            // Switch indexing strategy via bytecode refinement
+            let query_logic = read_code(query);
+            refine(query, optimize(query_logic));
+        }
+    }
+```
+
+**`db_safety.apl`**
+```apl
+(policy
+  (max-instructions 5000)
+  (max-stack 1024)
+  (require-commit-verification true)
+  (require-reflection-cycle 5))
+```
+
+### The Coalescence
 1.  **Logic (T81Lang/TISC):** The database logic is written in T81Lang, utilizing `T81Map` and `T81Tree` for data organization and `T81BigInt` for high-precision transaction IDs.
 2.  **Persistence (CanonFS):** Leaf nodes are serialized and stored in CanonFS. Every database state is a unique `CanonHash81`, enabling perfect point-in-time recovery.
 3.  **Reflective Evolution (Tier 4):** The database "reflects" on its tree depth. It decides to switch from a B-Tree to a specialized Ternary Search Tree. It patches its search and insert functions in the `CODE` segment.
@@ -312,9 +363,32 @@ An autonomous database engine manages a `T81Tree` stored on **CanonFS**. It evol
 
 This example represents the pinnacle of the T81 architecture: a self-governing agent using neural decision-making and reflective self-correction.
 
-### The Scenario
-A `T81Agent` uses a `T729Tensor` neural network to make decisions. It observes its own "ethical" performance and refines its decision logic.
+**`autonomous_agent.t81`**
+```t81
+let agent = T81Agent.create("Guardian-Alpha", ["DECISION_MAKING", "REFLECTION"]);
+let decision_model = Tensor.load("sha3:9876lkjh...");
 
+// ... inside loop ...
+    let entropy_leak = agent.calculate_entropy_leak(action_prob);
+
+    if (entropy_leak > 0.1) {
+        reflect {
+            // Refine ethics filter upon violation
+            let refined_ethics = agent.refine_ethics(agent.get_ethics_policy(), entropy_leak);
+            agent.update_policy(refined_ethics);
+        }
+    }
+```
+
+**`agent_ethics.apl`**
+```apl
+(policy
+  (max-entropy-leakage 0.1)
+  (require-self-model-integrity true)
+  (require-axion-event ["Trap", "Reflect"]))
+```
+
+### The Coalescence
 1.  **Agent Identity (T81Agent):** The agent's state and capabilities are managed by the `T81Agent` core type, integrated with **Axion** for capability management.
 2.  **Neural Decision (T729Tensor):** A neural network (weights loaded from **CanonFS**) processes inputs. The **HanoiVM** executes the tensor operations using deterministic kernels.
 3.  **Ethical Oversight (Axion Policy):** The policy defines a set of "Invariants" (e.g., `max-entropy-leakage`). If the neural network proposes an action that violates these, Axion triggers a `Trap`.

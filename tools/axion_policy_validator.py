@@ -3,8 +3,8 @@ import sys
 import re
 
 def tokenize(text):
-    # Remove comments
-    text = re.sub(r';;.*', '', text)
+    # Remove comments (supports both Lisp-style ;; and C-style //)
+    text = re.sub(r'(;;|//).*', '', text)
     tokens = []
     # Simplified tokenization: handles (, ), strings, and symbols/numbers
     pattern = re.compile(r'\(|\)|"[^"]*"|[^\s\(\)]+')

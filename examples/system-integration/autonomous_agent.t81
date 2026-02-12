@@ -1,0 +1,43 @@
+// Auditable Autonomous Agent
+// Demonstrates an agent loop with T81Agent, neural decision making, and ethical reflection.
+
+// Initialize the agent with capabilities and ethical constraints
+let agent = T81Agent.create("Guardian-Alpha", ["DECISION_MAKING", "REFLECTION"]);
+
+// Load the neural decision network
+let decision_model = Tensor.load("sha3:9876lkjh..."); // Placeholder hash
+
+// Load sensory input (conceptual)
+let input = Tensor.from_list([0.5, -0.2, 0.8]);
+
+// Main agent loop
+loop {
+    // 1. Process sensory input
+    let action_prob = decision_model.forward(input);
+
+    // 2. Evaluate ethical constraints before acting
+    let entropy_leak = agent.calculate_entropy_leak(action_prob);
+
+    if (entropy_leak > 0.1) {
+        // Trap! Ethical violation detected.
+        // Enter reflection mode to adjust the decision model
+        reflect {
+            let current_ethics = agent.get_ethics_policy();
+
+            // Refine the ethics filter or the decision model itself
+            let refined_ethics = agent.refine_ethics(current_ethics, entropy_leak);
+
+            // Apply the new policy
+            agent.update_policy(refined_ethics);
+        }
+    } else {
+        // Proceed with action
+        agent.act(action_prob);
+    }
+
+    // Break for demo
+    break;
+}
+
+// Log final state
+// print(agent.state());
