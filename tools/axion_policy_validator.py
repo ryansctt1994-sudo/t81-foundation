@@ -2,15 +2,15 @@
 import sys
 import re
 
+# Simplified tokenization: handles (, ), strings, and symbols/numbers
+TOKEN_PATTERN = re.compile(r'\(|\)|"[^"]*"|[^\s\(\)]+')
+# Comment removal pattern
+COMMENT_PATTERN = re.compile(r'(;;|//).*')
+
 def tokenize(text):
     # Remove comments (supports both Lisp-style ;; and C-style //)
-    text = re.sub(r'(;;|//).*', '', text)
-    tokens = []
-    # Simplified tokenization: handles (, ), strings, and symbols/numbers
-    pattern = re.compile(r'\(|\)|"[^"]*"|[^\s\(\)]+')
-    for match in pattern.finditer(text):
-        tokens.append(match.group(0))
-    return tokens
+    text = COMMENT_PATTERN.sub('', text)
+    return TOKEN_PATTERN.findall(text)
 
 def parse_sexpr(tokens):
     if not tokens:
