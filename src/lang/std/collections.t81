@@ -1,0 +1,9 @@
+// src/lang/std/collections.t81
+// Collection utilities.
+
+// TODO: Implement List/Map bindings once native types are fully exposed.
+
+fn is_empty(v: T81Vector) -> bool {
+    // Placeholder
+    return true;
+}

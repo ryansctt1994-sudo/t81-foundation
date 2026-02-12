@@ -232,8 +232,7 @@ class expected<void, E> {
 namespace std {
 template <typename T, typename E>
 using expected = ::t81::expected<T, E>;
-template <typename E>
-using unexpected = ::t81::unexpected<E>;
+// using unexpected = ::t81::unexpected<E>; // Disabled to avoid clash with std::unexpected()
 using unexpect_t = ::t81::unexpect_t;
 using ::t81::make_unexpected;
 using ::t81::unexpect;

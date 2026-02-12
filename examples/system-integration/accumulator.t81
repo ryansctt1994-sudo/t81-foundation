@@ -1,0 +1,9 @@
+// A simple auditable summation
+let iterations = 100;
+var sum = 0;
+
+for i in (1..iterations) {
+    sum = sum + i;
+}
+
+print(sum);

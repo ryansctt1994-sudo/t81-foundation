@@ -17,7 +17,7 @@ ______________________________________________________________________
 
 ## P1 — Performance Path
 
-- [ ] Implement next-step `T81BigInt` acceleration (SIMD/Karatsuba path), preserving canonical behavior.
+- [x] Implement next-step `T81BigInt` acceleration (SIMD/Karatsuba path), preserving canonical behavior.
 - [ ] Profile and optimize hot tensor kernels used by demo/inference paths.
 - [ ] Improve CanonFS performance under sustained write/read workloads while preserving deterministic trace strings.
 
@@ -30,6 +30,7 @@ ______________________________________________________________________
 ## P3 — Verification and Hardening
 
 - [ ] Expand property/fuzz coverage for frontend + IR + VM boundary invariants.
+- [x] Implement deterministic Gumbel noise for `T81Prob` to support sampling.
 - [ ] Add additional parity checks for backend variants against deterministic scalar references.
 - [ ] Continue Axion policy/trace regression growth for guard/segment/match paths.
 

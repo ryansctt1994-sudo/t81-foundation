@@ -7,6 +7,7 @@
 #include "t81/frontend/ir_generator.hpp"
 #include "t81/tisc/binary_emitter.hpp"
 #include "t81/tisc/binary_io.hpp"
+#include "t81/tisc/opcodes.hpp"
 #include "t81/vm/vm.hpp"
 #include "t81/weights.hpp"
 
@@ -149,99 +150,6 @@ std::string summarize_snippet(const std::string& snippet) {
     return summary;
 }
 
-[[maybe_unused]] inline std::string opcode_name(t81::tisc::Opcode opcode) {
-    switch (opcode) {
-#define CASE(name) case t81::tisc::Opcode::name: return #name;
-        CASE(Nop)
-        CASE(Halt)
-        CASE(LoadImm)
-        CASE(Load)
-        CASE(Store)
-        CASE(Add)
-        CASE(Sub)
-        CASE(Mul)
-        CASE(Div)
-        CASE(Mod)
-        CASE(Jump)
-        CASE(JumpIfZero)
-        CASE(Mov)
-        CASE(Inc)
-        CASE(Dec)
-        CASE(Cmp)
-        CASE(Push)
-        CASE(Pop)
-        CASE(TNot)
-        CASE(TAnd)
-        CASE(TOr)
-        CASE(TXor)
-        CASE(AxRead)
-        CASE(AxSet)
-        CASE(AxVerify)
-        CASE(JumpIfNotZero)
-        CASE(Call)
-        CASE(Ret)
-        CASE(Trap)
-        CASE(I2F)
-        CASE(F2I)
-        CASE(I2Frac)
-        CASE(Frac2I)
-        CASE(TVecAdd)
-        CASE(TMatMul)
-        CASE(TTenDot)
-        CASE(FAdd)
-        CASE(FSub)
-        CASE(FMul)
-        CASE(FDiv)
-        CASE(FracAdd)
-        CASE(FracSub)
-        CASE(FracMul)
-        CASE(FracDiv)
-        CASE(SetF)
-        CASE(ChkShape)
-        CASE(MakeOptionSome)
-        CASE(MakeOptionNone)
-        CASE(MakeResultOk)
-        CASE(MakeResultErr)
-        CASE(MakeEnumVariant)
-        CASE(MakeEnumVariantPayload)
-        CASE(OptionIsSome)
-        CASE(OptionUnwrap)
-        CASE(ResultIsOk)
-        CASE(ResultUnwrapOk)
-        CASE(ResultUnwrapErr)
-        CASE(EnumIsVariant)
-        CASE(EnumUnwrapPayload)
-        CASE(Neg)
-        CASE(JumpIfNegative)
-        CASE(JumpIfPositive)
-        CASE(Less)
-        CASE(LessEqual)
-        CASE(Greater)
-        CASE(GreaterEqual)
-        CASE(Equal)
-        CASE(NotEqual)
-        CASE(StackAlloc)
-        CASE(StackFree)
-        CASE(HeapAlloc)
-        CASE(HeapFree)
-        CASE(WeightsLoad)
-        CASE(TExp)
-        CASE(TSqrt)
-        CASE(TSiLU)
-        CASE(TSoftmax)
-        CASE(TRMSNorm)
-        CASE(TRoPE)
-        CASE(TVecMul)
-        CASE(TTranspose)
-        CASE(MetaRead)
-        CASE(MetaWrite)
-        CASE(MetaReflect)
-        CASE(MetaRefine)
-        CASE(Print)
-#undef CASE
-    }
-    return "Opcode(" + std::to_string(static_cast<int>(opcode)) + ")";
-}
 
 std::string format_trace_entry(const t81::vm::TraceEntry& entry) {
     std::ostringstream oss;
@@ -870,14 +778,14 @@ int run_tisc(const fs::path& path, const std::optional<fs::path>& policy_path) {
     verbose("Program loaded (" + std::to_string(program.insns.size()) + " insns)");
 
     if (policy_path) {
-        verbose("Loading Axion policy: " + policy_path->string());
         std::ifstream ifs(*policy_path);
-        if (!ifs) {
+        if (ifs) {
+            std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+            program.axion_policy_text = content;
+            verbose("Axion policy loaded from " + policy_path->string());
+        } else {
             error("Could not open policy file: " + policy_path->string());
-            return 1;
         }
-        std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-        program.axion_policy_text = content;
     }
 
     auto vm = t81::vm::make_interpreter_vm();
@@ -887,7 +795,7 @@ int run_tisc(const fs::path& path, const std::optional<fs::path>& policy_path) {
     auto result = vm->run_to_halt();
 
     for (const auto& line : vm->state().printed_output) {
-        std::cout << line << "\n";
+        std::cerr << line << "\n";
     }
 
     if (!result) {
@@ -955,7 +863,7 @@ int debug_tisc(const fs::path& path, const std::optional<fs::path>& policy_path)
     auto vm = t81::vm::make_interpreter_vm();
     vm->load_program(program);
 
-    Debugger dbg(std::move(vm));
+    Debugger dbg(std::move(vm), program);
     dbg.run();
 
     return 0;

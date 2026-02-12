@@ -1,5 +1,8 @@
+// File: examples/hello_world.t81
+// Purpose: Minimal T81Lang example for symbolic agents and human readers
+// Description: Prints 'Hello, World!' in a ternary environment
+
 fn main() -> i32 {
-    let msg: T81String = "Hello, World!";
-    print(msg);
-    return 0;
+  print("Hello, World!");
+  return 0;
 }

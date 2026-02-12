@@ -31,12 +31,12 @@ int main() {
 
     [[maybe_unused]] t81::tisc::Insn insn1;
     insn1.opcode = t81::tisc::Opcode::Add;
-    insn1.a = 0; insn1.b = 1; insn1.c = 2;
+    insn1.a = 4; insn1.b = 1; insn1.c = 2; // R4 = R1 + R2 = 10 + 20 = 30
     compiler.record_instruction(insn1);
 
     [[maybe_unused]] t81::tisc::Insn insn2;
     insn2.opcode = t81::tisc::Opcode::Mul;
-    insn2.a = 3; insn2.b = 0; insn2.c = 1;
+    insn2.a = 3; insn2.b = 4; insn2.c = 1; // R3 = R4 * R1 = 30 * 10 = 300
     compiler.record_instruction(insn2);
 
     [[maybe_unused]] auto trace = compiler.compile();
@@ -46,10 +46,10 @@ int main() {
 
     [[maybe_unused]] auto exec = trace->execute(state);
 
-    std::cout << "R0: " << state.registers[0] << " (Expected 30)\n";
+    std::cout << "R4: " << state.registers[4] << " (Expected 30)\n";
     std::cout << "R3: " << state.registers[3] << " (Expected 300)\n";
 
-    if (!expect(state.registers[0] == 30, "R0 mismatch after Add")) {
+    if (!expect(state.registers[4] == 30, "R4 mismatch after Add")) {
         return 1;
     }
     if (!expect(state.registers[3] == 300, "R3 mismatch after Mul")) {
@@ -62,7 +62,7 @@ int main() {
     deopt_compiler.start_tracing(0);
     t81::tisc::Insn tmatmul{};
     tmatmul.opcode = t81::tisc::Opcode::TMatMul;
-    tmatmul.a = 0;
+    tmatmul.a = 4;
     tmatmul.b = 1;
     tmatmul.c = 2;
     deopt_compiler.record_instruction(tmatmul);

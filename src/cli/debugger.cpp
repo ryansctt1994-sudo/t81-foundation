@@ -1,13 +1,15 @@
 #include "debugger.hpp"
 #include "t81/cli/logging.hpp"
+#include "t81/tisc/opcodes.hpp"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 
 namespace t81::cli {
 
-Debugger::Debugger(std::unique_ptr<t81::vm::IVirtualMachine> vm)
-    : vm_(std::move(vm)) {}
+Debugger::Debugger(std::unique_ptr<t81::vm::IVirtualMachine> vm, t81::tisc::Program program)
+    : vm_(std::move(vm)), program_(std::move(program)) {}
 
 void Debugger::run() {
     info("HanoiVM Debugger active. Type 'h' for help.");
@@ -98,6 +100,9 @@ void Debugger::run() {
                 }
                 break;
             }
+            case 'l':
+                print_list();
+                break;
             case 'q':
                 quit_ = true;
                 break;
@@ -120,6 +125,7 @@ void Debugger::print_help() {
               << "  r          Print registers\n"
               << "  k          Print stack\n"
               << "  m <addr>   Print memory at address\n"
+              << "  l          List surrounding instructions\n"
               << "  h          Show this help\n"
               << "  q          Quit debugger\n";
 }
@@ -127,26 +133,73 @@ void Debugger::print_help() {
 void Debugger::print_registers() {
     const auto& state = vm_->state();
     std::cout << "Registers:\n";
-    for (int i = 0; i < 9; ++i) { // Show first 9 for brevity
-        std::cout << "  R" << i << ": " << state.registers[i] << "\n";
+    // Print common registers
+    for (int i = 0; i < 9; ++i) {
+        std::cout << "  R" << std::setw(2) << std::left << i << ": " << state.registers[i] << "\n";
+    }
+    // Print non-zero others
+    for (int i = 9; i < 243; ++i) {
+        if (state.registers[i] != 0) {
+            std::cout << "  R" << i << ": " << state.registers[i] << "\n";
+        }
     }
     std::cout << "  PC: " << state.pc << "\n";
     std::cout << "  SP: " << state.sp << "\n";
+    std::cout << "  Flags: " << (state.flags.zero ? "Z" : "")
+              << (state.flags.negative ? "N" : "")
+              << (state.flags.positive ? "P" : "") << "\n";
 }
 
 void Debugger::print_stack() {
     const auto& state = vm_->state();
     std::cout << "Stack (top 10):\n";
     std::size_t count = 0;
+
+    if (state.sp == 0) {
+        std::cout << "  <empty>\n";
+        return;
+    }
+
     for (std::size_t i = state.sp; i > 0 && count < 10; --i, ++count) {
-        std::cout << "  [" << i - 1 << "]: " << state.memory[i - 1] << "\n";
+        std::size_t addr = i - 1;
+        if (addr < state.memory.size()) {
+            std::cout << "  [" << addr << "]: " << state.memory[addr] << "\n";
+        }
     }
 }
 
 void Debugger::print_current_instruction() {
     const auto& state = vm_->state();
     if (state.halted) return;
-    std::cout << "[" << std::setw(4) << state.pc << "] ";
+
+    if (state.pc < program_.insns.size()) {
+        const auto& insn = program_.insns[state.pc];
+        std::cout << "[" << std::setw(4) << state.pc << "] "
+                  << t81::tisc::opcode_name(insn.opcode);
+        std::cout << " " << insn.a << ", " << insn.b << ", " << insn.c;
+        if (insn.literal_kind != t81::tisc::LiteralKind::Int) {
+             std::cout << " (lit=" << static_cast<int>(insn.literal_kind) << ")";
+        }
+        std::cout << "\n";
+    } else {
+        std::cout << "[" << std::setw(4) << state.pc << "] <invalid PC>\n";
+    }
+}
+
+void Debugger::print_list() {
+    const auto& state = vm_->state();
+    std::size_t start = (state.pc >= 5) ? state.pc - 5 : 0;
+    std::size_t end = std::min(state.pc + 6, program_.insns.size());
+
+    for (std::size_t i = start; i < end; ++i) {
+        const auto& insn = program_.insns[i];
+        if (i == state.pc) std::cout << "-> ";
+        else std::cout << "   ";
+
+        std::cout << "[" << std::setw(4) << i << "] "
+                  << t81::tisc::opcode_name(insn.opcode)
+                  << " " << insn.a << ", " << insn.b << ", " << insn.c << "\n";
+    }
 }
 
 void Debugger::print_memory(std::size_t addr) {

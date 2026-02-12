@@ -11,6 +11,7 @@
 #include "t81/frontend/parser.hpp"
 #include <cctype>
 #include <iostream>
+#include "t81/frontend/semantic_analyzer.hpp"
 
 namespace t81 {
 namespace frontend {
@@ -294,6 +295,19 @@ std::unique_ptr<Stmt> Parser::statement() {
         auto body = statement();
         return std::make_unique<WhileStmt>(std::move(condition), std::move(body));
     }
+    if (match({TokenType::For})) {
+        Token iterator = consume(TokenType::Identifier, "Expect iterator name.");
+        consume(TokenType::In, "Expect 'in' after iterator name.");
+        auto iterable = expression();
+        auto body = statement();
+        return std::make_unique<ForStmt>(iterator, std::move(iterable), std::move(body));
+    }
+    if (match({TokenType::Reflect})) {
+        Token keyword = previous();
+        consume(TokenType::LBrace, "Expect '{' after 'reflect'.");
+        std::vector<std::unique_ptr<Stmt>> body = block();
+        return std::make_unique<ReflectStmt>(keyword, std::move(body));
+    }
     if (check(TokenType::At) || check(TokenType::Loop)) {
         return loop_statement();
     }
@@ -367,9 +381,9 @@ std::unique_ptr<Expr> Parser::expression() {
 }
 
 // Parses an assignment expression.
-// assignment -> IDENTIFIER "=" assignment | equality ;
+// assignment -> IDENTIFIER "=" assignment | range ;
 std::unique_ptr<Expr> Parser::assignment() {
-    std::unique_ptr<Expr> expr = equality();
+    std::unique_ptr<Expr> expr = range();
     if (match({TokenType::Equal})) {
         Token equals = previous();
         std::unique_ptr<Expr> value = assignment();
@@ -378,6 +392,18 @@ std::unique_ptr<Expr> Parser::assignment() {
             return std::make_unique<AssignExpr>(name, std::move(value));
         }
         report_error(equals, "Invalid assignment target");
+    }
+    return expr;
+}
+
+// Parses a range expression.
+// range -> equality ( ".." equality )? ;
+std::unique_ptr<Expr> Parser::range() {
+    std::unique_ptr<Expr> expr = equality();
+    if (match({TokenType::DotDot})) {
+        Token op = previous();
+        std::unique_ptr<Expr> right = equality();
+        return std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
     }
     return expr;
 }
@@ -807,15 +833,42 @@ bool Parser::try_parse_enum_literal(const Token& token, Token& enum_name, Token&
     return true;
 }
 
+// Helper function to convert Type to string representation
+std::string type_to_string(const Type& type) {
+    switch (type.kind) {
+        case Type::Kind::Void: return "Void";
+        case Type::Kind::Bool: return "Bool";
+        case Type::Kind::I2: return "I2";
+        case Type::Kind::I8: return "I8";
+        case Type::Kind::I16: return "I16";
+        case Type::Kind::I32: return "I32";
+        case Type::Kind::BigInt: return "T81BigInt";
+        case Type::Kind::Float: return "T81Float";
+        case Type::Kind::Fraction: return "T81Fraction";
+        case Type::Kind::Vector: return "Vector";
+        case Type::Kind::Matrix: return "Matrix";
+        case Type::Kind::Tensor: return "Tensor";
+        case Type::Kind::Graph: return "Graph";
+        case Type::Kind::Option: return "Option";
+        case Type::Kind::Result: return "Result";
+        case Type::Kind::String: return "T81String";
+        case Type::Kind::Constant: return "const(" + type.custom_name + ")";
+        case Type::Kind::Custom: return type.custom_name;
+        case Type::Kind::Unknown: return "<unknown>";
+        case Type::Kind::Error: return "<error>";
+    }
+    return "<error>";
+}
+
 std::unique_ptr<GenericTypeExpr> Parser::parse_generic_type(Token name) {
     consume(TokenType::LBracket, "Expect '[' after generic type name.");
     std::array<std::unique_ptr<Expr>, 8> parameters;
     size_t param_count = 0;
     std::string_view type_name{name.lexeme};
-
+    
     // First parameter must be a type.
     parameters[param_count++] = type();
-
+    
     // Subsequent parameters are constant value expressions (structural-result types are treated specially).
     while (match({TokenType::Comma})) {
         if (param_count >= 8) {
@@ -842,7 +895,8 @@ bool Parser::is_type_start() {
            check(TokenType::I32) || check(TokenType::I16) || check(TokenType::I8) || check(TokenType::I2) ||
            check(TokenType::Bool) || check(TokenType::Void) ||
            check(TokenType::T81BigInt) || check(TokenType::T81Float) || check(TokenType::T81Fraction) ||
-           check(TokenType::Vector) || check(TokenType::Matrix) || check(TokenType::Tensor) || check(TokenType::Graph);
+           check(TokenType::T81Vector) || check(TokenType::Matrix) || check(TokenType::Tensor) || check(TokenType::Graph) ||
+           check(TokenType::String);
 }
 
 // Parses a type expression.

@@ -1,0 +1,20 @@
+// src/lang/std/math.t81
+// Mathematical constants and functions.
+
+// Constants (registers initialized at startup)
+let PI: T81Float = 3.141592653589793;
+let E: T81Float = 2.718281828459045;
+
+fn to_degrees(radians: T81Float) -> T81Float {
+    return radians * (180.0 / 3.141592653589793);
+}
+
+fn to_radians(degrees: T81Float) -> T81Float {
+    return degrees * (3.141592653589793 / 180.0);
+}
+
+fn clamp(v: T81Float, min: T81Float, max: T81Float) -> T81Float {
+    if (v < min) { return min; }
+    if (v > max) { return max; }
+    return v;
+}

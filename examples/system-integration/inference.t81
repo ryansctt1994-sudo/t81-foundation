@@ -1,0 +1,7 @@
+// Load model weights from a content-addressed store
+let weights = Tensor.load("sha3:4158a421...");
+let input = Tensor.from_list([1.0, 0.0, 2.0]);
+
+// Perform the gated multiplication
+let result = input.matmul(weights);
+// print(result); // Tensor printing not supported yet

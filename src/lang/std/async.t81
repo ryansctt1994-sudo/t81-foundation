@@ -1,0 +1,10 @@
+// src/lang/std/async.t81
+// Concurrency primitives (stubs).
+
+fn yield() -> void {
+    // Yield execution
+}
+
+fn sleep(duration: T81Float) -> void {
+    // Sleep
+}

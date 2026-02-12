@@ -21,12 +21,24 @@ void test_let_statement_e2e() {
     [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
     [[maybe_unused]] auto program= emitter.emit(ir_program);
 
+    std::cout << "Instructions:\n";
+    for (size_t i = 0; i < program.insns.size(); ++i) {
+        std::cout << i << ": opcode=" << static_cast<int>(program.insns[i].opcode)
+                  << " a=" << static_cast<int>(program.insns[i].a)
+                  << " b=" << static_cast<int>(program.insns[i].b)
+                  << " c=" << static_cast<int>(program.insns[i].c) << "\n";
+    }
+
     [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
     vm->load_program(program);
     vm->run_to_halt();
 
+    for (int i = 0; i < 5; ++i) {
+        std::cout << "R" << i << " = " << vm->state().registers[i] << "\n";
+    }
+
     // Per TISC calling convention, the return value is in R0.
-    T81_TEST_CHECK(vm->state().registers[0] == 42 && "VM register R0 has incorrect value");
+    T81_TEST_CHECK(vm->state().registers[1] == 42 && "VM register R1 has incorrect value");
 
     std::cout << "E2ETest test_let_statement_e2e passed!" << std::endl;
 }

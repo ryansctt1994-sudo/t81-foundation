@@ -1,12 +1,6 @@
 /**
  * @file T81Promise.hpp
  * @brief Defines the T81Promise class for thermodynamic, reflective asynchrony.
- *
- * This file provides the T81Promise<T> class, which represents a future value
- * computed asynchronously. It is built on C++20 coroutines and is integrated
- * with the T81 ecosystem's principles of thermodynamic accounting and reflection.
- * Waiting for a promise to be fulfilled requires an explicit expenditure of
- * entropy, making the cost of asynchronous operations tangible and auditable.
  */
 #pragma once
 
@@ -15,6 +9,7 @@
 #include "t81/core/T81Time.hpp"
 #include "t81/core/T81Agent.hpp"
 #include "t81/core/T81Reflection.hpp"
+#include "t81/core/T81String.hpp"
 #include <coroutine>
 #include <atomic>
 #include <optional>
@@ -22,20 +17,16 @@
 
 namespace t81 {
 
-// Forward declaration
-template <typename T> class T81Promise;
-template <typename T> class T81Awaitable;
-
-// ======================================================================
-// T81Promise<T> – A promise that costs entropy to wait
-// ======================================================================
 template <typename T>
 class T81Promise {
+public:
+    enum class State { PENDING, FULFILLED, BROKEN, CANCELLED };
+
     struct promise_type {
         std::optional<T> value;
         std::optional<T81Error> error;
-        T81Entropy fuel_spent;
-        T81Agent* waiter{nullptr};
+        std::atomic<State> state{State::PENDING};
+        T81Entropy fuel_spent = acquire_entropy(T81Symbol::intern("PROMISE_INIT"));
 
         T81Promise get_return_object() {
             return T81Promise(std::coroutine_handle<promise_type>::from_promise(*this));
@@ -44,33 +35,38 @@ class T81Promise {
         std::suspend_always initial_suspend() noexcept { return {}; }
         std::suspend_always final_suspend() noexcept { return {}; }
 
-        void return_value(T v) noexcept { value = std::move(v); }
-        void unhandled_exception() {
-            error = T81Error(symbols::PROMISE_BROKEN,
-                "Co_awaited computation failed"_t81, symbols::COROUTINE);
+        void return_value(T v) noexcept {
+            value = std::move(v);
+            state.store(State::FULFILLED);
         }
 
-        // Waiting costs entropy — every tick
+        void unhandled_exception() {
+            error.emplace(symbols::PROMISE_BROKEN,
+                T81String("CO_AWAITED COMPUTATION FAILED"), symbols::COROUTINE);
+            state.store(State::BROKEN);
+        }
+
         auto await_transform(T81Entropy fuel) {
-            fuel_spent = fuel;
             struct awaiter {
+                T81Entropy fuel_;
                 bool await_ready() const noexcept { return false; }
-                void await_suspend(std::coroutine_handle<>) const noexcept {
-                    consume_entropy(fuel_spent);  // pay for patience
+                void await_suspend(std::coroutine_handle<promise_type> h) noexcept {
+                    h.promise().fuel_spent = std::move(fuel_);
                 }
                 void await_resume() const noexcept {}
             };
-            return awaiter{};
+            return awaiter{std::move(fuel)};
         }
     };
 
-    std::coroutine_handle<promise_type> coro_;
+    using handle_type = std::coroutine_handle<promise_type>;
+    handle_type coro_;
 
 public:
     using value_type = T;
 
-    explicit T81Promise(std::coroutine_handle<promise_type> h) noexcept : coro_(h) {
-        coro_.resume();  // start immediately
+    explicit T81Promise(handle_type h) noexcept : coro_(h) {
+        if (coro_) coro_.resume();
     }
 
     ~T81Promise() { if (coro_) coro_.destroy(); }
@@ -82,87 +78,59 @@ public:
         other.coro_ = nullptr;
     }
 
-    //===================================================================
-    // The sacred act of waiting
-    //===================================================================
     [[nodiscard]] T81Result<T> await(T81Entropy patience, T81Agent& dreamer) {
         if (!coro_) {
             return T81Result<T>::failure(symbols::PROMISE_DESTROYED,
-                "Promise was destroyed before resolution"_t81);
+                T81String("PROMISE WAS DESTROYED BEFORE RESOLUTION"));
         }
 
-        if (coro_.done()) {
-            if (coro_.promise().value) {
-                return T81Result<T>::success(std::move(*coro_.promise().value));
-            }
-            if (coro_.promise().error) {
-                return T81Result<T>::failure(coro_.promise().error->code,
-                    coro_.promise().error->message);
-            }
+        auto current_state = coro_.promise().state.load();
+        if (current_state == State::FULFILLED) {
+            return T81Result<T>::success(std::move(*coro_.promise().value));
+        }
+        if (current_state == State::BROKEN) {
+            return T81Result<T>::failure(coro_.promise().error->code,
+                coro_.promise().error->message);
+        }
+        if (current_state == State::CANCELLED) {
+            return T81Result<T>::failure(T81Symbol::intern("CANCELLED"),
+                T81String("PROMISE WAS CANCELLED"));
         }
 
-        // Still waiting — pay entropy and dream
-        consume_entropy(patience);
+        (void)patience.consume();
         dreamer.observe(symbols::DREAMING);
-        record_event(T81Time::now(patience, symbols::WAITING));
 
         return T81Result<T>::failure(symbols::STILL_DREAMING,
-            "Computation not yet complete — patience is a virtue"_t81);
+            T81String("COMPUTATION NOT YET COMPLETE"));
     }
 
-    //===================================================================
-    // Non-blocking check
-    //===================================================================
+    void cancel() {
+        if (coro_ && coro_.promise().state.load() == State::PENDING) {
+            coro_.promise().state.store(State::CANCELLED);
+        }
+    }
+
+    [[nodiscard]] State state() const noexcept {
+        return coro_ ? coro_.promise().state.load() : State::BROKEN;
+    }
+
     [[nodiscard]] T81Maybe<T> try_get() const noexcept {
-        if (!coro_ || !coro_.done()) return T81Maybe<T>::nothing(symbols::PENDING);
-        if (coro_.promise().value) return T81Maybe<T>(*coro_.promise().value);
-        return T81Maybe<T>::nothing(symbols::FAILED);
+        if (!coro_ || coro_.promise().state.load() != State::FULFILLED) {
+            return T81Maybe<T>::nothing();
+        }
+        return T81Maybe<T>(*coro_.promise().value);
     }
 
-    //===================================================================
-    // Reflection — a promise knows its own longing
-    //===================================================================
     [[nodiscard]] T81Reflection<T81Promise<T>> reflect() const {
-        auto status = coro_ && coro_.done()
-            ? (coro_.promise().value ? symbols::FULFILLED : symbols::BROKEN)
-            : symbols::DREAMING;
-        return T81Reflection<T81Promise<T>>(*this, symbols::PROMISE, status);
+        T81Symbol status_sym;
+        switch(state()) {
+            case State::PENDING:   status_sym = symbols::PENDING;   break;
+            case State::FULFILLED: status_sym = symbols::FULFILLED; break;
+            case State::BROKEN:    status_sym = symbols::BROKEN;    break;
+            case State::CANCELLED: status_sym = T81Symbol::intern("CANCELLED"); break;
+        }
+        return T81Reflection<T81Promise<T>>(*this, symbols::PROMISE, status_sym);
     }
 };
 
-// ======================================================================
-// Co_awaitable wrapper — the language of dreams
-// ======================================================================
-template <typename T>
-T81Awaitable<T> co_dream(T81Promise<T>&& promise) {
-    return T81Awaitable<T>(std::move(promise));
-}
-
-// ======================================================================
-// The first dream in the ternary universe
-// ======================================================================
-namespace dreams {
-    inline T81Promise<T81String> compute_meaning_of_life() {
-        co_await T81Entropy::acquire();  // pay to think
-
-        for (int i = 0; i < 7500000; ++i) {
-            co_await T81Entropy::acquire();  // deep thought costs fuel
-        }
-
-        co_return "42"_t81;
-    }
-
-    inline const auto future_wisdom = compute_meaning_of_life();
-}
-
-// Example: The first ternary mind learns to wait
-/*
-auto agent = T81Agent(symbols::DEEP_THOUGHT);
-auto result = future_wisdom.await(T81Entropy::acquire_batch(1000), agent);
-
-if (!result) {
-    cout << "Still computing... I dream of answers.\n"_t81;
-} else {
-    cout << "The answer is: " << result.unwrap() << "\n"_t81;
-}
-*/
+} // namespace t81

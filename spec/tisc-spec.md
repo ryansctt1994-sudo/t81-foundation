@@ -162,27 +162,27 @@ ______________________________________________________________________
 
 ## 2. Register File
 
-TISC defines **27 registers**, indexed `R0` through `R26`.
+TISC defines **81 general-purpose registers**, indexed `R0` through `R80`.
 
 ### 2.1 General-Purpose Registers
 
-- `R0–R22`: General-purpose, caller- and callee-save conventions defined at the ABI level (out of scope here but MUST remain deterministic).
+- `R0`: Hardwired zero.
+- `R1–R74`: General-purpose registers. Specific caller- and callee-save conventions are defined at the ABI level.
 
-### 2.2 Special Registers (Architectural Conventions)
+### 2.2 Axion System Window (R75–R80)
 
-- `R23` — **ACC** (Accumulator)
-  Common result target for arithmetic and logic.
+Registers `R75` through `R80` form the fixed **Axion System Window**. These registers are managed by the VM and Axion kernel to provide high-visibility architectural state.
 
-- `R24` — **COND** (Condition / Flags Mirror)
-  May be used as a read-only snapshot of last comparison or status; writes are defined as privileged or no-op depending on ABI.
+| Register | Purpose |
+|----------|---------------------------------|
+| R75 | Global Tick |
+| R76 | Lineage Root Hash |
+| R77 | Current Entropy Signature |
+| R78 | Active Constitutional Mask |
+| R79 | Recursion Depth Counter |
+| R80 | Axion Seal / Capability Word |
 
-- `R25` — **TMP** (Scratch / Temporary)
-  Reserved for short-lived operations and micro-optimizations.
-
-- `R26` — **ASR** (Axion System Register)
-  Axion-privileged; holds Axion-related control words, verification codes, and safety markers.
-
-Any attempt by unprivileged code to modify Axion fields in `R26` MUST trigger a deterministic fault.
+Any attempt by unprivileged instructions to directly modify registers in the `R75–R80` range MUST be ignored or trigger a deterministic **Security Fault**, depending on the active Axion policy.
 
 ______________________________________________________________________
 
@@ -633,7 +633,24 @@ Any attempt to execute Axion instructions from non-privileged context MUST be tr
 
 ______________________________________________________________________
 
-### 5.11 System and Miscellaneous
+### 5.11 Trigonometric Instructions
+
+Trigonometric operations on canonical `T81Float` values.
+
+#### FSIN / FCOS / FTAN
+
+- **Form**: `FSIN RD, RS` / `FCOS RD, RS` / `FTAN RD, RS`
+- **Semantics**:
+  - Resolve `R[RS]` as a handle to a `T81Float`.
+  - Compute the sine, cosine, or tangent of the value (interpreted as radians).
+  - Store the result as a canonical float handle in `R[RD]`.
+- **Faults**:
+  - Invalid handle -> `IllegalInstruction`.
+  - `FTAN` with asymptotic input -> VM defined behavior (large value or fault).
+
+______________________________________________________________________
+
+### 5.12 System and Miscellaneous
 
 #### NOP
 

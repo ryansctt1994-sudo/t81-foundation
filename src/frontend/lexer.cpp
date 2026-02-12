@@ -29,7 +29,7 @@ const std::unordered_map<std::string_view, TokenType> KEYWORDS = {
     {"export", TokenType::Export}, {"fn", TokenType::Fn},         {"let", TokenType::Let},
     {"var", TokenType::Var},       {"if", TokenType::If},         {"else", TokenType::Else},
     {"for", TokenType::For},       {"in", TokenType::In},         {"while", TokenType::While},
-    {"loop", TokenType::Loop},
+    {"loop", TokenType::Loop},     {"reflect", TokenType::Reflect},
     {"record", TokenType::Record}, {"enum", TokenType::Enum},
     {"break", TokenType::Break},   {"continue", TokenType::Continue}, {"return", TokenType::Return},
     {"match", TokenType::Match},
@@ -38,7 +38,8 @@ const std::unordered_map<std::string_view, TokenType> KEYWORDS = {
     {"i8", TokenType::I8},         {"i2", TokenType::I2},
     {"T81BigInt", TokenType::T81BigInt}, {"T81Float", TokenType::T81Float},
     {"T81Fraction", TokenType::T81Fraction},
-    {"vector", TokenType::Vector}, {"matrix", TokenType::Matrix},
+    {"T81String", TokenType::String}, {"T81Vector", TokenType::T81Vector},
+    {"matrix", TokenType::Matrix},
     {"tensor", TokenType::Tensor}, {"graph", TokenType::Graph},
 };
 

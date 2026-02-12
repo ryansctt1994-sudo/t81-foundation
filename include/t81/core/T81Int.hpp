@@ -150,6 +150,13 @@ public:
         return Trit::Z;
     }
 
+    constexpr size_type significant_trits() const noexcept {
+        for (size_type i = kNumTrits; i-- > 0; ) {
+            if (get_trit(i) != Trit::Z) return i + 1;
+        }
+        return 0;
+    }
+
 private:
     void assign_from_int64(std::int64_t v) {
         clear();
@@ -212,7 +219,7 @@ public:
     T to_binary() const {
         static_assert(std::is_integral<T>::value, "T must be integral");
         const std::int64_t val = to_int64();
-        if (val > std::numeric_limits<T>::max() || val < std::numeric_limits<T>::min())
+        if (std::cmp_greater(val, std::numeric_limits<T>::max()) || std::cmp_less(val, std::numeric_limits<T>::min()))
             throw std::overflow_error("T81Int::to_binary overflow");
         return static_cast<T>(val);
     }

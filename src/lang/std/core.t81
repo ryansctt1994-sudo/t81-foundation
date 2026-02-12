@@ -1,0 +1,27 @@
+// src/lang/std/core.t81
+// Core definitions and utilities for T81Lang.
+
+// Basic assertion
+fn assert(condition: bool) -> void {
+    if (condition) {
+        return;
+    }
+    print("Assertion failed!");
+    // Force trap (division by zero) until we have panic() or exit()
+    let zero: i32 = 0;
+    let _crash: i32 = 1 / zero;
+}
+
+// Debug printing
+fn debug(msg: T81String) -> void {
+    // Prefix not supported yet due to lack of string concat
+    print(msg);
+}
+
+// Option type (built-in but helpers can be here)
+fn unwrap_or(opt: Option[i32], default_val: i32) -> i32 {
+    match opt {
+        Some(v) => v,
+        None => default_val
+    }
+}

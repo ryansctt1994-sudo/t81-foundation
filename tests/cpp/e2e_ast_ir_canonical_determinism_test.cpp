@@ -419,6 +419,8 @@ const char* ir_opcode_name(tisc::ir::Opcode op) {
     case O::META_WRITE: return "META_WRITE";
     case O::META_REFLECT: return "META_REFLECT";
     case O::META_REFINE: return "META_REFINE";
+    case t81::tisc::ir::Opcode::TMATMUL: return "TMATMUL";
+    case t81::tisc::ir::Opcode::TVECADD: return "TVECADD";
     case O::LABEL: return "LABEL";
   }
   return "UNKNOWN";

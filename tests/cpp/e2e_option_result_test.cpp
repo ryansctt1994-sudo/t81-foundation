@@ -34,7 +34,7 @@ int64_t run_e2e_test(const std::string& source) {
     vm->load_program(program);
     vm->run_to_halt();
 
-    return vm->state().registers[0];
+    return vm->state().registers[1];
 }
 
 void test_option_result() {
