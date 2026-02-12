@@ -30,6 +30,7 @@ ______________________________________________________________________
 ## P3 — Verification and Hardening
 
 - [ ] Expand property/fuzz coverage for frontend + IR + VM boundary invariants.
+- [x] Implement deterministic Gumbel noise for `T81Prob` to support sampling.
 - [ ] Add additional parity checks for backend variants against deterministic scalar references.
 - [ ] Continue Axion policy/trace regression growth for guard/segment/match paths.
 
