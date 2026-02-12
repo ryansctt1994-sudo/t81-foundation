@@ -61,7 +61,7 @@ int main() {
   run_and_check("fn main() -> T81Float { return 1.20t81; }",
                 [](const vm::State& state) {
                   const double expected = expected_base81_float();
-                  [[maybe_unused]] int handle= static_cast<int>(state.registers[0]);
+                  [[maybe_unused]] int handle= static_cast<int>(state.registers[1]);
                   assert(handle == 1);
                   assert(handle <= static_cast<int>(state.floats.size()));
                   assert(std::fabs(state.floats[handle - 1] - expected) < 1e-9);
@@ -70,7 +70,7 @@ int main() {
   // Returning a fraction literal.
   run_and_check("fn main() -> T81Fraction { return 22/7t81; }",
                 [](const vm::State& state) {
-                  [[maybe_unused]] int handle= static_cast<int>(state.registers[0]);
+                  [[maybe_unused]] int handle= static_cast<int>(state.registers[1]);
                   assert(handle == 1);
                   assert(handle <= static_cast<int>(state.fractions.size()));
                   const auto& frac = state.fractions[handle - 1];
@@ -81,7 +81,7 @@ int main() {
   // Returning a symbol literal.
   run_and_check("fn main() -> Symbol { return :omega; }",
                 [](const vm::State& state) {
-                  [[maybe_unused]] int handle= static_cast<int>(state.registers[0]);
+                  [[maybe_unused]] int handle= static_cast<int>(state.registers[1]);
                   assert(handle == 1);
                   assert(handle <= static_cast<int>(state.symbols.size()));
                   assert(state.symbols[handle - 1] == "omega");

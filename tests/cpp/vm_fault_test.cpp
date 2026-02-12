@@ -20,7 +20,7 @@ t81::vm::Trap run_expected_trap(const std::vector<t81::tisc::Insn>& insns) {
 int main() {
     [[maybe_unused]] t81::tisc::Insn load_ten;
     load_ten.opcode = t81::tisc::Opcode::LoadImm;
-    load_ten.a = 0;
+    load_ten.a = 2; // R2
     load_ten.b = 10;
     [[maybe_unused]] t81::tisc::Insn load_zero;
     load_zero.opcode = t81::tisc::Opcode::LoadImm;
@@ -28,8 +28,8 @@ int main() {
     load_zero.b = 0;
     [[maybe_unused]] t81::tisc::Insn div;
     div.opcode = t81::tisc::Opcode::Div;
-    div.a = 0;
-    div.b = 0;
+    div.a = 2;
+    div.b = 2;
     div.c = 1;
     [[maybe_unused]] t81::tisc::Insn halt;
     halt.opcode = t81::tisc::Opcode::Halt;
@@ -38,13 +38,13 @@ int main() {
 
     [[maybe_unused]] t81::tisc::Insn load_bad;
     load_bad.opcode = t81::tisc::Opcode::Load;
-    load_bad.a = 0;
+    load_bad.a = 1;
     load_bad.b = 999999;
     load_bad.c = 0;
     [[maybe_unused]] auto trap_invalid_mem= run_expected_trap({load_bad, halt});
     T81_TEST_CHECK(trap_invalid_mem == t81::vm::Trap::BoundsFault);
 
-    t81::tisc::Insn pop{t81::tisc::Opcode::Pop, {0}};
+    t81::tisc::Insn pop{t81::tisc::Opcode::Pop, {1}};
     [[maybe_unused]] auto trap_bounds= run_expected_trap({pop, halt});
     T81_TEST_CHECK(trap_bounds == t81::vm::Trap::StackFault);
 
@@ -58,7 +58,7 @@ int main() {
 
     [[maybe_unused]] t81::tisc::Insn load_neg;
     load_neg.opcode = t81::tisc::Opcode::Load;
-    load_neg.a = 0;
+    load_neg.a = 1;
     load_neg.b = -1;
     load_neg.c = 0;
     [[maybe_unused]] auto trap_load_neg= run_expected_trap({load_neg, halt});

@@ -67,14 +67,14 @@ int main() {
 
         vm->step(); // PC 0
         vm->step(); // PC 1
-        T81_TEST_CHECK(vm->state().registers[0] == 20);
+        T81_TEST_CHECK(vm->state().registers[1] == 20);
         vm->step(); // PC 2
         vm->step(); // PC 3
         vm->step(); // PC 4 (patch)
         vm->step(); // PC 5 (jump 1)
         T81_TEST_CHECK(vm->state().pc == 1);
         vm->step(); // PC 1 (patched)
-        T81_TEST_CHECK(vm->state().registers[0] == 1010);
+        T81_TEST_CHECK(vm->state().registers[1] == 1010);
 
         std::cout << "  Self-Patching (CODE segment): PASS\n";
     }

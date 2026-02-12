@@ -21,7 +21,7 @@ enum class TokenType {
     // Keywords
     Module, Type, Const, Export, Fn, Let, Var,
     Record, Enum,
-    If, Else, For, In, While, Loop, Break, Continue, Return, Match,
+    If, Else, For, In, While, Loop, Reflect, Break, Continue, Return, Match,
     True, False,
 
     // Type Keywords

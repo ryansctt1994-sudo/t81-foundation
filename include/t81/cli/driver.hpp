@@ -25,7 +25,8 @@ int compile(const std::filesystem::path& input,
             const std::string& source_override = {},
             const std::string& source_name = {},
             std::shared_ptr<t81::weights::ModelFile> weights_model = nullptr);
-int run_tisc(const std::filesystem::path& path);
+int run_tisc(const std::filesystem::path& path,
+             const std::optional<std::filesystem::path>& policy_path = std::nullopt);
 int disasm_tisc(const std::filesystem::path& path);
 int debug_tisc(const std::filesystem::path& path);
 int check_syntax(const std::filesystem::path& path);

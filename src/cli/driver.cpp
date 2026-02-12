@@ -843,17 +843,32 @@ int repl(const std::shared_ptr<t81::weights::ModelFile>& weights_model,
     return 0;
 }
 
-int run_tisc(const fs::path& path) {
+int run_tisc(const fs::path& path, const std::optional<fs::path>& policy_path) {
     verbose("Loading TISC program: " + path.string());
 
     auto program = t81::tisc::load_program(path.string());
     verbose("Program loaded (" + std::to_string(program.insns.size()) + " insns)");
+
+    if (policy_path) {
+        std::ifstream ifs(*policy_path);
+        if (ifs) {
+            std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+            program.axion_policy_text = content;
+            verbose("Axion policy loaded from " + policy_path->string());
+        } else {
+            error("Could not open policy file: " + policy_path->string());
+        }
+    }
 
     auto vm = t81::vm::make_interpreter_vm();
     vm->load_program(program);
 
     verbose("Executing...");
     auto result = vm->run_to_halt();
+
+    for (const auto& line : vm->state().printed_output) {
+        std::cerr << line << "\n";
+    }
 
     if (!result) {
         error("Execution trapped: " + t81::vm::to_string(result.error()));

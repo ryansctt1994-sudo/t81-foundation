@@ -68,6 +68,20 @@ public:
         return parenthesize("while", {&stmt.condition, &stmt.body});
     }
 
+    std::any visit(const ForStmt& stmt) override {
+        return parenthesize("for " + std::string(stmt.iterator.lexeme) + " in", {&stmt.iterable, &stmt.body});
+    }
+
+    std::any visit(const ReflectStmt& stmt) override {
+        [[maybe_unused]] std::stringstream ss;
+        ss << "(reflect (block";
+        for (const auto& s : stmt.body) {
+            ss << " " << print(*s);
+        }
+        ss << "))";
+        return ss.str();
+    }
+
     std::any visit(const LoopStmt& stmt) override {
         [[maybe_unused]] std::stringstream ss;
         ss << "(loop";

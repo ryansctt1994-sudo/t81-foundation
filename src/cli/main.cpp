@@ -86,7 +86,7 @@ Usage: )" << prog << R"( <command> [options] [args]
 
 Commands:
   compile <file.t81> [-o <file.tisc>]   Compile T81Lang → TISC bytecode
-  run     <file.t81|.tisc>             Compile (if needed) and execute
+  run     <file.t81|.tisc> [--policy <policy.apl>] Compile and execute
   disasm  <file.tisc>                  Print human-readable TISC disassembly
   debug   <file.t81|.tisc>             Compile (if needed) and start debugger
   check   <file.t81>                   Syntax-check only
@@ -201,6 +201,7 @@ struct Args {
     std::vector<std::string> benchmark_args;
     std::vector<std::string> command_args;
     std::optional<fs::path> weights_model;
+    std::optional<fs::path> policy;
 };
 
 Args parse_args(int argc, char* argv[]) {
@@ -228,6 +229,10 @@ Args parse_args(int argc, char* argv[]) {
         else if (arg == "--weights-model") {
             if (++i >= argc) { error("Missing argument after --weights-model"); std::exit(1); }
             a.weights_model = fs::path(argv[i]);
+        }
+        else if (arg == "--policy") {
+            if (++i >= argc) { error("Missing argument after --policy"); std::exit(1); }
+            a.policy = fs::path(argv[i]);
         }
         else if (arg == "-h" || arg == "--help")   { a.need_help = true; }
         else if (arg.starts_with('-')) {
@@ -613,9 +618,9 @@ int main(int argc, char* argv[]) {
                 TempTiscFile temp(args.input.stem().string());
                 int rc = t81::cli::compile(args.input, temp.path, {}, {}, weights_model_ptr);
                 if (rc != 0) return rc;
-                return t81::cli::run_tisc(temp.path);
+                return t81::cli::run_tisc(temp.path, args.policy);
             } else if (ext == ".tisc") {
-                return t81::cli::run_tisc(args.input);
+                return t81::cli::run_tisc(args.input, args.policy);
             } else {
                 error("run expects .t81 or .tisc file");
                 return 1;

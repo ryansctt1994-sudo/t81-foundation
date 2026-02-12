@@ -11,7 +11,7 @@ std::vector<t81::tisc::Insn> make_gc_program() {
   for (int i = 0; i < kGcTrigger; ++i) {
     t81::tisc::Insn insn{};
     insn.opcode = t81::tisc::Opcode::LoadImm;
-    insn.a = 0;
+    insn.a = 1;
     insn.b = i;
     insn.literal_kind = t81::tisc::LiteralKind::Int;
     insns.push_back(insn);
