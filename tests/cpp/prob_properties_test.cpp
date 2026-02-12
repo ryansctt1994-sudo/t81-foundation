@@ -72,6 +72,22 @@ int main() {
   if (!expect(max_inf > finite, "max_inf comparison failed")) return 1;
   if (!expect(min_inf < finite, "min_inf comparison failed")) return 1;
 
+  // Saturation tests: ensure overflow saturates to infinity
+  const T81Prob27 small_pos(T81Int<27>(100));
+  const T81Prob27 small_neg(T81Int<27>(-100));
+
+  // max_inf + positive -> max_inf (overflow trapped and saturated)
+  if (!expect((max_inf + small_pos).is_plus_infinity(), "max_inf + positive saturation failed")) return 1;
+
+  // min_inf + negative -> min_inf (overflow trapped and saturated)
+  if (!expect((min_inf + small_neg).is_minus_infinity(), "min_inf + negative saturation failed")) return 1;
+
+  // max_inf - negative -> max_inf (equivalent to max_inf + positive)
+  if (!expect((max_inf - small_neg).is_plus_infinity(), "max_inf - negative saturation failed")) return 1;
+
+  // min_inf - positive -> min_inf (equivalent to min_inf + negative)
+  if (!expect((min_inf - small_pos).is_minus_infinity(), "min_inf - positive saturation failed")) return 1;
+
   std::cout << "prob_properties_test ok\n";
   return 0;
 }
