@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "t81/bigint.hpp"
-#include "t81/bigint/divmod.hpp"
 
 int main() {
   using t81::T81BigInt;
@@ -61,17 +60,15 @@ int main() {
                   << " threw=" << (div_threw ? "true" : "false") << "\n";
         std::abort();
       }
-    } else if (!div_threw) {
-      const bool legacy_small_division =
-          T81BigInt::is_zero(div_q) &&
-          T81BigInt::cmp(T81BigInt::abs(a), T81BigInt::abs(b)) < 0;
-      if (!legacy_small_division) {
-        std::cerr << "non-exact division accepted unexpectedly ai=" << ai << " bi=" << bi
+    } else {
+        // For non-exact division, we expect integer division behavior (Euclidean quotient).
+        if (div_threw || !(div_q == dm.q)) {
+             std::cerr << "integer division mismatch ai=" << ai << " bi=" << bi
                   << " q(divmod)=" << dm.q.to_string()
-                  << " r(divmod)=" << dm.r.to_string()
-                  << " q(div)=" << div_q.to_string() << "\n";
-        std::abort();
-      }
+                  << " q(div)=" << div_q.to_string()
+                  << " threw=" << (div_threw ? "true" : "false") << "\n";
+             std::abort();
+        }
     }
   };
 

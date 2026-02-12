@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
-#include <t81/bigint/divmod.hpp>
 
 namespace t81::codec {
 
@@ -140,7 +139,7 @@ bool Base243::decode_bigint(std::string_view s, T81BigInt& out) {
     v = T81BigInt::mul(v, base);
     v = T81BigInt::add(v, T81BigInt(d));
   }
-  if (neg) v = v.neg();
+  if (neg) v = -v;
   out = std::move(v);
   return true;
 }

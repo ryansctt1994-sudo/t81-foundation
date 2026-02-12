@@ -1,7 +1,5 @@
 #include <cassert>
 #include <t81/bigint.hpp>
-#include <t81/bigint/divmod.hpp>
-#include <t81/bigint/gcd.hpp>
 #include <vector>
 #include <utility>
 #include <stdexcept>

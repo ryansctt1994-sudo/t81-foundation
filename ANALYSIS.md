@@ -14,7 +14,7 @@ ______________________________________________________________________
   - **`T81Int<N>`:** **Complete.** The fixed-size ternary integer implementation is robust, well-tested, and fully conforms to the spec's requirements for arithmetic, comparison, and overflow behavior.
   - **`T81Float`:** **Complete (double-backed with NaE/∞ handling).** The implementation now exposes the full arithmetic surface (`+`, `-`, `*`, `/`, `fma`) with NaE/∞ detection and side-channel-free fallbacks; conversions to/from `double` (via `from_double`/`to_double`) maintain balanced ternary semantics and enable the high-level helpers (`sin`, `cos`, `sqrt`) required by the spec's geometry/time layers.
   - **`Fraction`:** **Complete.** The rational number type correctly implements canonical reduction and all specified arithmetic operations, and it now consistently relies on the `T81BigInt` façade for numerator/denominator arithmetic.
-  - **`T81BigInt`:** **Complete.** The implementation now supports a full multi-limb balanced ternary representation, handling arbitrary-precision arithmetic (addition, subtraction, multiplication) and canonical sign-magnitude normalization.
+  - **`T81BigInt`:** **Complete.** The implementation now supports a full multi-limb balanced ternary representation, handling arbitrary-precision arithmetic (addition, subtraction, multiplication, division, modulus) and canonical sign-magnitude normalization.
   - **`Tensor`:** **Complete.** Tensors support elementwise `+`, `-`, `*`, `/`, reshaping, and span/linear indexing. Canonical type aliases are defined, and `transpose` is fully implemented for common ranks (up to Rank 6), satisfying the spec-defined tensor transformations.
 
 ______________________________________________________________________
