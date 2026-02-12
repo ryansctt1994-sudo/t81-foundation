@@ -381,9 +381,9 @@ std::unique_ptr<Expr> Parser::expression() {
 }
 
 // Parses an assignment expression.
-// assignment -> IDENTIFIER "=" assignment | equality ;
+// assignment -> IDENTIFIER "=" assignment | range ;
 std::unique_ptr<Expr> Parser::assignment() {
-    std::unique_ptr<Expr> expr = equality();
+    std::unique_ptr<Expr> expr = range();
     if (match({TokenType::Equal})) {
         Token equals = previous();
         std::unique_ptr<Expr> value = assignment();
@@ -392,6 +392,18 @@ std::unique_ptr<Expr> Parser::assignment() {
             return std::make_unique<AssignExpr>(name, std::move(value));
         }
         report_error(equals, "Invalid assignment target");
+    }
+    return expr;
+}
+
+// Parses a range expression.
+// range -> equality ( ".." equality )? ;
+std::unique_ptr<Expr> Parser::range() {
+    std::unique_ptr<Expr> expr = equality();
+    if (match({TokenType::DotDot})) {
+        Token op = previous();
+        std::unique_ptr<Expr> right = equality();
+        return std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
     }
     return expr;
 }

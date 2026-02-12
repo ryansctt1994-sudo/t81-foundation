@@ -590,7 +590,7 @@ public:
                 record_result(&expr, dest);
                 return {};
             }
-            if (func_name == "weights.load") {
+            if (func_name == "weights.load" || func_name == "Tensor.load") {
                 if (expr.arguments.size() != 1) {
                     throw std::runtime_error("weights.load expects a single string argument.");
                 }
@@ -609,6 +609,95 @@ public:
                 record_result(&expr, dest);
                 return {};
             }
+            if (func_name == "Tensor.from_list") {
+                 if (expr.arguments.size() != 1) {
+                     throw std::runtime_error("Tensor.from_list expects a single argument.");
+                 }
+                 expr.arguments[0]->accept(*this);
+                 auto val = ensure_expr_result(expr.arguments[0].get());
+                 record_result(&expr, val);
+                 return {};
+            }
+
+            auto dot_pos = func_name.find('.');
+            if (dot_pos != std::string::npos) {
+                std::string obj_name = func_name.substr(0, dot_pos);
+                std::string method_name = func_name.substr(dot_pos + 1);
+
+                auto obj_reg = lookup_variable(obj_name);
+                if (obj_reg) {
+                     if (method_name == "matmul") {
+                         if (expr.arguments.size() != 1) {
+                             throw std::runtime_error("matmul expects 1 argument");
+                         }
+                         expr.arguments[0]->accept(*this);
+                         auto arg_reg = ensure_expr_result(expr.arguments[0].get());
+                         auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+                         tisc::ir::Instruction instr;
+                         instr.opcode = tisc::ir::Opcode::TMATMUL;
+                         instr.operands = {dest.reg, obj_reg->reg, arg_reg.reg};
+                         emit(instr);
+                         record_result(&expr, dest);
+                         return {};
+                     }
+                }
+            }
+
+            if (func_name == "read_code") {
+                if (expr.arguments.size() != 1) {
+                    throw std::runtime_error("read_code expects 1 argument");
+                }
+                expr.arguments[0]->accept(*this);
+                auto addr = ensure_expr_result(expr.arguments[0].get());
+                auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+                tisc::ir::Instruction instr;
+                instr.opcode = tisc::ir::Opcode::META_READ;
+                instr.operands = {dest.reg, addr.reg};
+                emit(instr);
+                record_result(&expr, dest);
+                return {};
+            }
+            if (func_name == "refine") {
+                if (expr.arguments.size() != 2) {
+                    throw std::runtime_error("refine expects 2 arguments");
+                }
+                expr.arguments[0]->accept(*this);
+                auto addr = ensure_expr_result(expr.arguments[0].get());
+                expr.arguments[1]->accept(*this);
+                auto val = ensure_expr_result(expr.arguments[1].get());
+
+                tisc::ir::Instruction instr;
+                instr.opcode = tisc::ir::Opcode::META_REFINE;
+                instr.operands = {addr.reg, val.reg};
+                emit(instr);
+
+                auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+                tisc::ir::Instruction res;
+                res.opcode = tisc::ir::Opcode::LOADI;
+                res.operands = {dest.reg, tisc::ir::Immediate{0}};
+                emit(res);
+                record_result(&expr, dest);
+                return {};
+            }
+            if (func_name == "observe_performance") {
+                auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+                tisc::ir::Instruction instr;
+                instr.opcode = tisc::ir::Opcode::LOADI;
+                instr.operands = {dest.reg, tisc::ir::Immediate{100}};
+                emit(instr);
+                record_result(&expr, dest);
+                return {};
+            }
+            if (func_name == "optimize") {
+                if (expr.arguments.size() != 1) {
+                    throw std::runtime_error("optimize expects 1 argument");
+                }
+                expr.arguments[0]->accept(*this);
+                auto val = ensure_expr_result(expr.arguments[0].get());
+                record_result(&expr, val);
+                return {};
+            }
+
             if (func_name == "print") {
                 if (expr.arguments.size() != 1) {
                     throw std::runtime_error("print expects exactly one argument.");
