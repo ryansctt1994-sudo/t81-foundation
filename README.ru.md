@@ -171,4 +171,25 @@ t81 help
 ```
 
 ## Карта репозитория
-- [`include/t81/`](include/t81/): public A
+- [`include/t81/`](include/t81/): public API Headers
+- [`src/`](src/): фронтенд, TISC, VM, Axion, CanonFS, реализация CLI
+- [`tests/`](tests/): соответствие стандартам, детерминизм, VM/e2e, срезы свойств
+- [`docs/`](docs/): руководства, статус, бенчмарки, документация по границам среды выполнения
+- [`spec/`](spec/): нормативная семантика и входные данные управления
+- [`examples/`](examples/): исполняемые примеры и демонстрации
+
+## Границы среды выполнения
+T81 использует явный контракт границ среды выполнения:
+- Маркер: [`contracts/runtime-contract.json`](contracts/runtime-contract.json)
+- Политика границ: [`docs/runtime-semantics-boundary.md`](docs/runtime-semantics-boundary.md)
+
+## Дополнительно Чтение
+- [`ARCHITECTURE.md`](ARCHITECTURE.md)
+- [`docs/system-integration.md`](docs/system-integration.md)
+- [`ANALYSIS.md`](ANALYSIS.md)
+- [`CHANGELOG.md`](CHANGELOG.md)
+- [`docs/research-guide.md`](docs/research-guide.md)
+- [`docs/ai-quickstart.md`](docs/ai-quickstart.md)
+
+## Лицензия
+Этот репозиторий распространяется под лицензией MIT (см. [`LICENSE`](LICENSE)).
