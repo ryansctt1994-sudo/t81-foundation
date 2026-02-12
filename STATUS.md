@@ -1,5 +1,7 @@
 # T81 Foundation – Current Status
 
+> **Source of Truth:** This document defines the **current operational state** of the project (what is true today). For future plans, see [ROADMAP.md](ROADMAP.md). For version history, see [CHANGELOG.md](CHANGELOG.md).
+
 **Last Updated:** February 10, 2026
 **Status:** Active development (post-v1.0 hardening/scaling)
 
@@ -10,18 +12,34 @@
 - Current local validation baseline passes full ritual (`173/173` tests in latest run).
 - Ecosystem compliance with T81 v1.1.0-canonical specification is now enforced across HanoiVM and TISC tools.
 
-## 2. What Is Stable
+## 2. Component Maturity
 
-- Deterministic compilation/execution pipeline: T81Lang -> TISC -> HanoiVM.
-- Axion event and policy execution surfaces used in tests and demos.
-- CanonFS drivers (in-memory + persistent) integrated with trace/policy flows.
-- Runtime boundary contract sync checks with the `t81-vm` ecosystem split.
+| Component | Maturity | Spec Version | Test Coverage | Notes |
+| :--- | :--- | :--- | :--- | :--- |
+| **T81Lang** | Stable | v1.1.0 | High | Full syntax and semantics implemented. |
+| **TISC** | Stable | v1.1.0 | High | Binary serialization and opcode matrix complete. |
+| **HanoiVM** | Stable | v1.1.0 | High | Core execution loop and memory model verified. |
+| **Axion** | Stable | v1.0.0 | High | Policy enforcement and event tracing active. |
+| **CanonFS** | Beta | v0.9.0 | Medium | Drivers implemented; performance optimization ongoing. |
+| **CLI** | Beta | - | Medium | `run`/`compile` stable; `debug`/`trace` improving. |
+| **JIT** | Experimental | - | Low | Trace recording implemented; native backend planned. |
 
-## 3. What Is Still Active
+**Maturity Levels:**
+- **Stable:** Production-ready, API frozen, full test coverage.
+- **Beta:** Functionally complete, potential API changes, good coverage.
+- **Experimental:** Active research/prototyping, no stability guarantees.
 
-- Throughput optimization (BigInt/tensor/CanonFS hot paths).
-- Broader verification depth (property/fuzz/formal methods).
-- Continued ecosystem hardening for reproducible external consumption.
+## 3. Supported Toolchains
+
+The following environments are explicitly supported and verified in CI:
+
+| Platform | OS | Compiler | Status |
+| :--- | :--- | :--- | :--- |
+| **Linux (x86_64)** | Ubuntu 24.04 | GCC 14, Clang 18 | **Primary Tier** (Determinism Gate) |
+| **Linux (ARM64)** | Ubuntu 24.04 | Clang 18 | **Primary Tier** (Determinism Gate) |
+| **macOS (ARM64)** | macOS 14 | Clang (Apple) | Supported |
+| **macOS (x86_64)** | macOS 13 | GCC 14 | Supported |
+| **Windows (x86_64)** | Windows Server 2022 | MSVC (VS 2022) | Supported (Best Effort) |
 
 ## 4. Validation Ritual
 
@@ -43,5 +61,4 @@ ctest --test-dir build --output-on-failure -j1
 - Architecture: `ARCHITECTURE.md`
 - Conformance analysis: `ANALYSIS.md`
 - Near-term tasks: `TASKS.md`
-- Long-horizon tasks: `TODO.md`
 - CI/gates: `docs/ci.md`

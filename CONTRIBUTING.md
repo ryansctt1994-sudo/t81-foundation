@@ -87,6 +87,19 @@ All contributions must preserve:
 
 ______________________________________________________________________
 
-## 7. License
+## 7. Formatting
+
+We enforce a consistent coding style using `clang-format`. Please run the following command before submitting a PR:
+
+```bash
+# Format all C++ source files
+find src include tests examples -name "*.cpp" -o -name "*.hpp" -o -name "*.c" -o -name "*.h" | xargs clang-format -i
+```
+
+Ensure your `clang-format` version is 18 or higher.
+
+______________________________________________________________________
+
+## 8. License
 
 By contributing, you agree your changes are licensed under the repository license terms.

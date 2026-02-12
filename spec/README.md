@@ -1,22 +1,40 @@
-# `spec` (Canonical)
+# T81 Specification
 
-This directory is the authoritative specification source for the T81 stack.
+> **Source of Truth:** This directory contains the **normative specifications** for the T81 ecosystem.
 
-## Scope
-- Normative architecture/specification documents (`t81lang`, `tisc`, `t81vm`, Axion, data types, etc.).
-- RFC proposals and their lifecycle (`spec/rfcs`).
-- Supplemental standards-track specs (for example CanonFS/Hanoi).
+**Last Updated:** February 10, 2026
 
-## Canonical Rule
-- Edit normative text in `spec/` first.
-- Generated or published documentation mirrors (for example `docs/spec`) must not diverge from this directory.
+## 1. Normative Language
 
-## Navigation
-- Start with `spec/index.md`.
-- RFC process and templates live in `spec/rfcs/README.md` and `spec/rfcs/template.md`.
-- Historical long-form narrative lives in `spec/spec/t81-spec.md` and is non-normative unless explicitly promoted.
+The key words **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHALL NOT**, **SHOULD**, **SHOULD NOT**, **RECOMMENDED**, **MAY**, and **OPTIONAL** in these documents are to be interpreted as described in [RFC 2119](https://tools.ietf.org/html/rfc2119).
 
-## Update Workflow
-1. Update target spec or RFC in `spec/`.
-2. Update indexes (`spec/index.md`, `spec/rfcs/index.md`) when status/links change.
-3. Run docs generation/publish workflow if needed.
+## 2. Specification Index
+
+- **[lang/](lang/):** T81Lang syntax, type system, and semantics.
+- **[tisc/](tisc/):** Ternary Instruction Set Architecture (ISA) and binary format.
+- **[vm/](vm/):** HanoiVM execution model, memory layout, and trap behavior.
+- **[axion/](axion/):** Policy enforcement engine and trace format.
+- **[canonfs/](canonfs/):** Deterministic filesystem interface.
+- **[numerics/](numerics/):** Balanced ternary arithmetic (BigInt, Float, Prob, etc.).
+
+## 3. RFC Process (Change Management)
+
+Significant changes to the specification must follow the RFC (Request for Comments) process.
+
+### Lifecycle
+1.  **Draft:** A new proposal is created in `spec/rfcs/` using the [template](rfcs/0000-template.md).
+2.  **Review:** Community and maintainers discuss the proposal.
+3.  **Accepted:** The proposal is approved for implementation.
+4.  **Implemented:** The spec changes are merged into the normative documents.
+5.  **Rejected:** The proposal is declined.
+6.  **Superseded:** A newer RFC replaces this one.
+
+### Supersession
+When an RFC is superseded:
+- The old RFC is marked as `Status: Superseded` with a link to the new RFC.
+- Implementation must be updated to match the new RFC.
+- Deprecation policy (see `VERSIONING.md`) applies if existing features are removed.
+
+## 4. Versioning
+
+Specifications are versioned independently of the runtime implementation, but typically align on MAJOR/MINOR numbers. See [VERSIONING.md](../VERSIONING.md) for the compatibility contract.

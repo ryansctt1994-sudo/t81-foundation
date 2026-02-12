@@ -1,74 +1,95 @@
 # T81 Foundation
 
 [![CI](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml/badge.svg)](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml)
+[![Determinism Gate](https://img.shields.io/badge/Determinism%20Gate-Passing-success)](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![C++ Standard](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://en.cppreference.com/w/cpp/23)
 
-Deterministic ternary-native computing stack for auditable compilation and execution:
+**Deterministic, governed runtime stack for auditable computing.**
 
-`T81Lang -> TISC -> HanoiVM (+ Axion policy/traces)`
+T81 is a post-v1.0 hardening project delivering a fully deterministic compilation and execution pipeline (`T81Lang -> TISC -> HanoiVM`). It prioritizes auditability, policy enforcement (Axion), and reproducibility over raw hardware speed.
 
-The project is in a **post-v1.0 hardening and scaling phase**.
+## ⚡ 30-Second Evaluation
 
-## What T81 Focuses On
-- Deterministic compile and runtime behavior
-- Metadata-preserving language/toolchain pipeline
-- Reproducibility gates and traceability in CI
-- Policy-aware runtime execution (Axion)
+Verify the claims yourself in 4 steps:
 
-## Core Guarantees
-- **Deterministic pipeline:** stable semantics from source to VM execution
-- **Auditable artifacts:** TISC binaries, policy text, and trace surfaces are inspectable
-- **Reproducibility enforcement:** CI gates for T81Lang/T3_K and runtime-contract sync
-- **Safety hooks:** Axion policy engine and deterministic trap/trace behavior
+1.  **Build & Run Hello World**
+    ```bash
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --parallel
+    ./build/t81 compile examples/hello_world.t81 -o hello.tisc
+    ./build/t81 run hello.tisc
+    ```
 
-## Architecture (High-Level)
-```mermaid
-graph TD
-    subgraph Lang[Language & Build]
-      A[T81Lang Source .t81] --> B[Lexer / Parser]
-      B --> C[Semantic Analyzer]
-      C --> D[TISC IR + Structural Metadata]
-      D --> E[Binary Emitter / BinaryIO]
-      E --> F[TISC Program .tisc]
-    end
+2.  **Run Determinism Gate**
+    ```bash
+    # Verify cross-architecture reproducibility hash
+    python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
+    ```
 
-    subgraph Runtime[Runtime]
-      F --> G[HanoiVM Interpreter]
-      G --> H[Trace Hotspot Detection]
-      H --> I[Trace JIT deterministic]
-      I --> J[Compiled Trace Execution]
-    end
+3.  **Run a VM Demo**
+    ```bash
+    ./build/t81_demo
+    ```
 
-    subgraph Policy[Policy & Audit]
-      G --> K[Axion Policy Engine]
-      J --> K
-      K --> L[Axion Events / Verdict Reasons]
-    end
+4.  **Inspect a Trace Artifact**
+    ```bash
+    ./build/t81 trace show trace.txt
+    ```
 
-    subgraph Data[Model & Tensor Path]
-      M[weights import/info/quantize] --> N[t81w / GGUF / Tensor Pools]
-      N --> G
-    end
+---
 
-    subgraph Gates[Determinism Gates]
-      O[CTest + Property/Fuzz Slices]
-      P[T81Lang Repro Hash Gate]
-      Q[T3_K Repro Gate]
-      R[Runtime Contract Sync Gate]
-    end
+## 🚫 Non-Goals
 
-    D --> O
-    F --> O
-    M --> Q
-    C --> P
-    K --> O
-    R --> G
-```
+To save your time, here is what T81 is **NOT**:
 
-For the authoritative, detailed architecture: [`ARCHITECTURE.md`](ARCHITECTURE.md).
+*   **NOT a hardware accelerator:** We do not claim ternary hardware speedups. This is a software runtime for deterministic correctness.
+*   **NOT a general-purpose replacement:** We focus on high-stakes, auditable logic, not replacing C++ or Python for general tasks.
+*   **NOT "fast and loose":** If a performance optimization breaks trace determinism, we reject it.
 
-## Quick Start
+---
+
+## ❓ Why This Exists
+
+Modern runtimes trade reproducibility for speed. T81 inverts this: **Auditability is the primary constraint.**
+
+We enforce this via a strict architectural boundary between the Language/Compiler and the Execution Runtime, governed by explicit contracts.
+
+[**View Architectural Boundary Diagram**](ARCHITECTURE.md#3-concurrent-workstream-view) | [**View Runtime Contract**](contracts/runtime-contract.json)
+
+---
+
+## 📚 Document Authority Map
+
+| Document | Purpose | Authority Scope |
+| :--- | :--- | :--- |
+| **[STATUS.md](STATUS.md)** | What is true *today* | Operational Truth |
+| **[ROADMAP.md](ROADMAP.md)** | Forward plan | Strategic |
+| **[VERSIONING.md](VERSIONING.md)** | Compatibility rules | Normative |
+| **[spec/](spec/)** | Behavioral definition | Normative |
+| **[docs/EVIDENCE.md](docs/EVIDENCE.md)** | Proof of claims | Verification |
+
+---
+
+## 🤝 Compatibility Guarantees
+
+*   **Stable:** T81Lang Syntax, TISC Binary Format, HanoiVM Execution Semantics.
+*   **Experimental:** JIT Compilation, Distributed Tensor Ops.
+*   **SemVer:** We follow Semantic Versioning. Breaking changes to **Stable** components increment the Major version.
+
+---
+
+## 🖥️ Supported Platforms
+
+| Platform | Compiler | Status |
+| :--- | :--- | :--- |
+| **Linux (x86_64)** | Clang 18+, GCC 14+ | ✅ Determinism Gate |
+| **Linux (ARM64)** | Clang 18+ | ✅ Determinism Gate |
+| **macOS (ARM64)** | Apple Clang | ✅ Supported |
+
+---
+
+## Quick Start (Full)
+
 ```bash
 git clone https://github.com/t81dev/t81-foundation.git
 cd t81-foundation
@@ -115,21 +136,6 @@ See full command help:
 ```bash
 t81 help
 ```
-
-## Determinism & CI Gates
-Primary gate surfaces:
-- Full build/test matrix in `.github/workflows/ci.yml`
-- T81Lang reproducibility gate (`scripts/ci/t81lang_repro_gate.py`)
-- T3_K reproducibility gate (`scripts/ci/t3k_repro_gate.py`)
-- Runtime contract sync (`scripts/check-runtime-contract-sync.py`)
-- Architecture target-table sync (`scripts/ci/check_architecture_targets.py`)
-
-Reference docs:
-- [`docs/ci.md`](docs/ci.md)
-- [`docs/system-integration.md`](docs/system-integration.md)
-- [`STATUS.md`](STATUS.md)
-- [`TASKS.md`](TASKS.md)
-- [`ROADMAP.md`](ROADMAP.md)
 
 ## Repository Map
 - [`include/t81/`](include/t81/): public API headers
