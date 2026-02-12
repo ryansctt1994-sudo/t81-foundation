@@ -12,6 +12,7 @@
 [![Español](https://img.shields.io/badge/Language-Español-green?style=flat-square)](/README.es.md)
 [![Русский](https://img.shields.io/badge/Language-Русский-brightgreen?style=flat-square)](/README.ru.md)
 [![Português](https://img.shields.io/badge/Language-Português%20(Brasil)-blueviolet?style=flat-square)](/README.pt-BR.md)
+
 **Deterministic, governed runtime stack for auditable computing.**
 
 T81 is a post-v1.0 hardening project delivering a fully deterministic compilation and execution pipeline (`T81Lang -> TISC -> HanoiVM`). It prioritizes auditability, policy enforcement (Axion), and reproducibility over raw hardware speed.
