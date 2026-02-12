@@ -160,14 +160,39 @@ public:
     // ------------------------------------------------------------------
 
     [[nodiscard]] T81Prob operator+(const T81Prob& o) const noexcept {
-        return T81Prob(log_odds_ + o.log_odds_);
+        try {
+            return T81Prob(log_odds_ + o.log_odds_);
+        } catch (const std::overflow_error&) {
+            // T81Int traps on overflow, but T81Prob requires saturation.
+            // Since balanced ternary range is symmetric:
+            // - Overflow only happens if operands have the same sign.
+            // - If operands are positive, result saturates to +inf.
+            // - If operands are negative, result saturates to -inf.
+            if (log_odds_.sign_trit() == Trit::P) {
+                return plus_infinity();
+            } else {
+                return minus_infinity();
+            }
+        }
     }
 
     [[nodiscard]] T81Prob operator-(const T81Prob& o) const noexcept {
-        return T81Prob(log_odds_ - o.log_odds_);
+        try {
+            return T81Prob(log_odds_ - o.log_odds_);
+        } catch (const std::overflow_error&) {
+            // a - b overflows if signs are opposite.
+            // - If a is positive (and b is negative), result saturates to +inf.
+            // - If a is negative (and b is positive), result saturates to -inf.
+            if (log_odds_.sign_trit() == Trit::P) {
+                return plus_infinity();
+            } else {
+                return minus_infinity();
+            }
+        }
     }
 
     [[nodiscard]] T81Prob operator-() const noexcept {
+        // Unary negation is safe in balanced ternary (symmetric range).
         return T81Prob(Storage(0) - log_odds_);
     }
 
