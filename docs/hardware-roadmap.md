@@ -28,3 +28,16 @@ Future work items:
 - Energy and performance modeling for T81 programs on ternary AI accelerators.
 - Potential collaborations or backend modules to target specific ternary hardware,
   while keeping the T81 specification hardware-neutral.
+
+## 4. Hardware Investigation & Abstraction
+
+### Investigate FPGA/Hardware-Backed Execution
+We are actively investigating pathways to map T81 execution onto FPGA fabrics.
+-   **Goal**: Demonstrate native ternary logic emulation on reprogrammable hardware.
+-   **Approach**: Develop VHDL/Verilog modules for `T81Int` ALU operations and measure efficiency gains over binary emulation.
+
+### Hardware Abstraction Boundaries
+Defining pragmatic boundaries is crucial to support diverse backends without fragmentation.
+-   **Constraint**: Any hardware acceleration *must* be bit-exact with the canonical scalar implementation.
+-   **Method**: Formal verification of hardware modules against the software specification.
+-   **Outcome**: A verified hardware interface that allows pluggable accelerators (FPGA, ASIC) to drop in for performance-critical kernels.
