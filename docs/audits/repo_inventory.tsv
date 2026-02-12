@@ -529,7 +529,6 @@ src/axion/README.md	implementation	core runtime/code	essential	Production implem
 src/axion/axion_api.cpp	implementation	core runtime/code	essential	Production implementation
 src/axion/axion_api.hpp	implementation	core runtime/code	essential	Production implementation
 src/axion/axion_kernel.hpp	implementation	core runtime/code	essential	Production implementation
-src/axion/axion_signal.hpp	implementation	core runtime/code	essential	Production implementation
 src/axion/engine.cpp	implementation	core runtime/code	essential	Production implementation
 src/axion/policy_engine.cpp	implementation	core runtime/code	essential	Production implementation
 src/axion/policy_serialization.cpp	implementation	core runtime/code	essential	Production implementation

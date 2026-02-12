@@ -19,8 +19,14 @@
 #include <iomanip>
 #include <memory>
 #include <stdexcept>
+#include <fcntl.h>
+#include <cerrno>
+#include <sys/stat.h>
 #if !defined(_WIN32)
 #include <sys/wait.h>
+#include <unistd.h>
+#else
+#include <io.h>
 #endif
 
 #include "t81/cli/driver.hpp"
@@ -53,10 +59,30 @@ struct TempTiscFile {
         std::mt19937_64 gen(rd());
         std::uniform_int_distribution<uint64_t> dist;
 
-        do {
+        while (true) {
             path = fs::temp_directory_path() /
                    ("t81-" + hint + "-" + std::to_string(dist(gen)) + ".tisc");
-        } while (fs::exists(path));
+
+            std::string path_str = path.string();
+#if defined(_WIN32)
+            int fd = _open(path_str.c_str(), _O_CREAT | _O_EXCL | _O_RDWR | _O_BINARY, _S_IREAD | _S_IWRITE);
+#else
+            int fd = open(path_str.c_str(), O_CREAT | O_EXCL | O_RDWR, 0600);
+#endif
+            if (fd != -1) {
+#if defined(_WIN32)
+                _close(fd);
+#else
+                close(fd);
+#endif
+                break;
+            } else {
+                if (errno == EEXIST) {
+                    continue;
+                }
+                throw std::runtime_error("Failed to create temporary file: " + path_str + " (errno: " + std::to_string(errno) + ")");
+            }
+        }
     }
 
     ~TempTiscFile() {
