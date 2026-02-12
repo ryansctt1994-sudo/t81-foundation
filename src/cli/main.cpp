@@ -19,8 +19,14 @@
 #include <iomanip>
 #include <memory>
 #include <stdexcept>
+#include <fcntl.h>
+#include <cerrno>
+#include <sys/stat.h>
 #if !defined(_WIN32)
 #include <sys/wait.h>
+#include <unistd.h>
+#else
+#include <io.h>
 #endif
 
 #include "t81/cli/driver.hpp"
@@ -53,10 +59,30 @@ struct TempTiscFile {
         std::mt19937_64 gen(rd());
         std::uniform_int_distribution<uint64_t> dist;
 
-        do {
+        while (true) {
             path = fs::temp_directory_path() /
                    ("t81-" + hint + "-" + std::to_string(dist(gen)) + ".tisc");
-        } while (fs::exists(path));
+
+            std::string path_str = path.string();
+#if defined(_WIN32)
+            int fd = _open(path_str.c_str(), _O_CREAT | _O_EXCL | _O_RDWR | _O_BINARY, _S_IREAD | _S_IWRITE);
+#else
+            int fd = open(path_str.c_str(), O_CREAT | O_EXCL | O_RDWR, 0600);
+#endif
+            if (fd != -1) {
+#if defined(_WIN32)
+                _close(fd);
+#else
+                close(fd);
+#endif
+                break;
+            } else {
+                if (errno == EEXIST) {
+                    continue;
+                }
+                throw std::runtime_error("Failed to create temporary file: " + path_str + " (errno: " + std::to_string(errno) + ")");
+            }
+        }
     }
 
     ~TempTiscFile() {
@@ -654,6 +680,9 @@ int main(int argc, char* argv[]) {
         if (args.command == "compile") {
             fs::path out = args.output.value_or(args.input.stem().string() + ".tisc");
             if (ext == ".t81") {
+                // If a policy is provided during compile, we should probably embed it.
+                // However, our current compile function doesn't take a policy path.
+                // For now, let's just pass it if we extend compile later.
                 return t81::cli::compile(args.input, out, {}, {}, weights_model_ptr);
             } else if (ext == ".t81w") {
                 try {
@@ -695,9 +724,9 @@ int main(int argc, char* argv[]) {
                 TempTiscFile temp(args.input.stem().string());
                 int rc = t81::cli::compile(args.input, temp.path, {}, {}, weights_model_ptr);
                 if (rc != 0) return rc;
-                return t81::cli::debug_tisc(temp.path);
+                return t81::cli::debug_tisc(temp.path, args.policy);
             } else if (ext == ".tisc") {
-                return t81::cli::debug_tisc(args.input);
+                return t81::cli::debug_tisc(args.input, args.policy);
             } else {
                 error("debug expects .t81 or .tisc file");
                 return 1;
@@ -740,7 +769,7 @@ int main(int argc, char* argv[]) {
             return 1;
 
         } else if (args.command == "repl") {
-            return t81::cli::repl(weights_model_ptr);
+            return t81::cli::repl(weights_model_ptr, args.policy);
 
         } else if (args.command == "weights") {
             return run_weights(args);

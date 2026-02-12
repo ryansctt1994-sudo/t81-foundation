@@ -28,9 +28,11 @@ int compile(const std::filesystem::path& input,
 int run_tisc(const std::filesystem::path& path,
              const std::optional<std::filesystem::path>& policy_path = std::nullopt);
 int disasm_tisc(const std::filesystem::path& path);
-int debug_tisc(const std::filesystem::path& path);
+int debug_tisc(const std::filesystem::path& path,
+               const std::optional<std::filesystem::path>& policy_path = std::nullopt);
 int check_syntax(const std::filesystem::path& path);
 int repl(const std::shared_ptr<t81::weights::ModelFile>& weights_model = nullptr,
+         const std::optional<std::filesystem::path>& policy_path = std::nullopt,
          std::istream& input = std::cin);
 int init_project(const std::string& name);
 int init_package(const std::string& name);

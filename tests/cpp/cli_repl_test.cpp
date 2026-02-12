@@ -38,7 +38,7 @@ ReplResult run_repl_script(const std::string& script,
   StreamCapture stdout_capture(std::cout, output.rdbuf());
   StreamCapture stderr_capture(std::cerr, errors.rdbuf());
 
-  [[maybe_unused]] int rc= t81::cli::repl(weights_model, input);
+  [[maybe_unused]] int rc= t81::cli::repl(weights_model, std::nullopt, input);
   return {rc, output.str(), errors.str()};
 }
 }  // namespace

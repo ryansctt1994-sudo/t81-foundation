@@ -404,6 +404,7 @@ class Interpreter : public IVirtualMachine {
         }
 
         std::vector<int> shape;
+        shape.reserve(native->shape.size());
         for (auto d : native->shape) shape.push_back(static_cast<int>(d));
 
         t81::T729Tensor promoted(std::move(shape), std::move(float_data));
