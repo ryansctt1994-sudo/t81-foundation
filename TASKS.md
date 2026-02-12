@@ -1,8 +1,8 @@
 # T81 Foundation: Actionable Task List
 
-**Last Updated:** February 10, 2026
+> **Source of Truth:** This document tracks **all pending work**, from near-term tasks to long-term strategic items. It supersedes the deprecated `TODO.md`.
 
-This document tracks **active, near-term execution tasks**. Completed historical work is summarized in `CHANGELOG.md` and supporting docs.
+**Last Updated:** February 10, 2026
 
 ______________________________________________________________________
 
@@ -31,6 +31,36 @@ ______________________________________________________________________
 - [ ] Expand property/fuzz coverage for frontend + IR + VM boundary invariants.
 - [ ] Add additional parity checks for backend variants against deterministic scalar references.
 - [ ] Continue Axion policy/trace regression growth for guard/segment/match paths.
+
+______________________________________________________________________
+
+## Strategic / Long-Horizon (Formerly TODO.md)
+
+### 1. Formal Methods and Proofs
+
+- [ ] Proof-oriented validation for key Axion policy invariants.
+- [ ] Expand deterministic replay proofs across compiler + VM boundaries.
+
+### 2. Performance Architecture
+
+- [ ] Expand tensor backend strategy (portable scalar parity + optimized backends).
+- [ ] CanonFS scalability for larger persistent workloads with deterministic observability.
+
+### 3. Runtime and Execution
+
+- [ ] Incremental deterministic trace-JIT hardening for numeric/tensor hot paths.
+- [ ] Native trace-JIT backend prototype (x86_64/ARM64) with deterministic mmap.
+- [ ] Evaluate distributed tensor orchestration patterns that preserve replay guarantees.
+
+### 4. Ecosystem and Interop
+
+- [ ] Expand language bindings and integration surfaces where determinism guarantees can be preserved.
+- [ ] Strengthen downstream runtime boundary tooling (`t81-foundation` <-> `t81-vm` <-> examples).
+
+### 5. Hardware and Future Targets
+
+- [ ] Investigate FPGA/hardware-backed ternary execution pathways.
+- [ ] Define pragmatic hardware abstraction boundaries without weakening canonical semantics.
 
 ______________________________________________________________________
 

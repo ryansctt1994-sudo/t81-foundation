@@ -275,3 +275,17 @@ Optional extended suite (single-threaded):
 ```bash
 ctest --test-dir build -R "fuzz|property|axion" --schedule-random -j1
 ```
+
+______________________________________________________________________
+
+## 13. Ownership Map
+
+| Component | Directory | Primary Maintainers | Spec Authority |
+| :--- | :--- | :--- | :--- |
+| **T81Lang** | `src/frontend/`, `include/t81/frontend/` | @t81dev | `spec/lang/` |
+| **TISC** | `src/tisc/`, `include/t81/tisc/` | @t81dev | `spec/tisc/` |
+| **HanoiVM** | `src/vm/`, `include/t81/vm/` | @t81dev | `spec/vm/` |
+| **Axion** | `src/axion/`, `include/t81/axion/` | @t81dev | `spec/axion/` |
+| **CanonFS** | `src/canonfs/`, `include/t81/canonfs/` | @t81dev | `spec/canonfs/` |
+| **Numerics** | `src/core/`, `include/t81/core/` | @t81dev | `spec/numerics/` |
+| **CI/Scripts** | `.github/`, `scripts/` | @t81dev | `docs/ci.md` |

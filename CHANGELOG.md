@@ -1,5 +1,7 @@
 # Changelog
 
+> **Source of Truth:** This document defines the **history of changes** released to the public. For future plans, see [ROADMAP.md](ROADMAP.md).
+
 All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).

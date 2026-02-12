@@ -89,7 +89,10 @@ add_library(t81_core STATIC
   src/setun/bridge.cpp
 )
 target_compile_features(t81_core PUBLIC ${T81_CXX_STD_FEATURE})
-target_include_directories(t81_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(t81_core PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 if(T81_IS_X86_64)
   set(T81_AVX2_SOURCE src/simd/base81_digits_avx2.cpp)
   target_sources(t81_core PRIVATE ${T81_AVX2_SOURCE})
@@ -103,12 +106,17 @@ endif()
 # =============================================================================
 add_library(t81_io STATIC src/io/tensor_loader.cpp)
 target_link_libraries(t81_io PUBLIC t81_core)
-target_include_directories(t81_io PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(t81_io PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 
 add_library(t81_c_api STATIC src/c_api/t81_c_api.cpp)
 target_link_libraries(t81_c_api PUBLIC t81_core)
 target_include_directories(t81_c_api
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -119,7 +127,10 @@ add_library(t81_frontend STATIC
   src/frontend/symbol_table.cpp
 )
 target_link_libraries(t81_frontend PUBLIC t81_core)
-target_include_directories(t81_frontend PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(t81_frontend PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 
 add_library(t81_tisc STATIC
   src/tisc/pretty_printer.cpp
@@ -128,14 +139,23 @@ add_library(t81_tisc STATIC
   src/tisc/base81_view.cpp
 )
 target_link_libraries(t81_tisc PUBLIC t81_core)
-target_include_directories(t81_tisc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(t81_tisc PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 
 add_library(t81_vm INTERFACE)
-target_include_directories(t81_vm INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(t81_vm INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 target_link_libraries(t81_vm INTERFACE t81_core)
 
 add_library(t81_llvm INTERFACE)
-target_include_directories(t81_llvm INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(t81_llvm INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 target_link_libraries(t81_llvm INTERFACE t81_core)
 
 # =============================================================================
@@ -146,7 +166,10 @@ add_library(t81_cli_driver STATIC
   src/cli/debugger.cpp
 )
 target_link_libraries(t81_cli_driver PUBLIC t81_frontend t81_tisc t81_vm)
-target_include_directories(t81_cli_driver PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(t81_cli_driver PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 
 add_executable(t81 src/cli/main.cpp)
 target_link_libraries(t81 PRIVATE t81_frontend t81_tisc t81_vm t81_cli_driver)
@@ -1006,3 +1029,56 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_proof_test PRIVATE t81_core)
   add_test(NAME t81_proof_test COMMAND t81_proof_test)
 endif()
+
+# =============================================================================
+# Installation & Packaging
+# =============================================================================
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+# Install targets and export them
+install(TARGETS
+    t81_core
+    t81_io
+    t81_c_api
+    t81_frontend
+    t81_tisc
+    t81_vm
+    t81_llvm
+    t81_cli_driver
+    t81
+  EXPORT T81Targets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+# Install headers
+install(DIRECTORY include/t81 DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+# Install export file
+install(EXPORT T81Targets
+  FILE T81Targets.cmake
+  NAMESPACE T81::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/T81
+)
+
+# Generate config file
+configure_package_config_file(
+  cmake/T81Config.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/T81Config.cmake"
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/T81
+)
+
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/T81ConfigVersion.cmake"
+  VERSION 1.1.0
+  COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/T81Config.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/T81ConfigVersion.cmake"
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/T81
+)

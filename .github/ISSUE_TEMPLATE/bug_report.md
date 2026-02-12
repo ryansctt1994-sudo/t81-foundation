@@ -1,27 +1,32 @@
-______________________________________________________________________
+---
+name: Bug Report
+about: Create a report to help us improve T81
+title: "[BUG] "
+labels: bug
+assignees: ''
 
-## name: "Bug Report" about: "Report a defect in the specification or examples." title: "Bug: \<short_description>" labels: ["bug"]
+---
 
-# Issue
+**Describe the bug**
+A clear and concise description of what the bug is.
 
-Describe the bug.
+**To Reproduce**
+Steps to reproduce the behavior:
+1. Create a file `example.t81` with '...'
+2. Run command `t81 compile example.t81`
+3. See error
 
-# Location
+**Expected behavior**
+A clear and concise description of what you expected to happen.
 
-File, section, line number (if applicable).
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
 
-# Expected
+**Environment (please complete the following):**
+ - OS: [e.g. Ubuntu 24.04]
+ - Compiler: [e.g. GCC 14]
+ - T81 Version: [e.g. v1.1.0]
+ - CMake Version: [e.g. 3.28]
 
-What the spec *should* say or do.
-
-# Actual
-
-What the spec *currently* says or does.
-
-# Impact
-
-Why this matters for correctness.
-
-# Suggested Fix
-
-Optional proposal.
+**Additional context**
+Add any other context about the problem here.

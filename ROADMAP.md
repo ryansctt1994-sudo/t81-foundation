@@ -1,5 +1,7 @@
 # Project Roadmap
 
+> **Source of Truth:** This document defines the **strategic forward-looking milestones** for the project. For current operational status, see [STATUS.md](STATUS.md). For past changes, see [CHANGELOG.md](CHANGELOG.md).
+
 **Last Updated:** February 10, 2026
 
 ## 1. Current Phase
@@ -41,5 +43,4 @@ A release candidate is valid only when:
 ## 4. Living Backlogs
 
 - Near-term actionable work: `TASKS.md`
-- Long-horizon strategic work: `TODO.md`
 - Implementation/spec conformance notes: `ANALYSIS.md`
