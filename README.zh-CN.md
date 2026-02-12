@@ -207,4 +207,40 @@ t81 help
 
 ## 仓库映射
 
-- [`include/t81/`](include/t81/): public A
+- [`include/t81/`](include/t81/): public API Headers
+
+- [`src/`](src/): 前端、TISC、VM、Axion、CanonFS、CLI 实现
+
+- [`tests/`](tests/): 一致性、确定性、VM/e2e、属性切片
+
+- [`docs/`](docs/): 指南、状态、基准测试、运行时边界文档
+
+- [`spec/`](spec/): 规范语义和治理输入
+
+- [`examples/`](examples/): 可运行示例和演示
+
+## 运行时边界
+
+T81 使用显式运行时边界契约：
+
+- 标记：[`contracts/runtime-contract.json`](contracts/runtime-contract.json)
+
+- 边界策略：[`docs/runtime-semantics-boundary.md`](docs/runtime-semantics-boundary.md)
+
+## 延伸阅读
+
+- [`ARCHITECTURE.md`](ARCHITECTURE.md)
+
+- [`docs/system-integration.md`](docs/system-integration.md)
+
+- [`ANALYSIS.md`](ANALYSIS.md)
+
+- [`CHANGELOG.md`](CHANGELOG.md)
+
+- [`docs/research-guide.md`](docs/research-guide.md)
+
+- [`docs/ai-quickstart.md`](docs/ai-quickstart.md)
+
+## 许可证
+
+本仓库采用 MIT 许可证（参见 [`LICENSE`](L​​ICENSE)）。
