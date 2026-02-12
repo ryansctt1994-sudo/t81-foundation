@@ -60,7 +60,10 @@ public:
     static constexpr size_type kNumBytes     = (N + kTritsPerByte - 1) / kTritsPerByte;
 
     // Maximum number of trits that safely fit in int64_t (3^39 fits in 64-bit signed)
-    static constexpr size_type kMaxSafeTrits = 39;
+    // Trits 0..39 can be accumulated without overflow relative to int64 range.
+    static constexpr size_type kPow3AccumTrits = 40;
+    // Trit 40 (index 40) requires special overflow checking because 3^40 > INT64_MAX.
+    static constexpr size_type kSpecialIndex = 40;
 
 private:
     std::array<std::uint8_t, kNumBytes> data_{};
@@ -180,36 +183,63 @@ public:
     [[nodiscard]] constexpr std::int64_t to_int64() const {
 #ifdef _MSC_VER
         // MSVC: no throw allowed in constexpr → fast path (symbol IDs are tiny)
+        // Note: MSVC path here is simplified and doesn't support full range safely in constexpr if throwing is banned.
+        // For full correctness, we should use the same logic, but MSVC constexpr limitations might be tricky.
         std::int64_t value = 0;
         std::int64_t pow3 = 1;
-        const size_type limit = (kNumTrits < kMaxSafeTrits) ? kNumTrits : kMaxSafeTrits;
+        const size_type limit = (kNumTrits < kPow3AccumTrits) ? kNumTrits : kPow3AccumTrits;
         for (size_type i = 0; i < limit; ++i) {
             value += trit_to_int(get_trit(i)) * pow3;
-            if (i < kMaxSafeTrits - 1) pow3 *= 3;
+            if (i < kPow3AccumTrits - 1) pow3 *= 3;
         }
         return value;
 #else
         // GCC/Clang: full overflow checking with throw (safe in constexpr if not executed)
-        const size_type limit = (kNumTrits < kMaxSafeTrits) ? kNumTrits : kMaxSafeTrits;
 
-        for (size_type i = limit; i < kNumTrits; ++i) {
-            if (get_trit(i) != Trit::Z)
-                throw std::overflow_error("T81Int::to_int64(): value out of range");
+        // 1. Check forbidden trits (index > 40 must be Zero)
+        if (kNumTrits > kSpecialIndex + 1) {
+             for (size_type i = kSpecialIndex + 1; i < kNumTrits; ++i) {
+                 if (get_trit(i) != Trit::Z)
+                     throw std::overflow_error("T81Int::to_int64(): value out of range (trits > 40)");
+             }
         }
 
+        // 2. Accumulate trits 0..39 (safe relative to int64 range)
+        const size_type limit = (kNumTrits < kPow3AccumTrits) ? kNumTrits : kPow3AccumTrits;
         std::int64_t value = 0;
         std::int64_t pow3 = 1;
         for (size_type i = 0; i < limit; ++i) {
-            const int d = trit_to_int(get_trit(i));
-            if (d != 0) {
-                const std::int64_t term = d * pow3;
-                if (term > 0 && value > std::numeric_limits<std::int64_t>::max() - term)
-                    throw std::overflow_error("T81Int::to_int64(): overflow (positive)");
-                if (term < 0 && value < std::numeric_limits<std::int64_t>::min() - term)
-                    throw std::overflow_error("T81Int::to_int64(): overflow (negative)");
-                value += term;
-            }
+            value += static_cast<std::int64_t>(trit_to_int(get_trit(i))) * pow3;
             if (i + 1 < limit) pow3 *= 3;
+        }
+
+        // 3. Handle trit 40 if present
+        if (kNumTrits > kSpecialIndex) {
+            Trit t40 = get_trit(kSpecialIndex);
+            if (t40 != Trit::Z) {
+                // 3^40 = 12157665459056928801
+                constexpr std::uint64_t kPow40 = 12157665459056928801ULL;
+
+                if (t40 == Trit::P) {
+                    // Check value + 3^40 <= kMax
+                    constexpr std::uint64_t uMax = static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max());
+                    constexpr std::uint64_t diff = kPow40 - uMax;
+                    if (value > -static_cast<std::int64_t>(diff))
+                        throw std::overflow_error("T81Int::to_int64(): overflow (positive)");
+
+                    return static_cast<std::int64_t>(static_cast<std::uint64_t>(value) + kPow40);
+                } else {
+                    // t40 == Trit::N
+                    // Check value - 3^40 >= kMin
+                    constexpr std::uint64_t uMin = static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::min());
+                    constexpr std::uint64_t limit = kPow40 - uMin;
+
+                    if (value < static_cast<std::int64_t>(limit))
+                        throw std::overflow_error("T81Int::to_int64(): overflow (negative)");
+
+                    return static_cast<std::int64_t>(static_cast<std::uint64_t>(value) - kPow40);
+                }
+            }
         }
         return value;
 #endif
