@@ -506,6 +506,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_cli_disasm_test tests/cpp/cli_disasm_test.cpp)
   target_link_libraries(t81_cli_disasm_test PRIVATE t81_cli_driver)
 
+  add_executable(t81_cli_debugger_test tests/cpp/cli_debugger_test.cpp)
+  target_link_libraries(t81_cli_debugger_test PRIVATE t81_cli_driver t81_tisc)
+
   add_executable(t81_cli_option_result_test tests/cpp/cli_option_result_test.cpp)
   target_link_libraries(t81_cli_option_result_test PRIVATE t81_cli_driver t81_tisc t81_vm)
 
@@ -844,6 +847,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_cli_check_test
     t81_cli_pipeline_test
     t81_cli_disasm_test
+    t81_cli_debugger_test
     t81_cli_option_result_test
     t81_cli_diagnostic_context_test
     axion_policy_match_guard_test
