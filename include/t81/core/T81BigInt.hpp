@@ -6,6 +6,7 @@
  *   • Internally stores a sign bit and one or more T81Int "limbs".
  *   • Supports arbitrary-precision arithmetic via multi-limb representation.
  *   • Multiplication uses Karatsuba algorithm for large values.
+ *   • Division uses Knuth's Algorithm D over normalized chunks.
  *   • Addition/Subtraction uses chunk-based carry propagation.
  */
 
@@ -20,6 +21,8 @@
 #include <limits>
 #include <algorithm>
 #include <span>
+#include <unordered_map>
+#include <iostream>
 #if defined(__AVX2__)
 #include <immintrin.h>
 #endif
@@ -79,6 +82,44 @@ namespace detail {
         }();
         return table;
     }
+
+    inline const std::vector<std::string>& base81_alphabet_vec() {
+      static const std::vector<std::string> kAlphabet = {
+        "0","1","2","3","4","5","6","7","8","9",
+        "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
+        "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
+        "+","−","×","÷","=","<",">","≤","≥","≠","≈","∞","λ","μ","π","σ","τ","ω","Γ"
+      };
+      return kAlphabet;
+    }
+
+    inline const std::unordered_map<std::string, int>& base81_digit_map() {
+      static const std::unordered_map<std::string, int> kMap = []{
+        std::unordered_map<std::string, int> m;
+        const auto& alpha = base81_alphabet_vec();
+        m.reserve(alpha.size());
+        for (std::size_t i = 0; i < alpha.size(); ++i) {
+          m.emplace(alpha[i], static_cast<int>(i));
+        }
+        return m;
+      }();
+      return kMap;
+    }
+
+    inline std::string next_codepoint(std::string_view s, std::size_t& offset) {
+      if (offset >= s.size()) return {};
+      const unsigned char c = static_cast<unsigned char>(s[offset]);
+      std::size_t len = 0;
+      if (c < 0x80) len = 1;
+      else if ((c & 0xE0) == 0xC0) len = 2;
+      else if ((c & 0xF0) == 0xE0) len = 3;
+      else if ((c & 0xF8) == 0xF0) len = 4;
+      else return {};
+      if (offset + len > s.size()) return {};
+      std::string cp(s.substr(offset, len));
+      offset += len;
+      return cp;
+    }
 }
 
 class T81BigInt {
@@ -96,6 +137,29 @@ private:
     std::vector<Limb> limbs_;
     bool negative_ = false;
 
+    void verify_invariants() const {
+#ifndef NDEBUG
+        if (limbs_.empty()) {
+            // Must have at least one limb
+            std::terminate();
+        }
+        // No leading zero limbs unless it's the only one
+        if (limbs_.size() > 1 && limbs_.back().is_zero()) {
+            std::terminate();
+        }
+        // Canonical zero: {0}, positive sign
+        if (limbs_.size() == 1 && limbs_[0].is_zero()) {
+            if (negative_) std::terminate();
+        }
+        // Ensure magnitude is strictly non-negative.
+        // The most significant limb determines the sign of the magnitude.
+        if (!limbs_.empty() && limbs_.back().sign_trit() == Trit::N) {
+            std::terminate();
+        }
+        // Limbs should be valid T81Ints (implicitly true by type)
+#endif
+    }
+
     void normalize() {
         if (limbs_.empty()) {
             limbs_.emplace_back(0);
@@ -111,18 +175,24 @@ private:
         if (limbs_.size() == 1 && limbs_[0].is_zero()) {
             negative_ = false;
         }
+
+        verify_invariants();
     }
 
     void assign_from_int64(std::int64_t v) {
         limbs_.clear();
         if (v < 0) {
             negative_ = true;
-            // std::int64_t min value is safe: abs(min) fits in 81 trits.
-            // Use unsigned to avoid overflow warning/UB when negating INT64_MIN.
-            const std::uint64_t uv = (v == std::numeric_limits<std::int64_t>::min())
-                                         ? static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max()) + 1
-                                         : static_cast<std::uint64_t>(-v);
-            limbs_.emplace_back(static_cast<std::int64_t>(uv));
+            if (v == std::numeric_limits<std::int64_t>::min()) {
+                 // Handle INT64_MIN: magnitude is 2^63.
+                 // Construct 2^63 - 1 (MAX) then add 1 to get +2^63 in T81Int.
+                 // This avoids the issue where casting +2^63 back to int64_t wraps to negative.
+                 Limb l(std::numeric_limits<std::int64_t>::max());
+                 l = l + Limb(1);
+                 limbs_.push_back(l);
+            } else {
+                 limbs_.emplace_back(-v);
+            }
         } else {
             negative_ = false;
             limbs_.emplace_back(v);
@@ -160,8 +230,16 @@ public:
         return T81BigInt(0);
     }
 
+    static T81BigInt one() {
+        return T81BigInt(1);
+    }
+
     static T81BigInt from_int64(std::int64_t v) {
         return T81BigInt(v);
+    }
+
+    static T81BigInt from_i64(std::int64_t v) {
+        return from_int64(v);
     }
 
     // ------------------------------------------------------------------
@@ -243,6 +321,27 @@ public:
     }
 
     // ------------------------------------------------------------------
+    // Compatibility helpers
+    // ------------------------------------------------------------------
+    static T81BigInt add(const T81BigInt& a, const T81BigInt& b) { return a + b; }
+    static T81BigInt sub(const T81BigInt& a, const T81BigInt& b) { return a - b; }
+    static T81BigInt mul(const T81BigInt& a, const T81BigInt& b) { return a * b; }
+    static T81BigInt div(const T81BigInt& a, const T81BigInt& b) { return a / b; }
+    static T81BigInt mod(const T81BigInt& a, const T81BigInt& b) { return a % b; }
+    static T81BigInt abs(const T81BigInt& a) { return a.abs(); }
+    static T81BigInt neg(const T81BigInt& a) { return -a; }
+
+    static bool is_zero(const T81BigInt& a) { return a.is_zero(); }
+    static bool is_neg(const T81BigInt& a) { return a.is_negative(); }
+    static bool is_one(const T81BigInt& a) { return a == T81BigInt(1); }
+
+    static int cmp(const T81BigInt& a, const T81BigInt& b) {
+        if (a < b) return -1;
+        if (a > b) return 1;
+        return 0;
+    }
+
+    // ------------------------------------------------------------------
     // Comparison (multi-limb balanced ternary)
     // ------------------------------------------------------------------
 
@@ -296,7 +395,10 @@ public:
     // Arithmetic (multi-limb balanced ternary)
     // ------------------------------------------------------------------
 
-    static std::vector<int64_t> get_chunks_static(const T81BigInt& x) {
+    static constexpr int64_t B = 7625597484987LL;      // 3^27
+    static constexpr int64_t halfB = (B - 1) / 2;
+
+    static std::vector<int64_t> to_chunks(const T81BigInt& x) {
         const auto& wtable = detail::get_word_to_ternary();
         std::vector<int64_t> chunks;
         chunks.reserve(x.limbs_.size() * 3);
@@ -362,6 +464,327 @@ public:
         return chunks;
     }
 
+    static T81BigInt from_chunks(std::vector<int64_t> chunks) {
+        // 1. Normalize carries
+        int64_t carry = 0;
+        for (size_t j = 0; j < chunks.size() || carry != 0; ++j) {
+            if (j >= chunks.size()) chunks.push_back(0);
+            int64_t sum = chunks[j] + carry;
+            if (sum > halfB) { chunks[j] = sum - B; carry = 1; }
+            else if (sum < -halfB) { chunks[j] = sum + B; carry = -1; }
+            else { chunks[j] = sum; carry = 0; }
+        }
+
+        // 2. Check sign
+        T81BigInt res;
+        res.limbs_.clear();
+        int64_t last = 0;
+        for (size_t i = chunks.size(); i-- > 0; ) if (chunks[i] != 0) { last = chunks[i]; break; }
+
+        if (last < 0) {
+            res.negative_ = true;
+            // Negate value in balanced ternary
+            int64_t c_neg = 0;
+            for (auto& v : chunks) {
+                int64_t val = -v + c_neg;
+                if (val > halfB) { v = val - B; c_neg = 1; }
+                else if (val < -halfB) { v = val + B; c_neg = -1; }
+                else { v = val; c_neg = 0; }
+            }
+        } else {
+            res.negative_ = false;
+        }
+
+        // 3. Pack into limbs
+        const auto& packed_table = detail::get_ternary_to_packed();
+        for (size_t i = 0; i < chunks.size(); i += 3) {
+            Limb l;
+            auto& ldata = const_cast<std::array<uint8_t, Limb::kNumBytes>&>(l.raw_data());
+            std::fill(ldata.begin(), ldata.end(), 0x55u);
+
+            auto set_chunk_in_limb = [&](int c, int64_t v) {
+                static constexpr int64_t offset27 = 3812798742493LL;
+                uint64_t uv = static_cast<uint64_t>(v + offset27);
+                int start_trit = c * 27;
+                for (int j = 0; j < 6; ++j) {
+                    int r = uv % 81; uv /= 81;
+                    uint8_t packed = packed_table[r];
+                    for (int t = 0; t < 4; ++t) {
+                        int u = (packed >> (t * 2)) & 0x3;
+                        l[start_trit + j * 4 + t] = static_cast<Trit>(u - 1);
+                    }
+                }
+                for(int t=24; t<27; ++t) { int r = uv % 3; uv /= 3; l[start_trit + t] = static_cast<Trit>(r - 1); }
+            };
+
+            for (int c = 0; c < 3; ++c) {
+                int64_t v = (i + c < chunks.size()) ? chunks[i + c] : 0;
+                // chunks already represent positive magnitude here, so no negation needed
+                set_chunk_in_limb(c, v);
+            }
+            res.limbs_.push_back(l);
+        }
+        res.normalize();
+        return res;
+    }
+
+    // Converts balanced chunks to standard non-negative chunks [0, B-1].
+    static std::vector<int64_t> to_std_chunks(std::vector<int64_t> chunks) {
+        // Safety limit to prevent infinite loops on effectively negative inputs
+        const size_t limit = chunks.size() + 4;
+        for (size_t i = 0; i < chunks.size(); ++i) {
+            if (chunks.size() > limit) {
+                throw std::logic_error("to_std_chunks: borrow beyond MSB (input effectively negative)");
+            }
+            while (chunks[i] < 0) {
+                chunks[i] += B;
+                if (i + 1 >= chunks.size()) {
+                     chunks.push_back(0);
+                }
+                chunks[i+1] -= 1;
+            }
+            // Also normalize carry-out if chunk >= B (though typical balanced conversion only has negatives)
+            // But if we have 0, -1 -> B, -1-1 = -2.
+            // If we have {B+1}, we need to carry over.
+            while (chunks[i] >= B) {
+                chunks[i] -= B;
+                if (i + 1 >= chunks.size()) {
+                    chunks.push_back(0);
+                }
+                chunks[i+1] += 1;
+            }
+        }
+        // Trim leading zeros
+        // But for to_std_chunks, we are preparing for division logic that expects
+        // non-negative chunks in standard base B.
+        // The last chunk MUST be non-zero if size > 1.
+        while (chunks.size() > 1 && chunks.back() == 0) chunks.pop_back();
+
+        // Ensure no negative chunks remain (this should have been handled by the borrow loop,
+        // but if the MSB was negative, we might have an issue).
+        // Since input is abs(), it should be positive.
+        // If MSB is 0 after borrow loop (e.g. from {1, -1} -> {0, B-1}), we trim.
+        // If MSB is negative, it means the number was negative, which violates abs() input precondition.
+
+        if (chunks.empty()) {
+            chunks.push_back(0);
+        }
+
+        return chunks;
+    }
+
+    static std::pair<std::vector<int64_t>, std::vector<int64_t>> div_mod_std(std::vector<int64_t> u, std::vector<int64_t> v) {
+        if (v.empty() || (v.size() == 1 && v[0] == 0)) throw std::domain_error("division by zero");
+
+        // Knuth Algorithm D
+        if (v.size() == 1) {
+            int64_t divisor = v[0];
+            int64_t rem = 0;
+            for (size_t i = u.size(); i-- > 0; ) {
+                int128_t cur = (int128_t)rem * B + u[i];
+                u[i] = (int64_t)(cur / divisor);
+                rem = (int64_t)(cur % divisor);
+            }
+            while (u.size() > 1 && u.back() == 0) u.pop_back();
+            if (u.empty()) u.push_back(0);
+            return { std::move(u), { rem } };
+        }
+
+        int n = (int)v.size();
+        int m = (int)u.size() - n;
+
+        if (m < 0) return { {0}, u };
+
+        int64_t d = B / (v.back() + 1);
+        auto mul_scalar = [](std::vector<int64_t>& vec, int64_t s) {
+            int64_t carry = 0;
+            for (auto& val : vec) {
+                int128_t prod = (int128_t)val * s + carry;
+                val = (int64_t)(prod % B);
+                carry = (int64_t)(prod / B);
+            }
+            if (carry) vec.push_back(carry);
+        };
+
+        mul_scalar(u, d);
+        mul_scalar(v, d);
+
+        // Update sizes after scaling. v size shouldn't change if d is optimal, but u might grow.
+        n = (int)v.size();
+        m = (int)u.size() - n;
+
+        // Knuth Algorithm D requires u to have size m + n + 1 (indices 0..m+n).
+        // Currently u.size() == m + n. We need one extra zero at the most significant position.
+        u.push_back(0);
+
+        std::vector<int64_t> q(m + 1, 0);
+
+        for (int j = m; j >= 0; --j) {
+            int128_t num = (int128_t)u[j+n] * B + u[j+n-1];
+            int64_t den = v[n-1];
+            int64_t qhat = (den == 0) ? B - 1 : (int64_t)(num / den);
+            int64_t rhat = (den == 0) ? 0 : (int64_t)(num % den);
+
+            while (qhat == B || (n > 1 && (int128_t)qhat * v[n-2] > (int128_t)rhat * B + u[j+n-2])) {
+                qhat--;
+                rhat += den;
+                if (rhat >= B) break;
+            }
+
+            int64_t borrow = 0;
+            int64_t carry = 0;
+            for (int i = 0; i < n; ++i) {
+                int128_t prod = (int128_t)qhat * v[i] + carry;
+                int64_t sub = u[j+i] - (int64_t)(prod % B) + borrow;
+                carry = (int64_t)(prod / B);
+                if (sub < 0) {
+                    sub += B;
+                    borrow = -1;
+                } else {
+                    borrow = 0;
+                }
+                u[j+i] = sub;
+            }
+            int64_t sub = u[j+n] - carry + borrow;
+            u[j+n] = sub;
+
+            q[j] = qhat;
+
+            if (sub < 0) {
+                q[j]--;
+                carry = 0;
+                for (int i = 0; i < n; ++i) {
+                    int64_t sum = u[j+i] + v[i] + carry;
+                    u[j+i] = sum % B;
+                    carry = sum / B;
+                }
+                u[j+n] += carry;
+            }
+
+            // Safety: if q[j] was negative (impossible here as qhat is positive or 0),
+            // or if it was 0 and decremented (impossible unless sub<0, which implies qhat was too big)
+            // qhat adjustment loop ensures qhat is close.
+            // But we store q[j] in vector<int64_t>.
+        }
+
+        std::vector<int64_t> r_chunks;
+        r_chunks.reserve(n);
+        int64_t rem = 0;
+        for (int i = n - 1; i >= 0; --i) {
+            int128_t cur = (int128_t)rem * B + u[i];
+            r_chunks.push_back((int64_t)(cur / d));
+            rem = (int64_t)(cur % d);
+        }
+        std::reverse(r_chunks.begin(), r_chunks.end());
+
+        // Safety check for remainder unnormalization
+        // if rem != 0, we have an issue with the division algorithm logic (d-normalization should be exact?)
+        // Algorithm D: r = u / d. The remainder is u % d.
+        // But u here is the *updated* u after subtraction steps.
+        // It holds r * d.
+        // So u % d should be 0.
+        // If it's not, we might have overflow/precision issues in mul_scalar or setup.
+
+        // Final remainder check (should be zero unless precision issue, but with d=B/(v[n-1]+1) it's integer division)
+        // rem should be 0 here if u was fully consumed. Wait, we are unnormalizing r.
+        // u[i] holds the remainder of the division step * d.
+        // We divided u by d to get r_chunks.
+        // So rem should be 0.
+
+        while (q.size() > 1 && q.back() == 0) q.pop_back();
+        while (r_chunks.size() > 1 && r_chunks.back() == 0) r_chunks.pop_back();
+        if (r_chunks.empty()) r_chunks.push_back(0);
+        if (q.empty()) q.push_back(0);
+
+        return { std::move(q), std::move(r_chunks) };
+    }
+
+    /**
+     * @brief Performs Euclidean division.
+     *
+     * Computes q and r such that a = b * q + r, where 0 <= r < |b|.
+     *
+     * @param a Dividend
+     * @param b Divisor
+     * @return Pair {q, r}
+     * @throws std::domain_error if b is zero.
+     */
+    static std::pair<T81BigInt, T81BigInt> div_mod(const T81BigInt& a, const T81BigInt& b) {
+        if (b.is_zero()) throw std::domain_error("BigInt division by zero");
+        if (a.is_zero()) return { zero(), zero() };
+
+        auto u_chunks = to_chunks(a.abs());
+        auto v_chunks = to_chunks(b.abs());
+
+        auto u_std = to_std_chunks(std::move(u_chunks));
+        auto v_std = to_std_chunks(std::move(v_chunks));
+
+        // div_mod_std performs unsigned division: |a| = |b| * q' + r'
+        auto p = div_mod_std(std::move(u_std), std::move(v_std));
+
+        T81BigInt q = from_chunks(std::move(p.first));
+        T81BigInt r = from_chunks(std::move(p.second));
+
+        // Adjust for signs to satisfy Euclidean property: 0 <= r < |b|
+        // Case 1: a >= 0, b > 0. q = q', r = r'.
+        // Case 2: a >= 0, b < 0. q = -q', r = r'.
+        // Case 3: a < 0, b > 0. a = -|a| = -( |b|*q' + r' ) = |b|*(-q') - r'.
+        //         If r' != 0, -r' is negative. We need r in [0, b).
+        //         -r' = b - r' - b = b * (-1) + (b - r').
+        //         So a = b * (-q' - 1) + (b - r').
+        //         q = -q' - 1, r = b - r'.
+        // Case 4: a < 0, b < 0. a = -|a| = -( |b|*q' + r' ) = (-b)*q' + (-r').
+        //         = b * q' - r'.
+        //         If r' != 0, -r' is negative. We need r in [0, |b|).
+        //         -r' = |b| - r' - |b| = (-b) - r' + b.
+        //         Wait, b is negative. |b| = -b.
+        //         -r' = -b - r' + b.
+        //         So a = b * (q' + 1) + (-b - r').
+        //         q = q' + 1, r = |b| - r'.
+
+        if (a.is_negative()) {
+            if (!r.is_zero()) {
+                // Adjustment needed
+                if (b.is_negative()) {
+                    // Case 4: a < 0, b < 0
+                    q = q + one();
+                    r = b.abs() - r;
+                } else {
+                    // Case 3: a < 0, b > 0
+                    q = -(q + one());
+                    r = b - r;
+                }
+            } else {
+                // Exact division
+                if (b.is_negative()) {
+                    // Case 4 (r=0): q = q'
+                    // q is positive
+                } else {
+                    // Case 3 (r=0): q = -q'
+                    q = -q;
+                }
+            }
+        } else {
+            // a >= 0
+            if (b.is_negative()) {
+                // Case 2: a >= 0, b < 0. q = -q'
+                q = -q;
+            }
+            // Case 1: a >= 0, b > 0. q = q'
+        }
+
+        q.verify_invariants();
+        r.verify_invariants();
+        return { q, r };
+    }
+
+    T81BigInt operator-() const {
+        if (is_zero()) return *this;
+        T81BigInt r = *this;
+        r.negative_ = !r.negative_;
+        return r;
+    }
+
     friend T81BigInt operator+(const T81BigInt& a, const T81BigInt& b) {
         if (a.is_zero()) return b;
         if (b.is_zero()) return a;
@@ -380,10 +803,16 @@ public:
                 // Simplest is just try it if potentially safe.
                 // But we still need to handle the T81Int API which throws on overflow.
                 // The check `max(ta, tb) < kLimbTrits` ensures NO overflow in T81Int addition.
-                res.limbs_.push_back(a.negative_ ? -a.limbs_[0] : a.limbs_[0]);
-                Limb rhs = b.negative_ ? -b.limbs_[0] : b.limbs_[0];
-                res.limbs_[0] = res.limbs_[0] + rhs; // Should not throw
-                res.negative_ = false;
+                res.limbs_.clear();
+                Limb val = (a.negative_ ? -a.limbs_[0] : a.limbs_[0]) +
+                           (b.negative_ ? -b.limbs_[0] : b.limbs_[0]);
+                if (val.sign_trit() == Trit::N) {
+                    res.negative_ = true;
+                    res.limbs_.push_back(-val);
+                } else {
+                    res.negative_ = false;
+                    res.limbs_.push_back(val);
+                }
                 res.normalize();
                 return res;
             } else {
@@ -402,14 +831,13 @@ public:
                 }
             }
         }
-        auto ac = get_chunks_static(a);
-        auto bc = get_chunks_static(b);
+        auto ac = to_chunks(a);
+        auto bc = to_chunks(b);
         size_t n = std::max(ac.size(), bc.size());
         size_t n_padded = (n + 3) & ~size_t(3);
         ac.resize(n_padded, 0);
         bc.resize(n_padded, 0);
-        static constexpr int64_t B = 7625597484987LL;
-        static constexpr int64_t halfB = (B - 1) / 2;
+
         std::vector<int64_t> rc(n_padded + 1, 0);
         size_t i = 0;
 #if defined(__AVX2__)
@@ -421,56 +849,8 @@ public:
         }
 #endif
         for (; i < n; ++i) rc[i] = ac[i] + bc[i];
-        int64_t carry = 0;
-        for (size_t j = 0; j < rc.size() || carry != 0; ++j) {
-            if (j >= rc.size()) rc.push_back(0);
-            int64_t sum = rc[j] + carry;
-            if (sum > halfB) { rc[j] = sum - B; carry = 1; }
-            else if (sum < -halfB) { rc[j] = sum + B; carry = -1; }
-            else { rc[j] = sum; carry = 0; }
-        }
-        T81BigInt res;
-        res.limbs_.clear();
-        int64_t last = 0;
-        for (size_t i = rc.size(); i-- > 0; ) if (rc[i] != 0) { last = rc[i]; break; }
-        if (last < 0) {
-            res.negative_ = true;
-            int64_t c_neg = 0;
-            for (auto& v : rc) {
-                int64_t val = -v + c_neg;
-                if (val > halfB) { v = val - B; c_neg = 1; }
-                else if (val < -halfB) { v = val + B; c_neg = -1; }
-                else { v = val; c_neg = 0; }
-            }
-        } else res.negative_ = false;
-        const auto& packed_table = detail::get_ternary_to_packed();
-        for (size_t i = 0; i < rc.size(); i += 3) {
-            Limb l;
-            auto& ldata = const_cast<std::array<uint8_t, Limb::kNumBytes>&>(l.raw_data());
-            std::fill(ldata.begin(), ldata.end(), 0x55u);
-            auto set_chunk_in_limb = [&](int c, int64_t v) {
-                static constexpr int64_t offset27 = 3812798742493LL;
-                uint64_t uv = static_cast<uint64_t>(v + offset27);
-                int start_trit = c * 27;
-                for (int j = 0; j < 6; ++j) {
-                    int r = uv % 81; uv /= 81;
-                    uint8_t packed = packed_table[r];
-                    for (int t = 0; t < 4; ++t) {
-                        int u = (packed >> (t * 2)) & 0x3;
-                        l[start_trit + j * 4 + t] = static_cast<Trit>(u - 1);
-                    }
-                }
-                for(int t=24; t<27; ++t) { int r = uv % 3; uv /= 3; l[start_trit + t] = static_cast<Trit>(r - 1); }
-            };
-            for (int c = 0; c < 3; ++c) {
-                int64_t v = (i + c < rc.size()) ? rc[i + c] : 0;
-                if (res.negative_) v = -v;
-                set_chunk_in_limb(c, v);
-            }
-            res.limbs_.push_back(l);
-        }
-        res.normalize();
-        return res;
+
+        return from_chunks(std::move(rc));
     }
 
     friend T81BigInt operator-(const T81BigInt& a, const T81BigInt& b) {
@@ -617,61 +997,22 @@ public:
                 }
             }
         }
-        auto ac = get_chunks_static(a);
-        auto bc = get_chunks_static(b);
+        auto ac = to_chunks(a);
+        auto bc = to_chunks(b);
         std::vector<int128_t> rc = karatsuba_mul_(ac, bc);
 
-        const int128_t B = 7625597484987LL; // 3^27
-        const int128_t halfB = (B - 1) / 2;
         int128_t carry = 0;
+        const int128_t B128 = B;
+        const int128_t halfB128 = halfB;
         std::vector<int64_t> final_c;
         for (size_t i = 0; i < rc.size() || carry != 0; ++i) {
             int128_t val = (i < rc.size() ? rc[i] : 0) + carry;
-            int128_t q = (val >= 0) ? (val + halfB) / B : (val - halfB) / B;
-            final_c.push_back(static_cast<int64_t>(val - q * B));
+            int128_t q = (val >= 0) ? (val + halfB128) / B128 : (val - halfB128) / B128;
+            final_c.push_back(static_cast<int64_t>(val - q * B128));
             carry = q;
         }
 
-        T81BigInt res;
-        res.limbs_.clear();
-        for (size_t i = 0; i < final_c.size(); i += 3) {
-            Limb l;
-            for (int c = 0; c < 3; ++c) {
-                int64_t v = (i + c < final_c.size()) ? final_c[i + c] : 0;
-                bool v_neg = v < 0;
-                uint64_t uv = v_neg ? static_cast<uint64_t>(-v) : static_cast<uint64_t>(v);
-                for (int t = 0; t < 27; ++t) {
-                    int r = static_cast<int>(uv % 3); uv /= 3;
-                    if (r == 2) { r = -1; uv++; }
-                    l[c * 27 + t] = int_to_trit(v_neg ? -r : r);
-                }
-            }
-            res.limbs_.push_back(l);
-        }
-
-        res.negative_ = (a.negative_ != b.negative_);
-
-        // Correct sign if magnitude ended up negative (can happen due to balanced ternary representation)
-        Trit s = Trit::Z;
-        for (size_t i = res.limbs_.size(); i-- > 0; ) {
-            s = res.limbs_[i].sign_trit();
-            if (s != Trit::Z) break;
-        }
-        if (s == Trit::N) {
-            res.negative_ = !res.negative_;
-            int c_neg = 0;
-            for (auto& limb : res.limbs_) {
-                for (size_t t = 0; t < kLimbTrits; ++t) {
-                    int v = -trit_to_int(limb[t]) + c_neg;
-                    int d = (v > 1) ? v - 3 : (v < -1) ? v + 3 : v;
-                    c_neg = (v > 1) ? 1 : (v < -1) ? -1 : 0;
-                    limb[t] = int_to_trit(d);
-                }
-            }
-        }
-
-        res.normalize();
-        return res;
+        return from_chunks(std::move(final_c));
     }
 
     T81BigInt& operator+=(const T81BigInt& rhs) {
@@ -687,6 +1028,174 @@ public:
     T81BigInt& operator*=(const T81BigInt& rhs) {
         *this = *this * rhs;
         return *this;
+    }
+
+    friend T81BigInt operator/(const T81BigInt& a, const T81BigInt& b) {
+        return div_mod(a, b).first;
+    }
+
+    friend T81BigInt operator%(const T81BigInt& a, const T81BigInt& b) {
+        return div_mod(a, b).second;
+    }
+
+    T81BigInt& operator/=(const T81BigInt& rhs) {
+        *this = *this / rhs;
+        return *this;
+    }
+
+    T81BigInt& operator%=(const T81BigInt& rhs) {
+        *this = *this % rhs;
+        return *this;
+    }
+
+    static T81BigInt gcd(T81BigInt a, T81BigInt b) {
+        a = a.abs();
+        b = b.abs();
+        while (!b.is_zero()) {
+            T81BigInt r = a % b;
+            a = std::move(b);
+            b = std::move(r);
+        }
+        return a;
+    }
+
+    static T81BigInt pow(const T81BigInt& base, const T81BigInt& exp) {
+        if (exp.is_negative()) throw std::domain_error("BigInt pow: negative exponent");
+        if (exp.is_zero()) return one();
+        if (base.is_zero()) return zero();
+
+        T81BigInt result = one();
+        T81BigInt b = base;
+        T81BigInt e = exp;
+        T81BigInt two(2);
+
+        while (!e.is_zero()) {
+            auto dm = div_mod(e, two);
+            if (!dm.second.is_zero()) {
+                result = result * b;
+            }
+            b = b * b;
+            e = dm.first;
+        }
+        return result;
+    }
+
+    std::string to_string() const {
+        return to_base81_string();
+    }
+
+    std::string to_base81_string() const {
+        if (is_zero()) return "0";
+
+        T81BigInt base(81);
+        T81BigInt v = abs();
+        std::vector<int> digits;
+        digits.reserve(48);
+
+        while (!v.is_zero()) {
+            auto dm = div_mod(v, base);
+            int d = static_cast<int>(dm.second.to_int64());
+            digits.push_back(d);
+            v = dm.first;
+        }
+
+        std::string out;
+        if (negative_) out.push_back('-');
+        const auto& alpha = detail::base81_alphabet_vec();
+        for (auto it = digits.rbegin(); it != digits.rend(); ++it) {
+            out += alpha[static_cast<std::size_t>(*it)];
+        }
+        return out;
+    }
+
+    static T81BigInt from_base81_string(std::string_view s) {
+        if (s.empty()) throw std::invalid_argument("T81BigInt::from_base81_string: empty input");
+
+        bool neg = false;
+        std::size_t pos = 0;
+        if (s[pos] == '+' || s[pos] == '-') {
+            neg = (s[pos] == '-');
+            ++pos;
+            if (pos >= s.size()) throw std::invalid_argument("T81BigInt::from_base81_string: sign only");
+        }
+
+        std::vector<int> digits;
+        const auto& map = detail::base81_digit_map();
+        while (pos < s.size()) {
+            std::string cp = detail::next_codepoint(s, pos);
+            if (cp.empty()) throw std::invalid_argument("T81BigInt::from_base81_string: invalid encoding");
+            auto it = map.find(cp);
+            if (it == map.end()) throw std::invalid_argument("T81BigInt::from_base81_string: invalid character");
+            digits.push_back(it->second);
+        }
+        if (digits.size() > 1 && digits.front() == 0) {
+            throw std::invalid_argument("T81BigInt::from_base81_string: non-canonical leading zero");
+        }
+
+        T81BigInt base(81);
+        T81BigInt v(0);
+        for (int d : digits) {
+            v = v * base;
+            v = v + T81BigInt(d);
+        }
+        if (neg && !v.is_zero()) v = -v;
+        return v;
+    }
+
+    static T81BigInt from_base81_digit_string(std::string_view s) {
+        if (s.empty()) throw std::invalid_argument("from_base81_digit_string: empty input");
+        bool neg = false;
+        size_t pos = 0;
+        if (s[pos] == '+' || s[pos] == '-') {
+            neg = (s[pos] == '-');
+            pos++;
+        }
+
+        std::vector<int> digits;
+        int current = 0;
+        bool have_digit = false;
+
+        for (; pos <= s.size(); ++pos) {
+            if (pos == s.size() || s[pos] == '.') {
+                if (!have_digit) throw std::invalid_argument("from_base81_digit_string: empty digit");
+                if (current < 0 || current >= 81) throw std::invalid_argument("digit out of range");
+                digits.push_back(current);
+                current = 0;
+                have_digit = false;
+            } else if (s[pos] >= '0' && s[pos] <= '9') {
+                have_digit = true;
+                current = current * 10 + (s[pos] - '0');
+                if (current >= 81) throw std::invalid_argument("digit overflow");
+            } else {
+                throw std::invalid_argument("invalid char");
+            }
+        }
+
+        T81BigInt res(0);
+        T81BigInt base(81);
+        for (int d : digits) {
+            res = res * base + T81BigInt(d);
+        }
+        if (neg) res = -res;
+        return res;
+    }
+
+    static T81BigInt from_ascii(std::string_view s) { return from_base81_digit_string(s); }
+
+    void serialize(std::ostream& os) const {
+        std::string s = to_base81_string();
+        uint64_t len = s.size();
+        os.write(reinterpret_cast<const char*>(&len), sizeof(len));
+        os.write(s.data(), static_cast<std::streamsize>(len));
+    }
+
+    void deserialize(std::istream& is) {
+        uint64_t len;
+        is.read(reinterpret_cast<char*>(&len), sizeof(len));
+        if (!is) return;
+        std::string s(static_cast<size_t>(len), '\0');
+        is.read(s.data(), static_cast<std::streamsize>(len));
+        *this = from_base81_string(s);
     }
 };
 

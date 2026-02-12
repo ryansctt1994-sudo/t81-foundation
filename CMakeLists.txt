@@ -81,8 +81,6 @@ add_library(t81_core STATIC
   src/codec/base81_packed.cpp
   src/codec/metadata.cpp
   src/codec/trit_packing.cpp
-  src/bigint/divmod.cpp
-  src/bigint/gcd.cpp
   src/vm/jit_compiler.cpp
   src/hash/canonhash81.cpp
   src/crypto/sha3.cpp
@@ -729,6 +727,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(t81_bigint_v1_perf tests/cpp/test_bigint_v1_perf.cpp)
   target_link_libraries(t81_bigint_v1_perf PRIVATE t81_core)
 
+  add_executable(test_bigint_robust_features tests/cpp/test_bigint_robust_features.cpp)
+  target_link_libraries(test_bigint_robust_features PRIVATE t81_core)
+
   add_executable(test_bigint_multilimb_ext tests/cpp/test_bigint_multilimb_ext.cpp)
   target_link_libraries(test_bigint_multilimb_ext PRIVATE t81_core)
 
@@ -897,6 +898,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     e2e_axion_trace_test
     axion_policy_bytecode_test
     test_bigint_multilimb_ext
+    test_bigint_robust_features
     t81_bigint_v1_perf
     bigint_perf_guardrail_test
     test_T81Tensor_transpose
