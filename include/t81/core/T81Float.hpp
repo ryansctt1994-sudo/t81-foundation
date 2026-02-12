@@ -177,8 +177,48 @@ public:
     [[nodiscard]] double to_double() const noexcept;
     static T81Float from_double(double v) noexcept;
 
-    [[nodiscard]] constexpr auto operator<=>(const T81Float&) const noexcept = default;
-    [[nodiscard]] constexpr bool operator==(const T81Float&) const noexcept = default;
+    [[nodiscard]] constexpr bool operator==(const T81Float& other) const noexcept {
+        if (is_nae() || other.is_nae()) return false;
+        if (is_zero() && other.is_zero()) return true;
+        return bits_ == other.bits_;
+    }
+
+    [[nodiscard]] constexpr std::partial_ordering operator<=>(const T81Float& other) const noexcept {
+        if (is_nae() || other.is_nae()) return std::partial_ordering::unordered;
+        if (is_zero() && other.is_zero()) return std::partial_ordering::equivalent;
+
+        const Trit s1 = get_sign();
+        const Trit s2 = other.get_sign();
+
+        if (s1 != s2) {
+             // N < Z < P
+             return (static_cast<int>(s1) < static_cast<int>(s2))
+                ? std::partial_ordering::less
+                : std::partial_ordering::greater;
+        }
+
+        // Same sign
+        const auto e1 = get_exp();
+        const auto e2 = other.get_exp();
+        if (e1 != e2) {
+             if (s1 == Trit::N) {
+                  return (e1 > e2) ? std::partial_ordering::less : std::partial_ordering::greater;
+             }
+             return (e1 < e2) ? std::partial_ordering::less : std::partial_ordering::greater;
+        }
+
+        const auto m1 = get_mantissa();
+        const auto m2 = other.get_mantissa();
+        const auto cmp = (m1 <=> m2);
+
+        if (cmp == std::strong_ordering::equal) return std::partial_ordering::equivalent;
+
+        const bool less = (cmp == std::strong_ordering::less);
+        if (s1 == Trit::N) {
+             return less ? std::partial_ordering::greater : std::partial_ordering::less;
+        }
+        return less ? std::partial_ordering::less : std::partial_ordering::greater;
+    }
 
     // ---------------------------------------------------------------------
     // High-level math helpers for geometry/time layers
@@ -510,10 +550,16 @@ T81Float<M, E> T81Float<M, E>::from_double(double v) noexcept {
     const std::int64_t k        = static_cast<std::int64_t>(std::floor(log3_v));
     const std::int64_t exp_unb  = k + 1;
 
+    // We can only safely extract into int64_t if we limit the trits.
+    // 63 bits ~ 39.7 trits. Let's start with safe limit 39.
+    constexpr size_type kSafeTrits = 39;
+    constexpr size_type EffectiveM = (M > kSafeTrits) ? kSafeTrits : M;
+    constexpr size_type Shift      = M - EffectiveM;
+
     const long double scale_exp =
-        static_cast<long double>(M - 1 - exp_unb);
+        static_cast<long double>(EffectiveM - 1 - exp_unb);
     const long double mant_real =
-        mag * powl(3.0L, scale_exp); // ≈ |v| * 3^(M-1-exp_unb)
+        mag * powl(3.0L, scale_exp); // ≈ |v| * 3^(EffectiveM-1-exp_unb)
 
     if (!std::isfinite(mant_real) || mant_real == 0.0L) {
         return F::zero();
@@ -525,15 +571,18 @@ T81Float<M, E> T81Float<M, E>::from_double(double v) noexcept {
     // Encode mant_ll >= 0 into balanced ternary
     T81Int<M> mantissa; // zero by default
     std::int64_t tmp = mant_ll;
-    for (size_type i = 0; i < M && tmp != 0; ++i) {
+
+    // Fill upper trits [Shift ... M-1]
+    for (size_type i = 0; i < EffectiveM && tmp != 0; ++i) {
         int digit = static_cast<int>(tmp % 3);
         tmp /= 3;
 
+        size_type idx = i + Shift;
         if (digit == 2) {
-            mantissa[i] = Trit::N; // 2 → -1 with carry
+            mantissa[idx] = Trit::N; // 2 → -1 with carry
             ++tmp;
         } else {
-            mantissa[i] = int_to_trit(digit); // 0 or 1
+            mantissa[idx] = int_to_trit(digit); // 0 or 1
         }
     }
 

@@ -26,6 +26,8 @@
 #include <numeric>
 #include <algorithm>
 #include <format>
+#include <tuple>
+#include <utility>
 
 namespace t81 {
 
@@ -40,6 +42,26 @@ concept T81Element =
      std::same_as<T, T81Fixed<72,9>>  ||
      std::same_as<T, T81Complex<40>>  ||   // 80 trits → padded
      std::same_as<T, T81Symbol>);
+
+// ======================================================================
+// Metaprogramming Helpers
+// ======================================================================
+namespace detail {
+    template <size_t... Is> struct Seq {};
+
+    template <typename S1, typename S2> struct Concat;
+    template <size_t... I1, size_t... I2>
+    struct Concat<Seq<I1...>, Seq<I2...>> {
+        using type = Seq<I1..., I2...>;
+    };
+
+    template <size_t... Is> struct Reverse;
+    template <> struct Reverse<> { using type = Seq<>; };
+    template <size_t I, size_t... Is>
+    struct Reverse<I, Is...> {
+        using type = typename Concat<typename Reverse<Is...>::type, Seq<I>>::type;
+    };
+}
 
 // ======================================================================
 // T81Tensor<Element, Rank, Dims...> – the ultimate N-D array
@@ -164,6 +186,45 @@ public:
         return r;
     }
 
+    // Scalar Broadcasting
+    [[nodiscard]] constexpr T81Tensor operator+(Element s) const noexcept {
+        T81Tensor r;
+        for (size_t i = 0; i < size(); ++i) r.data[i] = data[i] + s;
+        return r;
+    }
+
+    [[nodiscard]] constexpr T81Tensor operator-(Element s) const noexcept {
+        T81Tensor r;
+        for (size_t i = 0; i < size(); ++i) r.data[i] = data[i] - s;
+        return r;
+    }
+
+    [[nodiscard]] constexpr T81Tensor operator*(Element s) const noexcept {
+        T81Tensor r;
+        for (size_t i = 0; i < size(); ++i) r.data[i] = data[i] * s;
+        return r;
+    }
+
+    [[nodiscard]] constexpr T81Tensor operator/(Element s) const noexcept {
+        T81Tensor r;
+        for (size_t i = 0; i < size(); ++i) r.data[i] = data[i] / s;
+        return r;
+    }
+
+    // Friend Scalar Ops (Scalar + Tensor)
+    friend constexpr T81Tensor operator+(Element s, const T81Tensor& t) noexcept { return t + s; }
+    friend constexpr T81Tensor operator*(Element s, const T81Tensor& t) noexcept { return t * s; }
+    friend constexpr T81Tensor operator-(Element s, const T81Tensor& t) noexcept {
+        T81Tensor r;
+        for (size_t i = 0; i < size(); ++i) r.data[i] = s - t.data[i];
+        return r;
+    }
+    friend constexpr T81Tensor operator/(Element s, const T81Tensor& t) noexcept {
+        T81Tensor r;
+        for (size_t i = 0; i < size(); ++i) r.data[i] = s / t.data[i];
+        return r;
+    }
+
     //===================================================================
     // Comparison
     //===================================================================
@@ -201,121 +262,128 @@ using KVCache    = T81Tensor<T81Fixed<72,9>, 4, 128, 128, 128, 64>; // layers, h
 using SymbolTensor = T81Tensor<T81Symbol, 1, 81>;
 
 //===================================================================
-// Free functions that will become single instructions
+// Generic Transpose Implementation
+//===================================================================
+
+namespace detail {
+    // Helper to construct T81Tensor from a reversed sequence of dims
+    template <typename E, size_t Rank, typename DimsSeq>
+    struct TransposeHelper;
+
+    template <typename E, size_t Rank, size_t... Dims>
+    struct TransposeHelper<E, Rank, Seq<Dims...>> {
+        using type = T81Tensor<E, Rank, Dims...>;
+    };
+
+    template <typename E, size_t Rank, size_t... Dims>
+    using TransposedType = typename TransposeHelper<E, Rank, typename Reverse<Dims...>::type>::type;
+}
+
+/**
+ * @brief Generic transpose: reverses the dimensions of any rank tensor.
+ */
+template <typename E, size_t Rank, size_t... Dims>
+[[nodiscard]] constexpr auto transpose(const T81Tensor<E, Rank, Dims...>& t) noexcept
+    -> detail::TransposedType<E, Rank, Dims...>
+{
+    using OutTensor = detail::TransposedType<E, Rank, Dims...>;
+    OutTensor out{};
+
+    // We need to iterate over all elements of the input tensor, calculate their multi-index,
+    // reverse that index, and assign to the output.
+    // Since we don't have a dynamic multi-index iterator, we iterate flat and decode.
+
+    constexpr std::array<size_t, Rank> in_shape = {Dims...};
+    // Precompute input strides
+    std::array<size_t, Rank> in_strides{};
+    size_t s = 1;
+    for (int i = (int)Rank - 1; i >= 0; --i) {
+        in_strides[i] = s;
+        s *= in_shape[i];
+    }
+
+    // Precompute output strides (reversed shape)
+    constexpr std::array<size_t, Rank> out_shape = OutTensor::shape();
+    std::array<size_t, Rank> out_strides{};
+    s = 1;
+    for (int i = (int)Rank - 1; i >= 0; --i) {
+        out_strides[i] = s;
+        s *= out_shape[i];
+    }
+
+    for (size_t i = 0; i < t.size(); ++i) {
+        // Decode linear index i to in_coords
+        std::array<size_t, Rank> coords{};
+        size_t temp = i;
+        for (int d = 0; d < (int)Rank; ++d) {
+            coords[d] = temp / in_strides[d];
+            temp %= in_strides[d];
+        }
+
+        // Calculate out_index by reversing coords
+        size_t out_idx = 0;
+        for (int d = 0; d < (int)Rank; ++d) {
+            // New dim 0 corresponds to old dim (Rank-1)
+            // out coords[d] = in coords[Rank-1-d]
+            out_idx += coords[Rank - 1 - d] * out_strides[d];
+        }
+
+        out.data[out_idx] = t.data[i];
+    }
+
+    return out;
+}
+
+//===================================================================
+// Matrix Multiplication
 //===================================================================
 /**
- * @brief Transposes a Rank 2 tensor.
+ * @brief Matrix multiplication for Rank 2 tensors.
+ * (M, K) x (K, N) -> (M, N)
  */
-template <typename E, size_t R, size_t C>
-[[nodiscard]] constexpr auto transpose(const T81Tensor<E, 2, R, C>& t) noexcept {
-    T81Tensor<E, 2, C, R> out;
-    for (size_t i = 0; i < R; ++i) {
-        for (size_t j = 0; j < C; ++j) {
-            out(j, i) = t(i, j);
+template <typename E, size_t M, size_t K, size_t K_check, size_t N>
+    requires (K == K_check)
+[[nodiscard]] constexpr auto matmul(const T81Tensor<E, 2, M, K>& a, const T81Tensor<E, 2, K_check, N>& b) noexcept
+    -> T81Tensor<E, 2, M, N>
+{
+    T81Tensor<E, 2, M, N> out; // zero init
+    // Naive O(M*N*K)
+    for (size_t i = 0; i < M; ++i) {
+        for (size_t j = 0; j < N; ++j) {
+            E sum{};
+            for (size_t k = 0; k < K; ++k) {
+                sum = sum + a(i, k) * b(k, j);
+            }
+            out(i, j) = sum;
         }
     }
     return out;
 }
 
 /**
- * @brief Transposes a Rank 3 tensor (reverses dimensions).
+ * @brief Matrix-Vector multiplication.
+ * (M, K) x (K) -> (M)
  */
-template <typename E, size_t D1, size_t D2, size_t D3>
-[[nodiscard]] constexpr auto transpose(const T81Tensor<E, 3, D1, D2, D3>& t) noexcept {
-    T81Tensor<E, 3, D3, D2, D1> out;
-    for (size_t i = 0; i < D1; ++i) {
-        for (size_t j = 0; j < D2; ++j) {
-            for (size_t k = 0; k < D3; ++k) {
-                out(k, j, i) = t(i, j, k);
-            }
+template <typename E, size_t M, size_t K, size_t K_check>
+    requires (K == K_check)
+[[nodiscard]] constexpr auto matmul(const T81Tensor<E, 2, M, K>& a, const T81Tensor<E, 1, K_check>& b) noexcept
+    -> T81Tensor<E, 1, M>
+{
+    T81Tensor<E, 1, M> out;
+    for (size_t i = 0; i < M; ++i) {
+        E sum{};
+        for (size_t k = 0; k < K; ++k) {
+            sum = sum + a(i, k) * b(k);
         }
+        out(i) = sum;
     }
     return out;
 }
 
-/**
- * @brief Transposes a Rank 4 tensor (reverses dimensions).
- */
-template <typename E, size_t D1, size_t D2, size_t D3, size_t D4>
-[[nodiscard]] constexpr auto transpose(const T81Tensor<E, 4, D1, D2, D3, D4>& t) noexcept {
-    T81Tensor<E, 4, D4, D3, D2, D1> out;
-    for (size_t i = 0; i < D1; ++i) {
-        for (size_t j = 0; j < D2; ++j) {
-            for (size_t k = 0; k < D3; ++k) {
-                for (size_t l = 0; l < D4; ++l) {
-                    out(l, k, j, i) = t(i, j, k, l);
-                }
-            }
-        }
-    }
-    return out;
-}
 
-/**
- * @brief Transposes a Rank 5 tensor (reverses dimensions).
- */
-template <typename E, size_t D1, size_t D2, size_t D3, size_t D4, size_t D5>
-[[nodiscard]] constexpr auto transpose(const T81Tensor<E, 5, D1, D2, D3, D4, D5>& t) noexcept {
-    T81Tensor<E, 5, D5, D4, D3, D2, D1> out;
-    for (size_t i = 0; i < D1; ++i) {
-        for (size_t j = 0; j < D2; ++j) {
-            for (size_t k = 0; k < D3; ++k) {
-                for (size_t l = 0; l < D4; ++l) {
-                    for (size_t m = 0; m < D5; ++m) {
-                        out(m, l, k, j, i) = t(i, j, k, l, m);
-                    }
-                }
-            }
-        }
-    }
-    return out;
-}
-
-/**
- * @brief Transposes a Rank 6 tensor (reverses dimensions).
- */
-template <typename E, size_t D1, size_t D2, size_t D3, size_t D4, size_t D5, size_t D6>
-[[nodiscard]] constexpr auto transpose(const T81Tensor<E, 6, D1, D2, D3, D4, D5, D6>& t) noexcept {
-    T81Tensor<E, 6, D6, D5, D4, D3, D2, D1> out;
-    for (size_t i = 0; i < D1; ++i) {
-        for (size_t j = 0; j < D2; ++j) {
-            for (size_t k = 0; k < D3; ++k) {
-                for (size_t l = 0; l < D4; ++l) {
-                    for (size_t m = 0; m < D5; ++m) {
-                        for (size_t n = 0; n < D6; ++n) {
-                            out(n, m, l, k, j, i) = t(i, j, k, l, m, n);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return out;
-}
-
-template <typename E, size_t... Dims>
-[[nodiscard]] constexpr auto transpose(
-    const T81Tensor<E, sizeof...(Dims), Dims...>& t
-) noexcept {
-    constexpr size_t Rank = sizeof...(Dims);
-    constexpr std::array<size_t, Rank> old_shape = {Dims...};
-
-    // Create new shape by reversing old shape
-    auto reverse_shape = []() {
-        std::array<size_t, Rank> out{};
-        for (size_t i = 0; i < Rank; ++i) out[i] = old_shape[Rank - 1 - i];
-        return out;
-    }();
-
-    // We can't easily return a reversed type here because T81Tensor uses variadic Dims.
-    // In C++, return type must be fixed.
-    // If we want arbitrary rank transpose, we'd need a helper to generate the type.
-    // For now, we'll specialize common cases or use a placeholder that returns the same type
-    // ONLY if it's symmetric, but that's not useful.
-
-    return t; // placeholder for arbitrary rank
-}
-
+//===================================================================
+// Reductions
+//===================================================================
 /**
  * @brief Computes the sum of all elements in the tensor.
  */
@@ -325,6 +393,53 @@ template <typename E, size_t... Dims>
     for (const auto& x : t.span()) sum = sum + x;
     return sum;
 }
+
+/**
+ * @brief Computes the product of all elements in the tensor.
+ */
+template <typename E, size_t... Dims>
+[[nodiscard]] constexpr E reduce_prod(const T81Tensor<E, sizeof...(Dims), Dims...>& t) noexcept {
+    E prod{1}; // Assuming 1 construction
+    for (const auto& x : t.span()) prod = prod * x;
+    return prod;
+}
+
+/**
+ * @brief Computes the mean of all elements in the tensor.
+ */
+template <typename E, size_t... Dims>
+[[nodiscard]] constexpr E reduce_mean(const T81Tensor<E, sizeof...(Dims), Dims...>& t) noexcept {
+    if constexpr (t.size() == 0) return E{};
+    E sum = reduce_sum(t);
+    return sum / E(static_cast<long long>(t.size()));
+}
+
+/**
+ * @brief Computes the max of all elements in the tensor.
+ */
+template <typename E, size_t... Dims>
+[[nodiscard]] constexpr E reduce_max(const T81Tensor<E, sizeof...(Dims), Dims...>& t) noexcept {
+    if constexpr (t.size() == 0) return E{};
+    E m = t.data[0];
+    for (size_t i = 1; i < t.size(); ++i) {
+        if (t.data[i] > m) m = t.data[i];
+    }
+    return m;
+}
+
+/**
+ * @brief Computes the min of all elements in the tensor.
+ */
+template <typename E, size_t... Dims>
+[[nodiscard]] constexpr E reduce_min(const T81Tensor<E, sizeof...(Dims), Dims...>& t) noexcept {
+    if constexpr (t.size() == 0) return E{};
+    E m = t.data[0];
+    for (size_t i = 1; i < t.size(); ++i) {
+        if (t.data[i] < m) m = t.data[i];
+    }
+    return m;
+}
+
 
 /**
  * @brief Computes the dot product of two Rank 1 tensors.

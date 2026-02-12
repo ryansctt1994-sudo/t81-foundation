@@ -277,6 +277,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_tensor_transpose_test tests/cpp/tensor_transpose_test.cpp)
   target_link_libraries(t81_tensor_transpose_test PRIVATE t81_core)
 
+  add_executable(t81_core_improvements_test tests/cpp/test_core_improvements.cpp)
+  target_link_libraries(t81_core_improvements_test PRIVATE t81_core)
+
   add_executable(t81_tensor_slice_test tests/cpp/tensor_slice_test.cpp)
   target_link_libraries(t81_tensor_slice_test PRIVATE t81_core)
 
@@ -625,6 +628,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(t81_t81int_overflow_test tests/cpp/test_t81int_overflow.cpp)
   target_link_libraries(t81_t81int_overflow_test PRIVATE t81_core)
 
+  add_executable(t81_t81int_generic_div_test tests/cpp/test_t81int_generic_div.cpp)
+  target_link_libraries(t81_t81int_generic_div_test PRIVATE t81_core)
+
   add_executable(t81_division_test tests/cpp/test_division.cpp)
   target_link_libraries(t81_division_test PRIVATE t81_core)
 
@@ -757,6 +763,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_division_test
     t81_t81int_test
     t81_t81int_overflow_test
+    t81_t81int_generic_div_test
     t81_bigint_test
     t81_fraction_test
     t81_bigint_properties_test
@@ -789,6 +796,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_bytes_test
     t81_tree_test
     t81_tensor_transpose_test
+    t81_core_improvements_test
     t81_tensor_slice_test
     t81_tensor_reshape_test
     t81_tensor_loader_test

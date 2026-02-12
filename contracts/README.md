@@ -1,16 +1,9 @@
-# `contracts`
+# contracts
 
-Directory documentation for `contracts`.
+Runtime configuration and compatibility manifests.
+
+## Contents
+- `runtime-contract.json`: A machine-readable definition of the runtime's version, compatibility tag, and pinned dependencies (e.g., VM version).
 
 ## Purpose
-- Describe what this module/folder owns.
-- Point contributors to related code and docs.
-
-## Expectations
-- Keep behavior deterministic and reproducible.
-- Update tests/docs when changing observable behavior.
-
-## See Also
-- Root `README.md`
-- `ARCHITECTURE.md`
-- Relevant docs under `docs/`
+This file serves as the source of truth for runtime identity and ensures that components (like the VM and standard library) are synchronized and compatible.

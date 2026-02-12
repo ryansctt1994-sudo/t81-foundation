@@ -27,50 +27,78 @@ int main() {
 
     bool all_passed = true;
 
-    auto test_safe_limit = [&]() {
-        // kMaxSafeTrits is 39. So indices 0..38 are allowed.
-        T81Int<45> safe_val;
-        // Set all safe trits to P (1)
-        // Value = sum(3^0 ... 3^38) = (3^39 - 1) / 2
-        for (int i = 0; i < 39; ++i) {
-            safe_val[i] = Trit::P;
-        }
-
+    auto test_index39_success = [&]() {
+        // Index 39 is now safe (kPow3AccumTrits = 40, so 0..39 are safe).
+        T81Int<45> val;
+        val[39] = Trit::P; // 3^39
         try {
-            std::int64_t v = safe_val.to_int64();
-            // Expected roughly 2e18. int64 max is 9e18. Should be safe.
-            if (v <= 0) {
-                std::cerr << "FAIL: Safe value conversion returned non-positive: " << v << "\n";
-                return false;
+            std::int64_t v = val.to_int64();
+            if (v > 0) {
+                 std::cout << "PASS: Index 39 conversion succeeded. Value: " << v << "\n";
+                 return true;
+            } else {
+                 std::cerr << "FAIL: Index 39 value non-positive\n";
+                 return false;
             }
-            std::cout << "PASS: Max safe trits (0..38) conversion succeeded. Value: " << v << "\n";
-            return true;
         } catch (const std::exception& e) {
-            std::cerr << "FAIL: Max safe trits conversion threw: " << e.what() << "\n";
+            std::cerr << "FAIL: Index 39 conversion threw: " << e.what() << "\n";
             return false;
         }
     };
 
-    auto test_boundary_throw = [&]() {
-        // kMaxSafeTrits is 39. So index 39 is disallowed.
-        // Even if 3^39 fits in int64_t, the implementation rejects it.
-        // We verify this rejection to ensure overflow checks are active.
-        T81Int<45> unsafe_val;
-        unsafe_val[39] = Trit::P; // Set 40th trit. 3^39.
+    auto test_index40_success = [&]() {
+        // Use INT64_MAX which uses index 40 but fits.
+        // INT64_MAX = 9223372036854775807
+        T81Int<45> val(std::numeric_limits<std::int64_t>::max());
+        try {
+            std::int64_t v = val.to_int64();
+            if (v == std::numeric_limits<std::int64_t>::max()) {
+                std::cout << "PASS: Index 40 valid value (INT64_MAX) succeeded.\n";
+                return true;
+            } else {
+                std::cerr << "FAIL: Index 40 value mismatch\n";
+                return false;
+            }
+        } catch (const std::exception& e) {
+             std::cerr << "FAIL: Index 40 valid value threw: " << e.what() << "\n";
+             return false;
+        }
+    };
+
+    auto test_index40_overflow = [&]() {
+        // 3^40 alone overflows int64
+        T81Int<45> val;
+        val[40] = Trit::P;
 
         std::string msg;
-        if (throws_overflow<std::overflow_error>([&]{ [[maybe_unused]] auto _ = unsafe_val.to_int64(); }, msg)) {
-             if (msg.find("value out of range") != std::string::npos) {
-                 std::cout << "PASS: Index 39 threw 'value out of range' as expected.\n";
-                 return true;
-             } else {
-                 std::cerr << "FAIL: Index 39 threw wrong message: " << msg << "\n";
-                 return false;
-             }
-        } else {
-            std::cerr << "FAIL: Index 39 did not throw overflow_error\n";
-            return false;
+        if (throws_overflow<std::overflow_error>([&]{ [[maybe_unused]] auto _ = val.to_int64(); }, msg)) {
+            if (msg.find("overflow (positive)") != std::string::npos) {
+                std::cout << "PASS: Index 40 overflow (positive) detected.\n";
+                return true;
+            } else {
+                std::cerr << "FAIL: Index 40 overflow threw wrong message: " << msg << "\n";
+                return false;
+            }
         }
+        std::cerr << "FAIL: Index 40 overflow did not throw\n";
+        return false;
+    };
+
+    auto test_index41_throw = [&]() {
+        // Index 41 is out of range entirely (must be zero)
+        T81Int<45> val;
+        val[41] = Trit::P;
+        std::string msg;
+        if (throws_overflow<std::overflow_error>([&]{ [[maybe_unused]] auto _ = val.to_int64(); }, msg)) {
+             if (msg.find("value out of range") != std::string::npos) {
+                 std::cout << "PASS: Index 41 threw 'value out of range' as expected.\n";
+                 return true;
+             }
+             std::cerr << "FAIL: Index 41 threw wrong message: " << msg << "\n";
+             return false;
+        }
+        std::cerr << "FAIL: Index 41 did not throw\n";
+        return false;
     };
 
     auto test_huge_value = [&]() {
@@ -88,8 +116,10 @@ int main() {
     };
 
     // Run tests
-    if (!test_safe_limit()) all_passed = false;
-    if (!test_boundary_throw()) all_passed = false;
+    if (!test_index39_success()) all_passed = false;
+    if (!test_index40_success()) all_passed = false;
+    if (!test_index40_overflow()) all_passed = false;
+    if (!test_index41_throw()) all_passed = false;
     if (!test_huge_value()) all_passed = false;
 
     if (all_passed) {

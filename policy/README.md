@@ -1,16 +1,10 @@
-# `policy`
+# policy
 
-Directory documentation for `policy`.
+Axion safety policies and alignment definitions.
 
-## Purpose
-- Describe what this module/folder owns.
-- Point contributors to related code and docs.
+## Contents
+- `guards.axion`: A Tier 1 policy enforcing pattern matching safety (requiring match guards on `Option::Some`) and stack segment monitoring.
+- `tier4_alignment.axion`: A Tier 4 policy defining execution constraints (instruction count, recursion depth, stack size) and requiring formal alignment verification events for higher-order cognitive processes.
 
-## Expectations
-- Keep behavior deterministic and reproducible.
-- Update tests/docs when changing observable behavior.
-
-## See Also
-- Root `README.md`
-- `ARCHITECTURE.md`
-- Relevant docs under `docs/`
+## Usage
+These `.axion` files are consumed by the Axion policy engine to validate runtime execution traces against safety and alignment requirements. They serve as the "law" that the runtime must obey.
