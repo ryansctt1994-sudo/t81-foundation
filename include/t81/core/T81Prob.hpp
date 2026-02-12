@@ -12,18 +12,16 @@
 #pragma once
 
 #include "t81/core/T81Int.hpp"
+#include "t81/core/T81Entropy.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <compare>
 #include <cstdint>
+#include <cstring>
 #include <limits>
 #include <span>
 #include <type_traits>
-
-namespace t81 {
-class T81Entropy;
-}
 
 namespace t81::v1 {
 
@@ -243,11 +241,45 @@ log_sum_exp(std::span<const T81Prob27> probs) noexcept {
     return max + sum;
 }
 
-// Gumbel-softmax trick → just add noise from T81Entropy (placeholder)
+// Gumbel-softmax trick → just add noise from T81Entropy
 [[nodiscard]] inline T81Prob27
-gumbel_add(const T81Prob27& p, const t81::T81Entropy& /*noise*/) noexcept {
-    // TODO: implement real Gumbel noise once T81Entropy is fully specified.
-    return p;
+gumbel_add(const T81Prob27& p, const t81::T81Entropy& noise) noexcept {
+    // 1. Consume entropy (gets T81Int<81>)
+    // This will terminate if the entropy has already been consumed.
+    auto raw_int = noise.consume(); // T81Int<81>
+
+    // 2. Extract raw bytes from T81Int<81> to form a uint64_t
+    // T81Int<81> has 21 bytes. We use the first 8 bytes.
+    const auto& data = raw_int.raw_data();
+    std::uint64_t u64;
+
+    // Ensure we copy 8 bytes safely
+    static_assert(std::tuple_size_v<std::remove_reference_t<decltype(data)>> >= sizeof(u64));
+    std::memcpy(&u64, data.data(), sizeof(u64));
+
+    // 3. Generate double in (0,1) using 53 bits of entropy
+    // IEEE 754 double has 52 bits of mantissa (plus implicit 1).
+    // Standard trick: (u64 >> 11) * 2^-53
+    constexpr double kInv2_53 = 1.1102230246251565e-16; // 2^-53
+    double u = (u64 >> 11) * kInv2_53;
+
+    // Avoid exact 0 or 1 to prevent log domain errors
+    constexpr double eps = std::numeric_limits<double>::epsilon();
+    if (u <= eps) u = eps;
+    if (u >= 1.0 - eps) u = 1.0 - eps;
+
+    // 4. Gumbel noise: g = -log(-log(u))
+    double g = -std::log(-std::log(u));
+
+    // 5. Convert to T81Prob internal scale (base φ, scaled by 512)
+    constexpr double phi    = 1.6180339887498948482;
+    constexpr double kScale = 512.0;
+
+    double scaled = g / std::log(phi);
+    std::int64_t fixed = static_cast<std::int64_t>(std::llround(scaled * kScale));
+
+    T81Prob27 noise_prob{T81Prob27::Storage(fixed)};
+    return p + noise_prob;
 }
 
 } // namespace t81::v1
