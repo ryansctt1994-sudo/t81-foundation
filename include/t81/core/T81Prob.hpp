@@ -233,12 +233,35 @@ log_sum_exp(std::span<const T81Prob27> probs) noexcept {
 
     const auto max_it = std::max_element(probs.begin(), probs.end());
     const T81Prob27 max = *max_it;
+    if (max.is_minus_infinity()) return max;
 
-    T81Prob27 sum = T81Prob27::zero();
+    // We compute log(sum(exp(p_i))) = max + log(sum(exp(p_i - max)))
+    // T81Prob stores fixed-point log-odds (base phi).
+    // We treat them as generic log-values (logits) here.
+    double sum_exp = 0.0;
+    constexpr double kScale = 512.0;
+    constexpr double kPhi = 1.6180339887498948482;
+    constexpr double kLnPhi = 0.48121182505960344750;
+
     for (const auto& p : probs) {
-        sum = sum + (p - max);
+        if (p.is_minus_infinity()) continue;
+        // delta = p - max (always <= 0)
+        // subtraction of raw values gives the difference in fixed-point units
+        std::int64_t delta = (p.raw() - max.raw()).to_int64();
+
+        // Convert fixed-point difference to real exponent:
+        // x_real = x_fixed / kScale
+        // base is phi. exp(x_real * ln(phi)) = phi^x_real
+        sum_exp += std::pow(kPhi, static_cast<double>(delta) / kScale);
     }
-    return max + sum;
+
+    // Convert back to fixed-point log domain
+    // result = 512 * log_phi(sum_exp)
+    double offset = kScale * std::log(sum_exp) / kLnPhi;
+    std::int64_t offset_int = static_cast<std::int64_t>(std::llround(offset));
+
+    // max + offset
+    return T81Prob27(max.raw() + T81Int<27>(offset_int));
 }
 
 // Gumbel-softmax trick → just add noise from T81Entropy

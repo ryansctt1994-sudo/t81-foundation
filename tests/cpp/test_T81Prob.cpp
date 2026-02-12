@@ -2,6 +2,8 @@
 #include <cassert>
 #include <iostream>
 #include <cmath>
+#include <vector>
+#include <span>
 
 using namespace t81;
 
@@ -103,6 +105,41 @@ int main() {
     if (identity_check.log_odds().to_int64() != 100) {
          std::cerr << "FAILED: log_softmax_normalize(100, 0) != 100\n";
          return 1;
+    }
+
+    // Test log_sum_exp
+    std::cout << "Checking log_sum_exp...\n";
+    {
+        std::vector<T81Prob27> logits;
+        logits.push_back(T81Prob27::zero()); // raw 0
+        logits.push_back(T81Prob27::zero()); // raw 0
+
+        // Use span constructor explicitly or rely on implicit conversion (C++20 span from vector)
+        std::span<const T81Prob27> s(logits);
+        T81Prob27 result = log_sum_exp(s);
+
+        int64_t raw = result.log_odds().to_int64();
+        if (raw >= 736 && raw <= 739) {
+             std::cout << "PASS: log_sum_exp(0, 0) is correct.\n";
+        } else {
+             std::cerr << "FAILED: log_sum_exp(0, 0) expected ~737, got " << raw << "\n";
+             return 1;
+        }
+
+        logits.clear();
+        logits.push_back(T81Prob27::zero());
+        logits.push_back(T81Prob27(T81Int<27>(-10000)));
+
+        std::span<const T81Prob27> s2(logits);
+        result = log_sum_exp(s2);
+
+        raw = result.log_odds().to_int64();
+        if (raw >= 0 && raw <= 5) {
+             std::cout << "PASS: log_sum_exp dominated by max.\n";
+        } else {
+             std::cerr << "FAILED: log_sum_exp(0, -10000) expected ~0, got " << raw << "\n";
+             return 1;
+        }
     }
 
     std::cout << "All T81Prob tests PASSED!\n";
