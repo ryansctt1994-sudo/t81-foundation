@@ -23,7 +23,7 @@ T81 — это проект, направленный на повышение б
 
 1. **Соберите и запустите Hello World**
 
-``bash
+```bash
 
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --parallel
 
@@ -65,7 +65,7 @@ python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
 
 * **НЕ является «свободным подходом»:** Если оптимизация производительности нарушает детерминизм трассировки, мы её отклоняем.
 
---
+---
 
 ## ❓ Почему это существует
 
