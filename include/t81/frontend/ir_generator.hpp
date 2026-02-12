@@ -182,6 +182,55 @@ public:
         _loop_stack.pop_back();
         return {};
     }
+    std::any visit(const ForStmt& stmt) override {
+        auto entry_label = new_label();
+        auto exit_label = new_label();
+        if (auto binary = dynamic_cast<const BinaryExpr*>(stmt.iterable.get())) {
+            if (binary->op.type == TokenType::DotDot) {
+                auto start = evaluate_expr(binary->left.get());
+                auto end = evaluate_expr(binary->right.get());
+                auto iterator_reg = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+                bind_variable(std::string(stmt.iterator.lexeme), iterator_reg);
+                copy_to_dest(start, iterator_reg);
+                emit_label(entry_label);
+                auto cond = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+                auto instr = tisc::ir::Instruction{tisc::ir::Opcode::CMP, {cond.reg, iterator_reg.reg, end.reg}};
+                instr.primitive = tisc::ir::PrimitiveKind::Boolean;
+                instr.boolean_result = true;
+                instr.relation = tisc::ir::ComparisonRelation::Less;
+                emit(instr);
+                emit_jump_if_zero(exit_label, cond);
+                LoopInfo info;
+                info.entry_label = entry_label;
+                info.exit_label = exit_label;
+                _loop_stack.push_back(info);
+                stmt.body->accept(*this);
+                auto one = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+                tisc::ir::Instruction load_one;
+                load_one.opcode = tisc::ir::Opcode::LOADI;
+                load_one.operands = {one.reg, tisc::ir::Immediate{1}};
+                emit(load_one);
+                tisc::ir::Instruction add_instr;
+                add_instr.opcode = tisc::ir::Opcode::ADD;
+                add_instr.operands = {iterator_reg.reg, iterator_reg.reg, one.reg};
+                emit(add_instr);
+                emit_jump(entry_label);
+                emit_label(exit_label);
+                _loop_stack.pop_back();
+            }
+        }
+        return {};
+    }
+
+    std::any visit(const ReflectStmt& stmt) override {
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::META_REFLECT;
+        instr.operands = {dest.reg};
+        emit(instr);
+        for (const auto& s : stmt.body) s->accept(*this);
+        return {};
+    }
     std::any visit(const LoopStmt& stmt) override {
         auto entry_label = new_label();
         auto exit_label = new_label();
@@ -224,7 +273,7 @@ public:
     std::any visit(const ReturnStmt& stmt) override {
         if (stmt.value) {
             auto value = evaluate_expr(stmt.value.get());
-            copy_to_dest(value, {tisc::ir::Register{0}, value.primitive});
+            copy_to_dest(value, {tisc::ir::Register{1}, value.primitive});
         }
         emit_simple(tisc::ir::Opcode::HALT);
         return {};
@@ -1185,7 +1234,7 @@ private:
     tisc::ir::IntermediateProgram _program;
     SymbolTable _symbols;
     const SemanticAnalyzer* _semantic = nullptr;
-    int _register_count = 0;
+    int _register_count = 1;
     int _label_count = 0;
     std::unordered_map<const Expr*, TypedRegister> _expr_registers;
     std::unordered_map<std::string, TypedRegister> _variable_registers;

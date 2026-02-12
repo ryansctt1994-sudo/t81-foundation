@@ -8,7 +8,7 @@ int main() {
   [[maybe_unused]] t81::tisc::Program program;
   t81::tisc::Insn stack_alloc{};
   stack_alloc.opcode = t81::tisc::Opcode::StackAlloc;
-  stack_alloc.a = 0;
+  stack_alloc.a = 1;
   stack_alloc.b = 16;
   t81::tisc::Insn halt{};
   halt.opcode = t81::tisc::Opcode::Halt;

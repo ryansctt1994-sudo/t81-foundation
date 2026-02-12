@@ -139,6 +139,8 @@ Opcode map_opcode(const ir::Instruction& instr) {
         case O::META_WRITE: return Opcode::MetaWrite;
         case O::META_REFLECT: return Opcode::MetaReflect;
         case O::META_REFINE: return Opcode::MetaRefine;
+        case O::TMATMUL: return Opcode::TMatMul;
+        case O::TVECADD: return Opcode::TVecAdd;
         default:
             throw std::runtime_error("Unsupported IR opcode in binary emitter.");
     }

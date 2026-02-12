@@ -788,6 +788,27 @@ std::any SemanticAnalyzer::visit(const WhileStmt& stmt) {
     return {};
 }
 
+std::any SemanticAnalyzer::visit(const ForStmt& stmt) {
+    evaluate_expression(*stmt.iterable);
+    enter_scope();
+    define_symbol(stmt.iterator, SymbolKind::Variable, false);
+    if (auto* symbol = resolve_symbol(stmt.iterator)) {
+        symbol->type = Type{Type::Kind::I32};
+    }
+    _loop_stack.push_back(nullptr);
+    analyze(*stmt.body);
+    _loop_stack.pop_back();
+    exit_scope();
+    return {};
+}
+
+std::any SemanticAnalyzer::visit(const ReflectStmt& stmt) {
+    for (const auto& s : stmt.body) {
+        analyze(*s);
+    }
+    return {};
+}
+
 std::any SemanticAnalyzer::visit(const LoopStmt& stmt) {
     if (stmt.bound_kind == LoopStmt::BoundKind::None) {
         error(stmt.keyword, "Loops must be annotated with '@bounded(...)'.");
@@ -1092,6 +1113,22 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
 
     if (auto var_expr = dynamic_cast<const VariableExpr*>(expr.callee.get())) {
         std::string func_name = std::string(var_expr->name.lexeme);
+        if (func_name.find('.') != std::string::npos) {
+            size_t dot = func_name.find('.');
+            std::string obj_name = func_name.substr(0, dot);
+            std::string method_name = func_name.substr(dot + 1);
+
+            auto* obj_symbol = resolve_symbol(Token{TokenType::Identifier, obj_name, 0, 0});
+            if (obj_symbol && (obj_symbol->type.kind == Type::Kind::Tensor || obj_symbol->type.kind == Type::Kind::I32)) {
+                if (method_name == "matmul" || method_name == "vec_add") {
+                    if (arg_types.size() != 1) {
+                         error(var_expr->name, method_name + " expects 1 argument.");
+                         return make_error_type();
+                    }
+                    return obj_symbol->type;
+                }
+            }
+        }
         const Type* expected = current_expected_type();
 
         auto build_result_template = [&](const Type* context) {
@@ -1183,20 +1220,47 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
             merge_expected_params(result_type, expected);
             return result_type;
         }
-        if (func_name == "weights.load") {
+        if (func_name == "weights.load" || func_name == "Tensor.load") {
             if (arg_types.size() != 1) {
-                error(var_expr->name, "The 'weights.load' builtin expects exactly one argument.");
+                error(var_expr->name, "The 'load' builtin expects exactly one argument.");
                 return make_error_type();
             }
             if (arg_types[0].kind != Type::Kind::String) {
-                error(var_expr->name, "The 'weights.load' argument must be a string literal.");
+                error(var_expr->name, "The 'load' argument must be a string literal.");
                 return make_error_type();
             }
             if (!dynamic_cast<const LiteralExpr*>(expr.arguments[0].get())) {
-                error(var_expr->name, "The 'weights.load' argument must be a string literal.");
+                error(var_expr->name, "The 'load' argument must be a string literal.");
                 return make_error_type();
             }
             return Type{Type::Kind::I32};
+        }
+        if (func_name == "read_code") {
+            if (arg_types.size() != 1) {
+                error(var_expr->name, "read_code expects 1 argument.");
+                return make_error_type();
+            }
+            return Type{Type::Kind::I32};
+        }
+        if (func_name == "write_code") {
+            if (arg_types.size() != 2) {
+                error(var_expr->name, "write_code expects 2 arguments.");
+                return make_error_type();
+            }
+            return Type{Type::Kind::Void};
+        }
+        if (func_name == "refine") {
+            if (arg_types.size() != 2) {
+                error(var_expr->name, "refine expects 2 arguments.");
+                return make_error_type();
+            }
+            return Type{Type::Kind::I32};
+        }
+        if (func_name == "observe_performance") {
+            return Type{Type::Kind::I32};
+        }
+        if (func_name == "optimize") {
+            return Type{Type::Kind::Void};
         }
         if (func_name == "print") {
             if (arg_types.size() != 1) {

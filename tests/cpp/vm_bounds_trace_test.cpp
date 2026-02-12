@@ -43,7 +43,7 @@ int main() {
   {
     t81::tisc::Insn stack_alloc{};
     stack_alloc.opcode = t81::tisc::Opcode::StackAlloc;
-    stack_alloc.a = 0;
+    stack_alloc.a = 1;
     stack_alloc.b = 0x7fffffff;
     stack_program.push_back(stack_alloc);
     t81::tisc::Insn halt{};
@@ -58,7 +58,7 @@ int main() {
   {
     t81::tisc::Insn heap_alloc{};
     heap_alloc.opcode = t81::tisc::Opcode::HeapAlloc;
-    heap_alloc.a = 0;
+    heap_alloc.a = 1;
     heap_alloc.b = 0x7fffffff;
     heap_program.push_back(heap_alloc);
     t81::tisc::Insn halt{};
@@ -73,16 +73,16 @@ int main() {
   {
     t81::tisc::Insn load0{};
     load0.opcode = t81::tisc::Opcode::LoadImm;
-    load0.a = 0;
+    load0.a = 1;
     load0.b = 999;
     load0.literal_kind = t81::tisc::LiteralKind::TensorHandle;
     [[maybe_unused]] t81::tisc::Insn load1= load0;
-    load1.a = 1;
+    load1.a = 2;
     t81::tisc::Insn tensordot{};
     tensordot.opcode = t81::tisc::Opcode::TTenDot;
-    tensordot.a = 2;
-    tensordot.b = 0;
-    tensordot.c = 1;
+    tensordot.a = 3;
+    tensordot.b = 1;
+    tensordot.c = 2;
     tensor_program.push_back(load0);
     tensor_program.push_back(load1);
     tensor_program.push_back(tensordot);

@@ -18,13 +18,13 @@ void run_tier4_test() {
     auto vm = make_interpreter_vm(std::move(engine));
 
     // Prepare TISC program
-    // R0: counter
+    // R4: counter (replacement for R0)
     // R1: heap address for commands (set by fixture before run)
     // R2: handle from MetaReflect
     // R3: MetaRefine result
     Program program;
     program.insns = {
-        {Opcode::LoadImm, 0, 0},        // 0: R0 = 0
+        {Opcode::LoadImm, 4, 0},        // 0: R4 = 0
         {Opcode::MetaReflect, 2, 0, 0}, // 1: R2 = handle
         {Opcode::LoadImm, 3, 1},        // 2: R3 = 1 (count)
         {Opcode::MetaRefine, 3, 1, 3},  // 3: R3 = MetaRefine(addr=R1, count=R3)
@@ -38,18 +38,18 @@ void run_tier4_test() {
     std::size_t cmd_addr = state.layout.heap.start;
     vm->set_register(1, static_cast<int64_t>(cmd_addr)); // R1 = cmd_addr
 
-    // Command 1: WriteReg R0 = 42
+    // Command 1: WriteReg R4 = 42
     // Memory layout: [op, target, value, tag]
     auto& mutable_state = const_cast<State&>(vm->state());
     mutable_state.memory[cmd_addr] = static_cast<int64_t>(RefinementCommand::Op::WriteReg);
-    mutable_state.memory[cmd_addr + 1] = 0; // R0
+    mutable_state.memory[cmd_addr + 1] = 4; // R4
     mutable_state.memory[cmd_addr + 2] = 42; // value
     mutable_state.memory[cmd_addr + 3] = static_cast<int64_t>(ValueTag::Int);
 
     // Step through the program
     auto res = vm->run_to_halt(100);
     T81_TEST_CHECK(res.has_value());
-    T81_TEST_CHECK(state.registers[0] == 42);
+    T81_TEST_CHECK(state.registers[4] == 42);
     T81_TEST_CHECK(state.registers[3] == 1); // Success
     T81_TEST_CHECK(state.reflection_count == 1);
 
@@ -65,7 +65,7 @@ void run_determinism_test() {
         auto vm = make_interpreter_vm(std::move(engine));
         Program program;
         program.insns = {
-            {Opcode::MetaReflect, 0, 0, 0},
+            {Opcode::MetaReflect, 1, 0, 0},
             {Opcode::Halt}
         };
         vm->load_program(program);
@@ -76,7 +76,7 @@ void run_determinism_test() {
     State s1 = run_once();
     State s2 = run_once();
 
-    T81_TEST_CHECK(s1.registers[0] == s2.registers[0]);
+    T81_TEST_CHECK(s1.registers[1] == s2.registers[1]);
     T81_TEST_CHECK(s1.axion_log.size() == s2.axion_log.size());
     for (size_t i = 0; i < s1.axion_log.size(); ++i) {
         T81_TEST_CHECK(s1.axion_log[i].verdict.reason == s2.axion_log[i].verdict.reason);
@@ -95,7 +95,7 @@ void run_denial_test() {
 
     Program program;
     program.insns = {
-        {Opcode::MetaReflect, 0, 0, 0},
+        {Opcode::MetaReflect, 1, 0, 0},
         {Opcode::Halt}
     };
 

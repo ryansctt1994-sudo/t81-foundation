@@ -735,6 +735,12 @@ class Interpreter : public IVirtualMachine {
         auto handle = intern_weights_tensor(name);
         state_.registers[insn.a] = handle;
         state_.register_tags[insn.a] = ValueTag::WeightsTensorHandle;
+        {
+          t81::axion::Verdict verdict;
+          verdict.kind = t81::axion::VerdictKind::Allow;
+          verdict.reason = "weights.load \"" + name + "\"";
+          record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), handle, verdict);
+        }
         break;
       }
       case t81::tisc::Opcode::TExp: {
@@ -1779,7 +1785,7 @@ class Interpreter : public IVirtualMachine {
         }
         t81::axion::Verdict v{t81::axion::VerdictKind::Allow,
                              insn.opcode == t81::tisc::Opcode::TVecAdd ? "TVecAdd kernel execution" : "TVecMul kernel execution"};
-        record_axion_event(insn.opcode, insn.b, state_.registers[insn.b], v);
+        record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), state_.registers[insn.b], v);
 
         std::vector<float> data(ta->data().size());
         if (insn.opcode == t81::tisc::Opcode::TVecAdd) {
@@ -1834,7 +1840,7 @@ class Interpreter : public IVirtualMachine {
           break;
         }
         t81::axion::Verdict v{t81::axion::VerdictKind::Allow, "TMatMul kernel execution"};
-        record_axion_event(insn.opcode, insn.b, state_.registers[insn.b], v);
+        record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), state_.registers[insn.b], v);
         t81::T729Tensor result = t81::ops::matmul(*ta, *tb);
         state_.registers[insn.a] = alloc_tensor(std::move(result));
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
