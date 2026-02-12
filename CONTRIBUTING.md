@@ -12,6 +12,7 @@ ______________________________________________________________________
 - Do not change normative spec language (`MUST`, `SHOULD`, etc.) without an RFC.
 - Keep behavior deterministic; no hidden non-determinism.
 - Add tests for any behavior change.
+- Follow the Code of Conduct.
 
 ______________________________________________________________________
 
@@ -71,6 +72,7 @@ When changing code:
 - update tests,
 - update relevant docs,
 - keep examples runnable.
+- Ensure code is formatted according to `.clang-format`.
 
 ______________________________________________________________________
 

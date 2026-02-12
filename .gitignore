@@ -189,22 +189,6 @@ Cargo.lock          # usually tracked in libraries, ignored in apps
 bazel-*
 *bazel
 
-# ── Ruby / Rails (you had this – cleaned up) ───────────────
-# Remove if you never touch Rails again – otherwise keep
-Gemfile.lock
-*.gem
-.bundle/
-vendor/bundle/
-log/*
-tmp/*
-*.log
-*.pid
-*.swp
-.pry_history
-.byebug_history
-config/database.yml
-config/credentials.yml.enc
-config/master.key
 
 # ─────────────────────────────────────────────────────────────
 # IMPORTANT THINGS WE DELIBERATELY DO NOT IGNORE
