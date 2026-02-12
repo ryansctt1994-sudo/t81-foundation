@@ -214,6 +214,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_prob_properties_test tests/cpp/prob_properties_test.cpp)
   target_link_libraries(t81_prob_properties_test PRIVATE t81_core)
 
+  add_executable(t81_t81int_properties_test tests/cpp/t81int_properties_test.cpp)
+  target_link_libraries(t81_t81int_properties_test PRIVATE t81_core)
+
   add_executable(t81_bigint_division_edge_properties_test tests/cpp/bigint_division_edge_properties_test.cpp)
   target_link_libraries(t81_bigint_division_edge_properties_test PRIVATE t81_core)
 
@@ -714,6 +717,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_fraction_test
     t81_bigint_properties_test
     t81_prob_properties_test
+    t81_t81int_properties_test
     t81_bigint_division_edge_properties_test
     t81_bigint_division_semantics_test
     t81_bigint_gcd_divmod_property_test
