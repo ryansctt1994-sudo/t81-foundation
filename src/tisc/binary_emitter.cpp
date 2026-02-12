@@ -94,6 +94,9 @@ Opcode map_opcode(const ir::Instruction& instr) {
         case O::FRACMUL:
         case O::FRACDIV:
             return map_primitive_opcode(instr.opcode, instr.primitive);
+        case O::FSIN: return Opcode::FSin;
+        case O::FCOS: return Opcode::FCos;
+        case O::FTAN: return Opcode::FTan;
         case O::NEG: return Opcode::Neg;
         case O::CMP:
             if (instr.boolean_result && instr.relation != ir::ComparisonRelation::None) {
@@ -193,6 +196,8 @@ Program BinaryEmitter::emit(const ir::IntermediateProgram& ir_program) {
                     vm_insn.b = std::get<ir::Register>(instr.operands[1]).index;
                 } else if (std::holds_alternative<ir::Immediate>(instr.operands[1])) {
                      vm_insn.b = std::get<ir::Immediate>(instr.operands[1]).value;
+                } else if (std::holds_alternative<ir::Label>(instr.operands[1])) {
+                     vm_insn.b = label_addresses[std::get<ir::Label>(instr.operands[1]).id];
                 }
             }
 

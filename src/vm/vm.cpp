@@ -1519,6 +1519,21 @@ class Interpreter : public IVirtualMachine {
         update_flags(state_.registers[insn.a]);
         break;
       }
+      case t81::tisc::Opcode::FSin:
+      case t81::tisc::Opcode::FCos:
+      case t81::tisc::Opcode::FTan: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) { trap = Trap::DecodeFault; break; }
+        if (state_.register_tags[insn.b] != ValueTag::FloatHandle) { trap = Trap::TypeFault; break; }
+        auto fp = float_ptr(state_.registers[insn.b]);
+        if (!fp) { trap = Trap::DecodeFault; break; }
+        double result = 0.0;
+        if (insn.opcode == t81::tisc::Opcode::FSin) result = std::sin(*fp);
+        else if (insn.opcode == t81::tisc::Opcode::FCos) result = std::cos(*fp);
+        else result = std::tan(*fp);
+        state_.registers[insn.a] = alloc_float(result);
+        state_.register_tags[insn.a] = ValueTag::FloatHandle;
+        break;
+      }
       case t81::tisc::Opcode::FracAdd:
       case t81::tisc::Opcode::FracSub:
       case t81::tisc::Opcode::FracMul:

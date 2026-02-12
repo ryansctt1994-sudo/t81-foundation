@@ -1273,6 +1273,17 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         if (func_name == "optimize") {
             return Type{Type::Kind::I32};
         }
+        if (func_name == "sin" || func_name == "cos" || func_name == "tan") {
+            if (arg_types.size() != 1) {
+                error(var_expr->name, func_name + " expects exactly one argument.");
+                return make_error_type();
+            }
+            if (!is_assignable(Type{Type::Kind::Float}, arg_types[0])) {
+                error(var_expr->name, func_name + " argument must be convertible to T81Float.");
+                return make_error_type();
+            }
+            return Type{Type::Kind::Float};
+        }
         if (func_name == "print") {
             if (arg_types.size() != 1) {
                 error(var_expr->name, "The 'print' builtin expects exactly one argument.");

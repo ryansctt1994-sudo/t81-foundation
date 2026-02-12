@@ -109,9 +109,52 @@ public:
     };
 
     tisc::ir::IntermediateProgram generate(const std::vector<std::unique_ptr<Stmt>>& statements) {
+        // Pre-pass: Identify functions and assign labels
+        std::vector<const FunctionStmt*> functions;
         for (const auto& stmt : statements) {
-            stmt->accept(*this);
+            if (auto func = dynamic_cast<const FunctionStmt*>(stmt.get())) {
+                std::string fname = std::string(func->name.lexeme);
+                _function_labels[fname] = new_label();
+                functions.push_back(func);
+            }
         }
+
+        // Pass 1: Emit top-level statements (script body/initialization)
+        for (const auto& stmt : statements) {
+            if (!dynamic_cast<const FunctionStmt*>(stmt.get())) {
+                stmt->accept(*this);
+            }
+        }
+
+        // Emit startup code: CALL main if exists, then HALT
+        auto main_it = _function_labels.find("main");
+        if (main_it != _function_labels.end()) {
+            tisc::ir::Instruction load;
+            auto addr_reg = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+            load.opcode = tisc::ir::Opcode::LOADI;
+            load.operands = {addr_reg.reg, main_it->second};
+            emit(load);
+
+            tisc::ir::Instruction call;
+            call.opcode = tisc::ir::Opcode::CALL;
+            call.operands = {addr_reg.reg};
+            emit(call);
+
+            // Pop main result (i32)
+            auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+            tisc::ir::Instruction pop;
+            pop.opcode = tisc::ir::Opcode::POP;
+            pop.operands = {dest.reg};
+            emit(pop);
+        }
+
+        emit_simple(tisc::ir::Opcode::HALT);
+
+        // Pass 2: Emit functions
+        for (const auto* func : functions) {
+            func->accept(*this);
+        }
+
         return std::move(_program);
     }
 
@@ -272,10 +315,14 @@ public:
     }
     std::any visit(const ReturnStmt& stmt) override {
         if (stmt.value) {
-            auto value = evaluate_expr(stmt.value.get());
-            copy_to_dest(value, {tisc::ir::Register{1}, value.primitive});
+            stmt.value->accept(*this);
+            auto value = ensure_expr_result(stmt.value.get());
+            tisc::ir::Instruction push;
+            push.opcode = tisc::ir::Opcode::PUSH;
+            push.operands = {value.reg};
+            emit(push);
         }
-        emit_simple(tisc::ir::Opcode::HALT);
+        emit_simple(tisc::ir::Opcode::RET);
         return {};
     }
     std::any visit(const BreakStmt&) override {
@@ -291,12 +338,43 @@ public:
         return {};
     }
     std::any visit(const FunctionStmt& stmt) override {
-        if (std::string_view(stmt.name.lexeme) != "main") {
-            return {};
+        std::string name{stmt.name.lexeme};
+        emit_label(_function_labels[name]);
+
+        enter_pattern_scope();
+
+        // Pop return address
+        auto ret_reg = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        bind_variable("%ret_addr", ret_reg);
+        tisc::ir::Instruction pop_ret;
+        pop_ret.opcode = tisc::ir::Opcode::POP;
+        pop_ret.operands = {ret_reg.reg};
+        emit(pop_ret);
+
+        // Pop arguments in reverse order
+        for (auto it = stmt.params.rbegin(); it != stmt.params.rend(); ++it) {
+            auto reg = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+            tisc::ir::Instruction pop;
+            pop.opcode = tisc::ir::Opcode::POP;
+            pop.operands = {reg.reg};
+            emit(pop);
+            bind_variable(std::string(it->name.lexeme), reg);
         }
+
         for (const auto& statement : stmt.body) {
             statement->accept(*this);
         }
+
+        // Implicit return (void)
+        // Must push ret_addr back before RET
+        tisc::ir::Instruction push_ret;
+        push_ret.opcode = tisc::ir::Opcode::PUSH;
+        push_ret.operands = {ret_reg.reg};
+        emit(push_ret);
+
+        emit_simple(tisc::ir::Opcode::RET);
+
+        exit_pattern_scope();
         return {};
     }
     std::any visit(const TypeDecl& stmt) override {
@@ -698,6 +776,24 @@ public:
                 return {};
             }
 
+            if (func_name == "sin" || func_name == "cos" || func_name == "tan") {
+                if (expr.arguments.size() != 1) {
+                    throw std::runtime_error("Math functions expect 1 argument.");
+                }
+                expr.arguments[0]->accept(*this);
+                auto val = ensure_expr_result(expr.arguments[0].get());
+                auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Float);
+                tisc::ir::Instruction instr;
+                if (func_name == "sin") instr.opcode = tisc::ir::Opcode::FSIN;
+                else if (func_name == "cos") instr.opcode = tisc::ir::Opcode::FCOS;
+                else instr.opcode = tisc::ir::Opcode::FTAN;
+                instr.operands = {dest.reg, val.reg};
+                instr.primitive = tisc::ir::PrimitiveKind::Float;
+                emit(instr);
+                record_result(&expr, dest);
+                return {};
+            }
+
             if (func_name == "print") {
                 if (expr.arguments.size() != 1) {
                     throw std::runtime_error("print expects exactly one argument.");
@@ -708,6 +804,51 @@ public:
                 instr.opcode = tisc::ir::Opcode::PRINT;
                 instr.operands = {value.reg};
                 emit(instr);
+                return {};
+            }
+
+            // Check for user-defined function
+            auto label_it = _function_labels.find(func_name);
+            if (label_it != _function_labels.end()) {
+                // Push arguments
+                for (const auto& arg : expr.arguments) {
+                    arg->accept(*this);
+                    auto val = ensure_expr_result(arg.get());
+                    tisc::ir::Instruction push;
+                    push.opcode = tisc::ir::Opcode::PUSH;
+                    push.operands = {val.reg};
+                    emit(push);
+                }
+
+                // Load function address
+                auto addr = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+                tisc::ir::Instruction load;
+                load.opcode = tisc::ir::Opcode::LOADI;
+                load.operands = {addr.reg, label_it->second};
+                emit(load);
+
+                // CALL
+                tisc::ir::Instruction call;
+                call.opcode = tisc::ir::Opcode::CALL;
+                call.operands = {addr.reg};
+                emit(call);
+
+                // Pop result if not void
+                bool returns_void = false;
+                if (_semantic) {
+                    const Type* type = _semantic->type_of(&expr);
+                    if (type && type->kind == Type::Kind::Void) {
+                        returns_void = true;
+                    }
+                }
+                if (!returns_void) {
+                    auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+                    tisc::ir::Instruction pop;
+                    pop.opcode = tisc::ir::Opcode::POP;
+                    pop.operands = {dest.reg};
+                    emit(pop);
+                    record_result(&expr, dest);
+                }
                 return {};
             }
         }
@@ -1327,6 +1468,7 @@ private:
     int _label_count = 0;
     std::unordered_map<const Expr*, TypedRegister> _expr_registers;
     std::unordered_map<std::string, TypedRegister> _variable_registers;
+    std::unordered_map<std::string, tisc::ir::Label> _function_labels;
     std::vector<std::vector<std::pair<std::string, std::optional<TypedRegister>>>> _pattern_scopes;
     std::vector<LoopInfo> _loop_infos;
     std::vector<LoopInfo> _loop_stack;

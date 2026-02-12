@@ -1,0 +1,14 @@
+// src/lang/std/io.t81
+// Input/Output.
+
+fn println(msg: T81String) -> void {
+    print(msg);
+}
+
+fn print_int(val: i32) -> void {
+    print(val);
+}
+
+fn print_float(val: T81Float) -> void {
+    print(val);
+}

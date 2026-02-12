@@ -1,0 +1,13 @@
+// src/lang/std/sys.t81
+// System interactions.
+
+fn exit(code: i32) -> void {
+    // Currently no explicit exit opcode exposed via built-in, but HALT is implicit.
+    // Maybe trap with code?
+    let _ = code; // unused
+}
+
+fn time() -> T81Float {
+    // Return system time (deterministic logical tick)
+    return 0.0;
+}

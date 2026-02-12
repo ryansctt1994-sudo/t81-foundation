@@ -1,0 +1,12 @@
+// src/lang/std/text.t81
+// String manipulation.
+
+fn str_len(s: T81String) -> i32 {
+    // Placeholder for string length
+    return 0;
+}
+
+fn str_is_empty(s: T81String) -> bool {
+    // Basic check (if length supported)
+    return false; // Stub
+}
