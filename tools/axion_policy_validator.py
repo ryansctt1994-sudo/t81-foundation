@@ -2,13 +2,15 @@
 import sys
 import re
 
+# Simplified tokenization: handles (, ), strings, and symbols/numbers
+TOKEN_PATTERN = re.compile(r'\(|\)|"[^"]*"|[^\s\(\)]+')
+# Remove comments (supports both Lisp-style ;; and C-style //)
+COMMENT_PATTERN = re.compile(r'(;;|//).*')
+
 def tokenize(text):
-    # Remove comments (supports both Lisp-style ;; and C-style //)
-    text = re.sub(r'(;;|//).*', '', text)
+    text = COMMENT_PATTERN.sub('', text)
     tokens = []
-    # Simplified tokenization: handles (, ), strings, and symbols/numbers
-    pattern = re.compile(r'\(|\)|"[^"]*"|[^\s\(\)]+')
-    for match in pattern.finditer(text):
+    for match in TOKEN_PATTERN.finditer(text):
         tokens.append(match.group(0))
     return tokens
 
