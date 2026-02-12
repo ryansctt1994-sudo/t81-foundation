@@ -589,6 +589,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(t81_float_test tests/cpp/test_T81Float.cpp)
   target_link_libraries(t81_float_test PRIVATE t81_core)
 
+  add_executable(t81_float_properties_test tests/cpp/float_properties_test.cpp)
+  target_link_libraries(t81_float_properties_test PRIVATE t81_core)
+
   add_executable(t81_t81int_to_binary_test tests/cpp/test_t81int_to_binary.cpp)
   target_link_libraries(t81_t81int_to_binary_test PRIVATE t81_core)
 
@@ -703,6 +706,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   enable_testing()
   set(T81_TEST_TARGETS
     t81_float_test
+    t81_float_properties_test
     t81_t81int_to_binary_test
     t81_division_test
     t81_t81int_test
