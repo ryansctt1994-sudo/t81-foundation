@@ -10,31 +10,33 @@ The key words **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHALL NOT**, **
 
 ## 2. Specification Index
 
-- **[lang/](lang/):** T81Lang syntax, type system, and semantics.
-- **[tisc/](tisc/):** Ternary Instruction Set Architecture (ISA) and binary format.
-- **[vm/](vm/):** HanoiVM execution model, memory layout, and trap behavior.
-- **[axion/](axion/):** Policy enforcement engine and trace format.
-- **[canonfs/](canonfs/):** Deterministic filesystem interface.
-- **[numerics/](numerics/):** Balanced ternary arithmetic (BigInt, Float, Prob, etc.).
+### Core Architecture
+- **[t81-overview.md](t81-overview.md):** High-level architectural overview.
+- **[t81-data-types.md](t81-data-types.md):** Canonical data types and ternary representation.
+- **[cognitive-tiers.md](cognitive-tiers.md):** Definition of cognitive tiers (Tier 1-4).
+- **[constitution.md](constitution.md):** Foundational principles and invariants.
+
+### Languages & Formats
+- **[t81lang-spec.md](t81lang-spec.md):** T81Lang syntax and semantics.
+- **[tisc-spec.md](tisc-spec.md):** Ternary Instruction Set Architecture (ISA).
+- **[t81vm-spec.md](t81vm-spec.md):** HanoiVM execution model.
+- **[cpp-mapping.md](cpp-mapping.md):** Language bindings for C++.
+
+### System Components
+- **[axion-kernel.md](axion-kernel.md):** Axion safety kernel and policy enforcement.
+- **[axion-policy-grammar.md](axion-policy-grammar.md):** Grammar for defining Axion policies.
+- **[hanoi-kernel-spec.md](hanoi-kernel-spec.md):** Hanoi kernel (OS-level) specification.
+- **[canonfs-spec.md](canonfs-spec.md):** CanonFS deterministic filesystem.
 
 ## 3. RFC Process (Change Management)
 
 Significant changes to the specification must follow the RFC (Request for Comments) process.
+See `rfcs/README.md` for details.
 
-### Lifecycle
-1.  **Draft:** A new proposal is created in `spec/rfcs/` using the [template](rfcs/0000-template.md).
-2.  **Review:** Community and maintainers discuss the proposal.
-3.  **Accepted:** The proposal is approved for implementation.
-4.  **Implemented:** The spec changes are merged into the normative documents.
-5.  **Rejected:** The proposal is declined.
-6.  **Superseded:** A newer RFC replaces this one.
+## 4. Historical Context
 
-### Supersession
-When an RFC is superseded:
-- The old RFC is marked as `Status: Superseded` with a link to the new RFC.
-- Implementation must be updated to match the new RFC.
-- Deprecation policy (see `VERSIONING.md`) applies if existing features are removed.
+- **[spec/](spec/):** Contains historical or non-normative companion documents (e.g., `t81-spec.md`).
 
-## 4. Versioning
+## 5. Versioning
 
 Specifications are versioned independently of the runtime implementation, but typically align on MAJOR/MINOR numbers. See [VERSIONING.md](../VERSIONING.md) for the compatibility contract.
