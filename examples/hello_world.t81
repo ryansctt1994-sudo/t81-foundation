@@ -6,8 +6,3 @@ fn main() -> i32 {
   print("Hello, World!");
   return 0;
 }
-
-// Compiler behavior:
-//   - Compiles to `.tisc` and `.entropy.json`
-//   - AI metadata: symbolic tag `main`, inferred recursion level = 0
-//   - Suitable for HanoiVM execution
