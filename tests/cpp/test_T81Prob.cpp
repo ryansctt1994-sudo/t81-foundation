@@ -64,6 +64,47 @@ int main() {
          std::cerr << "WARNING: Min - 1 did not saturate exactly to Min, but didn't wrap. Val: " << sat_min.log_odds().to_int64() << "\n";
     }
 
+    // Test log_softmax_normalize (which is essentially subtraction)
+    std::cout << "Checking log_softmax_normalize...\n";
+    // log_softmax_normalize(lse) -> this - lse
+    T81Prob27 logit(T81Prob27::Storage(100));
+    T81Prob27 lse(T81Prob27::Storage(50));
+
+    T81Prob27 normalized = logit.log_softmax_normalize(lse);
+    if (normalized.log_odds().to_int64() != 50) {
+        std::cerr << "FAILED: log_softmax_normalize(100, 50) != 50. Got: " << normalized.log_odds().to_int64() << "\n";
+        return 1;
+    }
+
+    // Check saturation behavior via log_softmax_normalize
+    // min_inf - positive -> min_inf (because min - pos is very small)
+    // T81Prob saturation logic for subtraction:
+    // If sign of operands are opposite, overflow can occur.
+    // min_val is negative. one_log is positive. min - pos -> more negative -> saturation to min_inf.
+    T81Prob27 sat_norm_min = min_val.log_softmax_normalize(one_log);
+    if (!sat_norm_min.is_minus_infinity()) {
+        std::cerr << "FAILED: log_softmax_normalize saturation min - 1\n";
+        return 1;
+    }
+
+    // max_inf - negative -> max_inf (equivalent to max_inf + positive)
+    T81Prob27 neg_one = -one_log;
+    T81Prob27 sat_norm_max = max_val.log_softmax_normalize(neg_one);
+    if (!sat_norm_max.is_plus_infinity()) {
+        std::cerr << "FAILED: log_softmax_normalize saturation max - (-1)\n";
+        return 1;
+    }
+
+    // Verify identity: x - 0 = x
+    // T81Prob::zero() is log-odds 0 (p=0.5).
+    // But here we are talking about the underlying integer value being 0.
+    // T81Prob::zero() constructs with Storage(0).
+    T81Prob27 identity_check = logit.log_softmax_normalize(zero);
+    if (identity_check.log_odds().to_int64() != 100) {
+         std::cerr << "FAILED: log_softmax_normalize(100, 0) != 100\n";
+         return 1;
+    }
+
     std::cout << "All T81Prob tests PASSED!\n";
     return 0;
 }
