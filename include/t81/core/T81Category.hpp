@@ -45,7 +45,7 @@ public:
     constexpr T81Category() = default;
 
     constexpr T81Category& add_object(Obj obj, T81Symbol identity_name = {}) {
-        objects_.insert(obj);
+        objects_ = objects_.insert(obj);
         if (identity_name.is_valid()) {
             identity_map_[obj] = identity_name;
             morphisms_[identity_name] = T81Morphism<Obj,Mor>(identity_name, obj, obj, Mor{});
