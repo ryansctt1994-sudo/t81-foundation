@@ -22,6 +22,7 @@
 #include <stdexcept>
 #include <limits>
 #include <algorithm>
+#include <span>
 #if defined(__AVX2__)
 #include <immintrin.h>
 #endif
@@ -369,17 +370,39 @@ public:
         if (b.is_zero()) return a;
         // Fast path: single-limb values avoid chunk expansion and carry normalization.
         if (a.limbs_.size() == 1 && b.limbs_.size() == 1) {
-            try {
+            size_t ta = a.limbs_[0].significant_trits();
+            size_t tb = b.limbs_[0].significant_trits();
+            // Addition adds at most 1 trit of magnitude.
+            // If both are strictly less than max trits, result fits.
+            if (std::max(ta, tb) < kLimbTrits) {
                 T81BigInt res;
                 res.limbs_.clear();
+                // Note: sign handling is complex, but here we just do raw addition if possible.
+                // Actually, if signs differ, magnitude decreases, so it's always safe.
+                // If signs same, magnitude increases.
+                // Simplest is just try it if potentially safe.
+                // But we still need to handle the T81Int API which throws on overflow.
+                // The check `max(ta, tb) < kLimbTrits` ensures NO overflow in T81Int addition.
                 res.limbs_.push_back(a.negative_ ? -a.limbs_[0] : a.limbs_[0]);
                 Limb rhs = b.negative_ ? -b.limbs_[0] : b.limbs_[0];
-                res.limbs_[0] = res.limbs_[0] + rhs;
+                res.limbs_[0] = res.limbs_[0] + rhs; // Should not throw
                 res.negative_ = false;
                 res.normalize();
                 return res;
-            } catch (const std::overflow_error&) {
-                // Fall through to chunk/Karatsuba pipeline for promotion.
+            } else {
+                 // Try/catch fallback for the edge case where it MIGHT fit (e.g. cancellations)
+                 try {
+                    T81BigInt res;
+                    res.limbs_.clear();
+                    res.limbs_.push_back(a.negative_ ? -a.limbs_[0] : a.limbs_[0]);
+                    Limb rhs = b.negative_ ? -b.limbs_[0] : b.limbs_[0];
+                    res.limbs_[0] = res.limbs_[0] + rhs;
+                    res.negative_ = false;
+                    res.normalize();
+                    return res;
+                } catch (const std::overflow_error&) {
+                    // Fall through
+                }
             }
         }
         auto ac = get_chunks_static(a);
@@ -467,7 +490,7 @@ public:
         return a + neg_b;
     }
 
-    static std::vector<int128_t> karatsuba_mul_(const std::vector<int64_t>& a, const std::vector<int64_t>& b) {
+    static std::vector<int128_t> karatsuba_mul_(std::span<const int64_t> a, std::span<const int64_t> b) {
         size_t n = std::max(a.size(), b.size());
         if (n <= 32) { // Schoolbook threshold
             std::vector<int128_t> res(a.size() + b.size(), 0);
@@ -485,14 +508,15 @@ public:
         }
 
         size_t k = n / 2;
-        auto split = [k](const std::vector<int64_t>& v) {
-            std::vector<int64_t> low, high;
-            for (size_t i = 0; i < v.size(); ++i) {
-                if (i < k) low.push_back(v[i]);
-                else high.push_back(v[i]);
+        auto split = [k](std::span<const int64_t> v) {
+            std::span<const int64_t> low, high;
+            if (v.size() <= k) {
+                low = v;
+                high = {};
+            } else {
+                low = v.subspan(0, k);
+                high = v.subspan(k);
             }
-            if (low.empty()) low.push_back(0);
-            if (high.empty()) high.push_back(0);
             return std::make_pair(low, high);
         };
 
@@ -502,7 +526,7 @@ public:
         auto z0 = karatsuba_mul_(a0, b0);
         auto z2 = karatsuba_mul_(a1, b1);
 
-        auto add_v = [](const std::vector<int64_t>& x, const std::vector<int64_t>& y) {
+        auto add_v = [](std::span<const int64_t> x, std::span<const int64_t> y) {
             size_t nx = x.size(), ny = y.size();
             size_t n = std::max(nx, ny);
             std::vector<int64_t> r(n, 0);
@@ -573,15 +597,27 @@ public:
         if (a.is_zero() || b.is_zero()) return T81BigInt::zero();
         // Fast path: single-limb products are common in language/runtime pipelines.
         if (a.limbs_.size() == 1 && b.limbs_.size() == 1) {
-            try {
+            size_t ta = a.limbs_[0].significant_trits();
+            size_t tb = b.limbs_[0].significant_trits();
+            // Multiplication requires sum of trits.
+            if (ta + tb <= kLimbTrits) {
                 T81BigInt res;
                 res.limbs_.clear();
-                res.limbs_.push_back(a.limbs_[0] * b.limbs_[0]);
+                res.limbs_.push_back(a.limbs_[0] * b.limbs_[0]); // Safe
                 res.negative_ = (a.negative_ != b.negative_);
                 res.normalize();
                 return res;
-            } catch (const std::overflow_error&) {
-                // Fall through to chunk/Karatsuba pipeline for promotion.
+            } else if (ta + tb <= kLimbTrits + 1) {
+                 try {
+                    T81BigInt res;
+                    res.limbs_.clear();
+                    res.limbs_.push_back(a.limbs_[0] * b.limbs_[0]);
+                    res.negative_ = (a.negative_ != b.negative_);
+                    res.normalize();
+                    return res;
+                } catch (const std::overflow_error&) {
+                    // Fall through
+                }
             }
         }
         auto ac = get_chunks_static(a);

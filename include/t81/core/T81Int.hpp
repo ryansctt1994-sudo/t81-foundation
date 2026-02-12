@@ -150,6 +150,13 @@ public:
         return Trit::Z;
     }
 
+    constexpr size_type significant_trits() const noexcept {
+        for (size_type i = kNumTrits; i-- > 0; ) {
+            if (get_trit(i) != Trit::Z) return i + 1;
+        }
+        return 0;
+    }
+
 private:
     void assign_from_int64(std::int64_t v) {
         clear();
