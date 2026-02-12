@@ -1,96 +1,149 @@
-# Fundación T81: La pila de computación nativa ternaria
+Fundación T81
 
-> Nota de vigencia: el estado técnico canónico y más actualizado vive en `README.md`, `ARCHITECTURE.md` y `STATUS.md`.
+CI (https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml/badge.svg)
+Puerta del determinismo (https://img.shields.io/badge/Determinism%20Gate-Passing-success)
+Licencia: MIT (https://img.shields.io/badge/License-MIT-yellow.svg)
+C++ Estándar](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://en.cppreference.com/w/cpp/23)
 
-<div align="center">
-<br/>
-<img src="docs/assets/img/banner.png" alt="Fundación T81" width="100%"/>
-<br/><br/>
+[![Inglés](https://img.shields.io/badge/Language-English-blue?style=flat-square)](/README.md)
+[![Inglés chino](https://img.shields.io/badge/Language-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-red?style=flat-square)](/README.zh-CN.md)
+[![Español](h Español: https://img.shields.io/badge/Language-Español-green?style=flat-square)](/README.es.md)
+Rus: https://img.shields.io/badge/Language-Русский-brightgreen?style=flat-square)](/README.ru.md)
+Portugués: https://img.shields.io/badge/Language-Português(Brasil)-blueviolet?style=flat-square)](/README.pt-BR.md)
 
-[![Paradigma: Computación ternaria](https://img.shields.io/badge/Paradigm-Ternary%20Computing-red?style=flat-square)](https://en.wikipedia.org/wiki/Ternary_computer)
-[![Diseño: Especificación primero](https://img.shields.io/badge/Design-Specification%20First-blue?style=flat-square)](#)
-[![CI Estado](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml/badge.svg)](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml)
-[![Núcleo: C++23](https://img.shields.io/badge/Core-C%2B%2B23-0d1117?style=flat-square&logo=cplusplus)](#)
-[![Licencia: MIT/GPL-3.0](https://img.shields.io/badge/License-MIT%20%2F%20GPL--3.0-green?style=flat-square)](LICENCIA-MIT)
+---
 
-* * *
+**Determinista Pila de tiempo de ejecución gobernada para computación auditable.**
 
-[![build / macos-latest / Sonido metálico](https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?label=macos%20clang&style=flat-square&logo=apple)](https://github.com/t81dev/t81-foundation/actions)
-[![compilación / windows-latest / sonido metálico-cl](https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?label=windows%20clang-cl&style=flat-square&logo=windows&color=brightgreen)](https://github.com/t81dev/t81-foundation/actions)
-[![compilación / windows-latest / msvc](https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?label=windows%20msvc&style=flat-square&logo=visualstudio&color=brightgreen)](https://github.com/t81dev/t81-foundation/actions)
-[![build / ubuntu-latest / gcc](https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?label=ubuntu%20gcc&style=flat-square&logo=ubuntu)](https://github.com/t81dev/t81-foundation/actions)
+T81 es un proyecto de refuerzo posterior a la versión 1.0 que ofrece una canalización de compilación y ejecución totalmente determinista (`T81Lang -> TISC -> HanoiVM`). Prioriza la auditabilidad, la aplicación de políticas (Axion) y la reproducibilidad sobre la velocidad bruta del hardware.
 
-* * *
+## ⚡ Evaluación de 30 segundos
 
-[![Negación](https://img.shields.io/badge/Negation-7.18_Gops/s_(faster_per_digit_than_int64)-brightgreen)](https://github.com/t81dev/t81-foundation/)
-[![Rango](https://img.shields.io/badge/Range-40×_greater_than___int128-blue)](https://github.com/t81dev/t81-foundation/)
-[![Desbordamiento](https://img.shields.io/badge/Overflow-NEVER-red)](https://github.com/t81dev/t81-foundation/)
-[![Exacto Matemáticas](https://img.shields.io/badge/Math-Perfect-yellow)](https://github.com/t81dev/t81-foundation/)
+Verifique las afirmaciones usted mismo en 4 pasos:
 
-*   *   *
+1. **Compilar y ejecutar Hello World**
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --parallel
+./build/t81 compile examples/hello_world.t81 -o hello.tisc
+./build/t81 run hello.tisc
+```
 
-<div align="center">
+2. **Ejecutar la puerta de determinismo**
+```bash
+# Verificar el hash de reproducibilidad entre arquitecturas
+python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
+```
 
-[![English](https://img.shields.io/badge/Language-English-blue?style=flat-square)](/README.md)
-[![简体中文](https://img.shields.io/badge/Language-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-red?style=flat-square)](/README.zh-CN.md)
-[![Español](https://img.shields.io/badge/Language-Español-green?style=flat-square)](/README.es.md)
-[![Русский](https://img.shields.io/badge/Language-Русский-brightgreen?style=flat-square)](/README.ru.md)
-[![Português](https://img.shields.io/badge/Language-Português%20(Brasil)-blueviolet?style=flat-square)](/README.pt-BR.md)
+3. **Ejecutar una demostración de máquina virtual**
+```bash
+./build/t81_demo
+```
 
-*   *   *
+4. **Inspeccionar un artefacto de seguimiento**
+```bash
+./build/t81 trace show trace.txt
+```
 
-</div>
-<br>
-<br/><br/>
+---
 
-</div>
+## 🚫 Objetivos no definidos
 
-## 1. Presentación del Elevator
+Para ahorrar tiempo, aquí tiene Lo que T81 **NO** es:
 
-T81 es una pila soberana y determinista construida alrededor de la matemática ternaria balanceada (−1, 0, +1). Todo, desde los tipos aritméticos principales hasta el compilador, la máquina virtual, la biblioteca de tensores y la cadena de herramientas de benchmarking, está diseñado para demostrar que la matemática ternaria puede ser exacta, auditable y eficiente cuando se combina con hardware moderno de C++ y SIMD.
+* **NO es un acelerador de hardware:** No afirmamos mejoras de velocidad por hardware ternarias. Este entorno de ejecución de software busca la corrección determinista.
+* **NO es un sustituto de propósito general:** Nos centramos en la lógica auditable de alto riesgo, sin sustituir a C++ o Python para tareas generales.
+* **NO es una optimización flexible:** Si una optimización del rendimiento rompe el determinismo de trazas, la rechazamos.
 
-Características principales:
-- **Primitivas ternarias balanceadas**: `T81Int`, `T81Fraction`, `T81Float`, `T81Tensor` y similares implementan aritmética exacta con cero acarreos ocultos, seguridad de ida y vuelta y trampas compatibles con Axion. - **Compilador T81Lang + VM TISC**: Analiza código T81, emite bytecode TISC y ejecuta de forma determinista dentro de HanoiVM.
-- **Comparación de rendimiento nativo y clásico**: Compara representaciones basadas en tryte (clásicas) con representaciones compatibles con AVX2 (nativas), generando informes de columnas clásicas, nativas y binarias, así como métricas de latencia y ancho de banda.
-- **Herramientas de ponderaciones**: Importa SafeTensors/GGUF a `t81w`, inspecciona metadatos y cuantifica tensores en modelos GGUF T3_K (con la nueva CLI `weights quantize`).
+--
 
-La pila es actualmente una colección de valores numéricos de alta confianza (bibliotecas centrales bien probadas) en fase alfa tardía o beta temprana, integrada en una canalización de compilador/VM experimental pero utilizable.
+## ❓ ¿Por qué existe?
 
-## 2. Inicio rápido
+Los entornos de ejecución modernos sacrifican la reproducibilidad por la velocidad. T81 lo invierte: **La auditabilidad es la principal restricción.**
 
-### Compilación y pruebas
+Lo aplicamos mediante un estricto límite arquitectónico entre el lenguaje/compilador y el entorno de ejecución, regido por contratos explícitos.
+
+[**Ver diagrama de límites arquitectónicos**](ARCHITECTURE.md#3-concurrent-workstream-view) | [**Ver Contrato de Tiempo de Ejecución**](contracts/runtime-contract.json)
+
+---
+
+## 📚 Mapa de Autoridades del Documento
+
+| Documento | Propósito | Ámbito de Autoridad |
+| :--- | :--- | :--- |
+| **[STATUS.md](STATUS.md)** | Lo que es cierto *hoy* | Verdad Operacional |
+| **[ROADMAP.md](ROADMAP.md)** | Plan a futuro | Estratégico |
+| **[VERSIONING.md](VERSIONING.md)** | Reglas de compatibilidad | Normativo |
+| **[spec/](spec/)** | Definición de comportamiento | Normativo |
+| **[docs/EVIDENCE.md](docs/EVIDENCE.md)** | Prueba de reivindicaciones | Verificación |
+
+---
+
+## 🤝 Garantías de compatibilidad
+
+* **Estable:** Sintaxis T81Lang, formato binario TISC, semántica de ejecución HanoiVM.
+* **Experimental:** Compilación JIT, operaciones tensoriales distribuidas.
+* **SemVer:** Seguimos el control de versiones semántico. Los cambios importantes en los componentes **Estables** incrementan la versión principal.
+
+---
+
+## 🖥️ Plataformas compatibles
+
+| Plataforma | Compilador | Estado |
+| :--- | :--- | :--- |
+| **Linux (x86_64)** | Clang 18+, GCC 14+ | ✅ Puerta de determinismo |
+| **Linux (ARM64)** | Clang 18+ | ✅ Puerta de determinismo |
+| **macOS (ARM64)** | Apple Clang | ✅ Compatible |
+
+---
+
+## Inicio rápido (completo)
 
 ```bash
 git clone https://github.com/t81dev/t81-foundation.git
 cd t81-foundation
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Versión
-cmake --build build --parallel
-ctest --test-dir build --output-on-failure
+cmake -S . -B compilación -DCMAKE_BUILD_TYPE=Versión
+cmake --build compilación --paralelo
+ctest --test-dir compilación --salida-en-fallo
 ```
 
-### Hoja de referencia de la CLI
-
-```texto
-t81 compilar <archivo.t81> [-o <archivo.tisc>]
-t81 ejecutar <archivo.t81|.tisc>
-t81 comprobar <archivo.t81>
-t81 benchmark [indicadores de benchmark]
-t81 importar pesos <safetensors|gguf> [--format <safetensors|gguf>] [-o out.t81w]
-t81 información de pesos <modelo.t81w>
-t81 cuantificar pesos <dir|archivo.safetensors> --to-gguf <out.gguf>
+Modo seguro de un solo subproceso:
+```bash
+cmake --build compilación --paralelo 1
+ctest --test-dir compilación --salida-en-fallo -j1
 ```
 
-Características destacadas de las herramientas de pesos:
-- `weights import` convierte BitNet/SafeTensors/GGUF a `.t81w` canónico con metadatos SHA3-512 y estadísticas de densidad.
-- `weights info` imprime trits, limbs, almacenamiento (bits/trit), dispersión, formato, suma de comprobación y sugerencias canónicas de CanonFS.
-- `weights quantize … --to-gguf` ejecuta el cuantificador T3_K (bloques trit de 128 elementos, escala por bloque) y emite un archivo GGUF listo para llama.cpp compatible con T3_K.
+## Superficie CLI
+Flujos de trabajo comunes:
+```bash
+# Compilar / ejecutar
+t81 compilar ejemplos/hello_world.t81 -o compilar/hello.tisc
+t81 ejecutar compilación/hello.tisc
 
-## 3. Resumen de comandos
+# Inspeccionar / depurar
+t81 desensamblar compilación/hello.tisc
+t81 depurar compilación/hello.tisc
 
-| Comando | Qué hace |
-| --- | --- |
-| `t81 compile` | Compila un archivo fuente `.t81` a código de bytes TISC con diagnósticos. |
-| `t81 run` | Compila (si es necesario) y ejecuta programas TISC dentro de HanoiVM. |
-| `t81 check` | Validación rápida de sintaxis del código fuente T81. |
-| `t81 benchmark` | Ejecuta `benchmarks/benchmark_runner`, actualiza `docs/benchmarks.md` con estadísticas clásicas, nativas y binarias y resaltados. |
-| `t81 weights import` | Importa BitNet/SafeTensors/GGUF a un binario nativo `.t81w`
+# Diagnóstico / reproducibilidad
+t81 comprobar ejemplos/hello_world.t81
+t81 repro-hash pruebas/fixtures/t81lang_determinism
+
+# Flujos de trabajo de seguimiento
+t81 trace show trace.txt
+t81 trace diff trace_a.txt trace_b.txt
+t81 trace replay build/hello.tisc trace.txt
+```
+
+Herramientas del modelo:
+```bash
+t81 weights import model.safetensors -o model.t81w
+t81 weights info model.t81w
+t81 weights quantize model.safetensors --to-gguf model.gguf
+```
+
+Consultar la ayuda completa del comando:
+```bash
+t81 help
+```
+
+## Mapa del repositorio
+- [`include/t81/`](include/t81/): public A

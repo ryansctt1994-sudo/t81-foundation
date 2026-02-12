@@ -1,62 +1,138 @@
-# T81 基金会：三进制原生计算栈
+# T81 基金会
 
-> 更新说明：最权威、最新的技术状态以 `README.md`、`ARCHITECTURE.md` 与 `STATUS.md` 为准。
+[![CI](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml/badge.svg)](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml)
 
-<div align="center">
+[![确定性门](https://img.shields.io/badge/Determinism%20Gate-Passing-success)](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml)
 
-<br/>
+[![许可证：MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-<img src="docs/assets/img/banner.png" alt="T81 基金会" width="100%"/>
-
-<br/><br/>
-
-[![范式：三进制计算](https://img.shields.io/badge/Paradigm-Ternary%20Computing-red?style=flat-square)](https://en.wikipedia.org/wiki/Ternary_computer) [![设计：规范优先](https://img.shields.io/badge/Design-Specification%20First-blue?style=flat-square)](#) [![CI状态](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml/badge.svg)](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml) [![核心：C++23](https://img.shields.io/badge/Core-C%2B%2B23-0d1117?style=flat-square&logo=cplusplus)](#) [![许可证：MIT/GPL-3.0](https://img.shields.io/badge/License-MIT%20%2F%20GPL--3.0-green?style=flat-square)](LICENSE-MIT)
-
-* * *
-
-[![构建 / macos-latest / clang](https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?label=macos%20clang&style=flat-square&logo=apple)](https://github.com/t81dev/t81-foundation/actions) [![build / windows-latest / clang-cl](https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?label=windows%20clang-cl&style=flat-square&logo=windows&color=brightgreen)](https://github.com/t81dev/t81-foundation/actions) [![build / windows-latest / msvc](https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?label=windows%20msvc&style=flat-square&logo=visualstudio&color=brightgreen)](https://github.com/t81dev/t81-foundation/actions) [![build / ubuntu-latest / gcc](https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?label=ubuntu%20gcc&style=flat-square&logo=ubuntu)](https://github.com/t81dev/t81-foundation/actions)
-
-* * *
-
-[![否定](https://img.shields.io/badge/Negation-7.18_Gops/s_(faster_per_digit_than_int64)-brightgreen)](https://github.com/t81dev/t81-foundation/) [![范围](https://img.shields.io/badge/Range-40×_greater_than___int128-blue)](https://github.com/t81dev/t81-foundation/) [![溢出](https://img.shields.io/badge/Overflow-NEVER-red)](https://github.com/t81dev/t81-foundation/) [![数学](https://img.shields.io/badge/Math-Perfect-yellow)](https://github.com/t81dev/t81-foundation/)
-
-*   *   *
-
-<div align="center">
+[![C++](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml)标准](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://en.cppreference.com/w/cpp/23)
 
 [![English](https://img.shields.io/badge/Language-English-blue?style=flat-square)](/README.md)
+
 [![简体中文](https://img.shields.io/badge/Language-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-red?style=flat-square)](/README.zh-CN.md)
-[![Español](https://img.shields.io/badge/Language-Español-green?style=flat-square)](/README.es.md)
+
+[![Español](h [![Русский](https://img.shields.io/badge/Language-Español-green?style=flat-square)](/README.es.md)
+
 [![Русский](https://img.shields.io/badge/Language-Русский-brightgreen?style=flat-square)](/README.ru.md)
+
 [![Português](https://img.shields.io/badge/Language-Português%20(Brasil)-blueviolet?style=flat-square)](/README.pt-BR.md)
 
-*   *   *
+---
 
-</div>
-<br>
-<br/><br/>
+**用于可审计计算的确定性、受控运行时堆栈。**
 
-</div>
+T81 是一个在 v1.0 版本之后进行的强化项目，它提供了一个完全确定性的编译和执行流水线（`T81Lang -> TISC -> HanoiVM`）。它优先考虑可审计性、策略执行（Axion）和可复现性，而非硬件速度。
 
-## 1. 简介
+## ⚡ 30 秒评估
 
-T81 是一个基于平衡三元 (-1, 0, +1) 构建的独立确定性技术栈。从核心算术类型到编译器、虚拟机、张量库和基准测试工具链，所有组件的设计都旨在证明，当与现代 C++ 和 SIMD 硬件结合使用时，三元运算可以做到精确、可审计且高效。
+只需 4 个步骤即可自行验证：
 
-核心特性：
+1. **构建并运行 Hello World 程序**
 
-- **平衡三元原语**：`T81Int`、`T81Fraction`、`T81Float`、`T81Tensor` 等实现了精确的算术运算，没有隐藏进位、往返安全性，并且避免了 Axion 友好的陷阱。
+```bash
 
-- **T81Lang 编译器 + TISC 虚拟机**：解析 T81 代码，生成 TISC 字节码，并在 HanoiVM 中确定性地执行。
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --parallel
 
-- **原生 + 经典基准测试**：比较基于 tryte（经典）和 AVX2 兼容（原生）的表示形式，并报告 Classic/Native/Binary 列以及延迟/带宽指标。
+./build/t81 compile examples/hello_world.t81 -o hello.tisc
 
-- **权重工具**：将 SafeTensors/GGUF 导入到 `t81w`，检查元数据，并将张量量化为 T3_K GGUF 模型（使用新的 CLI 命令 `weights quantize`）。
+./build/t81 run hello.tisc
 
-该技术栈目前处于 alpha 后期/beta 早期阶段，包含一系列高置信度的数值计算库（经过充分测试的核心库），并封装在一个实验性但可用的编译器/虚拟机流水线中。
+```
 
-## 2. 快速入门
+2. **运行确定性测试**
 
-### 构建与测试
+```bash
+
+# 验证跨架构可复现性哈希值
+
+python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
+
+```
+
+3. **运行虚拟机演示**
+
+```bash
+
+./build/t81_demo
+
+```
+
+4. **检查跟踪工件**
+
+```bash
+
+./build/t81 trace show trace.txt
+
+```
+
+---
+
+## 🚫 非目标
+
+为了节省您的时间，以下是 T81 的说明**并非**：
+
+* **并非硬件加速器：**我们不声称能实现三元硬件加速。这是一个用于确保确定性正确性的软件运行时。
+
+* **并非通用替代方案：**我们专注于高风险、可审计的逻辑，而非取代 C++ 或 Python 来处理通用任务。
+
+* **并非“快速且随意”：**如果性能优化破坏了跟踪的确定性，我们将拒绝它。
+
+---
+
+## ❓ 其存在的意义
+
+现代运行时为了速度而牺牲可复现性。T81 则反其道而行之：**可审计性是首要约束。**
+
+我们通过在语言/编译器和执行运行时之间建立严格的架构边界来强制执行这一点，该边界由明确的契约约束。
+
+[**查看架构边界图**](ARCHITECTURE.md#3-concurrent-workstream-view) | [**查看运行时合约**](contracts/runtime-contract.json)
+
+---
+
+## 📚 文档权限图
+
+| 文档 | 目的 | 权限范围 |
+
+| :--- | :--- | :--- |
+
+| **[STATUS.md](STATUS.md)** | *当前* 的真实情况 | 运行状态 |
+
+| **[ROADMAP.md](ROADMAP.md)** | 未来规划 | 战略 |
+
+| **[VERSIONING.md](VERSIONING.md)** | 兼容性规则 | 规范 |
+
+| **[spec/](spec/)** | 行为定义 | 规范 |
+
+| **[docs/EVIDENCE.md](docs/EVIDENCE.md)** | 声明证明 | 验证 |
+
+---
+
+## 🤝 兼容性保证
+
+* **稳定版：** T81Lang 语法、TISC 二进制格式、HanoiVM 执行语义。
+
+* **实验版：** JIT 编译、分布式张量操作。
+
+* **语义化版本控制：** 我们遵循语义化版本控制。对**稳定版**组件的重大更改会增加主版本号。
+
+---
+
+## 🖥️ 支持的平台
+
+| 平台 | 编译器 | 状态 |
+
+| :--- | :--- | :--- |
+
+| **Linux (x86_64)** | Clang 18+、GCC 14+ | ✅ 确定性验证 |
+
+| **Linux (ARM64)** | Clang 18+ | ✅ 确定性验证 |
+
+| **macOS (ARM64)** | Apple Clang | ✅ 已支持 |
+
+---
+
+## 快速入门（完整版）
 
 ```bash
 
@@ -72,46 +148,70 @@ ctest --test-dir build --output-on-failure
 
 ```
 
-### CLI 速查表
+单线程安全模式：
 
-```text
+```bash
 
-t81 compile <file.t81> [-o <file.tisc>]
+cmake --build build --parallel 1
 
-t81 run <file.t81|.tisc>
-
-t81 check <file.t81>
-
-t81 benchmark [benchmark flags]
-
-t81 weights import <safetensors|gguf> [--format <safetensors|gguf>] [-o out.t81w]
-
-t81 weights info <model.t81w>
-
-t81 weights quantize <dir|file.safetensors> --to-gguf <out.gguf>
+ctest --test-dir build --output-on-failure -j1
 
 ```
 
-权重工具亮点：
+## CLI 界面
 
-- `weights import` 将 BitNet/SafeTensors/GGUF 转换为规范格式`.t81w` 文件包含 SHA3-512 元数据和密度统计信息。
+常用工作流程：
 
-- `weights info` 命令会打印 trit 值、limbs 值、存储容量（比特/trit）、稀疏度、格式、校验和以及 CanonFS 规范提示。
+```bash
 
-- `weights quantize … --to-gguf` 命令会运行 T3_K 量化器（128 元素 trit 块，每个块缩放），并生成一个支持 T3_K 的 GGUF 文件，供 llama.cpp 使用。
+# 编译/运行
 
-## 3. 命令概要
+t81 compile examples/hello_world.t81 -o build/hello.tisc
 
-| 命令 | 功能 |
+t81 run build/hello.tisc
 
-| --- | --- |
+# 检查/调试
 
-| `t81 compile` | 将 `.t81` 源文件编译为 TISC 字节码，并显示诊断信息。 |
+t81 disasm build/hello.tisc
 
-| `t81 run` | 在 HanoiVM 中编译（如果需要）并执行 TISC 程序。 |
+t81 debug build/hello.tisc
 
-| `t81 check` | 对 T81 源文件进行快速的语法验证。 |
+# 诊断/复现性
 
-| `t81 基准测试` | 运行 `benchmarks/benchmark_runner`，更新 `docs/benchmarks.md` 文件，提供经典/原生/二进制版本的统计数据和亮点。 |
+t81 check examples/hello_world.t81
 
-| `t81 权重导入` | 将 BitNet/SafeTensors/GGUF 导入到原生二进制文件 `.t81w` 中。
+t81 repro-hash tests/fixtures/t81lang_determinism
+
+# 跟踪工作流
+
+t81 trace show trace.txt
+
+t81 trace diff trace_a.txt trace_b.txt
+
+t81 trace replay build/hello.tisc trace.txt
+
+```
+
+模型工具：
+
+```bash
+
+t81 weights import model.safetensors -o model.t81w
+
+t81 weights info model.t81w
+
+t81 weights quantize model.safetensors --to-gguf model.gguf
+
+```
+
+查看完整命令帮助：
+
+```bash
+
+t81 help
+
+```
+
+## 仓库映射
+
+- [`include/t81/`](include/t81/): public A
