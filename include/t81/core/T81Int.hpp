@@ -51,6 +51,12 @@ using v1::T81Fixed;
 using v1::T81Prob;
 
 template <std::size_t N>
+class T81Int;
+
+template <std::size_t N>
+constexpr std::pair<T81Int<N>, T81Int<N>> div_mod(const T81Int<N>& a, const T81Int<N>& b);
+
+template <std::size_t N>
 class T81Int {
 public:
     using size_type = std::size_t;
@@ -332,14 +338,12 @@ public:
 
     constexpr T81Int& operator*=(const T81Int& o) { *this = *this * o; return *this; }
 
-    friend T81Int operator/(const T81Int& a, const T81Int& b) {
-        if (b.is_zero()) throw std::domain_error("division by zero");
-        return T81Int(a.to_int64() / b.to_int64());
+    friend constexpr T81Int operator/(const T81Int& a, const T81Int& b) {
+        return div_mod(a, b).first;
     }
 
-    friend T81Int operator%(const T81Int& a, const T81Int& b) {
-        if (b.is_zero()) throw std::domain_error("modulo by zero");
-        return T81Int(a.to_int64() % b.to_int64());
+    friend constexpr T81Int operator%(const T81Int& a, const T81Int& b) {
+        return div_mod(a, b).second;
     }
 
     T81Int& operator/=(const T81Int& o) { *this = *this / o; return *this; }
@@ -386,10 +390,49 @@ template <std::size_t N>
 inline const T81Int<N> T81Int<N>::kMinValue = -T81Int<N>::kMaxValue;
 
 template <std::size_t N>
-inline std::pair<T81Int<N>, T81Int<N>> div_mod(const T81Int<N>& a, const T81Int<N>& b) {
+inline constexpr std::pair<T81Int<N>, T81Int<N>> div_mod(const T81Int<N>& a, const T81Int<N>& b) {
     if (b.is_zero()) throw std::domain_error("div_mod by zero");
-    std::int64_t av = a.to_int64(), bv = b.to_int64();
-    return { T81Int<N>(av / bv), T81Int<N>(av % bv) };
+
+    // Standard integer division semantics (truncate towards zero).
+    // Handle signs separately.
+    bool a_neg = (a.sign_trit() == Trit::N);
+    bool b_neg = (b.sign_trit() == Trit::N);
+
+    T81Int<N> u = a_neg ? -a : a;
+    T81Int<N> v = b_neg ? -b : b;
+
+    T81Int<N> q; // 0
+    T81Int<N> r; // 0
+    T81Int<N> one(1);
+
+    // Iterating from MSB
+    for (std::size_t i = N; i-- > 0; ) {
+        r <<= 1;
+
+        // Add u[i]
+        Trit t = u[i];
+        if (t == Trit::P) r += one;
+        else if (t == Trit::N) r -= one;
+
+        q <<= 1;
+
+        // Reduce r (restoring division)
+        // Ensure r < v
+        while (r >= v) {
+            r -= v;
+            q += one;
+        }
+        // Ensure r >= 0 (handle temporary negative r from balanced ternary ops)
+        while (r.sign_trit() == Trit::N) {
+             r += v;
+             q -= one;
+        }
+    }
+
+    if (a_neg != b_neg) q = -q;
+    if (a_neg) r = -r;
+
+    return {q, r};
 }
 
 } // namespace t81
