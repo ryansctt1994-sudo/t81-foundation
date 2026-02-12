@@ -15655,7 +15655,6 @@ src/axion/README.md
 src/axion/axion_api.cpp
 src/axion/axion_api.hpp
 src/axion/axion_kernel.hpp
-src/axion/axion_signal.hpp
 src/axion/engine.cpp
 src/axion/policy_engine.cpp
 src/axion/policy_serialization.cpp

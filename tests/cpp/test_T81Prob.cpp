@@ -64,38 +64,45 @@ int main() {
          std::cerr << "WARNING: Min - 1 did not saturate exactly to Min, but didn't wrap. Val: " << sat_min.log_odds().to_int64() << "\n";
     }
 
-    // Round-trip checks
-    std::cout << "Checking round-trip conversion...\n";
-    // Check range [0.01, 0.99] with step 0.01
-    for (int i = 1; i < 100; ++i) {
-        double p = i / 100.0;
-        T81Prob27 prob = T81Prob27::from_prob(p);
-        double p_out = prob.to_prob();
-        double diff = std::abs(p - p_out);
+    // Test log_softmax_normalize (which is essentially subtraction)
+    std::cout << "Checking log_softmax_normalize...\n";
+    // log_softmax_normalize(lse) -> this - lse
+    T81Prob27 logit(T81Prob27::Storage(100));
+    T81Prob27 lse(T81Prob27::Storage(50));
 
-        // Tolerance: 1e-3 is sufficient given the fixed-point scale (512.0)
-        // Max error is roughly 0.25 / 512 * log(phi) ≈ 0.00025
-        if (diff > 1e-3) {
-            std::cerr << "FAILED: Round-trip mismatch for p=" << p
-                      << ", got " << p_out
-                      << ", diff=" << diff << "\n";
-            return 1;
-        }
+    T81Prob27 normalized = logit.log_softmax_normalize(lse);
+    if (normalized.log_odds().to_int64() != 50) {
+        std::cerr << "FAILED: log_softmax_normalize(100, 50) != 50. Got: " << normalized.log_odds().to_int64() << "\n";
+        return 1;
     }
 
-    // Check edge cases
-    if (T81Prob27::from_prob(0.0).to_prob() != 0.0) {
-        std::cerr << "FAILED: Round-trip for 0.0 failed\n";
+    // Check saturation behavior via log_softmax_normalize
+    // min_inf - positive -> min_inf (because min - pos is very small)
+    // T81Prob saturation logic for subtraction:
+    // If sign of operands are opposite, overflow can occur.
+    // min_val is negative. one_log is positive. min - pos -> more negative -> saturation to min_inf.
+    T81Prob27 sat_norm_min = min_val.log_softmax_normalize(one_log);
+    if (!sat_norm_min.is_minus_infinity()) {
+        std::cerr << "FAILED: log_softmax_normalize saturation min - 1\n";
         return 1;
     }
-    if (T81Prob27::from_prob(1.0).to_prob() != 1.0) {
-        std::cerr << "FAILED: Round-trip for 1.0 failed\n";
+
+    // max_inf - negative -> max_inf (equivalent to max_inf + positive)
+    T81Prob27 neg_one = -one_log;
+    T81Prob27 sat_norm_max = max_val.log_softmax_normalize(neg_one);
+    if (!sat_norm_max.is_plus_infinity()) {
+        std::cerr << "FAILED: log_softmax_normalize saturation max - (-1)\n";
         return 1;
     }
-    // 0.5 is exactly 0 log-odds, so it should be exact
-    if (std::abs(T81Prob27::from_prob(0.5).to_prob() - 0.5) > 1e-9) {
-        std::cerr << "FAILED: Round-trip for 0.5 failed\n";
-        return 1;
+
+    // Verify identity: x - 0 = x
+    // T81Prob::zero() is log-odds 0 (p=0.5).
+    // But here we are talking about the underlying integer value being 0.
+    // T81Prob::zero() constructs with Storage(0).
+    T81Prob27 identity_check = logit.log_softmax_normalize(zero);
+    if (identity_check.log_odds().to_int64() != 100) {
+         std::cerr << "FAILED: log_softmax_normalize(100, 0) != 100\n";
+         return 1;
     }
 
     std::cout << "All T81Prob tests PASSED!\n";

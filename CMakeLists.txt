@@ -223,6 +223,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_prob_properties_test tests/cpp/prob_properties_test.cpp)
   target_link_libraries(t81_prob_properties_test PRIVATE t81_core)
 
+  add_executable(t81_float_arithmetic_test tests/cpp/test_T81Float_arithmetic.cpp)
+  target_link_libraries(t81_float_arithmetic_test PRIVATE t81_core)
+
   add_executable(t81_t81int_properties_test tests/cpp/t81int_properties_test.cpp)
   target_link_libraries(t81_t81int_properties_test PRIVATE t81_core)
 
@@ -506,6 +509,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_cli_disasm_test tests/cpp/cli_disasm_test.cpp)
   target_link_libraries(t81_cli_disasm_test PRIVATE t81_cli_driver)
 
+  add_executable(t81_cli_debugger_test tests/cpp/cli_debugger_test.cpp)
+  target_link_libraries(t81_cli_debugger_test PRIVATE t81_cli_driver t81_tisc)
+
   add_executable(t81_cli_option_result_test tests/cpp/cli_option_result_test.cpp)
   target_link_libraries(t81_cli_option_result_test PRIVATE t81_cli_driver t81_tisc t81_vm)
 
@@ -594,6 +600,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
 
   add_executable(t81_t81int_test tests/cpp/test_t81int.cpp)
   target_link_libraries(t81_t81int_test PRIVATE t81_core)
+
+  add_executable(t81_t81int_overflow_test tests/cpp/test_t81int_overflow.cpp)
+  target_link_libraries(t81_t81int_overflow_test PRIVATE t81_core)
 
   add_executable(t81_division_test tests/cpp/test_division.cpp)
   target_link_libraries(t81_division_test PRIVATE t81_core)
@@ -719,9 +728,11 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   set(T81_TEST_TARGETS
     t81_float_test
     t81_float_properties_test
+    t81_float_arithmetic_test
     t81_t81int_to_binary_test
     t81_division_test
     t81_t81int_test
+    t81_t81int_overflow_test
     t81_bigint_test
     t81_fraction_test
     t81_bigint_properties_test
@@ -844,6 +855,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_cli_check_test
     t81_cli_pipeline_test
     t81_cli_disasm_test
+    t81_cli_debugger_test
     t81_cli_option_result_test
     t81_cli_diagnostic_context_test
     axion_policy_match_guard_test
