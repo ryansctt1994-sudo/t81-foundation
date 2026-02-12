@@ -241,3 +241,4 @@ ______________________________________________________________________
 - Expanded examples: `examples/{demo.cpp,tensor_ops.cpp,axion_demo.cpp}`.
 - Updated build files (CMake and Make) to include all new targets.
 - Created `TODO.md` as the long-horizon tracker complementing this migration roadmap.
+- **Recent:** Expanded unit test coverage and fixed bugs in core containers (`T81List`, `T81Set`, `T81Map`, `T81Tree`) and concurrency primitives (`T81Promise`, `T81Discovery`).

@@ -27,7 +27,11 @@ struct T81Beacon {
         T81Bytes data;
         auto raw_id = identity.raw();
         data += T81Bytes(reinterpret_cast<const uint8_t*>(&raw_id), sizeof(raw_id));
-        data += T81Bytes(name.str().c_str());
+
+        // Serialize name with null terminator
+        std::string s = name.str();
+        data += T81Bytes(reinterpret_cast<const uint8_t*>(s.c_str()), s.length() + 1);
+
         data += T81Bytes(reinterpret_cast<const uint8_t*>(&port), sizeof(port));
         return data;
     }
@@ -57,7 +61,10 @@ class T81Discovery {
     udp::socket     socket_;
     udp::endpoint   broadcast_ep_;
     std::thread     listener_;
+    std::thread     beacon_thread_;
     std::atomic<bool> alive_{true};
+    std::mutex      cv_mutex_;
+    std::condition_variable cv_;
 
     mutable std::mutex peers_mutex_;
     std::set<T81Endpoint> known_minds_;
@@ -79,7 +86,9 @@ class T81Discovery {
                     socket_.send_to(asio::buffer(packet.data(), packet.size()), broadcast_ep_);
                 } catch(...) {}
             }
-            std::this_thread::sleep_for(std::chrono::seconds(3));
+
+            std::unique_lock<std::mutex> lock(cv_mutex_);
+            cv_.wait_for(lock, std::chrono::seconds(3), [this] { return !alive_; });
         }
     }
 
@@ -121,13 +130,23 @@ private:
     {
         socket_.set_option(asio::socket_base::broadcast(true));
         listener_ = std::thread([this]() { listen_loop(); });
-        std::thread([this]() { beacon_loop(); }).detach();
+        beacon_thread_ = std::thread([this]() { beacon_loop(); });
     }
 
 public:
     ~T81Discovery() {
-        alive_ = false;
+        {
+            std::lock_guard<std::mutex> lock(cv_mutex_);
+            alive_ = false;
+            cv_.notify_all();
+        }
+
+        // Close socket to unblock listener
+        asio::error_code ec;
+        socket_.close(ec);
+
         if (listener_.joinable()) listener_.join();
+        if (beacon_thread_.joinable()) beacon_thread_.join();
     }
 
     [[nodiscard]] std::vector<T81Endpoint> peers() const {

@@ -95,7 +95,7 @@ class T81Map {
         std::size_t new_count = old_count ? old_count * 3 : 27; // grow by factor of 3
 
         std::vector<Bucket> new_buckets(new_count);
-        for (const auto& bucket : buckets_) {
+        for (auto& bucket : buckets_) {
             if (!bucket.occupied) continue;
 
             std::size_t idx = hash_for_key(bucket.key, new_count);
@@ -103,7 +103,7 @@ class T81Map {
             while (new_buckets[idx].occupied) {
                 idx = (idx + probe_step(attempt++)) % new_count;
             }
-            new_buckets[idx] = bucket;
+            new_buckets[idx] = std::move(bucket);
         }
 
         buckets_ = std::move(new_buckets);
@@ -179,6 +179,26 @@ public:
     T81Map() {
         buckets_.resize(27); // start at 3^3
     }
+
+    T81Map(T81Map&& other) noexcept
+        : buckets_(std::move(other.buckets_))
+        , size_(other.size_)
+    {
+        other.size_ = 0;
+        // other.buckets_ is already empty after move
+    }
+
+    T81Map& operator=(T81Map&& other) noexcept {
+        if (this != &other) {
+            buckets_ = std::move(other.buckets_);
+            size_ = other.size_;
+            other.size_ = 0;
+        }
+        return *this;
+    }
+
+    T81Map(const T81Map&) = default;
+    T81Map& operator=(const T81Map&) = default;
 
     //===================================================================
     // Element access
@@ -272,6 +292,14 @@ public:
         [[nodiscard]] value_type operator*() const noexcept {
             const auto& b = map->buckets_[index];
             return value_type{b.key, b.value};
+        }
+
+        [[nodiscard]] const K& key() const noexcept {
+            return map->buckets_[index].key;
+        }
+
+        [[nodiscard]] const V& value() const noexcept {
+            return map->buckets_[index].value;
         }
     };
 

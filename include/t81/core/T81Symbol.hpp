@@ -68,28 +68,53 @@ public:
         return h;
     }
 
-    [[nodiscard]] std::string to_string() const noexcept {
-        if (!is_valid()) return "§null";
-        char buf[32];
-        std::snprintf(buf, sizeof(buf), "§%016llx", static_cast<unsigned long long>(id()));
-        return std::string(buf);
-    }
+    [[nodiscard]] std::string to_string() const noexcept;
 };
 
-inline T81Symbol T81Symbol::intern(std::string_view sv) noexcept {
+// Internal implementation details
+namespace detail {
     struct InternTable {
         std::mutex mtx;
-        std::unordered_map<std::string, id_t> map;
-        id_t next_id = 10;
+        std::unordered_map<std::string, T81Symbol::id_t> map;
+        std::unordered_map<T81Symbol::id_t, std::string> reverse_map;
+        T81Symbol::id_t next_id = 10;
     };
-    static InternTable table;
+
+    inline InternTable& get_intern_table() {
+        static InternTable table;
+        return table;
+    }
+}
+
+inline T81Symbol T81Symbol::intern(std::string_view sv) noexcept {
+    auto& table = detail::get_intern_table();
     std::string s(sv);
     std::lock_guard<std::mutex> lock(table.mtx);
+
     auto it = table.map.find(s);
     if (it != table.map.end()) return T81Symbol::from_id(it->second);
-    id_t id = table.next_id++;
+
+    auto id = table.next_id++;
     table.map[s] = id;
+    table.reverse_map[id] = s;
     return T81Symbol::from_id(id);
+}
+
+inline std::string T81Symbol::to_string() const noexcept {
+    if (!is_valid()) return "§null";
+
+    auto& table = detail::get_intern_table();
+    {
+        std::lock_guard<std::mutex> lock(table.mtx);
+        auto it = table.reverse_map.find(id());
+        if (it != table.reverse_map.end()) {
+            return it->second;
+        }
+    }
+
+    char buf[32];
+    std::snprintf(buf, sizeof(buf), "§%016llx", static_cast<unsigned long long>(id()));
+    return std::string(buf);
 }
 
 namespace symbols {

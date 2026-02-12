@@ -1,3 +1,4 @@
+#undef NDEBUG
 #include "t81/core/T81Promise.hpp"
 #include "t81/core/T81Agent.hpp"
 #include <cassert>
@@ -9,11 +10,14 @@ T81Promise<int> async_value(int x) {
     co_return x;
 }
 
+T81Promise<int> suspending_value(int x) {
+    co_await acquire_entropy();
+    co_return x;
+}
+
 void test_promise_basic() {
     auto p = async_value(42);
-    auto agent = T81Agent(T81Symbol::intern("TestAgent"));
-
-    // It should be fulfilled immediately because async_value doesn't await anything
+    // It should be fulfilled immediately
     assert(p.state() == T81Promise<int>::State::FULFILLED);
     auto res = p.try_get();
     assert(res.has_value());
@@ -22,9 +26,28 @@ void test_promise_basic() {
 }
 
 void test_promise_cancel() {
-    // Can't easily test cancellation of something that completes immediately
-    // unless we had a promise that suspends.
-    std::cout << "test_promise_cancel SKIPPED (TODO: add suspending promise)\n";
+    auto p = suspending_value(99);
+
+    // Should be pending because it co_awaited entropy and suspended
+    assert(p.state() == T81Promise<int>::State::PENDING);
+
+    p.cancel();
+
+    // State should now be CANCELLED
+    assert(p.state() == T81Promise<int>::State::CANCELLED);
+
+    // Trying to get value should fail
+    auto res = p.try_get();
+    assert(!res.has_value());
+
+    // Awaiting should return failure
+    T81Agent agent(T81Symbol::intern("TestAgent"));
+    auto result = p.await(acquire_entropy(), agent);
+    assert(result.is_err());
+    // Use raw comparison or symbol interning
+    assert(result.error().code == T81Symbol::intern("CANCELLED"));
+
+    std::cout << "test_promise_cancel PASSED\n";
 }
 
 int main() {

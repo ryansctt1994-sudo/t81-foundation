@@ -65,7 +65,11 @@ public:
 
     public:
         explicit iterator(handle_type h = nullptr) noexcept : coro_(h) {
-            if (coro_) advance();
+            if (coro_) {
+                advance();
+            } else {
+                done_ = true;
+            }
         }
 
         void advance() {
