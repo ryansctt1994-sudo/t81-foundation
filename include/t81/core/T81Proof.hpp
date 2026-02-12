@@ -20,7 +20,7 @@ struct T81Theorem {
     T81String statement;
     T81Tree<T81Symbol>::ptr logical_form;
 
-    constexpr T81Theorem(T81Symbol n, T81String s, T81Tree<T81Symbol>::ptr lf)
+    T81Theorem(T81Symbol n, T81String s, T81Tree<T81Symbol>::ptr lf)
         : name(n), statement(std::move(s)), logical_form(std::move(lf)) {}
 };
 

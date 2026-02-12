@@ -1242,6 +1242,10 @@ private:
     }
 
     tisc::ir::Register new_register() {
+        // Skip system registers R75-R80 reserved by VM
+        if (_register_count >= 75 && _register_count <= 80) {
+            _register_count = 81;
+        }
         return tisc::ir::Register{_register_count++};
     }
 
