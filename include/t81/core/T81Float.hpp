@@ -442,7 +442,7 @@ T81Float<M, E> operator*(T81Float<M, E> a, T81Float<M, E> b) noexcept {
 
     if ((a_inf && b_zero) || (b_inf && a_zero)) return F::nae();
     if (a_inf || b_inf) {
-        return F::inf(a.is_negative() ^ b.is_negative());
+        return F::inf(a.is_negative() == b.is_negative());
     }
     if (a_zero || b_zero) return F::zero();
 
@@ -461,11 +461,11 @@ T81Float<M, E> operator/(T81Float<M, E> a, T81Float<M, E> b) noexcept {
 
     if (b_zero) {
         if (a_zero || a_inf) return F::nae();
-        return F::inf(a.is_negative() ^ b.is_negative());
+        return F::inf(a.is_negative() == b.is_negative());
     }
     if (a_inf || b_inf) {
         if (a_inf && b_inf) return F::nae();
-        if (a_inf) return F::inf(a.is_negative() ^ b.is_negative());
+        if (a_inf) return F::inf(a.is_negative() == b.is_negative());
         return F::zero();
     }
     if (a_zero) return F::zero();
