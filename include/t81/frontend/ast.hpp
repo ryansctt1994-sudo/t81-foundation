@@ -40,6 +40,8 @@ struct LetStmt;
 struct BlockStmt;
 struct IfStmt;
 struct WhileStmt;
+struct ForStmt;
+struct ReflectStmt;
 struct ReturnStmt;
 struct BreakStmt;
 struct ContinueStmt;
@@ -91,6 +93,8 @@ public:
     virtual std::any visit(const BlockStmt& stmt) = 0;
     virtual std::any visit(const IfStmt& stmt) = 0;
     virtual std::any visit(const WhileStmt& stmt) = 0;
+    virtual std::any visit(const ForStmt& stmt) = 0;
+    virtual std::any visit(const ReflectStmt& stmt) = 0;
     virtual std::any visit(const LoopStmt& stmt) = 0;
     virtual std::any visit(const ReturnStmt& stmt) = 0;
     virtual std::any visit(const BreakStmt& stmt) = 0;
@@ -357,6 +361,27 @@ struct WhileStmt : Stmt {
 
     const std::unique_ptr<Expr> condition;
     const std::unique_ptr<Stmt> body;
+};
+
+struct ForStmt : Stmt {
+    ForStmt(Token iterator, std::unique_ptr<Expr> iterable, std::unique_ptr<Stmt> body)
+        : iterator(iterator), iterable(std::move(iterable)), body(std::move(body)) {}
+
+    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+
+    const Token iterator;
+    const std::unique_ptr<Expr> iterable;
+    const std::unique_ptr<Stmt> body;
+};
+
+struct ReflectStmt : Stmt {
+    ReflectStmt(Token keyword, std::vector<std::unique_ptr<Stmt>> body)
+        : keyword(keyword), body(std::move(body)) {}
+
+    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+
+    const Token keyword;
+    const std::vector<std::unique_ptr<Stmt>> body;
 };
 
 struct ReturnStmt : Stmt {

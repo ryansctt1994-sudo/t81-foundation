@@ -121,6 +121,8 @@ public:
     std::any visit(const BlockStmt& stmt) override;
     std::any visit(const IfStmt& stmt) override;
     std::any visit(const WhileStmt& stmt) override;
+    std::any visit(const ForStmt& stmt) override;
+    std::any visit(const ReflectStmt& stmt) override;
     std::any visit(const LoopStmt& stmt) override;
     std::any visit(const ReturnStmt& stmt) override;
     std::any visit(const BreakStmt& stmt) override;

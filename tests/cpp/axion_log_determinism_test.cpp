@@ -21,7 +21,7 @@ void test_bounds_fault_log() {
     std::cout << "Testing Axion log determinism for BoundsFault..." << std::endl;
 
     // Instruction that triggers a bounds fault (Load from invalid address)
-    Insn bad_load{Opcode::Load, 0, 9999, 0};
+    Insn bad_load{Opcode::Load, 1, 9999, 0};
     Insn halt{Opcode::Halt};
 
     Program program;
@@ -55,7 +55,7 @@ void test_tensor_fault_log() {
 
     Insn corrupt_handle{Opcode::LoadImm, 1, 42};
     corrupt_handle.literal_kind = LiteralKind::TensorHandle;
-    Insn vec_add{Opcode::TVecAdd, 0, 1, 1}; // R0 = R1 + R1 (R1=42)
+    Insn vec_add{Opcode::TVecAdd, 2, 1, 1}; // R2 = R1 + R1 (R1=42)
     Insn halt{Opcode::Halt};
 
     Program program;

@@ -18,11 +18,11 @@ int main() {
 
     [[maybe_unused]] t81::tisc::Insn load_a;
     load_a.opcode = t81::tisc::Opcode::WeightsLoad;
-    load_a.a = 0;
+    load_a.a = 2; // R2
     load_a.b = 1;
 
     [[maybe_unused]] t81::tisc::Insn load_b= load_a;
-    load_b.a = 1;
+    load_b.a = 1; // R1
 
     [[maybe_unused]] t81::tisc::Insn halt;
     halt.opcode = t81::tisc::Opcode::Halt;
@@ -34,7 +34,7 @@ int main() {
     [[maybe_unused]] auto result= vm->run_to_halt();
     assert(result.has_value());
 
-    [[maybe_unused]] auto handle0= vm->state().registers[0];
+    [[maybe_unused]] auto handle0= vm->state().registers[2];
     [[maybe_unused]] auto handle1= vm->state().registers[1];
     assert(handle0 > 0);
     assert(handle0 == handle1);

@@ -8,15 +8,15 @@ int main() {
   // Test Neg opcode.
   {
     [[maybe_unused]] tisc::Program p;
-    p.insns.push_back({tisc::Opcode::LoadImm, 0, 42, 0});
-    p.insns.push_back({tisc::Opcode::Neg, 1, 0, 0});
+    p.insns.push_back({tisc::Opcode::LoadImm, 1, 42, 0});
+    p.insns.push_back({tisc::Opcode::Neg, 2, 1, 0});
     p.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
 
     [[maybe_unused]] auto vm= vm::make_interpreter_vm();
     vm->load_program(p);
     [[maybe_unused]] auto r= vm->run_to_halt();
     T81_TEST_CHECK(r.has_value());
-    T81_TEST_CHECK(vm->state().registers[1] == -42);
+    T81_TEST_CHECK(vm->state().registers[2] == -42);
     T81_TEST_CHECK(vm->state().flags.negative);
     T81_TEST_CHECK(!vm->state().flags.zero);
   }
@@ -24,9 +24,9 @@ int main() {
   // Test JumpIfNegative opcode.
   {
     [[maybe_unused]] tisc::Program p;
-    p.insns.push_back({tisc::Opcode::LoadImm, 0, -1, 0});
+    p.insns.push_back({tisc::Opcode::LoadImm, 3, -1, 0});
     p.insns.push_back({tisc::Opcode::LoadImm, 2, 0, 0});
-    p.insns.push_back({tisc::Opcode::Cmp, 0, 2, 0});
+    p.insns.push_back({tisc::Opcode::Cmp, 3, 2, 0});
     p.insns.push_back({tisc::Opcode::JumpIfNegative, 5, 0, 0});
     p.insns.push_back({tisc::Opcode::LoadImm, 1, 99, 0}); // should skip
     p.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
@@ -41,9 +41,9 @@ int main() {
   // Test JumpIfPositive opcode.
   {
     [[maybe_unused]] tisc::Program p;
-    p.insns.push_back({tisc::Opcode::LoadImm, 0, 1, 0});
+    p.insns.push_back({tisc::Opcode::LoadImm, 3, 1, 0});
     p.insns.push_back({tisc::Opcode::LoadImm, 2, 0, 0});
-    p.insns.push_back({tisc::Opcode::Cmp, 0, 2, 0});
+    p.insns.push_back({tisc::Opcode::Cmp, 3, 2, 0});
     p.insns.push_back({tisc::Opcode::JumpIfPositive, 5, 0, 0});
     p.insns.push_back({tisc::Opcode::LoadImm, 1, 99, 0}); // should skip
     p.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
@@ -58,9 +58,9 @@ int main() {
   // Test JumpIfNegative fall-through.
   {
     [[maybe_unused]] tisc::Program p;
-    p.insns.push_back({tisc::Opcode::LoadImm, 0, 1, 0});
+    p.insns.push_back({tisc::Opcode::LoadImm, 3, 1, 0});
     p.insns.push_back({tisc::Opcode::LoadImm, 2, 0, 0});
-    p.insns.push_back({tisc::Opcode::Cmp, 0, 2, 0});
+    p.insns.push_back({tisc::Opcode::Cmp, 3, 2, 0});
     p.insns.push_back({tisc::Opcode::JumpIfNegative, 5, 0, 0});
     p.insns.push_back({tisc::Opcode::LoadImm, 1, 99, 0}); // should not skip
     p.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
@@ -75,9 +75,9 @@ int main() {
   // Test JumpIfPositive fall-through.
   {
     [[maybe_unused]] tisc::Program p;
-    p.insns.push_back({tisc::Opcode::LoadImm, 0, -1, 0});
+    p.insns.push_back({tisc::Opcode::LoadImm, 3, -1, 0});
     p.insns.push_back({tisc::Opcode::LoadImm, 2, 0, 0});
-    p.insns.push_back({tisc::Opcode::Cmp, 0, 2, 0});
+    p.insns.push_back({tisc::Opcode::Cmp, 3, 2, 0});
     p.insns.push_back({tisc::Opcode::JumpIfPositive, 5, 0, 0});
     p.insns.push_back({tisc::Opcode::LoadImm, 1, 99, 0}); // should not skip
     p.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
@@ -92,8 +92,8 @@ int main() {
   // Test chained Neg and JumpIfNegative.
   {
     [[maybe_unused]] tisc::Program p;
-    p.insns.push_back({tisc::Opcode::LoadImm, 0, 42, 0});
-    p.insns.push_back({tisc::Opcode::Neg, 0, 0, 0});
+    p.insns.push_back({tisc::Opcode::LoadImm, 3, 42, 0});
+    p.insns.push_back({tisc::Opcode::Neg, 3, 3, 0});
     p.insns.push_back({tisc::Opcode::JumpIfNegative, 4, 0, 0});
     p.insns.push_back({tisc::Opcode::LoadImm, 1, 99, 0}); // should skip
     p.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});

@@ -295,6 +295,19 @@ std::unique_ptr<Stmt> Parser::statement() {
         auto body = statement();
         return std::make_unique<WhileStmt>(std::move(condition), std::move(body));
     }
+    if (match({TokenType::For})) {
+        Token iterator = consume(TokenType::Identifier, "Expect iterator name.");
+        consume(TokenType::In, "Expect 'in' after iterator name.");
+        auto iterable = expression();
+        auto body = statement();
+        return std::make_unique<ForStmt>(iterator, std::move(iterable), std::move(body));
+    }
+    if (match({TokenType::Reflect})) {
+        Token keyword = previous();
+        consume(TokenType::LBrace, "Expect '{' after 'reflect'.");
+        std::vector<std::unique_ptr<Stmt>> body = block();
+        return std::make_unique<ReflectStmt>(keyword, std::move(body));
+    }
     if (check(TokenType::At) || check(TokenType::Loop)) {
         return loop_statement();
     }

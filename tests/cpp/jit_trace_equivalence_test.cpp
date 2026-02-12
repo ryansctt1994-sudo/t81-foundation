@@ -111,15 +111,15 @@ Program make_hot_enum_program() {
 Program make_hot_call_ret_program() {
   Program p;
   p.insns = {
-      {Opcode::LoadImm, 0, 64, 0},      // loop count
+    {Opcode::LoadImm, 12, 64, 0},     // loop count (using R12 instead of hardwired R0)
       {Opcode::LoadImm, 1, 11, 0},      // function entry PC
       {Opcode::LoadImm, 2, 2, 0},       // function return payload
       {Opcode::LoadImm, 3, 0, 0},       // sum
       // loop at pc=4
       {Opcode::Call, 0, 1, 0},          // call function at r1
       {Opcode::Add, 3, 3, 10},          // sum += r10
-      {Opcode::Dec, 0, 0, 0},
-      {Opcode::JumpIfNotZero, 4, 0, 0},
+    {Opcode::Dec, 12, 0, 0},
+    {Opcode::JumpIfNotZero, 4, 12, 0},
       {Opcode::Halt, 0, 0, 0},
       {Opcode::Nop, 0, 0, 0},
       {Opcode::Nop, 0, 0, 0},

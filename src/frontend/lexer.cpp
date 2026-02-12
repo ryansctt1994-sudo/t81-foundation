@@ -29,7 +29,7 @@ const std::unordered_map<std::string_view, TokenType> KEYWORDS = {
     {"export", TokenType::Export}, {"fn", TokenType::Fn},         {"let", TokenType::Let},
     {"var", TokenType::Var},       {"if", TokenType::If},         {"else", TokenType::Else},
     {"for", TokenType::For},       {"in", TokenType::In},         {"while", TokenType::While},
-    {"loop", TokenType::Loop},
+    {"loop", TokenType::Loop},     {"reflect", TokenType::Reflect},
     {"record", TokenType::Record}, {"enum", TokenType::Enum},
     {"break", TokenType::Break},   {"continue", TokenType::Continue}, {"return", TokenType::Return},
     {"match", TokenType::Match},
