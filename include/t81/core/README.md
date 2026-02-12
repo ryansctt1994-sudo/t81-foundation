@@ -63,3 +63,69 @@ The following table provides a comprehensive inventory of all canonical data typ
 | `Cell` | [cell.hpp](./cell.hpp) | A 5-trit balanced ternary cell, the fundamental unit of storage. |
 | `CanonicalId` | [ids.hpp](./ids.hpp) | A struct for representing canonical identifiers. |
 | `all.hpp` | [all.hpp](./all.hpp) | A convenience header to include all core T81 data types. |
+
+### Dependency Layers Overview
+
+The T81 core types form a layered stack: low-level storage → arithmetic → containers/monads → agents & reflection.
+
+```mermaid
+graph TD
+    %% ────────────── Low-level primitives ──────────────
+    Cell[Cell<br>5-trit unit] --> T81Int[T81Int<N><br>packed ternary int]
+    T81Int --> T81UInt[T81UInt<N>]
+    T81Int --> T81BigInt[T81BigInt<br>arbitrary precision]
+
+    %% ────────────── Arithmetic & math ──────────────
+    T81Int --> T81Float[T81Float<M,E>]
+    T81Int --> T81Fixed[T81Fixed<I,F>]
+    T81Int --> T81Fraction[T81Fraction<N>]
+    T81Float --> T81Complex[T81Complex<M>]
+    T81Float --> T81Quaternion[T81Quaternion]
+    T81Int --> T81Polynomial[T81Polynomial]
+    T81Int --> T81Prob[T81Prob<br>log-odds]
+
+    %% ────────────── Containers & structures ──────────────
+    T81Int --> T81List[T81List<E>]
+    T81List --> T81Map[T81Map<K,V>]
+    T81List --> T81Set[T81Set<T>]
+    T81List --> T81Tree[T81Tree<T>]
+    T81List --> T81Stream[T81Stream<T>]
+    T81Int --> T81Graph[T81Graph]
+
+    %% ────────────── Numerical containers ──────────────
+    T81Int --> T81Vector[T81Vector<N,S>]
+    T81Vector --> T81Matrix[T81Matrix<S,R,C>]
+    T81Matrix --> T81Tensor[T81Tensor<E,R,Dims...>]
+
+    %% ────────────── Monads / control flow ──────────────
+    T81Maybe[T81Maybe<T>] --> Option[Option<T>]
+    T81Result[T81Result<T,E>] --> Result[Result<T,E>]
+    T81Int --> T81Maybe
+    T81Int --> T81Result
+    T81Maybe --> T81Promise[T81Promise<T>]
+
+    %% ────────────── Symbolic / higher-level ──────────────
+    T81Symbol[T81Symbol<br>81-trit eternal ID] --> T81String[T81String]
+    T81Symbol --> T81Agent[T81Agent<br>cognitive entity]
+    T81Entropy[T81Entropy<br>provenanced entropy] --> T81IOStream[T81IOStream]
+    T81Time[T81Time] --> T81Thread[T81Thread]
+    T81Agent --> T81Network[T81Network]
+    T81Agent --> T81Discovery[T81Discovery]
+
+    %% ────────────── Reflective / advanced ──────────────
+    T81Category[T81Category<br>category theory] --> T81Proof[T81Proof]
+    T81Reflection[T81Reflection] --> T81Proof
+
+    %% ────────────── Styling ──────────────
+    classDef lowLevel      fill:#d1e7ff,stroke:#333
+    classDef arithmetic    fill:#fff3cd,stroke:#333
+    classDef containers    fill:#d4edda,stroke:#333
+    classDef monads        fill:#f8d7da,stroke:#333
+    classDef higher        fill:#e2e0f7,stroke:#333
+
+    class Cell,T81Int,T81UInt,T81BigInt lowLevel
+    class T81Float,T81Fixed,T81Fraction,T81Complex,T81Quaternion,T81Polynomial,T81Prob arithmetic
+    class T81List,T81Map,T81Set,T81Tree,T81Stream,T81Graph,T81Vector,T81Matrix,T81Tensor containers
+    class T81Maybe,T81Result,T81Promise monads
+    class T81Symbol,T81String,T81Agent,T81Entropy,T81Time,T81IOStream,T81Thread,T81Network,T81Discovery,T81Category,T81Proof,T81Reflection higher
+```
