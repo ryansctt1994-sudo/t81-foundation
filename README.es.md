@@ -146,4 +146,25 @@ t81 help
 ```
 
 ## Mapa del repositorio
-- [`include/t81/`](include/t81/): public A
+- [`include/t81/`](include/t81/): public API Headers
+- [`src/`](src/): frontend, TISC, VM, Axion, CanonFS, implementación de CLI
+- [`tests/`](tests/): conformidad, determinismo, VM/e2e, segmentos de propiedades
+- [`docs/`](docs/): guías, estado, benchmarks, documentación sobre límites de tiempo de ejecución
+- [`spec/`](spec/): semántica normativa y entradas de gobernanza
+- [`examples/`](examples/): ejemplos y demostraciones ejecutables
+
+## Límite de tiempo de ejecución
+T81 utiliza un contrato explícito de límite de tiempo de ejecución:
+- Marcador: [`contracts/runtime-contract.json`](contracts/runtime-contract.json)
+- Política de límites: [`docs/runtime-semantics-boundary.md`](docs/runtime-semantics-boundary.md)
+
+## Lecturas adicionales
+- [`ARCHITECTURE.md`](ARCHITECTURE.md)
+- [`docs/system-integration.md`](docs/system-integration.md)
+- [`ANALYSIS.md`](ANALYSIS.md)
+- [`CHANGELOG.md`](CHANGELOG.md)
+- [`docs/research-guide.md`](docs/research-guide.md)
+- [`docs/ai-quickstart.md`](docs/ai-quickstart.md)
+
+## Licencia
+Este repositorio está licenciado bajo el MIT (véase [`LICENSE`](LICENSE)).
