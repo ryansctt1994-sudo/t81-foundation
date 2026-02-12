@@ -752,6 +752,7 @@ int main(int argc, char* argv[]) {
             t81::cli::TraceArgs ta;
             if (!args.command_args.empty()) {
                 ta.subcommand = args.command_args[0];
+                ta.args.reserve(args.command_args.size() - 1);
                 for (size_t i = 1; i < args.command_args.size(); ++i) ta.args.push_back(args.command_args[i]);
             }
             return t81::cli::run_trace(ta);
