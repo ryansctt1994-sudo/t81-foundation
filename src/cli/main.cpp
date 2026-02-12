@@ -76,6 +76,45 @@ Licensed under MIT and GPL-3.0
 )";
 }
 
+void print_help_weights() {
+    std::cerr << R"(
+Usage: t81 weights <subcommand> [options]
+
+Subcommands:
+  import <file> [-o <out>] [--format <fmt>] Import weights (safetensors/gguf) -> .t81w
+  info <model.t81w>                          Print native model metadata
+  quantize <input> --to-gguf <out>           Quantize SafeTensors -> T3_K GGUF
+
+Options:
+  --format <fmt>    Input format (safetensors, gguf). Default: safetensors
+  -o, --out <file>  Output file path
+)";
+}
+
+void print_help_policy() {
+    std::cerr << R"(
+Usage: t81 policy <subcommand> [options]
+
+Subcommands:
+  compile <file.apl> [-o <out>]   Compile Axion Policy Language -> .axionb
+  run <file.apl|.axionb>          Validate and load an Axion policy
+
+Options:
+  -o <out>          Output file path
+)";
+}
+
+void print_help_trace() {
+    std::cerr << R"(
+Usage: t81 trace <subcommand> [args]
+
+Subcommands:
+  show <trace.txt>                Visualize an Axion trace with color
+  diff <trace1.txt> <trace2.txt>  Diff two Axion traces
+  replay <file.tisc> <trace.txt>  Replay and verify trace matches
+)";
+}
+
 void print_usage(const char* prog) {
     std::cerr << R"(T81 Foundation - Ternary-Native Computing Stack
 Version )" << T81_VERSION << R"(  
@@ -97,15 +136,10 @@ Commands:
   repl                                 Enter interactive REPL
   version                              Show version
   benchmark                            Run the core benchmark suite (build/benchmarks/benchmark_runner)
-  weights import <file> [options]      Import BitNet/SafeTensors → .t81w
-  weights info <model.t81w>            Print native model metadata
-  weights quantize <dir|file> --to-gguf <out>  Quantize SafeTensors → T3_K GGUF
-  policy compile <file.apl> [-o <out>] Compile Axion Policy Language → .axionb
-  policy run <file.apl|.axionb>        Validate and load an Axion policy
-  trace show <trace.txt>               Visualize an Axion trace with color
-  trace diff <trace1.txt> <trace2.txt> Diff two Axion traces
-  trace replay <file.tisc> <trace.txt> Replay and verify trace matches
-  help                                 Show this message
+  weights <subcommand> [args]          Manage model weights (import, info, quantize)
+  policy <subcommand> [args]           Axion policy tools (compile, run)
+  trace <subcommand> [args]            Trace analysis tools (show, diff, replay)
+  help [command]                       Show this message or help for a specific command
 
 
 Global options:
@@ -212,7 +246,14 @@ Args parse_args(int argc, char* argv[]) {
     }
 
     std::string cmd = argv[1];
-    if (cmd == "help" || cmd == "--help" || cmd == "-h") { a.need_help = true; return a; }
+    if (cmd == "help") {
+        a.command = "help";
+        for (int i = 2; i < argc; ++i) {
+            a.command_args.emplace_back(argv[i]);
+        }
+        return a;
+    }
+    if (cmd == "--help" || cmd == "-h") { a.need_help = true; return a; }
     if (cmd == "version" || cmd == "--version" || cmd == "-V") { a.need_version = true; return a; }
 
     a.command = cmd;
@@ -573,6 +614,22 @@ int main(int argc, char* argv[]) {
 
         if (args.need_help)    { print_usage(argv[0]); return 0; }
         if (args.need_version) { print_version();    return 0; }
+
+        if (args.command == "help") {
+            if (args.command_args.empty()) {
+                print_usage(argv[0]);
+            } else {
+                std::string sub = args.command_args[0];
+                if (sub == "weights") print_help_weights();
+                else if (sub == "policy") print_help_policy();
+                else if (sub == "trace") print_help_trace();
+                else {
+                    print_usage(argv[0]);
+                    std::cerr << "\nUnknown help topic: " << sub << "\n";
+                }
+            }
+            return 0;
+        }
 
         bool needs_input = (args.command == "compile" || args.command == "run" || args.command == "disasm" || args.command == "debug" || args.command == "check" || args.command == "lint");
         if (args.command.empty() || (needs_input && args.input.empty())) {
