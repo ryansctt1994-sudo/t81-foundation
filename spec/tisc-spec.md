@@ -633,7 +633,24 @@ Any attempt to execute Axion instructions from non-privileged context MUST be tr
 
 ______________________________________________________________________
 
-### 5.11 System and Miscellaneous
+### 5.11 Trigonometric Instructions
+
+Trigonometric operations on canonical `T81Float` values.
+
+#### FSIN / FCOS / FTAN
+
+- **Form**: `FSIN RD, RS` / `FCOS RD, RS` / `FTAN RD, RS`
+- **Semantics**:
+  - Resolve `R[RS]` as a handle to a `T81Float`.
+  - Compute the sine, cosine, or tangent of the value (interpreted as radians).
+  - Store the result as a canonical float handle in `R[RD]`.
+- **Faults**:
+  - Invalid handle -> `IllegalInstruction`.
+  - `FTAN` with asymptotic input -> VM defined behavior (large value or fault).
+
+______________________________________________________________________
+
+### 5.12 System and Miscellaneous
 
 #### NOP
 

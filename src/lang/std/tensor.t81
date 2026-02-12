@@ -1,0 +1,11 @@
+// src/lang/std/tensor.t81
+// Tensor operations.
+
+fn tensor_load(path: T81String) -> Tensor {
+    return weights.load(path);
+}
+
+fn matmul(a: Tensor, b: Tensor) -> Tensor {
+    // Uses method syntax in IRGenerator
+    return a.matmul(b);
+}

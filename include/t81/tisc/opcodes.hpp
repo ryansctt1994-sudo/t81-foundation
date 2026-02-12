@@ -88,6 +88,9 @@ enum class Opcode : std::uint8_t {
   TRoPE,
   TVecMul,
   TTranspose,
+  FSin,
+  FCos,
+  FTan,
   MetaRead,
   MetaWrite,
   MetaReflect,
@@ -178,6 +181,9 @@ enum class Opcode : std::uint8_t {
     case Opcode::TRoPE: return "TRoPE";
     case Opcode::TVecMul: return "TVecMul";
     case Opcode::TTranspose: return "TTranspose";
+    case Opcode::FSin: return "FSin";
+    case Opcode::FCos: return "FCos";
+    case Opcode::FTan: return "FTan";
     case Opcode::MetaRead: return "MetaRead";
     case Opcode::MetaWrite: return "MetaWrite";
     case Opcode::MetaReflect: return "MetaReflect";

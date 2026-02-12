@@ -36,6 +36,7 @@ enum class Opcode {
     // Arithmetic
     ADD, SUB, MUL, DIV, MOD, NEG,
     FADD, FSUB, FMUL, FDIV,
+    FSIN, FCOS, FTAN,
     FRACADD, FRACSUB, FRACMUL, FRACDIV,
 
     // Comparison
