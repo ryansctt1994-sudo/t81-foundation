@@ -64,6 +64,40 @@ int main() {
          std::cerr << "WARNING: Min - 1 did not saturate exactly to Min, but didn't wrap. Val: " << sat_min.log_odds().to_int64() << "\n";
     }
 
+    // Round-trip checks
+    std::cout << "Checking round-trip conversion...\n";
+    // Check range [0.01, 0.99] with step 0.01
+    for (int i = 1; i < 100; ++i) {
+        double p = i / 100.0;
+        T81Prob27 prob = T81Prob27::from_prob(p);
+        double p_out = prob.to_prob();
+        double diff = std::abs(p - p_out);
+
+        // Tolerance: 1e-3 is sufficient given the fixed-point scale (512.0)
+        // Max error is roughly 0.25 / 512 * log(phi) ≈ 0.00025
+        if (diff > 1e-3) {
+            std::cerr << "FAILED: Round-trip mismatch for p=" << p
+                      << ", got " << p_out
+                      << ", diff=" << diff << "\n";
+            return 1;
+        }
+    }
+
+    // Check edge cases
+    if (T81Prob27::from_prob(0.0).to_prob() != 0.0) {
+        std::cerr << "FAILED: Round-trip for 0.0 failed\n";
+        return 1;
+    }
+    if (T81Prob27::from_prob(1.0).to_prob() != 1.0) {
+        std::cerr << "FAILED: Round-trip for 1.0 failed\n";
+        return 1;
+    }
+    // 0.5 is exactly 0 log-odds, so it should be exact
+    if (std::abs(T81Prob27::from_prob(0.5).to_prob() - 0.5) > 1e-9) {
+        std::cerr << "FAILED: Round-trip for 0.5 failed\n";
+        return 1;
+    }
+
     std::cout << "All T81Prob tests PASSED!\n";
     return 0;
 }
