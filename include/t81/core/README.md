@@ -34,6 +34,9 @@ graph TD
     T81Int --> T81Vector[T81Vector<N,S>]
     T81Vector --> T81Matrix[T81Matrix]
     T81Matrix --> T81Tensor[T81Tensor]
+    T81Tensor --> DistributedT81Tensor[DistributedT81Tensor]
+    T81Tensor --> T729Tensor[T729Tensor Holotensors]
+    T81Tensor --> T81NN[T81NN Neural Networks]
 
     %% Monads / control
     T81Int --> T81Maybe[T81Maybe<T>]
@@ -60,12 +63,14 @@ graph TD
     classDef containers    fill:#d4edda,stroke:#333
     classDef monads        fill:#f8d7da,stroke:#333
     classDef higher        fill:#e2e0f7,stroke:#333
+    classDef ai            fill:#ffeaa7,stroke:#333
 
-    class Cell,T81Int,T81UInt,T81BigInt lowLevel
+    class Cell,T81Int,T81UInt,T81BigInt,T81Limb lowLevel
     class T81Float,T81Fixed,T81Fraction,T81Complex,T81Quaternion,T81Polynomial,T81Prob arithmetic
-    class T81List,T81Map,T81Set,T81Tree,T81Graph,T81Vector,T81Matrix,T81Tensor containers
+    class T81List,T81Map,T81Set,T81Tree,T81Graph,T81Vector,T81Matrix,T81Tensor,DistributedT81Tensor,T729Tensor containers
     class T81Maybe,T81Result,T81Promise monads
     class T81Symbol,T81String,T81Agent,T81Entropy,T81Time,T81IOStream,T81Thread,T81Network,T81Discovery,T81Category,T81Proof,T81Reflection higher
+    class T81NN ai
 ```
 
 ## Canonical Data Types
@@ -78,6 +83,7 @@ The following table provides a comprehensive inventory of all canonical data typ
 | `T81Int<N>` | [T81Int.hpp](./T81Int.hpp) | Balanced ternary integer with packed trits. |
 | `T81UInt<N>` | [T81Uint.hpp](./T81Uint.hpp) | Defines the T81UInt class for unsigned balanced-ternary integers. |
 | `T81BigInt` | [T81BigInt.hpp](./T81BigInt.hpp) | High-level ternary integer wrapper for arbitrary-precision arithmetic. |
+| `T81Limb` | [T81Limb.hpp](./T81Limb.hpp) | A 48-trit packed ternary integer with Kogge-Stone carry-lookahead adder. |
 | `T81Float<M,E>` | [T81Float.hpp](./T81Float.hpp) | Balanced ternary floating-point backed by T81Int storage. |
 | `T81Fixed<I,F>` | [T81Fixed.hpp](./T81Fixed.hpp) | Balanced ternary fixed-point arithmetic on top of T81Int. |
 | `T81Fraction<N>` | [T81Fraction.hpp](./T81Fraction.hpp) | Exact rational arithmetic over balanced ternary integers. |
@@ -105,6 +111,8 @@ The following table provides a comprehensive inventory of all canonical data typ
 | `T81Vector<N,S>` | [T81Vector.hpp](./T81Vector.hpp) | A mathematical vector with physical semantics. |
 | `T81Matrix<S,R,C>` | [T81Matrix.hpp](./T81Matrix.hpp) | A container for matrices of balanced-ternary, tryte-based scalar types. |
 | `T81Tensor<E,R,Dims...>`| [T81Tensor.hpp](./T81Tensor.hpp) | A multi-dimensional array for high-performance numerical computing. |
+| `DistributedT81Tensor<Element,Rank,Dims...>` | [DistributedTensor.hpp](./DistributedTensor.hpp) | A wrapper for T81Tensor that supports distributed computation. |
+| `T729Tensor<Rank,Dims...>` | [T729Tensor.hpp](./T729Tensor.hpp) | T729 (Holotensors) — High-dimensional tensor algebra with Base-729 domain precision. |
 | | | |
 | **Semantic & Flow Control** | | |
 | `Option<T>` | [Option.hpp](./Option.hpp) | Alias for the language-facing `Option` built on `T81Maybe`. |
@@ -125,9 +133,16 @@ The following table provides a comprehensive inventory of all canonical data typ
 | `T81Category` | [T81Category.hpp](./T81Category.hpp) | C++ templates for representing concepts from category theory. |
 | `T81Proof` | [T81Proof.hpp](./T81Proof.hpp) | A class for representing formal, verifiable proofs. |
 | `T81Reflection` | [T81Reflection.hpp](./T81Reflection.hpp) | A minimal reflection wrapper for values. |
+| **Neural Network & AI** | | |
+| `T81NN` | [T81NN.hpp](./T81NN.hpp) | Ternary Neural Network primitives including Linear, Conv2D, and Activation layers. |
 | | | |
 | **Low-Level Utilities** | | |
 | `Cell` | [cell.hpp](./cell.hpp) | A 5-trit balanced ternary cell, the fundamental unit of storage. |
+| `CellPacked` | [cell_packed.hpp](./cell_packed.hpp) | Packed representation of ternary cells for efficient storage. |
 | `CanonicalId` | [ids.hpp](./ids.hpp) | A struct for representing canonical identifiers. |
+| `bigint` | [bigint.hpp](./bigint.hpp) | Legacy bigint compatibility layer. |
+| `fraction` | [fraction.hpp](./fraction.hpp) | Legacy fraction compatibility layer. |
+| `tensor` | [tensor.hpp](./tensor.hpp) | Legacy tensor compatibility layer. |
+| `packing` | [packing.hpp](./packing.hpp) | Utilities for packing and unpacking ternary data. |
 | `all.hpp` | [all.hpp](./all.hpp) | A convenience header to include all core T81 data types. |
 
