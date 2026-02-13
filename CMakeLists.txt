@@ -241,6 +241,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_fraction_test tests/cpp/fraction_roundtrip.cpp)
   target_link_libraries(t81_fraction_test PRIVATE t81_core)
 
+  add_executable(t81_core_fraction_test tests/cpp/test_T81Fraction.cpp)
+  target_link_libraries(t81_core_fraction_test PRIVATE t81_core)
+
   add_executable(t81_bigint_properties_test tests/cpp/bigint_properties_test.cpp)
   target_link_libraries(t81_bigint_properties_test PRIVATE t81_core)
 
@@ -791,6 +794,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_int_sign_trit_test
     t81_bigint_test
     t81_fraction_test
+    t81_core_fraction_test
     t81_bigint_properties_test
     t81_prob_properties_test
     t81_t81int_properties_test
@@ -1128,6 +1132,10 @@ if(T81_BUILD_TESTS)
   add_executable(t81_int_gcd_lcm_test tests/cpp/test_T81Int_gcd_lcm.cpp)
   target_link_libraries(t81_int_gcd_lcm_test PRIVATE t81_core)
   add_test(NAME t81_int_gcd_lcm_test COMMAND t81_int_gcd_lcm_test)
+
+  add_executable(t81_int_shift_test tests/cpp/test_t81int_shift.cpp)
+  target_link_libraries(t81_int_shift_test PRIVATE t81_core)
+  add_test(NAME t81_int_shift_test COMMAND t81_int_shift_test)
 endif()
 
 # =============================================================================
