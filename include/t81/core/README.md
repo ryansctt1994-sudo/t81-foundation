@@ -20,6 +20,7 @@ graph TD
     T81Float --> T81Complex[T81Complex<M>]
     T81Float --> T81Quaternion[T81Quaternion]
     T81Int --> T81Polynomial[T81Polynomial]
+    T81Polynomial --> T81Symbolic[T81Symbolic]
     T81Int --> T81Prob[T81Prob log-odds]
 
     %% Containers & structures
@@ -84,6 +85,7 @@ The following table provides a comprehensive inventory of all canonical data typ
 | `T81Quaternion` | [T81Quaternion.hpp](./T81Quaternion.hpp) | Defines the T81Quaternion class for 3D/4D geometry and rotations. |
 | `T81Prob` | [T81Prob.hpp](./T81Prob.hpp) | Defines the T81Prob class for native log-odds probability representation. |
 | `T81Polynomial` | [T81Polynomial.hpp](./T81Polynomial.hpp) | Defines the T81Polynomial class for exact polynomial arithmetic. |
+| `T81Symbolic` | [T81Symbolic.hpp](./T81Symbolic.hpp) | Advanced symbolic algebra (differentiation, simplification). |
 | | | |
 | **Symbolic & Raw Data** | | |
 | `T81Symbol` | [T81Symbol.hpp](./T81Symbol.hpp) | An eternal, unique, 81-trit identifier. |

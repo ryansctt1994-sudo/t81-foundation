@@ -317,6 +317,48 @@ public:
         }
         return out;
     }
+
+    /**
+     * @brief Finds nodes with a specific label.
+     */
+    [[nodiscard]] constexpr std::array<NodeID, NodeCount> find_by_label(T81Symbol label) const noexcept {
+        std::array<NodeID, NodeCount> result;
+        result.fill(NodeID(-1));
+        size_t idx = 0;
+        for (NodeID i = 0; i < NodeCount; ++i) {
+            if (labels[i] == label) {
+                result[idx++] = i;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @brief Simple semantic inference: transitivity.
+     * If A -> B and B -> C, implies A -> C with weight w1*w2.
+     * This is essentially one step of path doubling.
+     */
+    [[nodiscard]] constexpr T81Graph transitive_closure_step() const noexcept {
+        T81Graph g = *this;
+        for (NodeID u = 0; u < NodeCount; ++u) {
+            for (auto [v, w1] : outgoing(u)) {
+                for (auto [z, w2] : outgoing(v)) {
+                    // Try to add edge u -> z with w1 * w2
+                    // Only if edge doesn't exist or we update it?
+                    // Graph add_edge is simple, maybe we just add if space.
+                    // For now, let's assume we want to infer connections.
+                    if (u != z) {
+                         // Check if edge exists
+                         Weight81 existing = g.weight(u, z);
+                         if (existing.is_zero()) {
+                             g.add_edge(u, z, w1 * w2);
+                         }
+                    }
+                }
+            }
+        }
+        return g;
+    }
 };
 
 // ======================================================================

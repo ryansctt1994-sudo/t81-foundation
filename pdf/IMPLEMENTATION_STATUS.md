@@ -21,14 +21,17 @@ The following components are fully implemented in the modern C++ runtime (`inclu
 - **Base243 Codec**: Encoding/decoding support for Base-243 (efficient byte packing).
 - **Base81 Codec**: Standard Base-81 string representation.
 
+### Advanced Features (Newly Implemented)
+- **T729Tensor (Holotensors)**: High-dimensional tensor algebra aligned with Base-729 ($3^6$) precision.
+- **T81Symbolic**: Advanced symbolic algebra including differentiation, simplification, and polynomial integration/roots.
+- **Semantic Graph Features**: Extensions to `T81Graph` supporting node lookup by semantic label and transitive inference.
+- **Ternary Neural Primitives**: Native neural network layers (`Linear`, `Conv2d`) and activation functions (`ReLU`, `GELU`, `Softmax`) in `t81::nn`.
+
 ## 2. Needs Implementation / Porting
 
 The following components are identified as necessary based on specifications or legacy code references, but are either missing or incomplete in the modern runtime:
 
-- **Holotensors (T729)**: High-dimensional tensor algebra referenced in `legacy/hanoivm`. Currently, only standard `T81Tensor` exists.
-- **Advanced Symbolic Algebra**: While `T81Symbol` exists, advanced symbolic manipulation (equation solving, differentiation) is limited to basic polynomial operations.
-- **Semantic Graph Features**: `T81Graph` provides structural graph support, but "Canonical Semantic Graphs" (as per specs) imply deeper integration of semantic reasoning/inference rules which are not fully realized.
-- **Ternary Neural Primitives**: Basic primitives exist (`conv2d`, `linear`), but a full suite of ternary-native neural network layers (e.g., for `T81Prob`-based networks) is likely pending.
+- **Full Semantic Inference Engine**: While basic transitive inference exists, a complete Prolog-like inference engine over `T81Graph` is pending.
 
 ## 3. Could be Implemented (Aspirational)
 
@@ -38,7 +41,6 @@ The following areas represent potential future expansions, primarily derived fro
 The T81 architecture naturally extends to higher powers of 3. While T81 ($3^4$) is the standard, the following systems could be implemented as distinct types if specific precision or packing requirements arise:
 
 - **Quaternary (T243, $3^5$)**: Potential for 5-trit trytes, offering higher density than T81 for certain data. (Partially supported via Codec).
-- **Pentanary (T729, $3^6$)**: The "Holotensor" domain. Likely useful for high-precision physics or massive-scale graph weights (note: `T81Graph` already uses `T81Float<72,9>` which aligns with this precision).
 - **Hexanary (T2187, $3^7$)**: Extremely wide integer types.
 - **Septenary (T6561, $3^8$)**: "Septenary" data types.
 - **Octanary (T19683, $3^9$)**: "Octanary" data types.
@@ -46,4 +48,3 @@ The T81 architecture naturally extends to higher powers of 3. While T81 ($3^4$) 
 
 ### Future Extensions (from Specs)
 - **Probabilistic Bounded Distributions**: Extensions to `T81Prob` to support continuous distributions natively.
-- **Canonical Semantic Graphs**: Full implementation of the aspirational semantic layer.

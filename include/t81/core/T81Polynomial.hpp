@@ -156,6 +156,43 @@ public:
         return T81Polynomial(std::move(c));
     }
 
+    [[nodiscard]] constexpr T81Polynomial integral(Coeff constant = Coeff(0)) const noexcept {
+        T81List<Coeff> c;
+        c.push_back(constant);
+        for (size_t i = 0; i <= degree(); ++i) {
+            if (coeffs_.size() == 1 && coeffs_[0] == Coeff(0)) continue;
+            c.push_back(coeffs_[i] / Coeff(static_cast<long long>(i + 1)));
+        }
+        return T81Polynomial(std::move(c));
+    }
+
+    /**
+     * @brief Finds roots for linear and quadratic polynomials.
+     * Higher degrees or complex roots might require specific Coeff types or iterative solvers.
+     */
+    [[nodiscard]] T81List<Coeff> roots() const {
+        T81List<Coeff> r;
+        if (degree() == 1) {
+            // ax + b = 0 => x = -b/a
+            r.push_back(-coeffs_[0] / coeffs_[1]);
+        } else if (degree() == 2) {
+            // ax^2 + bx + c = 0
+            Coeff a = coeffs_[2];
+            Coeff b = coeffs_[1];
+            Coeff c = coeffs_[0];
+            Coeff delta = b * b - Coeff(4) * a * c;
+
+            // Note: Coeff type must support sqrt().
+            // If delta < 0 and Coeff is real, sqrt() might throw or return NaN.
+            // We assume caller handles domain errors or uses ComplexPoly.
+            Coeff sqrt_delta = delta.sqrt();
+            Coeff two_a = Coeff(2) * a;
+            r.push_back((-b - sqrt_delta) / two_a);
+            r.push_back((-b + sqrt_delta) / two_a);
+        }
+        return r;
+    }
+
     [[nodiscard]] constexpr auto operator<=>(const T81Polynomial& o) const noexcept = default;
 };
 
