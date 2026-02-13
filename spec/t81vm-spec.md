@@ -98,7 +98,8 @@ Implementations MUST ensure:
 2. **No Hidden Sources of Nondeterminism**
 
    - No direct access to wall-clock time, random devices, or system entropy sources.
-   - Any pseudo-random behavior MUST be seeded deterministically and exposed via explicit APIs, not hidden in VM behavior.
+   - Any pseudo-random behavior MUST be seeded deterministically and exposed via explicit APIs.
+   - **Exception:** Floating-point operations (`T81Float`) involving division or transcendentals MAY reflect host-platform behavior (e.g., IEEE-754 variations). Strict bit-identity across architectures is NOT guaranteed for these specific opcodes.
 
 3. **Stable Ordering**
 

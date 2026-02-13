@@ -9,17 +9,16 @@ This document maps legacy T81 data types and ops to the new C++ API.
 | `trit` | `t81::Trit` (`Neg, Zero, Pos`) |
 | `uint81` | `t81::uint81_t` (128-bit carrier; platform hashing seam) |
 
-## Big Integers (Base-243)
+## Big Integers (Base-81)
 
-- **Type**: `t81::T243BigInt`
-- **Sign**: `enum class Sign { Neg, Zero, Pos }`
-- **Digits**: LSB-first, each in `[0..242]`.
+- **Type**: `t81::T81BigInt` (aliased as `t81::BigInt` and legacy `t81::T243BigInt`)
+- **Sign**: `t81::Trit` (Neg, Zero, Pos)
+- **Digits**: Base-81 digits stored in `t81::uint81_t` or equivalent limbs.
 - **Key APIs**:
-  - Construction: `from_ascii(std::string_view)` — canonical base-243 digits, MSB-first, `.` separated, optional sign
-  - Also: `from_base81_string(std::string_view)` / `to_base81_string()` for canonical base-81 digit strings
-  - Arithmetic: `add`, `sub`, `mul`, `mod`, `gcd`
-  - Compare: `cmp_abs(a,b)`
-  - Format: `to_string()` *(MSB-first base-243 digits with '.', optional leading `-`)*
+  - Construction: `from_int64(int64_t)`, `from_string(std::string_view)`
+  - Arithmetic: `add`, `sub`, `mul`, `div_mod`, `gcd`, `pow_mod`
+  - Compare: `operator<=>`
+  - Format: `to_string()` (canonical base-81 representation)
 
 ## Fractions
 

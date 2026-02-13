@@ -19,6 +19,8 @@
 
 T81 is a post-v1.0 hardening project delivering a fully deterministic compilation and execution pipeline (`T81Lang -> TISC -> HanoiVM`). It prioritizes auditability, policy enforcement (Axion), and reproducibility over raw hardware speed.
 
+> **Note on Floating Point Determinism:** `T81Float` arithmetic operations involving division and transcendental functions (`sin`, `cos`, `log`, etc.) currently rely on host-platform `double` precision behavior. While `T81Float` *storage* and *canonical serialization* are deterministic, runtime arithmetic results for these specific operations may vary by platform. Strict bit-exact determinism is currently guaranteed for `T81Int`, `T81BigInt`, `T81Fraction` (canonical), and `T81Float` addition/subtraction/multiplication.
+
 ## ⚡ 30-Second Evaluation
 
 Verify the claims yourself in 4 steps:

@@ -316,6 +316,7 @@ image). Any opcode that dereferences a handle MUST fault with
   - Apply canonical `T81Float` arithmetic (Section 2.3 of Data Types).
   - Write the resulting canonical float back as a handle in `R[RD]`. The VM MAY
     reuse an existing equal value but MUST do so deterministically.
+  - **Note**: `FDIV` currently relies on host `double` precision and may not be bit-exact across platforms.
 - **Faults**:
   - Invalid handle → `IllegalInstruction`.
   - Division by zero (`FDIV` with canonical zero divisor) → `DivideByZero`.
@@ -644,6 +645,7 @@ Trigonometric operations on canonical `T81Float` values.
   - Resolve `R[RS]` as a handle to a `T81Float`.
   - Compute the sine, cosine, or tangent of the value (interpreted as radians).
   - Store the result as a canonical float handle in `R[RD]`.
+  - **Note**: These operations currently rely on host `double` precision (`std::sin`, `std::cos`, etc.) and may not be bit-exact across platforms.
 - **Faults**:
   - Invalid handle -> `IllegalInstruction`.
   - `FTAN` with asymptotic input -> VM defined behavior (large value or fault).

@@ -13,6 +13,8 @@ ______________________________________________________________________
 
 # Summary
 
+> **Status Note:** This RFC is **Accepted**, but with a caveat on `FDIV` and transcendental operations. The VM implementation of floating-point division and transcendental functions (`sin`, `cos`, etc.) currently relies on host-platform `double` precision and is not strictly bit-deterministic across architectures. Storage and basic arithmetic (`+`, `-`, `*`) remain deterministic.
+
 Define first-class arithmetic opcodes for `T81Float` and `T81Fraction` so that:
 
 1. TISC can add/sub/mul/div canonical floats and fractions directly (no manual handle shuffling).
