@@ -289,6 +289,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_core_improvements_test tests/cpp/test_core_improvements.cpp)
   target_link_libraries(t81_core_improvements_test PRIVATE t81_core)
 
+  add_executable(t81_core_features_test tests/cpp/test_core_features.cpp)
+  target_link_libraries(t81_core_features_test PRIVATE t81_core)
+
   add_executable(t81_tensor_slice_test tests/cpp/tensor_slice_test.cpp)
   target_link_libraries(t81_tensor_slice_test PRIVATE t81_core)
 
@@ -812,6 +815,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_tree_test
     t81_tensor_transpose_test
     t81_core_improvements_test
+    t81_core_features_test
     t81_tensor_slice_test
     t81_tensor_reshape_test
     t81_tensor_loader_test

@@ -247,6 +247,54 @@ public:
     }
 
     //===================================================================
+    // Functional Operations
+    //===================================================================
+
+    /**
+     * @brief Transforms each element and returns a new list.
+     * @tparam F Function type.
+     */
+    template <typename F>
+    auto map(F&& f) const {
+        using R = std::invoke_result_t<F, const E&>;
+        T81List<R> result;
+        result.reserve(size());
+        for (const auto& item : data_) {
+            result.push_back(f(item));
+        }
+        return result;
+    }
+
+    /**
+     * @brief Filters elements based on a predicate and returns a new list.
+     * @tparam P Predicate type (returns bool).
+     */
+    template <typename P>
+    auto filter(P&& p) const -> T81List<E> {
+        T81List<E> result;
+        for (const auto& item : data_) {
+            if (p(item)) {
+                result.push_back(item);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @brief Reduces the list to a single value.
+     * @tparam R Result type (accumulator).
+     * @tparam F Function type (R, E) -> R.
+     */
+    template <typename R, typename F>
+    auto reduce(R init, F&& f) const -> R {
+        R acc = std::move(init);
+        for (const auto& item : data_) {
+            acc = f(std::move(acc), item);
+        }
+        return acc;
+    }
+
+    //===================================================================
     // Raw access
     //===================================================================
 

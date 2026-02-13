@@ -88,6 +88,53 @@ public:
         T81Matrix r; for (size_t i=0;i<size;++i) r.data[i] = data[i] * s; return r;
     }
 
+    [[nodiscard]] constexpr Scalar determinant() const noexcept
+        requires (Rows == Cols)
+    {
+        if constexpr (Rows == 1) {
+            return (*this)(0,0);
+        } else if constexpr (Rows == 2) {
+            return (*this)(0,0) * (*this)(1,1) - (*this)(0,1) * (*this)(1,0);
+        } else if constexpr (Rows == 3) {
+            return (*this)(0,0) * ((*this)(1,1)*(*this)(2,2) - (*this)(1,2)*(*this)(2,1)) -
+                   (*this)(0,1) * ((*this)(1,0)*(*this)(2,2) - (*this)(1,2)*(*this)(2,0)) +
+                   (*this)(0,2) * ((*this)(1,0)*(*this)(2,1) - (*this)(1,1)*(*this)(2,0));
+        } else {
+             return Scalar{};
+        }
+    }
+
+    [[nodiscard]] constexpr T81Matrix inverse() const noexcept
+        requires (Rows == Cols)
+    {
+        T81Matrix res;
+        Scalar det = determinant();
+        // Note: For integer types, division performs floor/truncation.
+
+        if constexpr (Rows == 1) {
+             res(0,0) = Scalar(1) / (*this)(0,0);
+        } else if constexpr (Rows == 2) {
+             res(0,0) =  (*this)(1,1) / det;
+             res(0,1) = -(*this)(0,1) / det;
+             res(1,0) = -(*this)(1,0) / det;
+             res(1,1) =  (*this)(0,0) / det;
+        } else if constexpr (Rows == 3) {
+             // Transpose of cofactor matrix divided by det
+             res(0,0) = ((*this)(1,1)*(*this)(2,2) - (*this)(1,2)*(*this)(2,1)) / det;
+             res(0,1) = ((*this)(0,2)*(*this)(2,1) - (*this)(0,1)*(*this)(2,2)) / det;
+             res(0,2) = ((*this)(0,1)*(*this)(1,2) - (*this)(0,2)*(*this)(1,1)) / det;
+
+             res(1,0) = ((*this)(1,2)*(*this)(2,0) - (*this)(1,0)*(*this)(2,2)) / det;
+             res(1,1) = ((*this)(0,0)*(*this)(2,2) - (*this)(0,2)*(*this)(2,0)) / det;
+             res(1,2) = ((*this)(1,0)*(*this)(0,2) - (*this)(0,0)*(*this)(1,2)) / det;
+
+             res(2,0) = ((*this)(1,0)*(*this)(2,1) - (*this)(1,1)*(*this)(2,0)) / det;
+             res(2,1) = ((*this)(2,0)*(*this)(0,1) - (*this)(0,0)*(*this)(2,1)) / det;
+             res(2,2) = ((*this)(0,0)*(*this)(1,1) - (*this)(1,0)*(*this)(0,1)) / det;
+        }
+        return res;
+    }
+
     [[nodiscard]] constexpr auto operator<=>(const T81Matrix&) const noexcept = default;
     [[nodiscard]] constexpr bool operator==(const T81Matrix&) const noexcept = default;
 };

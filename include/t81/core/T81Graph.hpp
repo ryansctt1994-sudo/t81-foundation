@@ -112,23 +112,34 @@ public:
     {
         using Tensor1D = T81Tensor<Weight81, 1, NodeCount>;
         auto v = Tensor1D::zeros();
-        v(0) = Weight81(1); // initial state
+
+        // Initialize uniformly: 1/N
+        Weight81 init_val = Weight81(1) / Weight81(static_cast<long long>(NodeCount));
+        for(size_t i=0; i<NodeCount; ++i) v(i) = init_val;
 
         Weight81 damping(0.85);
-        Weight81 teleport = Weight81(0.15) / Weight81(static_cast<long long>(NodeCount));
+        Weight81 inv_damping = Weight81(1) - damping; // 0.15
 
         // Ensure epsilon is positive
         if (epsilon < Weight81(0)) epsilon = -epsilon;
 
         for (int s = 0; s < steps; ++s) {
-            // Calculate total mass to determine teleport contribution
-            Weight81 current_sum = reduce_sum(v);
-            Weight81 base_val = current_sum * teleport;
+            Weight81 sink_mass = Weight81::zero();
+            for (size_t i = 0; i < NodeCount; ++i) {
+                if (g.outgoing(static_cast<NodeID>(i)).empty()) {
+                    sink_mass = sink_mass + v(i);
+                }
+            }
 
-            // Initialize next_v with base teleportation value
-            // (Avoiding Tensor1D::zeros() + fill loop by direct init if possible, but fill is fine)
-            Tensor1D next_v;
-            for (size_t i = 0; i < NodeCount; ++i) next_v(i) = base_val;
+            Weight81 total_mass = reduce_sum(v);
+
+            // Amount to distribute to everyone: (1-d)*Total + d*Sink
+            // This correctly handles dangling nodes (sinks) by redistributing their mass
+            Weight81 distribute_mass = (total_mass * inv_damping) + (sink_mass * damping);
+            Weight81 base_add = distribute_mass / Weight81(static_cast<long long>(NodeCount));
+
+            Tensor1D next_v; // Zeros
+            for (size_t i = 0; i < NodeCount; ++i) next_v(i) = base_add;
 
             // Sparse update: push mass from each node to its neighbors
             for (NodeID i = 0; i < NodeCount; ++i) {
