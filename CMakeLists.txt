@@ -424,6 +424,18 @@ if(T81_BUILD_TESTS)
   add_executable(t81_tensor_ternary_test tests/cpp/tensor_ternary_test.cpp)
   target_link_libraries(t81_tensor_ternary_test PRIVATE t81_core)
 
+  add_executable(t81_t729_tensor_test tests/cpp/test_t729_tensor.cpp)
+  target_link_libraries(t81_t729_tensor_test PRIVATE t81_core)
+
+  add_executable(t81_symbolic_algebra_test tests/cpp/test_symbolic_algebra.cpp)
+  target_link_libraries(t81_symbolic_algebra_test PRIVATE t81_core)
+
+  add_executable(t81_semantic_graph_test tests/cpp/test_semantic_graph.cpp)
+  target_link_libraries(t81_semantic_graph_test PRIVATE t81_core)
+
+  add_executable(t81_neural_primitives_test tests/cpp/test_neural_primitives.cpp)
+  target_link_libraries(t81_neural_primitives_test PRIVATE t81_core)
+
   add_executable(t81_c_api_bigint_test tests/cpp/c_api_bigint_test.c)
   target_link_libraries(t81_c_api_bigint_test PRIVATE t81_c_api)
   target_include_directories(t81_c_api_bigint_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -781,6 +793,12 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(bigint_perf_guardrail_test tests/cpp/bigint_perf_guardrail_test.cpp)
   target_link_libraries(bigint_perf_guardrail_test PRIVATE t81_core)
 
+  add_executable(t81_bigint_allocation_pathology_test tests/cpp/test_bigint_allocation_pathology.cpp)
+  target_link_libraries(t81_bigint_allocation_pathology_test PRIVATE t81_core)
+
+  add_executable(t81_bigint_allocation_guardrail_test tests/cpp/bigint_allocation_guardrail_test.cpp)
+  target_link_libraries(t81_bigint_allocation_guardrail_test PRIVATE t81_core)
+
   enable_testing()
   set(T81_TEST_TARGETS
     t81_float_test
@@ -856,6 +874,10 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_expected_test
     t81_tensor_elementwise_test
     t81_tensor_ternary_test
+    t81_t729_tensor_test
+    t81_symbolic_algebra_test
+    t81_semantic_graph_test
+    t81_neural_primitives_test
     t81_c_api_bigint_test
     t81_tensor_unary_test
     t81_hanoi_integration_test
@@ -939,6 +961,8 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     test_bigint_robust_features
     t81_bigint_v1_perf
     bigint_perf_guardrail_test
+    t81_bigint_allocation_pathology_test
+    t81_bigint_allocation_guardrail_test
     test_T81Tensor_transpose
     performance_advancements_test
     t81_distributed_tensor_test
