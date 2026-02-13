@@ -1128,6 +1128,10 @@ if(T81_BUILD_TESTS)
   add_executable(t81_int_gcd_lcm_test tests/cpp/test_T81Int_gcd_lcm.cpp)
   target_link_libraries(t81_int_gcd_lcm_test PRIVATE t81_core)
   add_test(NAME t81_int_gcd_lcm_test COMMAND t81_int_gcd_lcm_test)
+
+  add_executable(t81_int_shift_test tests/cpp/test_t81int_shift.cpp)
+  target_link_libraries(t81_int_shift_test PRIVATE t81_core)
+  add_test(NAME t81_int_shift_test COMMAND t81_int_shift_test)
 endif()
 
 # =============================================================================
