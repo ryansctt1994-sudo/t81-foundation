@@ -123,6 +123,9 @@ namespace detail {
 }
 
 class T81BigInt {
+    friend class BigIntAllocationPathologyTest;
+    friend class BigIntAllocationGuardrailTest;
+
 public:
     using size_type = std::size_t;
     static constexpr size_type kLimbTrits = 81;
@@ -530,6 +533,9 @@ public:
 
     // Converts balanced chunks to standard non-negative chunks [0, B-1].
     static std::vector<int64_t> to_std_chunks(std::vector<int64_t> chunks) {
+        // Reserve space to avoid reallocation during push_back
+        chunks.reserve(chunks.size() + 4);
+
         // Safety limit to prevent infinite loops on effectively negative inputs
         const size_t limit = chunks.size() + 4;
         for (size_t i = 0; i < chunks.size(); ++i) {
@@ -597,6 +603,8 @@ public:
 
         int64_t d = B / (v.back() + 1);
         auto mul_scalar = [](std::vector<int64_t>& vec, int64_t s) {
+            // Reserve space for potential carry
+            vec.reserve(vec.size() + 1);
             int64_t carry = 0;
             for (auto& val : vec) {
                 int128_t prod = (int128_t)val * s + carry;
@@ -606,6 +614,8 @@ public:
             if (carry) vec.push_back(carry);
         };
 
+        // Pre-reserve u for scaling + padding
+        u.reserve(u.size() + 2);
         mul_scalar(u, d);
         mul_scalar(v, d);
 
@@ -615,6 +625,7 @@ public:
 
         // Knuth Algorithm D requires u to have size m + n + 1 (indices 0..m+n).
         // Currently u.size() == m + n. We need one extra zero at the most significant position.
+        // We already reserved space for this.
         u.push_back(0);
 
         std::vector<int64_t> q(m + 1, 0);
