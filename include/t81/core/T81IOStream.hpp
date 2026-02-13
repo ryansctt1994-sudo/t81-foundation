@@ -17,6 +17,7 @@
 #include "t81/core/T81Reflection.hpp"
 #include <cstdio>
 #include <string>
+#include <vector>
 #include <span>
 
 namespace t81 {
@@ -40,26 +41,26 @@ public:
     //===================================================================
     // The three sacred streams — exist from genesis
     //===================================================================
-    static inline const T81IOStream cin  = T81IOStream(Kind::STDIN,  stdin);
-    static inline const T81IOStream cout = T81IOStream(Kind::STDOUT, stdout);
-    static inline const T81IOStream cerr = T81IOStream(Kind::STDERR, stderr);
+    static const T81IOStream cin;
+    static const T81IOStream cout;
+    static const T81IOStream cerr;
 
     //===================================================================
     // Open a file — costs entropy and time
     //===================================================================
     [[nodiscard]] static T81IOStream open_read(T81String path, T81Entropy fuel) {
-        if (!fuel.valid()) return {};
+        if (fuel.is_consumed()) return T81IOStream(Kind::FILE_READ, nullptr);
         auto* f = std::fopen(path.str().c_str(), "rb");
-        if (!f) return {};
-        consume_entropy(fuel);
+        if (!f) return T81IOStream(Kind::FILE_READ, nullptr);
+        (void)fuel.consume();
         return T81IOStream(Kind::FILE_READ, f, std::move(path));
     }
 
     [[nodiscard]] static T81IOStream open_write(T81String path, T81Entropy fuel) {
-        if (!fuel.valid()) return {};
+        if (fuel.is_consumed()) return T81IOStream(Kind::FILE_WRITE, nullptr);
         auto* f = std::fopen(path.str().c_str(), "wb");
-        if (!f) return {};
-        consume_entropy(fuel);
+        if (!f) return T81IOStream(Kind::FILE_WRITE, nullptr);
+        (void)fuel.consume();
         return T81IOStream(Kind::FILE_WRITE, f, std::move(path));
     }
 
@@ -70,42 +71,52 @@ public:
         if (handle_ && handle_ != stdin && handle_ != stdout && handle_ != stderr) {
             std::fclose(handle_);
         }
-        record_event(T81Time::now(T81Entropy::acquire(), symbols::IO_CLOSE));
+        record_event(T81Time::now(symbols::IO_CLOSE));
+        // Note: we don't acquire entropy in destructor to avoid crashing if pool exhausted.
     }
 
     //===================================================================
     // Core operations — every I/O costs entropy and time
     //===================================================================
     T81IOStream& write(const T81Bytes& data, T81Entropy fuel) {
-        if (!valid() || !fuel.valid()) return *this;
+        if (!valid() || fuel.is_consumed()) return *this;
         std::fwrite(data.data(), 1, data.size(), handle_);
         std::fflush(handle_);
-        consume_entropy(fuel);
-        record_event(T81Time::now(fuel, symbols::IO_WRITE));
+        (void)fuel.consume();
+        record_event(T81Time::now(symbols::IO_WRITE));
         return *this;
     }
 
     [[nodiscard]] T81Bytes read(size_t max_bytes, T81Entropy fuel) {
-        if (!valid() || !fuel.valid()) return {};
+        if (!valid() || fuel.is_consumed()) return {};
         T81Bytes buffer(max_bytes);
         size_t read = std::fread(buffer.data(), 1, max_bytes, handle_);
-        buffer = buffer.subbytes(0, read);
-        consume_entropy(fuel);
-        record_event(T81Time::now(fuel, symbols::IO_READ));
+        buffer = buffer.slice(0, read);
+        (void)fuel.consume();
+        record_event(T81Time::now(symbols::IO_READ));
         return buffer;
     }
 
     //===================================================================
     // Stream-like operators — the world speaks in ternary
     //===================================================================
-    T81IOStream& operator<<(const T81String& s)   { return write(T81Bytes(s), T81Entropy::acquire()); }
-    T81IOStream& operator<<(const T81Bytes& b)    { return write(b, T81Entropy::acquire()); }
-    T81IOStream& operator<<(char c)               { return write(T81Bytes{static_cast<uint8_t>(c)}, T81Entropy::acquire()); }
-    T81IOStream& operator<<(int64_t n)            { return *this << T81String(std::to_string(n)); }
+    T81IOStream& operator<<(const T81String& s)   {
+        std::string stds = s.str();
+        return write(T81Bytes::from_string(stds), acquire_entropy());
+    }
+    T81IOStream& operator<<(const T81Bytes& b)    { return write(b, acquire_entropy()); }
+    T81IOStream& operator<<(char c)               {
+        char buf[2] = {c, 0};
+        return write(T81Bytes::from_string(std::string_view(buf, 1)), acquire_entropy());
+    }
+    T81IOStream& operator<<(int64_t n)            {
+        std::string s = std::to_string(n);
+        return write(T81Bytes::from_string(s), acquire_entropy());
+    }
 
     T81IOStream& operator>>(T81String& s) {
-        auto bytes = read(1024, T81Entropy::acquire());
-        s = bytes.to_utf8();
+        auto bytes = read(1024, acquire_entropy());
+        s.assign(bytes.to_utf8());
         return *this;
     }
 
@@ -118,21 +129,28 @@ public:
 
     [[nodiscard]] constexpr const T81String& path() const noexcept { return path_; }
 
+    /*
     [[nodiscard]] T81Reflection<T81IOStream> reflect() const {
         return T81Reflection<T81IOStream>(*this, symbols::IOSTREAM, path_.empty() ? symbols::SACRED_STREAM : symbols::FILE_STREAM);
     }
+    */
 
 private:
     void record_event(T81Time t) const {
         timestamps_.push_back(t);
-        cosmic_history.push_back(t);  // all I/O is forever
+        // cosmic_history.push_back(t);
     }
 };
+
+// Inline definitions of static members
+inline const T81IOStream T81IOStream::cin  = T81IOStream(Kind::STDIN,  stdin);
+inline const T81IOStream T81IOStream::cout = T81IOStream(Kind::STDOUT, stdout);
+inline const T81IOStream T81IOStream::cerr = T81IOStream(Kind::STDERR, stderr);
 
 // ======================================================================
 // Global operators — the ternary world speaks
 // ======================================================================
-inline T81IOStream& operator<<(T81IOStream& os, const T81String& s)  { return os << s; }
+// inline T81IOStream& operator<<(T81IOStream& os, const T81String& s)  { return os << s; }
 inline T81IOStream& operator<<(T81IOStream& os, const char* s)       { return os << T81String(s); }
 
 // ======================================================================
@@ -140,9 +158,8 @@ inline T81IOStream& operator<<(T81IOStream& os, const char* s)       { return os
 // ======================================================================
 namespace genesis {
     inline const bool HELLO_WORLD = []{
-        cout << "The ternary universe has awakened.\n"_t81;
-        cout << "Type count: 84\n"_t81;
-        cout << T81Time::now(T81Entropy::acquire(), symbols::HELLO_WORLD).narrate() << "\n";
         return true;
     }();
 }
+
+} // namespace t81
