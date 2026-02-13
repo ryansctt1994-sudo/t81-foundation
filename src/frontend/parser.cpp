@@ -202,6 +202,17 @@ std::unique_ptr<Stmt> Parser::record_declaration(std::optional<StructuralAttribu
     consume(TokenType::LBrace, "Expect '{' after record name.");
     std::vector<RecordDecl::Field> fields;
     while (!check(TokenType::RBrace) && !is_at_end()) {
+        if (!check(TokenType::Identifier)) {
+            report_error(peek(), "Expect field name.");
+            advance(); // Consume bad token
+            // Sync to next semicolon or brace
+            while (!check(TokenType::Semicolon) && !check(TokenType::RBrace) && !is_at_end()) {
+                advance();
+            }
+            if (check(TokenType::Semicolon)) advance();
+            continue;
+        }
+
         Token field_name = consume(TokenType::Identifier, "Expect field name.");
         consume(TokenType::Colon, "Expect ':' after field name.");
         auto field_type = type();
@@ -224,6 +235,17 @@ std::unique_ptr<Stmt> Parser::enum_declaration(std::optional<StructuralAttribute
     consume(TokenType::LBrace, "Expect '{' after enum name.");
     std::vector<EnumDecl::Variant> variants;
     while (!check(TokenType::RBrace) && !is_at_end()) {
+        if (!check(TokenType::Identifier)) {
+            report_error(peek(), "Expect variant name.");
+            advance(); // Consume bad token
+            // Sync to next semicolon or brace
+            while (!check(TokenType::Semicolon) && !check(TokenType::RBrace) && !is_at_end()) {
+                advance();
+            }
+            if (check(TokenType::Semicolon)) advance();
+            continue;
+        }
+
         Token variant = consume(TokenType::Identifier, "Expect variant name.");
         std::unique_ptr<TypeExpr> payload = nullptr;
         if (match({TokenType::LParen})) {

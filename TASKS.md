@@ -28,7 +28,8 @@ ______________________________________________________________________
 
 ## P3 — Verification and Hardening
 
-- [ ] Expand property/fuzz coverage for frontend + IR + VM boundary invariants.
+- [x] Expand property/fuzz coverage for frontend (Parser loops hardening implemented via structured fuzzing).
+- [ ] Expand property/fuzz coverage for IR + VM boundary invariants.
 - [ ] Add additional parity checks for backend variants against deterministic scalar references.
 - [ ] Continue Axion policy/trace regression growth for guard/segment/match paths.
 
