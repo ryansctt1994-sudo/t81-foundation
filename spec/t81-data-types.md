@@ -17,11 +17,11 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-# **T81 Data Types Specification — Version 0.2 (Normative)**
+# **T81 Data Types Specification — Version 1.1 (Normative)**
 
-**Status:** Draft → Standards Track
+**Status:** Stable
 **Applies To:** T81Lang, TISC, T81VM, Axion, Cognitive Tiers
-**Supersedes:** v0.1 Draft
+**Supersedes:** v1.0
 **Purpose:** Define deterministic, canonical, base-81 type semantics for the T81 ecosystem.
 
 ______________________________________________________________________

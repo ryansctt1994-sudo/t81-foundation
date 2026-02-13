@@ -17,9 +17,9 @@ ______________________________________________________________________
 
 # TISC — Ternary Instruction Set Computer
 
-Version 0.3 — Draft (Standards Track)
+Version 1.1 — Stable
 
-Status: Draft → Standards Track\
+Status: Stable\
 Applies to: T81VM, T81Lang, Axion, Cognitive Tiers
 
 This document defines the **Ternary Instruction Set Computer (TISC)** for the T81 Ecosystem.\
@@ -472,8 +472,8 @@ ______________________________________________________________________
 
 - **Form**: `SETF RD`
 - **Semantics**:
-  `R[RD] := FLAGS` encoded as a canonical small integer. In this revision the VM
-  MUST encode `NEG` as `-1`, `ZERO` as `0`, and `POS` as `+1`.
+  `R[RD] := FLAGS` encoded as a canonical small integer. The VM MUST encode `NEG`
+  as `-1`, `ZERO` as `0`, and `POS` as `+1`.
 - **Faults**: None.
 
 ______________________________________________________________________
@@ -750,7 +750,7 @@ ______________________________________________________________________
 - **Type System Mapping to Operands** → [`t81lang-spec.md`](t81lang-spec.md#3-type-system)
 - **Purity and Effect Constraints** → [`t81lang-spec.md`](t81lang-spec.md#1-language-properties)
 
-## Axion Kernel
+## Axion
 
 - **Privileged Instruction Handling** → [`axion-kernel.md`](axion-kernel.md#1-responsibilities)
 - **Verification of Instruction Effects** → [`axion-kernel.md`](axion-kernel.md#2-subsystems)
