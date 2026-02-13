@@ -9,6 +9,9 @@
 
 #include "t81/core/all.hpp"
 #include "t81/core/T81Fraction.hpp"
+#include "t81/core/T81Fixed.hpp"
+#include "t81/core/T81Uint.hpp"
+#include "t81/core/T81Result.hpp"
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -23,11 +26,11 @@ void print_section(const std::string& title) {
     std::cout << "==================================================\n";
 }
 
+using namespace t81;
+
 // Function to demonstrate basic types
 void demo_basics() {
     print_section("Basic Types: Int, Float, String, Symbol, Time");
-
-    using namespace t81;
 
     // T81Int
     T81Int<81> i1(42);
@@ -62,15 +65,13 @@ void demo_basics() {
 void demo_math() {
     print_section("Math Types: BigInt, Complex, Quaternion, Fraction, Polynomial, Matrix");
 
-    using namespace t81;
-    using namespace t81::v1; // For T81BigInt, T81Fraction
+    using namespace t81::v1; // For T81BigInt, T81Fraction, T81Fixed
     using Float = T81Float72_9;
 
     // T81BigInt
     T81BigInt b1 = T81BigInt::from_int64(123456789012345LL);
     T81BigInt b2 = T81BigInt::from_int64(987654321098765LL);
     auto bsum = b1 + b2;
-    // T81BigInt::to_string() returns base81 string which might be unreadable for humans but demonstrates functionality.
     std::cout << "T81BigInt: " << b1.to_string() << " + " << b2.to_string() << " = " << bsum.to_string() << "\n";
 
     // T81Complex - supports 18 or 27 mantissa trits. Using 27.
@@ -116,8 +117,6 @@ void demo_math() {
 void demo_containers() {
     print_section("Containers: List, Map, Set, Tree, Vector");
 
-    using namespace t81;
-
     // T81List
     T81List<int> list;
     list.push_back(1);
@@ -153,8 +152,6 @@ void demo_containers() {
 void demo_cognitive() {
     print_section("Cognitive: Agent, Entropy, Prob, Qutrit");
 
-    using namespace t81;
-
     // Entropy Pool
     auto entropy = acquire_entropy(T81Symbol::intern("MAIN"));
     std::cout << "T81Entropy: Acquired token with sequence " << entropy.sequence() << "\n";
@@ -180,7 +177,6 @@ void demo_cognitive() {
 void demo_data_io() {
     print_section("Data/IO: Tensor, Stream, Bytes");
 
-    using namespace t81;
     using Float = T81Float72_9;
 
     // T81Tensor
@@ -207,8 +203,6 @@ t81::T81Promise<int> async_task() {
 // Function to demonstrate concurrency and network
 void demo_concurrency_network() {
     print_section("Concurrency/Network: Thread, Promise, Network, Discovery");
-
-    using namespace t81;
 
     // T81Promise
     auto promise = async_task();
@@ -243,6 +237,45 @@ void demo_concurrency_network() {
     std::cout << "T81Network: Target endpoint " << endpoint.to_string() << "\n";
 }
 
+// Function to demonstrate extra types
+void demo_extras() {
+    print_section("Extras: Fixed, Uint, Maybe, Result, Reflection");
+
+    using namespace t81::v1; // For T81Fixed
+
+    // T81Fixed
+    using Fixed = T81Fixed<18, 9>; // 18 integer trits, 9 fractional trits
+    Fixed fx1(10.5);
+    Fixed fx2(2.0);
+    auto fxprod = fx1 * fx2;
+    std::cout << "T81Fixed: 10.5 * 2.0 = " << fxprod.to_double() << "\n";
+
+    // T81UInt - Fixed type name and size (must be multiple of 4)
+    // T81UInt<81> is invalid, using T81UInt<80> (20 trytes)
+    t81::T81UInt<80> u1(100);
+    // T81UInt has private `as_uint64`, but likely `to_signed().to_int64()` works or we just demonstrate creation.
+    // The previous error said `to_uint64` is missing.
+    // T81UInt wraps T81Int. Let's cast to signed then int64 for demo.
+    std::cout << "T81UInt: " << u1.to_signed().to_int64() << "\n";
+
+    // T81Maybe
+    t81::T81Maybe<int> maybe_val(42);
+    if (maybe_val.has_value()) {
+        std::cout << "T81Maybe: Has value " << maybe_val.value() << "\n";
+    }
+
+    // T81Result
+    t81::T81Result<int> res = t81::T81Result<int>::success(200);
+    if (res.is_ok()) { // Fixed is_success -> is_ok
+        std::cout << "T81Result: Success with " << res.value() << "\n";
+    }
+
+    // T81Reflection
+    // T81Result has reflect()
+    auto reflection = res.reflect();
+    std::cout << "T81Reflection: Reflected result with status " << reflection.instance_id() << "\n";
+}
+
 // Main execution
 int main() {
     std::cout << "Starting T81 Complex Demo...\n";
@@ -254,6 +287,7 @@ int main() {
         demo_cognitive();
         demo_data_io();
         demo_concurrency_network();
+        demo_extras();
 
         print_section("Demo Completed Successfully");
     } catch (const std::exception& e) {
