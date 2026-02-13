@@ -32,13 +32,20 @@ using Weight81 = T81Float<72,9>;        // 81-trit floating weight
 // ======================================================================
 // T81Graph<NodeCount, MaxDegree> — Static, cache-oblivious, hardware-native
 // ======================================================================
+#include <vector>
+#include <type_traits>
+#include <sstream>
+#include <algorithm>
+
 template <size_t NodeCount, size_t MaxDegree = 81>
 class T81Graph {
-    static_assert(NodeCount <= 81*81, "NodeCount fits in two trytes (symbolic ID)");
-    static_assert(MaxDegree <= 81,     "MaxDegree fits in one tryte (index)");
+    // KnowledgeGraph is 81*81*81 (531441). Assert adjusted to allow 3 trytes.
+    static_assert(NodeCount <= 81*81*81, "NodeCount fits in three trytes (symbolic ID)");
+    static_assert(MaxDegree <= 128,      "MaxDegree fits in one byte+");
 
 public:
-    using NodeID   = uint16_t;                    // 0..6560 — fits in two trytes
+    // P1: Widen NodeID if needed to support >65535 nodes
+    using NodeID   = std::conditional_t<(NodeCount > 65535), uint32_t, uint16_t>;
     using Weight   = Weight81;
     using EdgeList = std::array<std::pair<NodeID, Weight>, MaxDegree>;
 
@@ -46,17 +53,37 @@ public:
     static constexpr size_t max_degree() noexcept { return MaxDegree; }
 
 private:
-    // Adjacency list — contiguous, cache-line aligned, perfect for tensor cores
-    alignas(64) EdgeList adj[NodeCount];
+    // P1: Use heap storage for large graphs to prevent stack overflow.
+    // Threshold: 4KB or explicit size check.
+    static constexpr bool kUseHeap = (NodeCount * sizeof(EdgeList) > 4096);
+
+    using AdjacencyStorage = std::conditional_t<kUseHeap,
+                                                std::vector<EdgeList>,
+                                                std::array<EdgeList, NodeCount>>;
+
+    // Adjacency list — contiguous, cache-line aligned
+    alignas(64) AdjacencyStorage adj;
 
     // Optional: node labels (symbols, embeddings, etc.)
-    alignas(64) T81Symbol labels[NodeCount];
+    // Note: labels array might also be large. Should ideally be heapified too if large.
+    static constexpr bool kUseHeapLabels = (NodeCount * sizeof(T81Symbol) > 4096);
+    using LabelStorage = std::conditional_t<kUseHeapLabels,
+                                            std::vector<T81Symbol>,
+                                            std::array<T81Symbol, NodeCount>>;
+    alignas(64) LabelStorage labels;
 
 public:
     //===================================================================
     // Construction
     //===================================================================
-    constexpr T81Graph() noexcept {
+    constexpr T81Graph() noexcept(!kUseHeap && !kUseHeapLabels) {
+        if constexpr (kUseHeap) {
+            adj.resize(NodeCount);
+        }
+        if constexpr (kUseHeapLabels) {
+            labels.resize(NodeCount);
+        }
+        // Initialize sentinels
         for (auto& list : adj) list.fill({NodeID(-1), Weight{}}); // sentinel = invalid
     }
 
@@ -100,6 +127,43 @@ public:
     //===================================================================
     constexpr void label(NodeID n, T81Symbol sym) noexcept { labels[n] = sym; }
     [[nodiscard]] constexpr T81Symbol label(NodeID n) const noexcept { return labels[n]; }
+
+    // P2: Canonical serialization
+    [[nodiscard]] std::string serialize_canonical() const {
+        std::stringstream ss;
+        ss << "{\n";
+        for (size_t i = 0; i < NodeCount; ++i) {
+            NodeID u = static_cast<NodeID>(i);
+            auto out_span = outgoing(u);
+            if (out_span.empty()) continue;
+
+            // Copy to vector to sort by target NodeID
+            std::vector<std::pair<NodeID, Weight>> edges(out_span.begin(), out_span.end());
+            std::sort(edges.begin(), edges.end(), [](const auto& a, const auto& b){
+                return a.first < b.first;
+            });
+
+            ss << "  " << u << ": [";
+            bool first = true;
+            for (const auto& edge : edges) {
+                if (!first) ss << ", ";
+                ss << "(" << edge.first << ", ";
+                if constexpr (requires { edge.second.to_canonical_string(); }) {
+                    ss << edge.second.to_canonical_string();
+                } else if constexpr (requires { edge.second.serialize_canonical(); }) {
+                    ss << edge.second.serialize_canonical();
+                } else {
+                    // Fallback to stream
+                    ss << edge.second; // Hope it has operator<<
+                }
+                ss << ")";
+                first = false;
+            }
+            ss << "],\n";
+        }
+        ss << "}";
+        return ss.str();
+    }
 
     //===================================================================
     // Graph algorithms become tensor operations

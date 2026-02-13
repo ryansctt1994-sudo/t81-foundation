@@ -10,6 +10,7 @@
 #include <compare>
 #include <exception>
 #include <utility>
+#include <mutex>
 
 namespace t81 {
 
@@ -78,6 +79,7 @@ public:
 class EntropyPool {
     alignas(64) std::atomic<uint64_t> counter_{0};
     static inline uint64_t seed_{0x517cc1b727220a95ULL};
+    static inline std::mutex seed_mutex_;
 
     static T81Entropy::Raw hardware_trng() noexcept;
 
@@ -88,6 +90,7 @@ public:
     }
 
     static void seed(uint64_t s) noexcept {
+        std::lock_guard<std::mutex> lock(seed_mutex_);
         seed_ = s;
     }
 
@@ -99,6 +102,7 @@ public:
 };
 
 inline T81Entropy::Raw EntropyPool::hardware_trng() noexcept {
+    std::lock_guard<std::mutex> lock(seed_mutex_);
     seed_ ^= seed_ << 13;
     seed_ ^= seed_ >> 7;
     seed_ ^= seed_ << 17;

@@ -358,6 +358,27 @@ public:
     // Public Components Access & Factory
     // ---------------------------------------------------------------------
 
+    // P2: Canonical serialization (no host float dependency)
+    [[nodiscard]] std::string to_canonical_string() const {
+        if (is_nae()) return "NaE";
+        if (is_inf()) return is_negative() ? "-Inf" : "+Inf";
+        if (is_zero()) return is_negative() ? "-0" : "+0";
+
+        std::string s;
+        // Sign
+        s.push_back(get_sign() == Trit::N ? '-' : '+');
+
+        // Mantissa trits
+        s += get_mantissa().to_canonical_string();
+
+        s.push_back('E');
+
+        // Exponent (decimal integer is canonical)
+        s += std::to_string(get_exp());
+
+        return s;
+    }
+
     [[nodiscard]] constexpr Trit sign_trit() const noexcept { return get_sign(); }
     [[nodiscard]] constexpr std::int64_t exponent() const noexcept { return get_exp(); }
     [[nodiscard]] constexpr T81Int<M> mantissa() const noexcept { return get_mantissa(); }

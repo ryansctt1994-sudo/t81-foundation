@@ -138,9 +138,9 @@ Strictly deterministic. Uses Karatsuba multiplication and Knuth's Algorithm D fo
 - Rank and Dimensions fixed at compile time.
 - Elements must satisfy `T81Element` concept (size $\le$ 32 bytes).
 - 64-byte aligned contiguous storage.
-**Memory Model:** Stack-allocated `alignas(64)` array.
-**Failure Modes:** Stack overflow for large dimensions.
-**Canonical Representation:** [UNSPECIFIED].
+**Memory Model:** Hybrid (Stack for small $\le$ 4KB, Heap `std::vector` for large).
+**Failure Modes:** `std::bad_alloc` for large dimensions.
+**Canonical Representation:** `serialize_canonical`.
 **Entropy Semantics:** None.
 **Reflection Exposure:** None.
 **Governance Exposure:** None.
@@ -158,7 +158,6 @@ Strictly deterministic. Uses Karatsuba multiplication and Knuth's Algorithm D fo
 All operations (broadcast, slice, matmul, conv2d) are structurally deterministic.
 
 ### Architectural Risks
-- **Stack Overflow**: Large tensors (e.g., `Mat4Kx4K`) will immediately overflow standard stack sizes.
 - `T81Element` constraint prevents storing complex objects, which is a feature for determinism but a constraint for flexibility.
 
 ---
@@ -170,11 +169,10 @@ All operations (broadcast, slice, matmul, conv2d) are structurally deterministic
 **Primary Invariants:**
 - Static `NodeCount` and `MaxDegree`.
 - Adjacency list storage.
-**Memory Model:** Stack-allocated `alignas(64)` arrays.
+**Memory Model:** Hybrid (Stack for small, Heap `std::vector` for large).
 **Failure Modes:**
-- Stack overflow.
-- **Integer Overflow**: `NodeID` is hardcoded as `uint16_t`.
-**Canonical Representation:** [UNSPECIFIED].
+- `std::bad_alloc`.
+**Canonical Representation:** `serialize_canonical` (Sorted Adjacency List).
 **Entropy Semantics:** None.
 **Reflection Exposure:** None.
 **Governance Exposure:** None.
@@ -191,8 +189,7 @@ All operations (broadcast, slice, matmul, conv2d) are structurally deterministic
 Strictly deterministic tensor-like operations.
 
 ### Architectural Risks
-- **Critical Bug**: `KnowledgeGraph` is defined as `T81Graph<81*81*81, 27>` (531,441 nodes), but `NodeID` is `uint16_t` (max 65,535). This will cause silent overflow or compilation errors depending on usage.
-- Stack usage for large graphs is prohibitive.
+- NodeID automatically widens to `uint32_t` for large graphs (>65535 nodes), resolving overflow issues.
 
 ---
 
@@ -375,6 +372,7 @@ The implementation is named `hardware_trng` but is actually a **deterministic PR
 ### Architectural Risks
 - **False Security**: Naming suggests TRNG, code implements PRNG.
 - Global atomic counter introduces serialization bottleneck.
+- **Fixed**: Data races on `seed_` are resolved via mutex.
 
 ---
 
@@ -402,16 +400,16 @@ The implementation is named `hardware_trng` but is actually a **deterministic PR
 Nondeterministic by default (`clock::now()`). Can be forced to deterministic mode via global static override, but this override mechanism is **not thread-safe** (static `std::optional` without mutex).
 
 ### Architectural Risks
-- **Data Race**: `set_deterministic_time` and `now` access a static variable without synchronization, leading to potential races in multi-threaded test environments.
+- **Fixed**: Data races on `deterministic_override_` are resolved via mutex.
 
 ---
 
 ## 4. Cross-Type Constraint Analysis
 
 ### 1. The Stack vs. Heap Schism
-- `T81Tensor` and `T81Graph` are stack-allocated, strictly enforcing zero-allocation policies but introducing severe stack overflow risks for useful sizes (e.g., 4Kx4K tensors).
-- `T81BigInt` and `T81List` are heap-allocated, breaking the zero-allocation invariant but allowing scalability.
-- **Constraint Conflict**: The system attempts to be "hardware-native" (stack/static) but falls back to standard heap vectors for variable-sized data, creating a dual-mode memory profile that complicates resource reasoning.
+- `T81Tensor` and `T81Graph` now implement a hybrid storage model (Stack for small, Heap for large).
+- `T81BigInt` and `T81List` are heap-allocated.
+- **Resolution**: The system now robustly handles large static structures by automatically promoting them to heap storage, preventing stack overflow while preserving stack optimization for small instances.
 
 ### 2. Identity & Determinism Gap
 - `T81Symbol` is fundamental to `T81Graph` and `T81Tensor` (for labeled dims/nodes), yet it introduces **runtime nondeterminism** via its interning mechanism.
@@ -422,10 +420,7 @@ Nondeterministic by default (`clock::now()`). Can be forced to deterministic mod
 - This creates a dependency on the host FPU, violating the "ternary-native" architectural goal and potentially causing divergence in distributed consensus if hosts differ (e.g., x86 vs ARM vs T81 hardware).
 
 ### 4. Graph Scalability Illusion
-- `T81Graph` implies support for massive graphs (`KnowledgeGraph`), but the implementation is practically limited by:
-  1.  Stack size (multi-megabyte arrays).
-  2.  `uint16_t` NodeID hard constraint (max 65,535 nodes).
-- This abstraction is effectively broken for its stated "Canonical Type" use cases (`KnowledgeGraph`).
+- **Resolved**: `T81Graph` now supports massive graphs via heap promotion and automatic `NodeID` widening (to `uint32_t`). `KnowledgeGraph` is now fully supported.
 
 ### 5. Error Handling Side Effects
 - `T81Result` treats errors as heavy, side-effecting events (burning entropy). This creates a perverse incentive to avoid proper error reporting in tight loops to maintain deterministic entropy state, potentially leading to silent failures or fragile code.

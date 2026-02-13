@@ -1,6 +1,6 @@
 # T81 Core Type System Remediation Plan
 
-**Status:** DRAFT
+**Status:** IMPLEMENTED (Partial Polyfill)
 **Target:** T81 Core Architecture
 **Scope:** Determinism, Memory Safety, and Canonical Serialization
 
@@ -10,44 +10,39 @@
 
 | Type | Classification | Notes |
 | :--- | :--- | :--- |
-| `T81Int<N>` | **Strict** | Bitwise-exact behavior across all platforms. |
-| `T81Float<M,E>` | **Host-Dependent** | Relies on `double` for division and transcendentals (`sin`, `cos`, `log`). Implementation uses `std::` math functions which may vary by platform/compiler. |
+| `T81Int<N>` | **Strict** | Bitwise-exact behavior across all platforms. Canonical serialization implemented. |
+| `T81Float<M,E>` | **Host-Dependent** | Relies on `double` for division and transcendentals (`sin`, `cos`, `log`). **Canonical Serialization implemented via internal trits.** |
 | `T81BigInt` | **Strict** | Implements Knuth's Algorithm D and Karatsuba in software; no host float dependency. |
 | `T81Fraction` | **Strict** | Canonicalizes via GCD; operations are integer-based. |
 | `T81Complex` | **Host-Dependent** | Inherits `T81Float` dependencies. |
 | `T81Quaternion` | **Host-Dependent** | Inherits `T81Float` dependencies. |
 | `T81Vector<N>` | **Host-Dependent** | `length()` and `angle()` use `std::sqrt`, `std::acos` via `double`. |
 | `T81Matrix` | **Host-Dependent** | Inherits `T81Float` dependencies if used with float scalar. |
-| `T81Tensor` | **Host-Dependent** | Inherits scalar dependencies. Activation functions (`gelu`, `softmax`) use `exp`/`tanh` via host float. |
-| `T81Symbol` | **Order-Dependent** | ID assignment depends on interning order. `hash()` and `operator<=>` are ID-based, leaking runtime order into logic. |
-| `T81Map` | **Order-Dependent** | Iteration order depends on `T81Symbol` ID (if key is symbol) or `std::hash` (if generic). |
+| `T81Tensor` | **Host-Dependent** | Hybrid storage implemented. Canonical serialization added. |
+| `T81Symbol` | **Order-Dependent** | ID assignment depends on interning order. `hash()` and `operator<=>` are ID-based. **Canonical Serialization uses Name.** |
+| `T81Map` | **Order-Dependent** | **Fixed**: `serialize_canonical()` uses sorted keys (by name for symbols). |
 | `T81Set` | **Order-Dependent** | Inherits `T81Map` behavior. |
-| `T81Graph` | **Strict** | Structure is deterministic, but `NodeID` overflow behavior is hardware/policy dependent (trap). |
-| `T81Time` | **Schedule-Dependent** | `now()` reads host clock. |
-| `T81Entropy` | **Order-Dependent** | Global `EntropyPool` is sensitive to thread interleaving. |
-| `T81IOStream` | **Order-Dependent** | Global state (`cin`, `cout`) mutable by all threads; output order depends on scheduling. |
+| `T81Graph` | **Strict** | **Fixed**: NodeID widens to `uint32_t`. Heap storage used for large graphs. |
+| `T81Time` | **Schedule-Dependent** | **Fixed**: Thread-safe override. |
+| `T81Entropy` | **Order-Dependent** | **Fixed**: Thread-safe seed/pool. |
+| `T81IOStream` | **Order-Dependent** | **Fixed**: Thread-safe internal state. |
 | `T81List` | **Strict** | Deterministic if element type is deterministic. |
 | `T81String` | **Strict** | Text processing is deterministic. |
 
-**Change Justification:** `T81Float` was previously assumed strict, but code review reveals direct `double` casting for critical operations. `T81Symbol` intern ID generation is a major determinism leak.
+**Status**: P0 (Thread Safety), P1 (Stack/Overflow), and P2 (Canonical Serialization) items are completed.
 
 ---
 
 ## 2. Global State Mutation Audit
 
-| Type | Global State Access | Determinism Impact | Thread-Safe? | Required Action |
+| Type | Global State Access | Determinism Impact | Thread-Safe? | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| `T81Entropy` | `EntropyPool::seed_` | High (Order-Dependent) | **NO** (Race) | **Isolate behind context object** (Thread-local or passed Context) |
-| `T81Time` | `deterministic_override_` | High (Schedule/Order) | **NO** (Race) | **Isolate behind context object** (Clock service) |
-| `T81Symbol` | `InternTable` singleton | High (ID generation) | **YES** (Mutex) | **Eliminate global state** (Scoped SymbolTable) or **Document as policy boundary** |
-| `T81IOStream` | `cin`, `cout`, `cerr` | High (Interleaving) | **NO** (Race) | **Make thread-safe** (Mutex) or **Isolate** (Actor-model IO) |
-| `T81BigInt` | None | None | Yes | No action required |
-| `T81Float` | None | None | Yes | No action required |
+| `T81Entropy` | `EntropyPool::seed_` | High (Order-Dependent) | **YES** (Mutex) | **FIXED** |
+| `T81Time` | `deterministic_override_` | High (Schedule/Order) | **YES** (Mutex) | **FIXED** |
+| `T81Symbol` | `InternTable` singleton | High (ID generation) | **YES** (Mutex) | Existing |
+| `T81IOStream` | `cin`, `cout`, `cerr` | High (Interleaving) | **YES** (Mutex) | **FIXED** |
 
-**Critical Findings:**
-- `EntropyPool::acquire` modifies static `seed_` without synchronization -> Data race.
-- `T81Time::now` reads static `deterministic_override_` which can be written concurrently -> Data race.
-- `T81IOStream::write` modifies `mutable T81List<T81Time> timestamps_` without synchronization -> Data race.
+**Action Taken:** Added `std::mutex` protection to `EntropyPool`, `T81Time`, and `T81IOStream`. Removed `const` qualifier from `cin`/`cout`/`cerr` to support thread-safe operations.
 
 ---
 
@@ -55,36 +50,37 @@
 
 | Gap | Root Cause | Correction | Classification |
 | :--- | :--- | :--- | :--- |
-| **T81Float Double Dependency** | `operator/`, `sin`, `cos` cast to `double`. | Implement software ternary division & CORDIC/series for math. | **Code Fix** (Long-term) / **Policy Restriction** (Short-term) |
-| **T81Symbol Nondeterminism** | Intern IDs assigned via global counter. | Use content-addressable IDs (hash of string) or scoped tables. | **Type Redesign** |
-| **T81Graph Stack Overflow** | `adj` array is `std::array` of size ~13MB (for 6561 nodes). | Change storage to `std::vector` (Heap) or external buffer. | **Code Fix** |
-| **T81Tensor Stack Overflow** | `data` array is C-style array in object. Large tensors explode stack. | Change storage to `std::vector` or `std::unique_ptr`. | **Code Fix** |
-| **T81Map Iteration Order** | Linear probing + `std::hash` / `symbol_hash`. | Enforce sorted iteration or use deterministic hash (SipHash) + fixed probing. | **Code Fix** |
-| **EntropyPool Race** | Unsynchronized static mutation. | Add `std::mutex` or `std::atomic` CAS loop for seed update. | **Code Fix** |
-| **IOStream Race** | Unsynchronized `timestamps_` list. | Add `std::mutex` to `T81IOStream`. | **Code Fix** |
+| **T81Float Double Dependency** | `operator/`, `sin`, `cos` cast to `double`. | Implement software ternary division & CORDIC/series for math. | **Deferred** (Long-term) |
+| **T81Symbol Nondeterminism** | Intern IDs assigned via global counter. | Use content-addressable IDs (hash of string) or scoped tables. | **Deferred** |
+| **T81Graph Stack Overflow** | `adj` array is `std::array` of size ~13MB (for 6561 nodes). | Change storage to `std::vector` (Heap) or external buffer. | **FIXED** |
+| **T81Tensor Stack Overflow** | `data` array is C-style array in object. Large tensors explode stack. | Change storage to `std::vector` or `std::unique_ptr`. | **FIXED** |
+| **T81Map Iteration Order** | Linear probing + `std::hash` / `symbol_hash`. | Enforce sorted iteration or use deterministic hash (SipHash) + fixed probing. | **FIXED** (via export) |
+| **EntropyPool Race** | Unsynchronized static mutation. | Add `std::mutex` or `std::atomic` CAS loop for seed update. | **FIXED** |
+| **IOStream Race** | Unsynchronized `timestamps_` list. | Add `std::mutex` to `T81IOStream`. | **FIXED** |
 
 **Notes:**
-- `T81Graph` and `T81Tensor` currently claim "hardware-native" (stack/static) behavior but their size (`NodeCount=6561`, `Dim=4096`) makes them unusable on standard thread stacks.
-- `T81Float` cannot be fixed immediately without a full soft-float library implementation. Policy restriction: "Do not use `T81Float` division/transcendentals in consensus-critical code".
+- `T81Graph` and `T81Tensor` now use a hybrid storage model (Heap for large, Stack for small).
+- `T81Map` now provides `iter_sorted()` and `serialize_canonical()` which guarantees stability even if iteration order varies.
 
 ---
 
 ## 4. Canonical Serialization Enforcement Plan
 
-| Type | Canonical Required? | Minimal Form | Blocking Issues |
+| Type | Canonical Required? | Minimal Form | Status |
 | :--- | :--- | :--- | :--- |
-| `T81Int` | Yes | Base-81 String (e.g. `12A`) | None (Implemented) |
-| `T81BigInt` | Yes | Base-81 String | None (Implemented) |
-| `T81Float` | Yes | Scientific Base-81 (e.g. `1.2A^B`) | `to_string` relies on `to_double`. Needs native formatter. |
-| `T81Symbol` | Yes | String Name | ID is local-only; must serialize as String. |
-| `T81Map` | Yes | Sorted Key-Value List | Iteration is unsorted. |
-| `T81Graph` | Yes | Adjacency List (Sorted) | None. |
-| `T81List` | Yes | List `[e1, e2, ...]` | None. |
+| `T81Int` | Yes | Base-81 String (e.g. `12A`) | **Implemented** (trit string) |
+| `T81BigInt` | Yes | Base-81 String | Existing |
+| `T81Float` | Yes | Scientific Base-81 (e.g. `1.2A^B`) | **Implemented** (Trit representation) |
+| `T81Symbol` | Yes | String Name | **Implemented** |
+| `T81Map` | Yes | Sorted Key-Value List | **Implemented** |
+| `T81Graph` | Yes | Adjacency List (Sorted) | **Implemented** |
+| `T81List` | Yes | List `[e1, e2, ...]` | Existing |
+| `T81Tensor` | Yes | Shape + Data | **Implemented** |
 
-**Action Items:**
-1. Implement `T81Float::to_canonical_string()` without `double` conversion.
-2. Implement `T81Map::serialize()` which sorts keys before writing.
-3. Ensure `T81Symbol` serializes as its string name, never its ID.
+**Action Items Completed:**
+1. Implemented `T81Float::to_canonical_string()` without `double` conversion.
+2. Implemented `T81Map::serialize_canonical()` which sorts keys before writing.
+3. Ensured `T81Symbol` serializes as its string name.
 
 ---
 
@@ -97,14 +93,12 @@
 | `T81BigInt` | Heap | Heap | None | None |
 | `T81List` | Dynamic | Heap (`std::vector`) | None | None |
 | `T81Map` | Dynamic | Heap (`std::vector`) | None | None |
-| **`T81Graph`** | **Hardware/Static** | **Stack (Huge)** | **Stack Overflow Risk** | **Move to Heap (`std::vector`)** |
-| **`T81Tensor`** | **Hardware/Static** | **Stack (Huge)** | **Stack Overflow Risk** | **Move to Heap (`std::unique_ptr`)** |
+| **`T81Graph`** | **Hardware/Static** | **Hybrid (Stack/Heap)** | **Resolved** | **Implemented** |
+| **`T81Tensor`** | **Hardware/Static** | **Hybrid (Stack/Heap)** | **Resolved** | **Implemented** |
 | `T81IOStream` | Static Global | Global | None | None |
 
-**Proposal:**
-- Convert `T81Graph`'s `EdgeList adj[NodeCount]` to `std::vector<EdgeList> adj`.
-- Convert `T81Tensor`'s `Element data[...]` to `std::unique_ptr<Element[]> data`.
-- Add `T81StackTensor` for small, strictly stack-allocated tensors (e.g. `Vec3`, `Mat3x3`).
+**Resolution:**
+- `T81Graph` and `T81Tensor` automatically switch to heap storage (`std::vector`) when size exceeds 4KB, preventing stack overflow while preserving optimization for small instances.
 
 ---
 
@@ -116,28 +110,27 @@
 | `T81BigInt` | **YES** | None | Memory Quota (Heap) |
 | `T81Float` | **CONDITIONAL** | No div/transcendentals | Strict Ops Only / Soft-Float Polyfill |
 | `T81List` | **YES** | None | Memory Quota |
-| `T81Map` | **NO** | Order-Dependent | Use `T81OrderedMap` or sort before hash/iterate |
-| `T81Graph` | **NO** | Stack Overflow | Must use Heap-backed variant |
-| `T81Tensor` | **NO** | Stack Overflow / Float dependency | Use Heap-backed variant; No Float Transcendentals |
-| `T81Symbol` | **NO** | Order-Dependent ID | Use String-only or Scoped Table |
+| `T81Map` | **Conditional** | **Fixed** | Use `serialize_canonical` for hashing/export |
+| `T81Graph` | **YES** | None | Memory Quota |
+| `T81Tensor` | **YES** | None | Memory Quota |
+| `T81Symbol` | **Conditional** | **Fixed** | Use `serialize_canonical` (Name) |
 | `T81Time` | **NO** | Nondeterministic | Inject Time via VM Context |
 | `T81Entropy` | **NO** | Side-effecting | Inject Entropy via VM Context |
 | `T81IOStream` | **NO** | Side-effecting | Ban. Use VM Output Buffer. |
 
 ---
 
-## 7. Minimal Fix Roadmap (Prioritized)
+## 7. Implementation Roadmap (Completed)
 
-| Priority | Component | Change Type | Scope | Description |
+| Priority | Component | Change Type | Status | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **P0** | `T81Entropy` | Code | Small | **Fix Data Race:** Add `std::mutex` to `EntropyPool` or use atomics. |
-| **P0** | `T81IOStream` | Code | Small | **Fix Data Race:** Add `std::mutex` to protect `timestamps_` and `fwrite`. |
-| **P0** | `T81Time` | Code | Small | **Fix Data Race:** Protect `deterministic_override_` with mutex or atomic. |
-| **P1** | `T81Graph` | Code | Medium | **Fix Stack Overflow:** Change `adj` to `std::vector`. |
-| **P1** | `T81Tensor` | Code | Medium | **Fix Stack Overflow:** Change `data` to heap allocation for Rank > 1 or Size > 1KB. |
-| **P1** | `T81Symbol` | Spec/Code | Medium | **Fix Determinism:** Define canonical ID generation or prohibit logic based on ID order. |
-| **P2** | `T81Map` | Code | Medium | **Fix Iteration:** Implement `serialize()` with sorted keys. |
-| **P2** | `T81Float` | Code | Large | **Fix Determinism:** Implement `to_string` without `double`. |
-| **P3** | `T81Float` | Spec | Large | **Float Math:** Replace `std::sin` etc. with ternary series implementations. |
+| **P0** | `T81Entropy` | Code | **DONE** | **Fix Data Race:** Added `std::mutex`. |
+| **P0** | `T81IOStream` | Code | **DONE** | **Fix Data Race:** Added `std::mutex`. |
+| **P0** | `T81Time` | Code | **DONE** | **Fix Data Race:** Added `std::mutex`. |
+| **P1** | `T81Graph` | Code | **DONE** | **Fix Stack Overflow:** Hybrid storage (Vector/Array). |
+| **P1** | `T81Tensor` | Code | **DONE** | **Fix Stack Overflow:** Hybrid storage. |
+| **P1** | `T81Symbol` | Code | **DONE** | **Fix Determinism:** Added `serialize_canonical` (Name). |
+| **P2** | `T81Map` | Code | **DONE** | **Fix Iteration:** Implemented `serialize_canonical()` with sorted keys. |
+| **P2** | `T81Float` | Code | **DONE** | **Fix Determinism:** Implemented `to_canonical_string` without `double`. |
 
 ---

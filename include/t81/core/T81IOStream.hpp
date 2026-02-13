@@ -15,10 +15,12 @@
 #include "t81/core/T81Time.hpp"
 #include "t81/core/T81Entropy.hpp"
 #include "t81/core/T81Reflection.hpp"
+#include "t81/core/T81List.hpp"
 #include <cstdio>
 #include <string>
 #include <vector>
 #include <span>
+#include <mutex>
 
 namespace t81 {
 
@@ -32,6 +34,7 @@ class T81IOStream {
     T81String path_;                     // for files
     mutable T81List<T81Time> timestamps_;
     mutable T81List<T81Entropy> entropy_costs_;
+    mutable std::mutex mutex_;
 
     // Private: only the universe may open a stream
     T81IOStream(Kind k, FILE* h = nullptr, T81String p = {})
@@ -41,9 +44,9 @@ public:
     //===================================================================
     // The three sacred streams — exist from genesis
     //===================================================================
-    static const T81IOStream cin;
-    static const T81IOStream cout;
-    static const T81IOStream cerr;
+    static T81IOStream cin;
+    static T81IOStream cout;
+    static T81IOStream cerr;
 
     //===================================================================
     // Open a file — costs entropy and time
@@ -79,21 +82,23 @@ public:
     // Core operations — every I/O costs entropy and time
     //===================================================================
     T81IOStream& write(const T81Bytes& data, T81Entropy fuel) {
+        std::lock_guard<std::mutex> lock(mutex_);
         if (!valid() || fuel.is_consumed()) return *this;
         std::fwrite(data.data(), 1, data.size(), handle_);
         std::fflush(handle_);
         (void)fuel.consume();
-        record_event(T81Time::now(symbols::IO_WRITE));
+        record_event_locked(T81Time::now(symbols::IO_WRITE));
         return *this;
     }
 
     [[nodiscard]] T81Bytes read(size_t max_bytes, T81Entropy fuel) {
+        std::lock_guard<std::mutex> lock(mutex_);
         if (!valid() || fuel.is_consumed()) return {};
         T81Bytes buffer(max_bytes);
         size_t read = std::fread(buffer.data(), 1, max_bytes, handle_);
         buffer = buffer.slice(0, read);
         (void)fuel.consume();
-        record_event(T81Time::now(symbols::IO_READ));
+        record_event_locked(T81Time::now(symbols::IO_READ));
         return buffer;
     }
 
@@ -137,15 +142,20 @@ public:
 
 private:
     void record_event(T81Time t) const {
+        std::lock_guard<std::mutex> lock(mutex_);
+        record_event_locked(t);
+    }
+
+    void record_event_locked(T81Time t) const {
         timestamps_.push_back(t);
         // cosmic_history.push_back(t);
     }
 };
 
 // Inline definitions of static members
-inline const T81IOStream T81IOStream::cin  = T81IOStream(Kind::STDIN,  stdin);
-inline const T81IOStream T81IOStream::cout = T81IOStream(Kind::STDOUT, stdout);
-inline const T81IOStream T81IOStream::cerr = T81IOStream(Kind::STDERR, stderr);
+inline T81IOStream T81IOStream::cin  = T81IOStream(Kind::STDIN,  stdin);
+inline T81IOStream T81IOStream::cout = T81IOStream(Kind::STDOUT, stdout);
+inline T81IOStream T81IOStream::cerr = T81IOStream(Kind::STDERR, stderr);
 
 // ======================================================================
 // Global operators — the ternary world speaks
