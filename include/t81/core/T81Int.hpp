@@ -349,6 +349,41 @@ public:
     T81Int& operator/=(const T81Int& o) { *this = *this / o; return *this; }
     T81Int& operator%=(const T81Int& o) { *this = *this % o; return *this; }
 
+    friend constexpr T81Int pow(T81Int base, T81Int exp) {
+        if (exp.sign_trit() == Trit::N) throw std::domain_error("pow with negative exponent");
+        if (exp.is_zero()) return T81Int(1);
+
+        std::int64_t e = exp.to_int64();
+
+        T81Int res(1);
+        T81Int b = base;
+        while (e > 0) {
+            if (e & 1) res *= b;
+            b *= b;
+            e >>= 1;
+        }
+        return res;
+    }
+
+    friend constexpr T81Int gcd(T81Int a, T81Int b) {
+        if (a.sign_trit() == Trit::N) a = -a;
+        if (b.sign_trit() == Trit::N) b = -b;
+        while (!b.is_zero()) {
+            T81Int t = b;
+            b = a % b;
+            a = t;
+        }
+        return a;
+    }
+
+    friend constexpr T81Int lcm(T81Int a, T81Int b) {
+        if (a.is_zero() || b.is_zero()) return T81Int(0);
+        T81Int g = gcd(a, b);
+        T81Int res = (a / g) * b;
+        if (res.sign_trit() == Trit::N) res = -res;
+        return res;
+    }
+
     std::string to_string() const {
         std::int64_t v = to_int64();
         if (v == 0) return "0";
