@@ -58,7 +58,7 @@ void Debugger::run() {
                         info("Breakpoint hit at PC=" + std::to_string(vm_->state().pc));
                         break;
                     }
-                    bool policy_hit = false;
+                    bool stop = false;
                     const auto& log = vm_->state().axion_log;
                     if (!log.empty()) {
                         const auto& last_event = log.back();
@@ -66,12 +66,39 @@ void Debugger::run() {
                             if (last_event.verdict.reason.find(pat) != std::string::npos) {
                                 info("Policy breakpoint hit: " + pat);
                                 info("Reason: " + last_event.verdict.reason);
-                                policy_hit = true;
+                                stop = true;
                                 break;
                             }
                         }
                     }
-                    if (policy_hit) break;
+                    // Check watchpoints
+                    for (auto& [addr, last_val] : watchpoints_) {
+                        if (addr < vm_->state().memory.size()) {
+                            auto current_val = vm_->state().memory[addr];
+                            if (current_val != last_val) {
+                                info("Watchpoint hit at address " + std::to_string(addr) +
+                                     ": " + std::to_string(last_val) + " -> " + std::to_string(current_val));
+                                last_val = current_val; // Update
+                                stop = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (stop) break;
+                }
+                break;
+            }
+            case 'w': {
+                std::size_t addr;
+                if (iss >> addr) {
+                    if (addr < vm_->state().memory.size()) {
+                        watchpoints_[addr] = vm_->state().memory[addr];
+                        info("Watchpoint set at address " + std::to_string(addr));
+                    } else {
+                        error("Address out of bounds");
+                    }
+                } else {
+                    error("Usage: w <addr>");
                 }
                 break;
             }
@@ -121,6 +148,7 @@ void Debugger::print_help() {
               << "  s          Step one instruction\n"
               << "  c          Continue execution\n"
               << "  b <pc>     Set breakpoint at PC\n"
+              << "  w <addr>   Set watchpoint at address\n"
               << "  p <pat>    Set policy breakpoint (on trace string match)\n"
               << "  r          Print registers\n"
               << "  k          Print stack\n"

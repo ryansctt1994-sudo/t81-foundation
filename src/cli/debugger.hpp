@@ -4,6 +4,7 @@
 #include "t81/tisc/program.hpp"
 #include <set>
 #include <string>
+#include <map>
 
 namespace t81::cli {
 
@@ -24,6 +25,7 @@ private:
     t81::tisc::Program program_;
     std::set<std::size_t> breakpoints_;
     std::set<std::string> policy_breakpoints_;
+    std::map<std::size_t, std::int64_t> watchpoints_;
     bool quit_{false};
 };
 

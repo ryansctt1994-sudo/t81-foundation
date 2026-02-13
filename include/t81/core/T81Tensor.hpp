@@ -302,6 +302,113 @@ template <size_t Start, size_t End, typename E, size_t Rank, size_t... Dims>
     return out;
 }
 
+//===================================================================
+// Normalization and Embedding
+//===================================================================
+
+/**
+ * @brief Layer Normalization over the last dimension.
+ * Output = (Input - Mean) / sqrt(Variance + eps)
+ */
+template <typename E, size_t Rank, size_t... Dims>
+[[nodiscard]] constexpr auto layer_norm(const T81Tensor<E, Rank, Dims...>& t, E eps = E(1e-5)) noexcept
+    -> T81Tensor<E, Rank, Dims...>
+{
+    T81Tensor<E, Rank, Dims...> out;
+    constexpr size_t total_size = T81Tensor<E, Rank, Dims...>::size();
+    constexpr std::array<size_t, Rank> shape = {Dims...};
+    constexpr size_t last_dim = shape[Rank - 1];
+
+    for (size_t base = 0; base < total_size; base += last_dim) {
+        // 1. Mean
+        E sum{};
+        for (size_t i = 0; i < last_dim; ++i) sum = sum + t.data[base + i];
+        E mean = sum / E(static_cast<long long>(last_dim));
+
+        // 2. Variance
+        E sum_sq_diff{};
+        for (size_t i = 0; i < last_dim; ++i) {
+            E diff = t.data[base + i] - mean;
+            sum_sq_diff = sum_sq_diff + diff * diff;
+        }
+        E var = sum_sq_diff / E(static_cast<long long>(last_dim));
+
+        // 3. Normalize
+        // Requires E to support sqrt(). T81Float does.
+        E inv_std = E(1) / (var + eps).sqrt();
+
+        for (size_t i = 0; i < last_dim; ++i) {
+            out.data[base + i] = (t.data[base + i] - mean) * inv_std;
+        }
+    }
+    return out;
+}
+
+/**
+ * @brief Embedding lookup.
+ * Input: (N) indices
+ * Weight: (V, D) embedding table
+ * Output: (N, D)
+ */
+template <typename IndexType, size_t N, typename E, size_t V, size_t D>
+[[nodiscard]] constexpr auto embedding(const T81Tensor<IndexType, 1, N>& indices,
+                                       const T81Tensor<E, 2, V, D>& weights) noexcept
+    -> T81Tensor<E, 2, N, D>
+{
+    T81Tensor<E, 2, N, D> out;
+    for (size_t i = 0; i < N; ++i) {
+        size_t idx = 0;
+        if constexpr (std::is_integral_v<IndexType>) {
+            idx = static_cast<size_t>(indices(i));
+        } else {
+            // Assume .to_int64() exists (e.g. T81Int)
+            idx = static_cast<size_t>(indices(i).to_int64());
+        }
+
+        if (idx >= V) {
+            for (size_t d = 0; d < D; ++d) out(i, d) = E{};
+        } else {
+            for (size_t d = 0; d < D; ++d) {
+                out(i, d) = weights(idx, d);
+            }
+        }
+    }
+    return out;
+}
+
+/**
+ * @brief Embedding lookup for Batch of sequences.
+ * Input: (B, T) indices
+ * Weight: (V, D) embedding table
+ * Output: (B, T, D)
+ */
+template <typename IndexType, size_t B, size_t T, typename E, size_t V, size_t D>
+[[nodiscard]] constexpr auto embedding(const T81Tensor<IndexType, 2, B, T>& indices,
+                                       const T81Tensor<E, 2, V, D>& weights) noexcept
+    -> T81Tensor<E, 3, B, T, D>
+{
+    T81Tensor<E, 3, B, T, D> out;
+    for (size_t b = 0; b < B; ++b) {
+        for (size_t t = 0; t < T; ++t) {
+             size_t idx = 0;
+             if constexpr (std::is_integral_v<IndexType>) {
+                 idx = static_cast<size_t>(indices(b, t));
+             } else {
+                 idx = static_cast<size_t>(indices(b, t).to_int64());
+             }
+
+             if (idx >= V) {
+                 for (size_t d = 0; d < D; ++d) out(b, t, d) = E{};
+             } else {
+                 for (size_t d = 0; d < D; ++d) {
+                     out(b, t, d) = weights(idx, d);
+                 }
+             }
+        }
+    }
+    return out;
+}
+
 /**
  * @brief Softmax activation along the last dimension.
  * softmax(x)_i = exp(x_i) / sum(exp(x_j))
@@ -795,6 +902,108 @@ template <typename E, size_t N>
     E res{};
     for (size_t i = 0; i < N; ++i) res = res + a(i) * b(i);
     return res;
+}
+
+//===================================================================
+// Convolution and Pooling
+//===================================================================
+
+/**
+ * @brief 2D Convolution.
+ * Input: (N, C, H, W)
+ * Weight: (O, C, KH, KW)
+ * Output: (N, O, OH, OW)
+ */
+template <size_t StrideH=1, size_t StrideW=1, size_t PadH=0, size_t PadW=0,
+          typename E, size_t N, size_t C, size_t H, size_t W,
+          size_t O, size_t KH, size_t KW>
+[[nodiscard]] constexpr auto conv2d(const T81Tensor<E, 4, N, C, H, W>& input,
+                                    const T81Tensor<E, 4, O, C, KH, KW>& weight) noexcept
+    -> T81Tensor<E, 4, N, O, (H + 2*PadH - KH)/StrideH + 1, (W + 2*PadW - KW)/StrideW + 1>
+{
+    constexpr size_t OH = (H + 2*PadH - KH)/StrideH + 1;
+    constexpr size_t OW = (W + 2*PadW - KW)/StrideW + 1;
+    T81Tensor<E, 4, N, O, OH, OW> out; // zero initialized
+
+    for (size_t n = 0; n < N; ++n) {
+        for (size_t o = 0; o < O; ++o) {
+            for (size_t oh = 0; oh < OH; ++oh) {
+                for (size_t ow = 0; ow < OW; ++ow) {
+                    E sum{};
+                    // Input start coordinates
+                    const int ih_start = static_cast<int>(oh * StrideH) - static_cast<int>(PadH);
+                    const int iw_start = static_cast<int>(ow * StrideW) - static_cast<int>(PadW);
+
+                    for (size_t c = 0; c < C; ++c) {
+                        for (size_t kh = 0; kh < KH; ++kh) {
+                            for (size_t kw = 0; kw < KW; ++kw) {
+                                int ih = ih_start + static_cast<int>(kh);
+                                int iw = iw_start + static_cast<int>(kw);
+
+                                if (ih >= 0 && ih < static_cast<int>(H) &&
+                                    iw >= 0 && iw < static_cast<int>(W)) {
+                                    sum = sum + input(n, c, static_cast<size_t>(ih), static_cast<size_t>(iw)) *
+                                                weight(o, c, kh, kw);
+                                }
+                            }
+                        }
+                    }
+                    out(n, o, oh, ow) = sum;
+                }
+            }
+        }
+    }
+    return out;
+}
+
+/**
+ * @brief 2D Max Pooling.
+ * Input: (N, C, H, W)
+ * Output: (N, C, OH, OW)
+ */
+template <size_t KH, size_t KW, size_t StrideH=KH, size_t StrideW=KW, size_t PadH=0, size_t PadW=0,
+          typename E, size_t N, size_t C, size_t H, size_t W>
+[[nodiscard]] constexpr auto max_pool2d(const T81Tensor<E, 4, N, C, H, W>& input) noexcept
+    -> T81Tensor<E, 4, N, C, (H + 2*PadH - KH)/StrideH + 1, (W + 2*PadW - KW)/StrideW + 1>
+{
+    constexpr size_t OH = (H + 2*PadH - KH)/StrideH + 1;
+    constexpr size_t OW = (W + 2*PadW - KW)/StrideW + 1;
+    T81Tensor<E, 4, N, C, OH, OW> out;
+
+    for (size_t n = 0; n < N; ++n) {
+        for (size_t c = 0; c < C; ++c) {
+            for (size_t oh = 0; oh < OH; ++oh) {
+                for (size_t ow = 0; ow < OW; ++ow) {
+                    // Input start coordinates
+                    const int ih_start = static_cast<int>(oh * StrideH) - static_cast<int>(PadH);
+                    const int iw_start = static_cast<int>(ow * StrideW) - static_cast<int>(PadW);
+
+                    E max_val{};
+                    bool first = true;
+
+                    for (size_t kh = 0; kh < KH; ++kh) {
+                        for (size_t kw = 0; kw < KW; ++kw) {
+                            int ih = ih_start + static_cast<int>(kh);
+                            int iw = iw_start + static_cast<int>(kw);
+
+                            if (ih >= 0 && ih < static_cast<int>(H) &&
+                                iw >= 0 && iw < static_cast<int>(W)) {
+                                E val = input(n, c, static_cast<size_t>(ih), static_cast<size_t>(iw));
+                                if (first) {
+                                    max_val = val;
+                                    first = false;
+                                } else {
+                                    if (val > max_val) max_val = val;
+                                }
+                            }
+                        }
+                    }
+                    out(n, c, oh, ow) = max_val;
+                }
+            }
+        }
+    }
+    return out;
 }
 
 } // namespace t81
