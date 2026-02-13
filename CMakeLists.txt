@@ -655,6 +655,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(t81_t81int_generic_div_test tests/cpp/test_t81int_generic_div.cpp)
   target_link_libraries(t81_t81int_generic_div_test PRIVATE t81_core)
 
+  add_executable(t81_int_sign_trit_test tests/cpp/test_t81int_sign_trit.cpp)
+  target_link_libraries(t81_int_sign_trit_test PRIVATE t81_core)
+
   add_executable(t81_division_test tests/cpp/test_division.cpp)
   target_link_libraries(t81_division_test PRIVATE t81_core)
 
@@ -788,6 +791,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_t81int_test
     t81_t81int_overflow_test
     t81_t81int_generic_div_test
+    t81_int_sign_trit_test
     t81_bigint_test
     t81_fraction_test
     t81_core_fraction_test
