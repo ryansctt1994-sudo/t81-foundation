@@ -73,10 +73,11 @@ class T81Map {
         }
     }
 
-    // Ternary-inspired probing: odd step sizes to reduce clustering
-    [[nodiscard]] static std::size_t probe_step(std::size_t attempt) noexcept {
-        // 1, 3, 5, 7, ... (simple, works with any bucket_count)
-        return 1 + 2 * attempt;
+    // Linear probing: step size 1 to ensure correctness of shift-based deletion.
+    // While quadratic probing (1, 3, 5...) reduces clustering, it requires
+    // tombstones for correct deletion, which we don't use here.
+    [[nodiscard]] static std::size_t probe_step(std::size_t /*attempt*/) noexcept {
+        return 1;
     }
 
     // ------------------------------------------------------------------

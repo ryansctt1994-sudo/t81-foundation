@@ -1003,6 +1003,14 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_graph_test PRIVATE t81_core)
   add_test(NAME t81_graph_test COMMAND t81_graph_test)
 
+  add_executable(t81_graph_large_test tests/cpp/test_T81Graph_large.cpp)
+  target_link_libraries(t81_graph_large_test PRIVATE t81_core)
+  add_test(NAME t81_graph_large_test COMMAND t81_graph_large_test)
+
+  add_executable(t81_map_regression_test tests/cpp/test_T81Map_regression.cpp)
+  target_link_libraries(t81_map_regression_test PRIVATE t81_core)
+  add_test(NAME t81_map_regression_test COMMAND t81_map_regression_test)
+
   add_executable(t81_polynomial_test tests/cpp/test_T81Polynomial.cpp)
   target_link_libraries(t81_polynomial_test PRIVATE t81_core)
   add_test(NAME t81_polynomial_test COMMAND t81_polynomial_test)

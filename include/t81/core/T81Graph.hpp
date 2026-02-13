@@ -106,34 +106,39 @@ public:
     //===================================================================
 
     // PageRank → manual iteration for Rank 1 tensors
+    // Optimized to use sparse updates (O(E) per step) instead of dense matrix (O(N²)).
     [[nodiscard]] friend constexpr auto pagerank(const T81Graph& g, int steps = 20) noexcept
         -> T81Tensor<Weight81, 1, NodeCount>
     {
-        T81Tensor<Weight81, 2, NodeCount, NodeCount> A{};
-        for (NodeID i = 0; i < NodeCount; ++i) {
-            size_t deg = g.outgoing(i).size();
-            Weight81 p = deg ? Weight81(1) / Weight81(static_cast<long long>(deg)) : Weight81(0);
-            for (auto [j, w] : g.outgoing(i)) {
-                A(i,j) = w * p;
-            }
-        }
-        // Add teleportation
-        Weight81 tele = Weight81(0.15) / Weight81(static_cast<long long>(NodeCount));
-        for (size_t i = 0; i < NodeCount; ++i)
-            for (size_t j = 0; j < NodeCount; ++j)
-                A(i,j) = A(i,j) * Weight81(0.85) + tele;
+        using Tensor1D = T81Tensor<Weight81, 1, NodeCount>;
+        auto v = Tensor1D::zeros();
+        v(0) = Weight81(1); // initial state
 
-        auto v = T81Tensor<Weight81, 1, NodeCount>::zeros();
-        v(0) = Weight81(1);  // initial state
+        Weight81 damping(0.85);
+        Weight81 teleport = Weight81(0.15) / Weight81(static_cast<long long>(NodeCount));
 
-        for (int i = 0; i < steps; ++i) {
-            auto next_v = T81Tensor<Weight81, 1, NodeCount>::zeros();
-            for (size_t j = 0; j < NodeCount; ++j) {
-                Weight81 sum(0);
-                for (size_t k = 0; k < NodeCount; ++k) {
-                    sum = sum + v(k) * A(k, j);
+        for (int s = 0; s < steps; ++s) {
+            // Calculate total mass to determine teleport contribution
+            Weight81 current_sum = reduce_sum(v);
+            Weight81 base_val = current_sum * teleport;
+
+            // Initialize next_v with base teleportation value
+            // (Avoiding Tensor1D::zeros() + fill loop by direct init if possible, but fill is fine)
+            Tensor1D next_v;
+            for (size_t i = 0; i < NodeCount; ++i) next_v(i) = base_val;
+
+            // Sparse update: push mass from each node to its neighbors
+            for (NodeID i = 0; i < NodeCount; ++i) {
+                auto out_edges = g.outgoing(i);
+                size_t deg = out_edges.size();
+                if (deg > 0) {
+                     Weight81 w_scale = Weight81(1) / Weight81(static_cast<long long>(deg));
+                     Weight81 mass = v(i) * damping * w_scale;
+                     for (auto [j, w] : out_edges) {
+                         // Accumulate contribution
+                         next_v(j) = next_v(j) + mass * w;
+                     }
                 }
-                next_v(j) = sum;
             }
             v = next_v;
         }
