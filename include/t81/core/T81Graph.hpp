@@ -107,7 +107,7 @@ public:
 
     // PageRank → manual iteration for Rank 1 tensors
     // Optimized to use sparse updates (O(E) per step) instead of dense matrix (O(N²)).
-    [[nodiscard]] friend constexpr auto pagerank(const T81Graph& g, int steps = 20) noexcept
+    [[nodiscard]] friend constexpr auto pagerank(const T81Graph& g, int steps = 20, Weight81 epsilon = Weight81(1e-6)) noexcept
         -> T81Tensor<Weight81, 1, NodeCount>
     {
         using Tensor1D = T81Tensor<Weight81, 1, NodeCount>;
@@ -116,6 +116,9 @@ public:
 
         Weight81 damping(0.85);
         Weight81 teleport = Weight81(0.15) / Weight81(static_cast<long long>(NodeCount));
+
+        // Ensure epsilon is positive
+        if (epsilon < Weight81(0)) epsilon = -epsilon;
 
         for (int s = 0; s < steps; ++s) {
             // Calculate total mass to determine teleport contribution
@@ -140,9 +143,62 @@ public:
                      }
                 }
             }
+
+            // Check convergence
+            Weight81 diff_sum = Weight81::zero();
+            for (size_t i = 0; i < NodeCount; ++i) {
+                Weight81 d = next_v(i) - v(i);
+                diff_sum = diff_sum + d.abs();
+            }
+
             v = next_v;
+
+            if (diff_sum < epsilon) break;
         }
         return v;
+    }
+
+    /**
+     * @brief Breadth-First Search (BFS) returning distances.
+     * @param start The starting node.
+     * @return Tensor of distances (hops). -1 for unreachable.
+     */
+    [[nodiscard]] constexpr auto bfs(NodeID start) const noexcept
+        -> T81Tensor<T81Int<81>, 1, NodeCount>
+    {
+        using DistTensor = T81Tensor<T81Int<81>, 1, NodeCount>;
+        DistTensor dists;
+
+        // Initialize with -1
+        T81Int<81> unreachable(static_cast<std::int64_t>(-1));
+        for (size_t i = 0; i < NodeCount; ++i) dists(i) = unreachable;
+
+        dists(start) = T81Int<81>(static_cast<std::int64_t>(0));
+
+        // Wavefront iteration
+        bool changed = true;
+
+        for (size_t iter = 0; iter < NodeCount && changed; ++iter) {
+            changed = false;
+            T81Int<81> current_dist(static_cast<std::int64_t>(iter));
+            T81Int<81> next_dist = current_dist + T81Int<81>(static_cast<std::int64_t>(1));
+
+            for (NodeID u = 0; u < NodeCount; ++u) {
+                if (dists(u) == current_dist) {
+                    // Expand
+                    // outgoing returns span of pairs
+                    auto out_edges = outgoing(u);
+                    for (auto& edge : out_edges) {
+                        NodeID v = edge.first;
+                        if (dists(v) == unreachable) {
+                            dists(v) = next_dist;
+                            changed = true;
+                        }
+                    }
+                }
+            }
+        }
+        return dists;
     }
 
     // Message passing (one step) → single sparse tensor contraction

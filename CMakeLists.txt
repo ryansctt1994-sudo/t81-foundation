@@ -1046,6 +1046,54 @@ if(T81_BUILD_TESTS)
   add_executable(t81_proof_test tests/cpp/test_T81Proof.cpp)
   target_link_libraries(t81_proof_test PRIVATE t81_core)
   add_test(NAME t81_proof_test COMMAND t81_proof_test)
+
+  add_executable(t81_tensor_slice_static_test tests/cpp/test_T81Tensor_slice_static.cpp)
+  target_link_libraries(t81_tensor_slice_static_test PRIVATE t81_core)
+  add_test(NAME t81_tensor_slice_static_test COMMAND t81_tensor_slice_static_test)
+
+  add_executable(t81_tensor_concat_static_test tests/cpp/test_T81Tensor_concat_static.cpp)
+  target_link_libraries(t81_tensor_concat_static_test PRIVATE t81_core)
+  add_test(NAME t81_tensor_concat_static_test COMMAND t81_tensor_concat_static_test)
+
+  add_executable(t81_tensor_permute_static_test tests/cpp/test_T81Tensor_permute_static.cpp)
+  target_link_libraries(t81_tensor_permute_static_test PRIVATE t81_core)
+  add_test(NAME t81_tensor_permute_static_test COMMAND t81_tensor_permute_static_test)
+
+  add_executable(t81_tensor_pad_static_test tests/cpp/test_T81Tensor_pad_static.cpp)
+  target_link_libraries(t81_tensor_pad_static_test PRIVATE t81_core)
+  add_test(NAME t81_tensor_pad_static_test COMMAND t81_tensor_pad_static_test)
+
+  add_executable(t81_tensor_activations_static_test tests/cpp/test_T81Tensor_activations_static.cpp)
+  target_link_libraries(t81_tensor_activations_static_test PRIVATE t81_core)
+  add_test(NAME t81_tensor_activations_static_test COMMAND t81_tensor_activations_static_test)
+
+  add_executable(t81_tensor_softmax_static_test tests/cpp/test_T81Tensor_softmax_static.cpp)
+  target_link_libraries(t81_tensor_softmax_static_test PRIVATE t81_core)
+  add_test(NAME t81_tensor_softmax_static_test COMMAND t81_tensor_softmax_static_test)
+
+  add_executable(t81_graph_pagerank_convergence_test tests/cpp/test_T81Graph_pagerank_convergence.cpp)
+  target_link_libraries(t81_graph_pagerank_convergence_test PRIVATE t81_core)
+  add_test(NAME t81_graph_pagerank_convergence_test COMMAND t81_graph_pagerank_convergence_test)
+
+  add_executable(t81_graph_bfs_test tests/cpp/test_T81Graph_bfs.cpp)
+  target_link_libraries(t81_graph_bfs_test PRIVATE t81_core)
+  add_test(NAME t81_graph_bfs_test COMMAND t81_graph_bfs_test)
+
+  add_executable(t81_float_rounding_test tests/cpp/test_T81Float_rounding.cpp)
+  target_link_libraries(t81_float_rounding_test PRIVATE t81_core)
+  add_test(NAME t81_float_rounding_test COMMAND t81_float_rounding_test)
+
+  add_executable(t81_float_clamp_test tests/cpp/test_T81Float_clamp.cpp)
+  target_link_libraries(t81_float_clamp_test PRIVATE t81_core)
+  add_test(NAME t81_float_clamp_test COMMAND t81_float_clamp_test)
+
+  add_executable(t81_int_pow_test tests/cpp/test_T81Int_pow.cpp)
+  target_link_libraries(t81_int_pow_test PRIVATE t81_core)
+  add_test(NAME t81_int_pow_test COMMAND t81_int_pow_test)
+
+  add_executable(t81_int_gcd_lcm_test tests/cpp/test_T81Int_gcd_lcm.cpp)
+  target_link_libraries(t81_int_gcd_lcm_test PRIVATE t81_core)
+  add_test(NAME t81_int_gcd_lcm_test COMMAND t81_int_gcd_lcm_test)
 endif()
 
 # =============================================================================

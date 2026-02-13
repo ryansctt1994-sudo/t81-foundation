@@ -262,6 +262,352 @@ using KVCache    = T81Tensor<T81Fixed<72,9>, 4, 128, 128, 128, 64>; // layers, h
 using SymbolTensor = T81Tensor<T81Symbol, 1, 81>;
 
 //===================================================================
+// Slicing (Axis 0)
+//===================================================================
+namespace detail {
+    template <size_t NewFirst, typename TensorType> struct ReplaceFirstDimHelper;
+
+    template <size_t NewFirst, typename E, size_t Rank, size_t D0, size_t... Rest>
+    struct ReplaceFirstDimHelper<NewFirst, T81Tensor<E, Rank, D0, Rest...>> {
+        using type = T81Tensor<E, Rank, NewFirst, Rest...>;
+    };
+}
+
+/**
+ * @brief Slices the tensor along the first dimension (axis 0).
+ * @tparam Start The starting index (inclusive).
+ * @tparam End The ending index (exclusive).
+ */
+template <size_t Start, size_t End, typename E, size_t Rank, size_t... Dims>
+    requires (Start < End) && (End <= std::get<0>(std::array{Dims...}))
+[[nodiscard]] constexpr auto slice(const T81Tensor<E, Rank, Dims...>& t) noexcept
+    -> typename detail::ReplaceFirstDimHelper<End - Start, T81Tensor<E, Rank, Dims...>>::type
+{
+    using OutTensor = typename detail::ReplaceFirstDimHelper<End - Start, T81Tensor<E, Rank, Dims...>>::type;
+
+    // Calculate size of one slice in dimension 0
+    // Total size / dim0
+    constexpr size_t dim0 = std::get<0>(std::array{Dims...});
+    constexpr size_t stride_0 = T81Tensor<E, Rank, Dims...>::size() / dim0;
+
+    OutTensor out;
+    const size_t copy_len = (End - Start) * stride_0;
+    const size_t offset = Start * stride_0;
+
+    if (std::is_constant_evaluated()) {
+        for(size_t i=0; i<copy_len; ++i) out.data[i] = t.data[offset + i];
+    } else {
+        std::memcpy(out.data, t.data + offset, copy_len * sizeof(E));
+    }
+    return out;
+}
+
+/**
+ * @brief Softmax activation along the last dimension.
+ * softmax(x)_i = exp(x_i) / sum(exp(x_j))
+ */
+template <typename E, size_t Rank, size_t... Dims>
+[[nodiscard]] constexpr auto softmax(const T81Tensor<E, Rank, Dims...>& t) noexcept
+    -> T81Tensor<E, Rank, Dims...>
+{
+    T81Tensor<E, Rank, Dims...> out;
+    constexpr size_t total_size = T81Tensor<E, Rank, Dims...>::size();
+    constexpr std::array<size_t, Rank> shape = {Dims...};
+    constexpr size_t last_dim = shape[Rank - 1];
+
+    // Process chunks of size `last_dim`
+    // Since tensor is row-major, the last dimension is contiguous.
+    for (size_t base = 0; base < total_size; base += last_dim) {
+        // 1. Find max for numerical stability
+        E max_val = t.data[base];
+        for (size_t i = 1; i < last_dim; ++i) {
+            if (t.data[base + i] > max_val) max_val = t.data[base + i];
+        }
+
+        // 2. Compute exponentials and sum
+        E sum_exp{}; // Default construct to 0
+        for (size_t i = 0; i < last_dim; ++i) {
+            E val = t.data[base + i] - max_val;
+            // Assuming E has exp()
+            E e = val.exp();
+            out.data[base + i] = e; // Store in output temporarily
+            sum_exp = sum_exp + e;
+        }
+
+        // 3. Normalize
+        for (size_t i = 0; i < last_dim; ++i) {
+            out.data[base + i] = out.data[base + i] / sum_exp;
+        }
+    }
+    return out;
+}
+
+//===================================================================
+// Concatenation (Axis 0)
+//===================================================================
+namespace detail {
+    template <typename T1, typename T2> struct ConcatFirstDimHelper;
+
+    template <typename E, size_t Rank, size_t D0_1, size_t... Rest, size_t D0_2>
+    struct ConcatFirstDimHelper<T81Tensor<E, Rank, D0_1, Rest...>, T81Tensor<E, Rank, D0_2, Rest...>> {
+        using type = T81Tensor<E, Rank, D0_1 + D0_2, Rest...>;
+    };
+}
+
+/**
+ * @brief Concatenates two tensors along the first dimension (axis 0).
+ */
+template <typename E, size_t Rank, size_t D0_1, size_t... Rest, size_t D0_2>
+[[nodiscard]] constexpr auto concat(const T81Tensor<E, Rank, D0_1, Rest...>& t1, const T81Tensor<E, Rank, D0_2, Rest...>& t2) noexcept
+    -> typename detail::ConcatFirstDimHelper<T81Tensor<E, Rank, D0_1, Rest...>, T81Tensor<E, Rank, D0_2, Rest...>>::type
+{
+    using OutTensor = typename detail::ConcatFirstDimHelper<T81Tensor<E, Rank, D0_1, Rest...>, T81Tensor<E, Rank, D0_2, Rest...>>::type;
+
+    OutTensor out;
+    const size_t size1 = t1.size();
+    const size_t size2 = t2.size();
+
+    if (std::is_constant_evaluated()) {
+        for(size_t i=0; i<size1; ++i) out.data[i] = t1.data[i];
+        for(size_t i=0; i<size2; ++i) out.data[size1 + i] = t2.data[i];
+    } else {
+        std::memcpy(out.data, t1.data, size1 * sizeof(E));
+        std::memcpy(out.data + size1, t2.data, size2 * sizeof(E));
+    }
+    return out;
+}
+
+//===================================================================
+// Permute Implementation
+//===================================================================
+
+namespace detail {
+    // Helper to extract the I-th element from a pack
+    template <size_t I, typename... Ts> struct GetTypeAt;
+    template <size_t I, typename Head, typename... Tail>
+    struct GetTypeAt<I, Head, Tail...> {
+        using type = typename GetTypeAt<I-1, Tail...>::type;
+    };
+    template <typename Head, typename... Tail>
+    struct GetTypeAt<0, Head, Tail...> {
+        using type = Head;
+    };
+
+    // Helper to extract the I-th size_t from a pack
+    template <size_t I, size_t... Dims> struct GetDimAt;
+    template <size_t I, size_t Head, size_t... Tail>
+    struct GetDimAt<I, Head, Tail...> {
+        static constexpr size_t value = GetDimAt<I-1, Tail...>::value;
+    };
+    template <size_t Head, size_t... Tail>
+    struct GetDimAt<0, Head, Tail...> {
+        static constexpr size_t value = Head;
+    };
+
+    template <typename E, size_t Rank, typename PermSeq, typename DimsSeq>
+    struct PermuteHelper;
+
+    template <typename E, size_t Rank, size_t... Perms, size_t... Dims>
+    struct PermuteHelper<E, Rank, Seq<Perms...>, Seq<Dims...>> {
+        using type = T81Tensor<E, Rank, GetDimAt<Perms, Dims...>::value...>;
+    };
+}
+
+/**
+ * @brief Permutes the dimensions of the tensor.
+ * @tparam Perms The new order of dimensions.
+ */
+template <size_t... Perms, typename E, size_t Rank, size_t... Dims>
+    requires (sizeof...(Perms) == Rank)
+[[nodiscard]] constexpr auto permute(const T81Tensor<E, Rank, Dims...>& t) noexcept
+    -> typename detail::PermuteHelper<E, Rank, detail::Seq<Perms...>, detail::Seq<Dims...>>::type
+{
+    using OutTensor = typename detail::PermuteHelper<E, Rank, detail::Seq<Perms...>, detail::Seq<Dims...>>::type;
+    OutTensor out;
+
+    constexpr std::array<size_t, Rank> in_shape = {Dims...};
+    constexpr std::array<size_t, Rank> out_shape = OutTensor::shape();
+    constexpr std::array<size_t, Rank> perms = {Perms...};
+
+    // Precompute strides
+    std::array<size_t, Rank> in_strides{};
+    std::array<size_t, Rank> out_strides{};
+
+    size_t s = 1;
+    for (int i = (int)Rank - 1; i >= 0; --i) {
+        in_strides[i] = s;
+        s *= in_shape[i];
+    }
+    s = 1;
+    for (int i = (int)Rank - 1; i >= 0; --i) {
+        out_strides[i] = s;
+        s *= out_shape[i];
+    }
+
+    const size_t size = out.size();
+    for (size_t i = 0; i < size; ++i) {
+        // Decode flat out index to out_coords
+        std::array<size_t, Rank> out_coords{};
+        size_t temp = i;
+        for (int d = 0; d < (int)Rank; ++d) {
+            // Using precomputed strides for decoding requires careful iteration order
+            // Standard row-major: flat = c0*s0 + c1*s1 ...
+            // So we decode from dim 0
+            size_t stride = out_strides[d];
+            out_coords[d] = temp / stride;
+            temp %= stride;
+        }
+
+        // Map to in_coords
+        // in_coords[perms[k]] = out_coords[k]
+        std::array<size_t, Rank> in_coords{};
+        for (size_t k = 0; k < Rank; ++k) {
+            in_coords[perms[k]] = out_coords[k];
+        }
+
+        // Encode in_coords to in_flat
+        size_t in_flat = 0;
+        for (size_t k = 0; k < Rank; ++k) {
+            in_flat += in_coords[k] * in_strides[k];
+        }
+
+        out.data[i] = t.data[in_flat];
+    }
+
+    return out;
+}
+
+//===================================================================
+// Padding Implementation
+//===================================================================
+
+namespace detail {
+    template <typename E, size_t Rank, typename PadSeq, typename DimsSeq, typename IsSeq>
+    struct PadHelper;
+
+    template <typename E, size_t Rank, size_t... Pads, size_t... Dims, size_t... Is>
+    struct PadHelper<E, Rank, Seq<Pads...>, Seq<Dims...>, std::index_sequence<Is...>> {
+        using type = T81Tensor<E, Rank, (GetDimAt<Is, Dims...>::value + GetDimAt<2*Is, Pads...>::value + GetDimAt<2*Is+1, Pads...>::value)...>;
+    };
+}
+
+/**
+ * @brief Pads the tensor with a constant value.
+ * @tparam Pads... Pairs of (pad_before, pad_after) for each dimension. Total 2*Rank arguments.
+ */
+template <size_t... Pads, typename E, size_t Rank, size_t... Dims>
+    requires (sizeof...(Pads) == 2 * Rank)
+[[nodiscard]] constexpr auto pad(const T81Tensor<E, Rank, Dims...>& t, E value) noexcept
+    -> typename detail::PadHelper<E, Rank, detail::Seq<Pads...>, detail::Seq<Dims...>, std::make_index_sequence<Rank>>::type
+{
+    using OutTensor = typename detail::PadHelper<E, Rank, detail::Seq<Pads...>, detail::Seq<Dims...>, std::make_index_sequence<Rank>>::type;
+    OutTensor out(value); // Fill with pad value
+
+    constexpr std::array<size_t, 2*Rank> pads = {Pads...};
+    constexpr std::array<size_t, Rank> in_shape = {Dims...};
+    constexpr std::array<size_t, Rank> out_shape = OutTensor::shape();
+
+    // Precompute strides
+    std::array<size_t, Rank> in_strides{};
+    std::array<size_t, Rank> out_strides{};
+
+    size_t s = 1;
+    for (int i = (int)Rank - 1; i >= 0; --i) {
+        in_strides[i] = s;
+        s *= in_shape[i];
+    }
+    s = 1;
+    for (int i = (int)Rank - 1; i >= 0; --i) {
+        out_strides[i] = s;
+        s *= out_shape[i];
+    }
+
+    const size_t size = t.size();
+    for (size_t i = 0; i < size; ++i) {
+        // Decode in_flat -> in_coords
+        std::array<size_t, Rank> in_coords{};
+        size_t temp = i;
+        for (int d = 0; d < (int)Rank; ++d) {
+            size_t stride = in_strides[d];
+            in_coords[d] = temp / stride;
+            temp %= stride;
+        }
+
+        // Map to out_coords: out_coords[d] = in_coords[d] + pad_before[d]
+        // pad_before[d] is pads[2*d]
+        std::array<size_t, Rank> out_coords{};
+        for (size_t d = 0; d < Rank; ++d) {
+            out_coords[d] = in_coords[d] + pads[2*d];
+        }
+
+        // Encode out_coords -> out_flat
+        size_t out_flat = 0;
+        for (size_t d = 0; d < Rank; ++d) {
+            out_flat += out_coords[d] * out_strides[d];
+        }
+
+        out.data[out_flat] = t.data[i];
+    }
+
+    return out;
+}
+
+//===================================================================
+// Activation Functions
+//===================================================================
+
+/**
+ * @brief Rectified Linear Unit activation.
+ * ReLU(x) = max(0, x)
+ */
+template <typename E, size_t Rank, size_t... Dims>
+[[nodiscard]] constexpr auto relu(const T81Tensor<E, Rank, Dims...>& t) noexcept
+    -> T81Tensor<E, Rank, Dims...>
+{
+    T81Tensor<E, Rank, Dims...> out;
+    E zero{}; // Default construct to 0
+    for (size_t i = 0; i < t.size(); ++i) {
+        if (t.data[i] > zero) out.data[i] = t.data[i];
+        else out.data[i] = zero;
+    }
+    return out;
+}
+
+/**
+ * @brief Gaussian Error Linear Unit activation.
+ * GELU(x) ≈ 0.5x(1 + tanh(sqrt(2/π)(x + 0.044715x³)))
+ * Note: Requires Element type to support arithmetic and exp().
+ */
+template <typename E, size_t Rank, size_t... Dims>
+[[nodiscard]] constexpr auto gelu(const T81Tensor<E, Rank, Dims...>& t) noexcept
+    -> T81Tensor<E, Rank, Dims...>
+{
+    T81Tensor<E, Rank, Dims...> out;
+    // Constants
+    E half(0.5);
+    E one(1.0);
+    // sqrt(2/pi) approx 0.7978845608
+    E c1(0.7978845608);
+    // 0.044715
+    E c2(0.044715);
+
+    for (size_t i = 0; i < t.size(); ++i) {
+        E x = t.data[i];
+        E x3 = x * x * x;
+        E inner = c1 * (x + c2 * x3);
+
+        // tanh(u) = (exp(2u) - 1) / (exp(2u) + 1)
+        E two_inner = inner + inner;
+        E exp_val = two_inner.exp(); // Assuming E has exp() member function (like T81Float)
+
+        E tanh_val = (exp_val - one) / (exp_val + one);
+
+        out.data[i] = half * x * (one + tanh_val);
+    }
+    return out;
+}
+
+//===================================================================
 // Generic Transpose Implementation
 //===================================================================
 

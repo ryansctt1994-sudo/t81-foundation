@@ -283,6 +283,32 @@ public:
     }
 
     // ---------------------------------------------------------------------
+    // Rounding
+    // ---------------------------------------------------------------------
+
+    [[nodiscard]] T81Float floor() const noexcept {
+        if (is_nae()) return *this;
+        return from_double(std::floor(to_double()));
+    }
+
+    [[nodiscard]] T81Float ceil() const noexcept {
+        if (is_nae()) return *this;
+        return from_double(std::ceil(to_double()));
+    }
+
+    [[nodiscard]] T81Float round() const noexcept {
+        if (is_nae()) return *this;
+        return from_double(std::round(to_double()));
+    }
+
+    [[nodiscard]] T81Float clamp(T81Float min, T81Float max) const noexcept {
+        if (is_nae() || min.is_nae() || max.is_nae()) return nae();
+        if (*this < min) return min;
+        if (*this > max) return max;
+        return *this;
+    }
+
+    // ---------------------------------------------------------------------
     // Debugging
     // ---------------------------------------------------------------------
 
