@@ -209,6 +209,9 @@ target_link_libraries(axion_nested_guard_test PRIVATE t81_cli_driver t81_vm)
 add_executable(e2e_axion_trace_test tests/cpp/e2e_axion_trace_test.cpp)
 target_link_libraries(e2e_axion_trace_test PRIVATE t81_cli_driver t81_vm)
 
+add_executable(complex_demo examples/complex_demo.cpp)
+target_link_libraries(complex_demo PRIVATE t81_core asio)
+
 endif()
 
 # =============================================================================
