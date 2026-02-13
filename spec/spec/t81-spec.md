@@ -525,7 +525,7 @@ ______________________________________________________________________
 - tensor optimizations
 - matrix multiplication
 
-All MUST be deterministic across platforms.
+**Note:** In the current version, division and transcendental functions (`sin`, `cos`, `log`, etc.) rely on host-platform `double` precision and may exhibit bit-level variance across architectures. Strict bit-exact determinism is currently guaranteed only for basic arithmetic (`+`, `-`, `*`) and canonical storage. Future revisions target software-defined transcendental determinism.
 
 ______________________________________________________________________
 

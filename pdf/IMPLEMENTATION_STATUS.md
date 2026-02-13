@@ -8,7 +8,7 @@ The following components are fully implemented in the modern C++ runtime (`inclu
 
 ### Core T81 Data Types (Base-81)
 - **T81Int**: Fixed-width balanced ternary integers (e.g., `T81Int<81>`).
-- **T81Float**: Arbitrary-precision floating-point numbers with balanced rounding (e.g., `T81Float<72,9>`).
+- **T81Float**: Balanced ternary floating-point numbers (e.g., `T81Float<72,9>`). Note: Transcendental and division operations currently rely on host double precision.
 - **T81BigInt**: Arbitrary-precision integers with canonical representation.
 - **T81Fraction**: Rational numbers with automatic canonicalization (lowest terms, positive denominator).
 - **T81Complex**: Native balanced ternary complex numbers (using `T81Float` components).

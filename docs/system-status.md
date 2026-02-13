@@ -45,7 +45,7 @@ ______________________________________________________________________
 
 - **Specification:** [`spec/t81-data-types.md`](../spec/t81-data-types.md)
 - **Status:** `Complete`
-- **Summary:** All 90 canonical types are now fully implemented and integrated. Foundational numeric types, including the multi-limb `T81BigInt` and high-rank `T81Tensor` (with arbitrary rank transpose), conform to the spec's requirements for deterministic, balanced ternary arithmetic. All headers have standardized Doxygen documentation.
+- **Summary:** All 90 canonical types are now fully implemented and integrated. Foundational numeric types, including the multi-limb `T81BigInt` and high-rank `T81Tensor` (with arbitrary rank transpose), conform to the spec's requirements for deterministic, balanced ternary arithmetic. Note that `T81Float` transcendental functions currently rely on host precision. All headers have standardized Doxygen documentation.
 - **Implemented:** `T81Int<N>`, `T81UInt<N>`, `T81Fixed<I,F>`, `T81Float<M,E>`, `T81Complex<M>`, `T81Quaternion`, `T81Fraction<N>`, `T81Vector<N,S>`, `T81Matrix<S,R,C>`, `T81Tensor<E,R,Dims...>`, `T81String`, `T81Symbol`, `T81Bytes`, `T81List<E>`, `T81Set<T>`, `T81Map<K,V>`, `T81Tree<T>`, `T81Qutrit`, `T81Prob`, `T81Cell`, `base81`, `ids`, `T81BigInt`, `T81Agent`, `T81Entropy`, `T81Time`, `T81IOStream`, `T81Maybe<T>`, `T81Result<T>`, `T81Promise<T>`, `T81Thread`, `T81Network`, `T81Discovery`, `T81Category`, `T81Polynomial`, `T81Graph`, `T81Proof`, `T81Reflection`, `T81Stream`.
 - **Next Steps:** Maintain documentation and performance as usage scales.
 

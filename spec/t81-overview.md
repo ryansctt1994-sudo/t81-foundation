@@ -60,11 +60,13 @@ ______________________________________________________________________
 
 The T81 system MUST:
 
-- produce identical outputs for identical inputs
+- produce identical outputs for identical inputs (with explicit exceptions for host-dependent numerics)
 - not rely on nondeterministic randomness
-- enforce reproducibility across environments
+- enforce reproducibility across environments for supported primitives
 - use canonical representations for all types
 - serialize execution traces for auditing
+
+**Note:** Floating-point arithmetic involving division or transcendental functions is host-dependent and may not be bit-exact across different architectures.
 
 ______________________________________________________________________
 

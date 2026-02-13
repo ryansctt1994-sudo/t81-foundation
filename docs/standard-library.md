@@ -12,7 +12,8 @@ Basic definitions and utilities.
 - `fn unwrap_or(opt: Option[i32], default: i32) -> i32`: Option helper.
 
 ### `std.math`
-Mathematical constants and functions (deterministic, backed by `include/t81/std/math.hpp`).
+Mathematical constants and functions (backed by `include/t81/std/math.hpp`).
+**Note:** Transcendental functions (`sin`, `cos`, `exp`, etc.) currently rely on host `double` precision and are platform-dependent.
 - `PI`, `E`: Constants (high-precision).
 - `fn sin(x: T81Float) -> T81Float`: Sine (radians).
 - `fn cos(x: T81Float) -> T81Float`: Cosine (radians).

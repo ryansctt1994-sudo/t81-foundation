@@ -42,6 +42,7 @@ T81Lang is designed with the following properties:
 
 1. **Deterministic**\
    Every expression has a single, unambiguous meaning. No hidden I/O, nondeterminism, or environment leakage.
+   **Note:** Floating-point division and transcendental functions (`sin`, `cos`, etc.) rely on host-platform behavior and may vary across architectures; strict bit-exact determinism is guaranteed only for integer/fraction arithmetic and float storage.
 
 2. **Pure-by-default**\
    Functions are pure unless explicitly marked as effectful.
