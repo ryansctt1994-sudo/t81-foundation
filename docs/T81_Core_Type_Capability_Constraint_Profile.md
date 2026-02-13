@@ -20,14 +20,14 @@ The core T81 type system is divided into the following architectural layers:
 | `T81Int` | Storage | Strict | `to_string` (base3) | [IMPLICIT] | None | None | Low |
 | `T81Float` | Storage | Host-Dependent | [UNSPECIFIED] | [IMPLICIT] | None | None | Medium |
 | `T81BigInt` | Arithmetic | Strict | `to_base81_string` | [IMPLICIT] | None | None | Medium |
-| `T81Tensor` | Container | Strict | [UNSPECIFIED] | [IMPLICIT] | None | None | Medium |
-| `T81Graph` | Container | Strict | [UNSPECIFIED] | [IMPLICIT] | None | None | High |
+| `T81Tensor` | Container | Element-Dependent (Strict for integer scalar; Host-Dependent if float or host math used) | [UNSPECIFIED] | [IMPLICIT] | None | None | Medium |
+| `T81Graph` | Container | Strict (structural). Heap-backed for large graphs. Deterministic export via sorted adjacency. | [UNSPECIFIED] | [IMPLICIT] | None | None | High |
 | `T81List` | Container | Strict | `operator<<` | [IMPLICIT] | None | None | Medium |
-| `T81Map` | Container | Order-Dependent | None | [IMPLICIT] | None | None | Medium |
+| `T81Map` | Container | Order-Dependent | serialize_canonical() (sorted keys) | [IMPLICIT] | None | None | Medium |
 | `T81Vector` | Container | Host-Dependent | None | [IMPLICIT] | None | None | Medium |
 | `T81Symbol` | Symbolic | Policy-Dependent | `to_string` (interned) | [IMPLICIT] | None | Intern Table | High |
 | `T81Result` | Control Flow | Side-Effecting | `explain` | Explicit (Error) | `reflect()` | None | High |
-| `T81Entropy` | System | Strict (PRNG) | None | Explicit | None | Pool Access | High |
+| `T81Entropy` | System | Schedule-Dependent (multi-thread) / Strict given single-thread acquisition order | None | Explicit | None | Pool Access | High |
 | `T81Time` | System | Host-Dependent | `narrate` | [IMPLICIT] | `reflect()` | Override | Medium |
 
 ---
@@ -75,7 +75,7 @@ Purely deterministic logic for all operators `+`, `-`, `*`, `/`, `%`. Division i
 - Explicit NaE (Not-an-Entity) state.
 **Memory Model:** Stack-allocated, fixed size.
 **Failure Modes:** NaE propagation.
-**Canonical Representation:** [UNSPECIFIED] (Debug fields available).
+**Canonical Representation:** Canonical serialization is stable for a given internal representation. Construction via host-float paths remains Host-Dependent.
 **Entropy Semantics:** None.
 **Reflection Exposure:** None.
 **Governance Exposure:** None.
@@ -133,7 +133,7 @@ Strictly deterministic. Uses Karatsuba multiplication and Knuth's Algorithm D fo
 ## `T81Tensor`
 
 **Layer:** Container
-**Determinism Class:** Strict
+**Determinism Class:** Element-Dependent (Strict for integer scalar; Host-Dependent if float or host math used)
 **Primary Invariants:**
 - Rank and Dimensions fixed at compile time.
 - Elements must satisfy `T81Element` concept (size $\le$ 32 bytes).
@@ -165,7 +165,7 @@ All operations (broadcast, slice, matmul, conv2d) are structurally deterministic
 ## `T81Graph`
 
 **Layer:** Container
-**Determinism Class:** Strict
+**Determinism Class:** Strict (structural). Heap-backed for large graphs. Deterministic export via sorted adjacency.
 **Primary Invariants:**
 - Static `NodeCount` and `MaxDegree`.
 - Adjacency list storage.
@@ -232,7 +232,7 @@ Wrapper around `std::vector`. Deterministic if elements are.
 - Max load factor 0.729 ($3^{-1}$).
 **Memory Model:** Heap-allocated `std::vector<Bucket>`.
 **Failure Modes:** `std::bad_alloc`.
-**Canonical Representation:** None.
+**Canonical Representation:** serialize_canonical() (sorted keys). Runtime iteration order remains insertion-dependent.
 **Entropy Semantics:** None.
 **Reflection Exposure:** None.
 **Governance Exposure:** None.
@@ -321,7 +321,7 @@ While structural operations (+, -) are deterministic, geometric operations (`len
 - Interned via global `InternTable`.
 **Memory Model:** Global static `unordered_map` (heap).
 **Failure Modes:** Global lock contention.
-**Canonical Representation:** `§...` hex string or interned name.
+**Canonical Representation:** Canonical export uses name; numeric ID remains runtime-local.
 **Entropy Semantics:** None.
 **Reflection Exposure:** None.
 **Governance Exposure:** Intern Table access.
@@ -336,7 +336,7 @@ While structural operations (+, -) are deterministic, geometric operations (`len
 - High-frequency creation is needed (lock contention).
 
 ### Determinism Notes
-**Nondeterministic Identity**: IDs are assigned sequentially via a global counter protected by a mutex. The numeric value of a symbol depends on the runtime order of its first interning. If threads race to intern new symbols, their numeric IDs will vary across runs.
+Export determinism fixed. Runtime identity ordering still Order-Dependent. IDs are assigned sequentially via a global counter protected by a mutex. The numeric value of a symbol depends on the runtime order of its first interning. If threads race to intern new symbols, their numeric IDs will vary across runs.
 
 ### Architectural Risks
 - **Identity Drift**: Serialized graphs containing symbols may be invalid if loaded into a process with a different interning history.
@@ -347,7 +347,7 @@ While structural operations (+, -) are deterministic, geometric operations (`len
 ## `T81Entropy`
 
 **Layer:** System
-**Determinism Class:** Strict (PRNG) / Misleading
+**Determinism Class:** Schedule-Dependent (multi-thread) / Strict given single-thread acquisition order
 **Primary Invariants:**
 - Move-only (Affine).
 - Single consumption.
@@ -379,7 +379,7 @@ The implementation is named `hardware_trng` but is actually a **deterministic PR
 ## `T81Time`
 
 **Layer:** System
-**Determinism Class:** Host-Dependent
+**Determinism Class:** Host-Dependent (Strict if synchronized override)
 **Primary Invariants:**
 - Wraps `std::chrono::steady_clock`.
 **Memory Model:** Stack value.
@@ -397,7 +397,7 @@ The implementation is named `hardware_trng` but is actually a **deterministic PR
 - Deterministic logic depends on time values (unless override is strictly managed).
 
 ### Determinism Notes
-Nondeterministic by default (`clock::now()`). Can be forced to deterministic mode via global static override, but this override mechanism is **not thread-safe** (static `std::optional` without mutex).
+Host-Dependent by default. Strict under deterministic override (synchronized). Can be forced to deterministic mode via global static override.
 
 ### Architectural Risks
 - **Fixed**: Data races on `deterministic_override_` are resolved via mutex.
@@ -434,14 +434,14 @@ Nondeterministic by default (`clock::now()`). Can be forced to deterministic mod
 | `T81Int` | **YES** | No | None |
 | `T81Float` | **NO** | Yes (Ban division/transcendentals) | Host FPU variance |
 | `T81BigInt` | **YES** | Yes (Memory limits) | Allocation failure |
-| `T81Tensor` | **YES** | Yes (Stack limits) | None |
-| `T81Graph` | **NO** | N/A | Bugged implementation (Overflow) |
+| `T81Tensor` | **Conditional** | Yes | Float ops allowed |
+| `T81Graph` | **YES** | None | Memory Quota |
 | `T81List` | **YES** | Yes (Memory limits) | Allocation failure |
 | `T81Map` | **Conditional** | Yes | Iteration order (Insertion/Hash dependent) |
 | `T81Vector` | **Conditional** | Yes | Float fallback |
-| `T81Symbol` | **NO** | Yes (Strict init order) | Race conditions, Init order |
+| `T81Symbol` | **Conditional** | Yes | Policy: do not rely on numeric ID |
 | `T81Result` | **NO** | Yes (Side effects) | Entropy burn on error |
-| `T81Entropy` | **Conditional** | Yes | Thread scheduling |
-| `T81Time` | **NO** | Yes (Must mock) | Host clock, Data race |
+| `T81Entropy` | **Conditional** | Yes | Schedule-dependent (multi-thread) |
+| `T81Time` | **NO** | Yes (Must mock) | Host clock (unless injected) |
 
 **Conclusion**: The core arithmetic layer (`T81Int`, `T81BigInt`) is robust. The container layer (`Tensor`, `Graph`) suffers from stack allocation constraints and type definition bugs. The system/symbolic layer (`Symbol`, `Entropy`, `Time`) introduces significant nondeterminism and thread-safety risks that must be mitigated by strict userland policy. The Control Flow layer (`Result`) introduces unique side-effect risks in error paths.

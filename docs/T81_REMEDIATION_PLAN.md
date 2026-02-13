@@ -18,18 +18,19 @@
 | `T81Quaternion` | **Host-Dependent** | Inherits `T81Float` dependencies. |
 | `T81Vector<N>` | **Host-Dependent** | `length()` and `angle()` use `std::sqrt`, `std::acos` via `double`. |
 | `T81Matrix` | **Host-Dependent** | Inherits `T81Float` dependencies if used with float scalar. |
-| `T81Tensor` | **Host-Dependent** | Hybrid storage implemented. Canonical serialization added. |
+| `T81Tensor` | **Element-Dependent** | Strict for integer scalar; Host-Dependent if float or host math used. Hybrid storage implemented. Canonical serialization added. |
 | `T81Symbol` | **Order-Dependent** | ID assignment depends on interning order. `hash()` and `operator<=>` are ID-based. **Canonical Serialization uses Name.** |
 | `T81Map` | **Order-Dependent** | **Fixed**: `serialize_canonical()` uses sorted keys (by name for symbols). |
 | `T81Set` | **Order-Dependent** | Inherits `T81Map` behavior. |
 | `T81Graph` | **Strict** | **Fixed**: NodeID widens to `uint32_t`. Heap storage used for large graphs. |
 | `T81Time` | **Schedule-Dependent** | **Fixed**: Thread-safe override. |
-| `T81Entropy` | **Order-Dependent** | **Fixed**: Thread-safe seed/pool. |
+| `T81Entropy` | **Schedule-Dependent** | Schedule-Dependent (multi-thread) / Strict given single-thread acquisition order. **Fixed**: Thread-safe seed/pool. |
 | `T81IOStream` | **Order-Dependent** | **Fixed**: Thread-safe internal state. |
 | `T81List` | **Strict** | Deterministic if element type is deterministic. |
 | `T81String` | **Strict** | Text processing is deterministic. |
 
-**Status**: P0 (Thread Safety), P1 (Stack/Overflow), and P2 (Canonical Serialization) items are completed.
+**Status**: Implemented: thread-safety hardening, stack-safety via hybrid storage, deterministic canonical export surfaces.
+Deferred: host-float math determinism and content-addressable symbol identity.
 
 ---
 
@@ -70,7 +71,7 @@
 | :--- | :--- | :--- | :--- |
 | `T81Int` | Yes | Base-81 String (e.g. `12A`) | **Implemented** (trit string) |
 | `T81BigInt` | Yes | Base-81 String | Existing |
-| `T81Float` | Yes | Scientific Base-81 (e.g. `1.2A^B`) | **Implemented** (Trit representation) |
+| `T81Float` | Yes | Scientific Base-81 (e.g. `1.2A^B`) | **Implemented** (Trit representation). Canonical serialization does not call double; representation may differ if constructed via host-float path. |
 | `T81Symbol` | Yes | String Name | **Implemented** |
 | `T81Map` | Yes | Sorted Key-Value List | **Implemented** |
 | `T81Graph` | Yes | Adjacency List (Sorted) | **Implemented** |
@@ -112,10 +113,10 @@
 | `T81List` | **YES** | None | Memory Quota |
 | `T81Map` | **Conditional** | **Fixed** | Use `serialize_canonical` for hashing/export |
 | `T81Graph` | **YES** | None | Memory Quota |
-| `T81Tensor` | **YES** | None | Memory Quota |
-| `T81Symbol` | **Conditional** | **Fixed** | Use `serialize_canonical` (Name) |
-| `T81Time` | **NO** | Nondeterministic | Inject Time via VM Context |
-| `T81Entropy` | **NO** | Side-effecting | Inject Entropy via VM Context |
+| `T81Tensor` | **Conditional** | Float ops allowed | Memory Quota |
+| `T81Symbol` | **Conditional** | Policy: do not rely on numeric ID | Use `serialize_canonical` (Name) |
+| `T81Time` | **NO** | Unless Injected | Inject Time via VM Context |
+| `T81Entropy` | **Conditional** | Schedule-Dependent | Inject Entropy via VM Context |
 | `T81IOStream` | **NO** | Side-effecting | Ban. Use VM Output Buffer. |
 
 ---
