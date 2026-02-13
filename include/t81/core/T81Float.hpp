@@ -354,6 +354,132 @@ public:
         return { get_sign(), get_exp(), get_mantissa() };
     }
 
+    // ---------------------------------------------------------------------
+    // Public Components Access & Factory
+    // ---------------------------------------------------------------------
+
+    [[nodiscard]] constexpr Trit sign_trit() const noexcept { return get_sign(); }
+    [[nodiscard]] constexpr std::int64_t exponent() const noexcept { return get_exp(); }
+    [[nodiscard]] constexpr T81Int<M> mantissa() const noexcept { return get_mantissa(); }
+
+    static T81Float from_components(Trit sign, std::int64_t exp, const T81Int<M>& mant) noexcept {
+        T81Float f;
+        f.set_sign(sign != Trit::N);
+        f.set_exp(exp);
+        f.set_mantissa(mant);
+        return f;
+    }
+
+    // ---------------------------------------------------------------------
+    // Native Arithmetic (Deterministic)
+    // ---------------------------------------------------------------------
+
+    static T81Float add(T81Float a, T81Float b) noexcept {
+        if (a.is_nae() || b.is_nae()) return nae();
+        if (a.is_inf() || b.is_inf()) {
+            if (a.is_inf() && b.is_inf() && a.get_sign() != b.get_sign()) return nae();
+            return a.is_inf() ? a : b;
+        }
+        if (a.is_zero()) return b;
+        if (b.is_zero()) return a;
+
+        if (a.get_exp() < b.get_exp()) {
+             T81Float t = a; a = b; b = t;
+        }
+
+        std::int64_t ea = a.get_exp();
+        std::int64_t eb = b.get_exp();
+        std::int64_t diff = ea - eb;
+
+        constexpr size_t WideN = 2 * M + 4;
+        static_assert(WideN <= 2048, "M too large for native arithmetic");
+        using Wide = T81Int<WideN>;
+
+        Wide wa(a.get_mantissa());
+        Wide wb(b.get_mantissa());
+
+        // Align wa to have guard bits
+        wa <<= M;
+
+        if (diff > static_cast<std::int64_t>(M + 2)) {
+             wb = Wide(0);
+        } else {
+             std::int64_t shift = static_cast<std::int64_t>(M) - diff;
+             if (shift >= 0) wb <<= static_cast<size_t>(shift);
+             else wb >>= static_cast<size_t>(-shift);
+        }
+
+        if (a.is_negative()) wa = -wa;
+        if (b.is_negative()) wb = -wb;
+
+        Wide sum = wa + wb;
+
+        Trit s = sum.sign_trit();
+        if (s == Trit::Z) return zero();
+
+        if (s == Trit::N) sum = -sum;
+
+        return normalize<WideN - M>(s == Trit::P ? Trit::P : Trit::N, ea - M, sum);
+    }
+
+    static T81Float mul(T81Float a, T81Float b) noexcept {
+        if (a.is_nae() || b.is_nae()) return nae();
+        if (a.is_inf() || b.is_inf()) {
+            if (a.is_zero() || b.is_zero()) return nae();
+            return inf(a.get_sign() == b.get_sign());
+        }
+        if (a.is_zero() || b.is_zero()) return zero();
+
+        constexpr size_t WideN = 2 * M;
+        static_assert(WideN <= 2048, "M too large");
+        using Wide = T81Int<WideN>;
+
+        Wide wa(a.get_mantissa());
+        Wide wb(b.get_mantissa());
+
+        Wide prod = wa * wb;
+        // Value is prod * 3^(ea - (M-1) + eb - (M-1))
+        // = prod * 3^(ea + eb - 2M + 2)
+        // normalize expects exp such that value = prod * 3^exp
+        // So passed exp = ea + eb - M + 1?
+        // Wait, normalize produces mant * 3^(out_exp - (M-1)).
+        // We want mant * 3^(out_exp - M + 1) == prod * 3^(ea + eb - 2M + 2).
+        // If normalize preserves prod * 3^exp_in, then exp_in should be ea + eb - 2M + 2.
+        // But normalize produces T81Float.
+        // normalize invariant: result value == mant * 3^exp.
+        // So we must pass exp = ea + eb - 2*M + 2.
+        // Wait, normalize interprets input as m * 3^(exp - (M-1)).
+        // We want m_prod * 3^(ea + eb - 2M + 2).
+        // m_prod * 3^(E - M + 1) = m_prod * 3^(ea + eb - 2M + 2).
+        // E - M + 1 = ea + eb - 2M + 2.
+        // E = ea + eb - 2M + 2 + M - 1 = ea + eb - M + 1.
+
+        std::int64_t exp = a.get_exp() + b.get_exp() - static_cast<std::int64_t>(M) + 1;
+        bool pos = (a.get_sign() == b.get_sign());
+
+        // normalize expects T81Int<M + Guard>
+        // Here M + Guard = 2M, so Guard = M.
+        return normalize<M>(pos ? Trit::P : Trit::N, exp, prod);
+    }
+
+    static T81Float div(T81Float a, T81Float b) noexcept {
+        if (a.is_nae() || b.is_nae()) return nae();
+        if (b.is_zero()) {
+             if (a.is_zero() || a.is_inf()) return nae();
+             return inf(a.get_sign() == b.get_sign());
+        }
+        if (a.is_inf()) {
+             if (b.is_inf()) return nae();
+             return inf(a.get_sign() == b.get_sign());
+        }
+        if (b.is_inf()) return zero();
+        if (a.is_zero()) return zero();
+
+        // Fallback to double for division to ensure correctness until native
+        // division logic (rounding/normalization bias) is fully stabilized.
+        return from_double(a.to_double() / b.to_double());
+    }
+
     // Arithmetic friends
     template <std::size_t MM, std::size_t EE>
     friend T81Float<MM, EE> operator+(T81Float<MM, EE> a, T81Float<MM, EE> b) noexcept;
@@ -439,8 +565,12 @@ private:
             return zero(sign == Trit::P);
         }
 
-        const std::int64_t shift = static_cast<std::int64_t>(lead) - static_cast<std::int64_t>(M);
-        exp -= shift;
+        // Target index is M-1 (MSB of M trits)
+        const std::int64_t shift = static_cast<std::int64_t>(lead) - static_cast<std::int64_t>(M - 1);
+
+        // If shift > 0 (lead > M-1), we shift right (divide by 3^shift).
+        // This decreases value, so we must increase exponent.
+        exp += shift;
 
         if (shift > 0) {
             const size_type s = static_cast<size_type>(shift);
@@ -512,68 +642,27 @@ private:
 
 template <std::size_t M, std::size_t E>
 T81Float<M, E> operator+(T81Float<M, E> a, T81Float<M, E> b) noexcept {
-    using F = T81Float<M, E>;
-    if (a.is_nae() || b.is_nae()) return F::nae();
-    if (a.is_inf() || b.is_inf()) {
-        if (a.is_inf() && b.is_inf() && (a.is_negative() != b.is_negative())) {
-            return F::nae();
-        }
-        return a.is_inf() ? a : b;
-    }
-    return F::from_double(a.to_double() + b.to_double());
+    return T81Float<M, E>::add(a, b);
 }
 
 template <std::size_t M, std::size_t E>
 T81Float<M, E> operator-(T81Float<M, E> a, T81Float<M, E> b) noexcept {
-    return a + (-b);
+    return T81Float<M, E>::add(a, -b);
 }
 
 template <std::size_t M, std::size_t E>
 T81Float<M, E> operator*(T81Float<M, E> a, T81Float<M, E> b) noexcept {
-    using F = T81Float<M, E>;
-    if (a.is_nae() || b.is_nae()) return F::nae();
-
-    const bool a_zero = a.is_zero();
-    const bool b_zero = b.is_zero();
-    const bool a_inf  = a.is_inf();
-    const bool b_inf  = b.is_inf();
-
-    if ((a_inf && b_zero) || (b_inf && a_zero)) return F::nae();
-    if (a_inf || b_inf) {
-        return F::inf(a.is_negative() == b.is_negative());
-    }
-    if (a_zero || b_zero) return F::zero();
-
-    return F::from_double(a.to_double() * b.to_double());
+    return T81Float<M, E>::mul(a, b);
 }
 
 template <std::size_t M, std::size_t E>
 T81Float<M, E> operator/(T81Float<M, E> a, T81Float<M, E> b) noexcept {
-    using F = T81Float<M, E>;
-    if (a.is_nae() || b.is_nae()) return F::nae();
-
-    const bool a_zero = a.is_zero();
-    const bool b_zero = b.is_zero();
-    const bool a_inf  = a.is_inf();
-    const bool b_inf  = b.is_inf();
-
-    if (b_zero) {
-        if (a_zero || a_inf) return F::nae();
-        return F::inf(a.is_negative() == b.is_negative());
-    }
-    if (a_inf || b_inf) {
-        if (a_inf && b_inf) return F::nae();
-        if (a_inf) return F::inf(a.is_negative() == b.is_negative());
-        return F::zero();
-    }
-    if (a_zero) return F::zero();
-
-    return F::from_double(a.to_double() / b.to_double());
+    return T81Float<M, E>::div(a, b);
 }
 
 template <std::size_t M, std::size_t E>
 T81Float<M, E> fma(T81Float<M, E> a, T81Float<M, E> b, T81Float<M, E> c) noexcept {
-    return a * b + c;
+    return T81Float<M, E>::add(T81Float<M, E>::mul(a, b), c);
 }
 
 // ======================================================================
