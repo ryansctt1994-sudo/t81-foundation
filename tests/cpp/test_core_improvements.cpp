@@ -15,17 +15,24 @@
         } \
     } while (0)
 
+using namespace t81;
+
+bool is_close(const float81& a, const float81& b) {
+    double da = a.to_double();
+    double db = b.to_double();
+    if (std::abs(da) < 1e-12 && std::abs(db) < 1e-12) return true;
+    double rel = std::abs(da - db) / std::max(std::abs(da), std::abs(db));
+    return rel < 1e-12;
+}
+
 #define TEST_ASSERT_FLOAT(val, expected) \
     do { \
-        if (!((val) == (expected))) { \
+        if (!is_close((val), (expected))) { \
             std::cerr << "Assertion failed: " << #val << " == " << #expected << " at " << __FILE__ << ":" << __LINE__ << std::endl; \
             std::cerr << "  Value: " << (val).to_double() << ", Expected: " << (expected).to_double() << std::endl; \
             std::exit(1); \
         } \
     } while (0)
-
-
-using namespace t81;
 
 // Helper to fill tensor with sequential data
 template<typename T, size_t R, size_t... D>

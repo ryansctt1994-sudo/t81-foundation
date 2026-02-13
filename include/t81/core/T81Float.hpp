@@ -148,7 +148,7 @@ public:
     }
 
     [[nodiscard]] constexpr bool is_subnormal() const noexcept {
-        return get_exp() == 0 && !get_mantissa().is_zero();
+        return get_exp() == -kInfExponent && !get_mantissa().is_zero();
     }
 
     [[nodiscard]] constexpr bool is_negative() const noexcept {
@@ -640,13 +640,13 @@ private:
         if (exp >= kInfExponent) {
             return inf(sign == Trit::P);
         }
-        if (exp <= 0) {
-            const std::int64_t under = 1 - exp;
+        if (exp <= -kInfExponent) {
+            const std::int64_t under = -kInfExponent - exp;
             if (under >= static_cast<std::int64_t>(M)) {
                 return zero(sign == Trit::P);
             }
             final_m >>= static_cast<size_type>(under);
-            exp = 0;
+            exp = -kInfExponent;
         }
 
         T81Float f;
