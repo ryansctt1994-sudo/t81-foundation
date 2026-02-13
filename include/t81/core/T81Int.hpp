@@ -424,7 +424,12 @@ public:
                 case Trit::N: s.push_back('-'); break;
             }
         }
-        return make_str(s.data(), s.data() + s.size());
+        return s;
+    }
+
+    // P2: Canonical serialization
+    std::string to_canonical_string() const {
+        return to_trit_string();
     }
 };
 
