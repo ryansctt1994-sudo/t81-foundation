@@ -17,9 +17,9 @@ ______________________________________________________________________
 
 # Axion Kernel Specification
 
-Version 0.2 — Draft (Standards Track)
+Version 1.0 — Stable
 
-Status: Draft → Standards Track\
+Status: Stable\
 Applies to: T81VM, TISC, T81Lang, Cognitive Tiers
 
 The **Axion Kernel** is the supervisory intelligence of the T81 Ecosystem.\

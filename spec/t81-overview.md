@@ -17,7 +17,7 @@ ______________________________________________________________________
 
 # T81 Overview
 
-Version 0.2 — Draft
+Version 1.0 — Stable
 
 This document provides the conceptual and architectural overview of the T81 Ecosystem.\
 It defines the purpose, philosophical grounding, and structural layout of the entire computation stack.

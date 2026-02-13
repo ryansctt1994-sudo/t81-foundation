@@ -6,7 +6,7 @@
 
 ## 1. Current Phase
 
-T81 is in a **post-v1.0 hardening and scaling phase**:
+T81 is in a **Post-v1.0 Scaling phase**:
 - Core determinism pipeline is implemented (T81Lang -> TISC -> HanoiVM -> Axion traces).
 - CanonFS/Axion runtime surfaces are implemented and covered by regression tests.
 - CI enforces cross-arch reproducibility gates and runtime-contract sync checks.

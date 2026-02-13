@@ -17,7 +17,7 @@
 
 **Deterministic, governed runtime stack for auditable computing.**
 
-T81 is a post-v1.0 hardening project delivering a fully deterministic compilation and execution pipeline (`T81Lang -> TISC -> HanoiVM`). It prioritizes auditability, policy enforcement (Axion), and reproducibility over raw hardware speed.
+T81 is a deterministic compilation and execution pipeline (`T81Lang -> TISC -> HanoiVM`). It prioritizes auditability, policy enforcement (Axion), and reproducibility over raw hardware speed.
 
 > **Note on Floating Point Determinism:** `T81Float` arithmetic operations involving division and transcendental functions (`sin`, `cos`, `log`, etc.) currently rely on host-platform `double` precision behavior. While `T81Float` *storage* and *canonical serialization* are deterministic, runtime arithmetic results for these specific operations may vary by platform. Strict bit-exact determinism is currently guaranteed for `T81Int`, `T81BigInt`, `T81Fraction` (canonical), and `T81Float` addition/subtraction/multiplication.
 
@@ -54,9 +54,9 @@ Verify the claims yourself in 4 steps:
 
 To save your time, here is what T81 is **NOT**:
 
-*   **NOT a hardware accelerator:** We do not claim ternary hardware speedups. This is a software runtime for deterministic correctness.
-*   **NOT a general-purpose replacement:** We focus on high-stakes, auditable logic, not replacing C++ or Python for general tasks.
-*   **NOT "fast and loose":** If a performance optimization breaks trace determinism, we reject it.
+*   **NOT a hardware accelerator:** T81 does not claim ternary hardware speedups. This is a software runtime for deterministic correctness.
+*   **NOT a general-purpose replacement:** T81 focuses on high-stakes, auditable logic, not replacing C++ or Python for general tasks.
+*   **NOT "fast and loose":** If a performance optimization breaks trace determinism, T81 rejects it.
 
 ---
 
@@ -64,7 +64,7 @@ To save your time, here is what T81 is **NOT**:
 
 Modern runtimes trade reproducibility for speed. T81 inverts this: **Auditability is the primary constraint.**
 
-We enforce this via a strict architectural boundary between the Language/Compiler and the Execution Runtime, governed by explicit contracts.
+This is enforced via a strict architectural boundary between the Language/Compiler and the Execution Runtime, governed by explicit contracts.
 
 [**View Architectural Boundary Diagram**](ARCHITECTURE.md#3-concurrent-workstream-view) | [**View Runtime Contract**](contracts/runtime-contract.json)
 
@@ -86,7 +86,7 @@ We enforce this via a strict architectural boundary between the Language/Compile
 
 *   **Stable:** T81Lang Syntax, TISC Binary Format, HanoiVM Execution Semantics.
 *   **Experimental:** JIT Compilation, Distributed Tensor Ops.
-*   **SemVer:** We follow Semantic Versioning. Breaking changes to **Stable** components increment the Major version.
+*   **SemVer:** T81 follows Semantic Versioning. Breaking changes to **Stable** components increment the Major version.
 
 ---
 

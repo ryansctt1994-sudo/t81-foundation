@@ -240,7 +240,7 @@ ______________________________________________________________________
 
 ## 10. Near-Term Architecture Work (Open)
 
-Open architecture-level items remain tracked in `TASKS.md` and `TODO.md`. Current active streams:
+Architecture-level items are tracked in `TASKS.md`. Current active streams:
 
 - **Deterministic trace-JIT MVP hardening:** side-effect-free numeric/tensor hot-path compilation with Axion boundary checks.
 - **BigInt performance path:** SIMD/Karatsuba-oriented multi-limb optimizations without changing canonical arithmetic semantics.

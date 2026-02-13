@@ -3,7 +3,7 @@
 > **Source of Truth:** This document defines the **current operational state** of the project (what is true today). For future plans, see [ROADMAP.md](ROADMAP.md). For version history, see [CHANGELOG.md](CHANGELOG.md).
 
 **Last Updated:** February 10, 2026
-**Status:** Active development (post-v1.0 hardening/scaling)
+**Status:** Active development (Stable Core)
 
 ## 1. Snapshot
 
