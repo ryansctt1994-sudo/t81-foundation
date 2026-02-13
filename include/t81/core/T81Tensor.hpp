@@ -904,6 +904,108 @@ template <typename E, size_t N>
     return res;
 }
 
+/**
+ * @brief Returns the upper triangular part of a matrix (Rank 2).
+ * Elements below the diagonal are set to zero.
+ * @tparam k The diagonal index (0 is main diagonal, >0 is above, <0 is below).
+ */
+template <int k = 0, typename E, size_t R, size_t C>
+[[nodiscard]] constexpr auto triu(const T81Tensor<E, 2, R, C>& t) noexcept
+    -> T81Tensor<E, 2, R, C>
+{
+    T81Tensor<E, 2, R, C> out; // zero init
+    E zero{};
+    for (size_t r = 0; r < R; ++r) {
+        for (size_t c = 0; c < C; ++c) {
+             long long diff = static_cast<long long>(c) - static_cast<long long>(r);
+             if (diff >= k) {
+                 out(r, c) = t(r, c);
+             } else {
+                 out(r, c) = zero;
+             }
+        }
+    }
+    return out;
+}
+
+/**
+ * @brief Returns the lower triangular part of a matrix (Rank 2).
+ * Elements above the diagonal are set to zero.
+ */
+template <int k = 0, typename E, size_t R, size_t C>
+[[nodiscard]] constexpr auto tril(const T81Tensor<E, 2, R, C>& t) noexcept
+    -> T81Tensor<E, 2, R, C>
+{
+    T81Tensor<E, 2, R, C> out;
+    E zero{};
+    for (size_t r = 0; r < R; ++r) {
+        for (size_t c = 0; c < C; ++c) {
+             long long diff = static_cast<long long>(c) - static_cast<long long>(r);
+             if (diff <= k) {
+                 out(r, c) = t(r, c);
+             } else {
+                 out(r, c) = zero;
+             }
+        }
+    }
+    return out;
+}
+
+/**
+ * @brief Extracts the diagonal from a matrix (Rank 2).
+ * @return Rank 1 tensor.
+ */
+template <int k = 0, typename E, size_t R, size_t C>
+[[nodiscard]] constexpr auto diag(const T81Tensor<E, 2, R, C>& t) noexcept
+{
+    constexpr long long start_col = (k >= 0) ? k : 0;
+    constexpr long long start_row = (k >= 0) ? 0 : -k;
+
+    constexpr long long raw_size = std::min(static_cast<long long>(R) - start_row, static_cast<long long>(C) - start_col);
+    constexpr size_t N = (raw_size > 0) ? static_cast<size_t>(raw_size) : 0;
+
+    T81Tensor<E, 1, N> out;
+
+    if constexpr (N > 0) {
+        for (size_t i = 0; i < N; ++i) {
+            out(i) = t(static_cast<size_t>(start_row + i), static_cast<size_t>(start_col + i));
+        }
+    }
+    return out;
+}
+
+/**
+ * @brief Constructs a diagonal matrix from a vector (Rank 1).
+ * @return Rank 2 tensor (square).
+ */
+template <typename E, size_t N>
+[[nodiscard]] constexpr auto diag(const T81Tensor<E, 1, N>& v) noexcept
+    -> T81Tensor<E, 2, N, N>
+{
+    T81Tensor<E, 2, N, N> out; // zero init
+    for (size_t i = 0; i < N; ++i) {
+        out(i, i) = v(i);
+    }
+    return out;
+}
+
+/**
+ * @brief Clamps all elements in the tensor to [min, max].
+ */
+template <typename E, size_t Rank, size_t... Dims>
+[[nodiscard]] constexpr auto clamp(const T81Tensor<E, Rank, Dims...>& t, E min, E max) noexcept
+    -> T81Tensor<E, Rank, Dims...>
+{
+    T81Tensor<E, Rank, Dims...> out;
+    for (size_t i = 0; i < t.size(); ++i) {
+        E val = t.data[i];
+        if (val < min) val = min;
+        else if (val > max) val = max;
+        out.data[i] = val;
+    }
+    return out;
+}
+
 //===================================================================
 // Convolution and Pooling
 //===================================================================

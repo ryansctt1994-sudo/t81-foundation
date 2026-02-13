@@ -109,6 +109,15 @@ public:
         return { ac - bd, ad + bc };
     }
 
+    [[nodiscard]] T81Complex operator/(const T81Complex& o) const noexcept {
+        Float denom = o.re * o.re + o.im * o.im;
+        Float ac = re * o.re;
+        Float bd = im * o.im;
+        Float bc = im * o.re;
+        Float ad = re * o.im;
+        return { (ac + bd) / denom, (bc - ad) / denom };
+    }
+
     [[nodiscard]] T81Complex conj() const noexcept {
         return { re, -im };
     }
@@ -191,6 +200,31 @@ template <std::size_t M>
     const double s = std::sin(angle);
     using Float = typename T81Complex<M>::FloatType;
     return T81Complex<M>(Float::from_double(c), Float::from_double(s));
+}
+
+template <std::size_t M>
+[[nodiscard]] T81Complex<M> sqrt(const T81Complex<M>& z) noexcept {
+    std::complex<double> zd(z.re.to_double(), z.im.to_double());
+    return T81Complex<M>(std::sqrt(zd));
+}
+
+template <std::size_t M>
+[[nodiscard]] T81Complex<M> exp(const T81Complex<M>& z) noexcept {
+    std::complex<double> zd(z.re.to_double(), z.im.to_double());
+    return T81Complex<M>(std::exp(zd));
+}
+
+template <std::size_t M>
+[[nodiscard]] T81Complex<M> log(const T81Complex<M>& z) noexcept {
+    std::complex<double> zd(z.re.to_double(), z.im.to_double());
+    return T81Complex<M>(std::log(zd));
+}
+
+template <std::size_t M>
+[[nodiscard]] T81Complex<M> pow(const T81Complex<M>& base, const T81Complex<M>& exp) noexcept {
+    std::complex<double> b(base.re.to_double(), base.im.to_double());
+    std::complex<double> e(exp.re.to_double(), exp.im.to_double());
+    return T81Complex<M>(std::pow(b, e));
 }
 
 [[nodiscard]] inline T81Complex18 mul3(const T81Complex18& a, const T81Complex18& b) noexcept {
