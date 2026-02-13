@@ -259,6 +259,15 @@ if(T81_BUILD_TESTS)
   add_executable(t81_bigint_gcd_divmod_property_test tests/cpp/bigint_gcd_divmod_property_test.cpp)
   target_link_libraries(t81_bigint_gcd_divmod_property_test PRIVATE t81_core)
 
+  add_executable(t81_bigint_mod_test tests/cpp/test_T81BigInt_mod.cpp)
+  target_link_libraries(t81_bigint_mod_test PRIVATE t81_core)
+
+  add_executable(t81_bigint_sqrt_test tests/cpp/test_T81BigInt_sqrt.cpp)
+  target_link_libraries(t81_bigint_sqrt_test PRIVATE t81_core)
+
+  add_executable(fuzz_bigint_div tests/cpp/fuzz_bigint_div.cpp)
+  target_link_libraries(fuzz_bigint_div PRIVATE t81_core)
+
   add_executable(t81_fraction_properties_test tests/cpp/fraction_properties_test.cpp)
   target_link_libraries(t81_fraction_properties_test PRIVATE t81_core)
 
@@ -381,6 +390,12 @@ if(T81_BUILD_TESTS)
 
   add_executable(t81_tensor_matmul_test tests/cpp/tensor_matmul_test.cpp)
   target_link_libraries(t81_tensor_matmul_test PRIVATE t81_core)
+
+  add_executable(t81_tensor_conv_test tests/cpp/test_T81Tensor_conv.cpp)
+  target_link_libraries(t81_tensor_conv_test PRIVATE t81_core)
+
+  add_executable(t81_tensor_nn_test tests/cpp/test_T81Tensor_nn.cpp)
+  target_link_libraries(t81_tensor_nn_test PRIVATE t81_core)
 
   add_executable(t81_tensor_reduce_test tests/cpp/tensor_reduce_test.cpp)
   target_link_libraries(t81_tensor_reduce_test PRIVATE t81_core)
@@ -1002,6 +1017,14 @@ if(T81_BUILD_TESTS)
   add_executable(t81_graph_test tests/cpp/test_T81Graph.cpp)
   target_link_libraries(t81_graph_test PRIVATE t81_core)
   add_test(NAME t81_graph_test COMMAND t81_graph_test)
+
+  add_executable(t81_graph_components_test tests/cpp/test_T81Graph_components.cpp)
+  target_link_libraries(t81_graph_components_test PRIVATE t81_core)
+  add_test(NAME t81_graph_components_test COMMAND t81_graph_components_test)
+
+  add_executable(t81_graph_shortest_path_test tests/cpp/test_T81Graph_shortest_path.cpp)
+  target_link_libraries(t81_graph_shortest_path_test PRIVATE t81_core)
+  add_test(NAME t81_graph_shortest_path_test COMMAND t81_graph_shortest_path_test)
 
   add_executable(t81_graph_large_test tests/cpp/test_T81Graph_large.cpp)
   target_link_libraries(t81_graph_large_test PRIVATE t81_core)

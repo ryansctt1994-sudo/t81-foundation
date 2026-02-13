@@ -255,6 +255,38 @@ public:
         return from_double(std::acos(x));
     }
 
+    [[nodiscard]] T81Float tan() const noexcept {
+        if (is_nae()) return *this;
+        return from_double(std::tan(to_double()));
+    }
+
+    [[nodiscard]] T81Float asin() const noexcept {
+        if (is_nae()) return *this;
+        double x = to_double();
+        if (x < -1.0 || x > 1.0) return nae();
+        return from_double(std::asin(x));
+    }
+
+    [[nodiscard]] T81Float atan() const noexcept {
+        if (is_nae()) return *this;
+        return from_double(std::atan(to_double()));
+    }
+
+    [[nodiscard]] T81Float sinh() const noexcept {
+        if (is_nae()) return *this;
+        return from_double(std::sinh(to_double()));
+    }
+
+    [[nodiscard]] T81Float cosh() const noexcept {
+        if (is_nae()) return *this;
+        return from_double(std::cosh(to_double()));
+    }
+
+    [[nodiscard]] T81Float tanh() const noexcept {
+        if (is_nae()) return *this;
+        return from_double(std::tanh(to_double()));
+    }
+
     /**
      * @brief Exponential function e^x.
      */

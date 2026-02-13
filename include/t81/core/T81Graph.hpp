@@ -201,6 +201,96 @@ public:
         return dists;
     }
 
+    /**
+     * @brief Computes connected components (Weakly Connected Components).
+     * @return Tensor of component IDs. Each component ID is the smallest NodeID in that component.
+     */
+    [[nodiscard]] constexpr auto connected_components() const noexcept
+        -> T81Tensor<T81Int<81>, 1, NodeCount>
+    {
+        using ComponentTensor = T81Tensor<T81Int<81>, 1, NodeCount>;
+        ComponentTensor comps;
+
+        for (NodeID i = 0; i < NodeCount; ++i) {
+            comps(i) = T81Int<81>(static_cast<std::int64_t>(i));
+        }
+
+        bool changed = true;
+        while (changed) {
+            changed = false;
+            for (NodeID u = 0; u < NodeCount; ++u) {
+                // Propagate minimum component ID between neighbors (WCC style)
+                T81Int<81> id_u = comps(u);
+
+                for (auto [v, w] : outgoing(u)) {
+                    T81Int<81> id_v = comps(v);
+
+                    if (id_v < id_u) {
+                        comps(u) = id_v;
+                        changed = true;
+                        id_u = id_v; // Update local
+                    } else if (id_u < id_v) {
+                        comps(v) = id_u;
+                        changed = true;
+                    }
+                }
+            }
+        }
+        return comps;
+    }
+
+    /**
+     * @brief Computes shortest paths from start node using Dijkstra's algorithm.
+     * @return Tensor of distances.
+     */
+    [[nodiscard]] constexpr auto shortest_path(NodeID start) const noexcept
+        -> T81Tensor<Weight81, 1, NodeCount>
+    {
+        T81Tensor<Weight81, 1, NodeCount> dist;
+        // Initialize with infinity
+        Weight81 inf = Weight81::inf(true);
+        for(size_t i=0; i<NodeCount; ++i) dist(i) = inf;
+
+        dist(start) = Weight81(0);
+
+        // Visited set
+        bool visited[NodeCount] = {};
+
+        for (size_t i = 0; i < NodeCount; ++i) {
+            // Find min dist node among unvisited
+            NodeID u = NodeID(-1);
+            Weight81 min_d = inf;
+
+            for (size_t j = 0; j < NodeCount; ++j) {
+                // Check dist(j) < min_d.
+                // We must handle NaE/Inf correctly. T81Float comparison works.
+                if (!visited[j]) {
+                    Weight81 d = dist(j);
+                    if (d < min_d) {
+                        min_d = d;
+                        u = static_cast<NodeID>(j);
+                    }
+                }
+            }
+
+            if (u == NodeID(-1)) break; // No reachable nodes left or all are Inf
+
+            visited[u] = true;
+
+            // Relax neighbors
+            for (auto [v, w] : outgoing(u)) {
+                if (!visited[v]) {
+                    Weight81 new_dist = dist(u) + w;
+                    if (new_dist < dist(v)) {
+                        dist(v) = new_dist;
+                    }
+                }
+            }
+        }
+
+        return dist;
+    }
+
     // Message passing (one step) → single sparse tensor contraction
     [[nodiscard]] constexpr auto message_pass(
         const T81Tensor<Weight81, 1, NodeCount>& node_states) const noexcept

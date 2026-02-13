@@ -42,11 +42,23 @@ void create_dummy_tisc(const std::filesystem::path& path) {
     t81::tisc::save_program(prog, path.string());
 }
 
+void create_memory_tisc(const std::filesystem::path& path) {
+    t81::tisc::Program prog;
+    // R1 = 100 (addr)
+    // R2 = 42 (val)
+    // Store [R1] = R2
+    prog.insns.push_back({t81::tisc::Opcode::LoadImm, 1, 100, 0});
+    prog.insns.push_back({t81::tisc::Opcode::LoadImm, 2, 42, 0});
+    prog.insns.push_back({t81::tisc::Opcode::Store, 2, 1, 0});
+    prog.insns.push_back({t81::tisc::Opcode::Halt, 0, 0, 0});
+    t81::tisc::save_program(prog, path.string());
+}
+
 } // namespace
 
 namespace fs = std::filesystem;
 
-int main() {
+void test_basic() {
     const fs::path tisc_path = fs::temp_directory_path() / "t81_debug_test.tisc";
     create_dummy_tisc(tisc_path);
 
@@ -60,29 +72,49 @@ int main() {
 
     std::stringstream output;
 
-    // Capture cin and cout
     {
         StreamCapture capture(std::cin, input.rdbuf(), std::cout, output.rdbuf());
-        // We mute cerr (logging) or capture it too if we want to check logs
-        // debug_tisc uses std::cout for UI.
         t81::cli::debug_tisc(tisc_path);
     }
 
     std::string out_str = output.str();
 
-    // Check for expected output
     assert(out_str.find("HanoiVM Debugger active") != std::string::npos);
     assert(out_str.find("LoadImm 1, 1, 0") != std::string::npos);
     assert(out_str.find("Add 3, 1, 2") != std::string::npos);
-    // Checking Register output
-    // print_registers prints "  R3: 3"
     assert(out_str.find("R3: 3") != std::string::npos);
-
-    // Check list output
-    // "-> [   3] Halt"
     assert(out_str.find("-> [   3] Halt") != std::string::npos);
 
     fs::remove(tisc_path);
+}
+
+void test_watchpoint() {
+    const fs::path tisc_path = fs::temp_directory_path() / "t81_debug_mem.tisc";
+    create_memory_tisc(tisc_path);
+
+    std::stringstream input;
+    input << "w 100\n";
+    input << "c\n"; // Should stop when memory[100] changes
+    input << "q\n";
+
+    std::stringstream output;
+    {
+        StreamCapture capture(std::cin, input.rdbuf(), std::cout, output.rdbuf());
+        t81::cli::debug_tisc(tisc_path);
+    }
+
+    std::string out_str = output.str();
+
+    assert(out_str.find("Watchpoint set at address 100") != std::string::npos);
+    assert(out_str.find("Watchpoint hit at address 100") != std::string::npos);
+    assert(out_str.find("0 -> 42") != std::string::npos);
+
+    fs::remove(tisc_path);
+}
+
+int main() {
+    test_basic();
+    test_watchpoint();
     std::cerr << "Debugger test passed!\n";
     return 0;
 }

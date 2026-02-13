@@ -1080,6 +1080,41 @@ public:
         return result;
     }
 
+    static T81BigInt pow_mod(const T81BigInt& base, const T81BigInt& exp, const T81BigInt& mod) {
+        if (mod.is_zero()) throw std::domain_error("pow_mod: modulus is zero");
+        if (exp.is_negative()) throw std::domain_error("pow_mod: negative exponent");
+
+        T81BigInt result = one() % mod;
+        T81BigInt b = base % mod;
+        T81BigInt e = exp;
+        T81BigInt two(2);
+
+        while (!e.is_zero()) {
+            auto dm = div_mod(e, two);
+            if (!dm.second.is_zero()) {
+                result = (result * b) % mod;
+            }
+            b = (b * b) % mod;
+            e = dm.first;
+        }
+        return result;
+    }
+
+    static T81BigInt sqrt(const T81BigInt& x) {
+        if (x.is_negative()) throw std::domain_error("sqrt of negative number");
+        if (x.is_zero()) return zero();
+
+        T81BigInt a = x;
+        T81BigInt two(2);
+        T81BigInt b = (x + one()) / two;
+
+        while (b < a) {
+            a = b;
+            b = (a + x / a) / two;
+        }
+        return a;
+    }
+
     std::string to_string() const {
         return to_base81_string();
     }

@@ -193,12 +193,59 @@ void test_functions_special_values() {
     check(zero.cos().to_double() == 1.0, "cos(0) = 1");
 }
 
+void test_trig_functions() {
+    std::cout << "Testing new trig functions...\n";
+
+    // tan
+    check(F::from_double(0.0).tan().is_zero(), "tan(0) = 0");
+    check(std::abs(F::from_double(0.785398).tan().to_double() - 1.0) < 1e-3, "tan(pi/4) ~= 1");
+    check(F::inf().tan().is_nae(), "tan(inf) = NaE");
+    check(F::nae().tan().is_nae(), "tan(NaE) = NaE");
+
+    // asin
+    check(F::from_double(0.0).asin().is_zero(), "asin(0) = 0");
+    check(std::abs(F::from_double(1.0).asin().to_double() - 1.570796) < 1e-3, "asin(1) ~= pi/2");
+    check(F::from_double(2.0).asin().is_nae(), "asin(2) = NaE");
+    check(F::from_double(-2.0).asin().is_nae(), "asin(-2) = NaE");
+    check(F::nae().asin().is_nae(), "asin(NaE) = NaE");
+
+    // atan
+    check(F::from_double(0.0).atan().is_zero(), "atan(0) = 0");
+    check(std::abs(F::from_double(1.0).atan().to_double() - 0.785398) < 1e-3, "atan(1) ~= pi/4");
+    check(F::inf().atan().to_double() > 1.5, "atan(inf) ~= pi/2");
+    check(F::nae().atan().is_nae(), "atan(NaE) = NaE");
+}
+
+void test_hyperbolic_functions() {
+    std::cout << "Testing hyperbolic functions...\n";
+
+    // sinh
+    check(F::from_double(0.0).sinh().is_zero(), "sinh(0) = 0");
+    check(std::abs(F::from_double(1.0).sinh().to_double() - 1.1752) < 1e-3, "sinh(1) ~= 1.1752");
+    check(F::inf().sinh().is_inf(), "sinh(inf) = inf");
+    check(F::nae().sinh().is_nae(), "sinh(NaE) = NaE");
+
+    // cosh
+    check(std::abs(F::from_double(0.0).cosh().to_double() - 1.0) < 1e-3, "cosh(0) = 1");
+    check(std::abs(F::from_double(1.0).cosh().to_double() - 1.5430) < 1e-3, "cosh(1) ~= 1.5430");
+    check(F::inf().cosh().is_inf(), "cosh(inf) = inf");
+    check(F::nae().cosh().is_nae(), "cosh(NaE) = NaE");
+
+    // tanh
+    check(F::from_double(0.0).tanh().is_zero(), "tanh(0) = 0");
+    check(std::abs(F::from_double(1.0).tanh().to_double() - 0.7615) < 1e-3, "tanh(1) ~= 0.7615");
+    check(std::abs(F::inf().tanh().to_double() - 1.0) < 1e-3, "tanh(inf) = 1");
+    check(F::nae().tanh().is_nae(), "tanh(NaE) = NaE");
+}
+
 int main() {
     try {
         test_special_values_creation_and_properties();
         test_conversions();
         test_arithmetic_special_values();
         test_functions_special_values();
+        test_trig_functions();
+        test_hyperbolic_functions();
 
         std::cout << "All specialized T81Float tests PASSED!\n";
     } catch (const std::exception& e) {
