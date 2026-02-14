@@ -27,7 +27,7 @@ ______________________________________________________________________
 - **`T81Int<N>`:** A header-only, fixed-size, templated class for balanced ternary integers. Its internal storage is a `std::array` of packed trytes.
 - **`T81BigInt`:** An arbitrary-precision integer class using multi-limb balanced ternary storage, with core arithmetic implemented and actively optimized for performance.
 - **`Fraction`:** A rational number type that is always maintained in canonical form (reduced, with a positive denominator).
-- **`T81Float`:** A production-quality, IEEE-754-inspired balanced ternary floating-point type.
+- **`T81Float`:** A balanced ternary floating-point type with canonical storage and sign-magnitude representation. **Note:** Division and transcendental functions currently rely on host `double` precision.
 - **Additional arithmetic primitives:** `T81Fixed`, `T81UInt`, and `T81Prob` extend the foundation with ternary fixed-point, unsigned integer, and probability-specialized numerics respectively; `T81Float` also has specializations for different mantissa/exponent budgets and interoperability with `T81Int` through constexpr bridges.
 - **Algebraic and geometric structures:** `T81Complex`, `T81Quaternion`, and `T81Polynomial` capture higher-order algebra, while `T81Vector`, `T81Matrix`, and `T81Tensor` expose fixed- and variable-dimensional linear spaces that compose cleanly with the numeric types.
 - **Containers and helpers:** `T81List`, `T81Map`, `T81Set`, `T81Tree`, `T81Graph`, along with `T81String`, `T81Bytes`, `T81Symbol`, and `T81Result`/`T81Maybe`/`T81Promise`, offer deterministic collection semantics, canonical string/byte handling, and rich error/result signaling within the ternary stack.

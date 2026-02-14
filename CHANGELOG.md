@@ -13,6 +13,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `std::span` optimization in `T81BigInt` Karatsuba multiplication, avoiding unnecessary vector copies.
 - Fast path in `T81BigInt` multiplication and addition to avoid `Axion trap` logs for expected overflows.
 - Implemented `gumbel_add` in `T81Prob` using `T81Entropy` for deterministic Gumbel noise injection.
+- Regression tests for `T81BigInt` division allocation pathology (`t81_bigint_allocation_pathology_test`, `t81_bigint_allocation_guardrail_test`).
+
+### Fixed
+- Allocation pathology in `T81BigInt::div_mod` (and `to_std_chunks`) by reserving vector capacity, preventing quadratic growth during division of large numbers.
 
 ### Changed
 - Documentation baseline aligned to C++23-default reality across root/docs guides and status reports.

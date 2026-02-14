@@ -1,11 +1,13 @@
 ---
 title: Hanoi Kernel — Reference Specification (Unified)
-version: 0.1.1
-status: final-draft
+version: 0.1.1 (Historical / Experimental)
+status: archived
 category: kernel
 created: 2025-11-22
 updated: 2025-11-22
 ---
+
+> **Note:** This specification describes an experimental microkernel architecture ("Hanoi Kernel") which differs from the current normative TISC and VM specifications. For the authoritative definition of the TISC ISA and HanoiVM execution model, refer to [`tisc-spec.md`](tisc-spec.md) and [`t81vm-spec.md`](t81vm-spec.md).
 
 # Hanoi Kernel v0.1.1
 

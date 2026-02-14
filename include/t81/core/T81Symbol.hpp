@@ -69,6 +69,11 @@ public:
     }
 
     [[nodiscard]] std::string to_string() const noexcept;
+
+    // P2: Canonical serialization (name based)
+    [[nodiscard]] std::string serialize_canonical() const {
+        return to_string();
+    }
 };
 
 // Internal implementation details

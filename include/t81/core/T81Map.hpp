@@ -23,6 +23,8 @@
 #include <type_traits>
 #include <functional>
 #include <stdexcept>
+#include <algorithm>
+#include <sstream>
 
 namespace t81 {
 
@@ -322,6 +324,63 @@ public:
     //===================================================================
     [[nodiscard]] size_type size() const noexcept { return size_; }
     [[nodiscard]] bool empty() const noexcept { return size_ == 0; }
+
+    //===================================================================
+    // Canonical Serialization (P2)
+    //===================================================================
+    [[nodiscard]] std::vector<std::pair<K, V>> iter_sorted() const {
+        std::vector<std::pair<K, V>> items;
+        items.reserve(size_);
+        // Iterate using const_iterator
+        for (const auto& kv : *this) {
+            items.emplace_back(kv.first, kv.second);
+        }
+        std::sort(items.begin(), items.end(), [](const auto& a, const auto& b) {
+             return a.first < b.first;
+        });
+        return items;
+    }
+
+    [[nodiscard]] std::string serialize_canonical() const {
+        auto items = iter_sorted();
+        // Re-sort using canonical order if Key is T81Symbol (name order)
+        if constexpr (std::is_same_v<K, T81Symbol>) {
+            std::sort(items.begin(), items.end(), [](const auto& a, const auto& b) {
+                return a.first.serialize_canonical() < b.first.serialize_canonical();
+            });
+        }
+
+        std::stringstream ss;
+        ss << "{";
+        bool first = true;
+        for (const auto& item : items) {
+            if (!first) ss << ", ";
+            // Key
+            if constexpr (requires { item.first.serialize_canonical(); }) {
+                ss << item.first.serialize_canonical();
+            } else if constexpr (requires { item.first.to_canonical_string(); }) {
+                ss << item.first.to_canonical_string();
+            } else if constexpr (requires { ss << item.first; }) {
+                ss << item.first;
+            } else {
+                ss << "?";
+            }
+            ss << ": ";
+            // Value
+            if constexpr (requires { item.second.serialize_canonical(); }) {
+                ss << item.second.serialize_canonical();
+            } else if constexpr (requires { item.second.to_canonical_string(); }) {
+                ss << item.second.to_canonical_string();
+            } else if constexpr (requires { ss << item.second; }) {
+                ss << item.second;
+            } else {
+                ss << "?";
+            }
+            first = false;
+        }
+        ss << "}";
+        return ss.str();
+    }
 
     //===================================================================
     // Comparison (structural)

@@ -135,6 +135,16 @@ public:
     constexpr T81Int& operator=(const T81Int&) noexcept = default;
     constexpr T81Int& operator=(T81Int&&) noexcept = default;
 
+    // Width conversion constructor: widen or truncate
+    template <std::size_t K>
+    constexpr explicit T81Int(const T81Int<K>& other) noexcept {
+        clear();
+        const size_type limit = (N < K) ? N : K;
+        for (size_type i = 0; i < limit; ++i) {
+            set_trit(i, other[i]);
+        }
+    }
+
     explicit T81Int(std::int64_t value) { assign_from_int64(value); }
     explicit T81Int(int value) : T81Int(static_cast<std::int64_t>(value)) {}
 
@@ -414,7 +424,12 @@ public:
                 case Trit::N: s.push_back('-'); break;
             }
         }
-        return make_str(s.data(), s.data() + s.size());
+        return s;
+    }
+
+    // P2: Canonical serialization
+    std::string to_canonical_string() const {
+        return to_trit_string();
     }
 };
 

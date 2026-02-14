@@ -17,11 +17,11 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-# **T81 Data Types Specification — Version 0.2 (Normative)**
+# **T81 Data Types Specification — Version 1.1 (Normative)**
 
-**Status:** Draft → Standards Track
+**Status:** Stable
 **Applies To:** T81Lang, TISC, T81VM, Axion, Cognitive Tiers
-**Supersedes:** v0.1 Draft
+**Supersedes:** v1.0
 **Purpose:** Define deterministic, canonical, base-81 type semantics for the T81 ecosystem.
 
 ______________________________________________________________________
@@ -152,7 +152,7 @@ ______________________________________________________________________
 
 ### Definition
 
-A reproducible floating-point format using:
+A floating-point format with **deterministic canonical storage** but **host-dependent arithmetic** for complex operations.
 
 - **base-81 mantissa**
 - **base-81 exponent**
@@ -160,17 +160,12 @@ A reproducible floating-point format using:
 
 ### Requirements (Normative)
 
-1. Representations MUST round deterministically.
-
-2. No NaN, no infinities.
-
-3. All invalid states MUST map to a deterministic error code.
-
-4. Round-trip encoding MUST be stable:
-
-   ```
-   encode(decode(x)) = x
-   ```
+1. **Storage Determinism**: The canonical representation (mantissa/exponent/sign) MUST be identical across platforms.
+2. **Arithmetic Dependency**:
+   - `Add`, `Sub`, `Mul`: MUST be deterministic (software implementation).
+   - `Div`, `Transcendentals` (`sin`, `cos`, `log`, etc.): MAY rely on host `double` precision. **Strict bit-exact determinism is NOT guaranteed** for these operations in the current version.
+3. **No NaN, no infinities**: Invalid states MUST map to a deterministic error code.
+4. **Round-trip encoding**: `encode(decode(x)) = x` MUST hold for the canonical form.
 
 ### Components
 

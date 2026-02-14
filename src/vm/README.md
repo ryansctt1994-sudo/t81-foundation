@@ -17,4 +17,5 @@ Implementation of the HanoiVM runtime.
 
 ## Notes
 - VM behavior must remain deterministic for identical program + inputs.
+- **Exception:** Floating-point division and transcendental operations (`FSIN`, `FDIV`, etc.) rely on host `double` precision and may not be bit-exact across platforms.
 - Any opcode semantic change should be mirrored in tests under `tests/cpp`.
