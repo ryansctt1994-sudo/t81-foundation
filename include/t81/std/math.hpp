@@ -51,6 +51,14 @@ T powi(T b, int exp) {
     return res;
 }
 
+// Range reduction
+template <typename T>
+T mod_2pi(T x) {
+    T two_pi = pi<T>() * T::from_double(2.0);
+    T div = x / two_pi;
+    return x - two_pi * div.floor();
+}
+
 // Trigonometric functions
 // Now delegating to T81Float member functions which use deterministic backend
 
