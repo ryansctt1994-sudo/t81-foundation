@@ -257,22 +257,20 @@ public:
             throw std::overflow_error("T81BigInt::to_int64: value too large");
         }
 
-        const std::int64_t mag = limbs_[0].to_int64(); // magnitude
-        if (mag < 0) {
-            // This can happen if the limb was constructed from a negative int64
-            // but we want magnitude. Actually assign_from_int64 handles this.
-            if (mag == std::numeric_limits<std::int64_t>::min()) {
-                 // abs(min) still fits in 81 trits but not in int64_t magnitude.
-                 throw std::overflow_error("T81BigInt::to_int64: magnitude overflow");
+        try {
+            const std::int64_t mag = limbs_[0].to_int64(); // magnitude
+            if (negative_) {
+                return -mag;
             }
-            return negative_ ? mag : -mag; // should not reach here if normalize is correct
-        }
-
-        if (!negative_) {
             return mag;
+        } catch (const std::overflow_error&) {
+            // Check for INT64_MIN case: magnitude is 2^63.
+            // T81Int(INT64_MIN) creates the magnitude 2^63 representation.
+            if (negative_ && limbs_[0] == -Limb(std::numeric_limits<std::int64_t>::min())) {
+                return std::numeric_limits<std::int64_t>::min();
+            }
+            throw;
         }
-
-        return -mag;
     }
 
     // ------------------------------------------------------------------
@@ -404,7 +402,8 @@ public:
     static std::vector<int64_t> to_chunks(const T81BigInt& x) {
         const auto& wtable = detail::get_word_to_ternary();
         std::vector<int64_t> chunks;
-        chunks.reserve(x.limbs_.size() * 3);
+        // Reserve extra space to avoid reallocation in to_std_chunks
+        chunks.reserve(x.limbs_.size() * 3 + 8);
 
         static constexpr int64_t p3_8[] = { 1LL, 6561LL, 43046721LL, 282429536481LL };
 
