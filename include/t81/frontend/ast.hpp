@@ -1,14 +1,14 @@
 #ifndef T81_FRONTEND_AST_HPP
 #define T81_FRONTEND_AST_HPP
 
-#include "t81/frontend/lexer.hpp"
 #include <any>
-#include <memory>
-#include <vector>
 #include <array>
-#include <utility>
-#include <optional>
 #include <cstdint>
+#include <memory>
+#include <optional>
+#include <utility>
+#include <vector>
+#include "t81/frontend/lexer.hpp"
 
 namespace t81 {
 namespace frontend {
@@ -32,9 +32,9 @@ struct FieldAccessExpr;
 struct RecordLiteralExpr;
 struct EnumLiteralExpr;
 struct IndexExpr;
-struct TypeExpr;      // Base class for type expressions
-struct SimpleTypeExpr; // For simple types like "T81Int"
-struct GenericTypeExpr; // For generic types like "Vector[T]"
+struct TypeExpr;         // Base class for type expressions
+struct SimpleTypeExpr;   // For simple types like "T81Int"
+struct GenericTypeExpr;  // For generic types like "Vector[T]"
 struct ExpressionStmt;
 struct VarStmt;
 struct LetStmt;
@@ -55,481 +55,464 @@ struct EnumDecl;
 // --- Base Classes ---
 
 struct Expr {
-    virtual ~Expr() = default;
-    virtual std::any accept(ExprVisitor& visitor) const = 0;
+  virtual ~Expr() = default;
+  virtual std::any accept(ExprVisitor& visitor) const = 0;
 };
 
 struct Stmt {
-    virtual ~Stmt() = default;
-    virtual std::any accept(StmtVisitor& visitor) const = 0;
+  virtual ~Stmt() = default;
+  virtual std::any accept(StmtVisitor& visitor) const = 0;
 };
 
 // --- Visitor Interfaces ---
 
 class ExprVisitor {
 public:
-    virtual ~ExprVisitor() = default;
-    virtual std::any visit(const BinaryExpr& expr) = 0;
-    virtual std::any visit(const UnaryExpr& expr) = 0;
-    virtual std::any visit(const LiteralExpr& expr) = 0;
-    virtual std::any visit(const GroupingExpr& expr) = 0;
-    virtual std::any visit(const VariableExpr& expr) = 0;
-    virtual std::any visit(const CallExpr& expr) = 0;
-    virtual std::any visit(const AssignExpr& expr) = 0;
-    virtual std::any visit(const MatchExpr& expr) = 0;
-    virtual std::any visit(const VectorLiteralExpr& expr) = 0;
-    virtual std::any visit(const FieldAccessExpr& expr) = 0;
-    virtual std::any visit(const RecordLiteralExpr& expr) = 0;
-    virtual std::any visit(const EnumLiteralExpr& expr) = 0;
-    virtual std::any visit(const IndexExpr& expr) = 0;
-    virtual std::any visit(const SimpleTypeExpr& expr) = 0;
-    virtual std::any visit(const GenericTypeExpr& expr) = 0;
+  virtual ~ExprVisitor() = default;
+  virtual std::any visit(const BinaryExpr& expr) = 0;
+  virtual std::any visit(const UnaryExpr& expr) = 0;
+  virtual std::any visit(const LiteralExpr& expr) = 0;
+  virtual std::any visit(const GroupingExpr& expr) = 0;
+  virtual std::any visit(const VariableExpr& expr) = 0;
+  virtual std::any visit(const CallExpr& expr) = 0;
+  virtual std::any visit(const AssignExpr& expr) = 0;
+  virtual std::any visit(const MatchExpr& expr) = 0;
+  virtual std::any visit(const VectorLiteralExpr& expr) = 0;
+  virtual std::any visit(const FieldAccessExpr& expr) = 0;
+  virtual std::any visit(const RecordLiteralExpr& expr) = 0;
+  virtual std::any visit(const EnumLiteralExpr& expr) = 0;
+  virtual std::any visit(const IndexExpr& expr) = 0;
+  virtual std::any visit(const SimpleTypeExpr& expr) = 0;
+  virtual std::any visit(const GenericTypeExpr& expr) = 0;
 };
 
 class StmtVisitor {
 public:
-    virtual ~StmtVisitor() = default;
-    virtual std::any visit(const ExpressionStmt& stmt) = 0;
-    virtual std::any visit(const VarStmt& stmt) = 0;
-    virtual std::any visit(const LetStmt& stmt) = 0;
-    virtual std::any visit(const BlockStmt& stmt) = 0;
-    virtual std::any visit(const IfStmt& stmt) = 0;
-    virtual std::any visit(const WhileStmt& stmt) = 0;
-    virtual std::any visit(const ForStmt& stmt) = 0;
-    virtual std::any visit(const ReflectStmt& stmt) = 0;
-    virtual std::any visit(const LoopStmt& stmt) = 0;
-    virtual std::any visit(const ReturnStmt& stmt) = 0;
-    virtual std::any visit(const BreakStmt& stmt) = 0;
-    virtual std::any visit(const ContinueStmt& stmt) = 0;
-    virtual std::any visit(const FunctionStmt& stmt) = 0;
-    virtual std::any visit(const TypeDecl& stmt) = 0;
-    virtual std::any visit(const RecordDecl& stmt) = 0;
-    virtual std::any visit(const EnumDecl& stmt) = 0;
+  virtual ~StmtVisitor() = default;
+  virtual std::any visit(const ExpressionStmt& stmt) = 0;
+  virtual std::any visit(const VarStmt& stmt) = 0;
+  virtual std::any visit(const LetStmt& stmt) = 0;
+  virtual std::any visit(const BlockStmt& stmt) = 0;
+  virtual std::any visit(const IfStmt& stmt) = 0;
+  virtual std::any visit(const WhileStmt& stmt) = 0;
+  virtual std::any visit(const ForStmt& stmt) = 0;
+  virtual std::any visit(const ReflectStmt& stmt) = 0;
+  virtual std::any visit(const LoopStmt& stmt) = 0;
+  virtual std::any visit(const ReturnStmt& stmt) = 0;
+  virtual std::any visit(const BreakStmt& stmt) = 0;
+  virtual std::any visit(const ContinueStmt& stmt) = 0;
+  virtual std::any visit(const FunctionStmt& stmt) = 0;
+  virtual std::any visit(const TypeDecl& stmt) = 0;
+  virtual std::any visit(const RecordDecl& stmt) = 0;
+  virtual std::any visit(const EnumDecl& stmt) = 0;
 };
 
 // --- Expression Nodes ---
 
 struct BinaryExpr : Expr {
-    BinaryExpr(std::unique_ptr<Expr> left, Token op, std::unique_ptr<Expr> right)
-        : left(std::move(left)), op(op), right(std::move(right)) {}
+  BinaryExpr(std::unique_ptr<Expr> left, Token op, std::unique_ptr<Expr> right)
+      : left(std::move(left)), op(op), right(std::move(right)) {}
 
-    std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const std::unique_ptr<Expr> left;
-    const Token op;
-    const std::unique_ptr<Expr> right;
+  const std::unique_ptr<Expr> left;
+  const Token op;
+  const std::unique_ptr<Expr> right;
 };
 
 struct UnaryExpr : Expr {
-    UnaryExpr(Token op, std::unique_ptr<Expr> right)
-        : op(op), right(std::move(right)) {}
+  UnaryExpr(Token op, std::unique_ptr<Expr> right) : op(op), right(std::move(right)) {}
 
-    std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token op;
-    const std::unique_ptr<Expr> right;
+  const Token op;
+  const std::unique_ptr<Expr> right;
 };
 
 struct LiteralExpr : Expr {
-    LiteralExpr(Token value) : value(value) {}
+  LiteralExpr(Token value) : value(value) {}
 
-    std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token value;
+  const Token value;
 };
 
 struct VectorLiteralExpr : Expr {
-    VectorLiteralExpr(Token token, std::vector<std::unique_ptr<Expr>> elements,
-                      std::unique_ptr<Expr> repeat_count = nullptr)
-        : token(token), elements(std::move(elements)), repeat_count(std::move(repeat_count)) {}
+  VectorLiteralExpr(Token token, std::vector<std::unique_ptr<Expr>> elements,
+                    std::unique_ptr<Expr> repeat_count = nullptr)
+      : token(token), elements(std::move(elements)), repeat_count(std::move(repeat_count)) {}
 
-    std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token token;
-    const std::vector<std::unique_ptr<Expr>> elements;
-    const std::unique_ptr<Expr> repeat_count;
+  const Token token;
+  const std::vector<std::unique_ptr<Expr>> elements;
+  const std::unique_ptr<Expr> repeat_count;
 };
 
 struct GroupingExpr : Expr {
-    GroupingExpr(std::unique_ptr<Expr> expression)
-        : expression(std::move(expression)) {}
+  GroupingExpr(std::unique_ptr<Expr> expression) : expression(std::move(expression)) {}
 
-    std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const std::unique_ptr<Expr> expression;
+  const std::unique_ptr<Expr> expression;
 };
 
 struct VariableExpr : Expr {
-    VariableExpr(Token name) : name(name) {}
+  VariableExpr(Token name) : name(name) {}
 
-    std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token name;
+  const Token name;
 };
 
 struct CallExpr : Expr {
-    CallExpr(std::unique_ptr<Expr> callee, Token paren, std::vector<std::unique_ptr<Expr>> arguments)
-        : callee(std::move(callee)), paren(paren), arguments(std::move(arguments)) {}
+  CallExpr(std::unique_ptr<Expr> callee, Token paren, std::vector<std::unique_ptr<Expr>> arguments)
+      : callee(std::move(callee)), paren(paren), arguments(std::move(arguments)) {}
 
-    std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const std::unique_ptr<Expr> callee;
-    const Token paren;
-    const std::vector<std::unique_ptr<Expr>> arguments;
+  const std::unique_ptr<Expr> callee;
+  const Token paren;
+  const std::vector<std::unique_ptr<Expr>> arguments;
 };
 
 struct FieldAccessExpr : Expr {
-    FieldAccessExpr(std::unique_ptr<Expr> object, Token field)
-        : object(std::move(object)), field(field) {}
+  FieldAccessExpr(std::unique_ptr<Expr> object, Token field)
+      : object(std::move(object)), field(field) {}
 
-    std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const std::unique_ptr<Expr> object;
-    const Token field;
+  const std::unique_ptr<Expr> object;
+  const Token field;
 };
 
 struct RecordLiteralExpr : Expr {
-    RecordLiteralExpr(Token type_name, std::vector<std::pair<Token, std::unique_ptr<Expr>>> fields)
-        : type_name(type_name), fields(std::move(fields)) {}
+  RecordLiteralExpr(Token type_name, std::vector<std::pair<Token, std::unique_ptr<Expr>>> fields)
+      : type_name(type_name), fields(std::move(fields)) {}
 
-    std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token type_name;
-    const std::vector<std::pair<Token, std::unique_ptr<Expr>>> fields;
+  const Token type_name;
+  const std::vector<std::pair<Token, std::unique_ptr<Expr>>> fields;
 };
 
 struct EnumLiteralExpr : Expr {
-    EnumLiteralExpr(Token enum_name, Token variant, std::unique_ptr<Expr> payload)
-        : enum_name(enum_name), variant(variant), payload(std::move(payload)) {}
+  EnumLiteralExpr(Token enum_name, Token variant, std::unique_ptr<Expr> payload)
+      : enum_name(enum_name), variant(variant), payload(std::move(payload)) {}
 
-    std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token enum_name;
-    const Token variant;
-    const std::unique_ptr<Expr> payload;
+  const Token enum_name;
+  const Token variant;
+  const std::unique_ptr<Expr> payload;
 };
 
 struct IndexExpr : Expr {
-    IndexExpr(std::unique_ptr<Expr> object, std::unique_ptr<Expr> index, Token bracket)
-        : object(std::move(object)), index(std::move(index)), bracket(bracket) {}
+  IndexExpr(std::unique_ptr<Expr> object, std::unique_ptr<Expr> index, Token bracket)
+      : object(std::move(object)), index(std::move(index)), bracket(bracket) {}
 
-    std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const std::unique_ptr<Expr> object;
-    const std::unique_ptr<Expr> index;
-    const Token bracket;
+  const std::unique_ptr<Expr> object;
+  const std::unique_ptr<Expr> index;
+  const Token bracket;
 };
 
 struct MatchPattern {
-    enum class Kind {
-        None,
-        Identifier,
-        Tuple,
-        Record,
-        Variant
-    };
+  enum class Kind { None, Identifier, Tuple, Record, Variant };
 
-    MatchPattern() = default;
-    MatchPattern(Token identifier, bool wildcard)
-        : kind(Kind::Identifier),
-          identifier(identifier),
-          binding_is_wildcard(wildcard) {}
+  MatchPattern() = default;
+  MatchPattern(Token identifier, bool wildcard)
+      : kind(Kind::Identifier), identifier(identifier), binding_is_wildcard(wildcard) {}
 
-    Kind kind = Kind::None;
-    Token identifier{};
-    bool binding_is_wildcard = false;
-    std::vector<Token> tuple_bindings;
-    std::vector<std::pair<Token, Token>> record_bindings;
-    Token variant_name{};
-    std::unique_ptr<MatchPattern> variant_payload;
+  Kind kind = Kind::None;
+  Token identifier{};
+  bool binding_is_wildcard = false;
+  std::vector<Token> tuple_bindings;
+  std::vector<std::pair<Token, Token>> record_bindings;
+  Token variant_name{};
+  std::unique_ptr<MatchPattern> variant_payload;
 };
 
 struct MatchArm {
-    MatchArm(Token keyword,
-             MatchPattern pattern,
-             std::unique_ptr<Expr> guard,
-             std::unique_ptr<Expr> expression)
-        : keyword(keyword),
-          pattern(std::move(pattern)),
-          guard(std::move(guard)),
-          expression(std::move(expression)) {}
+  MatchArm(Token keyword, MatchPattern pattern, std::unique_ptr<Expr> guard,
+           std::unique_ptr<Expr> expression)
+      : keyword(keyword),
+        pattern(std::move(pattern)),
+        guard(std::move(guard)),
+        expression(std::move(expression)) {}
 
-    MatchArm(const MatchArm&) = delete;
-    MatchArm& operator=(const MatchArm&) = delete;
-    MatchArm(MatchArm&&) = default;
-    MatchArm& operator=(MatchArm&&) = default;
+  MatchArm(const MatchArm&) = delete;
+  MatchArm& operator=(const MatchArm&) = delete;
+  MatchArm(MatchArm&&) = default;
+  MatchArm& operator=(MatchArm&&) = default;
 
-    Token keyword;
-    MatchPattern pattern;
-    std::unique_ptr<Expr> guard;
-    std::unique_ptr<Expr> expression;
+  Token keyword;
+  MatchPattern pattern;
+  std::unique_ptr<Expr> guard;
+  std::unique_ptr<Expr> expression;
 };
 
 struct MatchExpr : Expr {
-    MatchExpr(std::unique_ptr<Expr> scrutinee, std::vector<MatchArm> arms)
-        : scrutinee(std::move(scrutinee)), arms(std::move(arms)) {}
+  MatchExpr(std::unique_ptr<Expr> scrutinee, std::vector<MatchArm> arms)
+      : scrutinee(std::move(scrutinee)), arms(std::move(arms)) {}
 
-    std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const std::unique_ptr<Expr> scrutinee;
-    const std::vector<MatchArm> arms;
+  const std::unique_ptr<Expr> scrutinee;
+  const std::vector<MatchArm> arms;
 };
 
 struct AssignExpr : Expr {
-    AssignExpr(Token name, std::unique_ptr<Expr> value)
-        : name(name), value(std::move(value)) {}
+  AssignExpr(Token name, std::unique_ptr<Expr> value) : name(name), value(std::move(value)) {}
 
-    std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token name;
-    const std::unique_ptr<Expr> value;
+  const Token name;
+  const std::unique_ptr<Expr> value;
 };
 
 // --- Statement Nodes ---
 
 struct ExpressionStmt : Stmt {
-    ExpressionStmt(std::unique_ptr<Expr> expression)
-        : expression(std::move(expression)) {}
+  ExpressionStmt(std::unique_ptr<Expr> expression) : expression(std::move(expression)) {}
 
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const std::unique_ptr<Expr> expression;
+  const std::unique_ptr<Expr> expression;
 };
 
 // --- Type Expression Nodes ---
 
 // Base class for all type expressions.
 struct TypeExpr : Expr {
-    // The accept method will be implemented by subclasses.
-    virtual std::any accept(ExprVisitor& visitor) const = 0;
+  // The accept method will be implemented by subclasses.
+  virtual std::any accept(ExprVisitor& visitor) const = 0;
 };
 
 // Represents a simple, non-generic type like `T81Int`.
 struct SimpleTypeExpr : TypeExpr {
-    SimpleTypeExpr(Token name) : name(name) {}
+  SimpleTypeExpr(Token name) : name(name) {}
 
-    std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token name;
+  const Token name;
 };
 
 // Represents a generic type instantiation, e.g., `Vector[T]`.
 struct GenericTypeExpr : TypeExpr {
-    GenericTypeExpr(Token name, std::array<std::unique_ptr<Expr>, 8> params, size_t param_count)
-        : name(name), params(std::move(params)), param_count(param_count) {}
+  GenericTypeExpr(Token name, std::array<std::unique_ptr<Expr>, 8> params, size_t param_count)
+      : name(name), params(std::move(params)), param_count(param_count) {}
 
-    std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token name;
-    const std::array<std::unique_ptr<Expr>, 8> params;
-    const size_t param_count;
+  const Token name;
+  const std::array<std::unique_ptr<Expr>, 8> params;
+  const size_t param_count;
 };
 
-
 struct VarStmt : Stmt {
-    VarStmt(Token name, std::unique_ptr<TypeExpr> type, std::unique_ptr<Expr> initializer)
-        : name(name), type(std::move(type)), initializer(std::move(initializer)) {}
+  VarStmt(Token name, std::unique_ptr<TypeExpr> type, std::unique_ptr<Expr> initializer)
+      : name(name), type(std::move(type)), initializer(std::move(initializer)) {}
 
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token name;
-    const std::unique_ptr<TypeExpr> type;
-    const std::unique_ptr<Expr> initializer;
+  const Token name;
+  const std::unique_ptr<TypeExpr> type;
+  const std::unique_ptr<Expr> initializer;
 };
 
 struct LetStmt : Stmt {
-    LetStmt(Token name, std::unique_ptr<TypeExpr> type, std::unique_ptr<Expr> initializer)
-        : name(name), type(std::move(type)), initializer(std::move(initializer)) {}
+  LetStmt(Token name, std::unique_ptr<TypeExpr> type, std::unique_ptr<Expr> initializer)
+      : name(name), type(std::move(type)), initializer(std::move(initializer)) {}
 
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token name;
-    const std::unique_ptr<TypeExpr> type;
-    const std::unique_ptr<Expr> initializer;
+  const Token name;
+  const std::unique_ptr<TypeExpr> type;
+  const std::unique_ptr<Expr> initializer;
 };
 
 struct BlockStmt : Stmt {
-    BlockStmt(std::vector<std::unique_ptr<Stmt>> statements)
-        : statements(std::move(statements)) {}
+  BlockStmt(std::vector<std::unique_ptr<Stmt>> statements) : statements(std::move(statements)) {}
 
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const std::vector<std::unique_ptr<Stmt>> statements;
+  const std::vector<std::unique_ptr<Stmt>> statements;
 };
 
 struct IfStmt : Stmt {
-    IfStmt(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> then_branch, std::unique_ptr<Stmt> else_branch)
-        : condition(std::move(condition)), then_branch(std::move(then_branch)), else_branch(std::move(else_branch)) {}
+  IfStmt(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> then_branch,
+         std::unique_ptr<Stmt> else_branch)
+      : condition(std::move(condition)),
+        then_branch(std::move(then_branch)),
+        else_branch(std::move(else_branch)) {}
 
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const std::unique_ptr<Expr> condition;
-    const std::unique_ptr<Stmt> then_branch;
-    const std::unique_ptr<Stmt> else_branch;
+  const std::unique_ptr<Expr> condition;
+  const std::unique_ptr<Stmt> then_branch;
+  const std::unique_ptr<Stmt> else_branch;
 };
 
 struct WhileStmt : Stmt {
-    WhileStmt(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> body)
-        : condition(std::move(condition)), body(std::move(body)) {}
+  WhileStmt(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> body)
+      : condition(std::move(condition)), body(std::move(body)) {}
 
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const std::unique_ptr<Expr> condition;
-    const std::unique_ptr<Stmt> body;
+  const std::unique_ptr<Expr> condition;
+  const std::unique_ptr<Stmt> body;
 };
 
 struct LoopStmt : Stmt {
-    enum class BoundKind {
-        None,
-        Infinite,
-        Static
-        ,
-        Guarded
-    };
+  enum class BoundKind { None, Infinite, Static, Guarded };
 
-    LoopStmt(Token keyword, BoundKind bound_kind, std::optional<std::int64_t> bound_value,
-             std::unique_ptr<Expr> guard_expression,
-             std::vector<std::unique_ptr<Stmt>> body)
-        : keyword(keyword),
-          bound_kind(bound_kind),
-          bound_value(bound_value),
-          guard_expression(std::move(guard_expression)),
-          body(std::move(body)) {}
+  LoopStmt(Token keyword, BoundKind bound_kind, std::optional<std::int64_t> bound_value,
+           std::unique_ptr<Expr> guard_expression, std::vector<std::unique_ptr<Stmt>> body)
+      : keyword(keyword),
+        bound_kind(bound_kind),
+        bound_value(bound_value),
+        guard_expression(std::move(guard_expression)),
+        body(std::move(body)) {}
 
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token keyword;
-    const BoundKind bound_kind;
-    const std::optional<std::int64_t> bound_value;
-    const std::unique_ptr<Expr> guard_expression;
-    const std::vector<std::unique_ptr<Stmt>> body;
+  const Token keyword;
+  const BoundKind bound_kind;
+  const std::optional<std::int64_t> bound_value;
+  const std::unique_ptr<Expr> guard_expression;
+  const std::vector<std::unique_ptr<Stmt>> body;
 };
 
 struct ForStmt : Stmt {
-    ForStmt(Token iterator, std::unique_ptr<Expr> iterable, std::unique_ptr<Stmt> body,
-            LoopStmt::BoundKind bound_kind = LoopStmt::BoundKind::None,
-            std::optional<std::int64_t> bound_value = std::nullopt)
-        : iterator(iterator), iterable(std::move(iterable)), body(std::move(body)),
-          bound_kind(bound_kind), bound_value(bound_value) {}
+  ForStmt(Token iterator, std::unique_ptr<Expr> iterable, std::unique_ptr<Stmt> body,
+          LoopStmt::BoundKind bound_kind = LoopStmt::BoundKind::None,
+          std::optional<std::int64_t> bound_value = std::nullopt)
+      : iterator(iterator),
+        iterable(std::move(iterable)),
+        body(std::move(body)),
+        bound_kind(bound_kind),
+        bound_value(bound_value) {}
 
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token iterator;
-    const std::unique_ptr<Expr> iterable;
-    const std::unique_ptr<Stmt> body;
-    const LoopStmt::BoundKind bound_kind;
-    const std::optional<std::int64_t> bound_value;
+  const Token iterator;
+  const std::unique_ptr<Expr> iterable;
+  const std::unique_ptr<Stmt> body;
+  const LoopStmt::BoundKind bound_kind;
+  const std::optional<std::int64_t> bound_value;
 };
 
 struct ReflectStmt : Stmt {
-    ReflectStmt(Token keyword, std::vector<std::unique_ptr<Stmt>> body)
-        : keyword(keyword), body(std::move(body)) {}
+  ReflectStmt(Token keyword, std::vector<std::unique_ptr<Stmt>> body)
+      : keyword(keyword), body(std::move(body)) {}
 
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token keyword;
-    const std::vector<std::unique_ptr<Stmt>> body;
+  const Token keyword;
+  const std::vector<std::unique_ptr<Stmt>> body;
 };
 
 struct ReturnStmt : Stmt {
-    ReturnStmt(Token keyword, std::unique_ptr<Expr> value)
-        : keyword(keyword), value(std::move(value)) {}
+  ReturnStmt(Token keyword, std::unique_ptr<Expr> value)
+      : keyword(keyword), value(std::move(value)) {}
 
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token keyword;
-    const std::unique_ptr<Expr> value;
+  const Token keyword;
+  const std::unique_ptr<Expr> value;
 };
 
 struct BreakStmt : Stmt {
-    BreakStmt(Token keyword) : keyword(keyword) {}
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
-    const Token keyword;
+  BreakStmt(Token keyword) : keyword(keyword) {}
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+  const Token keyword;
 };
 
 struct ContinueStmt : Stmt {
-    ContinueStmt(Token keyword) : keyword(keyword) {}
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
-    const Token keyword;
+  ContinueStmt(Token keyword) : keyword(keyword) {}
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+  const Token keyword;
 };
 
 struct Parameter {
-    Token name;
-    std::unique_ptr<TypeExpr> type;
+  Token name;
+  std::unique_ptr<TypeExpr> type;
 };
 
 struct FunctionStmt : Stmt {
-    FunctionStmt(Token name, std::vector<Parameter> params, std::unique_ptr<TypeExpr> return_type, std::vector<std::unique_ptr<Stmt>> body)
-        : name(name), params(std::move(params)), return_type(std::move(return_type)), body(std::move(body)) {}
+  FunctionStmt(Token name, std::vector<Parameter> params, std::unique_ptr<TypeExpr> return_type,
+               std::vector<std::unique_ptr<Stmt>> body)
+      : name(name),
+        params(std::move(params)),
+        return_type(std::move(return_type)),
+        body(std::move(body)) {}
 
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token name;
-    const std::vector<Parameter> params;
-    const std::unique_ptr<TypeExpr> return_type;
-    const std::vector<std::unique_ptr<Stmt>> body;
+  const Token name;
+  const std::vector<Parameter> params;
+  const std::unique_ptr<TypeExpr> return_type;
+  const std::vector<std::unique_ptr<Stmt>> body;
 };
 
 struct TypeDecl : Stmt {
-    TypeDecl(Token name, std::vector<Token> params, std::unique_ptr<TypeExpr> alias)
-        : name(name), params(std::move(params)), alias(std::move(alias)) {}
+  TypeDecl(Token name, std::vector<Token> params, std::unique_ptr<TypeExpr> alias)
+      : name(name), params(std::move(params)), alias(std::move(alias)) {}
 
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token name;
-    const std::vector<Token> params;
-    const std::unique_ptr<TypeExpr> alias;
+  const Token name;
+  const std::vector<Token> params;
+  const std::unique_ptr<TypeExpr> alias;
 };
 
 struct RecordDecl : Stmt {
-    struct Field {
-        Token name;
-        std::unique_ptr<TypeExpr> type;
-    };
+  struct Field {
+    Token name;
+    std::unique_ptr<TypeExpr> type;
+  };
 
-    RecordDecl(Token name,
-               std::vector<Field> fields,
-               std::optional<std::int64_t> schema_version = std::nullopt,
-               std::optional<std::string> module_path = std::nullopt)
-        : name(name),
-          fields(std::move(fields)),
-          schema_version(schema_version),
-          module_path(module_path) {}
+  RecordDecl(Token name, std::vector<Field> fields,
+             std::optional<std::int64_t> schema_version = std::nullopt,
+             std::optional<std::string> module_path = std::nullopt)
+      : name(name),
+        fields(std::move(fields)),
+        schema_version(schema_version),
+        module_path(module_path) {}
 
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token name;
-    const std::vector<Field> fields;
-    const std::optional<std::int64_t> schema_version;
-    const std::optional<std::string> module_path;
+  const Token name;
+  const std::vector<Field> fields;
+  const std::optional<std::int64_t> schema_version;
+  const std::optional<std::string> module_path;
 };
 
 struct EnumDecl : Stmt {
-    struct Variant {
-        Token name;
-        std::unique_ptr<TypeExpr> payload;
-    };
+  struct Variant {
+    Token name;
+    std::unique_ptr<TypeExpr> payload;
+  };
 
-    EnumDecl(Token name,
-             std::vector<Variant> variants,
-             std::optional<std::int64_t> schema_version = std::nullopt,
-             std::optional<std::string> module_path = std::nullopt)
-        : name(name),
-          variants(std::move(variants)),
-          schema_version(schema_version),
-          module_path(module_path) {}
+  EnumDecl(Token name, std::vector<Variant> variants,
+           std::optional<std::int64_t> schema_version = std::nullopt,
+           std::optional<std::string> module_path = std::nullopt)
+      : name(name),
+        variants(std::move(variants)),
+        schema_version(schema_version),
+        module_path(module_path) {}
 
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
 
-    const Token name;
-    const std::vector<Variant> variants;
-    const std::optional<std::int64_t> schema_version;
-    const std::optional<std::string> module_path;
+  const Token name;
+  const std::vector<Variant> variants;
+  const std::optional<std::int64_t> schema_version;
+  const std::optional<std::string> module_path;
 };
 
+}  // namespace frontend
+}  // namespace t81
 
-
-} // namespace frontend
-} // namespace t81
-
-#endif // T81_FRONTEND_AST_HPP
+#endif  // T81_FRONTEND_AST_HPP

@@ -1,15 +1,15 @@
-#include <cassert>
-#include <sstream>
-#include <iostream>
-#include "t81/tensor.hpp"
 #include "t81/io/tensor_loader.hpp"
+#include <cassert>
+#include <iostream>
+#include <sstream>
+#include "t81/tensor.hpp"
 
 int main() {
   using namespace t81;
 
   // Build a 2x3 tensor
-  T729Tensor m({2,3});
-  m.data() = {1,2,3, 4,5,6};
+  T729Tensor m({2, 3});
+  m.data() = {1, 2, 3, 4, 5, 6};
 
   // Save to text via stringstream
   [[maybe_unused]] std::stringstream ss;
@@ -17,7 +17,7 @@ int main() {
 
   // Load back
   std::stringstream in(ss.str());
-  [[maybe_unused]] auto got= t81::io::load_tensor_txt(in);
+  [[maybe_unused]] auto got = t81::io::load_tensor_txt(in);
 
   // Validate shape and data
   assert(got.rank() == 2);
@@ -32,7 +32,7 @@ int main() {
       << "2 2 2\n"
       << "1 2\n"
       << "3 4\n";
-  [[maybe_unused]] auto t2= t81::io::load_tensor_txt(ss2);
+  [[maybe_unused]] auto t2 = t81::io::load_tensor_txt(ss2);
   assert(t2.rank() == 2 && t2.shape()[0] == 2 && t2.shape()[1] == 2);
   const auto& d2 = t2.data();
   (void)d2;
