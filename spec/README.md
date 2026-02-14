@@ -39,4 +39,4 @@ See `rfcs/README.md` for details.
 
 ## 5. Versioning
 
-Specifications are versioned independently of the runtime implementation, but typically align on MAJOR/MINOR numbers. See [VERSIONING.md](../VERSIONING.md) for the compatibility contract.
+Specifications are versioned independently of the runtime implementation, but typically align on MAJOR/MINOR numbers. See [VERSIONING.md](../../VERSIONING.md) for the compatibility contract.
