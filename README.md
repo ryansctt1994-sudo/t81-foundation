@@ -19,7 +19,7 @@
 
 T81 is a deterministic compilation and execution pipeline (`T81Lang -> TISC -> HanoiVM`). It prioritizes auditability, policy enforcement (Axion), and reproducibility over raw hardware speed.
 
-> **Note on Floating Point Determinism:** `T81Float` arithmetic operations involving division and transcendental functions (`sin`, `cos`, `log`, etc.) currently rely on host-platform `double` precision behavior. While `T81Float` *storage* and *canonical serialization* are deterministic, runtime arithmetic results for these specific operations may vary by platform. Strict bit-exact determinism is currently guaranteed for `T81Int`, `T81BigInt`, `T81Fraction` (canonical), and `T81Float` addition/subtraction/multiplication.
+> **Note on Floating Point Determinism:** `T81Float` transcendental functions (`sin`, `cos`, `tan`, `log`, `exp`, `sqrt`) are now implemented via a deterministic software-defined backend (`dmath`) and are guaranteed bit-exact across platforms. `T81Float` division and inverse/hyperbolic trigonometric functions (`asin`, `sinh`, etc.) may still rely on host-platform behavior in non-strict modes. Strict bit-exact determinism is guaranteed for `T81Int`, `T81BigInt`, `T81Fraction` (canonical), and core `T81Float` operations.
 
 ## ⚡ 30-Second Evaluation
 
