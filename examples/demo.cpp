@@ -19,8 +19,8 @@ int main() {
   // ---- Fraction demo -------------------------------------------------------
   auto f1 = T81Fraction::from_int(2);
   auto f2 = T81Fraction::from_int(3);
-  auto fsum = T81Fraction::add(f1, f2); // 5/1
-  auto fdiv = T81Fraction::div(f1, f2); // 2/3
+  auto fsum = T81Fraction::add(f1, f2);  // 5/1
+  auto fdiv = T81Fraction::div(f1, f2);  // 2/3
 
   std::cout << "[Fraction]\n";
   std::cout << "2/1 + 3/1 = " << fsum.to_string() << "\n";
@@ -28,25 +28,26 @@ int main() {
 
   // ---- Tensor demo ---------------------------------------------------------
   // Vectors for dot: [1,2,3] · [4,5,6] = 32
-  T729Tensor v1({3}); v1.data() = {1,2,3};
-  T729Tensor v2({3}); v2.data() = {4,5,6};
+  T729Tensor v1({3});
+  v1.data() = {1, 2, 3};
+  T729Tensor v2({3});
+  v2.data() = {4, 5, 6};
   auto dot = T729Tensor::contract_dot(v1, v2);
 
   // 2x3 matrix ops
-  T729Tensor m({2,3});
-  m.data() = {1,2,3, 4,5,6};
+  T729Tensor m({2, 3});
+  m.data() = {1, 2, 3, 4, 5, 6};
 
   auto mt = t81::ops::transpose(m);
-  auto s  = t81::ops::slice2d(m, 1, 2, 0, 2);
-  auto r  = t81::ops::reshape(m, {3,2});
-  auto c  = t81::ops::matmul(m, t81::ops::transpose(m)); // (2x3)·(3x2) -> (2x2)
+  auto s = t81::ops::slice2d(m, 1, 2, 0, 2);
+  auto r = t81::ops::reshape(m, {3, 2});
+  auto c = t81::ops::matmul(m, t81::ops::transpose(m));  // (2x3)·(3x2) -> (2x2)
 
   std::cout << "[Tensor]\n";
   std::cout << "dot([1,2,3],[4,5,6]) = " << dot.data()[0] << "\n";
 
   std::cout << "transpose(2x3) -> " << mt.shape()[0] << "x" << mt.shape()[1] << "\n";
-  std::cout << "slice( rows[1:2), cols[0:2) ) -> "
-            << s.shape()[0] << "x" << s.shape()[1] << " : {";
+  std::cout << "slice( rows[1:2), cols[0:2) ) -> " << s.shape()[0] << "x" << s.shape()[1] << " : {";
   for (size_t i = 0; i < s.data().size(); ++i) {
     if (i) std::cout << ", ";
     std::cout << s.data()[i];
