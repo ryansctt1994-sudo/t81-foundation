@@ -137,7 +137,7 @@ public:
 
             tisc::ir::Instruction call;
             call.opcode = tisc::ir::Opcode::CALL;
-            call.operands = {addr_reg.reg};
+            call.operands = {tisc::ir::Register{0}, addr_reg.reg};
             emit(call);
 
             // Pop main result (i32)
@@ -321,6 +321,12 @@ public:
             push.opcode = tisc::ir::Opcode::PUSH;
             push.operands = {value.reg};
             emit(push);
+        }
+        if (auto ret_addr = lookup_variable("%ret_addr")) {
+            tisc::ir::Instruction push_ret;
+            push_ret.opcode = tisc::ir::Opcode::PUSH;
+            push_ret.operands = {ret_addr->reg};
+            emit(push_ret);
         }
         emit_simple(tisc::ir::Opcode::RET);
         return {};
@@ -830,7 +836,7 @@ public:
                 // CALL
                 tisc::ir::Instruction call;
                 call.opcode = tisc::ir::Opcode::CALL;
-                call.operands = {addr.reg};
+                call.operands = {tisc::ir::Register{0}, addr.reg};
                 emit(call);
 
                 // Pop result if not void
