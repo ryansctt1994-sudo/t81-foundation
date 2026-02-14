@@ -922,9 +922,10 @@ template <typename E, size_t... Dims>
  */
 template <typename E, size_t... Dims>
 [[nodiscard]] constexpr E reduce_mean(const T81Tensor<E, sizeof...(Dims), Dims...>& t) noexcept {
-    if constexpr (t.size() == 0) return E{};
+    using TensorType = T81Tensor<E, sizeof...(Dims), Dims...>;
+    if constexpr (TensorType::size() == 0) return E{};
     E sum = reduce_sum(t);
-    return sum / E(static_cast<long long>(t.size()));
+    return sum / E(static_cast<long long>(TensorType::size()));
 }
 
 /**
@@ -932,7 +933,8 @@ template <typename E, size_t... Dims>
  */
 template <typename E, size_t... Dims>
 [[nodiscard]] constexpr E reduce_max(const T81Tensor<E, sizeof...(Dims), Dims...>& t) noexcept {
-    if constexpr (t.size() == 0) return E{};
+    using TensorType = T81Tensor<E, sizeof...(Dims), Dims...>;
+    if constexpr (TensorType::size() == 0) return E{};
     E m = t.data[0];
     for (size_t i = 1; i < t.size(); ++i) {
         if (t.data[i] > m) m = t.data[i];
@@ -945,7 +947,8 @@ template <typename E, size_t... Dims>
  */
 template <typename E, size_t... Dims>
 [[nodiscard]] constexpr E reduce_min(const T81Tensor<E, sizeof...(Dims), Dims...>& t) noexcept {
-    if constexpr (t.size() == 0) return E{};
+    using TensorType = T81Tensor<E, sizeof...(Dims), Dims...>;
+    if constexpr (TensorType::size() == 0) return E{};
     E m = t.data[0];
     for (size_t i = 1; i < t.size(); ++i) {
         if (t.data[i] < m) m = t.data[i];
