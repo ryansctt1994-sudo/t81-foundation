@@ -31,6 +31,7 @@ struct VectorLiteralExpr;
 struct FieldAccessExpr;
 struct RecordLiteralExpr;
 struct EnumLiteralExpr;
+struct IndexExpr;
 struct TypeExpr;      // Base class for type expressions
 struct SimpleTypeExpr; // For simple types like "T81Int"
 struct GenericTypeExpr; // For generic types like "Vector[T]"
@@ -80,6 +81,7 @@ public:
     virtual std::any visit(const FieldAccessExpr& expr) = 0;
     virtual std::any visit(const RecordLiteralExpr& expr) = 0;
     virtual std::any visit(const EnumLiteralExpr& expr) = 0;
+    virtual std::any visit(const IndexExpr& expr) = 0;
     virtual std::any visit(const SimpleTypeExpr& expr) = 0;
     virtual std::any visit(const GenericTypeExpr& expr) = 0;
 };
@@ -137,13 +139,15 @@ struct LiteralExpr : Expr {
 };
 
 struct VectorLiteralExpr : Expr {
-    VectorLiteralExpr(Token token, std::vector<std::unique_ptr<Expr>> elements)
-        : token(token), elements(std::move(elements)) {}
+    VectorLiteralExpr(Token token, std::vector<std::unique_ptr<Expr>> elements,
+                      std::unique_ptr<Expr> repeat_count = nullptr)
+        : token(token), elements(std::move(elements)), repeat_count(std::move(repeat_count)) {}
 
     std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
     const Token token;
     const std::vector<std::unique_ptr<Expr>> elements;
+    const std::unique_ptr<Expr> repeat_count;
 };
 
 struct GroupingExpr : Expr {
@@ -203,6 +207,17 @@ struct EnumLiteralExpr : Expr {
     const Token enum_name;
     const Token variant;
     const std::unique_ptr<Expr> payload;
+};
+
+struct IndexExpr : Expr {
+    IndexExpr(std::unique_ptr<Expr> object, std::unique_ptr<Expr> index, Token bracket)
+        : object(std::move(object)), index(std::move(index)), bracket(bracket) {}
+
+    std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+
+    const std::unique_ptr<Expr> object;
+    const std::unique_ptr<Expr> index;
+    const Token bracket;
 };
 
 struct MatchPattern {
@@ -363,15 +378,47 @@ struct WhileStmt : Stmt {
     const std::unique_ptr<Stmt> body;
 };
 
+struct LoopStmt : Stmt {
+    enum class BoundKind {
+        None,
+        Infinite,
+        Static
+        ,
+        Guarded
+    };
+
+    LoopStmt(Token keyword, BoundKind bound_kind, std::optional<std::int64_t> bound_value,
+             std::unique_ptr<Expr> guard_expression,
+             std::vector<std::unique_ptr<Stmt>> body)
+        : keyword(keyword),
+          bound_kind(bound_kind),
+          bound_value(bound_value),
+          guard_expression(std::move(guard_expression)),
+          body(std::move(body)) {}
+
+    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+
+    const Token keyword;
+    const BoundKind bound_kind;
+    const std::optional<std::int64_t> bound_value;
+    const std::unique_ptr<Expr> guard_expression;
+    const std::vector<std::unique_ptr<Stmt>> body;
+};
+
 struct ForStmt : Stmt {
-    ForStmt(Token iterator, std::unique_ptr<Expr> iterable, std::unique_ptr<Stmt> body)
-        : iterator(iterator), iterable(std::move(iterable)), body(std::move(body)) {}
+    ForStmt(Token iterator, std::unique_ptr<Expr> iterable, std::unique_ptr<Stmt> body,
+            LoopStmt::BoundKind bound_kind = LoopStmt::BoundKind::None,
+            std::optional<std::int64_t> bound_value = std::nullopt)
+        : iterator(iterator), iterable(std::move(iterable)), body(std::move(body)),
+          bound_kind(bound_kind), bound_value(bound_value) {}
 
     std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
 
     const Token iterator;
     const std::unique_ptr<Expr> iterable;
     const std::unique_ptr<Stmt> body;
+    const LoopStmt::BoundKind bound_kind;
+    const std::optional<std::int64_t> bound_value;
 };
 
 struct ReflectStmt : Stmt {
@@ -480,32 +527,6 @@ struct EnumDecl : Stmt {
     const std::optional<std::string> module_path;
 };
 
-struct LoopStmt : Stmt {
-    enum class BoundKind {
-        None,
-        Infinite,
-        Static
-        ,
-        Guarded
-    };
-
-    LoopStmt(Token keyword, BoundKind bound_kind, std::optional<std::int64_t> bound_value,
-             std::unique_ptr<Expr> guard_expression,
-             std::vector<std::unique_ptr<Stmt>> body)
-        : keyword(keyword),
-          bound_kind(bound_kind),
-          bound_value(bound_value),
-          guard_expression(std::move(guard_expression)),
-          body(std::move(body)) {}
-
-    std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
-
-    const Token keyword;
-    const BoundKind bound_kind;
-    const std::optional<std::int64_t> bound_value;
-    const std::unique_ptr<Expr> guard_expression;
-    const std::vector<std::unique_ptr<Stmt>> body;
-};
 
 
 } // namespace frontend

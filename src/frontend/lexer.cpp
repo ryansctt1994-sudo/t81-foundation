@@ -38,6 +38,8 @@ const std::unordered_map<std::string_view, TokenType> KEYWORDS = {
     {"i8", TokenType::I8},         {"i2", TokenType::I2},
     {"T81BigInt", TokenType::T81BigInt}, {"T81Float", TokenType::T81Float},
     {"T81Fraction", TokenType::T81Fraction},
+    {"T81Fixed", TokenType::T81Fixed}, {"T81Complex", TokenType::T81Complex},
+    {"T81Qutrit", TokenType::T81Qutrit}, {"T81Uint", TokenType::T81Uint},
     {"T81String", TokenType::String}, {"T81Vector", TokenType::T81Vector},
     {"matrix", TokenType::Matrix},
     {"tensor", TokenType::Tensor}, {"graph", TokenType::Graph},
@@ -179,11 +181,6 @@ Token Lexer::identifier() {
     while (true) {
         char next = peek();
         if (is_alpha(next) || is_digit(next)) {
-            advance();
-            continue;
-        }
-        if (next == '.' && peek_next() != '.' && peek_next() != '\0' &&
-            (is_alpha(peek_next()) || is_digit(peek_next()))) {
             advance();
             continue;
         }

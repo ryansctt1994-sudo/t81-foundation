@@ -1024,6 +1024,22 @@ std::any SemanticAnalyzer::visit(const EnumDecl& stmt) {
             info.variants.emplace(variant_name, variant_info);
         }
         info.variant_order.push_back(variant_name);
+
+        // Inject variant into scope
+        if (variant.payload) {
+             // Constructor function
+             define_symbol(variant.name, SymbolKind::Function, false);
+             if (auto* sym = resolve_symbol(variant.name)) {
+                 sym->type = Type{Type::Kind::Custom, {}, name_str};
+                 sym->param_types.push_back(analyze_type_expr(*variant.payload));
+             }
+        } else {
+             // Constant variable
+             define_symbol(variant.name, SymbolKind::Variable, false);
+             if (auto* sym = resolve_symbol(variant.name)) {
+                 sym->type = Type{Type::Kind::Custom, {}, name_str};
+             }
+        }
     }
 
     if (!had_error) {
@@ -1525,6 +1541,26 @@ std::any SemanticAnalyzer::visit(const MatchExpr& expr) {
     return result_type;
 }
 
+std::any SemanticAnalyzer::visit(const IndexExpr& expr) {
+    Type obj_type = evaluate_expression(*expr.object);
+    Type index_type = evaluate_expression(*expr.index);
+
+    if (!is_integer_type(index_type)) {
+        error(expr.bracket, "Index must be an integer type, got '" + type_to_string(index_type) + "'.");
+        return make_error_type();
+    }
+
+    if (obj_type.kind == Type::Kind::Vector || obj_type.kind == Type::Kind::Tensor) {
+        if (obj_type.params.empty()) {
+            return Type{Type::Kind::Unknown};
+        }
+        return obj_type.params[0];
+    }
+
+    error(expr.bracket, "Type '" + type_to_string(obj_type) + "' does not support indexing.");
+    return make_error_type();
+}
+
 std::any SemanticAnalyzer::visit(const FieldAccessExpr& expr) {
     Type object_type = evaluate_expression(*expr.object);
     if (object_type.kind != Type::Kind::Custom || object_type.custom_name.empty()) {
@@ -1685,30 +1721,40 @@ std::any SemanticAnalyzer::visit(const VectorLiteralExpr& expr) {
             }
         }
 
-        if (!is_numeric(element_type)) {
-            error(expr.token, "Vector literal elements must be numeric.");
-            return make_error_type();
-        }
+        // Relax check for non-numeric vectors (like Vector[String])
+        // if (!is_numeric(element_type)) {
+        //    error(expr.token, "Vector literal elements must be numeric.");
+        //    return make_error_type();
+        // }
 
         auto* literal = dynamic_cast<const LiteralExpr*>(element.get());
-        if (!literal) {
-            error(expr.token, "Vector literal elements must be literal numerics.");
-            return make_error_type();
+        if (literal) {
+            auto parsed = parse_numeric_literal_value(literal->value);
+            if (parsed.has_value()) {
+                values.push_back(*parsed);
+            }
         }
+    }
 
-        auto parsed = parse_numeric_literal_value(literal->value);
-        if (!parsed.has_value()) {
-            error(literal->value, "Numeric literal expected in vector literal.");
-            return make_error_type();
+    if (expr.repeat_count) {
+        Type count_type = evaluate_expression(*expr.repeat_count);
+        if (!is_integer_type(count_type)) {
+             error(expr.token, "Vector repeat count must be an integer.");
+             return make_error_type();
         }
-        values.push_back(*parsed);
     }
 
     Type result{Type::Kind::Vector};
     result.params.push_back(
         element_type.kind == Type::Kind::Unknown ? Type{Type::Kind::Unknown} : element_type);
     merge_expected_params(result, current_expected_type());
-    _vector_literal_data[&expr] = std::move(values);
+
+    bool all_literals = (values.size() == expr.elements.size());
+    if (expr.repeat_count) all_literals = false;
+
+    if (all_literals) {
+        _vector_literal_data[&expr] = std::move(values);
+    }
     return result;
 }
 
@@ -1772,7 +1818,19 @@ std::any SemanticAnalyzer::visit(const VariableExpr& expr) {
 }
 
 std::any SemanticAnalyzer::visit(const SimpleTypeExpr& expr) {
-    return type_from_token(expr.name);
+    Type t = type_from_token(expr.name);
+    if (t.kind == Type::Kind::Custom) {
+        auto it = _type_aliases.find(t.custom_name);
+        if (it != _type_aliases.end() && it->second.alias) {
+             // If alias has NO parameters, we can resolve it directly.
+             // If it has parameters, SimpleTypeExpr is missing them -> error or partial?
+             // TypeDecl stores params in alias info.
+             if (it->second.params.empty()) {
+                 return analyze_type_expr(*it->second.alias);
+             }
+        }
+    }
+    return t;
 }
 
 std::any SemanticAnalyzer::visit(const GenericTypeExpr& expr) {
@@ -1804,6 +1862,14 @@ std::any SemanticAnalyzer::visit(const GenericTypeExpr& expr) {
         }
 
         if (i == 0) {
+            // Allow expression if it's T81Fixed, T81Complex, etc.
+            if (type_name == "T81Fixed" || type_name == "T81Complex" || type_name == "T81Matrix") {
+                 auto constant = constant_type_from_expr(*raw);
+                 if (constant.has_value()) {
+                     params.push_back(*constant);
+                     continue;
+                 }
+            }
             error(expr.name, "The first generic parameter must be a type.");
             params.push_back(make_error_type());
             continue;

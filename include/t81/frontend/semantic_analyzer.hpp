@@ -136,6 +136,7 @@ public:
     std::any visit(const FieldAccessExpr& expr) override;
     std::any visit(const RecordLiteralExpr& expr) override;
     std::any visit(const EnumLiteralExpr& expr) override;
+    std::any visit(const IndexExpr& expr) override;
     std::any visit(const AssignExpr& expr) override;
     std::any visit(const BinaryExpr& expr) override;
     std::any visit(const CallExpr& expr) override;

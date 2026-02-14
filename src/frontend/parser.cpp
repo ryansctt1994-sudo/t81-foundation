@@ -360,10 +360,19 @@ std::unique_ptr<Stmt> Parser::loop_statement() {
   bool saw_annotation =
       parse_loop_annotation(loop_bound_kind, loop_bound_value, loop_attr, guard_expr);
 
+  if (match({TokenType::For})) {
+      Token iterator = consume(TokenType::Identifier, "Expect iterator name.");
+      consume(TokenType::In, "Expect 'in' after iterator name.");
+      auto iterable = expression();
+      auto body = statement();
+      return std::make_unique<ForStmt>(iterator, std::move(iterable), std::move(body),
+                                       loop_bound_kind, loop_bound_value);
+  }
+
   Token loop_token = consume(TokenType::Loop, "Expect 'loop' keyword.");
 
   if (saw_annotation && loop_token.type != TokenType::Loop) {
-    report_error(loop_attr, "'@bounded' annotation must be followed by a 'loop' statement");
+    report_error(loop_attr, "'@bounded' annotation must be followed by a 'loop' or 'for' statement");
   }
 
   consume(TokenType::LBrace, "Expect '{' after 'loop'.");
@@ -483,37 +492,51 @@ std::unique_ptr<Expr> Parser::unary() {
   return primary();
 }
 
+static bool is_type_start_token(const Token& token) {
+    return token.type == TokenType::Identifier || token.type == TokenType::I32 ||
+           token.type == TokenType::I16 || token.type == TokenType::I8 ||
+           token.type == TokenType::I2 || token.type == TokenType::Bool ||
+           token.type == TokenType::Void || token.type == TokenType::T81BigInt ||
+           token.type == TokenType::T81Float || token.type == TokenType::T81Fraction ||
+           token.type == TokenType::T81Fixed || token.type == TokenType::T81Complex ||
+           token.type == TokenType::T81Qutrit || token.type == TokenType::T81Uint ||
+           token.type == TokenType::T81Vector || token.type == TokenType::Matrix ||
+           token.type == TokenType::Tensor || token.type == TokenType::Graph ||
+           token.type == TokenType::String;
+}
+
 // Parses a primary expression, which is the highest-precedence expression.
 // primary -> "false" | "true" | INTEGER | FLOAT | STRING | "(" expression ")" | IDENTIFIER ;
 std::unique_ptr<Expr> Parser::primary() {
+  std::unique_ptr<Expr> expr;
+
   if (match({TokenType::Match})) {
     return match_expression();
-  }
-
-  if (match({TokenType::False, TokenType::True, TokenType::Integer, TokenType::Float,
+  } else if (match({TokenType::False, TokenType::True, TokenType::Integer, TokenType::Float,
              TokenType::Base81Integer, TokenType::Base81Float, TokenType::String})) {
-    return std::make_unique<LiteralExpr>(previous());
-  }
-
-  if (match({TokenType::LBracket})) {
+    expr = std::make_unique<LiteralExpr>(previous());
+  } else if (match({TokenType::LBracket})) {
     Token bracket = previous();
     std::vector<std::unique_ptr<Expr>> elements;
+    std::unique_ptr<Expr> repeat_count = nullptr;
     if (!check(TokenType::RBracket)) {
-      do {
-        elements.push_back(expression());
-      } while (match({TokenType::Comma}));
+      elements.push_back(expression());
+      if (match({TokenType::Semicolon})) {
+          repeat_count = expression();
+      } else {
+          while (match({TokenType::Comma})) {
+              if (check(TokenType::RBracket)) break;
+              elements.push_back(expression());
+          }
+      }
     }
     consume(TokenType::RBracket, "Expect ']' after vector literal.");
-    return std::make_unique<VectorLiteralExpr>(bracket, std::move(elements));
-  }
-
-  if (match({TokenType::LParen})) {
-    std::unique_ptr<Expr> expr = expression();
+    expr = std::make_unique<VectorLiteralExpr>(bracket, std::move(elements), std::move(repeat_count));
+  } else if (match({TokenType::LParen})) {
+    std::unique_ptr<Expr> inner = expression();
     consume(TokenType::RParen, "Expect ')' after expression.");
-    return std::make_unique<GroupingExpr>(std::move(expr));
-  }
-
-  if (match({TokenType::Identifier})) {
+    expr = std::make_unique<GroupingExpr>(std::move(inner));
+  } else if (match({TokenType::Identifier})) {
     Token name = previous();
     Token enum_name_token;
     Token variant_token;
@@ -525,35 +548,70 @@ std::unique_ptr<Expr> Parser::primary() {
       }
       return std::make_unique<EnumLiteralExpr>(enum_name_token, variant_token, std::move(payload));
     }
+
     if (check(TokenType::LBracket)) {
-      return parse_generic_type(name);
-    }
-    if (match({TokenType::LBrace})) {
-      return record_literal(std::move(name));
-    }
-    std::unique_ptr<Expr> expr;
-    if (match({TokenType::LParen})) {
-      std::vector<std::unique_ptr<Expr>> arguments;
-      if (!check(TokenType::RParen)) {
-        do {
-          arguments.push_back(expression());
-        } while (match({TokenType::Comma}));
+      // Ambiguity check: Generic Type instantiation vs Indexing.
+      // If the token after '[' looks like a type, we assume GenericType.
+      // Otherwise (e.g. literal '0', expression start), we assume Indexing.
+      Token next = _lexer.peek_next_token();
+      bool looks_like_type = false;
+      if (is_type_start_token(next)) {
+          if (next.type == TokenType::Identifier) {
+              // Heuristic: Types are usually Capitalized. Variables are lowercase.
+              if (!next.lexeme.empty() && std::isupper(next.lexeme[0])) {
+                  looks_like_type = true;
+              }
+          } else {
+              // Keywords like i32, bool are definitely types.
+              looks_like_type = true;
+          }
       }
-      Token paren = consume(TokenType::RParen, "Expect ')' after arguments.");
-      expr = std::make_unique<CallExpr>(std::make_unique<VariableExpr>(name), paren,
-                                        std::move(arguments));
+
+      if (looks_like_type) {
+          expr = parse_generic_type(name);
+      } else {
+          expr = std::make_unique<VariableExpr>(name);
+      }
+    } else if (match({TokenType::LBrace})) {
+      return record_literal(std::move(name));
     } else {
       expr = std::make_unique<VariableExpr>(name);
     }
-    while (match({TokenType::Dot})) {
-      Token field = consume(TokenType::Identifier, "Expect field name after '.'.");
-      expr = std::make_unique<FieldAccessExpr>(std::move(expr), field);
-    }
-    return expr;
+  } else if (is_type_start_token(peek())) {
+    expr = type();
+  } else {
+    report_error(peek(), "Expect expression.");
+    throw std::runtime_error("Expect expression.");
   }
 
-  report_error(peek(), "Expect expression.");
-  throw std::runtime_error("Expect expression.");
+  // Handle postfix operators: Call, FieldAccess, Indexing
+  while (true) {
+      if (match({TokenType::Dot})) {
+          Token field = consume(TokenType::Identifier, "Expect field name after '.'.");
+          expr = std::make_unique<FieldAccessExpr>(std::move(expr), field);
+      } else if (match({TokenType::LParen})) {
+          std::vector<std::unique_ptr<Expr>> arguments;
+          if (!check(TokenType::RParen)) {
+            do {
+              arguments.push_back(expression());
+            } while (match({TokenType::Comma}));
+          }
+          Token paren = consume(TokenType::RParen, "Expect ')' after arguments.");
+          expr = std::make_unique<CallExpr>(std::move(expr), paren, std::move(arguments));
+      } else if (check(TokenType::LBracket)) {
+          // Verify if this is actually an index expression and not something else.
+          // Note: parse_generic_type consumed '[' already if it was chosen above.
+          // If we are here, we have an expression 'expr' and see '[', so it must be indexing.
+          Token bracket = consume(TokenType::LBracket, "Expect '['.");
+          std::unique_ptr<Expr> index = expression();
+          consume(TokenType::RBracket, "Expect ']' after index.");
+          expr = std::make_unique<IndexExpr>(std::move(expr), std::move(index), bracket);
+      } else {
+          break;
+      }
+  }
+
+  return expr;
 }
 
 std::unique_ptr<Expr> Parser::match_expression() {
@@ -579,6 +637,7 @@ std::unique_ptr<Expr> Parser::record_literal(Token type_name) {
   std::vector<std::pair<Token, std::unique_ptr<Expr>>> fields;
   if (!check(TokenType::RBrace)) {
     do {
+      if (check(TokenType::RBrace)) break;
       Token field_name = consume(TokenType::Identifier, "Expect field name in record literal.");
       consume(TokenType::Colon, "Expect ':' after field name.");
       auto value = expression();
@@ -903,8 +962,12 @@ std::unique_ptr<GenericTypeExpr> Parser::parse_generic_type(Token name) {
   size_t param_count = 0;
   std::string_view type_name{name.lexeme};
 
-  // First parameter must be a type.
-  parameters[param_count++] = type();
+  // First parameter can be a type or an expression (for types like T81Fixed).
+  if (is_type_start()) {
+      parameters[param_count++] = type();
+  } else {
+      parameters[param_count++] = expression();
+  }
 
   // Subsequent parameters are constant value expressions (structural-result types are treated
   // specially).
@@ -932,7 +995,9 @@ bool Parser::is_type_start() {
   return check(TokenType::Identifier) || check(TokenType::I32) || check(TokenType::I16) ||
          check(TokenType::I8) || check(TokenType::I2) || check(TokenType::Bool) ||
          check(TokenType::Void) || check(TokenType::T81BigInt) || check(TokenType::T81Float) ||
-         check(TokenType::T81Fraction) || check(TokenType::T81Vector) || check(TokenType::Matrix) ||
+         check(TokenType::T81Fraction) || check(TokenType::T81Fixed) || check(TokenType::T81Complex) ||
+         check(TokenType::T81Qutrit) || check(TokenType::T81Uint) ||
+         check(TokenType::T81Vector) || check(TokenType::Matrix) ||
          check(TokenType::Tensor) || check(TokenType::Graph) || check(TokenType::String);
 }
 
