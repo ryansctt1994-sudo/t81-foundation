@@ -1127,7 +1127,30 @@ public:
     }
 
     std::string to_string() const {
-        return to_base81_string();
+        return to_decimal_string();
+    }
+
+    std::string to_decimal_string() const {
+        if (is_zero()) return "0";
+
+        T81BigInt base(10);
+        T81BigInt v = abs();
+        std::vector<int> digits;
+        digits.reserve(48);
+
+        while (!v.is_zero()) {
+            auto dm = div_mod(v, base);
+            int d = static_cast<int>(dm.second.to_int64());
+            digits.push_back(d);
+            v = dm.first;
+        }
+
+        std::string out;
+        if (negative_) out.push_back('-');
+        for (auto it = digits.rbegin(); it != digits.rend(); ++it) {
+            out += static_cast<char>('0' + *it);
+        }
+        return out;
     }
 
     std::string to_base81_string() const {
