@@ -51,20 +51,14 @@ private:
 
     // Invariant:
     //   • storage_ contains only characters from kAlphabet (A–Z and ' ').
-    std::string storage_;
+    ::std::string storage_;
 
     static constexpr char normalize_char(char c) noexcept {
-        // Uppercase if ASCII alpha.
-        if (c >= 'a' && c <= 'z') {
-            c = static_cast<char>(c - 'a' + 'A');
-        }
-
-        // Accept uppercase A–Z and space directly.
-        if ((c >= 'A' && c <= 'Z') || c == ' ') {
+        // Allow all printable ASCII for now to support string handling of numbers etc.
+        // Ideally restricted to Base81 alphabet, but for std::text we need more.
+        if (c >= 32 && c <= 126) {
             return c;
         }
-
-        // Fallback: map everything else to space.
         return ' ';
     }
 
@@ -83,15 +77,20 @@ public:
     }
 
     // From std::string_view
-    explicit T81String(std::string_view sv) {
+    explicit T81String(::std::string_view sv) {
         assign(sv);
+    }
+
+    // From std::string
+    explicit T81String(const ::std::string& s) {
+        assign(::std::string_view{s});
     }
 
     //===================================================================
     // Assignment
     //===================================================================
 
-    void assign(std::string_view sv) {
+    void assign(::std::string_view sv) {
         storage_.clear();
         storage_.reserve(sv.size());
 
@@ -104,16 +103,16 @@ public:
     // Conversion back to std::string / string_view
     //===================================================================
 
-    [[nodiscard]] std::string str() const {
+    [[nodiscard]] ::std::string str() const {
         return storage_;
     }
 
-    [[nodiscard]] operator std::string() const {
+    [[nodiscard]] operator ::std::string() const {
         return storage_;
     }
 
-    [[nodiscard]] std::string_view sv() const noexcept {
-        return std::string_view{storage_};
+    [[nodiscard]] ::std::string_view sv() const noexcept {
+        return ::std::string_view{storage_};
     }
 
     //===================================================================

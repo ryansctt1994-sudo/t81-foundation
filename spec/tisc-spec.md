@@ -17,9 +17,9 @@ ______________________________________________________________________
 
 # TISC — Ternary Instruction Set Computer
 
-Version 0.3 — Draft (Standards Track)
+Version 1.1 — Stable
 
-Status: Draft → Standards Track\
+Status: Stable\
 Applies to: T81VM, T81Lang, Axion, Cognitive Tiers
 
 This document defines the **Ternary Instruction Set Computer (TISC)** for the T81 Ecosystem.\
@@ -316,6 +316,7 @@ image). Any opcode that dereferences a handle MUST fault with
   - Apply canonical `T81Float` arithmetic (Section 2.3 of Data Types).
   - Write the resulting canonical float back as a handle in `R[RD]`. The VM MAY
     reuse an existing equal value but MUST do so deterministically.
+  - **Note**: `FDIV` currently relies on host `double` precision and may not be bit-exact across platforms.
 - **Faults**:
   - Invalid handle → `IllegalInstruction`.
   - Division by zero (`FDIV` with canonical zero divisor) → `DivideByZero`.
@@ -471,8 +472,8 @@ ______________________________________________________________________
 
 - **Form**: `SETF RD`
 - **Semantics**:
-  `R[RD] := FLAGS` encoded as a canonical small integer. In this revision the VM
-  MUST encode `NEG` as `-1`, `ZERO` as `0`, and `POS` as `+1`.
+  `R[RD] := FLAGS` encoded as a canonical small integer. The VM MUST encode `NEG`
+  as `-1`, `ZERO` as `0`, and `POS` as `+1`.
 - **Faults**: None.
 
 ______________________________________________________________________
@@ -644,6 +645,7 @@ Trigonometric operations on canonical `T81Float` values.
   - Resolve `R[RS]` as a handle to a `T81Float`.
   - Compute the sine, cosine, or tangent of the value (interpreted as radians).
   - Store the result as a canonical float handle in `R[RD]`.
+  - **Note**: These operations currently rely on host `double` precision (`std::sin`, `std::cos`, etc.) and may not be bit-exact across platforms.
 - **Faults**:
   - Invalid handle -> `IllegalInstruction`.
   - `FTAN` with asymptotic input -> VM defined behavior (large value or fault).
@@ -748,7 +750,7 @@ ______________________________________________________________________
 - **Type System Mapping to Operands** → [`t81lang-spec.md`](t81lang-spec.md#3-type-system)
 - **Purity and Effect Constraints** → [`t81lang-spec.md`](t81lang-spec.md#1-language-properties)
 
-## Axion Kernel
+## Axion
 
 - **Privileged Instruction Handling** → [`axion-kernel.md`](axion-kernel.md#1-responsibilities)
 - **Verification of Instruction Effects** → [`axion-kernel.md`](axion-kernel.md#2-subsystems)

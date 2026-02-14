@@ -16,6 +16,7 @@ We categorize tests by their architectural scope and verification goal.
 | **Spec Conformance** | `tests/cpp/` | Verify adherence to normative spec behavior. | `tests/cpp/t81lang_conformance_baseline_test.cpp` |
 | **Determinism Gates** | `scripts/ci/` | Verify bit-exact reproducibility across environments. | `t81lang_repro_gate.py` |
 | **Fuzz Tests** | `tests/cpp/` | Discover edge cases via random input generation. | `tests/cpp/frontend_fuzz_test.cpp` |
+| **Resource Guardrails** | `tests/cpp/` | Verify bounded resource usage (memory/time). | `tests/cpp/bigint_allocation_guardrail_test.cpp` |
 
 ## 2. Coverage Position
 

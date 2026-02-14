@@ -28,6 +28,9 @@
 #include <format>
 #include <tuple>
 #include <utility>
+#include <vector>
+#include <type_traits>
+#include <sstream>
 
 namespace t81 {
 
@@ -76,15 +79,35 @@ public:
     static constexpr size_t size() noexcept { return (Dims * ...); }
     static constexpr std::array<size_t, Rank> shape() noexcept { return {Dims...}; }
 
+private:
+    // P1: Stack vs Heap storage decision
+    static constexpr size_t kTotalSize = (Dims * ...);
+    // Threshold: 4KB stack limit
+    static constexpr bool kUseHeap = (kTotalSize * sizeof(Element) > 4096);
+
+    using Storage = std::conditional_t<kUseHeap,
+                                       std::vector<Element>,
+                                       Element[kTotalSize]>;
+
+public:
     // Raw storage — always 64-byte aligned for tensor core friendly
-    alignas(64) Element data[(Dims * ...)];
+    // Note: For large tensors, this is a std::vector. Direct pointer access (e.g. &data)
+    // works for C-array (small) but for vector use data.data().
+    alignas(64) Storage data;
 
     //===================================================================
     // Construction
     //===================================================================
-    constexpr T81Tensor() noexcept = default;
+    constexpr T81Tensor() noexcept(!kUseHeap) {
+        if constexpr (kUseHeap) {
+            data.resize(kTotalSize);
+        }
+    }
 
-    explicit constexpr T81Tensor(Element fill) noexcept {
+    explicit constexpr T81Tensor(Element fill) noexcept(!kUseHeap) {
+        if constexpr (kUseHeap) {
+            data.resize(kTotalSize);
+        }
         std::fill(std::begin(data), std::end(data), fill);
     }
 
@@ -109,8 +132,14 @@ public:
     //===================================================================
     // Views & reshaping — zero-cost, zero-copy
     //===================================================================
-    [[nodiscard]] constexpr std::span<Element>       span()       noexcept { return {data, size()}; }
-    [[nodiscard]] constexpr std::span<const Element> span() const noexcept { return {data, size()}; }
+    [[nodiscard]] constexpr std::span<Element>       span()       noexcept {
+        if constexpr (kUseHeap) return {data.data(), size()};
+        else return {data, size()};
+    }
+    [[nodiscard]] constexpr std::span<const Element> span() const noexcept {
+        if constexpr (kUseHeap) return {data.data(), size()};
+        else return {data, size()};
+    }
 
     template <size_t... NewDims>
         requires ((sizeof...(NewDims) == Rank) && (size() == (NewDims * ...)))
@@ -118,7 +147,11 @@ public:
         -> T81Tensor<Element, Rank, NewDims...>
     {
         T81Tensor<Element, Rank, NewDims...> out;
-        std::memcpy(out.data, data, sizeof(data));
+        if (std::is_constant_evaluated()) {
+            std::copy(span().begin(), span().end(), out.span().begin());
+        } else {
+            std::memcpy(out.span().data(), span().data(), size() * sizeof(Element));
+        }
         return out;
     }
 
@@ -231,6 +264,33 @@ public:
     [[nodiscard]] constexpr auto operator<=>(const T81Tensor&) const noexcept = default;
     [[nodiscard]] constexpr bool operator==(const T81Tensor&) const noexcept = default;
 
+    // P2: Canonical serialization
+    [[nodiscard]] std::string serialize_canonical() const {
+        std::stringstream ss;
+        ss << "shape: [";
+        bool first = true;
+        for (auto d : shape()) {
+            if (!first) ss << ", ";
+            ss << d;
+            first = false;
+        }
+        ss << "], data: [";
+        first = true;
+        for (const auto& e : span()) {
+            if (!first) ss << ", ";
+            if constexpr (requires { e.to_canonical_string(); }) {
+                ss << e.to_canonical_string();
+            } else if constexpr (requires { e.serialize_canonical(); }) {
+                ss << e.serialize_canonical();
+            } else {
+                ss << e;
+            }
+            first = false;
+        }
+        ss << "]";
+        return ss.str();
+    }
+
 private:
     // Row-major linear index
     template <typename... Indices>
@@ -297,7 +357,7 @@ template <size_t Start, size_t End, typename E, size_t Rank, size_t... Dims>
     if (std::is_constant_evaluated()) {
         for(size_t i=0; i<copy_len; ++i) out.data[i] = t.data[offset + i];
     } else {
-        std::memcpy(out.data, t.data + offset, copy_len * sizeof(E));
+            std::memcpy(out.span().data(), t.span().data() + offset, copy_len * sizeof(E));
     }
     return out;
 }
@@ -478,8 +538,8 @@ template <typename E, size_t Rank, size_t D0_1, size_t... Rest, size_t D0_2>
         for(size_t i=0; i<size1; ++i) out.data[i] = t1.data[i];
         for(size_t i=0; i<size2; ++i) out.data[size1 + i] = t2.data[i];
     } else {
-        std::memcpy(out.data, t1.data, size1 * sizeof(E));
-        std::memcpy(out.data + size1, t2.data, size2 * sizeof(E));
+        std::memcpy(out.span().data(), t1.span().data(), size1 * sizeof(E));
+        std::memcpy(out.span().data() + size1, t2.span().data(), size2 * sizeof(E));
     }
     return out;
 }

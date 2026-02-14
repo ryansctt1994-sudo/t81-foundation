@@ -8,15 +8,15 @@ int main() {
   using namespace t81::axion;
 
   std::cout << "[Axion Demo]\n";
-  std::cout << "runtime: " << Context::runtime_name()
-            << " v" << Context::runtime_version().str() << "\n";
+  std::cout << "runtime: " << Context::runtime_name() << " v" << Context::runtime_version().str()
+            << "\n";
 
   Context cx;
 
   // Build a request
   Signal sig{};
-  sig.kind  = 0x1001;          // pretend op id
-  sig.flags = 0x3;             // pretend flags
+  sig.kind = 0x1001;  // pretend op id
+  sig.flags = 0x3;    // pretend flags
   sig.nonce = 0xDEADBEEFCAFEBABEull;
 
   Buffer in;
@@ -37,12 +37,8 @@ int main() {
 
   // Telemetry
   const auto& tele = cx.telemetry();
-  std::cout << "telemetry: "
-            << "requests=" << tele.requests
-            << " bytes_in=" << tele.bytes_in
-            << " bytes_out=" << tele.bytes_out
-            << " last_ms=" << tele.last_ms
-            << "\n";
+  std::cout << "telemetry: " << "requests=" << tele.requests << " bytes_in=" << tele.bytes_in
+            << " bytes_out=" << tele.bytes_out << " last_ms=" << tele.last_ms << "\n";
 
   return 0;
 }

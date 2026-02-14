@@ -17,9 +17,9 @@ ______________________________________________________________________
 
 # T81Lang Specification
 
-Version 0.2 — Draft (Standards Track)
+Version 1.1 — Stable
 
-Status: Draft → Standards Track\
+Status: Stable\
 Applies to: TISC, T81VM, Axion, Data Types
 
 T81Lang is the **high-level, deterministic, ternary-native programming language** of the T81 Ecosystem.\
@@ -42,6 +42,7 @@ T81Lang is designed with the following properties:
 
 1. **Deterministic**\
    Every expression has a single, unambiguous meaning. No hidden I/O, nondeterminism, or environment leakage.
+   **Note:** Floating-point division and transcendental functions (`sin`, `cos`, etc.) rely on host-platform behavior and may vary across architectures; strict bit-exact determinism is guaranteed only for integer/fraction arithmetic and float storage.
 
 2. **Pure-by-default**\
    Functions are pure unless explicitly marked as effectful.
@@ -328,9 +329,9 @@ Produces an AST conforming to the grammar.
 
 ### Stage 3 — Semantic Analysis & Type Checking
 
-This stage is responsible for verifying the semantic correctness of the program. The initial pass, which is now implemented, performs **name resolution** and **scope analysis**. The next development priority is to extend this pass to perform full **type checking**.
+This stage is responsible for verifying the semantic correctness of the program. It performs **name resolution**, **scope analysis**, and **type checking**.
 
-The complete type checker **MUST** enforce the following guarantees:
+The semantic analyzer **MUST** enforce the following guarantees:
 
 - **No Type Mismatches:** All expressions and statements must adhere to the type system.
 - **Valid Shapes:** All tensor and vector operations must use compatible shapes.

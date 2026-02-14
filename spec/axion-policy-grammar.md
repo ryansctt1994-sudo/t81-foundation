@@ -46,7 +46,8 @@ To ensure the integrity of the HanoiVM, the following core balanced ternary arit
 3.  **Fraction Canonicalization**:
     -   Prove that for any `Fraction f`, `f.canonicalize()` results in a unique representation (GCD reduction and denominator sign normalization).
 4.  **T81Float bit-identicality**:
-    -   Verify that `T81Float` operations are side-channel-free and produce identical results across supported hardware backends.
+    -   Verify that `T81Float` storage and basic operations (`+`, `-`, `*`) are side-channel-free and produce identical results across supported hardware backends.
+    -   **Note:** Division and transcendentals are currently excluded from strict bit-identity verification due to host dependency.
 
 ## 2. Axion Predicates for Tier 4
 

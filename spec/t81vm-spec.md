@@ -17,9 +17,9 @@ ______________________________________________________________________
 
 # T81 Virtual Machine Specification
 
-Version 0.2 — Draft (Standards Track)
+Version 1.1 — Stable
 
-Status: Draft → Standards Track\
+Status: Stable\
 Applies to: TISC, T81Lang, Axion, Cognitive Tiers
 
 The T81 Virtual Machine (T81VM) is the **deterministic execution environment** for TISC programs.\
@@ -98,7 +98,8 @@ Implementations MUST ensure:
 2. **No Hidden Sources of Nondeterminism**
 
    - No direct access to wall-clock time, random devices, or system entropy sources.
-   - Any pseudo-random behavior MUST be seeded deterministically and exposed via explicit APIs, not hidden in VM behavior.
+   - Any pseudo-random behavior MUST be seeded deterministically and exposed via explicit APIs.
+   - **Exception:** Floating-point operations (`T81Float`) involving division or transcendentals MAY reflect host-platform behavior (e.g., IEEE-754 variations). Strict bit-identity across architectures is NOT guaranteed for these specific opcodes.
 
 3. **Stable Ordering**
 
@@ -323,7 +324,7 @@ ______________________________________________________________________
 Axion policies require precise visibility into every segment transition. The VM MUST uphold:
 
 1. **Strict segment containment** — every access must resolve to exactly one segment; `mem_ok(addr)` returns `true` only when the address lies within `layout.stack`, `layout.heap`, `layout.tensor`, or `layout.meta`. Addresses outside these bounds always trigger deterministic bounds faults with canonical `verdict.reason` strings.
-2. **Canonical Axion reasons** — stack/heap/tensor allocation, metadata writes, guard instrumentation, and faults must preserve the strings defined in RFC-0020/RFC-0009 (`stack frame allocated stack addr=... size=...`, `heap block allocated heap addr=...`, `tensor slot allocated tensor addr=...`, `AxRead guard segment=stack addr=...`, `bounds fault segment=heap ...`, `meta slot axion event segment=meta addr=...`, etc.). Changing these routines without retaining the text breaks policy enforcement.
+2. **Canonical Axion reasons** — stack/heap/tensor allocation, metadata writes, guard instrumentation, and faults must preserve the strings defined in RFC-0020/RFC-0009 (`stack frame allocated stack addr=... size=...`, `heap block allocated heap addr=...`, `tensor slot allocated tensor addr=...`, `AxRead guard segment=stack addr=42`, `bounds fault segment=heap ...`, `meta slot axion event segment=meta addr=...`, etc.). Changing these routines without retaining the text breaks policy enforcement.
 3. **GC visibility** — GC cycles execute at deterministic intervals and log their reason before mutating segments (“GC cycle reason=interval”, “GC cycle reason=force”). GC must not reorder segment writes relative to other Axion events so the recorded trace stays reproducible.
 4. **Stack/heap metadata tracking** — `stack_frames` and `heap_frames` track active allocations; mismatched frees log a deterministic `bounds fault` before trapping.
 5. **Tensor/meta isolation** — tensor handles remain within `layout.tensor`, and `meta_ptr` always advances before Axion events so metadata writes are sequential.
