@@ -17,6 +17,7 @@ int main() {
   assert(r.shape()[0] == 3 && r.shape()[1] == 2);
   // Expect: [1 2; 3 4; 5 6] in row-major
   const auto& d = r.data();
+  (void)d;
   assert((d == std::vector<float>{1,2,3,4,5,6}));
 
   // Reshape using -1 inference: 2x3 -> {-1} => {6}
