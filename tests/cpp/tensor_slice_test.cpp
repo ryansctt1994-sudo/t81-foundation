@@ -21,6 +21,7 @@ int main() {
   [[maybe_unused]] auto s1= t81::ops::slice2d(m, 0, 2, 1, 3);
   assert(s1.rank() == 2 && s1.shape()[0] == 2 && s1.shape()[1] == 2);
   const auto& d1 = s1.data();
+  (void)d1;
   // Expect:
   // [2 3
   //  6 7]
@@ -31,12 +32,14 @@ int main() {
   [[maybe_unused]] auto s2= t81::ops::slice2d(m, 1, 2, 0, 4);
   assert(s2.rank() == 2 && s2.shape()[0] == 1 && s2.shape()[1] == 4);
   const auto& d2 = s2.data();
+  (void)d2;
   assert((d2 == std::vector<float>{5,6,7,8}));
 
   // Slice a single column: rows[0:3), cols[2:3) => 3x1
   [[maybe_unused]] auto s3= t81::ops::slice2d(m, 0, 3, 2, 3);
   assert(s3.rank() == 2 && s3.shape()[0] == 3 && s3.shape()[1] == 1);
   const auto& d3 = s3.data();
+  (void)d3;
   assert((d3 == std::vector<float>{3,7,11}));
 
   // Bad ranges should throw

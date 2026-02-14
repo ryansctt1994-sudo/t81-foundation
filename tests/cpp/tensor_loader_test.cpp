@@ -35,6 +35,7 @@ int main() {
   [[maybe_unused]] auto t2= t81::io::load_tensor_txt(ss2);
   assert(t2.rank() == 2 && t2.shape()[0] == 2 && t2.shape()[1] == 2);
   const auto& d2 = t2.data();
+  (void)d2;
   assert(d2.size() == 4 && d2[0] == 1 && d2[1] == 2 && d2[2] == 3 && d2[3] == 4);
 
   std::cout << "tensor_loader ok\n";

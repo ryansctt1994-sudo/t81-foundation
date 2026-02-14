@@ -20,6 +20,7 @@ int main() {
   assert(t.shape()[1] == 2);
 
   const auto& d = t.data();
+  (void)d;
   // Transposed:
   // [1 4
   //  2 5

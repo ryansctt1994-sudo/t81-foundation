@@ -78,14 +78,14 @@ void demo_math() {
     using ComplexFloat = T81Float27_9;
     T81Complex<27> c1(ComplexFloat::from_double(1.0), ComplexFloat::from_double(2.0));
     T81Complex<27> c2(ComplexFloat::from_double(3.0), ComplexFloat::from_double(4.0));
-    auto cprod = c1 * c2;
+    [[maybe_unused]] auto cprod = c1 * c2;
     std::cout << "T81Complex: (" << std::to_string(c1.real().to_double()) << "," << std::to_string(c1.imag().to_double()) << ") * ... \n";
 
     // T81Quaternion - uses T81Float27_9 internally
     using QFloat = T81Float27_9;
     T81Quaternion q1 = T81Quaternion::identity();
     T81Quaternion q2(QFloat::from_double(0.707), QFloat::from_double(0.707), QFloat::from_double(0.0), QFloat::from_double(0.0));
-    auto qrot = q1 * q2;
+    [[maybe_unused]] auto qrot = q1 * q2;
     std::cout << "T81Quaternion: Rotated identity by 90 deg around X\n";
 
     // T81Fraction - explicitly using 81 trits version
@@ -180,7 +180,7 @@ void demo_data_io() {
     using Float = T81Float72_9;
 
     // T81Tensor
-    T81Tensor<Float, 2, 2, 2> tensor;
+    [[maybe_unused]] T81Tensor<Float, 2, 2, 2> tensor;
     std::cout << "T81Tensor: Created 2x2 static tensor\n";
 
     // T81Bytes
