@@ -375,6 +375,9 @@ const char* ir_opcode_name(tisc::ir::Opcode op) {
     case O::FSUB: return "FSUB";
     case O::FMUL: return "FMUL";
     case O::FDIV: return "FDIV";
+    case O::FSIN: return "FSIN";
+    case O::FCOS: return "FCOS";
+    case O::FTAN: return "FTAN";
     case O::FRACADD: return "FRACADD";
     case O::FRACSUB: return "FRACSUB";
     case O::FRACMUL: return "FRACMUL";

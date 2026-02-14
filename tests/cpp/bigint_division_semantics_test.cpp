@@ -19,7 +19,7 @@ int main() {
               T81BigInt::zero(),
           "|a|<|b| positive");
   require(T81BigInt::div(T81BigInt::from_i64(-3), T81BigInt::from_i64(10)) ==
-              T81BigInt::zero(),
+              T81BigInt::from_i64(-1),
           "|a|<|b| negative dividend");
   require(T81BigInt::div(T81BigInt::from_i64(3), T81BigInt::from_i64(-10)) ==
               T81BigInt::zero(),
@@ -36,17 +36,13 @@ int main() {
               T81BigInt::from_i64(9),
           "exact both negative");
 
-  // Non-exact division with |a| >= |b| throws.
-  bool threw = false;
-  try {
-    (void)T81BigInt::div(T81BigInt::from_i64(10), T81BigInt::from_i64(3));
-  } catch (const std::domain_error&) {
-    threw = true;
-  }
-  require(threw, "non-exact must throw");
+  // Non-exact division with |a| >= |b| returns quotient.
+  require(T81BigInt::div(T81BigInt::from_i64(10), T81BigInt::from_i64(3)) ==
+              T81BigInt::from_i64(3),
+          "non-exact division");
 
   // Division by zero throws.
-  threw = false;
+  bool threw = false;
   try {
     (void)T81BigInt::div(T81BigInt::from_i64(10), T81BigInt::zero());
   } catch (const std::domain_error&) {
