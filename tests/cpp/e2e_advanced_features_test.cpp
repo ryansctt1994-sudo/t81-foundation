@@ -44,7 +44,8 @@ int64_t run_e2e_test(const std::string& source) {
   vm->load_program(program);
   vm->run_to_halt();
 
-  return vm->state().registers[1];
+  // Return R2 as it holds the return value of main
+  return vm->state().registers[2];
 }
 
 void test_while_break() {
