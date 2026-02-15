@@ -17,6 +17,7 @@ This is the canonical index for top-level specs in `spec/`.
 | `t81lang-spec.md` | Language semantics and lowering model | normative |
 | `axion-kernel.md` | Supervisory/policy enforcement model | normative |
 | `cognitive-tiers.md` | Tier model and constraints | normative |
+| `determinism-profile.md` | Strict Determinism Profile (Tier A) | normative |
 
 ## Supplemental Specs
 | Document | Role | Status |

@@ -9,7 +9,7 @@ ______________________________________________________________________
 ## 1. Guiding Principles
 
 - **Spec semantics are authoritative:** `/spec` defines normative behavior. If implementation diverges, resolve in favor of spec semantics.
-- **Determinism first:** all compiler/runtime paths must preserve reproducible outputs and auditable traces.
+- **Determinism first:** all compiler/runtime paths must preserve reproducible outputs and auditable traces, adhering to the Strict Determinism Profile (`spec/determinism-profile.md`).
 - **Layered composition via CMake:** components are separated by responsibility and linked through explicit target dependencies.
 - **Optimization without semantic drift:** interpreter, trace-JIT, SIMD, and tooling must preserve canonical behavior.
 
