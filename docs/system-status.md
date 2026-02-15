@@ -2,7 +2,7 @@
 
 **Last Updated:** February 10, 2026
 
-This document provides a high-level summary of the implementation status of each major component in the T81 Foundation stack. For a more detailed technical breakdown of spec conformance, see [`ANALYSIS.md`](../ANALYSIS.md).
+This document provides a high-level summary of the implementation status of each major component in the T81 Foundation stack. For a more detailed technical breakdown of spec conformance, see [`ANALYSIS.md`](../ANALYSIS.md) and [`docs/T81_REMEDIATION_PLAN.md`](../docs/T81_REMEDIATION_PLAN.md).
 
 ______________________________________________________________________
 
@@ -22,64 +22,87 @@ This table inventories the key documentation, specification, and architectural a
 | `ANALYSIS.md`                           | Spec vs. Reality                | Core Maintainer       | **Current**           |
 | `docs/index.md`                         | Docs Site Entrypoint            | All                   | **Current**           |
 | `docs/system-status.md`                 | **(This file)**                 | Core Maintainer       | **Current**           |
-| `docs/cpp-quickstart.md`                | C++ Developer Guide             | New Contributor       | **Mostly Current**     |
+| `docs/cpp-quickstart.md`                | C++ Developer Guide             | New Contributor       | **Mostly Current**    |
 | `docs/onboarding.md`                    | Repo onboarding + first change  | New Contributor       | **Current**           |
-| `docs/release.md`                       | Release/versioning workflow      | Maintainer/Release Lead | **Current**         |
+| `docs/release.md`                       | Release/versioning workflow     | Maintainer/Release Lead | **Current**         |
 | `docs/ai-quickstart.md`                 | AI Agent Guide                  | New Contributor       | **Current**           |
 | `docs/tensor-guide.md`                  | Tensor Library Guide            | User / Contributor    | **Current**           |
 | `docs/benchmarks.md`                    | Benchmark Suite                 | Core Maintainer       | **Current**           |
+| `docs/jit-research.md`                  | JIT Feasibility Study           | Researcher            | **Current**           |
 | `docs/hardware-roadmap.md`              | Hardware Vision                 | All                   | Historical            |
 | `docs/guides/vm-opcodes.md`             | TISC Opcodes                    | Contributor           | **Current**           |
 | `docs/guides/adding-a-language-feature.md`| T81Lang Development           | Contributor           | **Current**           |
 | `docs/guides/public-api-overview.md`     | Public API entry notes          | Contributor           | **Current**           |
 | `docs/ci.md`                             | CI/test reproduction guide      | Contributor           | **Current**           |
 | `spec/index.md`                         | Specification Hub               | All                   | Current               |
-| `spec/t81-data-types.md`                | Core Numerics Spec              | Core Maintainer       | Current               |
-| `spec/tisc-spec.md`                     | TISC ISA Spec                   | Core Maintainer       | Current               |
-| `spec/t81vm-spec.md`                    | VM Spec                         | Core Maintainer       | Current               |
-| `spec/t81lang-spec.md`                  | T81Lang Spec                    | Core Maintainer       | Current               |
+| `spec/t81-data-types.md`                | Core Numerics Spec              | Core Maintainer       | **Stable**            |
+| `spec/tisc-spec.md`                     | TISC ISA Spec                   | Core Maintainer       | **Stable**            |
+| `spec/t81vm-spec.md`                    | VM Spec                         | Core Maintainer       | **Stable (v1.1)**     |
+| `spec/t81lang-spec.md`                  | T81Lang Spec                    | Core Maintainer       | **Stable (v1.1)**     |
+| `spec/canonfs-spec.md`                  | CanonFS Spec                    | Core Maintainer       | **Final Draft (v0.4.1)** |
 
 ______________________________________________________________________
 
 ## 2. Core Numerics & Data Types
 
 - **Specification:** [`spec/t81-data-types.md`](../spec/t81-data-types.md)
-- **Status:** `Complete`
-- **Summary:** All 90 canonical types are now fully implemented and integrated. Foundational numeric types, including the multi-limb `T81BigInt` and high-rank `T81Tensor` (with arbitrary rank transpose), conform to the spec's requirements for deterministic, balanced ternary arithmetic. Note that `T81Float` transcendental functions currently rely on host precision. All headers have standardized Doxygen documentation.
+- **Status:** `Stable` (with noted limitations)
+- **Summary:** All 90 canonical types are implemented. Foundational numeric types, including the multi-limb `T81BigInt` and high-rank `T81Tensor`, conform to requirements for deterministic, balanced ternary arithmetic.
+- **Determinism Note:** `T81Float` transcendental functions (`sin`, `cos`, `tan`, `log`, `exp`, `sqrt`) now utilize the deterministic `dmath` (software fixed-point) backend. However, `operator/` and other functions in non-strict modes may still rely on host `double` precision. **Strict Mode** (`T81_STRICT_MODE`) enforces **Tier A** determinism by trapping on any host-dependent operation.
 - **Implemented:** `T81Int<N>`, `T81UInt<N>`, `T81Fixed<I,F>`, `T81Float<M,E>`, `T81Complex<M>`, `T81Quaternion`, `T81Fraction<N>`, `T81Vector<N,S>`, `T81Matrix<S,R,C>`, `T81Tensor<E,R,Dims...>`, `T81String`, `T81Symbol`, `T81Bytes`, `T81List<E>`, `T81Set<T>`, `T81Map<K,V>`, `T81Tree<T>`, `T81Qutrit`, `T81Prob`, `T81Cell`, `base81`, `ids`, `T81BigInt`, `T81Agent`, `T81Entropy`, `T81Time`, `T81IOStream`, `T81Maybe<T>`, `T81Result<T>`, `T81Promise<T>`, `T81Thread`, `T81Network`, `T81Discovery`, `T81Category`, `T81Polynomial`, `T81Graph`, `T81Proof`, `T81Reflection`, `T81Stream`.
-- **Next Steps:** Maintain documentation and performance as usage scales.
+- **Recent Fixes:**
+    - `T81Graph` and `T81Tensor` stack overflow issues resolved via hybrid storage (stack/heap).
+    - `T81Map` iteration order nondeterminism resolved via sorted keys/export.
+    - `T81Float` transcendental determinism implemented via `dmath`.
+- **Next Steps:** Complete "Partial Polyfill" remediation for full float division determinism.
 
 ______________________________________________________________________
 
 ## 3. TISC ISA & T81VM
 
 - **Specification:** [`spec/tisc-spec.md`](../spec/tisc-spec.md), [`spec/t81vm-spec.md`](../spec/t81vm-spec.md)
-- **Status:** `Implemented`
+- **Status:** `Stable` (v1.1)
 - **Summary:** The VM fully supports the TISC instruction set and implements the deterministic memory model (CODE, STACK, HEAP, TENSOR, META). Fault handling is strict and Axion-visible, matching the spec-defined categories.
-- **Next Steps:** Expand hardware acceleration for complex numeric operations.
+- **Next Steps:** Expand hardware acceleration for complex numeric operations while maintaining determinism.
 
 ______________________________________________________________________
 
 ## 4. T81Lang Frontend
 
 - **Specification:** [`spec/t81lang-spec.md`](../spec/t81lang-spec.md)
-- **Status:** `Implemented`
-- **Summary:** The C++23 frontend is now largely complete. It includes a lexer, a recursive descent parser for the full T81Lang grammar, a semantic analysis pass for scope and symbol resolution, and an IR generator that produces valid TISC IR. Vector literals follow the canonical rules from §2.3–§2.5: elements must be numeric, the empty literal relies on a contextual `Vector[T]` type, and the analyzer feeds a canonical `T729Tensor` payload through the IR tensor pool so the VM can load it via `LoadImm/TensorHandle`. `None`, `Ok`, and `Err` are now only valid in contextual `Option[T]` or `Result[T, E]` types, the match analyzer enforces exhaustiveness and consistent arm return types, and semantic/CLI regressions keep the `t81` pipeline aligned with the spec.
-- **Structural types:** `record` and `enum` declarations now produce field/variant metadata so literals and field access are checked for completeness and payload compliance, and the CLI serializes those layouts/variants alongside existing type aliases so downstream tooling can trust the structure; the new [`docs/guides/record-enum.md`](../docs/guides/record-enum.md) spells out the rules and `tests/cpp/cli_structural_types_test.cpp` proves that structural types flow through the CLI pipeline.
-- **Next Steps:** Add support for advanced cognitive kernels and JIT optimizations.
+- **Status:** `Stable` (v1.1)
+- **Summary:** The C++23 frontend includes a lexer, recursive descent parser, semantic analyzer, and IR generator producing valid TISC IR.
+- **Features:**
+    - **Generics:** Authoritative `Vector[T]` syntax (legacy `<T>` rejected).
+    - **Structural Types:** `Option[T]` and `Result[T, E]` fully supported.
+    - **Literals:** Vector literals, struct/enum constructors.
+    - **Determinism:** Strict semantic analysis enforces type safety and canonical forms.
+- **Next Steps:** Optimization passes and enhanced tooling.
 
 ______________________________________________________________________
 
 ## 5. Axion Kernel & CanonFS
 
 - **Specification:** [`spec/axion-kernel.md`](../spec/axion-kernel.md), [`spec/canonfs-spec.md`](../spec/canonfs-spec.md)
-- **Status:** `Implemented`
-- **Summary:** The VM fully implements the Axion trace engine, producing canonical audit strings for all segment operations and faults. The CanonFS persistence layer is stable, correctly intercepting operations with Axion hooks and maintaining deterministic snapshot hashes. The stack is now fully auditable via the documented trace strings.
-- **Next Steps:** Expand performance benchmarks for high-throughput persistence workloads.
+- **Status:** `Beta` (v0.4.1)
+- **Target:** v1.0 Release (Q4 2026)
+- **Summary:**
+    - **Axion:** Fully implements the trace engine, producing canonical audit strings for all segment operations and faults.
+    - **CanonFS:** Persistence layer is stable and functioning, correctly intercepting operations with Axion hooks and maintaining deterministic snapshot hashes.
+- **Next Steps:** Performance benchmarks for high-throughput persistence workloads and transition to Release Candidate status.
 
 ______________________________________________________________________
 
-## 6. Documentation Snapshot (Historical) — November 30, 2025
+## 6. JIT Compiler
+
+- **Specification:** [`docs/jit-research.md`](../docs/jit-research.md)
+- **Status:** `Experimental`
+- **Summary:** Research phase. Feasibility study for a deterministic Just-In-Time compiler targeting x86_64/ARM64.
+- **Next Steps:** Prototype backend implementation and determinism verification.
+
+______________________________________________________________________
+
+## 7. Documentation Snapshot (Historical) — November 30, 2025
 
 This section summarizes the state of the project's documentation following a comprehensive overhaul.
 
