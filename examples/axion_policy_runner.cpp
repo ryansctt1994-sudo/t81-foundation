@@ -1,7 +1,7 @@
 #include "t81/axion/policy.hpp"
 #include "t81/axion/policy_engine.hpp"
-#include "t81/tisc/program.hpp"
 #include "t81/tisc/opcodes.hpp"
+#include "t81/tisc/program.hpp"
 #include "t81/vm/vm.hpp"
 
 #include <iostream>
@@ -71,8 +71,8 @@ int main() {
   halt.opcode = t81::tisc::Opcode::Halt;
 
   std::vector<t81::tisc::Insn> insns = {
-      load_tensor0, load_tensor1, vec_add, stack_alloc, heap_alloc, load_value,
-      ax_set, heap_free, stack_free, halt,
+      load_tensor0, load_tensor1, vec_add,   stack_alloc, heap_alloc,
+      load_value,   ax_set,       heap_free, stack_free,  halt,
   };
   ax_read.b = static_cast<int>(insns.size() + 1);
   insns.insert(insns.begin() + 7, ax_read);
@@ -93,8 +93,7 @@ int main() {
 
   std::cout << "Axion policy runner emitted the following verdict.reason strings:\n";
   for (const auto& entry : vm->state().axion_log) {
-    std::cout << "  opcode=" << static_cast<int>(entry.opcode)
-              << " tag=" << entry.tag
+    std::cout << "  opcode=" << static_cast<int>(entry.opcode) << " tag=" << entry.tag
               << " reason=\"" << entry.verdict.reason << "\"\n";
   }
 
@@ -127,7 +126,8 @@ int main() {
     }
   }
   if (!result.has_value()) {
-    std::cerr << "Axion policy runner trapped with code " << static_cast<int>(result.error()) << '\n';
+    std::cerr << "Axion policy runner trapped with code " << static_cast<int>(result.error())
+              << '\n';
     auto policy_opt = t81::axion::parse_policy(program.axion_policy_text);
     if (policy_opt.has_value()) {
       auto policy_owned = std::optional<t81::axion::Policy>{policy_opt.value()};

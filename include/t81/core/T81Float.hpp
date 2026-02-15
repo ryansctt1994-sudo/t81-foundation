@@ -16,6 +16,8 @@
 
 #include "t81/core/T81Int.hpp"
 
+// We try to avoid host math in deterministic mode, but legacy/conversion may still need it.
+// Phase 1: Only dmath handles transcendentals.
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -27,6 +29,13 @@ namespace t81::v1 {
 
 template <std::size_t M, std::size_t E>
 class T81Float;
+
+} // namespace t81::v1
+
+// Deterministic Math Backend
+#include "t81/core/detail/dmath.hpp"
+
+namespace t81::v1 {
 
 // Forward declarations (arithmetic surface)
 template <std::size_t M, std::size_t E>
@@ -224,94 +233,145 @@ public:
     // High-level math helpers for geometry/time layers
     // ---------------------------------------------------------------------
 
+    // Deterministic implementations via dmath (Phase 1)
+
     [[nodiscard]] T81Float sin() const noexcept {
-        if (is_nae()) return *this;
-        return from_double(std::sin(to_double()));
+        return core::detail::sin(*this);
     }
 
     [[nodiscard]] T81Float cos() const noexcept {
-        if (is_nae()) return *this;
-        return from_double(std::cos(to_double()));
+        return core::detail::cos(*this);
+    }
+
+    [[nodiscard]] T81Float tan() const noexcept {
+        return core::detail::tan(*this);
+    }
+
+    [[nodiscard]] T81Float exp() const noexcept {
+        return core::detail::exp(*this);
+    }
+
+    [[nodiscard]] T81Float log() const noexcept {
+        return core::detail::log(*this);
     }
 
     [[nodiscard]] T81Float sqrt() const noexcept {
-        if (is_nae()) return *this;
-        const double x = to_double();
-        if (x < 0.0) {
-            return nae(); // mirror IEEE: sqrt(negative) → NaN/NaE
-        }
-        return from_double(std::sqrt(x));
+        return core::detail::sqrt(*this);
     }
+
+    // Non-deterministic / Non-canonical functions (Phase 2 candidates)
+    // Marked explicitly as relying on host math for now where dmath fallbacks aren't ready/efficient.
+    // Note: acos/asin/atan could be derived from dmath functions but require careful handling of domains.
+    // For Phase 1, we leave them as host-dependent or marked.
+    // Actually, we can implement them via host math but label them.
 
     /**
      * @brief Arc cosine of the value.
+     * @warning NON-DETERMINISTIC: Relies on host platform math.
      * @return T81Float in the range [0, pi], or NaE if input is out of range or NaE.
      */
     [[nodiscard]] T81Float acos() const noexcept {
+#if defined(T81_DETERMINISTIC)
+        // In strict deterministic mode, we must not call host math.
+        // Fail compilation or return NaE?
+        // Since we don't have a dmath::acos yet, we can't support it.
+        // Ideally we static_assert, but that breaks existing code.
+        // We will return NaE or implement a poor man's version if needed?
+        // For now, allow it but warn via comments.
+        // Ideally we should implement dmath::acos/asin/atan soon.
+        return nae(); // Placeholder to enforce determinism if flag is set.
+#else
         if (is_nae()) return *this;
         double x = to_double();
         if (x < -1.0) x = -1.0;
         if (x >  1.0) x =  1.0;
         return from_double(std::acos(x));
+#endif
     }
 
-    [[nodiscard]] T81Float tan() const noexcept {
-        if (is_nae()) return *this;
-        return from_double(std::tan(to_double()));
-    }
-
+    /**
+     * @brief Arc sine of the value.
+     * @warning NON-DETERMINISTIC: Relies on host platform math.
+     */
     [[nodiscard]] T81Float asin() const noexcept {
+#if defined(T81_DETERMINISTIC)
+        return nae();
+#else
         if (is_nae()) return *this;
         double x = to_double();
         if (x < -1.0 || x > 1.0) return nae();
         return from_double(std::asin(x));
+#endif
     }
 
+    /**
+     * @brief Arc tangent of the value.
+     * @warning NON-DETERMINISTIC: Relies on host platform math.
+     */
     [[nodiscard]] T81Float atan() const noexcept {
+#if defined(T81_DETERMINISTIC)
+        return nae();
+#else
         if (is_nae()) return *this;
         return from_double(std::atan(to_double()));
+#endif
     }
 
+    /**
+     * @brief Hyperbolic sine.
+     * @warning NON-DETERMINISTIC: Relies on host platform math.
+     */
     [[nodiscard]] T81Float sinh() const noexcept {
+#if defined(T81_DETERMINISTIC)
+        return nae();
+#else
         if (is_nae()) return *this;
         return from_double(std::sinh(to_double()));
+#endif
     }
 
+    /**
+     * @brief Hyperbolic cosine.
+     * @warning NON-DETERMINISTIC: Relies on host platform math.
+     */
     [[nodiscard]] T81Float cosh() const noexcept {
+#if defined(T81_DETERMINISTIC)
+        return nae();
+#else
         if (is_nae()) return *this;
         return from_double(std::cosh(to_double()));
+#endif
     }
 
+    /**
+     * @brief Hyperbolic tangent.
+     * @warning NON-DETERMINISTIC: Relies on host platform math.
+     */
     [[nodiscard]] T81Float tanh() const noexcept {
+#if defined(T81_DETERMINISTIC)
+        return nae();
+#else
         if (is_nae()) return *this;
         return from_double(std::tanh(to_double()));
-    }
-
-    /**
-     * @brief Exponential function e^x.
-     */
-    [[nodiscard]] T81Float exp() const noexcept {
-        if (is_nae()) return *this;
-        return from_double(std::exp(to_double()));
-    }
-
-    /**
-     * @brief Natural logarithm ln(x).
-     * @return ln(x) or NaE if x <= 0.
-     */
-    [[nodiscard]] T81Float log() const noexcept {
-        if (is_nae()) return *this;
-        const double x = to_double();
-        if (x <= 0.0) return nae();
-        return from_double(std::log(x));
+#endif
     }
 
     /**
      * @brief Power function x^exponent.
+     * @warning NON-DETERMINISTIC: Relies on host platform math.
      */
     [[nodiscard]] T81Float pow(T81Float exponent) const noexcept {
+#if defined(T81_DETERMINISTIC)
+        // dmath::pow not yet implemented.
+        // We could do exp(exponent * log(x)) using dmath functions?
+        // Yes, that would be deterministic!
+        // Let's do that for Phase 1 to maximize coverage.
+        if (is_nae() || exponent.is_nae()) return nae();
+        return core::detail::exp(exponent * core::detail::log(*this));
+#else
         if (is_nae() || exponent.is_nae()) return nae();
         return from_double(std::pow(to_double(), exponent.to_double()));
+#endif
     }
 
     // ---------------------------------------------------------------------
@@ -472,8 +532,7 @@ public:
         // Wait, normalize interprets input as m * 3^(exp - (M-1)).
         // We want m_prod * 3^(ea + eb - 2M + 2).
         // m_prod * 3^(E - M + 1) = m_prod * 3^(ea + eb - 2M + 2).
-        // E - M + 1 = ea + eb - 2M + 2.
-        // E = ea + eb - 2M + 2 + M - 1 = ea + eb - M + 1.
+        // E - M + 1 = ea + eb - 2M + 2 + M - 1 = ea + eb - M + 1.
 
         std::int64_t exp = a.get_exp() + b.get_exp() - static_cast<std::int64_t>(M) + 1;
         bool pos = (a.get_sign() == b.get_sign());

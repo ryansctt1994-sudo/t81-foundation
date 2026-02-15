@@ -33,7 +33,7 @@ int64_t execute_e2e_option_result_function_test(const std::string& source) {
     vm->load_program(program);
     vm->run_to_halt();
 
-    return vm->state().registers[1];
+    return vm->state().registers[2];
 }
 
 void test_option_result_function_regression() {
