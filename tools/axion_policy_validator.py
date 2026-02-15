@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import re
+from collections import deque
 
 # Simplified tokenization: handles (, ), strings, and symbols/numbers
 # Note: Enclosed in capturing group to support re.split usage while keeping tokens
@@ -14,18 +15,18 @@ def tokenize(text):
     # The separators (even indices) are the whitespace between tokens.
     # This is significantly faster (~20%) than iterating with finditer in a loop
     # and correctly handles empty string literals ("") and strings with spaces (" ").
-    return TOKEN_PATTERN.split(text)[1::2]
+    return deque(TOKEN_PATTERN.split(text)[1::2])
 
 def parse_sexpr(tokens):
     if not tokens:
         return None
-    token = tokens.pop(0)
+    token = tokens.popleft()
     if token == '(':
         L = []
         while tokens and tokens[0] != ')':
             L.append(parse_sexpr(tokens))
         if tokens:
-            tokens.pop(0) # pop ')'
+            tokens.popleft() # pop ')'
         return L
     elif token == ')':
         raise ValueError("Unexpected )")
