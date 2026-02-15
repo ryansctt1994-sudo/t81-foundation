@@ -149,6 +149,9 @@ Token Lexer::next_token() {
 
 std::vector<Token> Lexer::all_tokens() {
   std::vector<Token> tokens;
+  // Reserve space for tokens to avoid reallocations.
+  // A heuristic of source size / 5 is often good for typical code.
+  tokens.reserve(_source.size() / 5);
   Token token;
   do {
     token = next_token();

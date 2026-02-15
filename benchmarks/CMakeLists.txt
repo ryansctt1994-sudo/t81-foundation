@@ -33,6 +33,7 @@ set(BENCHMARK_SUITE_SOURCES
     BM_CanonFS.cpp
     BM_LlamaKernels.cpp
     BM_TensorPromotion.cpp
+    BM_Lexer.cpp
 )
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
     list(APPEND BENCHMARK_SUITE_SOURCES BM_Base81SIMD.cpp)
