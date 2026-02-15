@@ -1438,8 +1438,8 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
           }
 
           if (arg_types.size() != 1) {
-            error(field_expr->field, "Enum constructor '" + variant_name +
-                                         "' expects exactly one argument.");
+            error(field_expr->field,
+                  "Enum constructor '" + variant_name + "' expects exactly one argument.");
             return make_error_type();
           }
 
