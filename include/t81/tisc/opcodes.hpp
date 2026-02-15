@@ -96,6 +96,9 @@ enum class Opcode : std::uint8_t {
   MetaReflect,
   MetaRefine,
   Print,
+  TGet,
+  TNew,
+  TSet,
 };
 
 [[nodiscard]] constexpr std::string_view opcode_name(Opcode opcode) {
@@ -189,12 +192,15 @@ enum class Opcode : std::uint8_t {
     case Opcode::MetaReflect: return "MetaReflect";
     case Opcode::MetaRefine: return "MetaRefine";
     case Opcode::Print: return "Print";
+    case Opcode::TGet: return "TGet";
+    case Opcode::TNew: return "TNew";
+    case Opcode::TSet: return "TSet";
   }
   return "Unknown";
 }
 
-inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::Print) + 1> kAllOpcodes = [] {
-  std::array<Opcode, static_cast<std::size_t>(Opcode::Print) + 1> values{};
+inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::TSet) + 1> kAllOpcodes = [] {
+  std::array<Opcode, static_cast<std::size_t>(Opcode::TSet) + 1> values{};
   for (std::size_t i = 0; i < values.size(); ++i) {
     values[i] = static_cast<Opcode>(i);
   }
@@ -202,6 +208,6 @@ inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::Print) + 1>
 }();
 
 [[nodiscard]] constexpr bool is_valid_opcode(std::uint8_t raw_opcode) {
-  return raw_opcode <= static_cast<std::uint8_t>(Opcode::Print);
+  return raw_opcode <= static_cast<std::uint8_t>(Opcode::TSet);
 }
 }  // namespace t81::tisc

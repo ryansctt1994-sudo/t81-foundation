@@ -1,73 +1,16 @@
-# T81 Foundation: Actionable Task List
+# 12 Things to Further the T81 Project
 
-> **Source of Truth:** This document tracks **all pending work**, from near-term tasks to long-term strategic items. It supersedes the deprecated `TODO.md`.
+Based on the analysis of `advanced_datatypes_showcase.t81` and the current compiler state, here are 12 key tasks to improve the project:
 
-**Last Updated:** February 10, 2026
-
-______________________________________________________________________
-
-## P0 — Keep Determinism Gates Green
-
-- [ ] Re-run and document the local ritual on every significant merge window:
-  - `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release`
-  - `cmake --build build --parallel`
-  - `ctest --test-dir build --output-on-failure`
-- [ ] Keep cross-arch T81Lang and T3_K reproducibility gates passing in CI.
-- [ ] Keep runtime-contract sync checks green against `t81-vm`.
-
-## P1 — Performance Path
-
-- [ ] Profile and optimize hot tensor kernels used by demo/inference paths.
-- [ ] Improve CanonFS performance under sustained write/read workloads while preserving deterministic trace strings.
-
-## P2 — Tooling and UX
-
-- [ ] Tighten CLI ergonomics/documentation parity for `disasm`, `debug`, and `trace replay` workflows.
-- [ ] Expand deterministic failure diagnostics for compile/run workflows.
-- [ ] Keep `examples/` runnable and aligned with docs (including `examples/tisc/` assets).
-
-## P3 — Verification and Hardening
-
-- [x] Expand property/fuzz coverage for frontend (Parser loops hardening implemented via structured fuzzing).
-- [ ] Expand property/fuzz coverage for IR + VM boundary invariants.
-- [ ] Add additional parity checks for backend variants against deterministic scalar references.
-- [ ] Continue Axion policy/trace regression growth for guard/segment/match paths.
-
-______________________________________________________________________
-
-## Strategic / Long-Horizon (Formerly TODO.md)
-
-### 1. Formal Methods and Proofs
-
-- [ ] Proof-oriented validation for key Axion policy invariants.
-- [ ] Expand deterministic replay proofs across compiler + VM boundaries.
-
-### 2. Performance Architecture
-
-- [ ] Expand tensor backend strategy (portable scalar parity + optimized backends).
-- [ ] CanonFS scalability for larger persistent workloads with deterministic observability.
-
-### 3. Runtime and Execution
-
-- [ ] Incremental deterministic trace-JIT hardening for numeric/tensor hot paths.
-- [ ] Native trace-JIT backend prototype (x86_64/ARM64) with deterministic mmap.
-- [ ] Evaluate distributed tensor orchestration patterns that preserve replay guarantees.
-
-### 4. Ecosystem and Interop
-
-- [ ] Expand language bindings and integration surfaces where determinism guarantees can be preserved.
-- [ ] Strengthen downstream runtime boundary tooling (`t81-foundation` <-> `t81-vm` <-> examples).
-
-### 5. Hardware and Future Targets
-
-- [ ] Investigate FPGA/hardware-backed ternary execution pathways.
-- [ ] Define pragmatic hardware abstraction boundaries without weakening canonical semantics.
-
-______________________________________________________________________
-
-## Completed Highlights (Moved)
-
-Major completed streams (compiler conformance, VM memory model, Axion/CanonFS integration, C++23 default lane) are now tracked in:
-- `CHANGELOG.md`
-- `ANALYSIS.md`
-- `docs/system-status.md`
+1.  **Implement If-Expressions:** The parser currently treats `if` only as a statement. Support `if` as an expression (e.g., `let x = if cond { a } else { b };`) to match the example usage and modern language features.
+2.  **Implement Block Expressions:** Support code blocks `{ ... }` as expressions that return the value of their last statement. This is essential for `match` arms and functional-style programming.
+3.  **Enhance Tensor/Vector Indexing:** Fix the semantic analysis for `IndexExpr` when applied to `Tensor` and `Vector` types. Currently, it often fails with "Type does not support indexing" or parser errors on nested literals.
+4.  **Fix Generic Parameter Validation:** Relax the `SemanticAnalyzer` restriction that the first generic parameter must be a Type. Types like `T81Fixed[4, 4]` require integer expressions as parameters.
+5.  **Implement Enum Namespaces and Scope Injection:** Properly handle Enum scope resolution. Inject variants into the scope or support `Enum.Variant` syntax so that variants like `Off` or `Alert` can be found.
+6.  **Fix Lexer Dot Consumption:** The Lexer consumes `.` in identifiers, treating `profile.active` as a single token. This prevents proper parsing of field access expressions. Ensure `.` is tokenized as a Dot operator when appropriate.
+7.  **Implement Assignments to Array Indices:** The parser currently rejects assignments like `arr[i] = val` because assignment targets are restricted to variables. Extend assignment logic to support `IndexExpr` and `FieldAccessExpr`.
+8.  **Resolve Type Aliases in Semantic Analysis:** Ensure `SimpleTypeExpr` correctly resolves type aliases (e.g., `type FixedWindow = Vector[...]`) so that the underlying type properties (like indexing) are available.
+9.  **Implement `T81Fixed` and `T81Complex` Support:** Complete the compiler frontend and backend support for these types, including constructors, operators, and type checking.
+10. **Implement `T81Qutrit` and `T81Uint` Support:** Add full support for these ternary-native types in the type system and VM.
+11. **Relax Vector Literal Typing:** Modify `VectorLiteralExpr` validation to allow non-numeric types (e.g., `Vector[String]`) if the vector's type definition allows it.
+12. **Improve Error Recovery and Diagnostics:** Enhance the compiler's error reporting to handle cascading errors better and provide more precise location information for semantic errors.

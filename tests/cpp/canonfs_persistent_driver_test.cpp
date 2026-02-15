@@ -22,12 +22,11 @@ int main() {
 
   reset_axion_trace();
 
-  std::filesystem::path root =
-      std::filesystem::temp_directory_path() / "canonfs-persistent-test";
+  std::filesystem::path root = std::filesystem::temp_directory_path() / "canonfs-persistent-test";
   std::filesystem::remove_all(root);
   std::filesystem::create_directories(root);
 
-  [[maybe_unused]] auto driver= make_persistent_driver(root);
+  [[maybe_unused]] auto driver = make_persistent_driver(root);
   driver->set_axion_hook(make_axion_policy_hook(R"(
     (policy
       (tier 1)
@@ -37,18 +36,17 @@ int main() {
   )"));
 
   const std::string payload = "persistent payload";
-  [[maybe_unused]] auto write_bytes= make_bytes(payload);
+  [[maybe_unused]] auto write_bytes = make_bytes(payload);
   auto write_res = driver->write_object(
-      ObjectType::Blob,
-      std::span<const std::byte>(write_bytes.data(), write_bytes.size()));
+      ObjectType::Blob, std::span<const std::byte>(write_bytes.data(), write_bytes.size()));
   if (!write_res.has_value()) return 1;
 
-  [[maybe_unused]] auto read_res= driver->read_object_bytes(write_res.value());
+  [[maybe_unused]] auto read_res = driver->read_object_bytes(write_res.value());
   if (!read_res.has_value()) return 1;
 
   driver.reset();
 
-  [[maybe_unused]] auto driver2= make_persistent_driver(root);
+  [[maybe_unused]] auto driver2 = make_persistent_driver(root);
   driver2->set_axion_hook(make_axion_policy_hook(R"(
     (policy
       (tier 1)
@@ -56,7 +54,7 @@ int main() {
       (require-axion-event (reason "action=Read")))
   )"));
 
-  [[maybe_unused]] auto read_again= driver2->read_object_bytes(write_res.value());
+  [[maybe_unused]] auto read_again = driver2->read_object_bytes(write_res.value());
   if (!read_again.has_value()) return 1;
 
   if (read_again.value() != read_res.value()) return 1;

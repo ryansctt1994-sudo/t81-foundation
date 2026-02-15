@@ -68,8 +68,8 @@ int main() {
   halt.opcode = t81::tisc::Opcode::Halt;
 
   program.insns = {
-      load_tensor0, load_tensor1, vec_add, stack_alloc, heap_alloc, load_value,
-      ax_set, ax_read, heap_free, stack_free, halt,
+      load_tensor0, load_tensor1, vec_add,   stack_alloc, heap_alloc, load_value,
+      ax_set,       ax_read,      heap_free, stack_free,  halt,
   };
 
   auto vm = t81::vm::make_interpreter_vm(t81::axion::make_instruction_counting_engine(512));
@@ -82,8 +82,7 @@ int main() {
 
   std::cout << "=== Axion Policy Trace ===\n";
   for (const auto& entry : vm->state().axion_log) {
-    std::cout << "  opcode=" << static_cast<int>(entry.opcode)
-              << " tag=" << entry.tag
+    std::cout << "  opcode=" << static_cast<int>(entry.opcode) << " tag=" << entry.tag
               << " reason=\"" << entry.verdict.reason << "\"\n";
   }
   std::cout << "=========================\n";
