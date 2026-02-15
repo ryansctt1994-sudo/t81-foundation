@@ -1077,6 +1077,40 @@ public:
         return {};
     }
 
+    std::any visit(const IndexExpr& expr) override {
+        expr.object->accept(*this);
+        auto obj = ensure_expr_result(expr.object.get());
+        expr.index->accept(*this);
+        auto index = ensure_expr_result(expr.index.get());
+
+        // Check if we need to convert the result from float (tensor storage) to int
+        tisc::ir::PrimitiveKind dest_kind = tisc::ir::PrimitiveKind::Unknown;
+        if (_semantic) {
+             const Type* type = _semantic->type_of(&expr);
+             dest_kind = categorize_primitive(type);
+        }
+
+        // TGet returns a FloatHandle by default as Tensors store floats
+        auto temp_dest = allocate_typed_register(tisc::ir::PrimitiveKind::Float);
+
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::TGET;
+        instr.operands = {temp_dest.reg, obj.reg, index.reg};
+        emit(instr);
+
+        if (dest_kind == tisc::ir::PrimitiveKind::Integer) {
+             auto final_dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+             tisc::ir::Instruction conv;
+             conv.opcode = tisc::ir::Opcode::F2I;
+             conv.operands = {final_dest.reg, temp_dest.reg};
+             emit(conv);
+             record_result(&expr, final_dest);
+        } else {
+             record_result(&expr, temp_dest);
+        }
+        return {};
+    }
+
 private:
     struct TypedRegister {
         tisc::ir::Register reg;

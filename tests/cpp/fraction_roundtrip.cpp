@@ -1,29 +1,29 @@
 #include <cassert>
 #include <iostream>
-#include "t81/fraction.hpp"
 #include "t81/bigint.hpp"
+#include "t81/fraction.hpp"
 
 int main() {
   using namespace t81;
 
   // Basic constructors
-  [[maybe_unused]] auto a= T81Fraction::from_int(2);
-  [[maybe_unused]] auto b= T81Fraction::from_int(3);
+  [[maybe_unused]] auto a = T81Fraction::from_int(2);
+  [[maybe_unused]] auto b = T81Fraction::from_int(3);
 
   // 2/1 + 3/1 = 5/1
-  [[maybe_unused]] auto s= T81Fraction::add(a, b);
+  [[maybe_unused]] auto s = T81Fraction::add(a, b);
   assert(s.to_string() == "5/1");
 
   // 2/1 * 3/1 = 6/1
-  [[maybe_unused]] auto m= T81Fraction::mul(a, b);
+  [[maybe_unused]] auto m = T81Fraction::mul(a, b);
   assert(m.to_string() == "6/1");
 
   // Subtraction: 2/1 - 3/1 = -1/1
-  [[maybe_unused]] auto d= T81Fraction::sub(a, b);
+  [[maybe_unused]] auto d = T81Fraction::sub(a, b);
   assert(d.to_string() == "-1/1");
 
   // Division: (2/1) / (3/1) = 2/3 (reduced)
-  [[maybe_unused]] auto q= T81Fraction::div(a, b);
+  [[maybe_unused]] auto q = T81Fraction::div(a, b);
   // String format depends on BigInt::to_string(); expect "2/3"
   assert(q.to_string() == "2/3");
 

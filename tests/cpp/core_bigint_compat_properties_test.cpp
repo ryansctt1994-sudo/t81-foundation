@@ -4,8 +4,8 @@
 #include <limits>
 #include <random>
 
-#include "t81/core/bigint.hpp"
 #include "t81/bigint.hpp"
+#include "t81/core/bigint.hpp"
 
 int main() {
   using t81::T81BigInt;
@@ -44,9 +44,8 @@ int main() {
 
   // Deterministic randomized coverage for representative 64-bit values.
   std::mt19937_64 rng(0xB16B00B5ULL);
-  std::uniform_int_distribution<std::int64_t> dist(
-      std::numeric_limits<std::int64_t>::min(),
-      std::numeric_limits<std::int64_t>::max());
+  std::uniform_int_distribution<std::int64_t> dist(std::numeric_limits<std::int64_t>::min(),
+                                                   std::numeric_limits<std::int64_t>::max());
 
   for (int i = 0; i < 5000; ++i) {
     const std::int64_t v = dist(rng);

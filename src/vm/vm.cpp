@@ -1896,6 +1896,88 @@ class Interpreter : public IVirtualMachine {
         }
         break;
       }
+      case t81::tisc::Opcode::TGet: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) { trap = Trap::DecodeFault; break; }
+        if (auto res = promote_to_tensor(insn.b); !res) { trap = res.error(); break; }
+
+        auto* t = tensor_ptr(state_.registers[insn.b]);
+        if (t == nullptr) {
+          log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor,
+                           static_cast<int>(state_.registers[insn.b]),
+                           "tensor handle access");
+          trap = Trap::DecodeFault;
+          break;
+        }
+
+        if (state_.register_tags[insn.c] != ValueTag::Int) {
+             trap = Trap::TypeFault; break;
+        }
+        std::int64_t index = state_.registers[insn.c];
+        if (index < 0 || static_cast<std::size_t>(index) >= t->data().size()) {
+             log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, static_cast<int>(index), "tensor index out of bounds");
+             trap = Trap::BoundsFault;
+             break;
+        }
+
+        float val = t->data()[static_cast<std::size_t>(index)];
+
+        state_.registers[insn.a] = alloc_float(static_cast<double>(val));
+        state_.register_tags[insn.a] = ValueTag::FloatHandle;
+
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TGet kernel execution"};
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), state_.registers[insn.b], verdict);
+        break;
+      }
+      case t81::tisc::Opcode::TNew: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) { trap = Trap::DecodeFault; break; }
+        if (state_.register_tags[insn.b] != ValueTag::Int) { trap = Trap::TypeFault; break; }
+        std::int64_t size = state_.registers[insn.b];
+        if (size <= 0) { trap = Trap::BoundsFault; break; }
+
+        std::vector<int> shape = {static_cast<int>(size)};
+        t81::T729Tensor t(shape);
+        state_.registers[insn.a] = alloc_tensor(std::move(t));
+        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TNew"};
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(size), state_.registers[insn.a], verdict);
+        break;
+      }
+      case t81::tisc::Opcode::TSet: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) { trap = Trap::DecodeFault; break; }
+        if (state_.register_tags[insn.a] != ValueTag::TensorHandle) {
+             trap = Trap::TypeFault; break;
+        }
+        auto* t = tensor_ptr(state_.registers[insn.a]);
+        if (!t) { trap = Trap::DecodeFault; break; }
+
+        if (state_.register_tags[insn.b] != ValueTag::Int) {
+             trap = Trap::TypeFault; break;
+        }
+        std::int64_t idx = state_.registers[insn.b];
+        if (idx < 0 || static_cast<size_t>(idx) >= t->data().size()) {
+             log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, static_cast<int>(idx), "TSet OOB");
+             trap = Trap::BoundsFault;
+             break;
+        }
+
+        float val = 0.0f;
+        auto val_tag = state_.register_tags[insn.c];
+        if (val_tag == ValueTag::FloatHandle) {
+             auto* fp = float_ptr(state_.registers[insn.c]);
+             if (fp) val = static_cast<float>(*fp);
+        } else if (val_tag == ValueTag::Int) {
+             val = static_cast<float>(state_.registers[insn.c]);
+        } else {
+             trap = Trap::TypeFault; break;
+        }
+
+        t->data()[static_cast<size_t>(idx)] = val;
+
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TSet"};
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), 0, verdict);
+        break;
+      }
       default:
         trap = Trap::DecodeFault;
         break;

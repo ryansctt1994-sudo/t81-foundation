@@ -113,11 +113,14 @@ Program make_random_program(std::mt19937_64& rng, int body_len) {
   p.insns.push_back({Opcode::LoadImm, 7, static_cast<std::int64_t>((rng() % 9) + 1), 0});
 
   const std::vector<Opcode> ops = {
-      Opcode::Add, Opcode::Sub, Opcode::Mul, Opcode::Div, Opcode::Mod,
-      Opcode::Mov, Opcode::Inc, Opcode::Dec, Opcode::Neg, Opcode::Cmp,
-      Opcode::Less, Opcode::Greater, Opcode::Equal, Opcode::JumpIfZero,
-      Opcode::JumpIfNotZero, Opcode::TNot, Opcode::TAnd, Opcode::TOr,
-      Opcode::TXor, Opcode::SetF, Opcode::JumpIfNegative, Opcode::JumpIfPositive};
+      Opcode::Add,           Opcode::Sub,        Opcode::Mul,
+      Opcode::Div,           Opcode::Mod,        Opcode::Mov,
+      Opcode::Inc,           Opcode::Dec,        Opcode::Neg,
+      Opcode::Cmp,           Opcode::Less,       Opcode::Greater,
+      Opcode::Equal,         Opcode::JumpIfZero, Opcode::JumpIfNotZero,
+      Opcode::TNot,          Opcode::TAnd,       Opcode::TOr,
+      Opcode::TXor,          Opcode::SetF,       Opcode::JumpIfNegative,
+      Opcode::JumpIfPositive};
 
   for (int i = 0; i < body_len; ++i) {
     Opcode op = ops[rng() % ops.size()];

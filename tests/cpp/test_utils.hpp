@@ -263,6 +263,10 @@ public:
         return ss.str();
     }
 
+    std::any visit(const IndexExpr& expr) override {
+        return parenthesize("index", {std::any(&expr.object), std::any(&expr.index)});
+    }
+
     std::any visit(const FieldAccessExpr& expr) override {
         return parenthesize("field " + std::string(expr.field.lexeme),
                             std::vector<const Expr*>{expr.object.get()});

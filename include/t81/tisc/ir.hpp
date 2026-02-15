@@ -69,7 +69,7 @@ enum class Opcode {
     WEIGHTS_LOAD,
     META_READ, META_WRITE,
     META_REFLECT, META_REFINE,
-    TMATMUL, TVECADD,
+    TMATMUL, TVECADD, TGET, TNEW, TSET,
 
     // Pseudo-instructions
     LABEL
