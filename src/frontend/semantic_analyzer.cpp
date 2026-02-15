@@ -1112,6 +1112,13 @@ std::any SemanticAnalyzer::visit(const EnumDecl& stmt) {
     }
     info.module_path = stmt.module_path.has_value() ? *stmt.module_path : _source_name;
     _enum_definitions.emplace(name_str, std::move(info));
+
+    // Inject the Enum name itself as a symbol to support `Enum.Variant` access.
+    // We type it as the Enum type itself.
+    define_symbol(stmt.name, SymbolKind::Variable, false);
+    if (auto* sym = resolve_symbol(stmt.name)) {
+      sym->type = Type{Type::Kind::Custom, {}, name_str};
+    }
   }
   return {};
 }
@@ -1415,6 +1422,37 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
     return symbol->type;
   }
 
+  // Handle Enum.Variant(payload) constructor calls
+  if (auto* field_expr = dynamic_cast<const FieldAccessExpr*>(expr.callee.get())) {
+    Type object_type = evaluate_expression(*field_expr->object);
+    if (object_type.kind == Type::Kind::Custom && !object_type.custom_name.empty()) {
+      auto enum_it = _enum_definitions.find(object_type.custom_name);
+      if (enum_it != _enum_definitions.end()) {
+        std::string variant_name(field_expr->field.lexeme);
+        auto variant_it = enum_it->second.variants.find(variant_name);
+        if (variant_it != enum_it->second.variants.end()) {
+          if (!variant_it->second.payload) {
+            error(field_expr->field,
+                  "Variant '" + variant_name + "' is not a constructor function.");
+            return make_error_type();
+          }
+
+          if (arg_types.size() != 1) {
+            error(field_expr->field, "Enum constructor '" + variant_name +
+                                         "' expects exactly one argument.");
+            return make_error_type();
+          }
+
+          if (!is_assignable(*variant_it->second.payload, arg_types[0])) {
+            error(field_expr->field,
+                  "Argument mismatch for enum constructor '" + variant_name + "'.");
+          }
+          return object_type;
+        }
+      }
+    }
+  }
+
   evaluate_expression(*expr.callee);
   return make_error_type();
 }
@@ -1645,6 +1683,27 @@ std::any SemanticAnalyzer::visit(const FieldAccessExpr& expr) {
 
   auto record_it = _record_definitions.find(object_type.custom_name);
   if (record_it == _record_definitions.end()) {
+    // Check if it's an Enum for variant access (e.g. Enum.Variant)
+    auto enum_it = _enum_definitions.find(object_type.custom_name);
+    if (enum_it != _enum_definitions.end()) {
+      std::string field_name(expr.field.lexeme);
+      auto variant_it = enum_it->second.variants.find(field_name);
+      if (variant_it != enum_it->second.variants.end()) {
+        if (variant_it->second.payload) {
+          // Accessing constructor as a value - invalid in T81 as functions aren't first-class.
+          // Note: If this is part of a CallExpr (e.g. Enum.Variant(arg)), CallExpr visitor
+          // will handle it separately. If we are here, it means it's being used as a value.
+          error(expr.field, "Cannot use enum constructor '" + field_name + "' as a value.");
+          return make_error_type();
+        }
+        // Constant variant access (e.g. Enum.Variant) -> evaluates to Enum type
+        return object_type;
+      }
+      error(expr.field,
+            "Enum '" + object_type.custom_name + "' has no variant '" + field_name + "'.");
+      return make_error_type();
+    }
+
     error(expr.field, "Type '" + object_type.custom_name + "' has no record fields.");
     return make_error_type();
   }

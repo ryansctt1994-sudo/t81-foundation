@@ -858,6 +858,46 @@ public:
                 return {};
             }
         }
+
+        if (auto* field_expr = dynamic_cast<const FieldAccessExpr*>(expr.callee.get())) {
+            if (_semantic) {
+                const Type* obj_type = _semantic->type_of(field_expr->object.get());
+                if (obj_type && obj_type->kind == Type::Kind::Custom) {
+                    if (const auto* enum_info = enum_info_for_name(obj_type->custom_name)) {
+                        // Enum Constructor Call
+                        std::string variant_name(field_expr->field.lexeme);
+                        std::optional<int> variant_id = resolve_variant_index(obj_type->custom_name, variant_name);
+
+                        if (expr.arguments.size() != 1) {
+                             throw std::runtime_error("Enum constructor expects 1 argument");
+                        }
+
+                        expr.arguments[0]->accept(*this);
+                        auto payload = ensure_expr_result(expr.arguments[0].get());
+
+                        tisc::ir::PrimitiveKind primitive = tisc::ir::PrimitiveKind::Integer;
+                        if (auto kind = categorize_primitive(typed_expr(&expr)); kind != tisc::ir::PrimitiveKind::Unknown) {
+                            primitive = kind;
+                        }
+                        auto dest = allocate_typed_register(primitive);
+
+                        std::optional<int> global_id;
+                        if (variant_id) {
+                            global_id = global_variant_id_for(obj_type->custom_name, *variant_id);
+                        }
+
+                        if (global_id) {
+                            emit_make_enum_variant_payload(dest, payload, *global_id);
+                        } else {
+                            emit_simple(tisc::ir::Opcode::TRAP);
+                        }
+                        record_result(&expr, dest);
+                        return {};
+                    }
+                }
+            }
+        }
+
         for (const auto& arg : expr.arguments) {
             arg->accept(*this);
         }
@@ -1008,6 +1048,36 @@ public:
     }
 
     std::any visit(const FieldAccessExpr& expr) override {
+        if (_semantic) {
+            const Type* obj_type = _semantic->type_of(expr.object.get());
+            if (obj_type && obj_type->kind == Type::Kind::Custom) {
+                if (enum_info_for_name(obj_type->custom_name)) {
+                    // Enum Constant Variant Access
+                    std::string variant_name(expr.field.lexeme);
+                    std::optional<int> variant_id = resolve_variant_index(obj_type->custom_name, variant_name);
+
+                    tisc::ir::PrimitiveKind primitive = tisc::ir::PrimitiveKind::Integer;
+                    if (auto kind = categorize_primitive(typed_expr(&expr)); kind != tisc::ir::PrimitiveKind::Unknown) {
+                        primitive = kind;
+                    }
+                    auto dest = allocate_typed_register(primitive);
+
+                    std::optional<int> global_id;
+                    if (variant_id) {
+                        global_id = global_variant_id_for(obj_type->custom_name, *variant_id);
+                    }
+
+                    if (global_id) {
+                        emit_make_enum_variant(dest, *global_id);
+                    } else {
+                        emit_simple(tisc::ir::Opcode::TRAP);
+                    }
+                    record_result(&expr, dest);
+                    return {};
+                }
+            }
+        }
+
         auto value = evaluate_expr(expr.object.get());
         record_result(&expr, value);
         return {};
@@ -1344,6 +1414,11 @@ private:
     TypedRegister ensure_expr_result(const Expr* expr) const {
         auto it = _expr_registers.find(expr);
         if (it == _expr_registers.end()) {
+            std::string info = typeid(*expr).name();
+            if (auto var = dynamic_cast<const VariableExpr*>(expr)) {
+                info = std::string("Variable(") + std::string(var->name.lexeme) + ")";
+            }
+            std::cerr << "Missing expression result for " << info << "\n";
             throw std::runtime_error("IRGenerator missing expression result");
         }
         return it->second;
