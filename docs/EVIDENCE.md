@@ -14,6 +14,10 @@
 | **Axion Policy Enforcement** | `spec/axion/` | `tests/cpp/axion_log_determinism_test.cpp` | `build-and-test` |
 | **Runtime Contract Sync** | `docs/runtime-semantics-boundary.md` | `scripts/check-runtime-contract-sync.py` | `spec-and-docs` |
 | **Spec Conformance** | `spec/lang/` | `tests/cpp/t81lang_conformance_baseline_test.cpp` | `build-and-test` |
+| **Strict Profile Enforcement** | `spec/determinism-profile.md` | `tests/cpp/strict_profile_test.cpp` | `t81-strict-profile-gate` |
+| **Deterministic Trap Semantics** | `spec/determinism-profile.md` | `tests/cpp/vm_trap_test.cpp` | `build-and-test` |
+| **Symbol Content-Addressed Mode** | `spec/determinism-profile.md` | `tests/cpp/symbol_content_address_test.cpp` | `build-and-test` |
+| **Error Determinism Guarantee** | `spec/determinism-profile.md` | `tests/cpp/error_determinism_test.cpp` | `build-and-test` |
 
 ## 2. Artifacts & Reproducibility
 
