@@ -57,8 +57,9 @@ int main() {
       /* 34 */ {Opcode::LoadImm, 13, static_cast<int64_t>(Opcode::Mul)},  // R13 = Target Opcode
                                                                           // (Mul)
       /* 35 */ {Opcode::MetaRefine, 14, 12, 13},                          // R14 = Refined patch
-      /* 36 */ {Opcode::MetaWrite, 13, static_cast<int64_t>(MemorySegmentKind::Code), 11},  // COMMIT
-                                                                                            // PATCH
+                                                                          /* 36 */
+      {Opcode::MetaWrite, 13, static_cast<int64_t>(MemorySegmentKind::Code), 11},  // COMMIT
+                                                                                   // PATCH
       /* 37 */ {Opcode::Jump, 0}  // Retry from start
   };
 
