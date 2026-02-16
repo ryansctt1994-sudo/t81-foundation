@@ -2005,35 +2005,38 @@ std::any SemanticAnalyzer::visit(const IfExpr& expr) {
     else_type = evaluate_expression(*expr.else_branch, else_expected);
   } else {
     // If no else branch, the expression must evaluate to Void
-    if (then_type.kind != Type::Kind::Void && then_type.kind != Type::Kind::Unknown && then_type.kind != Type::Kind::Error) {
-        error(cond_token, "'if' expression without 'else' must evaluate to Void, but found '" + type_to_string(then_type) + "'.");
+    if (then_type.kind != Type::Kind::Void && then_type.kind != Type::Kind::Unknown &&
+        then_type.kind != Type::Kind::Error) {
+      error(cond_token, "'if' expression without 'else' must evaluate to Void, but found '" +
+                            type_to_string(then_type) + "'.");
     }
     return Type{Type::Kind::Void};
   }
 
   if (then_type.kind == Type::Kind::Error || else_type.kind == Type::Kind::Error) {
-      return make_error_type();
+    return make_error_type();
   }
 
   if (then_type.kind == Type::Kind::Unknown && else_type.kind == Type::Kind::Unknown) {
-      return Type{Type::Kind::Unknown};
+    return Type{Type::Kind::Unknown};
   }
 
   // Check compatibility
   if (is_assignable(then_type, else_type)) {
-      return then_type;
+    return then_type;
   }
   if (is_assignable(else_type, then_type)) {
-      return else_type;
+    return else_type;
   }
 
   // Try to find a common numeric type if applicable
   if (is_numeric(then_type) && is_numeric(else_type)) {
-      if (numeric_rank(then_type) >= numeric_rank(else_type)) return then_type;
-      return else_type;
+    if (numeric_rank(then_type) >= numeric_rank(else_type)) return then_type;
+    return else_type;
   }
 
-  error(cond_token, "'if' branches have incompatible types: '" + type_to_string(then_type) + "' and '" + type_to_string(else_type) + "'.");
+  error(cond_token, "'if' branches have incompatible types: '" + type_to_string(then_type) +
+                        "' and '" + type_to_string(else_type) + "'.");
   return make_error_type();
 }
 

@@ -937,20 +937,20 @@ public:
   std::any visit(const GenericTypeExpr&) override { return {}; }
 
   std::any visit(const BlockExpr& expr) override {
-      for (const auto& stmt : expr.statements) {
-          stmt->accept(*this);
+    for (const auto& stmt : expr.statements) {
+      stmt->accept(*this);
+    }
+    if (expr.final_expr) {
+      expr.final_expr->accept(*this);
+      if (_semantic) {
+        const Type* type = _semantic->type_of(&expr);
+        if (type && type->kind != Type::Kind::Void) {
+          auto val = ensure_expr_result(expr.final_expr.get());
+          record_result(&expr, val);
+        }
       }
-      if (expr.final_expr) {
-          expr.final_expr->accept(*this);
-          if (_semantic) {
-             const Type* type = _semantic->type_of(&expr);
-             if (type && type->kind != Type::Kind::Void) {
-                 auto val = ensure_expr_result(expr.final_expr.get());
-                 record_result(&expr, val);
-             }
-          }
-      }
-      return {};
+    }
+    return {};
   }
 
   std::any visit(const IfExpr& expr) override {
@@ -965,37 +965,38 @@ public:
     TypedRegister dest{};
 
     if (has_result) {
-        auto primitive = categorize_primitive(result_type);
-        if (primitive == tisc::ir::PrimitiveKind::Unknown) primitive = tisc::ir::PrimitiveKind::Integer;
-        dest = allocate_typed_register(primitive);
+      auto primitive = categorize_primitive(result_type);
+      if (primitive == tisc::ir::PrimitiveKind::Unknown)
+        primitive = tisc::ir::PrimitiveKind::Integer;
+      dest = allocate_typed_register(primitive);
     }
 
     if (expr.else_branch) {
-        auto else_label = new_label();
-        emit_jump_if_zero(else_label, cond);
+      auto else_label = new_label();
+      emit_jump_if_zero(else_label, cond);
 
-        expr.then_branch->accept(*this);
-        if (has_result) {
-            auto then_val = ensure_expr_result(expr.then_branch.get());
-            copy_to_dest(then_val, dest);
-        }
-        emit_jump(end_label);
+      expr.then_branch->accept(*this);
+      if (has_result) {
+        auto then_val = ensure_expr_result(expr.then_branch.get());
+        copy_to_dest(then_val, dest);
+      }
+      emit_jump(end_label);
 
-        emit_label(else_label);
-        expr.else_branch->accept(*this);
-        if (has_result) {
-            auto else_val = ensure_expr_result(expr.else_branch.get());
-            copy_to_dest(else_val, dest);
-        }
+      emit_label(else_label);
+      expr.else_branch->accept(*this);
+      if (has_result) {
+        auto else_val = ensure_expr_result(expr.else_branch.get());
+        copy_to_dest(else_val, dest);
+      }
     } else {
-        emit_jump_if_zero(end_label, cond);
-        expr.then_branch->accept(*this);
+      emit_jump_if_zero(end_label, cond);
+      expr.then_branch->accept(*this);
     }
 
     emit_label(end_label);
 
     if (has_result) {
-        record_result(&expr, dest);
+      record_result(&expr, dest);
     }
     return {};
   }
