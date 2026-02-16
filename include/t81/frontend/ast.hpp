@@ -32,6 +32,8 @@ struct FieldAccessExpr;
 struct RecordLiteralExpr;
 struct EnumLiteralExpr;
 struct IndexExpr;
+struct BlockExpr;
+struct IfExpr;
 struct TypeExpr;         // Base class for type expressions
 struct SimpleTypeExpr;   // For simple types like "T81Int"
 struct GenericTypeExpr;  // For generic types like "Vector[T]"
@@ -82,6 +84,8 @@ public:
   virtual std::any visit(const RecordLiteralExpr& expr) = 0;
   virtual std::any visit(const EnumLiteralExpr& expr) = 0;
   virtual std::any visit(const IndexExpr& expr) = 0;
+  virtual std::any visit(const BlockExpr& expr) = 0;
+  virtual std::any visit(const IfExpr& expr) = 0;
   virtual std::any visit(const SimpleTypeExpr& expr) = 0;
   virtual std::any visit(const GenericTypeExpr& expr) = 0;
 };
@@ -270,6 +274,30 @@ struct AssignExpr : Expr {
 
   const Token name;
   const std::unique_ptr<Expr> value;
+};
+
+struct BlockExpr : Expr {
+  BlockExpr(std::vector<std::unique_ptr<Stmt>> statements, std::unique_ptr<Expr> final_expr)
+      : statements(std::move(statements)), final_expr(std::move(final_expr)) {}
+
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+
+  const std::vector<std::unique_ptr<Stmt>> statements;
+  const std::unique_ptr<Expr> final_expr;
+};
+
+struct IfExpr : Expr {
+  IfExpr(std::unique_ptr<Expr> condition, std::unique_ptr<Expr> then_branch,
+         std::unique_ptr<Expr> else_branch)
+      : condition(std::move(condition)),
+        then_branch(std::move(then_branch)),
+        else_branch(std::move(else_branch)) {}
+
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+
+  const std::unique_ptr<Expr> condition;
+  const std::unique_ptr<Expr> then_branch;
+  const std::unique_ptr<Expr> else_branch;
 };
 
 // --- Statement Nodes ---

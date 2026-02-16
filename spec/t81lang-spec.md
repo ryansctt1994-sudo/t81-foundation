@@ -77,7 +77,7 @@ function      ::= "fn" identifier "(" parameters ")" "->" type block
 parameters    ::= [ parameter { "," parameter } ]
 parameter     ::= identifier ":" type
 
-block         ::= "{" statement* "}"
+block         ::= "{" statement* [ expr ] "}"
 
 statement     ::= let_decl
                 | var_decl
@@ -107,6 +107,11 @@ factor        ::= literal
                 | fn_call
                 | unary_op factor
                 | paren_expr
+                | if_expr
+                | block_expr
+
+if_expr       ::= "if" expr block [ "else" ( block | if_expr ) ]
+block_expr    ::= block
 
 fn_call       ::= identifier "(" [ expr { "," expr } ] ")"
 
@@ -819,7 +824,7 @@ if_statement ::= "if" expression block ( "else" block )?
 
 loop_statement ::= "loop" block
 
-block ::= "{" statement* "}"
+block ::= "{" statement* [ expression ] "}"
 ```
 
 ## A.5 Top-Level Declarations

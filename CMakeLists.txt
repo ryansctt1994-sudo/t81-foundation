@@ -492,6 +492,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_frontend_parser_test tests/cpp/frontend_parser_test.cpp)
   target_link_libraries(t81_frontend_parser_test PRIVATE t81_frontend)
 
+  add_executable(t81_frontend_expression_features_test tests/cpp/frontend_expression_features_test.cpp)
+  target_link_libraries(t81_frontend_expression_features_test PRIVATE t81_frontend t81_tisc)
+
   add_executable(t81_frontend_parser_generics_test tests/cpp/frontend_parser_generics_test.cpp)
   target_link_libraries(t81_frontend_parser_generics_test PRIVATE t81_frontend)
 
@@ -907,6 +910,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_limb54_booth_mul_test
     t81_frontend_lexer_test
     t81_frontend_parser_test
+    t81_frontend_expression_features_test
     t81_frontend_parser_generics_test
     t81_frontend_parser_legacy_rejection_test
     t81_frontend_ir_generator_test

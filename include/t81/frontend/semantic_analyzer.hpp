@@ -143,6 +143,8 @@ public:
   std::any visit(const VariableExpr& expr) override;
   std::any visit(const MatchExpr& expr) override;
   std::any visit(const VectorLiteralExpr& expr) override;
+  std::any visit(const BlockExpr& expr) override;
+  std::any visit(const IfExpr& expr) override;
   std::any visit(const SimpleTypeExpr& expr) override;
   std::any visit(const GenericTypeExpr& expr) override;
 

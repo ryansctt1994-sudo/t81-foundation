@@ -1974,6 +1974,72 @@ std::any SemanticAnalyzer::visit(const SimpleTypeExpr& expr) {
   return t;
 }
 
+std::any SemanticAnalyzer::visit(const BlockExpr& expr) {
+  enter_scope();
+  for (const auto& statement : expr.statements) {
+    analyze(*statement);
+  }
+
+  Type result{Type::Kind::Void};
+  if (expr.final_expr) {
+    // Pass expected type through to the final expression if available
+    result = evaluate_expression(*expr.final_expr, current_expected_type());
+  }
+
+  exit_scope();
+  return result;
+}
+
+std::any SemanticAnalyzer::visit(const IfExpr& expr) {
+  Token cond_token = extract_token(*expr.condition);
+  expect_condition_bool(*expr.condition, cond_token);
+
+  const Type* expected = current_expected_type();
+  Type then_type = evaluate_expression(*expr.then_branch, expected);
+  Type else_type{Type::Kind::Void};
+
+  if (expr.else_branch) {
+    // If we have an expected type, use it for the else branch too.
+    // Otherwise, use the then-branch type as the expectation/hint for the else branch.
+    const Type* else_expected = expected ? expected : &then_type;
+    else_type = evaluate_expression(*expr.else_branch, else_expected);
+  } else {
+    // If no else branch, the expression must evaluate to Void
+    if (then_type.kind != Type::Kind::Void && then_type.kind != Type::Kind::Unknown &&
+        then_type.kind != Type::Kind::Error) {
+      error(cond_token, "'if' expression without 'else' must evaluate to Void, but found '" +
+                            type_to_string(then_type) + "'.");
+    }
+    return Type{Type::Kind::Void};
+  }
+
+  if (then_type.kind == Type::Kind::Error || else_type.kind == Type::Kind::Error) {
+    return make_error_type();
+  }
+
+  if (then_type.kind == Type::Kind::Unknown && else_type.kind == Type::Kind::Unknown) {
+    return Type{Type::Kind::Unknown};
+  }
+
+  // Check compatibility
+  if (is_assignable(then_type, else_type)) {
+    return then_type;
+  }
+  if (is_assignable(else_type, then_type)) {
+    return else_type;
+  }
+
+  // Try to find a common numeric type if applicable
+  if (is_numeric(then_type) && is_numeric(else_type)) {
+    if (numeric_rank(then_type) >= numeric_rank(else_type)) return then_type;
+    return else_type;
+  }
+
+  error(cond_token, "'if' branches have incompatible types: '" + type_to_string(then_type) +
+                        "' and '" + type_to_string(else_type) + "'.");
+  return make_error_type();
+}
+
 std::any SemanticAnalyzer::visit(const GenericTypeExpr& expr) {
   std::string type_name = std::string(expr.name.lexeme);
   std::vector<Type> params;
