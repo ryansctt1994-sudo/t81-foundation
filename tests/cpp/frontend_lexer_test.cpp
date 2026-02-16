@@ -103,5 +103,15 @@ fn main() -> i32 {
 
     std::cout << "Base-81 lexer tests passed!" << std::endl;
 
+    const char* dot_source = "profile.active";
+    std::vector<ExpectedToken> dot_expected = {
+        {TokenType::Identifier, "profile", 1, 1},
+        {TokenType::Dot, ".", 1, 8},
+        {TokenType::Identifier, "active", 1, 9},
+    };
+    if (!test_sequence(dot_source, dot_expected)) return 1;
+
+    std::cout << "Dot access lexer tests passed!" << std::endl;
+
     return 0;
 }
