@@ -2035,8 +2035,10 @@ std::any SemanticAnalyzer::visit(const GenericTypeExpr& expr) {
   }
 
   if (params[0].kind == Type::Kind::Constant) {
-    error(expr.name, "The first generic parameter must be a type.");
-    return make_error_type();
+    if (type_name != "T81Fixed" && type_name != "T81Complex" && type_name != "T81Matrix") {
+      error(expr.name, "The first generic parameter must be a type.");
+      return make_error_type();
+    }
   }
 
   if (type_name == "Option") {

@@ -273,6 +273,14 @@ int main() {
     )";
     expect_semantic_failure(tensor_loop_inference_failure, "tensor_loop_inference_failure");
 
+    const std::string fixed_generic_var = R"(
+        fn main() -> i32 {
+            var x: T81Fixed[4, 4];
+            return 0;
+        }
+    )";
+    expect_semantic_success(fixed_generic_var, "fixed_generic_var");
+
     std::cout << "Semantic analyzer generic tests passed!" << std::endl;
     return 0;
 }
