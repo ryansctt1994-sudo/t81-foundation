@@ -8,7 +8,7 @@ Based on the analysis of `advanced_datatypes_showcase.t81` and the current compi
 4.  **Fix Generic Parameter Validation:** [Done] Relax the `SemanticAnalyzer` restriction that the first generic parameter must be a Type. Types like `T81Fixed[4, 4]` require integer expressions as parameters.
 5.  **Implement Enum Namespaces and Scope Injection:** Properly handle Enum scope resolution. Inject variants into the scope or support `Enum.Variant` syntax so that variants like `Off` or `Alert` can be found.
 6.  **Fix Lexer Dot Consumption:** [Done] The Lexer consumes `.` in identifiers, treating `profile.active` as a single token. This prevents proper parsing of field access expressions. Ensure `.` is tokenized as a Dot operator when appropriate.
-7.  **Implement Assignments to Array Indices:** The parser currently rejects assignments like `arr[i] = val` because assignment targets are restricted to variables. Extend assignment logic to support `IndexExpr` and `FieldAccessExpr`.
+7.  **Implement Assignments to Array Indices:** [Done] The parser currently rejects assignments like `arr[i] = val` because assignment targets are restricted to variables. Extend assignment logic to support `IndexExpr` and `FieldAccessExpr`.
 8.  **Resolve Type Aliases in Semantic Analysis:** Ensure `SimpleTypeExpr` correctly resolves type aliases (e.g., `type FixedWindow = Vector[...]`) so that the underlying type properties (like indexing) are available.
 9.  **Implement `T81Fixed` and `T81Complex` Support:** Complete the compiler frontend and backend support for these types, including constructors, operators, and type checking.
 10. **Implement `T81Qutrit` and `T81Uint` Support:** Add full support for these ternary-native types in the type system and VM.
