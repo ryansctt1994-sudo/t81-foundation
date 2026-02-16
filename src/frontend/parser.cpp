@@ -588,10 +588,12 @@ std::unique_ptr<Expr> Parser::assignment() {
   if (match({TokenType::Equal})) {
     Token equals = previous();
     std::unique_ptr<Expr> value = assignment();
-    if (auto* var_expr = dynamic_cast<VariableExpr*>(expr.get())) {
-      Token name = var_expr->name;
-      return std::make_unique<AssignExpr>(name, std::move(value));
+
+    if (dynamic_cast<VariableExpr*>(expr.get()) || dynamic_cast<IndexExpr*>(expr.get()) ||
+        dynamic_cast<FieldAccessExpr*>(expr.get())) {
+      return std::make_unique<AssignExpr>(std::move(expr), std::move(value));
     }
+
     report_error(equals, "Invalid assignment target");
   }
   return expr;

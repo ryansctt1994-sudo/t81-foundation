@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- Support for assignment to array indices (e.g., `arr[i] = x`) and object fields (e.g., `obj.field = x`).
 - `T81Int::significant_trits()` method to determine the number of used trits.
 - `std::span` optimization in `T81BigInt` Karatsuba multiplication, avoiding unnecessary vector copies.
 - Fast path in `T81BigInt` multiplication and addition to avoid `Axion trap` logs for expected overflows.
