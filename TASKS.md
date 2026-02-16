@@ -2,8 +2,8 @@
 
 Based on the analysis of `advanced_datatypes_showcase.t81` and the current compiler state, here are 12 key tasks to improve the project:
 
-1.  **Implement If-Expressions:** The parser currently treats `if` only as a statement. Support `if` as an expression (e.g., `let x = if cond { a } else { b };`) to match the example usage and modern language features.
-2.  **Implement Block Expressions:** Support code blocks `{ ... }` as expressions that return the value of their last statement. This is essential for `match` arms and functional-style programming.
+1.  **Implement If-Expressions:** [Done] The parser currently treats `if` only as a statement. Support `if` as an expression (e.g., `let x = if cond { a } else { b };`) to match the example usage and modern language features.
+2.  **Implement Block Expressions:** [Done] Support code blocks `{ ... }` as expressions that return the value of their last statement. This is essential for `match` arms and functional-style programming.
 3.  **Enhance Tensor/Vector Indexing:** Fix the semantic analysis for `IndexExpr` when applied to `Tensor` and `Vector` types. Currently, it often fails with "Type does not support indexing" or parser errors on nested literals.
 4.  **Fix Generic Parameter Validation:** [Done] Relax the `SemanticAnalyzer` restriction that the first generic parameter must be a Type. Types like `T81Fixed[4, 4]` require integer expressions as parameters.
 5.  **Implement Enum Namespaces and Scope Injection:** Properly handle Enum scope resolution. Inject variants into the scope or support `Enum.Variant` syntax so that variants like `Off` or `Alert` can be found.

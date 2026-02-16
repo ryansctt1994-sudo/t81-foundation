@@ -307,6 +307,29 @@ public:
         return parenthesize("generic " + std::string(expr.name.lexeme), params);
     }
 
+    std::any visit(const BlockExpr& expr) override {
+        std::stringstream ss;
+        ss << "(block";
+        for (const auto& statement : expr.statements) {
+            ss << " " << print(*statement);
+        }
+        if (expr.final_expr) {
+            ss << " " << print(*expr.final_expr);
+        }
+        ss << ")";
+        return ss.str();
+    }
+
+    std::any visit(const IfExpr& expr) override {
+        std::stringstream ss;
+        ss << "(if " << print(*expr.condition) << " " << print(*expr.then_branch);
+        if (expr.else_branch) {
+            ss << " " << print(*expr.else_branch);
+        }
+        ss << ")";
+        return ss.str();
+    }
+
 private:
     std::string parenthesize(std::string_view name, const std::vector<const Expr*>& exprs) {
         [[maybe_unused]] std::stringstream ss;

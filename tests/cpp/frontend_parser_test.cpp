@@ -18,7 +18,8 @@ int main() {
 
     [[maybe_unused]] AstPrinter printer;
     [[maybe_unused]] std::string result= printer.print(*stmts[0]);
-    [[maybe_unused]] std::string expected= "(fn fib (n: i32 ) -> i32 (block (if (< n 2) (block (return n))) (return (+ (call fib (- n 1)) (call fib (- n 2))))))";
+    // Note: 'if' statements with braced bodies are now parsed as IfExpr wrapped in ExpressionStmt, hence the extra (; ...) wrapper.
+    [[maybe_unused]] std::string expected= "(fn fib (n: i32 ) -> i32 (block (; (if (< n 2) (block (return n)))) (return (+ (call fib (- n 1)) (call fib (- n 2))))))";
 
     if (result != expected) {
         std::cerr << "Parser test failed!" << std::endl;

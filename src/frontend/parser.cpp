@@ -87,6 +87,7 @@ Token Parser::previous() { return _previous; }
 // reports an error and returns a dummy token.
 Token Parser::consume(TokenType type, const char* message) {
   if (check(type)) return advance();
+  std::cout << "DEBUG: Consume failed. Expected " << (int)type << ", got " << (int)peek().type << " at " << peek().line << ":" << peek().column << std::endl;
   report_error(peek(), message);
   return {};
 }
@@ -382,15 +383,187 @@ std::unique_ptr<Stmt> Parser::loop_statement() {
                                     std::move(guard_expr), std::move(body));
 }
 
+std::pair<std::vector<std::unique_ptr<Stmt>>, std::unique_ptr<Expr>> Parser::parse_block_body() {
+  std::vector<std::unique_ptr<Stmt>> statements;
+  std::unique_ptr<Expr> final_expr = nullptr;
+
+  while (!check(TokenType::RBrace) && !is_at_end()) {
+    try {
+      // Handle declarations that start with specific keywords
+      auto struct_attrs = parse_structural_attributes();
+      auto function_attrs = parse_function_attributes();
+
+      if (match({TokenType::Type})) {
+        statements.push_back(type_declaration());
+        continue;
+      }
+      if (match({TokenType::Record})) {
+        statements.push_back(record_declaration(struct_attrs));
+        continue;
+      }
+      if (match({TokenType::Enum})) {
+        statements.push_back(enum_declaration(struct_attrs));
+        continue;
+      }
+      if (struct_attrs.has_value()) {
+        const Token& anchor = struct_attrs->anchor.value_or(peek());
+        report_error(anchor, "Structural attributes may only decorate records or enums.");
+      }
+      if (match({TokenType::Fn})) {
+        statements.push_back(function("function"));
+        continue;
+      }
+      if (function_attrs.has_value()) {
+        const Token& anchor = function_attrs->anchor.value_or(peek());
+        report_error(anchor, "Function attributes may only decorate functions.");
+      }
+      if (match({TokenType::Var})) {
+        statements.push_back(var_declaration());
+        continue;
+      }
+      if (match({TokenType::Let})) {
+        statements.push_back(let_declaration());
+        continue;
+      }
+
+      // Handle Statements vs Final Expression
+      if (check(TokenType::If) || check(TokenType::While) || check(TokenType::For) ||
+          check(TokenType::Reflect) || check(TokenType::Loop) || check(TokenType::At) ||
+          check(TokenType::Break) || check(TokenType::Continue) || check(TokenType::Return) ||
+          check(TokenType::LBrace)) {
+
+        // Special handling for 'if' and '{' which can be expressions
+        if (check(TokenType::If)) {
+             consume(TokenType::If, "Expect 'if'.");
+             consume(TokenType::LParen, "Expect '(' after 'if'.");
+             auto condition = expression();
+             consume(TokenType::RParen, "Expect ')' after if condition.");
+
+             if (check(TokenType::LBrace)) {
+                 // Braced -> Treat as IfExpr (which is more general than IfStmt with block)
+                 auto then_branch = block_expression();
+                 std::unique_ptr<Expr> else_branch = nullptr;
+                 if (match({TokenType::Else})) {
+                     if (check(TokenType::If)) {
+                         else_branch = if_expression();
+                     } else {
+                         else_branch = block_expression();
+                     }
+                 }
+                 auto if_expr = std::make_unique<IfExpr>(std::move(condition), std::move(then_branch), std::move(else_branch));
+
+                 if (match({TokenType::Semicolon})) {
+                      statements.push_back(std::make_unique<ExpressionStmt>(std::move(if_expr)));
+                 } else if (check(TokenType::RBrace)) {
+                      final_expr = std::move(if_expr);
+                      break;
+                 } else {
+                      statements.push_back(std::make_unique<ExpressionStmt>(std::move(if_expr)));
+                 }
+             } else {
+                 // Unbraced -> Must be IfStmt
+                 auto then_stmt = statement();
+                 std::unique_ptr<Stmt> else_stmt = nullptr;
+                 if (match({TokenType::Else})) {
+                     else_stmt = statement();
+                 }
+                 statements.push_back(std::make_unique<IfStmt>(std::move(condition), std::move(then_stmt), std::move(else_stmt)));
+             }
+             continue;
+        }
+
+        // Block `{ ... }`
+        if (check(TokenType::LBrace)) {
+             // This could be BlockStmt or BlockExpr.
+             // If we parse as BlockExpr, we can convert to Stmt if not final.
+             auto blk = block_expression();
+             if (!check(TokenType::RBrace)) {
+                 // Not the end, must be statement
+                 // But wait, block_expression consumed the block.
+                 // We can just wrap it in ExpressionStmt (which is valid for BlockExpr).
+                 // Does BlockExpr return void if final_expr is null? Yes.
+                 // So ExpressionStmt(BlockExpr) is fine.
+
+                 // If it IS the end, we can keep it as final_expr?
+                 if (check(TokenType::RBrace)) {
+                    final_expr = std::move(blk);
+                    break;
+                 }
+                 statements.push_back(std::make_unique<ExpressionStmt>(std::move(blk)));
+                 continue;
+             }
+             // It was the end.
+             final_expr = std::move(blk);
+             break;
+        }
+
+        statements.push_back(statement());
+        continue;
+      }
+
+      // Default: Expression
+      auto expr = expression();
+      if (match({TokenType::Semicolon})) {
+        statements.push_back(std::make_unique<ExpressionStmt>(std::move(expr)));
+      } else if (check(TokenType::RBrace)) {
+        final_expr = std::move(expr);
+        break;
+      } else {
+        report_error(peek(), "Expect ';' after expression.");
+        break;
+      }
+
+    } catch (const std::runtime_error& error) {
+      synchronize();
+    }
+  }
+  return {std::move(statements), std::move(final_expr)};
+}
+
 // Parses a block of statements.
 // block -> "{" declaration* "}" ;
 std::vector<std::unique_ptr<Stmt>> Parser::block() {
-  std::vector<std::unique_ptr<Stmt>> statements;
-  while (!check(TokenType::RBrace) && !is_at_end()) {
-    statements.push_back(declaration());
-  }
+  // Note: The opening brace '{' is usually consumed by the caller (e.g. function, if-stmt).
+  // But wait, declaration -> statement -> block.
+  // statement() matches LBrace and calls block(). So statement() consumed LBrace.
+  // function() consumes LBrace and calls block().
+  // loop() consumes LBrace and calls block().
+  // So block() should NOT consume LBrace.
+
+  auto [stmts, final_expr] = parse_block_body();
   consume(TokenType::RBrace, "Expect '}' after block.");
-  return statements;
+
+  if (final_expr) {
+    stmts.push_back(std::make_unique<ExpressionStmt>(std::move(final_expr)));
+  }
+  return stmts;
+}
+
+std::unique_ptr<Expr> Parser::block_expression() {
+  consume(TokenType::LBrace, "Expect '{' before block.");
+  auto [stmts, final_expr] = parse_block_body();
+  consume(TokenType::RBrace, "Expect '}' after block.");
+  return std::make_unique<BlockExpr>(std::move(stmts), std::move(final_expr));
+}
+
+std::unique_ptr<Expr> Parser::if_expression() {
+  consume(TokenType::If, "Expect 'if'.");
+  consume(TokenType::LParen, "Expect '(' after 'if'.");
+  auto condition = expression();
+  consume(TokenType::RParen, "Expect ')' after if condition.");
+
+  auto then_branch = block_expression();
+  std::unique_ptr<Expr> else_branch = nullptr;
+
+  if (match({TokenType::Else})) {
+    if (check(TokenType::If)) {
+        else_branch = if_expression();
+    } else {
+        else_branch = block_expression();
+    }
+  }
+
+  return std::make_unique<IfExpr>(std::move(condition), std::move(then_branch), std::move(else_branch));
 }
 
 // Parses an expression statement.
@@ -538,6 +711,10 @@ std::unique_ptr<Expr> Parser::primary() {
     std::unique_ptr<Expr> inner = expression();
     consume(TokenType::RParen, "Expect ')' after expression.");
     expr = std::make_unique<GroupingExpr>(std::move(inner));
+  } else if (check(TokenType::If)) {
+      return if_expression();
+  } else if (check(TokenType::LBrace)) {
+      return block_expression();
   } else if (match({TokenType::Identifier})) {
     Token name = previous();
     Token enum_name_token;

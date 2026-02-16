@@ -44,8 +44,11 @@ private:
     std::unique_ptr<Stmt> let_declaration();
     std::unique_ptr<Stmt> expression_statement();
     std::vector<std::unique_ptr<Stmt>> block();
+    std::pair<std::vector<std::unique_ptr<Stmt>>, std::unique_ptr<Expr>> parse_block_body();
 
     std::unique_ptr<Expr> expression();
+    std::unique_ptr<Expr> block_expression();
+    std::unique_ptr<Expr> if_expression();
     std::unique_ptr<Expr> assignment();
     std::unique_ptr<Expr> range();
     std::unique_ptr<Expr> equality();
