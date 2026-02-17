@@ -132,11 +132,15 @@ static void BM_NegationSpeed_T81Native(benchmark::State& state) {
 #if defined(__AVX2__)
     const __m256i pattern = _mm256_set1_epi8(0x55);  // 01010101 → all zero trits
     t81::T81 a(pattern);
+    state.counters["native_simd_enabled"] = 1.0;
+    state.counters["native_simd_width_bits"] = 256.0;
 #else
     t81::T81 a{};
     std::array<uint8_t, 32> bytes{};
     std::fill(bytes.begin(), bytes.end(), 0x55);
     a = t81::T81(bytes);
+    state.counters["native_simd_enabled"] = 0.0;
+    state.counters["native_simd_width_bits"] = 0.0;
 #endif
 
     state.counters["work_per_iter"] = static_cast<double>(DATA_SIZE);
@@ -147,6 +151,10 @@ static void BM_NegationSpeed_T81Native(benchmark::State& state) {
         benchmark::DoNotOptimize(native_dest_data.data());
     }
     state.SetItemsProcessed(state.iterations() * DATA_SIZE);
-    state.SetLabel("Native T81 negation; work: ops/iter=100000");
+#if defined(__AVX2__)
+    state.SetLabel("Native T81 negation (AVX2 path); work: ops/iter=100000");
+#else
+    state.SetLabel("Native T81 negation (scalar fallback: AVX2 unavailable); work: ops/iter=100000");
+#endif
 }
 BENCHMARK(BM_NegationSpeed_T81Native);

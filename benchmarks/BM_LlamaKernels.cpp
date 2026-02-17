@@ -5,11 +5,13 @@
 #include <cmath>
 #include <vector>
 #include <random>
+#include <string>
 
 using namespace t81;
 
 static void BM_Llama_RMSNorm_T81(benchmark::State& state) {
     const int hidden_dim = state.range(0);
+    const int64_t work_per_iter = hidden_dim;
     T729Tensor x({1, hidden_dim});
     T729Tensor w({hidden_dim});
 
@@ -22,12 +24,15 @@ static void BM_Llama_RMSNorm_T81(benchmark::State& state) {
         auto res = t81::ops::rmsnorm(x, w);
         benchmark::DoNotOptimize(res);
     }
-    state.SetItemsProcessed(state.iterations() * hidden_dim);
+    state.SetItemsProcessed(state.iterations() * work_per_iter);
+    state.counters["work_per_iter"] = static_cast<double>(work_per_iter);
+    state.SetLabel("work: ops/iter=" + std::to_string(work_per_iter));
 }
 BENCHMARK(BM_Llama_RMSNorm_T81)->Arg(1024)->Arg(2048)->Arg(4096);
 
 static void BM_Llama_RMSNorm_Binary(benchmark::State& state) {
     const int hidden_dim = state.range(0);
+    const int64_t work_per_iter = hidden_dim;
     std::vector<float> x(hidden_dim);
     std::vector<float> w(hidden_dim);
 
@@ -43,12 +48,15 @@ static void BM_Llama_RMSNorm_Binary(benchmark::State& state) {
         for (int i = 0; i < hidden_dim; i++) x[i] = (x[i] * inv_ss) * w[i];
         benchmark::DoNotOptimize(x);
     }
-    state.SetItemsProcessed(state.iterations() * hidden_dim);
+    state.SetItemsProcessed(state.iterations() * work_per_iter);
+    state.counters["work_per_iter"] = static_cast<double>(work_per_iter);
+    state.SetLabel("work: ops/iter=" + std::to_string(work_per_iter));
 }
 BENCHMARK(BM_Llama_RMSNorm_Binary)->Arg(1024)->Arg(2048)->Arg(4096);
 
 static void BM_Llama_SiLU_T81(benchmark::State& state) {
     const int size = state.range(0);
+    const int64_t work_per_iter = size;
     T729Tensor x({1, size});
 
     std::mt19937 gen(42);
@@ -59,12 +67,15 @@ static void BM_Llama_SiLU_T81(benchmark::State& state) {
         auto res = t81::ops::silu(x);
         benchmark::DoNotOptimize(res);
     }
-    state.SetItemsProcessed(state.iterations() * size);
+    state.SetItemsProcessed(state.iterations() * work_per_iter);
+    state.counters["work_per_iter"] = static_cast<double>(work_per_iter);
+    state.SetLabel("work: ops/iter=" + std::to_string(work_per_iter));
 }
 BENCHMARK(BM_Llama_SiLU_T81)->Arg(1024)->Arg(4096)->Arg(16384);
 
 static void BM_Llama_SiLU_Binary(benchmark::State& state) {
     const int size = state.range(0);
+    const int64_t work_per_iter = size;
     std::vector<float> x(size);
 
     std::mt19937 gen(42);
@@ -77,12 +88,15 @@ static void BM_Llama_SiLU_Binary(benchmark::State& state) {
         }
         benchmark::DoNotOptimize(x);
     }
-    state.SetItemsProcessed(state.iterations() * size);
+    state.SetItemsProcessed(state.iterations() * work_per_iter);
+    state.counters["work_per_iter"] = static_cast<double>(work_per_iter);
+    state.SetLabel("work: ops/iter=" + std::to_string(work_per_iter));
 }
 BENCHMARK(BM_Llama_SiLU_Binary)->Arg(1024)->Arg(4096)->Arg(16384);
 
 static void BM_Llama_Softmax_T81(benchmark::State& state) {
     const int dim = state.range(0);
+    const int64_t work_per_iter = dim;
     T729Tensor x({1, dim});
 
     std::mt19937 gen(42);
@@ -93,12 +107,15 @@ static void BM_Llama_Softmax_T81(benchmark::State& state) {
         auto res = t81::ops::softmax(x);
         benchmark::DoNotOptimize(res);
     }
-    state.SetItemsProcessed(state.iterations() * dim);
+    state.SetItemsProcessed(state.iterations() * work_per_iter);
+    state.counters["work_per_iter"] = static_cast<double>(work_per_iter);
+    state.SetLabel("work: ops/iter=" + std::to_string(work_per_iter));
 }
 BENCHMARK(BM_Llama_Softmax_T81)->Arg(1024)->Arg(4096)->Arg(16384);
 
 static void BM_Llama_Softmax_Binary(benchmark::State& state) {
     const int dim = state.range(0);
+    const int64_t work_per_iter = dim;
     std::vector<float> x(dim);
 
     std::mt19937 gen(42);
@@ -117,12 +134,15 @@ static void BM_Llama_Softmax_Binary(benchmark::State& state) {
         for (int i = 0; i < dim; i++) x[i] *= inv_sum;
         benchmark::DoNotOptimize(x);
     }
-    state.SetItemsProcessed(state.iterations() * dim);
+    state.SetItemsProcessed(state.iterations() * work_per_iter);
+    state.counters["work_per_iter"] = static_cast<double>(work_per_iter);
+    state.SetLabel("work: ops/iter=" + std::to_string(work_per_iter));
 }
 BENCHMARK(BM_Llama_Softmax_Binary)->Arg(1024)->Arg(4096)->Arg(16384);
 
 static void BM_Llama_RoPE_T81(benchmark::State& state) {
     const int head_dim = state.range(0);
+    const int64_t work_per_iter = head_dim;
     T729Tensor x({1, head_dim});
 
     std::mt19937 gen(42);
@@ -133,12 +153,15 @@ static void BM_Llama_RoPE_T81(benchmark::State& state) {
         auto res = t81::ops::rope(x, 42);
         benchmark::DoNotOptimize(res);
     }
-    state.SetItemsProcessed(state.iterations() * head_dim);
+    state.SetItemsProcessed(state.iterations() * work_per_iter);
+    state.counters["work_per_iter"] = static_cast<double>(work_per_iter);
+    state.SetLabel("work: ops/iter=" + std::to_string(work_per_iter));
 }
 BENCHMARK(BM_Llama_RoPE_T81)->Arg(128)->Arg(256);
 
 static void BM_Llama_RoPE_Binary(benchmark::State& state) {
     const int head_dim = state.range(0);
+    const int64_t work_per_iter = head_dim;
     std::vector<float> x(head_dim);
 
     std::mt19937 gen(42);
@@ -157,12 +180,15 @@ static void BM_Llama_RoPE_Binary(benchmark::State& state) {
         }
         benchmark::DoNotOptimize(x);
     }
-    state.SetItemsProcessed(state.iterations() * head_dim);
+    state.SetItemsProcessed(state.iterations() * work_per_iter);
+    state.counters["work_per_iter"] = static_cast<double>(work_per_iter);
+    state.SetLabel("work: ops/iter=" + std::to_string(work_per_iter));
 }
 BENCHMARK(BM_Llama_RoPE_Binary)->Arg(128)->Arg(256);
 
 static void BM_Llama_Block_T81(benchmark::State& state) {
     const int hidden_dim = state.range(0);
+    const int64_t work_per_iter = hidden_dim;
     T729Tensor x({1, hidden_dim});
     T729Tensor w_norm({hidden_dim});
     T729Tensor w_q({hidden_dim, hidden_dim});
@@ -180,12 +206,15 @@ static void BM_Llama_Block_T81(benchmark::State& state) {
         auto out = t81::ops::softmax(q_rope);
         benchmark::DoNotOptimize(out);
     }
-    state.SetItemsProcessed(state.iterations() * hidden_dim);
+    state.SetItemsProcessed(state.iterations() * work_per_iter);
+    state.counters["work_per_iter"] = static_cast<double>(work_per_iter);
+    state.SetLabel("work: ops/iter=" + std::to_string(work_per_iter));
 }
 BENCHMARK(BM_Llama_Block_T81)->Arg(1024);
 
 static void BM_Llama_Block_Binary(benchmark::State& state) {
     const int hidden_dim = state.range(0);
+    const int64_t work_per_iter = hidden_dim;
     std::vector<float> x(hidden_dim);
     std::vector<float> w_norm(hidden_dim);
     std::vector<float> w_q(static_cast<std::size_t>(hidden_dim) * hidden_dim);
@@ -234,6 +263,8 @@ static void BM_Llama_Block_Binary(benchmark::State& state) {
         for (int i = 0; i < hidden_dim; ++i) y[i] *= inv_sum;
         benchmark::DoNotOptimize(y);
     }
-    state.SetItemsProcessed(state.iterations() * hidden_dim);
+    state.SetItemsProcessed(state.iterations() * work_per_iter);
+    state.counters["work_per_iter"] = static_cast<double>(work_per_iter);
+    state.SetLabel("work: ops/iter=" + std::to_string(work_per_iter));
 }
 BENCHMARK(BM_Llama_Block_Binary)->Arg(1024);

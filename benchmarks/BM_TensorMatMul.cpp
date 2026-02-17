@@ -3,6 +3,7 @@
 #include "t81/tensor/matmul.hpp"
 #include <vector>
 #include <random>
+#include <string>
 
 using namespace t81;
 
@@ -19,11 +20,14 @@ static void BM_TensorMatMul_Naive(benchmark::State& state) {
     for (auto& v : A.data()) v = dis(gen);
     for (auto& v : B.data()) v = dis(gen);
 
+    const int64_t ops_per_iter = static_cast<int64_t>(M) * N * K * 2;
+    state.counters["work_per_iter"] = static_cast<double>(ops_per_iter);
     for (auto _ : state) {
         auto C = t81::ops::matmul(A, B);
         benchmark::DoNotOptimize(C);
     }
-    state.SetItemsProcessed(state.iterations() * static_cast<int64_t>(M) * N * K * 2);
+    state.SetItemsProcessed(state.iterations() * ops_per_iter);
+    state.SetLabel("work: ops/iter=" + std::to_string(ops_per_iter));
 }
 
 BENCHMARK(BM_TensorMatMul_Naive)->Arg(64)->Arg(128)->Arg(256)->Arg(512);
@@ -42,6 +46,8 @@ static void BM_TensorMatMul_Naive_Binary(benchmark::State& state) {
     for (auto& v : A) v = dis(gen);
     for (auto& v : B) v = dis(gen);
 
+    const int64_t ops_per_iter = static_cast<int64_t>(M) * N * K * 2;
+    state.counters["work_per_iter"] = static_cast<double>(ops_per_iter);
     for (auto _ : state) {
         std::fill(C.begin(), C.end(), 0.0f);
         for (int i = 0; i < M; ++i) {
@@ -55,7 +61,8 @@ static void BM_TensorMatMul_Naive_Binary(benchmark::State& state) {
         }
         benchmark::DoNotOptimize(C);
     }
-    state.SetItemsProcessed(state.iterations() * static_cast<int64_t>(M) * N * K * 2);
+    state.SetItemsProcessed(state.iterations() * ops_per_iter);
+    state.SetLabel("work: ops/iter=" + std::to_string(ops_per_iter));
 }
 
 BENCHMARK(BM_TensorMatMul_Naive_Binary)->Arg(64)->Arg(128)->Arg(256)->Arg(512);
