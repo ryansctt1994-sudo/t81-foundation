@@ -1,5 +1,6 @@
 // include/t81/detail/msvc_compat.hpp
 #pragma once
+#include <string>
 #include <string_view>
 
 inline std::string_view make_sv(const char* begin, const char* end) noexcept {

@@ -58,6 +58,8 @@ jobs:
       - name: Success summary
         if: success()
         run: |
-          echo "### Tables of Contents auto-updated" >> $GITHUB_STEP_SUMMARY
-          echo "- Files processed by scripts/inject_toc.py" >> $GITHUB_STEP_SUMMARY
-          echo "- Trigger: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "### Tables of Contents auto-updated"
+            echo "- Files processed by scripts/inject_toc.py"
+            echo "- Trigger: ${{ github.event_name }}"
+          } >> "$GITHUB_STEP_SUMMARY"

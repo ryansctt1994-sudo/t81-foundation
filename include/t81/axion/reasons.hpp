@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <string_view>
 
@@ -66,9 +67,9 @@ constexpr std::string_view kMetaSlotAxionEvent = "axion event";
  */
 struct StructuredEvent {
   std::string reason;
-  uint32_t policy_id{0};
-  uint64_t pc{0};
-  int64_t handle_id{0};
+  std::uint32_t policy_id{0};
+  std::uint64_t pc{0};
+  std::int64_t handle_id{0};
   std::string_view decision;
 };
 

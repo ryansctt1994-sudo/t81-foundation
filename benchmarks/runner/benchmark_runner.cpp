@@ -591,10 +591,12 @@ public:
             std::string latency_str = FormatLatency(latency);
             const bool inconsistent_counters = HasInconsistentCounters(run, latency);
             const auto work_it = run.counters.find("work_per_iter");
+            const double work_counter_value =
+                (work_it != run.counters.end()) ? static_cast<double>(work_it->second) : 0.0;
             bool has_work = work_it != run.counters.end() &&
-                            work_it->second > 0.0 &&
-                            std::isfinite(work_it->second);
-            double work_per_iter = has_work ? static_cast<double>(work_it->second) : 0.0;
+                            work_counter_value > 0.0 &&
+                            std::isfinite(work_counter_value);
+            double work_per_iter = has_work ? work_counter_value : 0.0;
             bool inferred_work = false;
             if (!has_work && items_per_second > 0.0 && latency > 0.0 &&
                 std::isfinite(items_per_second) && std::isfinite(latency)) {

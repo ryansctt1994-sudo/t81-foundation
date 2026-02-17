@@ -161,20 +161,26 @@ Type SemanticAnalyzer::make_error_type() { return Type{Type::Kind::Error}; }
 
 int SemanticAnalyzer::numeric_rank(const Type& type) const {
   switch (type.kind) {
-    case Type::Kind::I2:
+    case Type::Kind::Qutrit:
       return 1;
-    case Type::Kind::I8:
+    case Type::Kind::I2:
       return 2;
-    case Type::Kind::I16:
+    case Type::Kind::I8:
       return 3;
-    case Type::Kind::I32:
+    case Type::Kind::I16:
       return 4;
-    case Type::Kind::BigInt:
+    case Type::Kind::I32:
       return 5;
-    case Type::Kind::Fraction:
+    case Type::Kind::Uint:
       return 6;
-    case Type::Kind::Float:
+    case Type::Kind::BigInt:
       return 7;
+    case Type::Kind::Fraction:
+      return 8;
+    case Type::Kind::Fixed:
+      return 9;
+    case Type::Kind::Float:
+      return 10;
     default:
       return 0;
   }
@@ -184,10 +190,12 @@ bool SemanticAnalyzer::is_numeric(const Type& type) const { return numeric_rank(
 
 bool SemanticAnalyzer::is_integer_type(const Type& type) const {
   switch (type.kind) {
+    case Type::Kind::Qutrit:
     case Type::Kind::I2:
     case Type::Kind::I8:
     case Type::Kind::I16:
     case Type::Kind::I32:
+    case Type::Kind::Uint:
     case Type::Kind::BigInt:
       return true;
     default:
@@ -204,7 +212,8 @@ bool SemanticAnalyzer::is_fraction_type(const Type& type) const {
 }
 
 bool SemanticAnalyzer::is_primitive_numeric_type(const Type& type) const {
-  return is_integer_type(type) || is_float_type(type) || is_fraction_type(type);
+  return is_integer_type(type) || is_float_type(type) || is_fraction_type(type) ||
+         type.kind == Type::Kind::Fixed;
 }
 
 std::optional<Type> SemanticAnalyzer::deduce_numeric_type(const Type& left, const Type& right,
@@ -215,6 +224,27 @@ std::optional<Type> SemanticAnalyzer::deduce_numeric_type(const Type& left, cons
   if (left.kind == Type::Kind::Unknown || right.kind == Type::Kind::Unknown) {
     return Type{Type::Kind::Unknown};
   }
+
+  if (left.kind == Type::Kind::Complex && right.kind == Type::Kind::Complex) {
+    return left;
+  }
+
+  if (left.kind == Type::Kind::Fixed && right.kind == Type::Kind::Fixed) {
+    return left;
+  }
+  if (left.kind == Type::Kind::Fixed && is_integer_type(right)) {
+    return left;
+  }
+  if (right.kind == Type::Kind::Fixed && is_integer_type(left)) {
+    return right;
+  }
+  if (left.kind == Type::Kind::Fixed && is_float_type(right)) {
+    return right;
+  }
+  if (right.kind == Type::Kind::Fixed && is_float_type(left)) {
+    return left;
+  }
+
   if (!is_primitive_numeric_type(left) || !is_primitive_numeric_type(right)) {
     error(op, "Operands must be primitive numeric types, got '" + type_to_string(left) + "' and '" +
                   type_to_string(right) + "'.");
@@ -222,6 +252,12 @@ std::optional<Type> SemanticAnalyzer::deduce_numeric_type(const Type& left, cons
   }
 
   if (is_integer_type(left) && is_integer_type(right)) {
+    if (op.type == TokenType::Minus &&
+        (left.kind == Type::Kind::Uint || right.kind == Type::Kind::Uint)) {
+      // Preserve deterministic semantics for unsigned subtraction by promoting
+      // to a signed wide domain instead of inferring wrap-prone unsigned.
+      return Type{Type::Kind::BigInt};
+    }
     return numeric_rank(left) >= numeric_rank(right) ? left : right;
   }
   if (is_integer_type(left) && is_float_type(right)) {
@@ -395,6 +431,14 @@ Type SemanticAnalyzer::type_from_token(const Token& name) {
       return Type{Type::Kind::Float};
     case TokenType::T81Fraction:
       return Type{Type::Kind::Fraction};
+    case TokenType::T81Fixed:
+      return Type{Type::Kind::Fixed};
+    case TokenType::T81Complex:
+      return Type{Type::Kind::Complex};
+    case TokenType::T81Qutrit:
+      return Type{Type::Kind::Qutrit};
+    case TokenType::T81Uint:
+      return Type{Type::Kind::Uint};
     case TokenType::T81Vector:
       return Type{Type::Kind::Vector};
     case TokenType::Matrix:
@@ -538,6 +582,18 @@ std::string SemanticAnalyzer::type_to_string(const Type& type) const {
     case Type::Kind::Fraction:
       result = "T81Fraction";
       break;
+    case Type::Kind::Fixed:
+      result = "T81Fixed";
+      break;
+    case Type::Kind::Complex:
+      result = "T81Complex";
+      break;
+    case Type::Kind::Qutrit:
+      result = "T81Qutrit";
+      break;
+    case Type::Kind::Uint:
+      result = "T81Uint";
+      break;
     case Type::Kind::Vector:
     case Type::Kind::Matrix:
     case Type::Kind::Tensor: {
@@ -612,6 +668,16 @@ bool SemanticAnalyzer::is_assignable(const Type& target, const Type& value) cons
     Type value_success = value.params.size() > 0 ? value.params[0] : Type{Type::Kind::Unknown};
     Type value_error = value.params.size() > 1 ? value.params[1] : Type{Type::Kind::Unknown};
     return is_assignable(target_success, value_success) && is_assignable(target_error, value_error);
+  }
+
+  if (target.kind == Type::Kind::Fixed && is_integer_type(value)) {
+    return true;
+  }
+  if (target.kind == Type::Kind::Qutrit && is_integer_type(value)) {
+    if (value.kind == Type::Kind::BigInt) {
+      return false;
+    }
+    return true;
   }
 
   if (is_numeric(target) && is_numeric(value)) {
@@ -2002,6 +2068,10 @@ std::any SemanticAnalyzer::visit(const UnaryExpr& expr) {
   if (expr.op.type == TokenType::Minus) {
     if (!is_numeric(right)) {
       error(expr.op, "Unary minus requires a numeric operand.");
+      return make_error_type();
+    }
+    if (right.kind == Type::Kind::Uint) {
+      error(expr.op, "Unary minus is not allowed for T81Uint; use a signed type.");
       return make_error_type();
     }
     return right;

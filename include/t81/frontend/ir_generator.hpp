@@ -1319,11 +1319,15 @@ private:
   NumericCategory categorize(const Type* type) const {
     if (!type) return NumericCategory::Integer;
     switch (type->kind) {
+      case Type::Kind::Qutrit:
       case Type::Kind::I2:
       case Type::Kind::I8:
       case Type::Kind::I16:
       case Type::Kind::I32:
+      case Type::Kind::Uint:
       case Type::Kind::BigInt:
+      case Type::Kind::Fixed:
+      case Type::Kind::Complex:
         return NumericCategory::Integer;
       case Type::Kind::Float:
         return NumericCategory::Float;
@@ -1337,11 +1341,15 @@ private:
   tisc::ir::PrimitiveKind categorize_primitive(const Type* type) const {
     if (!type) return tisc::ir::PrimitiveKind::Integer;
     switch (type->kind) {
+      case Type::Kind::Qutrit:
       case Type::Kind::I2:
       case Type::Kind::I8:
       case Type::Kind::I16:
       case Type::Kind::I32:
+      case Type::Kind::Uint:
       case Type::Kind::BigInt:
+      case Type::Kind::Fixed:
+      case Type::Kind::Complex:
         return tisc::ir::PrimitiveKind::Integer;
       case Type::Kind::Float:
         return tisc::ir::PrimitiveKind::Float;

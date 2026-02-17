@@ -75,10 +75,14 @@ jobs:
           PERF=$(echo "scale=1; 1000000 / $BEST" | bc -l 2>/dev/null || echo "∞")
           
           COLOR="red"
-          [[ "$PERF" > 10 ]] && COLOR="orange"
-          [[ "$PERF" > 25 ]] && COLOR="yellow"
-          [[ "$PERF" > 50 ]] && COLOR="green"
-          [[ "$PERF" > 100 ]] && COLOR="brightgreen"
+          if [[ "$PERF" == "∞" ]]; then
+            COLOR="brightgreen"
+          else
+            awk "BEGIN { exit !($PERF > 10) }" && COLOR="orange"
+            awk "BEGIN { exit !($PERF > 25) }" && COLOR="yellow"
+            awk "BEGIN { exit !($PERF > 50) }" && COLOR="green"
+            awk "BEGIN { exit !($PERF > 100) }" && COLOR="brightgreen"
+          fi
 
           cat > .github/badges/t81-speed.json <<EOF
           {

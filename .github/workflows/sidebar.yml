@@ -7,8 +7,7 @@ on:
       - 'spec/**'
       - 'docs/**'
       - 'scripts/generate_sidebar.py'
-    paths-ignore:
-      - 'docs/_includes/sidebar.html'
+      - '!docs/_includes/sidebar.html'
   workflow_dispatch:                 # allow manual trigger
 
 permissions:
@@ -57,7 +56,9 @@ jobs:
       - name: Success summary
         if: success()
         run: |
-          echo "### Sidebar auto-updated" >> $GITHUB_STEP_SUMMARY
-          echo "- File: docs/_includes/sidebar.html" >> $GITHUB_STEP_SUMMARY
-          echo "- Trigger: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- PR outcome: ${{ steps.cpr.outcome }}" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "### Sidebar auto-updated"
+            echo "- File: docs/_includes/sidebar.html"
+            echo "- Trigger: ${{ github.event_name }}"
+            echo "- PR outcome: ${{ steps.cpr.outcome }}"
+          } >> "$GITHUB_STEP_SUMMARY"

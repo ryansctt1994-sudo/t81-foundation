@@ -87,8 +87,6 @@ Token Parser::previous() { return _previous; }
 // reports an error and returns a dummy token.
 Token Parser::consume(TokenType type, const char* message) {
   if (check(type)) return advance();
-  std::cout << "DEBUG: Consume failed. Expected " << (int)type << ", got " << (int)peek().type
-            << " at " << peek().line << ":" << peek().column << std::endl;
   report_error(peek(), message);
   return {};
 }
@@ -1114,6 +1112,14 @@ std::string type_to_string(const Type& type) {
       return "T81Float";
     case Type::Kind::Fraction:
       return "T81Fraction";
+    case Type::Kind::Fixed:
+      return "T81Fixed";
+    case Type::Kind::Complex:
+      return "T81Complex";
+    case Type::Kind::Qutrit:
+      return "T81Qutrit";
+    case Type::Kind::Uint:
+      return "T81Uint";
     case Type::Kind::Vector:
       return "Vector";
     case Type::Kind::Matrix:

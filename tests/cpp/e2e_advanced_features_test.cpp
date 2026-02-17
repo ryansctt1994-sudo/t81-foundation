@@ -139,11 +139,32 @@ void test_custom_enum_match() {
   }
 }
 
+void test_extended_numeric_types_pipeline() {
+  const std::string source = R"(
+        fn main() -> T81Uint {
+            let q: T81Qutrit = 1;
+            let q2: T81Qutrit = q + 1;
+            let u: T81Uint = 7;
+            let u2: T81Uint = u + 2;
+            let f: T81Fixed[8, 4] = 3;
+            let _f2: T81Fixed[8, 4] = f + 4;
+            return q2 + u2;
+        }
+    )";
+  [[maybe_unused]] int64_t result = run_e2e_test(source);
+  if (result != 11) {
+    std::cerr << "test_extended_numeric_types_pipeline failed: expected 11, got " << result
+              << std::endl;
+    throw std::runtime_error("test_extended_numeric_types_pipeline failed");
+  }
+}
+
 int main() {
   test_while_break();
   test_nested_loop_continue();
   test_match_guards();
   test_custom_enum_match();
+  test_extended_numeric_types_pipeline();
   std::cout << "All advanced E2E tests passed!" << std::endl;
   return 0;
 }

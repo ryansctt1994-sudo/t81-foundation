@@ -71,6 +71,82 @@ int main() {
     )";
   if (!expect_semantic_success(bigint_float_success, "bigint_float_success")) return 1;
 
+  const std::string qutrit_arith_success = R"(
+        fn main() -> i32 {
+            let q: T81Qutrit = 1;
+            let r: T81Qutrit = q + 1;
+            return 0;
+        }
+    )";
+  if (!expect_semantic_success(qutrit_arith_success, "qutrit_arith_success")) return 1;
+
+  const std::string uint_arith_success = R"(
+        fn main() -> i32 {
+            let u: T81Uint = 7;
+            let v: T81Uint = u + 1;
+            return 0;
+        }
+    )";
+  if (!expect_semantic_success(uint_arith_success, "uint_arith_success")) return 1;
+
+  const std::string uint_subtract_promotes_to_bigint = R"(
+        fn main() -> i32 {
+            let u: T81Uint = 7;
+            let d: T81BigInt = u - 9;
+            return 0;
+        }
+    )";
+  if (!expect_semantic_success(uint_subtract_promotes_to_bigint,
+                               "uint_subtract_promotes_to_bigint")) {
+    return 1;
+  }
+
+  const std::string uint_subtract_uint_failure = R"(
+        fn main() -> i32 {
+            let u: T81Uint = 7;
+            let d: T81Uint = u - 1;
+            return 0;
+        }
+    )";
+  if (!expect_semantic_failure(uint_subtract_uint_failure, "uint_subtract_uint_failure")) return 1;
+
+  const std::string fixed_arith_success = R"(
+        fn main() -> i32 {
+            let x: T81Fixed[8, 4] = 1;
+            let y: T81Fixed[8, 4] = x + 2;
+            return 0;
+        }
+    )";
+  if (!expect_semantic_success(fixed_arith_success, "fixed_arith_success")) return 1;
+
+  const std::string complex_arith_success = R"(
+        fn main() -> i32 {
+            var c1: T81Complex[18];
+            var c2: T81Complex[18];
+            c2 = c1 + c1;
+            return 0;
+        }
+    )";
+  if (!expect_semantic_success(complex_arith_success, "complex_arith_success")) return 1;
+
+  const std::string complex_int_failure = R"(
+        fn main() -> i32 {
+            var c: T81Complex[18];
+            let bad = c + 1;
+            return 0;
+        }
+    )";
+  if (!expect_semantic_failure(complex_int_failure, "complex_int_failure")) return 1;
+
+  const std::string uint_unary_minus_failure = R"(
+        fn main() -> i32 {
+            let u: T81Uint = 7;
+            let bad = -u;
+            return 0;
+        }
+    )";
+  if (!expect_semantic_failure(uint_unary_minus_failure, "uint_unary_minus_failure")) return 1;
+
   std::cout << "Semantic analyzer numeric rules tests passed!" << std::endl;
   return 0;
 }

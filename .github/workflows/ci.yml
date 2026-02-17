@@ -78,10 +78,12 @@ jobs:
         if: failure()
         shell: bash
         run: |
-          echo "### Spec & Docs Job Failed" >> "$GITHUB_STEP_SUMMARY"
-          echo "One or more documentation or specification checks failed." >> "$GITHUB_STEP_SUMMARY"
-          echo "- **Job**: ${{ github.job }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **Run**: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "### Spec & Docs Job Failed"
+            echo "One or more documentation or specification checks failed."
+            echo "- **Job**: ${{ github.job }}"
+            echo "- **Run**: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   ############################################################################
   # JOB: build-and-test
@@ -115,7 +117,7 @@ jobs:
             c_compiler: clang
             cpp_compiler: clang++
           - platform: macos-x86_64
-            runs_on: macos-13
+            runs_on: macos-15-intel
             compiler: gcc
             c_compiler: gcc-14
             cpp_compiler: g++-14
@@ -142,7 +144,7 @@ jobs:
           brew install ccache
           if [ "${{ matrix.compiler }}" = "gcc" ]; then
             brew install gcc@14
-            echo "/opt/homebrew/bin" >> $GITHUB_PATH
+            echo "/opt/homebrew/bin" >> "$GITHUB_PATH"
           fi
 
       - name: Install Dependencies (Windows)
@@ -270,13 +272,15 @@ jobs:
         if: failure()
         shell: bash
         run: |
-          echo "### Build failed" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **OS**: ${{ runner.os }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **Compiler**: ${{ matrix.compiler }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **Run**: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "Last 40 log lines:" >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "### Build failed"
+            echo "- **OS**: ${{ runner.os }}"
+            echo "- **Compiler**: ${{ matrix.compiler }}"
+            echo "- **Run**: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo ""
+            echo "Last 40 log lines:"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
           if [ -f .github/logs/build-and-test.log ]; then
             tail -n 40 .github/logs/build-and-test.log >> "$GITHUB_STEP_SUMMARY"
           else
@@ -516,7 +520,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y clang-tidy-18 build-essential cmake ninja-build
+          sudo apt-get install -y clang-tidy-18 build-essential cmake ninja-build libasio-dev pybind11-dev
 
       - name: Configure CMake
         run: |
@@ -526,7 +530,32 @@ jobs:
 
       - name: Run clang-tidy
         run: |
-          find src include -name "*.cpp" -o -name "*.hpp" | xargs clang-tidy-18 -p build --header-filter=include/t81/.*
+          python3 - <<'PY' > /tmp/clang_tidy_files.txt
+          import json
+          from pathlib import Path
+
+          root = Path.cwd().resolve()
+          with open(root / "build" / "compile_commands.json", "r", encoding="utf-8") as fh:
+              compile_db = json.load(fh)
+
+          source_files = []
+          for entry in compile_db:
+              file_path = Path(entry["file"]).resolve()
+              try:
+                  rel = file_path.relative_to(root)
+              except ValueError:
+                  continue
+              if rel.suffix in {".cpp", ".cc", ".cxx"}:
+                  source_files.append(str(rel))
+
+          for path in sorted(set(source_files)):
+              print(path)
+          PY
+          test -s /tmp/clang_tidy_files.txt
+          xargs -a /tmp/clang_tidy_files.txt clang-tidy-18 -p build \
+            --header-filter='^.*/include/t81/.*' \
+            --checks='-*,clang-analyzer-*,clang-diagnostic-*' \
+            --warnings-as-errors='clang-analyzer-*,clang-diagnostic-*'
 
   ############################################################################
   # JOB: sanitizers

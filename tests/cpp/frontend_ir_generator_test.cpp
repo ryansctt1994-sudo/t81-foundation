@@ -4,6 +4,7 @@
 #include "t81/frontend/ir_generator.hpp"
 #include "t81/frontend/lexer.hpp"
 #include "t81/frontend/parser.hpp"
+#include "t81/frontend/semantic_analyzer.hpp"
 #include "t81/tisc/ir.hpp"
 #include "t81/tisc/pretty_printer.hpp"
 
@@ -311,6 +312,48 @@ void test_print_builtin_lowers_to_print_opcode() {
   std::cout << "IRGeneratorTest test_print_builtin_lowers_to_print_opcode passed!" << std::endl;
 }
 
+void test_extended_numeric_types_lower_to_arithmetic_ir() {
+  std::string source = R"(
+        fn main() -> T81Uint {
+            let q: T81Qutrit = 1;
+            let q2: T81Qutrit = q + 1;
+            let u: T81Uint = 7;
+            let u2: T81Uint = u + 2;
+            let f: T81Fixed[8, 4] = 3;
+            let f2: T81Fixed[8, 4] = f + 4;
+            var c1: T81Complex[18];
+            var c2: T81Complex[18];
+            c2 = c1 + c1;
+            return q2 + u2;
+        }
+    )";
+  Lexer lexer(source);
+  Parser parser(lexer);
+  auto stmts = parser.parse();
+  EXPECT(!parser.had_error(), "parser failed for extended numeric types fixture");
+
+  SemanticAnalyzer analyzer(stmts);
+  analyzer.analyze();
+  EXPECT(!analyzer.had_error(), "semantic analyzer failed for extended numeric types fixture");
+
+  IRGenerator generator;
+  generator.attach_semantic_analyzer(&analyzer);
+  auto program = generator.generate(stmts);
+  const auto& instructions = program.instructions();
+  EXPECT(!instructions.empty(), "extended numeric fixture produced no IR");
+
+  bool has_add = false;
+  for (const auto& inst : instructions) {
+    if (inst.opcode == Opcode::ADD) {
+      has_add = true;
+      break;
+    }
+  }
+  EXPECT(has_add, "extended numeric fixture should lower arithmetic via ADD");
+  std::cout << "IRGeneratorTest test_extended_numeric_types_lower_to_arithmetic_ir passed!"
+            << std::endl;
+}
+
 int main() {
   test_simple_addition();
   test_if_statement();
@@ -322,6 +365,7 @@ int main() {
   test_match_option();
   test_match_result();
   test_print_builtin_lowers_to_print_opcode();
+  test_extended_numeric_types_lower_to_arithmetic_ir();
 
   std::cout << "All IRGenerator integration tests completed!" << std::endl;
   return 0;

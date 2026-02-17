@@ -8,8 +8,7 @@ on:
       - 'docs/search/**'
       - 'docs/**'
       - 'spec/**'
-    paths-ignore:
-      - 'docs/search/search_index.json'
+      - '!docs/search/search_index.json'
   workflow_dispatch:
 
 permissions:
@@ -60,5 +59,7 @@ jobs:
       - name: Workflow summary
         if: always()
         run: |
-          echo "### Search index automation" >> $GITHUB_STEP_SUMMARY
-          echo "- PR step outcome: ${{ steps.cpr.outcome }}" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "### Search index automation"
+            echo "- PR step outcome: ${{ steps.cpr.outcome }}"
+          } >> "$GITHUB_STEP_SUMMARY"
