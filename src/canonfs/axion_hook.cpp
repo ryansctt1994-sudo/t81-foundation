@@ -16,18 +16,21 @@ std::size_t g_meta_ptr = 0;
 
 const char* action_to_string(OpKind kind) {
   switch (kind) {
-    case OpKind::Read: return "Read";
-    case OpKind::Write: return "Write";
-    case OpKind::Publish: return "Publish";
-    case OpKind::Revoke: return "Revoke";
-    case OpKind::Repair: return "Repair";
+    case OpKind::Read:
+      return "Read";
+    case OpKind::Write:
+      return "Write";
+    case OpKind::Publish:
+      return "Publish";
+    case OpKind::Revoke:
+      return "Revoke";
+    case OpKind::Repair:
+      return "Repair";
   }
   return "Unknown";
 }
 
-void push_reason(std::string reason) {
-  g_axion_trace.push_back(std::move(reason));
-}
+void push_reason(std::string reason) { g_axion_trace.push_back(std::move(reason)); }
 }  // namespace
 
 std::function<AxionVerdict(OpKind, const CanonRef&)> make_axion_policy_hook(
@@ -78,9 +81,7 @@ std::function<AxionVerdict(OpKind, const CanonRef&)> make_axion_policy_hook(
   };
 }
 
-const std::vector<std::string>& axion_trace() {
-  return g_axion_trace;
-}
+const std::vector<std::string>& axion_trace() { return g_axion_trace; }
 
 void reset_axion_trace() {
   g_axion_trace.clear();

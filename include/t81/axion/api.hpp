@@ -9,29 +9,29 @@
 #pragma once
 
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cstdio>
-#include <string>
-#include <vector>
 #include <memory>
 #include <optional>
-#include "t81/config.hpp"
-#include "t81/axion/verdict.hpp"
+#include <string>
+#include <vector>
 #include "t81/axion/context.hpp"
+#include "t81/axion/verdict.hpp"
+#include "t81/config.hpp"
 
 namespace t81::axion {
 
-class Engine; // Forward declaration
+class Engine;  // Forward declaration
 
 /**
  * @struct Version
  * @brief Represents the version number of a component.
  */
 struct Version {
-  uint16_t major{0}; ///< Major version number.
-  uint16_t minor{0}; ///< Minor version number.
-  uint16_t patch{0}; ///< Patch version number.
+  uint16_t major{0};  ///< Major version number.
+  uint16_t minor{0};  ///< Minor version number.
+  uint16_t patch{0};  ///< Patch version number.
 
   /**
    * @brief Converts the version to a string representation.
@@ -51,7 +51,7 @@ struct Telemetry {
   uint64_t denies{0};
   uint64_t bytes_in{0};
   uint64_t bytes_out{0};
-  double   last_ms{0.0};
+  double last_ms{0.0};
 };
 
 /**
@@ -105,7 +105,7 @@ public:
   explicit AxionContext(std::unique_ptr<Engine> engine);
   ~AxionContext();
 
-  static Version runtime_version() { return Version{1,2,0}; }
+  static Version runtime_version() { return Version{1, 2, 0}; }
   static const char* runtime_name() { return "Axion-Façade"; }
 
   /**
@@ -149,4 +149,4 @@ using Context = AxionContext;
   throw std::overflow_error(reason ? reason : "Axion overflow");
 }
 
-} // namespace t81::axion
+}  // namespace t81::axion

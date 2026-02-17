@@ -12,4 +12,3 @@ inline void t81_test_check_impl(bool condition, const char* expr, const char* fi
 }
 
 #define T81_TEST_CHECK(expr) t81_test_check_impl(static_cast<bool>(expr), #expr, __FILE__, __LINE__)
-

@@ -12,19 +12,19 @@
 #pragma once
 
 #include "t81/core/T81Int.hpp"
-#include "t81/core/T81Symbol.hpp"
 #include "t81/core/T81String.hpp"
+#include "t81/core/T81Symbol.hpp"
 
+#include <algorithm>
+#include <compare>
 #include <cstddef>
 #include <cstdint>
-#include <vector>
-#include <optional>
-#include <compare>
-#include <type_traits>
 #include <functional>
-#include <stdexcept>
-#include <algorithm>
+#include <optional>
 #include <sstream>
+#include <stdexcept>
+#include <type_traits>
+#include <vector>
 
 namespace t81 {
 
@@ -33,359 +33,345 @@ namespace t81 {
 // ======================================================================
 template <typename K, typename V>
 class T81Map {
-    // Internal bucket: one key + one value, plus occupancy bit
-    struct Bucket {
-        K    key{};
-        V    value{};
-        bool occupied = false;
-        auto operator<=>(const Bucket&) const noexcept = default;
-    };
+  // Internal bucket: one key + one value, plus occupancy bit
+  struct Bucket {
+    K key{};
+    V value{};
+    bool occupied = false;
+    auto operator<=>(const Bucket&) const noexcept = default;
+  };
 
-    std::vector<Bucket> buckets_;
-    std::size_t size_ = 0;  // number of occupied entries
+  std::vector<Bucket> buckets_;
+  std::size_t size_ = 0;  // number of occupied entries
 
-    // Load factor: 0.729 ≈ 3⁻¹ (heuristic target)
-    static constexpr double MAX_LOAD_FACTOR = 0.729;
+  // Load factor: 0.729 ≈ 3⁻¹ (heuristic target)
+  static constexpr double MAX_LOAD_FACTOR = 0.729;
 
-    // ------------------------------------------------------------------
-    // Hash helpers
-    // ------------------------------------------------------------------
-    [[nodiscard]] static std::size_t symbol_hash(const T81Symbol& sym,
-                                                 std::size_t bucket_count) noexcept {
-        if (bucket_count == 0) return 0;
-        std::uint64_t h = sym.hash();      // already well-distributed
-        return static_cast<std::size_t>(h % bucket_count);
+  // ------------------------------------------------------------------
+  // Hash helpers
+  // ------------------------------------------------------------------
+  [[nodiscard]] static std::size_t symbol_hash(const T81Symbol& sym,
+                                               std::size_t bucket_count) noexcept {
+    if (bucket_count == 0) return 0;
+    std::uint64_t h = sym.hash();  // already well-distributed
+    return static_cast<std::size_t>(h % bucket_count);
+  }
+
+  template <typename T>
+  [[nodiscard]] static std::size_t generic_hash(const T& key, std::size_t bucket_count) noexcept {
+    if (bucket_count == 0) return 0;
+    std::hash<T> hasher;
+    std::uint64_t h = static_cast<std::uint64_t>(hasher(key));
+    return static_cast<std::size_t>(h % bucket_count);
+  }
+
+  [[nodiscard]] static std::size_t hash_for_key(const K& key, std::size_t bucket_count) noexcept {
+    if constexpr (std::is_same_v<K, T81Symbol>) {
+      return symbol_hash(key, bucket_count);
+    } else {
+      return generic_hash(key, bucket_count);
+    }
+  }
+
+  // Linear probing: step size 1 to ensure correctness of shift-based deletion.
+  // While quadratic probing (1, 3, 5...) reduces clustering, it requires
+  // tombstones for correct deletion, which we don't use here.
+  [[nodiscard]] static std::size_t probe_step(std::size_t /*attempt*/) noexcept { return 1; }
+
+  // ------------------------------------------------------------------
+  // Rehashing
+  // ------------------------------------------------------------------
+  void rehash_if_needed() {
+    if (buckets_.empty()) {
+      buckets_.resize(27);  // 3^3 initial size
+      return;
     }
 
-    template <typename T>
-    [[nodiscard]] static std::size_t generic_hash(const T& key,
-                                                  std::size_t bucket_count) noexcept {
-        if (bucket_count == 0) return 0;
-        std::hash<T> hasher;
-        std::uint64_t h = static_cast<std::uint64_t>(hasher(key));
-        return static_cast<std::size_t>(h % bucket_count);
+    const double lf = static_cast<double>(size_) / static_cast<double>(buckets_.size());
+    if (lf < MAX_LOAD_FACTOR) return;
+
+    const std::size_t old_count = buckets_.size();
+    std::size_t new_count = old_count ? old_count * 3 : 27;  // grow by factor of 3
+
+    std::vector<Bucket> new_buckets(new_count);
+    for (auto& bucket : buckets_) {
+      if (!bucket.occupied) continue;
+
+      std::size_t idx = hash_for_key(bucket.key, new_count);
+      std::size_t attempt = 0;
+      while (new_buckets[idx].occupied) {
+        idx = (idx + probe_step(attempt++)) % new_count;
+      }
+      new_buckets[idx] = std::move(bucket);
     }
 
-    [[nodiscard]] static std::size_t hash_for_key(const K& key,
-                                                  std::size_t bucket_count) noexcept {
-        if constexpr (std::is_same_v<K, T81Symbol>) {
-            return symbol_hash(key, bucket_count);
-        } else {
-            return generic_hash(key, bucket_count);
-        }
+    buckets_ = std::move(new_buckets);
+  }
+
+  // ------------------------------------------------------------------
+  // Internal lookup: index of key if present (const)
+  // ------------------------------------------------------------------
+  [[nodiscard]] std::optional<std::size_t> find_index(const K& key) const noexcept {
+    if (buckets_.empty()) return std::nullopt;
+
+    const std::size_t n = buckets_.size();
+    std::size_t idx = hash_for_key(key, n);
+    std::size_t attempt = 0;
+
+    // Probe until we find the key or hit an empty bucket
+    while (buckets_[idx].occupied) {
+      if (buckets_[idx].key == key) {
+        return idx;
+      }
+      idx = (idx + probe_step(attempt++)) % n;
     }
 
-    // Linear probing: step size 1 to ensure correctness of shift-based deletion.
-    // While quadratic probing (1, 3, 5...) reduces clustering, it requires
-    // tombstones for correct deletion, which we don't use here.
-    [[nodiscard]] static std::size_t probe_step(std::size_t /*attempt*/) noexcept {
-        return 1;
+    return std::nullopt;
+  }
+
+  // Non-const helper that reuses the const version
+  [[nodiscard]] std::optional<std::size_t> find_index_nonconst(const K& key) noexcept {
+    return const_cast<const T81Map*>(this)->find_index(key);
+  }
+
+  // ------------------------------------------------------------------
+  // Erase implementation for open addressing
+  // ------------------------------------------------------------------
+  void erase_index(std::size_t idx) noexcept {
+    if (buckets_.empty() || !buckets_[idx].occupied) return;
+
+    const std::size_t n = buckets_.size();
+
+    // Remove the element at idx
+    buckets_[idx].occupied = false;
+    --size_;
+
+    // Reinsert the cluster of elements that might be displaced
+    std::size_t j = (idx + 1) % n;
+    while (buckets_[j].occupied) {
+      Bucket tmp = std::move(buckets_[j]);
+      buckets_[j].occupied = false;
+      --size_;
+
+      // Reinsert tmp into the same bucket array
+      std::size_t new_idx = hash_for_key(tmp.key, n);
+      std::size_t attempt = 0;
+      while (buckets_[new_idx].occupied) {
+        new_idx = (new_idx + probe_step(attempt++)) % n;
+      }
+      buckets_[new_idx] = std::move(tmp);
+      ++size_;
+
+      j = (j + 1) % n;
     }
-
-    // ------------------------------------------------------------------
-    // Rehashing
-    // ------------------------------------------------------------------
-    void rehash_if_needed() {
-        if (buckets_.empty()) {
-            buckets_.resize(27); // 3^3 initial size
-            return;
-        }
-
-        const double lf = static_cast<double>(size_) / static_cast<double>(buckets_.size());
-        if (lf < MAX_LOAD_FACTOR) return;
-
-        const std::size_t old_count = buckets_.size();
-        std::size_t new_count = old_count ? old_count * 3 : 27; // grow by factor of 3
-
-        std::vector<Bucket> new_buckets(new_count);
-        for (auto& bucket : buckets_) {
-            if (!bucket.occupied) continue;
-
-            std::size_t idx = hash_for_key(bucket.key, new_count);
-            std::size_t attempt = 0;
-            while (new_buckets[idx].occupied) {
-                idx = (idx + probe_step(attempt++)) % new_count;
-            }
-            new_buckets[idx] = std::move(bucket);
-        }
-
-        buckets_ = std::move(new_buckets);
-    }
-
-    // ------------------------------------------------------------------
-    // Internal lookup: index of key if present (const)
-    // ------------------------------------------------------------------
-    [[nodiscard]] std::optional<std::size_t> find_index(const K& key) const noexcept {
-        if (buckets_.empty()) return std::nullopt;
-
-        const std::size_t n = buckets_.size();
-        std::size_t idx = hash_for_key(key, n);
-        std::size_t attempt = 0;
-
-        // Probe until we find the key or hit an empty bucket
-        while (buckets_[idx].occupied) {
-            if (buckets_[idx].key == key) {
-                return idx;
-            }
-            idx = (idx + probe_step(attempt++)) % n;
-        }
-
-        return std::nullopt;
-    }
-
-    // Non-const helper that reuses the const version
-    [[nodiscard]] std::optional<std::size_t> find_index_nonconst(const K& key) noexcept {
-        return const_cast<const T81Map*>(this)->find_index(key);
-    }
-
-    // ------------------------------------------------------------------
-    // Erase implementation for open addressing
-    // ------------------------------------------------------------------
-    void erase_index(std::size_t idx) noexcept {
-        if (buckets_.empty() || !buckets_[idx].occupied) return;
-
-        const std::size_t n = buckets_.size();
-
-        // Remove the element at idx
-        buckets_[idx].occupied = false;
-        --size_;
-
-        // Reinsert the cluster of elements that might be displaced
-        std::size_t j = (idx + 1) % n;
-        while (buckets_[j].occupied) {
-            Bucket tmp = std::move(buckets_[j]);
-            buckets_[j].occupied = false;
-            --size_;
-
-            // Reinsert tmp into the same bucket array
-            std::size_t new_idx = hash_for_key(tmp.key, n);
-            std::size_t attempt = 0;
-            while (buckets_[new_idx].occupied) {
-                new_idx = (new_idx + probe_step(attempt++)) % n;
-            }
-            buckets_[new_idx] = std::move(tmp);
-            ++size_;
-
-            j = (j + 1) % n;
-        }
-    }
+  }
 
 public:
-    using key_type    = K;
-    using mapped_type = V;
-    using value_type  = std::pair<const K, V>;
-    using size_type   = std::size_t;
+  using key_type = K;
+  using mapped_type = V;
+  using value_type = std::pair<const K, V>;
+  using size_type = std::size_t;
 
-    //===================================================================
-    // Construction
-    //===================================================================
-    T81Map() {
-        buckets_.resize(27); // start at 3^3
+  //===================================================================
+  // Construction
+  //===================================================================
+  T81Map() {
+    buckets_.resize(27);  // start at 3^3
+  }
+
+  T81Map(T81Map&& other) noexcept : buckets_(std::move(other.buckets_)), size_(other.size_) {
+    other.size_ = 0;
+    // other.buckets_ is already empty after move
+  }
+
+  T81Map& operator=(T81Map&& other) noexcept {
+    if (this != &other) {
+      buckets_ = std::move(other.buckets_);
+      size_ = other.size_;
+      other.size_ = 0;
     }
+    return *this;
+  }
 
-    T81Map(T81Map&& other) noexcept
-        : buckets_(std::move(other.buckets_))
-        , size_(other.size_)
-    {
-        other.size_ = 0;
-        // other.buckets_ is already empty after move
-    }
+  T81Map(const T81Map&) = default;
+  T81Map& operator=(const T81Map&) = default;
 
-    T81Map& operator=(T81Map&& other) noexcept {
-        if (this != &other) {
-            buckets_ = std::move(other.buckets_);
-            size_ = other.size_;
-            other.size_ = 0;
-        }
-        return *this;
-    }
+  //===================================================================
+  // Element access
+  //===================================================================
+  [[nodiscard]] V& operator[](const K& key) {
+    rehash_if_needed();
 
-    T81Map(const T81Map&) = default;
-    T81Map& operator=(const T81Map&) = default;
+    const std::size_t n = buckets_.size();
+    std::size_t idx = hash_for_key(key, n);
+    std::size_t attempt = 0;
 
-    //===================================================================
-    // Element access
-    //===================================================================
-    [[nodiscard]] V& operator[](const K& key) {
-        rehash_if_needed();
-
-        const std::size_t n = buckets_.size();
-        std::size_t idx = hash_for_key(key, n);
-        std::size_t attempt = 0;
-
-        while (buckets_[idx].occupied) {
-            if (buckets_[idx].key == key) {
-                return buckets_[idx].value;
-            }
-            idx = (idx + probe_step(attempt++)) % n;
-        }
-
-        // Insert new
-        buckets_[idx].key      = key;
-        buckets_[idx].value    = V{};
-        buckets_[idx].occupied = true;
-        ++size_;
-
-        rehash_if_needed();
+    while (buckets_[idx].occupied) {
+      if (buckets_[idx].key == key) {
         return buckets_[idx].value;
+      }
+      idx = (idx + probe_step(attempt++)) % n;
     }
 
-    [[nodiscard]] const V& at(const K& key) const {
-        auto idx = find_index(key);
-        if (!idx) {
-            throw std::out_of_range("T81Map::at – key not found");
-        }
-        return buckets_[*idx].value;
+    // Insert new
+    buckets_[idx].key = key;
+    buckets_[idx].value = V{};
+    buckets_[idx].occupied = true;
+    ++size_;
+
+    rehash_if_needed();
+    return buckets_[idx].value;
+  }
+
+  [[nodiscard]] const V& at(const K& key) const {
+    auto idx = find_index(key);
+    if (!idx) {
+      throw std::out_of_range("T81Map::at – key not found");
+    }
+    return buckets_[*idx].value;
+  }
+
+  [[nodiscard]] V& at(const K& key) {
+    auto idx = find_index_nonconst(key);
+    if (!idx) {
+      throw std::out_of_range("T81Map::at – key not found");
+    }
+    return buckets_[*idx].value;
+  }
+
+  //===================================================================
+  // Lookup
+  //===================================================================
+  [[nodiscard]] bool contains(const K& key) const noexcept { return find_index(key).has_value(); }
+
+  [[nodiscard]] std::optional<V> get(const K& key) const noexcept {
+    auto idx = find_index(key);
+    if (!idx) return std::nullopt;
+    return buckets_[*idx].value;
+  }
+
+  //===================================================================
+  // Modifiers
+  //===================================================================
+  size_type erase(const K& key) noexcept {
+    auto idx = find_index_nonconst(key);
+    if (!idx) return 0;
+    erase_index(*idx);
+    return 1;
+  }
+
+  void clear() noexcept {
+    buckets_.clear();
+    buckets_.resize(27);
+    size_ = 0;
+  }
+
+  //===================================================================
+  // Iterators (read-only view)
+  //===================================================================
+  struct const_iterator {
+    const T81Map* map = nullptr;
+    std::size_t index = 0;
+
+    [[nodiscard]] bool operator==(const const_iterator& o) const noexcept = default;
+
+    const_iterator& operator++() noexcept {
+      const std::size_t n = map->buckets_.size();
+      do {
+        ++index;
+      } while (index < n && !map->buckets_[index].occupied);
+      return *this;
     }
 
-    [[nodiscard]] V& at(const K& key) {
-        auto idx = find_index_nonconst(key);
-        if (!idx) {
-            throw std::out_of_range("T81Map::at – key not found");
-        }
-        return buckets_[*idx].value;
+    [[nodiscard]] value_type operator*() const noexcept {
+      const auto& b = map->buckets_[index];
+      return value_type{b.key, b.value};
     }
 
-    //===================================================================
-    // Lookup
-    //===================================================================
-    [[nodiscard]] bool contains(const K& key) const noexcept {
-        return find_index(key).has_value();
+    [[nodiscard]] const K& key() const noexcept { return map->buckets_[index].key; }
+
+    [[nodiscard]] const V& value() const noexcept { return map->buckets_[index].value; }
+  };
+
+  [[nodiscard]] const_iterator begin() const noexcept {
+    const_iterator it{this, 0};
+    const std::size_t n = buckets_.size();
+    while (it.index < n && !buckets_[it.index].occupied) {
+      ++it.index;
+    }
+    return it;
+  }
+
+  [[nodiscard]] const_iterator end() const noexcept {
+    return const_iterator{this, buckets_.size()};
+  }
+
+  //===================================================================
+  // Size & Capacity
+  //===================================================================
+  [[nodiscard]] size_type size() const noexcept { return size_; }
+  [[nodiscard]] bool empty() const noexcept { return size_ == 0; }
+
+  //===================================================================
+  // Canonical Serialization (P2)
+  //===================================================================
+  [[nodiscard]] std::vector<std::pair<K, V>> iter_sorted() const {
+    std::vector<std::pair<K, V>> items;
+    items.reserve(size_);
+    // Iterate using const_iterator
+    for (const auto& kv : *this) {
+      items.emplace_back(kv.first, kv.second);
+    }
+    std::sort(items.begin(), items.end(),
+              [](const auto& a, const auto& b) { return a.first < b.first; });
+    return items;
+  }
+
+  [[nodiscard]] std::string serialize_canonical() const {
+    auto items = iter_sorted();
+    // Re-sort using canonical order if Key is T81Symbol (name order)
+    if constexpr (std::is_same_v<K, T81Symbol>) {
+      std::sort(items.begin(), items.end(), [](const auto& a, const auto& b) {
+        return a.first.serialize_canonical() < b.first.serialize_canonical();
+      });
     }
 
-    [[nodiscard]] std::optional<V> get(const K& key) const noexcept {
-        auto idx = find_index(key);
-        if (!idx) return std::nullopt;
-        return buckets_[*idx].value;
+    std::stringstream ss;
+    ss << "{";
+    bool first = true;
+    for (const auto& item : items) {
+      if (!first) ss << ", ";
+      // Key
+      if constexpr (requires { item.first.serialize_canonical(); }) {
+        ss << item.first.serialize_canonical();
+      } else if constexpr (requires { item.first.to_canonical_string(); }) {
+        ss << item.first.to_canonical_string();
+      } else if constexpr (requires { ss << item.first; }) {
+        ss << item.first;
+      } else {
+        ss << "?";
+      }
+      ss << ": ";
+      // Value
+      if constexpr (requires { item.second.serialize_canonical(); }) {
+        ss << item.second.serialize_canonical();
+      } else if constexpr (requires { item.second.to_canonical_string(); }) {
+        ss << item.second.to_canonical_string();
+      } else if constexpr (requires { ss << item.second; }) {
+        ss << item.second;
+      } else {
+        ss << "?";
+      }
+      first = false;
     }
+    ss << "}";
+    return ss.str();
+  }
 
-    //===================================================================
-    // Modifiers
-    //===================================================================
-    size_type erase(const K& key) noexcept {
-        auto idx = find_index_nonconst(key);
-        if (!idx) return 0;
-        erase_index(*idx);
-        return 1;
-    }
-
-    void clear() noexcept {
-        buckets_.clear();
-        buckets_.resize(27);
-        size_ = 0;
-    }
-
-    //===================================================================
-    // Iterators (read-only view)
-    //===================================================================
-    struct const_iterator {
-        const T81Map* map = nullptr;
-        std::size_t index = 0;
-
-        [[nodiscard]] bool operator==(const const_iterator& o) const noexcept = default;
-
-        const_iterator& operator++() noexcept {
-            const std::size_t n = map->buckets_.size();
-            do {
-                ++index;
-            } while (index < n && !map->buckets_[index].occupied);
-            return *this;
-        }
-
-        [[nodiscard]] value_type operator*() const noexcept {
-            const auto& b = map->buckets_[index];
-            return value_type{b.key, b.value};
-        }
-
-        [[nodiscard]] const K& key() const noexcept {
-            return map->buckets_[index].key;
-        }
-
-        [[nodiscard]] const V& value() const noexcept {
-            return map->buckets_[index].value;
-        }
-    };
-
-    [[nodiscard]] const_iterator begin() const noexcept {
-        const_iterator it{this, 0};
-        const std::size_t n = buckets_.size();
-        while (it.index < n && !buckets_[it.index].occupied) {
-            ++it.index;
-        }
-        return it;
-    }
-
-    [[nodiscard]] const_iterator end() const noexcept {
-        return const_iterator{this, buckets_.size()};
-    }
-
-    //===================================================================
-    // Size & Capacity
-    //===================================================================
-    [[nodiscard]] size_type size() const noexcept { return size_; }
-    [[nodiscard]] bool empty() const noexcept { return size_ == 0; }
-
-    //===================================================================
-    // Canonical Serialization (P2)
-    //===================================================================
-    [[nodiscard]] std::vector<std::pair<K, V>> iter_sorted() const {
-        std::vector<std::pair<K, V>> items;
-        items.reserve(size_);
-        // Iterate using const_iterator
-        for (const auto& kv : *this) {
-            items.emplace_back(kv.first, kv.second);
-        }
-        std::sort(items.begin(), items.end(), [](const auto& a, const auto& b) {
-             return a.first < b.first;
-        });
-        return items;
-    }
-
-    [[nodiscard]] std::string serialize_canonical() const {
-        auto items = iter_sorted();
-        // Re-sort using canonical order if Key is T81Symbol (name order)
-        if constexpr (std::is_same_v<K, T81Symbol>) {
-            std::sort(items.begin(), items.end(), [](const auto& a, const auto& b) {
-                return a.first.serialize_canonical() < b.first.serialize_canonical();
-            });
-        }
-
-        std::stringstream ss;
-        ss << "{";
-        bool first = true;
-        for (const auto& item : items) {
-            if (!first) ss << ", ";
-            // Key
-            if constexpr (requires { item.first.serialize_canonical(); }) {
-                ss << item.first.serialize_canonical();
-            } else if constexpr (requires { item.first.to_canonical_string(); }) {
-                ss << item.first.to_canonical_string();
-            } else if constexpr (requires { ss << item.first; }) {
-                ss << item.first;
-            } else {
-                ss << "?";
-            }
-            ss << ": ";
-            // Value
-            if constexpr (requires { item.second.serialize_canonical(); }) {
-                ss << item.second.serialize_canonical();
-            } else if constexpr (requires { item.second.to_canonical_string(); }) {
-                ss << item.second.to_canonical_string();
-            } else if constexpr (requires { ss << item.second; }) {
-                ss << item.second;
-            } else {
-                ss << "?";
-            }
-            first = false;
-        }
-        ss << "}";
-        return ss.str();
-    }
-
-    //===================================================================
-    // Comparison (structural)
-    //===================================================================
-    [[nodiscard]] auto operator<=>(const T81Map&) const noexcept = default;
+  //===================================================================
+  // Comparison (structural)
+  //===================================================================
+  [[nodiscard]] auto operator<=>(const T81Map&) const noexcept = default;
 };
 
 // ======================================================================
@@ -399,4 +385,4 @@ using VocabMap = T81Map<T81String, std::uint32_t>;
 // includes T81List.hpp, e.g.:
 //   using SymbolTable = T81Map<T81Symbol, T81List<T81Symbol>>;
 
-} // namespace t81
+}  // namespace t81

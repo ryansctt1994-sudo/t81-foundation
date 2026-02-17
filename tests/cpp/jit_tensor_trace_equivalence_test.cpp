@@ -31,19 +31,19 @@ Insn make_tensor_handle_imm(int reg, std::int64_t handle) {
 
 Program make_hot_tensor_program() {
   Program p;
-  p.tensor_pool.push_back(T729Tensor({2, 2}, {1.0f, 2.0f, 3.0f, 4.0f}));       // handle 1
-  p.tensor_pool.push_back(T729Tensor({2, 2}, {0.5f, 0.0f, 1.0f, -0.5f}));      // handle 2
-  p.tensor_pool.push_back(T729Tensor({2}, {1.0f, 1.0f}));                       // handle 3
+  p.tensor_pool.push_back(T729Tensor({2, 2}, {1.0f, 2.0f, 3.0f, 4.0f}));   // handle 1
+  p.tensor_pool.push_back(T729Tensor({2, 2}, {0.5f, 0.0f, 1.0f, -0.5f}));  // handle 2
+  p.tensor_pool.push_back(T729Tensor({2}, {1.0f, 1.0f}));                  // handle 3
 
   p.insns.push_back(make_tensor_handle_imm(1, 1));
   p.insns.push_back(make_tensor_handle_imm(2, 2));
   p.insns.push_back(make_tensor_handle_imm(3, 3));
-  p.insns.push_back({Opcode::LoadImm, 4, 64, 0}); // loop counter
+  p.insns.push_back({Opcode::LoadImm, 4, 64, 0});  // loop counter
 
   // loop pc = 4
   p.insns.push_back({Opcode::TMatMul, 5, 1, 2});
   p.insns.push_back({Opcode::TRMSNorm, 6, 5, 3});
-  p.insns.push_back({Opcode::Mov, 1, 6, 0});      // feed result into next step
+  p.insns.push_back({Opcode::Mov, 1, 6, 0});  // feed result into next step
   p.insns.push_back({Opcode::Dec, 4, 0, 0});
   p.insns.push_back({Opcode::JumpIfNotZero, 4, 4, 0});
   p.insns.push_back({Opcode::Halt, 0, 0, 0});
@@ -132,10 +132,8 @@ bool test_jit_tensor_trace_equivalence_and_boundary_logs() {
     }
   }
   if (!saw_enter || !saw_exit || !saw_enter_at_loop_pc || !saw_exit_kind) {
-    std::cerr << "missing jit tensor boundary reasons: enter=" << saw_enter
-              << " exit=" << saw_exit
-              << " enter_pc4=" << saw_enter_at_loop_pc
-              << " exit_kind=" << saw_exit_kind << "\n";
+    std::cerr << "missing jit tensor boundary reasons: enter=" << saw_enter << " exit=" << saw_exit
+              << " enter_pc4=" << saw_enter_at_loop_pc << " exit_kind=" << saw_exit_kind << "\n";
     return expect(false, "missing JIT tensor boundary logs");
   }
   return true;

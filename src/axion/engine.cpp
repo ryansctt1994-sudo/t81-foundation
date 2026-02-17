@@ -2,14 +2,14 @@
 
 namespace t81::axion {
 class AllowAllEngine : public Engine {
- public:
+public:
   Verdict evaluate(const SyscallContext&) override {
     return {VerdictKind::Allow, "Default policy: allow all"};
   }
 };
 
 class InstructionCountingEngine : public Engine {
- public:
+public:
   explicit InstructionCountingEngine(std::size_t max_instructions)
       : _max_instructions(max_instructions), _instruction_count(0) {}
 
@@ -21,17 +21,14 @@ class InstructionCountingEngine : public Engine {
     return {VerdictKind::Allow, "Instruction count within limit"};
   }
 
- private:
+private:
   std::size_t _max_instructions;
   std::size_t _instruction_count;
 };
 
-std::unique_ptr<Engine> make_allow_all_engine() {
-  return std::make_unique<AllowAllEngine>();
-}
+std::unique_ptr<Engine> make_allow_all_engine() { return std::make_unique<AllowAllEngine>(); }
 
-std::unique_ptr<Engine> make_instruction_counting_engine(
-    std::size_t max_instructions) {
+std::unique_ptr<Engine> make_instruction_counting_engine(std::size_t max_instructions) {
   return std::make_unique<InstructionCountingEngine>(max_instructions);
 }
 }  // namespace t81::axion

@@ -17,13 +17,12 @@ struct LoopRequirement {
 };
 
 class PolicyEngine : public Engine {
- public:
+public:
   explicit PolicyEngine(std::optional<Policy> policy);
   Verdict evaluate(const SyscallContext& ctx) override;
 
- private:
-  bool loop_hint_satisfied(const SyscallContext& ctx,
-                           size_t requirement_idx) const;
+private:
+  bool loop_hint_satisfied(const SyscallContext& ctx, size_t requirement_idx) const;
   bool match_guard_satisfied(const SyscallContext& ctx,
                              const Policy::MatchGuardRequirement& req) const;
   bool segment_event_satisfied(const SyscallContext& ctx,

@@ -9,16 +9,16 @@
 
 #pragma once
 
-#include "t81/core/T81Int.hpp"
 #include "t81/core/T81Float.hpp"
+#include "t81/core/T81Int.hpp"
 
+#include <cmath>
+#include <compare>
 #include <cstddef>
 #include <cstdint>
-#include <compare>
-#include <cmath>
 #include <limits>
-#include <type_traits>
 #include <ostream>
+#include <type_traits>
 
 namespace t81::v1 {
 
@@ -28,143 +28,127 @@ namespace t81::v1 {
 
 template <std::size_t IntegerTrits, std::size_t FractionalTrits>
 class T81Fixed {
-    static_assert(IntegerTrits > 0, "T81Fixed: IntegerTrits must be > 0");
-    static_assert(FractionalTrits > 0, "T81Fixed: FractionalTrits must be > 0");
-    static_assert(IntegerTrits + FractionalTrits <= 162,
-                  "T81Fixed: total trits too large for current kernels");
+  static_assert(IntegerTrits > 0, "T81Fixed: IntegerTrits must be > 0");
+  static_assert(FractionalTrits > 0, "T81Fixed: FractionalTrits must be > 0");
+  static_assert(IntegerTrits + FractionalTrits <= 162,
+                "T81Fixed: total trits too large for current kernels");
 
 public:
-    using Storage = T81Int<IntegerTrits + FractionalTrits>;
+  using Storage = T81Int<IntegerTrits + FractionalTrits>;
 
-    static constexpr std::size_t I     = IntegerTrits;
-    static constexpr std::size_t F     = FractionalTrits;
-    static constexpr std::size_t Total = I + F;
+  static constexpr std::size_t I = IntegerTrits;
+  static constexpr std::size_t F = FractionalTrits;
+  static constexpr std::size_t Total = I + F;
 
 private:
-    Storage data_{};
+  Storage data_{};
 
-    [[nodiscard]] static double frac_scale() noexcept {
-        static const double kScale =
-            std::pow(3.0, static_cast<int>(FractionalTrits));
-        return kScale;
-    }
+  [[nodiscard]] static double frac_scale() noexcept {
+    static const double kScale = std::pow(3.0, static_cast<int>(FractionalTrits));
+    return kScale;
+  }
 
 public:
-    // ------------------------------------------------------------------
-    // Construction
-    // ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // Construction
+  // ------------------------------------------------------------------
 
-    constexpr T81Fixed() noexcept = default;
+  constexpr T81Fixed() noexcept = default;
 
-    explicit constexpr T81Fixed(const Storage& v) noexcept
-        : data_(v) {}
+  explicit constexpr T81Fixed(const Storage& v) noexcept : data_(v) {}
 
-    explicit constexpr T81Fixed(Storage&& v) noexcept
-        : data_(std::move(v)) {}
+  explicit constexpr T81Fixed(Storage&& v) noexcept : data_(std::move(v)) {}
 
-    // From signed 64-bit integer (placed into the integer part)
-    explicit constexpr T81Fixed(std::int64_t v) noexcept
-        : data_(Storage(v) << F) {}
+  // From signed 64-bit integer (placed into the integer part)
+  explicit constexpr T81Fixed(std::int64_t v) noexcept : data_(Storage(v) << F) {}
 
-    // From double (scaled by 3^F and rounded to nearest)
-    explicit T81Fixed(double v) {
-        const double scaled = v * frac_scale();
-        const std::int64_t rounded = static_cast<std::int64_t>(std::llround(scaled));
-        data_ = Storage(rounded);
+  // From double (scaled by 3^F and rounded to nearest)
+  explicit T81Fixed(double v) {
+    const double scaled = v * frac_scale();
+    const std::int64_t rounded = static_cast<std::int64_t>(std::llround(scaled));
+    data_ = Storage(rounded);
+  }
+
+  // Convenience factory
+  [[nodiscard]] static T81Fixed from_double(double v) { return T81Fixed(v); }
+
+  // ------------------------------------------------------------------
+  // Conversion back to double
+  // ------------------------------------------------------------------
+
+  [[nodiscard]] double to_double() const {
+    const std::int64_t raw = data_.to_int64();  // may throw on overflow
+    return static_cast<double>(raw) / frac_scale();
+  }
+
+  // ------------------------------------------------------------------
+  // Arithmetic — inherited from T81Int semantics
+  // ------------------------------------------------------------------
+
+  [[nodiscard]] T81Fixed operator+(const T81Fixed& o) const noexcept {
+    return T81Fixed(Storage(raw() + o.raw()));
+  }
+
+  [[nodiscard]] T81Fixed operator-(const T81Fixed& o) const noexcept {
+    return T81Fixed(Storage(raw() - o.raw()));
+  }
+
+  [[nodiscard]] T81Fixed operator*(const T81Fixed& o) const noexcept {
+    // (a * b) has 2F fractional trits; shift right by F to renormalize.
+    return T81Fixed(Storage((raw() * o.raw()) >> F));
+  }
+
+  [[nodiscard]] T81Fixed operator/(const T81Fixed& o) const {
+    // Up-scale numerator first to preserve F fractional trits.
+    if (o.raw().is_zero()) {
+      throw std::domain_error("T81Fixed: division by zero");
     }
+    return T81Fixed(Storage((raw() << F) / o.raw()));
+  }
 
-    // Convenience factory
-    [[nodiscard]] static T81Fixed from_double(double v) {
-        return T81Fixed(v);
+  T81Fixed& operator+=(const T81Fixed& o) noexcept {
+    data_ += o.data_;
+    return *this;
+  }
+
+  T81Fixed& operator-=(const T81Fixed& o) noexcept {
+    data_ -= o.data_;
+    return *this;
+  }
+
+  T81Fixed& operator*=(const T81Fixed& o) noexcept {
+    data_ = (data_ * o.data_) >> F;
+    return *this;
+  }
+
+  T81Fixed& operator/=(const T81Fixed& o) {
+    if (o.data_.is_zero()) {
+      throw std::domain_error("T81Fixed: division by zero");
     }
+    data_ = (data_ << F) / o.data_;
+    return *this;
+  }
 
-    // ------------------------------------------------------------------
-    // Conversion back to double
-    // ------------------------------------------------------------------
+  [[nodiscard]] T81Fixed operator-() const noexcept { return T81Fixed(Storage(-data_)); }
 
-    [[nodiscard]] double to_double() const {
-        const std::int64_t raw = data_.to_int64(); // may throw on overflow
-        return static_cast<double>(raw) / frac_scale();
-    }
+  // ------------------------------------------------------------------
+  // Comparison
+  // ------------------------------------------------------------------
 
-    // ------------------------------------------------------------------
-    // Arithmetic — inherited from T81Int semantics
-    // ------------------------------------------------------------------
+  [[nodiscard]] constexpr auto operator<=>(const T81Fixed& o) const noexcept = default;
+  [[nodiscard]] constexpr bool operator==(const T81Fixed& o) const noexcept = default;
 
-    [[nodiscard]] T81Fixed operator+(const T81Fixed& o) const noexcept {
-        return T81Fixed(Storage(raw() + o.raw()));
-    }
+  // ------------------------------------------------------------------
+  // Access
+  // ------------------------------------------------------------------
 
-    [[nodiscard]] T81Fixed operator-(const T81Fixed& o) const noexcept {
-        return T81Fixed(Storage(raw() - o.raw()));
-    }
+  [[nodiscard]] constexpr const Storage& raw() const noexcept { return data_; }
 
-    [[nodiscard]] T81Fixed operator*(const T81Fixed& o) const noexcept {
-        // (a * b) has 2F fractional trits; shift right by F to renormalize.
-        return T81Fixed(Storage((raw() * o.raw()) >> F));
-    }
+  [[nodiscard]] constexpr Storage& raw() noexcept { return data_; }
 
-    [[nodiscard]] T81Fixed operator/(const T81Fixed& o) const {
-        // Up-scale numerator first to preserve F fractional trits.
-        if (o.raw().is_zero()) {
-            throw std::domain_error("T81Fixed: division by zero");
-        }
-        return T81Fixed(Storage((raw() << F) / o.raw()));
-    }
+  [[nodiscard]] constexpr bool is_zero() const noexcept { return data_.is_zero(); }
 
-    T81Fixed& operator+=(const T81Fixed& o) noexcept {
-        data_ += o.data_;
-        return *this;
-    }
-
-    T81Fixed& operator-=(const T81Fixed& o) noexcept {
-        data_ -= o.data_;
-        return *this;
-    }
-
-    T81Fixed& operator*=(const T81Fixed& o) noexcept {
-        data_ = (data_ * o.data_) >> F;
-        return *this;
-    }
-
-    T81Fixed& operator/=(const T81Fixed& o) {
-        if (o.data_.is_zero()) {
-            throw std::domain_error("T81Fixed: division by zero");
-        }
-        data_ = (data_ << F) / o.data_;
-        return *this;
-    }
-
-    [[nodiscard]] T81Fixed operator-() const noexcept {
-        return T81Fixed(Storage(-data_));
-    }
-
-    // ------------------------------------------------------------------
-    // Comparison
-    // ------------------------------------------------------------------
-
-    [[nodiscard]] constexpr auto operator<=>(const T81Fixed& o) const noexcept = default;
-    [[nodiscard]] constexpr bool operator==(const T81Fixed& o) const noexcept  = default;
-
-    // ------------------------------------------------------------------
-    // Access
-    // ------------------------------------------------------------------
-
-    [[nodiscard]] constexpr const Storage& raw() const noexcept {
-        return data_;
-    }
-
-    [[nodiscard]] constexpr Storage& raw() noexcept {
-        return data_;
-    }
-
-    [[nodiscard]] constexpr bool is_zero() const noexcept {
-        return data_.is_zero();
-    }
-
-    [[nodiscard]] constexpr bool is_negative() const noexcept {
-        return data_.sign_trit() == Trit::N;
-    }
+  [[nodiscard]] constexpr bool is_negative() const noexcept { return data_.sign_trit() == Trit::N; }
 };
 
 // ======================================================================
@@ -183,26 +167,25 @@ static_assert(std::is_standard_layout_v<T81Fixed27_9>);
 // ======================================================================
 
 inline T81Float<18, 9> float_from_fixed(const T81Fixed<18, 9>& f) noexcept {
-    return T81Float<18, 9>::from_double(f.to_double());
+  return T81Float<18, 9>::from_double(f.to_double());
 }
 
 inline T81Fixed<18, 9> fixed_from_float(const T81Float<18, 9>& f) noexcept {
-    return T81Fixed<18, 9>(f.to_double());
+  return T81Fixed<18, 9>(f.to_double());
 }
 
 // Higher-precision float from fixed
 inline T81Float<27, 9> float27_from_fixed(const T81Fixed<18, 9>& f) noexcept {
-    return T81Float<27, 9>::from_double(f.to_double());
+  return T81Float<27, 9>::from_double(f.to_double());
 }
 
-} // namespace t81::v1
+}  // namespace t81::v1
 
 // ======================================================================
 // Streaming
 // ======================================================================
 
 template <std::size_t I, std::size_t F>
-inline std::ostream& operator<<(std::ostream& os,
-                                const t81::v1::T81Fixed<I, F>& f) {
-    return os << f.to_double();
+inline std::ostream& operator<<(std::ostream& os, const t81::v1::T81Fixed<I, F>& f) {
+  return os << f.to_double();
 }

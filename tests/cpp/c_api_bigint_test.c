@@ -5,7 +5,7 @@
 
 int main(void) {
   // Construct from canonical base-81 digit string (digits 0..80 separated by '.')
-  t81_bigint h= t81_bigint_from_ascii("1.23.5");
+  t81_bigint h = t81_bigint_from_ascii("1.23.5");
   assert(h != NULL);
 
   // Convert back to string (implementation-dependent debug format)

@@ -31,8 +31,7 @@ int main() {
   assert(invalid.to_string() == "7/0");
   assert(!invalid.is_canonicalizable());
 
-  const t81::T81Fraction canonical_half(t81::T81BigInt::from_i64(5),
-                                        t81::T81BigInt::from_i64(10));
+  const t81::T81Fraction canonical_half(t81::T81BigInt::from_i64(5), t81::T81BigInt::from_i64(10));
   const Fraction via_ctor(canonical_half);
   assert(via_ctor.to_string() == "1/2");
 

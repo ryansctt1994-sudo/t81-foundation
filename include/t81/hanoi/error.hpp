@@ -17,4 +17,3 @@ enum class Error {
 
 std::string to_string(Error error);
 }  // namespace t81::hanoi
-

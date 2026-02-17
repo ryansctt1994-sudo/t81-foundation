@@ -2,12 +2,12 @@
 #include <iostream>
 #include <random>
 
-#include "t81/core/T81Prob.hpp"
 #include "t81/core/T81Int.hpp"
+#include "t81/core/T81Prob.hpp"
 
 int main() {
-  using t81::T81Prob27;
   using t81::T81Int;
+  using t81::T81Prob27;
 
   auto expect = [](bool cond, const char* msg) -> bool {
     if (!cond) {
@@ -56,15 +56,15 @@ int main() {
 
     // Monotonicity: a > b => a + c > b + c
     if (a > b) {
-        if (!expect((a + c) > (b + c), "monotonicity failed")) return 1;
+      if (!expect((a + c) > (b + c), "monotonicity failed")) return 1;
     }
   }
 
   // Test special values
   if (!expect((min_inf + zero) == min_inf, "min_inf identity failed")) return 1;
-  // Note: max_inf + zero might overflow if implemented naively, but T81Int handles saturation or overflow.
-  // In T81Prob, operator+ delegates to T81Int operator+.
-  // T81Int::kMaxValue + 0 is kMaxValue.
+  // Note: max_inf + zero might overflow if implemented naively, but T81Int handles saturation or
+  // overflow. In T81Prob, operator+ delegates to T81Int operator+. T81Int::kMaxValue + 0 is
+  // kMaxValue.
   if (!expect((max_inf + zero) == max_inf, "max_inf identity failed")) return 1;
 
   // max_inf > any finite
@@ -77,16 +77,20 @@ int main() {
   const T81Prob27 small_neg(T81Int<27>(-100));
 
   // max_inf + positive -> max_inf (overflow trapped and saturated)
-  if (!expect((max_inf + small_pos).is_plus_infinity(), "max_inf + positive saturation failed")) return 1;
+  if (!expect((max_inf + small_pos).is_plus_infinity(), "max_inf + positive saturation failed"))
+    return 1;
 
   // min_inf + negative -> min_inf (overflow trapped and saturated)
-  if (!expect((min_inf + small_neg).is_minus_infinity(), "min_inf + negative saturation failed")) return 1;
+  if (!expect((min_inf + small_neg).is_minus_infinity(), "min_inf + negative saturation failed"))
+    return 1;
 
   // max_inf - negative -> max_inf (equivalent to max_inf + positive)
-  if (!expect((max_inf - small_neg).is_plus_infinity(), "max_inf - negative saturation failed")) return 1;
+  if (!expect((max_inf - small_neg).is_plus_infinity(), "max_inf - negative saturation failed"))
+    return 1;
 
   // min_inf - positive -> min_inf (equivalent to min_inf + negative)
-  if (!expect((min_inf - small_pos).is_minus_infinity(), "min_inf - positive saturation failed")) return 1;
+  if (!expect((min_inf - small_pos).is_minus_infinity(), "min_inf - positive saturation failed"))
+    return 1;
 
   std::cout << "prob_properties_test ok\n";
   return 0;

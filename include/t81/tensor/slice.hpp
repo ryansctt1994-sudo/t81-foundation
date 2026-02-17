@@ -28,4 +28,4 @@ inline T729Tensor slice2d(const T729Tensor& m, int r0, int r1, int c0, int c1) {
   return T729Tensor({out_r, out_c}, std::move(out));
 }
 
-} // namespace t81::ops
+}  // namespace t81::ops

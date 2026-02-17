@@ -1,19 +1,19 @@
 #pragma once
 
 #include <array>
-#include <memory>
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <string>
-#include <utility>
 #include <unordered_map>
+#include <utility>
 #include <vector>
-#include "t81/tensor.hpp"
-#include "t81/fraction.hpp"
-#include "t81/tisc/program.hpp"
-#include "t81/axion/verdict.hpp"
 #include "t81/axion/policy.hpp"
 #include "t81/axion/reasons.hpp"
+#include "t81/axion/verdict.hpp"
+#include "t81/fraction.hpp"
+#include "t81/tensor.hpp"
+#include "t81/tisc/program.hpp"
 #include "t81/vm/traps.hpp"
 #include "t81/weights.hpp"
 
@@ -81,13 +81,20 @@ enum class MemorySegmentKind : std::int32_t {
 
 inline const char* to_string(MemorySegmentKind kind) {
   switch (kind) {
-    case MemorySegmentKind::Code: return "code";
-    case MemorySegmentKind::Stack: return "stack";
-    case MemorySegmentKind::Heap: return "heap";
-    case MemorySegmentKind::Tensor: return "tensor";
-    case MemorySegmentKind::Meta: return "meta";
-    case MemorySegmentKind::Registers: return "registers";
-    default: return "unknown";
+    case MemorySegmentKind::Code:
+      return "code";
+    case MemorySegmentKind::Stack:
+      return "stack";
+    case MemorySegmentKind::Heap:
+      return "heap";
+    case MemorySegmentKind::Tensor:
+      return "tensor";
+    case MemorySegmentKind::Meta:
+      return "meta";
+    case MemorySegmentKind::Registers:
+      return "registers";
+    default:
+      return "unknown";
   }
 }
 
@@ -97,7 +104,9 @@ struct MemorySegment {
 
   [[nodiscard]] bool valid() const { return limit > start; }
   [[nodiscard]] std::size_t size() const { return valid() ? limit - start : 0; }
-  [[nodiscard]] bool contains(std::size_t addr) const { return valid() && addr >= start && addr < limit; }
+  [[nodiscard]] bool contains(std::size_t addr) const {
+    return valid() && addr >= start && addr < limit;
+  }
 };
 
 struct MemoryLayout {
@@ -150,7 +159,7 @@ struct RefinementCommand {
 
 // Virtual machine register file per spec/t81vm-spec.md.
 struct State {
-  std::array<std::int64_t, 243> registers{}; // R0..R242
+  std::array<std::int64_t, 243> registers{};  // R0..R242
   std::array<ValueTag, 243> register_tags{};
   std::vector<std::int64_t> memory;
   std::vector<ValueTag> memory_tags;

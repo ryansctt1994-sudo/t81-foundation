@@ -1,9 +1,9 @@
-#include "test_runtime_check.hpp"
 #include <vector>
+#include "test_runtime_check.hpp"
 
-#include "t81/vm/vm.hpp"
-#include "t81/tisc/program.hpp"
 #include "t81/tensor.hpp"
+#include "t81/tisc/program.hpp"
+#include "t81/vm/vm.hpp"
 
 using namespace t81;
 
@@ -18,7 +18,7 @@ int main() {
   program.insns.push_back({tisc::Opcode::Frac2I, 12, 11, 0});
   program.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
 
-  [[maybe_unused]] auto vm= vm::make_interpreter_vm();
+  [[maybe_unused]] auto vm = vm::make_interpreter_vm();
   vm->load_program(program);
 
   auto& mutable_state = const_cast<vm::State&>(vm->state());
@@ -27,30 +27,30 @@ int main() {
   t81::T729Tensor vecB({3}, {4.0f, 5.0f, 6.0f});
   t81::T729Tensor matA({2, 2}, {1.0f, 2.0f, 3.0f, 4.0f});
   t81::T729Tensor matB({2, 2}, {5.0f, 6.0f, 7.0f, 8.0f});
-  mutable_state.tensors.push_back(vecA); // handle 1
-  mutable_state.tensors.push_back(vecB); // handle 2
-  mutable_state.tensors.push_back(matA); // handle 3
-  mutable_state.tensors.push_back(matB); // handle 4
+  mutable_state.tensors.push_back(vecA);  // handle 1
+  mutable_state.tensors.push_back(vecB);  // handle 2
+  mutable_state.tensors.push_back(matA);  // handle 3
+  mutable_state.tensors.push_back(matB);  // handle 4
   mutable_state.registers[1] = 1;
   mutable_state.registers[2] = 2;
   mutable_state.registers[5] = 3;
   mutable_state.registers[6] = 4;
 
-  [[maybe_unused]] auto result= vm->run_to_halt();
+  [[maybe_unused]] auto result = vm->run_to_halt();
   T81_TEST_CHECK(result.has_value());
 
   // Vector addition
-  [[maybe_unused]] auto vecHandle= vm->state().registers[3];
-  T81_TEST_CHECK(vecHandle == 5); // 4th tensor inserted next index
+  [[maybe_unused]] auto vecHandle = vm->state().registers[3];
+  T81_TEST_CHECK(vecHandle == 5);  // 4th tensor inserted next index
   const auto& vecRes = mutable_state.tensors[static_cast<std::size_t>(vecHandle - 1)];
   T81_TEST_CHECK(vecRes.shape()[0] == 3);
   T81_TEST_CHECK(vecRes.data()[0] == 5.0f && vecRes.data()[2] == 9.0f);
 
   // Matrix multiplication
-  [[maybe_unused]] auto matHandle= vm->state().registers[4];
+  [[maybe_unused]] auto matHandle = vm->state().registers[4];
   const auto& matRes = mutable_state.tensors[static_cast<std::size_t>(matHandle - 1)];
   T81_TEST_CHECK(matRes.shape()[0] == 2 && matRes.shape()[1] == 2);
-  T81_TEST_CHECK(static_cast<int>(matRes.data()[0]) == 19); // 1*5 + 2*7
+  T81_TEST_CHECK(static_cast<int>(matRes.data()[0]) == 19);  // 1*5 + 2*7
 
   // Conversion ops
   T81_TEST_CHECK(vm->state().registers[10] == 3);
@@ -74,9 +74,9 @@ int main() {
   chk.insns.push_back({tisc::Opcode::ChkShape, 5, 1, 4});
   chk.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
 
-  [[maybe_unused]] auto vm_chk= vm::make_interpreter_vm();
+  [[maybe_unused]] auto vm_chk = vm::make_interpreter_vm();
   vm_chk->load_program(chk);
-  [[maybe_unused]] auto res_chk= vm_chk->run_to_halt();
+  [[maybe_unused]] auto res_chk = vm_chk->run_to_halt();
   T81_TEST_CHECK(res_chk.has_value());
   T81_TEST_CHECK(vm_chk->state().registers[3] == 1);
   T81_TEST_CHECK(vm_chk->state().registers[5] == 0);

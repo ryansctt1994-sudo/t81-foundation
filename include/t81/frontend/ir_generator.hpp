@@ -878,7 +878,7 @@ public:
       if (_semantic) {
         const Type* obj_type = _semantic->type_of(field_expr->object.get());
         if (obj_type && obj_type->kind == Type::Kind::Custom) {
-          if (const auto* enum_info = enum_info_for_name(obj_type->custom_name)) {
+          if (enum_info_for_name(obj_type->custom_name)) {
             // Enum Constructor Call
             std::string variant_name(field_expr->field.lexeme);
             std::optional<int> variant_id =
@@ -923,13 +923,31 @@ public:
   std::any visit(const AssignExpr& expr) override {
     expr.value->accept(*this);
     auto value = ensure_expr_result(expr.value.get());
-    auto found = lookup_variable(expr.name.lexeme);
-    if (found.has_value()) {
-      copy_to_dest(value, *found);
-      record_result(&expr, *found);
-    } else {
-      bind_variable(std::string(expr.name.lexeme), value);
+
+    if (auto var = dynamic_cast<const VariableExpr*>(expr.target.get())) {
+      auto found = lookup_variable(var->name.lexeme);
+      if (found.has_value()) {
+        copy_to_dest(value, *found);
+        record_result(&expr, *found);
+      } else {
+        bind_variable(std::string(var->name.lexeme), value);
+        record_result(&expr, value);
+      }
+    } else if (auto idx = dynamic_cast<const IndexExpr*>(expr.target.get())) {
+      idx->object->accept(*this);
+      auto obj = ensure_expr_result(idx->object.get());
+
+      idx->index->accept(*this);
+      auto index = ensure_expr_result(idx->index.get());
+
+      tisc::ir::Instruction instr;
+      instr.opcode = tisc::ir::Opcode::TSET;
+      instr.operands = {obj.reg, index.reg, value.reg};
+      emit(instr);
+
       record_result(&expr, value);
+    } else {
+      throw std::runtime_error("Invalid assignment target");
     }
     return {};
   }

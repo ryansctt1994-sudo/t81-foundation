@@ -1,21 +1,21 @@
-#include "t81/t81.hpp"
-#include "t81/conversion.hpp"
 #include <cassert>
 #include <cstring>
 #include <iostream>
+#include "t81/conversion.hpp"
+#include "t81/t81.hpp"
 
 int main() {
-    using namespace t81;
+  using namespace t81;
 
-    [[maybe_unused]] core::T81Limb classic;
-    for (int idx = 0; idx < core::T81Limb::TRYTES; ++idx) {
-        classic.set_tryte(idx, static_cast<int8_t>((idx % 27) - 13));
-    }
+  [[maybe_unused]] core::T81Limb classic;
+  for (int idx = 0; idx < core::T81Limb::TRYTES; ++idx) {
+    classic.set_tryte(idx, static_cast<int8_t>((idx % 27) - 13));
+  }
 
-    [[maybe_unused]] auto native= from_classic(classic);
-    [[maybe_unused]] auto roundtrip= to_classic(native);
-        assert(std::memcmp(&classic, &roundtrip, sizeof(classic)) == 0);
+  [[maybe_unused]] auto native = from_classic(classic);
+  [[maybe_unused]] auto roundtrip = to_classic(native);
+  assert(std::memcmp(&classic, &roundtrip, sizeof(classic)) == 0);
 
-    std::cout << "Conversion round-trip (classic ↔ native) OK\n";
-    return 0;
+  std::cout << "Conversion round-trip (classic ↔ native) OK\n";
+  return 0;
 }

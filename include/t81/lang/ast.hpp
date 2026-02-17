@@ -29,21 +29,7 @@ struct ExprCall {
 };
 
 struct ExprBinary {
-  enum class Op {
-    Add,
-    Sub,
-    Mul,
-    Div,
-    Mod,
-    Land,
-    Lor,
-    Eq,
-    Ne,
-    Lt,
-    Le,
-    Gt,
-    Ge
-  } op{Op::Add};
+  enum class Op { Add, Sub, Mul, Div, Mod, Land, Lor, Eq, Ne, Lt, Le, Gt, Ge } op{Op::Add};
   std::shared_ptr<struct Expr> lhs;
   std::shared_ptr<struct Expr> rhs;
 };
@@ -107,7 +93,9 @@ struct StatementExpr {
 };
 
 struct Statement {
-  std::variant<StatementReturn, StatementLet, StatementAssign, StatementIf, StatementLoop, StatementExpr> node;
+  std::variant<StatementReturn, StatementLet, StatementAssign, StatementIf, StatementLoop,
+               StatementExpr>
+      node;
 };
 
 struct Parameter {

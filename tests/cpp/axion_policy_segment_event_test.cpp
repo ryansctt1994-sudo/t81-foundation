@@ -1,5 +1,5 @@
-#include "t81/tisc/program.hpp"
 #include "t81/tisc/opcodes.hpp"
+#include "t81/tisc/program.hpp"
 #include "t81/vm/vm.hpp"
 
 #include <iostream>
@@ -21,15 +21,15 @@ int main() {
     (action "stack frame allocated")))
 )";
 
-  [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
+  [[maybe_unused]] auto vm = t81::vm::make_interpreter_vm();
   vm->load_program(program);
-  [[maybe_unused]] auto result= vm->run_to_halt();
+  [[maybe_unused]] auto result = vm->run_to_halt();
   if (!result) {
     std::cerr << "Segment policy run trapped: " << static_cast<int>(result.error()) << '\n';
     return 1;
   }
 
-  [[maybe_unused]] auto program_fail= program;
+  [[maybe_unused]] auto program_fail = program;
   program_fail.axion_policy_text = R"(
 (policy
   (tier 1)
@@ -39,9 +39,9 @@ int main() {
     (addr 9999)))
 )";
 
-  [[maybe_unused]] auto vm_fail= t81::vm::make_interpreter_vm();
+  [[maybe_unused]] auto vm_fail = t81::vm::make_interpreter_vm();
   vm_fail->load_program(program_fail);
-  [[maybe_unused]] auto fail_result= vm_fail->run_to_halt();
+  [[maybe_unused]] auto fail_result = vm_fail->run_to_halt();
   if (fail_result.has_value()) {
     std::cerr << "Segment policy failure did not trap\n";
     return 1;

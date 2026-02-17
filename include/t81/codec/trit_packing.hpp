@@ -1,10 +1,10 @@
 #pragma once
 
-#include <vector>
 #include <cstdint>
 #include <string_view>
-#include "t81/core/T81Int.hpp"
+#include <vector>
 #include "t81/core/Result.hpp"
+#include "t81/core/T81Int.hpp"
 
 namespace t81::codec::trit_packing {
 
@@ -12,12 +12,12 @@ namespace t81::codec::trit_packing {
  * @brief Error codes for trit packing and conversion operations.
  */
 enum class PackingError {
-    InvalidPT5Byte,      ///< Byte > 242 encountered in PT-5 stream.
-    InvalidBase81Digit,  ///< Digit > 80 encountered in Base-81 stream.
-    InvalidTritValue,    ///< Trit not in {-1, 0, +1}.
-    InsufficientData,    ///< Not enough input data to satisfy trit_count.
-    TritCountMismatch,   ///< Provided trit_count is inconsistent with buffer sizes.
-    EncodingError        ///< General encoding/decoding error.
+  InvalidPT5Byte,      ///< Byte > 242 encountered in PT-5 stream.
+  InvalidBase81Digit,  ///< Digit > 80 encountered in Base-81 stream.
+  InvalidTritValue,    ///< Trit not in {-1, 0, +1}.
+  InsufficientData,    ///< Not enough input data to satisfy trit_count.
+  TritCountMismatch,   ///< Provided trit_count is inconsistent with buffer sizes.
+  EncodingError        ///< General encoding/decoding error.
 };
 
 /**
@@ -107,4 +107,4 @@ std::string b81_digits_to_string(const std::vector<uint8_t>& digits);
  */
 Result<std::vector<uint8_t>> string_to_b81_digits(std::string_view s);
 
-} // namespace t81::codec::trit_packing
+}  // namespace t81::codec::trit_packing

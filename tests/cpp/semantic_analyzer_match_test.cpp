@@ -8,49 +8,51 @@
 
 using namespace t81::frontend;
 
-void expect_semantic_success(const std::string& source, const char* label = "semantic_match_success") {
-    Lexer lexer(source);
-    const std::string diag = label ? label : "<source>";
-    Parser parser(lexer, diag);
-    [[maybe_unused]] auto stmts= parser.parse();
-    assert(!parser.had_error());
+void expect_semantic_success(const std::string& source,
+                             const char* label = "semantic_match_success") {
+  Lexer lexer(source);
+  const std::string diag = label ? label : "<source>";
+  Parser parser(lexer, diag);
+  [[maybe_unused]] auto stmts = parser.parse();
+  assert(!parser.had_error());
 
-    SemanticAnalyzer analyzer(stmts, diag);
-    analyzer.analyze();
-    assert(!analyzer.had_error());
+  SemanticAnalyzer analyzer(stmts, diag);
+  analyzer.analyze();
+  assert(!analyzer.had_error());
 }
 
 void expect_semantic_failure(const std::string& source,
                              const char* label = "semantic_match_failure",
                              const std::string& expected_error = "") {
-    Lexer lexer(source);
-    const std::string diag = label ? label : "<source>";
-    Parser parser(lexer, diag);
-    [[maybe_unused]] auto stmts= parser.parse();
-    if (parser.had_error()) {
-        return;
-    }
+  Lexer lexer(source);
+  const std::string diag = label ? label : "<source>";
+  Parser parser(lexer, diag);
+  [[maybe_unused]] auto stmts = parser.parse();
+  if (parser.had_error()) {
+    return;
+  }
 
-    SemanticAnalyzer analyzer(stmts, diag);
-    analyzer.analyze();
-    assert(analyzer.had_error());
-    if (!expected_error.empty()) {
-        for (const auto& diag : analyzer.diagnostics()) {
-            if (diag.message.find(expected_error) != std::string::npos) {
-                return;
-            }
-        }
-        std::cerr << "Test '" << label << "' failed. Expected error containing: '" << expected_error << "', but no matching diagnostic was found." << std::endl;
-        assert(false && "Expected diagnostic not found.");
+  SemanticAnalyzer analyzer(stmts, diag);
+  analyzer.analyze();
+  assert(analyzer.had_error());
+  if (!expected_error.empty()) {
+    for (const auto& diag : analyzer.diagnostics()) {
+      if (diag.message.find(expected_error) != std::string::npos) {
+        return;
+      }
     }
+    std::cerr << "Test '" << label << "' failed. Expected error containing: '" << expected_error
+              << "', but no matching diagnostic was found." << std::endl;
+    assert(false && "Expected diagnostic not found.");
+  }
 }
 
 int main() {
 #if defined(_WIN32) || defined(_WIN64)
-    std::cout << "Semantic analyzer match tests skipped on Windows.\n";
-    return 0;
+  std::cout << "Semantic analyzer match tests skipped on Windows.\n";
+  return 0;
 #else
-    const std::string option_match = R"(
+  const std::string option_match = R"(
         fn main() -> i32 {
             let maybe: Option[i32] = Some(10);
             let value: i32 = match (maybe) {
@@ -60,9 +62,9 @@ int main() {
             return value;
         }
     )";
-    expect_semantic_success(option_match);
+  expect_semantic_success(option_match);
 
-    const std::string missing_none = R"(
+  const std::string missing_none = R"(
         fn main() -> i32 {
             let maybe: Option[i32] = Some(1);
             match (maybe) {
@@ -71,9 +73,9 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(missing_none);
+  expect_semantic_failure(missing_none);
 
-    const std::string missing_some = R"(
+  const std::string missing_some = R"(
         fn main() -> i32 {
             let maybe: Option[i32] = None;
             match (maybe) {
@@ -82,9 +84,9 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(missing_some);
+  expect_semantic_failure(missing_some);
 
-    const std::string duplicate_some = R"(
+  const std::string duplicate_some = R"(
         fn main() -> i32 {
             let maybe: Option[i32] = Some(1);
             match (maybe) {
@@ -95,9 +97,9 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(duplicate_some);
+  expect_semantic_failure(duplicate_some);
 
-    const std::string invalid_option_variant = R"(
+  const std::string invalid_option_variant = R"(
         fn main() -> i32 {
             let maybe: Option[i32] = Some(2);
             match (maybe) {
@@ -107,9 +109,9 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(invalid_option_variant);
+  expect_semantic_failure(invalid_option_variant);
 
-    const std::string mismatched_arm = R"(
+  const std::string mismatched_arm = R"(
         fn main() -> i32 {
             let maybe: Option[i32] = Some(1);
             let result: i32 = match (maybe) {
@@ -119,9 +121,9 @@ int main() {
             return result;
         }
     )";
-    expect_semantic_failure(mismatched_arm);
+  expect_semantic_failure(mismatched_arm);
 
-    const std::string invalid_scrutinee = R"(
+  const std::string invalid_scrutinee = R"(
         fn main() -> i32 {
             let value: i32 = match (1) {
                 Some(v) => v;
@@ -130,9 +132,9 @@ int main() {
             return value;
         }
     )";
-    expect_semantic_failure(invalid_scrutinee);
+  expect_semantic_failure(invalid_scrutinee);
 
-    const std::string result_match = R"(
+  const std::string result_match = R"(
         fn main() -> Result[i32, T81String] {
             let data: Result[i32, T81String] = Ok(5);
             return match (data) {
@@ -141,9 +143,9 @@ int main() {
             };
         }
     )";
-    expect_semantic_success(result_match);
+  expect_semantic_success(result_match);
 
-    const std::string missing_err = R"(
+  const std::string missing_err = R"(
         fn main() -> Result[i32, T81String] {
             let data: Result[i32, T81String] = Ok(5);
             match (data) {
@@ -152,9 +154,9 @@ int main() {
             return Err("boom");
         }
     )";
-    expect_semantic_failure(missing_err);
+  expect_semantic_failure(missing_err);
 
-    const std::string missing_ok = R"(
+  const std::string missing_ok = R"(
         fn main() -> Result[i32, T81String] {
             let data: Result[i32, T81String] = Err("boom");
             match (data) {
@@ -163,9 +165,9 @@ int main() {
             return Ok(0);
         }
     )";
-    expect_semantic_failure(missing_ok);
+  expect_semantic_failure(missing_ok);
 
-    const std::string duplicate_err = R"(
+  const std::string duplicate_err = R"(
         fn main() -> Result[i32, T81String] {
             let data: Result[i32, T81String] = Ok(5);
             match (data) {
@@ -176,9 +178,9 @@ int main() {
             return Ok(0);
         }
     )";
-    expect_semantic_failure(duplicate_err);
+  expect_semantic_failure(duplicate_err);
 
-    const std::string invalid_result_variant = R"(
+  const std::string invalid_result_variant = R"(
         fn main() -> Result[i32, T81String] {
             let data: Result[i32, T81String] = Ok(5);
             match (data) {
@@ -188,9 +190,9 @@ int main() {
             return Ok(0);
         }
     )";
-    expect_semantic_failure(invalid_result_variant);
+  expect_semantic_failure(invalid_result_variant);
 
-    const std::string enum_success = R"(
+  const std::string enum_success = R"(
         enum Signal {
             Red;
             Green;
@@ -207,9 +209,9 @@ int main() {
             return value;
         }
     )";
-    expect_semantic_success(enum_success, "enum_match_success");
+  expect_semantic_success(enum_success, "enum_match_success");
 
-    const std::string enum_missing_variant = R"(
+  const std::string enum_missing_variant = R"(
         enum Signal {
             Red;
             Green;
@@ -223,9 +225,9 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(enum_missing_variant, "enum_match_missing_variant");
+  expect_semantic_failure(enum_missing_variant, "enum_match_missing_variant");
 
-    const std::string enum_binding_error = R"(
+  const std::string enum_binding_error = R"(
         enum Color {
             Red;
             Blue;
@@ -240,9 +242,9 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(enum_binding_error, "enum_match_binding_error");
+  expect_semantic_failure(enum_binding_error, "enum_match_binding_error");
 
-    const std::string tuple_pattern_success = R"(
+  const std::string tuple_pattern_success = R"(
         enum Pair {
             Tup(Tuple[i32, i32]);
             Empty;
@@ -256,9 +258,9 @@ int main() {
             };
         }
     )";
-    expect_semantic_success(tuple_pattern_success, "match_tuple_success");
+  expect_semantic_success(tuple_pattern_success, "match_tuple_success");
 
-    const std::string tuple_guard_success = R"(
+  const std::string tuple_guard_success = R"(
         enum Pair {
             Tup(Tuple[i32, i32]);
             Empty;
@@ -273,9 +275,9 @@ int main() {
             };
         }
     )";
-    expect_semantic_success(tuple_guard_success, "match_tuple_guard_success");
+  expect_semantic_success(tuple_guard_success, "match_tuple_guard_success");
 
-    const std::string guard_success = R"(
+  const std::string guard_success = R"(
         fn main() -> i32 {
             let maybe: Option[i32] = Some(5);
             return match (maybe) {
@@ -284,9 +286,9 @@ int main() {
             };
         }
     )";
-    expect_semantic_success(guard_success, "match_guard_success");
+  expect_semantic_success(guard_success, "match_guard_success");
 
-    const std::string guard_failure = R"(
+  const std::string guard_failure = R"(
         fn main() -> i32 {
             let maybe: Option[i32] = Some(5);
             match (maybe) {
@@ -296,9 +298,9 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(guard_failure, "match_guard_failure", "Condition must be bool");
+  expect_semantic_failure(guard_failure, "match_guard_failure", "Condition must be bool");
 
-    const std::string guard_non_bool_variant = R"(
+  const std::string guard_non_bool_variant = R"(
         fn main() -> i32 {
             let maybe: Option[i32] = Some(5);
             match (maybe) {
@@ -308,9 +310,10 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(guard_non_bool_variant, "match_guard_non_bool_variant", "Condition must be bool");
+  expect_semantic_failure(guard_non_bool_variant, "match_guard_non_bool_variant",
+                          "Condition must be bool");
 
-    const std::string record_pattern_success = R"(
+  const std::string record_pattern_success = R"(
         record Point2D {
             x: i32;
             y: i32;
@@ -329,9 +332,9 @@ int main() {
             };
         }
     )";
-    expect_semantic_success(record_pattern_success, "match_record_success");
+  expect_semantic_success(record_pattern_success, "match_record_success");
 
-    const std::string record_pattern_alias_success = R"(
+  const std::string record_pattern_alias_success = R"(
         record Point2D {
             x: i32;
             y: i32;
@@ -350,9 +353,9 @@ int main() {
             };
         }
     )";
-    expect_semantic_success(record_pattern_alias_success, "match_record_alias_success");
+  expect_semantic_success(record_pattern_alias_success, "match_record_alias_success");
 
-    const std::string record_pattern_error = R"(
+  const std::string record_pattern_error = R"(
         record Point2D {
             x: i32;
             y: i32;
@@ -372,9 +375,9 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(record_pattern_error, "match_record_missing_field", "has no field 'z'");
+  expect_semantic_failure(record_pattern_error, "match_record_missing_field", "has no field 'z'");
 
-    const std::string nested_enum_success = R"(
+  const std::string nested_enum_success = R"(
         enum Inner {
             Data(i32);
             Empty;
@@ -394,9 +397,9 @@ int main() {
             };
         }
     )";
-    expect_semantic_success(nested_enum_success, "match_nested_enum_success");
+  expect_semantic_success(nested_enum_success, "match_nested_enum_success");
 
-    const std::string nested_record_variant_success = R"(
+  const std::string nested_record_variant_success = R"(
         record Point {
             x: i32;
             y: i32;
@@ -421,9 +424,9 @@ int main() {
             };
         }
     )";
-    expect_semantic_success(nested_record_variant_success, "match_nested_record_variant_success");
+  expect_semantic_success(nested_record_variant_success, "match_nested_record_variant_success");
 
-    const std::string missing_variant_binding = R"(
+  const std::string missing_variant_binding = R"(
         enum Signal {
             Some(i32);
             None;
@@ -438,9 +441,9 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(missing_variant_binding, "match_missing_binding", "requires a binding");
+  expect_semantic_failure(missing_variant_binding, "match_missing_binding", "requires a binding");
 
-    const std::string tuple_pattern_arity_mismatch = R"(
+  const std::string tuple_pattern_arity_mismatch = R"(
         enum Pair {
             Tup(Tuple[i32, i32]);
             Empty;
@@ -455,9 +458,10 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(tuple_pattern_arity_mismatch, "match_tuple_arity_mismatch", "expects 1 fields but payload has 2");
+  expect_semantic_failure(tuple_pattern_arity_mismatch, "match_tuple_arity_mismatch",
+                          "expects 1 fields but payload has 2");
 
-    const std::string tuple_pattern_mismatch = R"(
+  const std::string tuple_pattern_mismatch = R"(
         enum Pair {
             Tup(i32);
             Empty;
@@ -472,9 +476,10 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(tuple_pattern_mismatch, "match_tuple_mismatch", "Tuple pattern for variant 'Tup' lacks payload type information.");
+  expect_semantic_failure(tuple_pattern_mismatch, "match_tuple_mismatch",
+                          "Tuple pattern for variant 'Tup' lacks payload type information.");
 
-    std::cout << "Semantic analyzer match tests passed!" << std::endl;
-    return 0;
+  std::cout << "Semantic analyzer match tests passed!" << std::endl;
+  return 0;
 #endif
 }

@@ -2,13 +2,13 @@
 #include <cstdint>
 #include <string>
 #include <string_view>
-#include <vector>
 #include <t81/bigint.hpp>
+#include <vector>
 
 namespace t81::codec {
 
 // Digit representation for base-243; digits are MSB-first unless noted.
-using digit_t = std::uint8_t;          // 0..242
+using digit_t = std::uint8_t;  // 0..242
 constexpr digit_t kBase = 243;
 
 struct Base243 {
@@ -29,9 +29,9 @@ struct Base243 {
 
 // Backward-compat alias for callers that used the old namespace.
 namespace base243 {
-  using ::t81::codec::digit_t;
-  constexpr digit_t kBase = ::t81::codec::kBase;
-  using ::t81::codec::Base243;
-} // namespace base243
+using ::t81::codec::digit_t;
+constexpr digit_t kBase = ::t81::codec::kBase;
+using ::t81::codec::Base243;
+}  // namespace base243
 
-} // namespace t81::codec
+}  // namespace t81::codec

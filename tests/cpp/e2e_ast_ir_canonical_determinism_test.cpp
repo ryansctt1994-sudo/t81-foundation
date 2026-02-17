@@ -8,7 +8,6 @@
 
 #include <algorithm>
 #include <array>
-#include "test_runtime_check.hpp"
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
@@ -20,6 +19,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include "test_runtime_check.hpp"
 
 namespace fs = std::filesystem;
 using namespace t81;
@@ -108,7 +108,8 @@ std::string expr_repr(const frontend::Expr* expr) {
   }
 
   if (const auto* node = dynamic_cast<const frontend::BinaryExpr*>(expr)) {
-    return "(binary " + token_repr(node->op) + " " + expr_repr(node->left.get()) + " " + expr_repr(node->right.get()) + ")";
+    return "(binary " + token_repr(node->op) + " " + expr_repr(node->left.get()) + " " +
+           expr_repr(node->right.get()) + ")";
   }
   if (const auto* node = dynamic_cast<const frontend::UnaryExpr*>(expr)) {
     return "(unary " + token_repr(node->op) + " " + expr_repr(node->right.get()) + ")";
@@ -365,66 +366,126 @@ std::string ast_repr(const std::vector<std::unique_ptr<frontend::Stmt>>& stmts) 
 const char* ir_opcode_name(tisc::ir::Opcode op) {
   using O = tisc::ir::Opcode;
   switch (op) {
-    case O::ADD: return "ADD";
-    case O::SUB: return "SUB";
-    case O::MUL: return "MUL";
-    case O::DIV: return "DIV";
-    case O::MOD: return "MOD";
-    case O::NEG: return "NEG";
-    case O::FADD: return "FADD";
-    case O::FSUB: return "FSUB";
-    case O::FMUL: return "FMUL";
-    case O::FDIV: return "FDIV";
-    case O::FSIN: return "FSIN";
-    case O::FCOS: return "FCOS";
-    case O::FTAN: return "FTAN";
-    case O::FRACADD: return "FRACADD";
-    case O::FRACSUB: return "FRACSUB";
-    case O::FRACMUL: return "FRACMUL";
-    case O::FRACDIV: return "FRACDIV";
-    case O::CMP: return "CMP";
-    case O::MOV: return "MOV";
-    case O::LOADI: return "LOADI";
-    case O::LOAD: return "LOAD";
-    case O::STORE: return "STORE";
-    case O::PUSH: return "PUSH";
-    case O::POP: return "POP";
-    case O::JMP: return "JMP";
-    case O::JZ: return "JZ";
-    case O::JNZ: return "JNZ";
-    case O::JN: return "JN";
-    case O::JP: return "JP";
-    case O::CALL: return "CALL";
-    case O::RET: return "RET";
-    case O::I2F: return "I2F";
-    case O::F2I: return "F2I";
-    case O::I2FRAC: return "I2FRAC";
-    case O::FRAC2I: return "FRAC2I";
-    case O::MAKE_OPTION_SOME: return "MAKE_OPTION_SOME";
-    case O::MAKE_OPTION_NONE: return "MAKE_OPTION_NONE";
-    case O::MAKE_RESULT_OK: return "MAKE_RESULT_OK";
-    case O::MAKE_RESULT_ERR: return "MAKE_RESULT_ERR";
-    case O::OPTION_IS_SOME: return "OPTION_IS_SOME";
-    case O::OPTION_UNWRAP: return "OPTION_UNWRAP";
-    case O::RESULT_IS_OK: return "RESULT_IS_OK";
-    case O::RESULT_UNWRAP_OK: return "RESULT_UNWRAP_OK";
-    case O::RESULT_UNWRAP_ERR: return "RESULT_UNWRAP_ERR";
-    case O::MAKE_ENUM_VARIANT: return "MAKE_ENUM_VARIANT";
-    case O::MAKE_ENUM_VARIANT_PAYLOAD: return "MAKE_ENUM_VARIANT_PAYLOAD";
-    case O::ENUM_IS_VARIANT: return "ENUM_IS_VARIANT";
-    case O::ENUM_UNWRAP_PAYLOAD: return "ENUM_UNWRAP_PAYLOAD";
-    case O::NOP: return "NOP";
-    case O::HALT: return "HALT";
-    case O::TRAP: return "TRAP";
-    case O::PRINT: return "PRINT";
-    case O::WEIGHTS_LOAD: return "WEIGHTS_LOAD";
-    case O::META_READ: return "META_READ";
-    case O::META_WRITE: return "META_WRITE";
-    case O::META_REFLECT: return "META_REFLECT";
-    case O::META_REFINE: return "META_REFINE";
-    case t81::tisc::ir::Opcode::TMATMUL: return "TMATMUL";
-    case t81::tisc::ir::Opcode::TVECADD: return "TVECADD";
-    case O::LABEL: return "LABEL";
+    case O::ADD:
+      return "ADD";
+    case O::SUB:
+      return "SUB";
+    case O::MUL:
+      return "MUL";
+    case O::DIV:
+      return "DIV";
+    case O::MOD:
+      return "MOD";
+    case O::NEG:
+      return "NEG";
+    case O::FADD:
+      return "FADD";
+    case O::FSUB:
+      return "FSUB";
+    case O::FMUL:
+      return "FMUL";
+    case O::FDIV:
+      return "FDIV";
+    case O::FSIN:
+      return "FSIN";
+    case O::FCOS:
+      return "FCOS";
+    case O::FTAN:
+      return "FTAN";
+    case O::FRACADD:
+      return "FRACADD";
+    case O::FRACSUB:
+      return "FRACSUB";
+    case O::FRACMUL:
+      return "FRACMUL";
+    case O::FRACDIV:
+      return "FRACDIV";
+    case O::CMP:
+      return "CMP";
+    case O::MOV:
+      return "MOV";
+    case O::LOADI:
+      return "LOADI";
+    case O::LOAD:
+      return "LOAD";
+    case O::STORE:
+      return "STORE";
+    case O::PUSH:
+      return "PUSH";
+    case O::POP:
+      return "POP";
+    case O::JMP:
+      return "JMP";
+    case O::JZ:
+      return "JZ";
+    case O::JNZ:
+      return "JNZ";
+    case O::JN:
+      return "JN";
+    case O::JP:
+      return "JP";
+    case O::CALL:
+      return "CALL";
+    case O::RET:
+      return "RET";
+    case O::I2F:
+      return "I2F";
+    case O::F2I:
+      return "F2I";
+    case O::I2FRAC:
+      return "I2FRAC";
+    case O::FRAC2I:
+      return "FRAC2I";
+    case O::MAKE_OPTION_SOME:
+      return "MAKE_OPTION_SOME";
+    case O::MAKE_OPTION_NONE:
+      return "MAKE_OPTION_NONE";
+    case O::MAKE_RESULT_OK:
+      return "MAKE_RESULT_OK";
+    case O::MAKE_RESULT_ERR:
+      return "MAKE_RESULT_ERR";
+    case O::OPTION_IS_SOME:
+      return "OPTION_IS_SOME";
+    case O::OPTION_UNWRAP:
+      return "OPTION_UNWRAP";
+    case O::RESULT_IS_OK:
+      return "RESULT_IS_OK";
+    case O::RESULT_UNWRAP_OK:
+      return "RESULT_UNWRAP_OK";
+    case O::RESULT_UNWRAP_ERR:
+      return "RESULT_UNWRAP_ERR";
+    case O::MAKE_ENUM_VARIANT:
+      return "MAKE_ENUM_VARIANT";
+    case O::MAKE_ENUM_VARIANT_PAYLOAD:
+      return "MAKE_ENUM_VARIANT_PAYLOAD";
+    case O::ENUM_IS_VARIANT:
+      return "ENUM_IS_VARIANT";
+    case O::ENUM_UNWRAP_PAYLOAD:
+      return "ENUM_UNWRAP_PAYLOAD";
+    case O::NOP:
+      return "NOP";
+    case O::HALT:
+      return "HALT";
+    case O::TRAP:
+      return "TRAP";
+    case O::PRINT:
+      return "PRINT";
+    case O::WEIGHTS_LOAD:
+      return "WEIGHTS_LOAD";
+    case O::META_READ:
+      return "META_READ";
+    case O::META_WRITE:
+      return "META_WRITE";
+    case O::META_REFLECT:
+      return "META_REFLECT";
+    case O::META_REFINE:
+      return "META_REFINE";
+    case t81::tisc::ir::Opcode::TMATMUL:
+      return "TMATMUL";
+    case t81::tisc::ir::Opcode::TVECADD:
+      return "TVECADD";
+    case O::LABEL:
+      return "LABEL";
   }
   return "UNKNOWN";
 }
@@ -433,10 +494,8 @@ std::string ir_repr(const tisc::ir::IntermediateProgram& ir_program) {
   std::ostringstream os;
   os << "(ir";
   for (const auto& inst : ir_program.instructions()) {
-    os << " (" << ir_opcode_name(inst.opcode)
-       << " prim=" << static_cast<int>(inst.primitive)
-       << " bool=" << (inst.boolean_result ? 1 : 0)
-       << " conv=" << (inst.is_conversion ? 1 : 0)
+    os << " (" << ir_opcode_name(inst.opcode) << " prim=" << static_cast<int>(inst.primitive)
+       << " bool=" << (inst.boolean_result ? 1 : 0) << " conv=" << (inst.is_conversion ? 1 : 0)
        << " rel=" << static_cast<int>(inst.relation)
        << " litkind=" << static_cast<int>(inst.literal_kind);
     if (inst.text_literal) {
@@ -445,16 +504,18 @@ std::string ir_repr(const tisc::ir::IntermediateProgram& ir_program) {
     if (!inst.operands.empty()) {
       os << " ops";
       for (const auto& operand : inst.operands) {
-        std::visit([&os](auto&& value) {
-          using T = std::decay_t<decltype(value)>;
-          if constexpr (std::is_same_v<T, tisc::ir::Register>) {
-            os << " R" << value.index;
-          } else if constexpr (std::is_same_v<T, tisc::ir::Immediate>) {
-            os << " I" << value.value;
-          } else if constexpr (std::is_same_v<T, tisc::ir::Label>) {
-            os << " L" << value.id;
-          }
-        }, operand);
+        std::visit(
+            [&os](auto&& value) {
+              using T = std::decay_t<decltype(value)>;
+              if constexpr (std::is_same_v<T, tisc::ir::Register>) {
+                os << " R" << value.index;
+              } else if constexpr (std::is_same_v<T, tisc::ir::Immediate>) {
+                os << " I" << value.value;
+              } else if constexpr (std::is_same_v<T, tisc::ir::Label>) {
+                os << " L" << value.id;
+              }
+            },
+            operand);
       }
     }
     os << ")";
@@ -529,8 +590,8 @@ void test_ast_ir_compile_repeat_hash_gate() {
   const std::string expected_hash = trim_ascii(read_text(expected_path));
   if (aggregate_hash != expected_hash) {
     std::ostringstream msg;
-    msg << "unexpected AST/IR reproducibility hash drift: expected="
-        << expected_hash << " actual=" << aggregate_hash;
+    msg << "unexpected AST/IR reproducibility hash drift: expected=" << expected_hash
+        << " actual=" << aggregate_hash;
     throw std::runtime_error(msg.str());
   }
 }

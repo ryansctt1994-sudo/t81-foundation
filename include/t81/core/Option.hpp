@@ -10,5 +10,4 @@ namespace t81 {
 template <typename T>
 using Option = T81Maybe<T>;
 
-} // namespace t81
-
+}  // namespace t81

@@ -4,14 +4,14 @@
  */
 #pragma once
 
-#include "t81/core/T81Symbol.hpp"
-#include "t81/core/T81String.hpp"
 #include "t81/core/T81Entropy.hpp"
-#include "t81/core/T81Map.hpp"
 #include "t81/core/T81List.hpp"
+#include "t81/core/T81Map.hpp"
+#include "t81/core/T81String.hpp"
+#include "t81/core/T81Symbol.hpp"
 
-#include <cstddef>
 #include <compare>
+#include <cstddef>
 #include <initializer_list>
 #include <span>
 #include <type_traits>
@@ -22,162 +22,158 @@ namespace t81 {
 
 template <typename T>
 class T81Set {
-    T81Map<T, std::monostate> elements_;
+  T81Map<T, std::monostate> elements_;
 
 public:
-    using value_type     = T;
-    using size_type      = std::size_t;
+  using value_type = T;
+  using size_type = std::size_t;
 
-    struct const_iterator {
-        typename T81Map<T, std::monostate>::const_iterator impl;
+  struct const_iterator {
+    typename T81Map<T, std::monostate>::const_iterator impl;
 
-        const_iterator(typename T81Map<T, std::monostate>::const_iterator it) : impl(it) {}
-        const_iterator() = default;
+    const_iterator(typename T81Map<T, std::monostate>::const_iterator it) : impl(it) {}
+    const_iterator() = default;
 
-        [[nodiscard]] bool operator==(const const_iterator& o) const noexcept = default;
+    [[nodiscard]] bool operator==(const const_iterator& o) const noexcept = default;
 
-        const_iterator& operator++() noexcept {
-            ++impl;
-            return *this;
-        }
-
-        const_iterator operator++(int) noexcept {
-            const_iterator tmp = *this;
-            ++impl;
-            return tmp;
-        }
-
-        [[nodiscard]] const T& operator*() const noexcept {
-            return impl.key();
-        }
-
-        [[nodiscard]] const T* operator->() const noexcept {
-            return &impl.key();
-        }
-    };
-
-    constexpr T81Set() noexcept = default;
-
-    constexpr T81Set(std::initializer_list<T> init) {
-        for (const auto& elem : init) {
-            elements_[elem] = {};
-        }
+    const_iterator& operator++() noexcept {
+      ++impl;
+      return *this;
     }
 
-    template <typename InputIt>
-    constexpr T81Set(InputIt first, InputIt last) {
-        for (; first != last; ++first) {
-            elements_[*first] = {};
-        }
+    const_iterator operator++(int) noexcept {
+      const_iterator tmp = *this;
+      ++impl;
+      return tmp;
     }
 
-    [[nodiscard]] constexpr T81Set insert(const T& value) const {
-        T81Set copy = *this;
-        copy.elements_[value] = {};
-        return copy;
+    [[nodiscard]] const T& operator*() const noexcept { return impl.key(); }
+
+    [[nodiscard]] const T* operator->() const noexcept { return &impl.key(); }
+  };
+
+  constexpr T81Set() noexcept = default;
+
+  constexpr T81Set(std::initializer_list<T> init) {
+    for (const auto& elem : init) {
+      elements_[elem] = {};
     }
+  }
 
-    [[nodiscard]] constexpr T81Set insert(T&& value) const {
-        T81Set copy = *this;
-        copy.elements_[std::move(value)] = {};
-        return copy;
+  template <typename InputIt>
+  constexpr T81Set(InputIt first, InputIt last) {
+    for (; first != last; ++first) {
+      elements_[*first] = {};
     }
+  }
 
-    template <typename InputIt>
-    [[nodiscard]] constexpr T81Set insert(InputIt first, InputIt last) const {
-        T81Set copy = *this;
-        for (; first != last; ++first) {
-            copy.elements_[*first] = {};
-        }
-        return copy;
+  [[nodiscard]] constexpr T81Set insert(const T& value) const {
+    T81Set copy = *this;
+    copy.elements_[value] = {};
+    return copy;
+  }
+
+  [[nodiscard]] constexpr T81Set insert(T&& value) const {
+    T81Set copy = *this;
+    copy.elements_[std::move(value)] = {};
+    return copy;
+  }
+
+  template <typename InputIt>
+  [[nodiscard]] constexpr T81Set insert(InputIt first, InputIt last) const {
+    T81Set copy = *this;
+    for (; first != last; ++first) {
+      copy.elements_[*first] = {};
     }
+    return copy;
+  }
 
-    [[nodiscard]] constexpr T81Set erase(const T& value) const {
-        T81Set copy = *this;
-        copy.elements_.erase(value);
-        return copy;
+  [[nodiscard]] constexpr T81Set erase(const T& value) const {
+    T81Set copy = *this;
+    copy.elements_.erase(value);
+    return copy;
+  }
+
+  [[nodiscard]] constexpr bool contains(const T& value) const noexcept {
+    return elements_.contains(value);
+  }
+
+  [[nodiscard]] constexpr size_type size() const noexcept { return elements_.size(); }
+
+  [[nodiscard]] constexpr bool empty() const noexcept { return elements_.empty(); }
+
+  [[nodiscard]] constexpr T81Set union_with(const T81Set& other) const {
+    T81Set result = *this;
+    for (const auto& elem : other) {
+      result.elements_[elem] = {};
     }
+    return result;
+  }
 
-    [[nodiscard]] constexpr bool contains(const T& value) const noexcept {
-        return elements_.contains(value);
+  [[nodiscard]] constexpr T81Set intersection_with(const T81Set& other) const {
+    T81Set result;
+    for (const auto& elem : *this) {
+      if (other.contains(elem)) {
+        result.elements_[elem] = {};
+      }
     }
+    return result;
+  }
 
-    [[nodiscard]] constexpr size_type size() const noexcept {
-        return elements_.size();
+  [[nodiscard]] constexpr T81Set difference_from(const T81Set& other) const {
+    T81Set result = *this;
+    for (const auto& elem : other) {
+      result.elements_.erase(elem);
     }
+    return result;
+  }
 
-    [[nodiscard]] constexpr bool empty() const noexcept {
-        return elements_.empty();
+  [[nodiscard]] constexpr T81Set symmetric_difference(const T81Set& other) const {
+    return union_with(other).difference_from(intersection_with(other));
+  }
+
+  [[nodiscard]] constexpr bool subset_of(const T81Set& other) const {
+    for (const auto& elem : *this) {
+      if (!other.contains(elem)) {
+        return false;
+      }
     }
+    return true;
+  }
 
-    [[nodiscard]] constexpr T81Set union_with(const T81Set& other) const {
-        T81Set result = *this;
-        for (const auto& elem : other) {
-            result.elements_[elem] = {};
-        }
-        return result;
+  [[nodiscard]] constexpr bool superset_of(const T81Set& other) const {
+    return other.subset_of(*this);
+  }
+
+  [[nodiscard]] constexpr const_iterator begin() const noexcept {
+    return const_iterator{elements_.begin()};
+  }
+  [[nodiscard]] constexpr const_iterator end() const noexcept {
+    return const_iterator{elements_.end()};
+  }
+
+  [[nodiscard]] constexpr T81List<T> to_list() const {
+    T81List<T> list;
+    for (const auto& elem : *this) {
+      list.push_back(elem);
     }
+    return list;
+  }
 
-    [[nodiscard]] constexpr T81Set intersection_with(const T81Set& other) const {
-        T81Set result;
-        for (const auto& elem : *this) {
-            if (other.contains(elem)) {
-                result.elements_[elem] = {};
-            }
-        }
-        return result;
-    }
+  [[nodiscard]] constexpr auto operator<=>(const T81Set& o) const noexcept = default;
+  [[nodiscard]] constexpr bool operator==(const T81Set&) const noexcept = default;
 
-    [[nodiscard]] constexpr T81Set difference_from(const T81Set& other) const {
-        T81Set result = *this;
-        for (const auto& elem : other) {
-            result.elements_.erase(elem);
-        }
-        return result;
-    }
+  [[nodiscard]] friend constexpr T81Set operator|(const T81Set& a, const T81Set& b) noexcept {
+    return a.union_with(b);
+  }
 
-    [[nodiscard]] constexpr T81Set symmetric_difference(const T81Set& other) const {
-        return union_with(other).difference_from(intersection_with(other));
-    }
+  [[nodiscard]] friend constexpr T81Set operator&(const T81Set& a, const T81Set& b) noexcept {
+    return a.intersection_with(b);
+  }
 
-    [[nodiscard]] constexpr bool subset_of(const T81Set& other) const {
-        for (const auto& elem : *this) {
-            if (!other.contains(elem)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    [[nodiscard]] constexpr bool superset_of(const T81Set& other) const {
-        return other.subset_of(*this);
-    }
-
-    [[nodiscard]] constexpr const_iterator begin() const noexcept { return const_iterator{elements_.begin()}; }
-    [[nodiscard]] constexpr const_iterator end()   const noexcept { return const_iterator{elements_.end()}; }
-
-    [[nodiscard]] constexpr T81List<T> to_list() const {
-        T81List<T> list;
-        for (const auto& elem : *this) {
-            list.push_back(elem);
-        }
-        return list;
-    }
-
-    [[nodiscard]] constexpr auto operator<=>(const T81Set& o) const noexcept = default;
-    [[nodiscard]] constexpr bool operator==(const T81Set&) const noexcept = default;
-
-    [[nodiscard]] friend constexpr T81Set operator|(const T81Set& a, const T81Set& b) noexcept {
-        return a.union_with(b);
-    }
-
-    [[nodiscard]] friend constexpr T81Set operator&(const T81Set& a, const T81Set& b) noexcept {
-        return a.intersection_with(b);
-    }
-
-    [[nodiscard]] friend constexpr T81Set operator-(const T81Set& a, const T81Set& b) noexcept {
-        return a.difference_from(b);
-    }
+  [[nodiscard]] friend constexpr T81Set operator-(const T81Set& a, const T81Set& b) noexcept {
+    return a.difference_from(b);
+  }
 };
 
 template <typename... Ts>
@@ -186,8 +182,8 @@ T81Set(Ts...) -> T81Set<std::common_type_t<Ts...>>;
 template <typename T>
 T81Set(std::initializer_list<T>) -> T81Set<T>;
 
-using SymbolSet  = T81Set<T81Symbol>;
-using TokenSet   = T81Set<std::uint32_t>;
+using SymbolSet = T81Set<T81Symbol>;
+using TokenSet = T81Set<std::uint32_t>;
 using ConceptSet = T81Set<T81String>;
 
-} // namespace t81
+}  // namespace t81

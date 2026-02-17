@@ -63,7 +63,5 @@ inline bool operator==(const Type& lhs, const Type& rhs) {
   return true;
 }
 
-inline bool operator!=(const Type& lhs, const Type& rhs) {
-  return !(lhs == rhs);
-}
+inline bool operator!=(const Type& lhs, const Type& rhs) { return !(lhs == rhs); }
 }  // namespace t81::lang

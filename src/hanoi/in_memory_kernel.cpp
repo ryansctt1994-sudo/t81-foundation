@@ -13,7 +13,7 @@ struct Snapshot {
 };
 
 class InMemoryKernel : public Kernel {
- public:
+public:
   explicit InMemoryKernel(t81::canonfs::Driver& driver) : driver_(driver) {
     current_root_ = t81::canonfs::CanonRef{t81::canonfs::CanonHash{"root"}};
     snapshots_[current_root_.hash] = Snapshot{current_root_};
@@ -90,7 +90,7 @@ class InMemoryKernel : public Kernel {
     return {};
   }
 
- private:
+private:
   t81::canonfs::Driver& driver_;
   std::map<t81::canonfs::CanonHash, Snapshot> snapshots_;
   SnapshotRef current_root_;

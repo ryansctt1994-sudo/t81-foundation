@@ -12,24 +12,23 @@ namespace fs = std::filesystem;
 
 namespace {
 fs::path make_temp_path(const std::string& prefix, const std::string& extension) {
-    static std::mt19937_64 rng{std::random_device{}()};
-    [[maybe_unused]] std::uniform_int_distribution<uint64_t> dist;
-    return fs::temp_directory_path() /
-           (prefix + "-" + std::to_string(dist(rng)) + extension);
+  static std::mt19937_64 rng{std::random_device{}()};
+  [[maybe_unused]] std::uniform_int_distribution<uint64_t> dist;
+  return fs::temp_directory_path() / (prefix + "-" + std::to_string(dist(rng)) + extension);
 }
 
 void write_source(const fs::path& path, std::string_view contents) {
-    std::ofstream out(path, std::ios::binary);
-    if (!out) {
-        throw std::runtime_error("Failed to open source file: " + path.string());
-    }
-    out << contents;
-    out.flush();
+  std::ofstream out(path, std::ios::binary);
+  if (!out) {
+    throw std::runtime_error("Failed to open source file: " + path.string());
+  }
+  out << contents;
+  out.flush();
 }
-} // namespace
+}  // namespace
 
 int main() {
-    constexpr std::string_view program = R"(
+  constexpr std::string_view program = R"(
         fn option_match(value: Option[i32]) -> i32 {
             return match (value) {
                 Some(v) => v * 2;
@@ -61,19 +60,19 @@ int main() {
         }
     )";
 
-    [[maybe_unused]] auto src= make_temp_path("t81-option-result", ".t81");
-    [[maybe_unused]] auto tisc_path= src;
-    tisc_path.replace_extension(".tisc");
+  [[maybe_unused]] auto src = make_temp_path("t81-option-result", ".t81");
+  [[maybe_unused]] auto tisc_path = src;
+  tisc_path.replace_extension(".tisc");
 
-    write_source(src, program);
+  write_source(src, program);
 
-    assert(t81::cli::compile(src, tisc_path) == 0);
-    assert(fs::exists(tisc_path));
-    assert(t81::cli::run_tisc(tisc_path) == 0);
+  assert(t81::cli::compile(src, tisc_path) == 0);
+  assert(fs::exists(tisc_path));
+  assert(t81::cli::run_tisc(tisc_path) == 0);
 
-    fs::remove(src);
-    fs::remove(tisc_path);
+  fs::remove(src);
+  fs::remove(tisc_path);
 
-    std::cout << "CliOptionResultTest passed!" << std::endl;
-    return 0;
+  std::cout << "CliOptionResultTest passed!" << std::endl;
+  return 0;
 }

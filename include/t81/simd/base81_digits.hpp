@@ -61,4 +61,4 @@ void clamp(std::span<uint8_t> digits);
  */
 int compare(std::span<const uint8_t> a, std::span<const uint8_t> b);
 
-} // namespace t81::simd::base81_digits
+}  // namespace t81::simd::base81_digits

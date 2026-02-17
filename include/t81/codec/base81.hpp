@@ -1,8 +1,8 @@
 #pragma once
+#include <cstdint>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <cstdint>
 
 namespace t81::codec::base81 {
 
@@ -17,4 +17,4 @@ std::string encode_bytes(const std::vector<std::uint8_t>& data);
 /// Returns true on success; false on invalid input.
 bool decode_bytes(std::string_view s, std::vector<std::uint8_t>& out);
 
-} // namespace t81::codec::base81
+}  // namespace t81::codec::base81

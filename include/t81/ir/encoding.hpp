@@ -1,9 +1,9 @@
 #pragma once
 #include <array>
 #include <cstdint>
-#include <vector>
-#include <stdexcept>
 #include <cstring>
+#include <stdexcept>
+#include <vector>
 #include "t81/ir/insn.hpp"
 
 namespace t81::ir {
@@ -23,18 +23,18 @@ namespace t81::ir {
 
 inline void encode(const Insn& i, uint8_t out[32]) {
   std::memset(out, 0, 32);
-  auto wr16 = [&](size_t off, uint16_t v){
-    out[off+0] = static_cast<uint8_t>( v        & 0xFF);
-    out[off+1] = static_cast<uint8_t>((v >> 8)  & 0xFF);
+  auto wr16 = [&](size_t off, uint16_t v) {
+    out[off + 0] = static_cast<uint8_t>(v & 0xFF);
+    out[off + 1] = static_cast<uint8_t>((v >> 8) & 0xFF);
   };
-  auto wr32 = [&](size_t off, uint32_t v){
-    out[off+0] = static_cast<uint8_t>( v        & 0xFF);
-    out[off+1] = static_cast<uint8_t>((v >> 8)  & 0xFF);
-    out[off+2] = static_cast<uint8_t>((v >> 16) & 0xFF);
-    out[off+3] = static_cast<uint8_t>((v >> 24) & 0xFF);
+  auto wr32 = [&](size_t off, uint32_t v) {
+    out[off + 0] = static_cast<uint8_t>(v & 0xFF);
+    out[off + 1] = static_cast<uint8_t>((v >> 8) & 0xFF);
+    out[off + 2] = static_cast<uint8_t>((v >> 16) & 0xFF);
+    out[off + 3] = static_cast<uint8_t>((v >> 24) & 0xFF);
   };
-  auto wr64 = [&](size_t off, uint64_t v){
-    for (int k = 0; k < 8; ++k) out[off+k] = static_cast<uint8_t>((v >> (8*k)) & 0xFF);
+  auto wr64 = [&](size_t off, uint64_t v) {
+    for (int k = 0; k < 8; ++k) out[off + k] = static_cast<uint8_t>((v >> (8 * k)) & 0xFF);
   };
 
   wr16(0x00, static_cast<uint16_t>(i.op));
@@ -47,29 +47,26 @@ inline void encode(const Insn& i, uint8_t out[32]) {
 }
 
 inline Insn decode(const uint8_t in[32]) {
-  auto rd16 = [&](size_t off)->uint16_t{
-    return static_cast<uint16_t>(in[off+0]) |
-           static_cast<uint16_t>(in[off+1]) << 8;
+  auto rd16 = [&](size_t off) -> uint16_t {
+    return static_cast<uint16_t>(in[off + 0]) | static_cast<uint16_t>(in[off + 1]) << 8;
   };
-  auto rd32 = [&](size_t off)->uint32_t{
-    return  (uint32_t)in[off+0]
-          | ((uint32_t)in[off+1] << 8)
-          | ((uint32_t)in[off+2] << 16)
-          | ((uint32_t)in[off+3] << 24);
+  auto rd32 = [&](size_t off) -> uint32_t {
+    return (uint32_t)in[off + 0] | ((uint32_t)in[off + 1] << 8) | ((uint32_t)in[off + 2] << 16) |
+           ((uint32_t)in[off + 3] << 24);
   };
-  auto rd64 = [&](size_t off)->uint64_t{
+  auto rd64 = [&](size_t off) -> uint64_t {
     uint64_t v = 0;
-    for (int k = 0; k < 8; ++k) v |= (uint64_t)in[off+k] << (8*k);
+    for (int k = 0; k < 8; ++k) v |= (uint64_t)in[off + k] << (8 * k);
     return v;
   };
 
   Insn i;
-  i.op      = static_cast<Opcode>(rd16(0x00));
-  i.ops[0]  = rd32(0x04);
-  i.ops[1]  = rd32(0x08);
-  i.ops[2]  = rd32(0x0C);
-  i.imm     = rd64(0x10);
-  i.flags   = rd32(0x18);
+  i.op = static_cast<Opcode>(rd16(0x00));
+  i.ops[0] = rd32(0x04);
+  i.ops[1] = rd32(0x08);
+  i.ops[2] = rd32(0x0C);
+  i.imm = rd64(0x10);
+  i.flags = rd32(0x18);
   i._reserved = 0;
   return i;
 }
@@ -94,4 +91,4 @@ inline std::vector<Insn> decode_many(const uint8_t* bytes, size_t nbytes) {
   return out;
 }
 
-} // namespace t81::ir
+}  // namespace t81::ir

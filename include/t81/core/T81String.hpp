@@ -40,195 +40,169 @@ namespace t81 {
 // ======================================================================
 class T81String {
 public:
-    using size_type = std::size_t;
+  using size_type = std::size_t;
 
 private:
-    // 27-symbol alphabet: A–Z + space.
-    static constexpr std::array<char, 27> kAlphabet = {
-        'A','B','C','D','E','F','G','H','I','J','K','L','M',
-        'N','O','P','Q','R','S','T','U','V','W','X','Y','Z',' '
-    };
+  // 27-symbol alphabet: A–Z + space.
+  static constexpr std::array<char, 27> kAlphabet = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
+                                                     'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+                                                     'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', ' '};
 
-    // Invariant:
-    //   • storage_ contains only characters from kAlphabet (A–Z and ' ').
-    ::std::string storage_;
+  // Invariant:
+  //   • storage_ contains only characters from kAlphabet (A–Z and ' ').
+  ::std::string storage_;
 
-    static constexpr char normalize_char(char c) noexcept {
-        // Allow all printable ASCII for now to support string handling of numbers etc.
-        // Ideally restricted to Base81 alphabet, but for std::text we need more.
-        if (c >= 32 && c <= 126) {
-            return c;
-        }
-        return ' ';
+  static constexpr char normalize_char(char c) noexcept {
+    // Allow all printable ASCII for now to support string handling of numbers etc.
+    // Ideally restricted to Base81 alphabet, but for std::text we need more.
+    if (c >= 32 && c <= 126) {
+      return c;
     }
+    return ' ';
+  }
 
 public:
-    //===================================================================
-    // Construction
-    //===================================================================
+  //===================================================================
+  // Construction
+  //===================================================================
 
-    T81String() = default;
+  T81String() = default;
 
-    // From C string
-    explicit T81String(const char* s) {
-        if (s != nullptr) {
-            assign(std::string_view{s});
-        }
+  // From C string
+  explicit T81String(const char* s) {
+    if (s != nullptr) {
+      assign(std::string_view{s});
     }
+  }
 
-    // From std::string_view
-    explicit T81String(::std::string_view sv) {
-        assign(sv);
+  // From std::string_view
+  explicit T81String(::std::string_view sv) { assign(sv); }
+
+  // From std::string
+  explicit T81String(const ::std::string& s) { assign(::std::string_view{s}); }
+
+  //===================================================================
+  // Assignment
+  //===================================================================
+
+  void assign(::std::string_view sv) {
+    storage_.clear();
+    storage_.reserve(sv.size());
+
+    for (char c : sv) {
+      storage_.push_back(normalize_char(c));
     }
+  }
 
-    // From std::string
-    explicit T81String(const ::std::string& s) {
-        assign(::std::string_view{s});
+  //===================================================================
+  // Conversion back to std::string / string_view
+  //===================================================================
+
+  [[nodiscard]] ::std::string str() const { return storage_; }
+
+  [[nodiscard]] operator ::std::string() const { return storage_; }
+
+  [[nodiscard]] ::std::string_view sv() const noexcept { return ::std::string_view{storage_}; }
+
+  //===================================================================
+  // Size & Capacity
+  //===================================================================
+
+  [[nodiscard]] size_type size() const noexcept { return storage_.size(); }
+
+  // std::string-compatible alias used by tests
+  [[nodiscard]] size_type length() const noexcept { return size(); }
+
+  [[nodiscard]] bool empty() const noexcept { return storage_.empty(); }
+
+  [[nodiscard]] size_type capacity_chars() const noexcept { return storage_.capacity(); }
+
+  // Raw byte view, for low-level integrations.
+  [[nodiscard]] std::span<const std::uint8_t> data() const noexcept {
+    return std::span<const std::uint8_t>(reinterpret_cast<const std::uint8_t*>(storage_.data()),
+                                         storage_.size());
+  }
+
+  [[nodiscard]] size_type tryte_count() const noexcept {
+    // Placeholder: when ternary packing is introduced, this will reflect
+    // the actual tryte count. For now, count bytes.
+    return storage_.size();
+  }
+
+  //===================================================================
+  // Concatenation
+  //===================================================================
+
+  [[nodiscard]] friend T81String operator+(const T81String& a, const T81String& b) {
+    T81String result;
+    result.storage_.reserve(a.storage_.size() + b.storage_.size());
+    result.storage_.append(a.storage_);
+    result.storage_.append(b.storage_);
+    return result;
+  }
+
+  T81String& operator+=(const T81String& o) {
+    storage_.append(o.storage_);
+    return *this;
+  }
+
+  //===================================================================
+  // Comparison – lexicographic on normalized storage
+  //===================================================================
+
+  [[nodiscard]] auto operator<=>(const T81String& o) const noexcept = default;
+  [[nodiscard]] bool operator==(const T81String& o) const noexcept = default;
+
+  //===================================================================
+  // Hash – FNV-like mixing over normalized bytes
+  //===================================================================
+
+  [[nodiscard]] std::uint64_t hash() const noexcept {
+    std::uint64_t h = 0x517cc1b727220a95ull;  // seed
+    for (unsigned char b : storage_) {
+      h ^= static_cast<std::uint64_t>(b);
+      h *= 0x9e3779b97f4a7c15ull;  // golden ratio-ish
     }
+    return h;
+  }
 
-    //===================================================================
-    // Assignment
-    //===================================================================
+  //===================================================================
+  // Alphabet utilities
+  //===================================================================
 
-    void assign(::std::string_view sv) {
-        storage_.clear();
-        storage_.reserve(sv.size());
+  [[nodiscard]] static constexpr std::array<char, 27> alphabet() noexcept { return kAlphabet; }
 
-        for (char c : sv) {
-            storage_.push_back(normalize_char(c));
-        }
-    }
+  [[nodiscard]] static bool is_valid_char(char c) noexcept {
+    c = normalize_char(c);
+    return (c >= 'A' && c <= 'Z') || c == ' ';
+  }
 
-    //===================================================================
-    // Conversion back to std::string / string_view
-    //===================================================================
+  //===================================================================
+  // Literals – convenient construction
+  //===================================================================
 
-    [[nodiscard]] ::std::string str() const {
-        return storage_;
-    }
-
-    [[nodiscard]] operator ::std::string() const {
-        return storage_;
-    }
-
-    [[nodiscard]] ::std::string_view sv() const noexcept {
-        return ::std::string_view{storage_};
-    }
-
-    //===================================================================
-    // Size & Capacity
-    //===================================================================
-
-    [[nodiscard]] size_type size() const noexcept {
-        return storage_.size();
-    }
-
-    // std::string-compatible alias used by tests
-    [[nodiscard]] size_type length() const noexcept {
-        return size();
-    }
-
-    [[nodiscard]] bool empty() const noexcept {
-        return storage_.empty();
-    }
-
-    [[nodiscard]] size_type capacity_chars() const noexcept {
-        return storage_.capacity();
-    }
-
-    // Raw byte view, for low-level integrations.
-    [[nodiscard]] std::span<const std::uint8_t> data() const noexcept {
-        return std::span<const std::uint8_t>(
-            reinterpret_cast<const std::uint8_t*>(storage_.data()),
-            storage_.size()
-        );
-    }
-
-    [[nodiscard]] size_type tryte_count() const noexcept {
-        // Placeholder: when ternary packing is introduced, this will reflect
-        // the actual tryte count. For now, count bytes.
-        return storage_.size();
-    }
-
-    //===================================================================
-    // Concatenation
-    //===================================================================
-
-    [[nodiscard]] friend T81String operator+(const T81String& a,
-                                             const T81String& b) {
-        T81String result;
-        result.storage_.reserve(a.storage_.size() + b.storage_.size());
-        result.storage_.append(a.storage_);
-        result.storage_.append(b.storage_);
-        return result;
-    }
-
-    T81String& operator+=(const T81String& o) {
-        storage_.append(o.storage_);
-        return *this;
-    }
-
-    //===================================================================
-    // Comparison – lexicographic on normalized storage
-    //===================================================================
-
-    [[nodiscard]] auto operator<=>(const T81String& o) const noexcept = default;
-    [[nodiscard]] bool operator==(const T81String& o) const noexcept = default;
-
-    //===================================================================
-    // Hash – FNV-like mixing over normalized bytes
-    //===================================================================
-
-    [[nodiscard]] std::uint64_t hash() const noexcept {
-        std::uint64_t h = 0x517cc1b727220a95ull; // seed
-        for (unsigned char b : storage_) {
-            h ^= static_cast<std::uint64_t>(b);
-            h *= 0x9e3779b97f4a7c15ull; // golden ratio-ish
-        }
-        return h;
-    }
-
-    //===================================================================
-    // Alphabet utilities
-    //===================================================================
-
-    [[nodiscard]] static constexpr std::array<char, 27> alphabet() noexcept {
-        return kAlphabet;
-    }
-
-    [[nodiscard]] static bool is_valid_char(char c) noexcept {
-        c = normalize_char(c);
-        return (c >= 'A' && c <= 'Z') || c == ' ';
-    }
-
-    //===================================================================
-    // Literals – convenient construction
-    //===================================================================
-
-    friend T81String operator""_t81(const char* s, std::size_t len) {
-        return T81String(std::string_view{s, len});
-    }
+  friend T81String operator""_t81(const char* s, std::size_t len) {
+    return T81String(std::string_view{s, len});
+  }
 };
 
 // ======================================================================
 // std integration
 // ======================================================================
 
-} // namespace t81
+}  // namespace t81
 
 namespace std {
 template <>
 struct hash<t81::T81String> {
-    size_t operator()(const t81::T81String& s) const noexcept {
-        return static_cast<size_t>(s.hash());
-    }
+  size_t operator()(const t81::T81String& s) const noexcept {
+    return static_cast<size_t>(s.hash());
+  }
 };
-} // namespace std
+}  // namespace std
 
 // ======================================================================
 // Pretty printing
 // ======================================================================
 
-inline std::ostream& operator<<(std::ostream& os, const t81::T81String& s) {
-    return os << s.sv();
-}
+inline std::ostream& operator<<(std::ostream& os, const t81::T81String& s) { return os << s.sv(); }

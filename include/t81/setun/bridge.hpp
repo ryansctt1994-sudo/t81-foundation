@@ -36,9 +36,11 @@ struct BridgeDiagnostic {
 
 // Translate a multi-line Setun-compatible program.
 // Comments start with ';' or '#'.
-[[nodiscard]] std::expected<t81::tisc::Program, BridgeError> translate_program(std::string_view source);
+[[nodiscard]] std::expected<t81::tisc::Program, BridgeError> translate_program(
+    std::string_view source);
 
 // Detailed program translation with deterministic source location on failure.
-[[nodiscard]] std::expected<t81::tisc::Program, BridgeDiagnostic> translate_program_diagnostic(std::string_view source);
+[[nodiscard]] std::expected<t81::tisc::Program, BridgeDiagnostic> translate_program_diagnostic(
+    std::string_view source);
 
 }  // namespace t81::setun

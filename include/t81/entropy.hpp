@@ -2,9 +2,9 @@
 #include <array>
 #include <cstdint>
 #include <random>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <stdexcept>
 
 #include "t81/ternary.hpp"
 
@@ -23,7 +23,7 @@ inline double shannon_bits_per_byte(const std::vector<uint8_t>& data) {
     const double p = static_cast<double>(f) / n;
     H -= p * std::log2(p);
   }
-  return H; // in [0,8]
+  return H;  // in [0,8]
 }
 
 // --- Very small PRNG facade (non-cryptographic) ---
@@ -52,7 +52,7 @@ private:
     std::random_device rd;
     uint64_t s = 0x9E3779B185EBCA87ull;
     for (int i = 0; i < 4; ++i) {
-      s ^= (static_cast<uint64_t>(rd()) + 0xBF58476D1CE4E5B9ull + (s<<6) + (s>>2));
+      s ^= (static_cast<uint64_t>(rd()) + 0xBF58476D1CE4E5B9ull + (s << 6) + (s >> 2));
     }
     return s;
   }
@@ -66,4 +66,4 @@ inline double shannon_bits_per_char(const std::string& s) {
   return shannon_bits_per_byte(std::vector<uint8_t>(s.begin(), s.end()));
 }
 
-} // namespace t81::entropy
+}  // namespace t81::entropy

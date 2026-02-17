@@ -14,11 +14,10 @@ inline T729Tensor transpose(const T729Tensor& m) {
   std::vector<float> out(static_cast<size_t>(rows) * static_cast<size_t>(cols));
   for (int r = 0; r < rows; ++r) {
     for (int c = 0; c < cols; ++c) {
-      out[static_cast<size_t>(c) * rows + r] =
-          d[static_cast<size_t>(r) * cols + c];
+      out[static_cast<size_t>(c) * rows + r] = d[static_cast<size_t>(r) * cols + c];
     }
   }
   return T729Tensor({cols, rows}, std::move(out));
 }
 
-} // namespace t81::ops
+}  // namespace t81::ops

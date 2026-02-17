@@ -1,20 +1,24 @@
-#include "t81/core/T81Int.hpp"
 #include <cassert>
 #include <iostream>
+#include "t81/core/T81Int.hpp"
 
 using namespace t81;
 
 int main() {
-    using I= T81Int<32>;
+  using I = T81Int<32>;
 
-    assert(I(10) / I(3) == I(3));
-    assert(I(-10) / I(3) == I(-3));
-    assert(I(10) / I(-3) == I(-3));
-    assert(I(-10) / I(-3) == I(3));
+  assert(I(10) / I(3) == I(3));
+  assert(I(-10) / I(3) == I(-3));
+  assert(I(10) / I(-3) == I(-3));
+  assert(I(-10) / I(-3) == I(3));
 
-    [[maybe_unused]] bool ok= false;
-    try { (void)(I(1) / I(0)); } catch (...) { ok = true; }
-    assert(ok);
+  [[maybe_unused]] bool ok = false;
+  try {
+    (void)(I(1) / I(0));
+  } catch (...) {
+    ok = true;
+  }
+  assert(ok);
 
-    std::cout << "Division tests passed!\n";
+  std::cout << "Division tests passed!\n";
 }

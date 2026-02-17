@@ -268,11 +268,12 @@ struct MatchExpr : Expr {
 };
 
 struct AssignExpr : Expr {
-  AssignExpr(Token name, std::unique_ptr<Expr> value) : name(name), value(std::move(value)) {}
+  AssignExpr(std::unique_ptr<Expr> target, std::unique_ptr<Expr> value)
+      : target(std::move(target)), value(std::move(value)) {}
 
   std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
 
-  const Token name;
+  const std::unique_ptr<Expr> target;
   const std::unique_ptr<Expr> value;
 };
 

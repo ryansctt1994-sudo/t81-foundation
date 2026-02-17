@@ -6,14 +6,14 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <vector>
-#include <t81/hash/canonhash.hpp>
 #include <t81/canonfs/rs_repair.hpp>
+#include <t81/hash/canonhash.hpp>
+#include <vector>
 
 namespace t81::canonfs {
 namespace {
 class InMemoryDriver : public Driver {
- public:
+public:
   void set_axion_hook(std::function<AxionVerdict(OpKind, const CanonRef&)> hook) override {
     hook_ = std::move(hook);
   }
@@ -79,7 +79,7 @@ class InMemoryDriver : public Driver {
     }
 
     const auto& shards = it->second;
-    std::vector<bool> available(5, true); // Assume all 5 are there for this impl
+    std::vector<bool> available(5, true);  // Assume all 5 are there for this impl
     auto recovered = ReedSolomonRepair::repair(shards, available);
 
     if (recovered.empty()) {
@@ -89,14 +89,14 @@ class InMemoryDriver : public Driver {
     // Concatenate recovered data shards
     std::vector<std::byte> full_data;
     for (const auto& shard : recovered) {
-        full_data.insert(full_data.end(), shard.begin(), shard.end());
+      full_data.insert(full_data.end(), shard.begin(), shard.end());
     }
 
     objects_[ref.hash] = std::move(full_data);
     return {};
   }
 
- private:
+private:
   bool axion_allow(OpKind kind, std::optional<CanonRef> ref) const {
     if (!hook_) return true;
     AxionVerdict v = hook_(kind, ref.value_or(CanonRef{CanonHash{}}));
@@ -105,7 +105,7 @@ class InMemoryDriver : public Driver {
 
   bool has_capability(const CanonRef& ref, uint16_t required) const {
     if (required == 0) return true;
-    if (capabilities_.empty()) return true; // bootstrap: allow when no caps exist
+    if (capabilities_.empty()) return true;  // bootstrap: allow when no caps exist
     auto it = capabilities_.find(ref.hash);
     if (it == capabilities_.end()) return false;
     return (it->second & required) != 0;

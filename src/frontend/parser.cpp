@@ -538,7 +538,7 @@ std::vector<std::unique_ptr<Stmt>> Parser::block() {
   if (final_expr) {
     stmts.push_back(std::make_unique<ExpressionStmt>(std::move(final_expr)));
   }
-  return stmts;
+  return std::move(stmts);
 }
 
 std::unique_ptr<Expr> Parser::block_expression() {

@@ -16,14 +16,11 @@ struct ModelFile;
 namespace t81::cli {
 
 std::optional<t81::tisc::Program> build_program_from_source(
-    const std::string& source,
-    const std::string& diag_name,
+    const std::string& source, const std::string& diag_name,
     const std::shared_ptr<t81::weights::ModelFile>& weights_model = nullptr);
 
-int compile(const std::filesystem::path& input,
-            const std::filesystem::path& output,
-            const std::string& source_override = {},
-            const std::string& source_name = {},
+int compile(const std::filesystem::path& input, const std::filesystem::path& output,
+            const std::string& source_override = {}, const std::string& source_name = {},
             std::shared_ptr<t81::weights::ModelFile> weights_model = nullptr);
 int run_tisc(const std::filesystem::path& path,
              const std::optional<std::filesystem::path>& policy_path = std::nullopt);
@@ -38,9 +35,9 @@ int init_project(const std::string& name);
 int init_package(const std::string& name);
 
 struct TraceArgs {
-    std::string subcommand;
-    std::vector<std::string> args;
+  std::string subcommand;
+  std::vector<std::string> args;
 };
 int run_trace(const TraceArgs& args);
 
-} // namespace t81::cli
+}  // namespace t81::cli

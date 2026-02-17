@@ -4,9 +4,9 @@
 #include <iostream>
 
 using t81::setun::BridgeError;
-using t81::setun::translate_program_diagnostic;
 using t81::setun::translate_line;
 using t81::setun::translate_program;
+using t81::setun::translate_program_diagnostic;
 using t81::tisc::Opcode;
 
 static void test_translate_add_two_address() {

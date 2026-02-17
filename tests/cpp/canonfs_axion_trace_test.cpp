@@ -13,11 +13,10 @@ int main() {
 
   reset_axion_trace();
 
-  std::filesystem::path workdir =
-      std::filesystem::temp_directory_path() / "canonfs-axion-trace";
+  std::filesystem::path workdir = std::filesystem::temp_directory_path() / "canonfs-axion-trace";
   std::filesystem::remove_all(workdir);
   std::filesystem::create_directories(workdir);
-  [[maybe_unused]] auto driver= make_persistent_driver(workdir);
+  [[maybe_unused]] auto driver = make_persistent_driver(workdir);
   driver->set_axion_hook(make_axion_policy_hook(R"(
     (policy
       (tier 1)
@@ -32,15 +31,15 @@ int main() {
     bytes[i] = static_cast<std::byte>(payload[i]);
   }
 
-  auto write_res = driver->write_object(
-      ObjectType::Blob, std::span<const std::byte>(bytes.data(), bytes.size()));
+  auto write_res = driver->write_object(ObjectType::Blob,
+                                        std::span<const std::byte>(bytes.data(), bytes.size()));
   if (!write_res.has_value()) {
     std::cerr << "canonfs_axion_trace_test failure: write_object failed\n";
     std::filesystem::remove_all(workdir);
     return 1;
   }
 
-  [[maybe_unused]] auto read_res= driver->read_object_bytes(write_res.value());
+  [[maybe_unused]] auto read_res = driver->read_object_bytes(write_res.value());
   if (!read_res.has_value()) {
     std::cerr << "canonfs_axion_trace_test failure: read_object_bytes failed\n";
     std::filesystem::remove_all(workdir);
@@ -53,14 +52,12 @@ int main() {
       })) {
     return 1;
   }
-  if (!std::any_of(trace.begin(), trace.end(), [](auto& entry) {
-        return entry.find("action=Write") != std::string::npos;
-      })) {
+  if (!std::any_of(trace.begin(), trace.end(),
+                   [](auto& entry) { return entry.find("action=Write") != std::string::npos; })) {
     return 1;
   }
-  if (!std::any_of(trace.begin(), trace.end(), [](auto& entry) {
-        return entry.find("action=Read") != std::string::npos;
-      })) {
+  if (!std::any_of(trace.begin(), trace.end(),
+                   [](auto& entry) { return entry.find("action=Read") != std::string::npos; })) {
     return 1;
   }
 
