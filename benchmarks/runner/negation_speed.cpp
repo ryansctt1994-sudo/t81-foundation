@@ -15,6 +15,7 @@ namespace {
     std::vector<int64_t> int64_dest_data;
     std::vector<t81::core::packed::PackedCell> packed_source_data;
     std::vector<t81::core::packed::PackedCell> packed_dest_data;
+    std::vector<t81::T81> native_dest_data;
 
     t81::core::packed::PackedCell packed_from_int(int64_t v) {
         bool negative = v < 0;
@@ -55,12 +56,14 @@ namespace {
         t81_dest_data.resize(DATA_SIZE);
         int64_dest_data.resize(DATA_SIZE);
         packed_dest_data.resize(DATA_SIZE);
+        native_dest_data.resize(DATA_SIZE);
     }
 }
 
 // Classic Cell negation
 static void BM_NegationSpeed_T81Cell(benchmark::State& state) {
     setup_negation();
+    state.counters["work_per_iter"] = static_cast<double>(DATA_SIZE);
     for (auto _ : state) {
         for (size_t i = 0; i < DATA_SIZE; ++i) {
             t81_dest_data[i] = -t81_source_data[i];
@@ -68,13 +71,14 @@ static void BM_NegationSpeed_T81Cell(benchmark::State& state) {
         benchmark::DoNotOptimize(t81_dest_data.data());
     }
     state.SetItemsProcessed(state.iterations() * DATA_SIZE);
-    state.SetLabel("Classic Cell negation");
+    state.SetLabel("Classic Cell negation; work: ops/iter=100000");
 }
 BENCHMARK(BM_NegationSpeed_T81Cell);
 
 // PackedCell with AVX2 fast path
 static void BM_NegationSpeed_PackedCell(benchmark::State& state) {
     setup_negation();
+    state.counters["work_per_iter"] = static_cast<double>(DATA_SIZE);
 #if defined(__AVX2__)
     const size_t n = packed_source_data.size();
     auto* src = reinterpret_cast<const uint8_t*>(packed_source_data.data());
@@ -93,7 +97,7 @@ static void BM_NegationSpeed_PackedCell(benchmark::State& state) {
         }
         benchmark::DoNotOptimize(packed_dest_data.data());
     }
-    state.SetLabel("PackedCell AVX2 negation");
+    state.SetLabel("PackedCell AVX2 negation; work: ops/iter=100000");
 #else
     for (auto _ : state) {
         for (size_t i = 0; i < DATA_SIZE; ++i) {
@@ -101,7 +105,7 @@ static void BM_NegationSpeed_PackedCell(benchmark::State& state) {
         }
         benchmark::DoNotOptimize(packed_dest_data.data());
     }
-    state.SetLabel("PackedCell scalar negation");
+    state.SetLabel("PackedCell scalar negation; work: ops/iter=100000");
 #endif
     state.SetItemsProcessed(state.iterations() * DATA_SIZE);
 }
@@ -110,6 +114,7 @@ BENCHMARK(BM_NegationSpeed_PackedCell);
 // Baseline: int64_t negation
 static void BM_NegationSpeed_Int64(benchmark::State& state) {
     setup_negation();
+    state.counters["work_per_iter"] = static_cast<double>(DATA_SIZE);
     for (auto _ : state) {
         for (size_t i = 0; i < DATA_SIZE; ++i) {
             int64_dest_data[i] = -int64_source_data[i];
@@ -117,12 +122,13 @@ static void BM_NegationSpeed_Int64(benchmark::State& state) {
         benchmark::DoNotOptimize(int64_dest_data.data());
     }
     state.SetItemsProcessed(state.iterations() * DATA_SIZE);
-    state.SetLabel("int64_t negation");
+    state.SetLabel("int64_t negation; work: ops/iter=100000");
 }
 BENCHMARK(BM_NegationSpeed_Int64);
 
 // THE WINNER: T81 native (one vpshufb)
 static void BM_NegationSpeed_T81Native(benchmark::State& state) {
+    setup_negation();
 #if defined(__AVX2__)
     const __m256i pattern = _mm256_set1_epi8(0x55);  // 01010101 → all zero trits
     t81::T81 a(pattern);
@@ -133,12 +139,14 @@ static void BM_NegationSpeed_T81Native(benchmark::State& state) {
     a = t81::T81(bytes);
 #endif
 
-    t81::T81 res = a;
+    state.counters["work_per_iter"] = static_cast<double>(DATA_SIZE);
     for (auto _ : state) {
-        res = -res;  // ← single vpshufb instruction
-        benchmark::DoNotOptimize(res);
+        for (size_t i = 0; i < DATA_SIZE; ++i) {
+            native_dest_data[i] = -a;
+        }
+        benchmark::DoNotOptimize(native_dest_data.data());
     }
-    state.SetItemsProcessed(state.iterations() * 128);  // 128 trits per op
-    state.SetLabel("Native T81 negation (one PSHUFB) — beats binary");
+    state.SetItemsProcessed(state.iterations() * DATA_SIZE);
+    state.SetLabel("Native T81 negation; work: ops/iter=100000");
 }
 BENCHMARK(BM_NegationSpeed_T81Native);

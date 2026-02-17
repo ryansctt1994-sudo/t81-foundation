@@ -60,7 +60,9 @@ void RunBinaryCarry(benchmark::State& state, uint64_t seed) {
     benchmark::DoNotOptimize(result);
     benchmark::DoNotOptimize(carry);
   }
-  state.SetItemsProcessed(state.iterations() * LIMBS);
+  state.SetItemsProcessed(state.iterations());
+  state.counters["work_per_iter"] = 1.0;
+  state.SetLabel("work: ops/iter=1 (one whole-width add)");
 }
 }  // namespace
 
@@ -89,7 +91,9 @@ static void BM_Add_1024_bit_binary_checked(benchmark::State& state) {
     benchmark::DoNotOptimize(result);
     benchmark::DoNotOptimize(carry);
   }
-  state.SetItemsProcessed(state.iterations() * kBinaryLimbs);
+  state.SetItemsProcessed(state.iterations());
+  state.counters["work_per_iter"] = 1.0;
+  state.SetLabel("work: ops/iter=1 (one whole-width add)");
 }
 BENCHMARK(BM_Add_1024_bit_binary_checked)
     ->Name("BM_Add_1024_bit/binary_checked");
@@ -124,6 +128,8 @@ static void BM_Add_1024_bit_ternary_koggestone(benchmark::State& state) {
     benchmark::ClobberMemory();
   }
   state.SetItemsProcessed(state.iterations());
+  state.counters["work_per_iter"] = 1.0;
+  state.SetLabel("work: ops/iter=1 (one whole-width add)");
 }
 BENCHMARK(BM_Add_1024_bit_ternary_koggestone)
     ->Name("BM_Add_1024_bit/ternary_koggestone");
@@ -140,6 +146,8 @@ static void BM_Add_4096_bit_ternary_koggestone(benchmark::State& state) {
     benchmark::ClobberMemory();
   }
   state.SetItemsProcessed(state.iterations());
+  state.counters["work_per_iter"] = 1.0;
+  state.SetLabel("work: ops/iter=1 (one whole-width add)");
 }
 BENCHMARK(BM_Add_4096_bit_ternary_koggestone)
     ->Name("BM_Add_4096_bit/ternary_koggestone");
@@ -156,6 +164,8 @@ static void BM_Add_2048_bit_ternary_koggestone(benchmark::State& state) {
     benchmark::ClobberMemory();
   }
   state.SetItemsProcessed(state.iterations());
+  state.counters["work_per_iter"] = 1.0;
+  state.SetLabel("work: ops/iter=1 (one whole-width add)");
 }
 BENCHMARK(BM_Add_2048_bit_ternary_koggestone)
     ->Name("BM_Add_2048_bit/ternary_koggestone");
@@ -185,7 +195,9 @@ static void BM_Add_8192_bit_ternary_koggestone(benchmark::State& state) {
     } catch (const std::overflow_error&) {}
     benchmark::ClobberMemory();
   }
-  state.SetItemsProcessed(state.iterations() * kChunks);
+  state.SetItemsProcessed(state.iterations());
+  state.counters["work_per_iter"] = 1.0;
+  state.SetLabel("work: ops/iter=1 (one whole-width add)");
 }
 BENCHMARK(BM_Add_8192_bit_ternary_koggestone)
     ->Name("BM_Add_8192_bit/ternary_koggestone");
@@ -215,7 +227,9 @@ static void BM_Add_16384_bit_ternary_koggestone(benchmark::State& state) {
     } catch (const std::overflow_error&) {}
     benchmark::ClobberMemory();
   }
-  state.SetItemsProcessed(state.iterations() * kChunks);
+  state.SetItemsProcessed(state.iterations());
+  state.counters["work_per_iter"] = 1.0;
+  state.SetLabel("work: ops/iter=1 (one whole-width add)");
 }
 BENCHMARK(BM_Add_16384_bit_ternary_koggestone)
     ->Name("BM_Add_16384_bit/ternary_koggestone");
