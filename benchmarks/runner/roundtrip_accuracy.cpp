@@ -1,4 +1,5 @@
 #include <benchmark/benchmark.h>
+#include <string>
 #include <vector>
 #include <random>
 #include "t81/core/cell.hpp"
@@ -20,6 +21,7 @@ namespace {
 
 static void BM_RoundtripAccuracy_T81Cell(benchmark::State& state) {
     setup_roundtrip();
+    state.counters["work_per_iter"] = static_cast<double>(DATA_SIZE);
     long long lossless_conversions = 0;
     for (auto _ : state) {
         for (const auto& val : source_data) {
@@ -30,12 +32,13 @@ static void BM_RoundtripAccuracy_T81Cell(benchmark::State& state) {
     }
     state.counters["Lossless%"] = (static_cast<double>(lossless_conversions) / (state.iterations() * DATA_SIZE)) * 100.0;
     state.SetItemsProcessed(state.iterations() * DATA_SIZE);
-    state.SetLabel("int64_t -> Cell -> int64_t");
+    state.SetLabel("int64_t -> Cell -> int64_t; work: ops/iter=" + std::to_string(DATA_SIZE));
 }
 BENCHMARK(BM_RoundtripAccuracy_T81Cell);
 
 static void BM_RoundtripAccuracy_Int64(benchmark::State& state) {
     setup_roundtrip();
+    state.counters["work_per_iter"] = static_cast<double>(DATA_SIZE);
     for (auto _ : state) {
         for (const auto& val : source_data) {
             volatile int64_t temp = val;
@@ -43,6 +46,6 @@ static void BM_RoundtripAccuracy_Int64(benchmark::State& state) {
         }
     }
     state.SetItemsProcessed(state.iterations() * DATA_SIZE);
-    state.SetLabel("No sign-bit tax");
+    state.SetLabel("No sign-bit tax; work: ops/iter=" + std::to_string(DATA_SIZE));
 }
 BENCHMARK(BM_RoundtripAccuracy_Int64);

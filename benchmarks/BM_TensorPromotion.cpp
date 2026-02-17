@@ -14,6 +14,7 @@
 // The promotion logic involves copying the shape vector, which is the target of our optimization.
 template <int Rank>
 static void BM_TensorPromotion(benchmark::State& state) {
+    state.counters["work_per_iter"] = static_cast<double>(Rank);
     t81::tisc::Program program;
     program.symbol_pool = {"tensorA"};
 
@@ -71,6 +72,7 @@ static void BM_TensorPromotion(benchmark::State& state) {
         }
     }
     state.SetItemsProcessed(state.iterations() * Rank);
+    state.SetLabel("work: ops/iter=" + std::to_string(Rank));
 }
 
 // Register the benchmark with a high rank (1,000,000) to exaggerate the allocation cost.
@@ -79,6 +81,7 @@ BENCHMARK_TEMPLATE(BM_TensorPromotion, 1000000)
 
 template <int Rank>
 static void BM_TensorPromotion_Binary(benchmark::State& state) {
+    state.counters["work_per_iter"] = static_cast<double>(Rank);
     std::vector<std::uint32_t> shape(static_cast<std::size_t>(Rank), 1u);
     std::vector<std::uint32_t> promoted;
     promoted.reserve(shape.size());
@@ -88,6 +91,7 @@ static void BM_TensorPromotion_Binary(benchmark::State& state) {
         benchmark::DoNotOptimize(promoted.data());
     }
     state.SetItemsProcessed(state.iterations() * Rank);
+    state.SetLabel("work: ops/iter=" + std::to_string(Rank));
 }
 
 BENCHMARK_TEMPLATE(BM_TensorPromotion_Binary, 1000000)

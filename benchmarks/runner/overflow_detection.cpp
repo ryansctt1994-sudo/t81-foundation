@@ -2,6 +2,7 @@
 #include <benchmark/benchmark.h>
 #include "t81/core/cell.hpp"
 #include <limits>
+#include <string>
 
 using namespace t81::core;
 namespace {
@@ -47,6 +48,7 @@ static void BM_overflow_ternary_auto(benchmark::State& state) {
     benchmark::DoNotOptimize(&max_val);
 
     int64_t detected = 0;
+    state.counters["work_per_iter"] = static_cast<double>(kBatch);
     for (auto _ : state) {
         for (int i = 0; i < kBatch; ++i) {
             try {
@@ -60,6 +62,7 @@ static void BM_overflow_ternary_auto(benchmark::State& state) {
     benchmark::DoNotOptimize(detected);
     state.SetItemsProcessed(state.iterations() * kBatch);
     state.counters["Detected"] = static_cast<double>(detected);
+    state.SetLabel("work: ops/iter=" + std::to_string(kBatch));
 }
 BENCHMARK(BM_overflow_ternary_auto)->MinTime(0.1);
 
@@ -67,6 +70,7 @@ static void BM_overflow_ternary_auto_Binary(benchmark::State& state) {
     volatile int64_t max_val = std::numeric_limits<int64_t>::max();
     volatile int64_t one = 1;
     int64_t detected = 0;
+    state.counters["work_per_iter"] = static_cast<double>(kBatch);
     for (auto _ : state) {
       for (int i = 0; i < kBatch; ++i) {
         int64_t out = 0;
@@ -80,12 +84,14 @@ static void BM_overflow_ternary_auto_Binary(benchmark::State& state) {
     benchmark::DoNotOptimize(detected);
     state.SetItemsProcessed(state.iterations() * kBatch);
     state.counters["Detected"] = static_cast<double>(detected);
+    state.SetLabel("work: ops/iter=" + std::to_string(kBatch));
 }
 BENCHMARK(BM_overflow_ternary_auto_Binary)->MinTime(0.1);
 
 static void BM_overflow_binary_silent(benchmark::State& state) {
     volatile uint64_t max_val = std::numeric_limits<uint64_t>::max();
     uint64_t sink = 0;
+    state.counters["work_per_iter"] = static_cast<double>(kBatch);
     for (auto _ : state) {
         for (int i = 0; i < kBatch; ++i) {
             sink += static_cast<uint64_t>(max_val + 1u);
@@ -93,6 +99,7 @@ static void BM_overflow_binary_silent(benchmark::State& state) {
     }
     benchmark::DoNotOptimize(sink);
     state.SetItemsProcessed(state.iterations() * kBatch);
+    state.SetLabel("work: ops/iter=" + std::to_string(kBatch));
 }
 BENCHMARK(BM_overflow_binary_silent)->MinTime(0.1);
 
@@ -100,6 +107,7 @@ static void BM_overflow_binary_checked(benchmark::State& state) {
     volatile int64_t max_val = std::numeric_limits<int64_t>::max();
     volatile int64_t one = 1;
     int64_t detected = 0;
+    state.counters["work_per_iter"] = static_cast<double>(kBatch);
     for (auto _ : state) {
         for (int i = 0; i < kBatch; ++i) {
             int64_t out = 0;
@@ -113,12 +121,14 @@ static void BM_overflow_binary_checked(benchmark::State& state) {
     benchmark::DoNotOptimize(detected);
     state.SetItemsProcessed(state.iterations() * kBatch);
     state.counters["Detected"] = static_cast<double>(detected);
+    state.SetLabel("work: ops/iter=" + std::to_string(kBatch));
 }
 BENCHMARK(BM_overflow_binary_checked)->MinTime(0.1);
 
 static void BM_overflow_binary_checked_T81(benchmark::State& state) {
     Cell max_val = Cell::from_int(Cell::MAX);
     int64_t detected = 0;
+    state.counters["work_per_iter"] = static_cast<double>(kBatch);
     for (auto _ : state) {
         for (int i = 0; i < kBatch; ++i) {
             if (max_val == Cell::from_int(Cell::MAX)) {
@@ -132,5 +142,6 @@ static void BM_overflow_binary_checked_T81(benchmark::State& state) {
     benchmark::DoNotOptimize(detected);
     state.SetItemsProcessed(state.iterations() * kBatch);
     state.counters["Detected"] = static_cast<double>(detected);
+    state.SetLabel("work: ops/iter=" + std::to_string(kBatch));
 }
 BENCHMARK(BM_overflow_binary_checked_T81)->MinTime(0.1);

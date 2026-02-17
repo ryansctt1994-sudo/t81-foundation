@@ -928,8 +928,7 @@ void GenerateMarkdownReport() {
     };
 
     for (auto& [name, r] : final_results) {
-        const bool has_classic_and_binary = (r.has_t81_flow || !r.t81_result_str.empty()) &&
-                                            (r.has_binary_flow || !r.binary_result_str.empty());
+        const bool has_classic_and_binary = r.has_t81_flow && r.has_binary_flow;
         if (has_classic_and_binary && (!r.t81_work_defined || !r.binary_work_defined)) {
             r.t81_classic_inconsistent = true;
             r.binary_inconsistent = true;
@@ -941,8 +940,7 @@ void GenerateMarkdownReport() {
                 r.binary_inconsistent = true;
             }
         }
-        const bool has_native_and_binary = (r.has_t81_native_flow || !r.t81_native_result_str.empty()) &&
-                                           (r.has_binary_flow || !r.binary_result_str.empty());
+        const bool has_native_and_binary = r.has_t81_native_flow && r.has_binary_flow;
         if (has_native_and_binary && (!r.t81_native_work_defined || !r.binary_work_defined)) {
             r.t81_native_inconsistent = true;
             r.binary_inconsistent = true;
