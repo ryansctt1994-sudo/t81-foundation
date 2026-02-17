@@ -25,7 +25,7 @@ namespace t81::core {
  *       the canonical arithmetic implementation path.
  */
 class BigInt {
- public:
+public:
   /**
    * @brief Default constructor, initializes the BigInt to zero.
    */
@@ -84,11 +84,9 @@ class BigInt {
   /**
    * @brief Returns a read-only view of the canonical BigInt implementation.
    */
-  [[nodiscard]] const ::t81::T81BigInt& canonical() const noexcept {
-    return impl_;
-  }
+  [[nodiscard]] const ::t81::T81BigInt& canonical() const noexcept { return impl_; }
 
- private:
+private:
   ::t81::T81BigInt impl_{};
 };
 

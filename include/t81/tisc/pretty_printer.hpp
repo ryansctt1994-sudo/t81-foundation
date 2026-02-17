@@ -1,15 +1,15 @@
 #ifndef T81_TISC_PRETTY_PRINTER_HPP
 #define T81_TISC_PRETTY_PRINTER_HPP
 
-#include "t81/tisc/ir.hpp"
 #include <string>
+#include "t81/tisc/ir.hpp"
 
 namespace t81 {
 namespace tisc {
 
 std::string pretty_print(const ir::IntermediateProgram& program);
 
-} // namespace tisc
-} // namespace t81
+}  // namespace tisc
+}  // namespace t81
 
-#endif // T81_TISC_PRETTY_PRINTER_HPP
+#endif  // T81_TISC_PRETTY_PRINTER_HPP

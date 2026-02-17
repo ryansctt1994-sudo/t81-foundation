@@ -34,4 +34,4 @@ inline std::vector<uint8_t> decode_base81(const std::string& s) {
   return out;
 }
 
-} // namespace t81::hash
+}  // namespace t81::hash

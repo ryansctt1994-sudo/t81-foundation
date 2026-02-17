@@ -47,9 +47,10 @@ std::vector<std::uint8_t> Base243::decode_bytes_be(const std::vector<digit_t>& d
     std::uint16_t carry = d;
     // Multiply existing number by 243 and add the new digit.
     for (int i = static_cast<int>(out.size()) - 1; i >= 0; --i) {
-      std::uint16_t cur = static_cast<std::uint16_t>(out[static_cast<std::size_t>(i)]) * kBase + carry;
-      out[static_cast<std::size_t>(i)] = static_cast<std::uint8_t>(cur & 0xFF); // mod 256
-      carry = static_cast<std::uint16_t>(cur >> 8);                             // div 256
+      std::uint16_t cur =
+          static_cast<std::uint16_t>(out[static_cast<std::size_t>(i)]) * kBase + carry;
+      out[static_cast<std::size_t>(i)] = static_cast<std::uint8_t>(cur & 0xFF);  // mod 256
+      carry = static_cast<std::uint16_t>(cur >> 8);                              // div 256
     }
     while (carry) {
       out.insert(out.begin(), static_cast<std::uint8_t>(carry & 0xFF));
@@ -127,7 +128,7 @@ bool Base243::decode_bigint(std::string_view s, T81BigInt& out) {
     } else if (s[pos] >= '0' && s[pos] <= '9') {
       have_digit = true;
       current = current * 10 + (s[pos] - '0');
-      if (current >= 1000) return false; // prevent runaway parsing
+      if (current >= 1000) return false;  // prevent runaway parsing
     } else {
       return false;
     }

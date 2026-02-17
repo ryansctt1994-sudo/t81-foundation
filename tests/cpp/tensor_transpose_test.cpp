@@ -9,10 +9,10 @@ int main() {
   // 2x3:
   // [1 2 3
   //  4 5 6]
-  T729Tensor m({2,3});
-  m.data() = {1,2,3, 4,5,6};
+  T729Tensor m({2, 3});
+  m.data() = {1, 2, 3, 4, 5, 6};
 
-  [[maybe_unused]] auto t= t81::ops::transpose(m);
+  [[maybe_unused]] auto t = t81::ops::transpose(m);
 
   // Should be 3x2:
   assert(t.rank() == 2);

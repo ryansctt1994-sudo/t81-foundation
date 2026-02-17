@@ -14,8 +14,8 @@ constexpr int kMulResultDigits = kMulDigits * 2;
 constexpr int kTrials = 2048;
 
 int64_t Evaluate(const std::array<int8_t, 128>& digits, int limit) {
-  [[maybe_unused]] int64_t value= 0;
-  [[maybe_unused]] int64_t weight= 1;
+  [[maybe_unused]] int64_t value = 0;
+  [[maybe_unused]] int64_t weight = 1;
   for (int idx = 0; idx < limit; ++idx) {
     value += static_cast<int64_t>(digits[idx]) * weight;
     weight *= 3;
@@ -29,8 +29,7 @@ t81::T81 MakeNative(const std::array<int8_t, 128>& digits) {
   return t81::T81(buffer);
 }
 
-void FillRandom(std::array<int8_t, 128>& digits, int count,
-                std::mt19937_64& rng,
+void FillRandom(std::array<int8_t, 128>& digits, int count, std::mt19937_64& rng,
                 std::uniform_int_distribution<int>& dist) {
   std::fill(digits.begin(), digits.end(), 0);
   for (int idx = 0; idx < count; ++idx) {
@@ -50,9 +49,9 @@ int main() {
     FillRandom(lhs_digits, kAddDigits, rng, trit_dist);
     FillRandom(rhs_digits, kAddDigits, rng, trit_dist);
 
-    [[maybe_unused]] auto lhs= MakeNative(lhs_digits);
-    [[maybe_unused]] auto rhs= MakeNative(rhs_digits);
-    [[maybe_unused]] auto sum= lhs + rhs;
+    [[maybe_unused]] auto lhs = MakeNative(lhs_digits);
+    [[maybe_unused]] auto rhs = MakeNative(rhs_digits);
+    [[maybe_unused]] auto sum = lhs + rhs;
 
     std::array<int8_t, 128> sum_digits{};
     t81::T81::UnpackDigits(sum.data, sum_digits);
@@ -72,9 +71,9 @@ int main() {
     FillRandom(lhs_digits, kMulDigits, rng, trit_dist);
     FillRandom(rhs_digits, kMulDigits, rng, trit_dist);
 
-    [[maybe_unused]] auto lhs= MakeNative(lhs_digits);
-    [[maybe_unused]] auto rhs= MakeNative(rhs_digits);
-    [[maybe_unused]] auto product= lhs * rhs;
+    [[maybe_unused]] auto lhs = MakeNative(lhs_digits);
+    [[maybe_unused]] auto rhs = MakeNative(rhs_digits);
+    [[maybe_unused]] auto product = lhs * rhs;
 
     std::array<int8_t, 128> product_digits{};
     t81::T81::UnpackDigits(product.data, product_digits);
@@ -84,9 +83,9 @@ int main() {
     const int64_t product_val = Evaluate(product_digits, kMulResultDigits);
     const int64_t expect = lhs_val * rhs_val;
     if (product_val != expect) {
-      std::cerr << "Multiplication mismatch at trial " << trial
-                << " lhs=" << lhs_val << " rhs=" << rhs_val
-                << " result=" << product_val << " expected=" << expect << "\n";
+      std::cerr << "Multiplication mismatch at trial " << trial << " lhs=" << lhs_val
+                << " rhs=" << rhs_val << " result=" << product_val << " expected=" << expect
+                << "\n";
       return 1;
     }
   }

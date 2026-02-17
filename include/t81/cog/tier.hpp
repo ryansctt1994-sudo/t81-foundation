@@ -17,4 +17,3 @@ struct TierStatus {
   std::string label;
 };
 }  // namespace t81::cog
-

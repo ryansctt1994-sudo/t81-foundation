@@ -25,7 +25,7 @@ template <typename E>
 unexpected<std::decay_t<E>> make_unexpected(E&& error) {
   return unexpected<std::decay_t<E>>(std::forward<E>(error));
 }
-}
+}  // namespace t81
 #else
 namespace t81 {
 
@@ -36,7 +36,7 @@ inline constexpr unexpect_t unexpect{};
 
 template <typename E>
 class unexpected {
- public:
+public:
   unexpected(const E& error) : error_(error) {}
   unexpected(E&& error) : error_(std::move(error)) {}
 
@@ -44,7 +44,7 @@ class unexpected {
   const E& error() const& { return error_; }
   E&& error() && { return std::move(error_); }
 
- private:
+private:
   E error_;
 };
 
@@ -59,14 +59,14 @@ unexpected<std::decay_t<E>> make_unexpected(E&& error) {
 // std::expected semantics per C++23 when toolchains upgrade.
 template <typename T, typename E>
 class expected {
- public:
+public:
   expected(const T& value) : has_(true), storage_(std::in_place_index<0>, value) {}
   expected(T&& value) : has_(true), storage_(std::in_place_index<0>, std::move(value)) {}
 
-  template <typename Err = E, std::enable_if_t<
-      !std::is_same_v<T, std::decay_t<Err>> &&
-      !std::is_same_v<expected, std::decay_t<Err>> &&
-      !std::is_same_v<unexpect_t, std::decay_t<Err>>, int> = 0>
+  template <typename Err = E, std::enable_if_t<!std::is_same_v<T, std::decay_t<Err>> &&
+                                                   !std::is_same_v<expected, std::decay_t<Err>> &&
+                                                   !std::is_same_v<unexpect_t, std::decay_t<Err>>,
+                                               int> = 0>
   expected(Err&& error) : has_(false), storage_(std::in_place_index<1>, std::forward<Err>(error)) {}
 
   template <typename... Args>
@@ -142,7 +142,7 @@ class expected {
     return expected<T, G>(std::invoke(std::forward<F>(f), error()));
   }
 
- private:
+private:
   bool has_;
   std::variant<T, E> storage_;
 };
@@ -150,7 +150,7 @@ class expected {
 // Partial specialization for void success.
 template <typename E>
 class expected<void, E> {
- public:
+public:
   expected() : has_(true) {}
   expected(const E& error) : has_(false), error_(error) {}
   expected(E&& error) : has_(false), error_(std::move(error)) {}
@@ -220,7 +220,7 @@ class expected<void, E> {
     return expected<void, G>(std::invoke(std::forward<F>(f), error()));
   }
 
- private:
+private:
   bool has_;
   E error_{};
 };
@@ -236,5 +236,5 @@ using expected = ::t81::expected<T, E>;
 using unexpect_t = ::t81::unexpect_t;
 using ::t81::make_unexpected;
 using ::t81::unexpect;
-}
+}  // namespace std
 #endif

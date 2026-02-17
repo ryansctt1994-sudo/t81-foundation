@@ -4,8 +4,8 @@
 #include <functional>
 #include <memory>
 #include <span>
-#include <vector>
 #include <t81/support/expected.hpp>
+#include <vector>
 #include "t81/canonfs/canon_types.hpp"
 
 namespace t81::canonfs {
@@ -22,7 +22,7 @@ template <typename T>
 using Result = std::expected<T, Error>;
 
 class Driver {
- public:
+public:
   virtual ~Driver() = default;
   virtual Result<CanonRef> write_object(ObjectType type, std::span<const std::byte> bytes) = 0;
   virtual Result<std::vector<std::byte>> read_object_bytes(const CanonRef& ref) = 0;

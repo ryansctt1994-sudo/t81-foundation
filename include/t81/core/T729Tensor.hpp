@@ -10,8 +10,8 @@
  */
 #pragma once
 
-#include "t81/core/T81Tensor.hpp"
 #include "t81/core/T81Float.hpp"
+#include "t81/core/T81Tensor.hpp"
 
 namespace t81 {
 
@@ -28,37 +28,38 @@ template <size_t Rank, size_t... Dims>
 using T729Tensor = T81Tensor<T81Float<72, 9>, Rank, Dims...>;
 
 // Common Holotensor aliases for standard use cases
-using HoloScalar = T729Tensor<1, 1>;           // A single high-precision value wrapped in a tensor
-using HoloVector = T729Tensor<1, 729>;         // A vector of 729 elements (Base-729 native size)
-using HoloMatrix = T729Tensor<2, 729, 729>;    // A matrix of 729x729 elements
+using HoloScalar = T729Tensor<1, 1>;         // A single high-precision value wrapped in a tensor
+using HoloVector = T729Tensor<1, 729>;       // A vector of 729 elements (Base-729 native size)
+using HoloMatrix = T729Tensor<2, 729, 729>;  // A matrix of 729x729 elements
 
 namespace holotensor {
 
-    /**
-     * @brief Creates a Holotensor filled with zeros.
-     */
-    template <size_t Rank, size_t... Dims>
-    [[nodiscard]] constexpr auto zeros() noexcept -> T729Tensor<Rank, Dims...> {
-        return T729Tensor<Rank, Dims...>::zeros();
-    }
+/**
+ * @brief Creates a Holotensor filled with zeros.
+ */
+template <size_t Rank, size_t... Dims>
+[[nodiscard]] constexpr auto zeros() noexcept -> T729Tensor<Rank, Dims...> {
+  return T729Tensor<Rank, Dims...>::zeros();
+}
 
-    /**
-     * @brief Creates a Holotensor filled with a specific value.
-     */
-    template <size_t Rank, size_t... Dims>
-    [[nodiscard]] constexpr auto fill(T81Float<72, 9> val) noexcept -> T729Tensor<Rank, Dims...> {
-        return T729Tensor<Rank, Dims...>(val);
-    }
+/**
+ * @brief Creates a Holotensor filled with a specific value.
+ */
+template <size_t Rank, size_t... Dims>
+[[nodiscard]] constexpr auto fill(T81Float<72, 9> val) noexcept -> T729Tensor<Rank, Dims...> {
+  return T729Tensor<Rank, Dims...>(val);
+}
 
-    /**
-     * @brief Contracts two Holotensors (dot product) for Rank 1.
-     * Alias for t81::contract but explicitly for Holotensors.
-     */
-    template <size_t N>
-    [[nodiscard]] constexpr auto contract(const T729Tensor<1, N>& a, const T729Tensor<1, N>& b) noexcept {
-        return t81::contract(a, b);
-    }
+/**
+ * @brief Contracts two Holotensors (dot product) for Rank 1.
+ * Alias for t81::contract but explicitly for Holotensors.
+ */
+template <size_t N>
+[[nodiscard]] constexpr auto contract(const T729Tensor<1, N>& a,
+                                      const T729Tensor<1, N>& b) noexcept {
+  return t81::contract(a, b);
+}
 
-} // namespace holotensor
+}  // namespace holotensor
 
-} // namespace t81
+}  // namespace t81

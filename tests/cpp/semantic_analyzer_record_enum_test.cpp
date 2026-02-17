@@ -4,7 +4,7 @@
 #include <string>
 
 int main() {
-    const std::string simple_record = R"(
+  const std::string simple_record = R"(
         record Point {
             [[maybe_unused]] x: i32;
             [[maybe_unused]] y: i32;
@@ -16,9 +16,9 @@ int main() {
             return sum;
         }
     )";
-    expect_semantic_success(simple_record, "simple_record");
+  expect_semantic_success(simple_record, "simple_record");
 
-    const std::string missing_field = R"(
+  const std::string missing_field = R"(
         record Point {
             [[maybe_unused]] x: i32;
             [[maybe_unused]] y: i32;
@@ -29,9 +29,9 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(missing_field, "missing_field", "missing field 'y'");
+  expect_semantic_failure(missing_field, "missing_field", "missing field 'y'");
 
-    const std::string unknown_field = R"(
+  const std::string unknown_field = R"(
         record Point {
             [[maybe_unused]] x: i32;
             [[maybe_unused]] y: i32;
@@ -42,9 +42,9 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(unknown_field, "unknown_field", "has no field 'z'");
+  expect_semantic_failure(unknown_field, "unknown_field", "has no field 'z'");
 
-    const std::string duplicate_field = R"(
+  const std::string duplicate_field = R"(
         record Point {
             [[maybe_unused]] x: i32;
             [[maybe_unused]] y: i32;
@@ -55,9 +55,9 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(duplicate_field, "duplicate_field", "is provided more than once");
+  expect_semantic_failure(duplicate_field, "duplicate_field", "is provided more than once");
 
-    const std::string type_mismatch = R"(
+  const std::string type_mismatch = R"(
         record Point {
             [[maybe_unused]] x: i32;
             [[maybe_unused]] y: i32;
@@ -68,9 +68,10 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(type_mismatch, "type_mismatch", "Cannot assign 'T81Float' to field 'x' of type 'i32'");
+  expect_semantic_failure(type_mismatch, "type_mismatch",
+                          "Cannot assign 'T81Float' to field 'x' of type 'i32'");
 
-    const std::string enum_definition = R"(
+  const std::string enum_definition = R"(
         enum Flag {
             On;
             Off;
@@ -80,9 +81,9 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_success(enum_definition, "enum_definition");
+  expect_semantic_success(enum_definition, "enum_definition");
 
-    const std::string enum_duplicate_variant = R"(
+  const std::string enum_duplicate_variant = R"(
         enum Mode {
             Start;
             Start;
@@ -92,8 +93,9 @@ int main() {
             return 0;
         }
     )";
-    expect_semantic_failure(enum_duplicate_variant, "enum_duplicate_variant", "already exists in enum");
+  expect_semantic_failure(enum_duplicate_variant, "enum_duplicate_variant",
+                          "already exists in enum");
 
-    std::cout << "Semantic analyzer record/enum tests passed!" << std::endl;
-    return 0;
+  std::cout << "Semantic analyzer record/enum tests passed!" << std::endl;
+  return 0;
 }

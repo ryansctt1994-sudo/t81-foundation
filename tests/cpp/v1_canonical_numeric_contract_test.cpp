@@ -17,13 +17,13 @@ int main() {
   const auto c = t81::v1::CanonicalBigInt::add(a, b);
   if (!expect(c.to_string() == "12", "canonical bigint add contract mismatch")) return 1;
 
-  const t81::v1::CanonicalFraction f1(
-      t81::v1::CanonicalBigInt::from_i64(2),
-      t81::v1::CanonicalBigInt::from_i64(6));
-  const t81::v1::CanonicalFraction f2(
-      t81::v1::CanonicalBigInt::from_i64(1),
-      t81::v1::CanonicalBigInt::from_i64(3));
-  if (!expect(t81::v1::CanonicalFraction::cmp(f1, f2) == 0, "canonical fraction cmp contract mismatch")) return 1;
+  const t81::v1::CanonicalFraction f1(t81::v1::CanonicalBigInt::from_i64(2),
+                                      t81::v1::CanonicalBigInt::from_i64(6));
+  const t81::v1::CanonicalFraction f2(t81::v1::CanonicalBigInt::from_i64(1),
+                                      t81::v1::CanonicalBigInt::from_i64(3));
+  if (!expect(t81::v1::CanonicalFraction::cmp(f1, f2) == 0,
+              "canonical fraction cmp contract mismatch"))
+    return 1;
 
   return 0;
 }

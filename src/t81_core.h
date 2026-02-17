@@ -5,5 +5,4 @@
 #include "data_types/t81_fraction.h"
 #include "data_types/t81_tensor.h"
 
-#endif // T81_CORE_H
-
+#endif  // T81_CORE_H

@@ -21,23 +21,21 @@ int main() {
     // Euclidean recomposition law.
     const T81BigInt recomposed = T81BigInt::add(T81BigInt::mul(dm.q, b), dm.r);
     if (!(recomposed == a)) {
-      std::cerr << "recompose failed ai=" << ai << " bi=" << bi
-                << " q=" << dm.q.to_string() << " r=" << dm.r.to_string()
-                << " recomposed=" << recomposed.to_string()
+      std::cerr << "recompose failed ai=" << ai << " bi=" << bi << " q=" << dm.q.to_string()
+                << " r=" << dm.r.to_string() << " recomposed=" << recomposed.to_string()
                 << " a=" << a.to_string() << "\n";
       std::abort();
     }
 
     // Euclidean remainder range: 0 <= r < |b|.
     if (T81BigInt::is_neg(dm.r)) {
-      std::cerr << "negative remainder ai=" << ai << " bi=" << bi
-                << " q=" << dm.q.to_string() << " r=" << dm.r.to_string() << "\n";
+      std::cerr << "negative remainder ai=" << ai << " bi=" << bi << " q=" << dm.q.to_string()
+                << " r=" << dm.r.to_string() << "\n";
       std::abort();
     }
     if (!(T81BigInt::cmp(dm.r, T81BigInt::abs(b)) < 0)) {
-      std::cerr << "remainder bound failed ai=" << ai << " bi=" << bi
-                << " q=" << dm.q.to_string() << " r=" << dm.r.to_string()
-                << " |b|=" << T81BigInt::abs(b).to_string() << "\n";
+      std::cerr << "remainder bound failed ai=" << ai << " bi=" << bi << " q=" << dm.q.to_string()
+                << " r=" << dm.r.to_string() << " |b|=" << T81BigInt::abs(b).to_string() << "\n";
       std::abort();
     }
 
@@ -55,20 +53,18 @@ int main() {
     if (T81BigInt::is_zero(dm.r)) {
       if (div_threw || !(div_q == dm.q)) {
         std::cerr << "exact division mismatch ai=" << ai << " bi=" << bi
-                  << " q(divmod)=" << dm.q.to_string()
-                  << " q(div)=" << div_q.to_string()
+                  << " q(divmod)=" << dm.q.to_string() << " q(div)=" << div_q.to_string()
                   << " threw=" << (div_threw ? "true" : "false") << "\n";
         std::abort();
       }
     } else {
-        // For non-exact division, we expect integer division behavior (Euclidean quotient).
-        if (div_threw || !(div_q == dm.q)) {
-             std::cerr << "integer division mismatch ai=" << ai << " bi=" << bi
-                  << " q(divmod)=" << dm.q.to_string()
-                  << " q(div)=" << div_q.to_string()
+      // For non-exact division, we expect integer division behavior (Euclidean quotient).
+      if (div_threw || !(div_q == dm.q)) {
+        std::cerr << "integer division mismatch ai=" << ai << " bi=" << bi
+                  << " q(divmod)=" << dm.q.to_string() << " q(div)=" << div_q.to_string()
                   << " threw=" << (div_threw ? "true" : "false") << "\n";
-             std::abort();
-        }
+        std::abort();
+      }
     }
   };
 
@@ -76,7 +72,21 @@ int main() {
       std::numeric_limits<std::int64_t>::min(),
       std::numeric_limits<std::int64_t>::min() + 1,
       -1'000'000'000'000LL,
-      -6561, -243, -82, -81, -80, -2, -1, 0, 1, 2, 80, 81, 82, 243, 6561,
+      -6561,
+      -243,
+      -82,
+      -81,
+      -80,
+      -2,
+      -1,
+      0,
+      1,
+      2,
+      80,
+      81,
+      82,
+      243,
+      6561,
       1'000'000'000'000LL,
       std::numeric_limits<std::int64_t>::max() - 1,
       std::numeric_limits<std::int64_t>::max(),
@@ -111,8 +121,8 @@ int main() {
     const auto dm_neg = t81::divmod(a, T81BigInt::from_i64(-1));
     if (!(dm_neg.q == T81BigInt::neg(a)) || !T81BigInt::is_zero(dm_neg.r)) {
       std::cerr << "unit -1 failed ai=" << ai << " q=" << dm_neg.q.to_string()
-                << " expected=" << T81BigInt::neg(a).to_string()
-                << " r=" << dm_neg.r.to_string() << "\n";
+                << " expected=" << T81BigInt::neg(a).to_string() << " r=" << dm_neg.r.to_string()
+                << "\n";
       std::abort();
     }
   }

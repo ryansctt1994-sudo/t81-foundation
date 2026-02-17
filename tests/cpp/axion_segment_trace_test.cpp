@@ -1,5 +1,5 @@
-#include "t81/tisc/program.hpp"
 #include "t81/tisc/opcodes.hpp"
+#include "t81/tisc/program.hpp"
 #include "t81/vm/vm.hpp"
 
 #include <iostream>
@@ -7,94 +7,93 @@
 #include <vector>
 
 int main() {
-    [[maybe_unused]] t81::tisc::Program program;
-    program.tensor_pool.emplace_back(std::vector<int>{1}, std::vector<float>{1.0f});
-    program.tensor_pool.emplace_back(std::vector<int>{1}, std::vector<float>{2.0f});
+  [[maybe_unused]] t81::tisc::Program program;
+  program.tensor_pool.emplace_back(std::vector<int>{1}, std::vector<float>{1.0f});
+  program.tensor_pool.emplace_back(std::vector<int>{1}, std::vector<float>{2.0f});
 
-    t81::tisc::Insn load_tensor0{};
-    load_tensor0.opcode = t81::tisc::Opcode::LoadImm;
-    load_tensor0.a = 1;
-    load_tensor0.b = 1;  // handles are 1-indexed
-    load_tensor0.literal_kind = t81::tisc::LiteralKind::TensorHandle;
+  t81::tisc::Insn load_tensor0{};
+  load_tensor0.opcode = t81::tisc::Opcode::LoadImm;
+  load_tensor0.a = 1;
+  load_tensor0.b = 1;  // handles are 1-indexed
+  load_tensor0.literal_kind = t81::tisc::LiteralKind::TensorHandle;
 
-    t81::tisc::Insn load_tensor1{};
-    load_tensor1.opcode = t81::tisc::Opcode::LoadImm;
-    load_tensor1.a = 2;
-    load_tensor1.b = 2;
-    load_tensor1.literal_kind = t81::tisc::LiteralKind::TensorHandle;
+  t81::tisc::Insn load_tensor1{};
+  load_tensor1.opcode = t81::tisc::Opcode::LoadImm;
+  load_tensor1.a = 2;
+  load_tensor1.b = 2;
+  load_tensor1.literal_kind = t81::tisc::LiteralKind::TensorHandle;
 
-    t81::tisc::Insn vec_add{};
-    vec_add.opcode = t81::tisc::Opcode::TVecAdd;
-    vec_add.a = 3;
-    vec_add.b = 1;
-    vec_add.c = 2;
+  t81::tisc::Insn vec_add{};
+  vec_add.opcode = t81::tisc::Opcode::TVecAdd;
+  vec_add.a = 3;
+  vec_add.b = 1;
+  vec_add.c = 2;
 
-    t81::tisc::Insn load_addr{};
-    load_addr.opcode = t81::tisc::Opcode::LoadImm;
-    load_addr.a = 4;
-    load_addr.b = 128;
+  t81::tisc::Insn load_addr{};
+  load_addr.opcode = t81::tisc::Opcode::LoadImm;
+  load_addr.a = 4;
+  load_addr.b = 128;
 
-    t81::tisc::Insn load_value{};
-    load_value.opcode = t81::tisc::Opcode::LoadImm;
-    load_value.a = 5;
-    load_value.b = 7;
+  t81::tisc::Insn load_value{};
+  load_value.opcode = t81::tisc::Opcode::LoadImm;
+  load_value.a = 5;
+  load_value.b = 7;
 
-    t81::tisc::Insn ax_set{};
-    ax_set.opcode = t81::tisc::Opcode::AxSet;
-    ax_set.a = 4;
-    ax_set.b = 5;
+  t81::tisc::Insn ax_set{};
+  ax_set.opcode = t81::tisc::Opcode::AxSet;
+  ax_set.a = 4;
+  ax_set.b = 5;
 
-    t81::tisc::Insn ax_read{};
-    ax_read.opcode = t81::tisc::Opcode::AxRead;
-    ax_read.a = 6;
-    ax_read.b = 200;
+  t81::tisc::Insn ax_read{};
+  ax_read.opcode = t81::tisc::Opcode::AxRead;
+  ax_read.a = 6;
+  ax_read.b = 200;
 
-    t81::tisc::Insn halt{};
-    halt.opcode = t81::tisc::Opcode::Halt;
+  t81::tisc::Insn halt{};
+  halt.opcode = t81::tisc::Opcode::Halt;
 
-    program.insns = {load_tensor0, load_tensor1, vec_add, load_addr, load_value, ax_set, ax_read, halt};
+  program.insns = {load_tensor0, load_tensor1, vec_add, load_addr,
+                   load_value,   ax_set,       ax_read, halt};
 
-    [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
-    vm->load_program(program);
-    [[maybe_unused]] auto result= vm->run_to_halt();
-    if (!result.has_value()) {
-        std::cerr << "axion_segment_trace_test failure: vm run trapped\n";
-        return 1;
+  [[maybe_unused]] auto vm = t81::vm::make_interpreter_vm();
+  vm->load_program(program);
+  [[maybe_unused]] auto result = vm->run_to_halt();
+  if (!result.has_value()) {
+    std::cerr << "axion_segment_trace_test failure: vm run trapped\n";
+    return 1;
+  }
+
+  [[maybe_unused]] bool saw_tensor = false;
+  [[maybe_unused]] bool saw_axread = false;
+  [[maybe_unused]] bool saw_axset = false;
+  [[maybe_unused]] bool saw_meta = false;
+  for (const auto& entry : vm->state().axion_log) {
+    if (entry.verdict.reason.find("tensor slot allocated") != std::string::npos) {
+      saw_tensor = true;
     }
+    if (entry.opcode == t81::tisc::Opcode::AxRead &&
+        entry.verdict.reason.find("AxRead guard") != std::string::npos) {
+      saw_axread = true;
+    }
+    if (entry.opcode == t81::tisc::Opcode::AxSet &&
+        entry.verdict.reason.find("AxSet guard") != std::string::npos) {
+      saw_axset = true;
+    }
+    if (entry.verdict.reason.find("meta slot") != std::string::npos) {
+      saw_meta = true;
+    }
+  }
+  if (!saw_tensor || !saw_axread || !saw_axset || !saw_meta) {
+    std::cerr << "axion_segment_trace_test failure: missing expected axion segment events"
+              << " tensor=" << saw_tensor << " axread=" << saw_axread << " axset=" << saw_axset
+              << " meta=" << saw_meta << "\n";
+    return 1;
+  }
+  std::cout << "Axion segment trace snippet:\n";
+  for (const auto& entry : vm->state().axion_log) {
+    std::cout << "  opcode=" << static_cast<int>(entry.opcode) << " reason=\""
+              << entry.verdict.reason << "\"\n";
+  }
 
-    [[maybe_unused]] bool saw_tensor= false;
-    [[maybe_unused]] bool saw_axread= false;
-    [[maybe_unused]] bool saw_axset= false;
-    [[maybe_unused]] bool saw_meta= false;
-    for (const auto& entry : vm->state().axion_log) {
-        if (entry.verdict.reason.find("tensor slot allocated") != std::string::npos) {
-            saw_tensor = true;
-        }
-        if (entry.opcode == t81::tisc::Opcode::AxRead &&
-            entry.verdict.reason.find("AxRead guard") != std::string::npos) {
-            saw_axread = true;
-        }
-        if (entry.opcode == t81::tisc::Opcode::AxSet &&
-            entry.verdict.reason.find("AxSet guard") != std::string::npos) {
-            saw_axset = true;
-        }
-        if (entry.verdict.reason.find("meta slot") != std::string::npos) {
-            saw_meta = true;
-        }
-    }
-    if (!saw_tensor || !saw_axread || !saw_axset || !saw_meta) {
-        std::cerr << "axion_segment_trace_test failure: missing expected axion segment events"
-                  << " tensor=" << saw_tensor
-                  << " axread=" << saw_axread
-                  << " axset=" << saw_axset
-                  << " meta=" << saw_meta << "\n";
-        return 1;
-    }
-    std::cout << "Axion segment trace snippet:\n";
-    for (const auto& entry : vm->state().axion_log) {
-        std::cout << "  opcode=" << static_cast<int>(entry.opcode)
-                  << " reason=\"" << entry.verdict.reason << "\"\n";
-    }
-
-    return 0;
+  return 0;
 }

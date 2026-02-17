@@ -22,4 +22,3 @@ Result<TierStatus> try_promote(const TierStatus& status, t81::axion::Engine& eng
 bool should_promote_to_tier4(const v1::ReflectionTrace& trace);
 
 }  // namespace t81::cog
-

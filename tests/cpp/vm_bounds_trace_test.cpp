@@ -1,6 +1,6 @@
 #include "t81/tisc/opcodes.hpp"
-#include "t81/vm/vm.hpp"
 #include "t81/tisc/program.hpp"
+#include "t81/vm/vm.hpp"
 
 #include <iostream>
 #include <string>
@@ -15,14 +15,13 @@ static bool contains_reason(const t81::vm::State& state, std::string_view substr
   return false;
 }
 
-static int run_and_expect(std::vector<t81::tisc::Insn> insns,
-                          t81::vm::Trap expected,
+static int run_and_expect(std::vector<t81::tisc::Insn> insns, t81::vm::Trap expected,
                           std::string_view reason_substr) {
   [[maybe_unused]] t81::tisc::Program program;
   program.insns = std::move(insns);
-  [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
+  [[maybe_unused]] auto vm = t81::vm::make_interpreter_vm();
   vm->load_program(program);
-  [[maybe_unused]] auto result= vm->run_to_halt();
+  [[maybe_unused]] auto result = vm->run_to_halt();
   if (!result) {
     if (result.error() != expected) {
       std::cerr << "Unexpected trap: " << static_cast<int>(result.error()) << "\n";
@@ -76,7 +75,7 @@ int main() {
     load0.a = 1;
     load0.b = 999;
     load0.literal_kind = t81::tisc::LiteralKind::TensorHandle;
-    [[maybe_unused]] t81::tisc::Insn load1= load0;
+    [[maybe_unused]] t81::tisc::Insn load1 = load0;
     load1.a = 2;
     t81::tisc::Insn tensordot{};
     tensordot.opcode = t81::tisc::Opcode::TTenDot;
@@ -90,7 +89,8 @@ int main() {
     halt.opcode = t81::tisc::Opcode::Halt;
     tensor_program.push_back(halt);
   }
-  if (run_and_expect(tensor_program, t81::vm::Trap::DecodeFault, "bounds fault segment=tensor") != 0) {
+  if (run_and_expect(tensor_program, t81::vm::Trap::DecodeFault, "bounds fault segment=tensor") !=
+      0) {
     return 1;
   }
 

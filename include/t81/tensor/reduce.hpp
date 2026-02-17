@@ -1,7 +1,7 @@
 #pragma once
+#include <limits>
 #include <stdexcept>
 #include <vector>
-#include <limits>
 #include "t81/tensor.hpp"
 
 namespace t81::ops {
@@ -112,4 +112,4 @@ inline T729Tensor reduce_mean_2d(const T729Tensor& m, int axis) {
   return sums;
 }
 
-} // namespace t81::ops
+}  // namespace t81::ops

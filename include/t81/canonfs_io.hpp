@@ -31,8 +31,7 @@ inline CanonRef decode_ref(const uint8_t in[kWireSize]) {
   CanonRef r{};
   std::string_view text_sv(reinterpret_cast<const char*>(in), 81);
   r.target = CanonHash81::from_string(text_sv);
-  r.permissions = static_cast<uint16_t>(in[81]) |
-                  (static_cast<uint16_t>(in[82]) << 8);
+  r.permissions = static_cast<uint16_t>(in[81]) | (static_cast<uint16_t>(in[82]) << 8);
   uint64_t t = 0;
   for (int i = 0; i < 8; ++i) t |= (static_cast<uint64_t>(in[83 + i]) << (8 * i));
   r.expires_at = t;
@@ -43,4 +42,4 @@ inline bool permissions_allow(uint16_t have, uint16_t want_mask) {
   return (have & want_mask) == want_mask;
 }
 
-} // namespace t81::canonfs_io
+}  // namespace t81::canonfs_io

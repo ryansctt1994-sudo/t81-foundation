@@ -18,5 +18,5 @@ char* t81_bigint_to_string(t81_bigint h);
 void t81_bigint_free(t81_bigint h);
 
 #ifdef __cplusplus
-} // extern "C"
+}  // extern "C"
 #endif

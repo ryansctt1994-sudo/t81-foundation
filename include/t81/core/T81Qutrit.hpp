@@ -20,15 +20,14 @@ namespace t81 {
 // ======================================================================
 using T81Qutrit = T81Int<2>;
 
-
 // The three basis states — exact, native, eternal
 namespace qutrit {
-    inline const T81Qutrit ZERO  = T81Qutrit(0);   // |0⟩   →  00 in balanced ternary
-    inline const T81Qutrit ONE   = T81Qutrit(1);   // |1⟩   → +0+
-    inline const T81Qutrit TWO   = T81Qutrit(-1);  // |2⟩   → -- (balanced -1)
-}
+inline const T81Qutrit ZERO = T81Qutrit(0);  // |0⟩   →  00 in balanced ternary
+inline const T81Qutrit ONE = T81Qutrit(1);   // |1⟩   → +0+
+inline const T81Qutrit TWO = T81Qutrit(-1);  // |2⟩   → -- (balanced -1)
+}  // namespace qutrit
 
 // Future ternary quantum instructions will operate directly on this type
 static_assert(sizeof(T81Qutrit) == 1);  // fits in one byte, 2 trits used
 
-} // namespace t81::core
+}  // namespace t81

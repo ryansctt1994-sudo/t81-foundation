@@ -25,43 +25,43 @@ int main() {
     std::uniform_int_distribution<std::int64_t> dist(-range, range);
 
     for (int i = 0; i < iterations; ++i) {
-        const std::int64_t n1 = dist(rng);
-        std::int64_t d1 = dist(rng);
-        while (d1 == 0) d1 = dist(rng);
+      const std::int64_t n1 = dist(rng);
+      std::int64_t d1 = dist(rng);
+      while (d1 == 0) d1 = dist(rng);
 
-        const std::int64_t n2 = dist(rng);
-        std::int64_t d2 = dist(rng);
-        while (d2 == 0) d2 = dist(rng);
+      const std::int64_t n2 = dist(rng);
+      std::int64_t d2 = dist(rng);
+      while (d2 == 0) d2 = dist(rng);
 
-        const T81Fraction a(T81BigInt::from_i64(n1), T81BigInt::from_i64(d1));
-        const T81Fraction b(T81BigInt::from_i64(n2), T81BigInt::from_i64(d2));
+      const T81Fraction a(T81BigInt::from_i64(n1), T81BigInt::from_i64(d1));
+      const T81Fraction b(T81BigInt::from_i64(n2), T81BigInt::from_i64(d2));
 
-        // Denominator canonicalization invariant: denominator > 0.
-        require(!T81BigInt::is_neg(a.den));
-        require(!T81BigInt::is_neg(b.den));
+      // Denominator canonicalization invariant: denominator > 0.
+      require(!T81BigInt::is_neg(a.den));
+      require(!T81BigInt::is_neg(b.den));
 
-        // Add/sub inverse law: (a + b) - b == a
-        require(T81Fraction::cmp(T81Fraction::sub(T81Fraction::add(a, b), b), a) == 0);
+      // Add/sub inverse law: (a + b) - b == a
+      require(T81Fraction::cmp(T81Fraction::sub(T81Fraction::add(a, b), b), a) == 0);
 
-        // Multiplicative identity.
-        require(T81Fraction::cmp(T81Fraction::mul(a, one), a) == 0);
+      // Multiplicative identity.
+      require(T81Fraction::cmp(T81Fraction::mul(a, one), a) == 0);
 
-        // Additive identity.
-        require(T81Fraction::cmp(T81Fraction::add(a, zero), a) == 0);
+      // Additive identity.
+      require(T81Fraction::cmp(T81Fraction::add(a, zero), a) == 0);
 
-        // Negation involution.
-        require(T81Fraction::cmp(T81Fraction::neg(T81Fraction::neg(a)), a) == 0);
+      // Negation involution.
+      require(T81Fraction::cmp(T81Fraction::neg(T81Fraction::neg(a)), a) == 0);
 
-        if (!T81BigInt::is_zero(b.num)) {
-          // Division inverse: (a / b) * b == a
-          const T81Fraction round = T81Fraction::mul(T81Fraction::div(a, b), b);
-          require(T81Fraction::cmp(round, a) == 0);
-        }
+      if (!T81BigInt::is_zero(b.num)) {
+        // Division inverse: (a / b) * b == a
+        const T81Fraction round = T81Fraction::mul(T81Fraction::div(a, b), b);
+        require(T81Fraction::cmp(round, a) == 0);
+      }
 
-        // Ordering antisymmetry via cmp.
-        const int ab = T81Fraction::cmp(a, b);
-        const int ba = T81Fraction::cmp(b, a);
-        require((ab == 0 && ba == 0) || (ab < 0 && ba > 0) || (ab > 0 && ba < 0));
+      // Ordering antisymmetry via cmp.
+      const int ab = T81Fraction::cmp(a, b);
+      const int ba = T81Fraction::cmp(b, a);
+      require((ab == 0 && ba == 0) || (ab < 0 && ba > 0) || (ab > 0 && ba < 0));
     }
     return true;
   };

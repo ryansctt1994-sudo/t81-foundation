@@ -79,15 +79,15 @@ t81::tisc::EnumMetadata random_enum_meta(std::mt19937_64& rng) {
 }
 
 t81::tisc::Insn random_insn(std::mt19937_64& rng) {
-  const auto raw_opcode = static_cast<std::uint8_t>(rng() %
-      (static_cast<std::uint8_t>(t81::tisc::Opcode::Print) + 1));
+  const auto raw_opcode =
+      static_cast<std::uint8_t>(rng() % (static_cast<std::uint8_t>(t81::tisc::Opcode::Print) + 1));
   t81::tisc::Insn insn;
   insn.opcode = static_cast<t81::tisc::Opcode>(raw_opcode);
   insn.a = static_cast<std::int32_t>(rng() % 64);
   insn.b = static_cast<std::int64_t>(static_cast<std::int64_t>(rng() % 2000) - 1000);
   insn.c = static_cast<std::int32_t>(static_cast<std::int32_t>(rng() % 64) - 32);
-  const auto raw_kind = static_cast<std::uint8_t>(rng() %
-      (static_cast<std::uint8_t>(t81::tisc::LiteralKind::ShapeHandle) + 1));
+  const auto raw_kind = static_cast<std::uint8_t>(
+      rng() % (static_cast<std::uint8_t>(t81::tisc::LiteralKind::ShapeHandle) + 1));
   insn.literal_kind = static_cast<t81::tisc::LiteralKind>(raw_kind);
   return insn;
 }
@@ -251,6 +251,4 @@ bool test_binary_metadata_roundtrip_property() {
 
 }  // namespace
 
-int main() {
-  return test_binary_metadata_roundtrip_property() ? 0 : 1;
-}
+int main() { return test_binary_metadata_roundtrip_property() ? 0 : 1; }

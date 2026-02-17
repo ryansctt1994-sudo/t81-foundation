@@ -8,4 +8,3 @@ inline constexpr std::string_view kVersion = "v1.1.0-canonical";
 inline constexpr bool kDeterministic = true;  // All execution must be deterministic per spec.
 inline constexpr bool kTernaryNative = true;  // Core arithmetic defined in balanced ternary.
 }  // namespace t81
-

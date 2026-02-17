@@ -1,18 +1,18 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 #include <t81/support/expected.hpp>
+#include <vector>
 #include "t81/canonfs/canon_driver.hpp"
-#include "t81/hanoi/types.hpp"
 #include "t81/hanoi/error.hpp"
+#include "t81/hanoi/types.hpp"
 
 namespace t81::hanoi {
 template <typename T>
 using Result = std::expected<T, Error>;
 
 class Kernel {
- public:
+public:
   virtual ~Kernel() = default;
   virtual Result<SnapshotRef> fork_snapshot(const SnapshotRef& base) = 0;
   virtual Result<SnapshotRef> commit_snapshot(const SnapshotRef& snapshot) = 0;
@@ -30,4 +30,3 @@ class Kernel {
 // Factory for the in-memory kernel simulator.
 std::unique_ptr<Kernel> make_in_memory_kernel(t81::canonfs::Driver& driver);
 }  // namespace t81::hanoi
-

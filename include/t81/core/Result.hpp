@@ -9,4 +9,4 @@ namespace t81 {
 template <typename T>
 using Result = T81Result<T>;
 
-} // namespace t81
+}  // namespace t81

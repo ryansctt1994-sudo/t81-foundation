@@ -13,30 +13,29 @@ namespace fs = std::filesystem;
 
 namespace {
 fs::path make_temp_path(const std::string& prefix, const std::string& extension) {
-    static std::mt19937_64 rng{std::random_device{}()};
-    static std::uniform_int_distribution<uint64_t> dist;
-    return fs::temp_directory_path() /
-           (prefix + "-" + std::to_string(dist(rng)) + extension);
+  static std::mt19937_64 rng{std::random_device{}()};
+  static std::uniform_int_distribution<uint64_t> dist;
+  return fs::temp_directory_path() / (prefix + "-" + std::to_string(dist(rng)) + extension);
 }
 
 void write_source(const fs::path& path, std::string_view contents) {
-    std::ofstream out(path, std::ios::binary);
-    out << contents;
-    out.flush();
+  std::ofstream out(path, std::ios::binary);
+  out << contents;
+  out.flush();
 }
-} // namespace
+}  // namespace
 
 int main() {
-    auto expect = [](bool cond, const char* msg) -> bool {
-        if (!cond) {
-            std::cerr << "axion_match_metadata_test failure: " << msg << "\n";
-            return false;
-        }
-        return true;
-    };
+  auto expect = [](bool cond, const char* msg) -> bool {
+    if (!cond) {
+      std::cerr << "axion_match_metadata_test failure: " << msg << "\n";
+      return false;
+    }
+    return true;
+  };
 
-    try {
-        const std::string program = R"(
+  try {
+    const std::string program = R"(
             fn main() -> i32 {
                 let maybe: Option[i32] = Some(5);
                 return match (maybe) {
@@ -46,46 +45,47 @@ int main() {
             }
         )";
 
-        [[maybe_unused]] auto src= make_temp_path("t81-match", ".t81");
-        write_source(src, program);
-        [[maybe_unused]] auto tisc_path= src;
-        tisc_path.replace_extension(".tisc");
+    [[maybe_unused]] auto src = make_temp_path("t81-match", ".t81");
+    write_source(src, program);
+    [[maybe_unused]] auto tisc_path = src;
+    tisc_path.replace_extension(".tisc");
 
-        [[maybe_unused]] int rc= t81::cli::compile(src, tisc_path);
-        if (rc != 0) {
-            std::cerr << "Compilation failed with return code " << rc << std::endl;
-            return rc;
-        }
-
-        [[maybe_unused]] auto compiled= t81::tisc::load_program(tisc_path.string());
-        if (!expect(!compiled.match_metadata_text.empty(), "missing match metadata text")) return 1;
-        if (!expect(compiled.match_metadata_text.find("(payload") != std::string::npos,
-                    "match metadata missing payload info")) return 1;
-
-        [[maybe_unused]] auto vm= t81::vm::make_interpreter_vm();
-        vm->load_program(compiled);
-
-        [[maybe_unused]] bool saw_match_hint= false;
-        for (const auto& entry : vm->state().axion_log) {
-            if (entry.verdict.reason.find("match metadata") != std::string::npos) {
-                saw_match_hint = true;
-                break;
-            }
-        }
-        if (!saw_match_hint) {
-            std::cerr << "Axion log missing match metadata hint" << std::endl;
-            return 1;
-        }
-
-        fs::remove(src);
-        if (fs::exists(tisc_path)) {
-            fs::remove(tisc_path);
-        }
-
-        std::cout << "Axion match metadata test passed!" << std::endl;
-        return 0;
-    } catch (const std::exception& ex) {
-        std::cerr << "Axion match metadata test threw: " << ex.what() << std::endl;
-        return 1;
+    [[maybe_unused]] int rc = t81::cli::compile(src, tisc_path);
+    if (rc != 0) {
+      std::cerr << "Compilation failed with return code " << rc << std::endl;
+      return rc;
     }
+
+    [[maybe_unused]] auto compiled = t81::tisc::load_program(tisc_path.string());
+    if (!expect(!compiled.match_metadata_text.empty(), "missing match metadata text")) return 1;
+    if (!expect(compiled.match_metadata_text.find("(payload") != std::string::npos,
+                "match metadata missing payload info"))
+      return 1;
+
+    [[maybe_unused]] auto vm = t81::vm::make_interpreter_vm();
+    vm->load_program(compiled);
+
+    [[maybe_unused]] bool saw_match_hint = false;
+    for (const auto& entry : vm->state().axion_log) {
+      if (entry.verdict.reason.find("match metadata") != std::string::npos) {
+        saw_match_hint = true;
+        break;
+      }
+    }
+    if (!saw_match_hint) {
+      std::cerr << "Axion log missing match metadata hint" << std::endl;
+      return 1;
+    }
+
+    fs::remove(src);
+    if (fs::exists(tisc_path)) {
+      fs::remove(tisc_path);
+    }
+
+    std::cout << "Axion match metadata test passed!" << std::endl;
+    return 0;
+  } catch (const std::exception& ex) {
+    std::cerr << "Axion match metadata test threw: " << ex.what() << std::endl;
+    return 1;
+  }
 }

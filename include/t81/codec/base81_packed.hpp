@@ -29,4 +29,4 @@ std::vector<uint32_t> pack_stream(std::span<const uint8_t> digits);
  */
 std::vector<uint8_t> unpack_stream(std::span<const uint32_t> blocks, size_t original_count);
 
-} // namespace t81::codec::base81_packed
+}  // namespace t81::codec::base81_packed

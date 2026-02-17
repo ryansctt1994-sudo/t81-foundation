@@ -93,7 +93,7 @@ struct Policy {
   std::vector<std::string> symbol_table;
 
   void serialize(std::ostream& os) const;
-  void compile_to_bytecode(); // NEW: Emitter
+  void compile_to_bytecode();  // NEW: Emitter
   static t81::expected<Policy, std::string> deserialize(std::istream& is);
 };
 
@@ -105,20 +105,25 @@ struct PolicyToken {
 };
 
 class PolicyLexer {
- public:
+public:
   explicit PolicyLexer(std::string_view src) : src_(src) {}
 
   PolicyToken next() {
     skip_ws_();
     if (pos_ >= src_.size()) return PolicyToken{};
     char c = src_[pos_];
-    if (c == '(') { ++pos_; return PolicyToken{PolicyToken::Kind::LParen, {}}; }
-    if (c == ')') { ++pos_; return PolicyToken{PolicyToken::Kind::RParen, {}}; }
+    if (c == '(') {
+      ++pos_;
+      return PolicyToken{PolicyToken::Kind::LParen, {}};
+    }
+    if (c == ')') {
+      ++pos_;
+      return PolicyToken{PolicyToken::Kind::RParen, {}};
+    }
     if (std::isdigit(static_cast<unsigned char>(c)) || c == '-' || c == '+') {
       std::size_t start = pos_;
       ++pos_;
-      while (pos_ < src_.size() &&
-             std::isdigit(static_cast<unsigned char>(src_[pos_]))) ++pos_;
+      while (pos_ < src_.size() && std::isdigit(static_cast<unsigned char>(src_[pos_]))) ++pos_;
       PolicyToken tok;
       tok.kind = PolicyToken::Kind::Integer;
       tok.text = std::string(src_.substr(start, pos_ - start));
@@ -142,8 +147,7 @@ class PolicyLexer {
       ++pos_;
       while (pos_ < src_.size()) {
         char ch = src_[pos_];
-        if (!(std::isalnum(static_cast<unsigned char>(ch)) || ch == '-' ||
-              ch == '_')) {
+        if (!(std::isalnum(static_cast<unsigned char>(ch)) || ch == '-' || ch == '_')) {
           break;
         }
         ++pos_;
@@ -158,10 +162,9 @@ class PolicyLexer {
     return PolicyToken{};
   }
 
- private:
+private:
   void skip_ws_() {
-    while (pos_ < src_.size() &&
-           std::isspace(static_cast<unsigned char>(src_[pos_]))) {
+    while (pos_ < src_.size() && std::isspace(static_cast<unsigned char>(src_[pos_]))) {
       ++pos_;
     }
   }
@@ -509,8 +512,10 @@ inline t81::expected<Policy, std::string> parse_policy(std::string_view text) {
     int depth = 1;
     while (depth > 0) {
       auto skip_tok = lex.next();
-      if (skip_tok.kind == detail::PolicyToken::Kind::LParen) ++depth;
-      else if (skip_tok.kind == detail::PolicyToken::Kind::RParen) --depth;
+      if (skip_tok.kind == detail::PolicyToken::Kind::LParen)
+        ++depth;
+      else if (skip_tok.kind == detail::PolicyToken::Kind::RParen)
+        --depth;
       else if (skip_tok.kind == detail::PolicyToken::Kind::End) {
         return make_error("unterminated policy clause");
       }

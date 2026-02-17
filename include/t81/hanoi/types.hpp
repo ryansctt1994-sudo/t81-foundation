@@ -11,4 +11,3 @@ struct RegionHandle {
   std::uint64_t id{0};
 };
 }  // namespace t81::hanoi
-

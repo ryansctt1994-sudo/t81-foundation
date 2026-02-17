@@ -64,7 +64,8 @@ static bool test_save_program_is_bit_stable_for_same_program() {
   if (!expect(loaded.insns.size() == program.insns.size(), "loaded instruction count mismatch")) {
     return false;
   }
-  if (!expect(loaded.insns[1].literal_kind == t81::tisc::LiteralKind::Bool, "literal kind roundtrip mismatch")) {
+  if (!expect(loaded.insns[1].literal_kind == t81::tisc::LiteralKind::Bool,
+              "literal kind roundtrip mismatch")) {
     return false;
   }
 

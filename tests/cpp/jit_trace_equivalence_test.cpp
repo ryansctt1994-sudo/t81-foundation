@@ -29,10 +29,10 @@ Program make_hot_arith_program() {
       {Opcode::LoadImm, 3, 1, 0},
       {Opcode::LoadImm, 4, 100, 0},
       // loop at pc=4:
-      {Opcode::Add, 1, 1, 3},       // r1 += 1
-      {Opcode::Add, 2, 2, 1},       // r2 += r1
-      {Opcode::Sub, 4, 4, 3},       // r4 -= 1
-      {Opcode::JumpIfNotZero, 4, 4, 0}, // if r4 != 0 jump loop
+      {Opcode::Add, 1, 1, 3},            // r1 += 1
+      {Opcode::Add, 2, 2, 1},            // r2 += r1
+      {Opcode::Sub, 4, 4, 3},            // r4 -= 1
+      {Opcode::JumpIfNotZero, 4, 4, 0},  // if r4 != 0 jump loop
       {Opcode::Halt, 0, 0, 0},
   };
   return p;
@@ -41,22 +41,22 @@ Program make_hot_arith_program() {
 Program make_hot_deterministic_ops_program() {
   Program p;
   p.insns = {
-      {Opcode::LoadImm, 1, -1, 0},      // trit -1
-      {Opcode::LoadImm, 2, 1, 0},       // trit +1
+      {Opcode::LoadImm, 1, -1, 0},  // trit -1
+      {Opcode::LoadImm, 2, 1, 0},   // trit +1
       {Opcode::LoadImm, 3, 0, 0},
-      {Opcode::LoadImm, 4, 64, 0},      // loop count
+      {Opcode::LoadImm, 4, 64, 0},  // loop count
       // loop at pc=4
-      {Opcode::TOr, 5, 1, 2},           // 1
-      {Opcode::TAnd, 6, 1, 2},          // -1
-      {Opcode::TXor, 7, 5, 6},          // -1
-      {Opcode::TNot, 8, 7, 0},          // 1
-      {Opcode::LessEqual, 9, 6, 5},     // 1
-      {Opcode::Greater, 10, 8, 3},      // 1
-      {Opcode::NotEqual, 11, 10, 3},    // 1
-      {Opcode::Cmp, 6, 5, 0},           // negative=true
+      {Opcode::TOr, 5, 1, 2},         // 1
+      {Opcode::TAnd, 6, 1, 2},        // -1
+      {Opcode::TXor, 7, 5, 6},        // -1
+      {Opcode::TNot, 8, 7, 0},        // 1
+      {Opcode::LessEqual, 9, 6, 5},   // 1
+      {Opcode::Greater, 10, 8, 3},    // 1
+      {Opcode::NotEqual, 11, 10, 3},  // 1
+      {Opcode::Cmp, 6, 5, 0},         // negative=true
       {Opcode::JumpIfNegative, 14, 0, 0},
-      {Opcode::LoadImm, 12, 999, 0},    // should be skipped
-      {Opcode::SetF, 12, 0, 0},         // -1
+      {Opcode::LoadImm, 12, 999, 0},  // should be skipped
+      {Opcode::SetF, 12, 0, 0},       // -1
       {Opcode::Dec, 4, 0, 0},
       {Opcode::JumpIfNotZero, 4, 4, 0},
       {Opcode::Halt, 0, 0, 0},
@@ -67,13 +67,13 @@ Program make_hot_deterministic_ops_program() {
 Program make_hot_memory_option_result_program() {
   Program p;
   p.insns = {
-      {Opcode::LoadImm, 1, 64, 0},      // loop count
-      {Opcode::LoadImm, 2, 7, 0},       // payload value
-      {Opcode::LoadImm, 4, 0, 0},       // running sum
+      {Opcode::LoadImm, 1, 64, 0},  // loop count
+      {Opcode::LoadImm, 2, 7, 0},   // payload value
+      {Opcode::LoadImm, 4, 0, 0},   // running sum
       {Opcode::LoadImm, 5, 0, 0},
       // loop at pc=4
-      {Opcode::Store, 90, 2, 0},        // mem[90] = r2
-      {Opcode::Load, 5, 90, 0},         // r5 = mem[90]
+      {Opcode::Store, 90, 2, 0},  // mem[90] = r2
+      {Opcode::Load, 5, 90, 0},   // r5 = mem[90]
       {Opcode::Push, 5, 0, 0},
       {Opcode::Pop, 6, 0, 0},
       {Opcode::MakeOptionSome, 7, 6, 0},
@@ -82,7 +82,7 @@ Program make_hot_memory_option_result_program() {
       {Opcode::MakeResultOk, 10, 9, 0},
       {Opcode::ResultIsOk, 11, 10, 0},
       {Opcode::ResultUnwrapOk, 12, 10, 0},
-      {Opcode::Add, 4, 4, 12},          // sum += 7
+      {Opcode::Add, 4, 4, 12},  // sum += 7
       {Opcode::Dec, 1, 0, 0},
       {Opcode::JumpIfNotZero, 4, 1, 0},
       {Opcode::Halt, 0, 0, 0},
@@ -93,14 +93,14 @@ Program make_hot_memory_option_result_program() {
 Program make_hot_enum_program() {
   Program p;
   p.insns = {
-      {Opcode::LoadImm, 1, 64, 0},      // loop count
-      {Opcode::LoadImm, 2, 7, 0},       // payload
-      {Opcode::LoadImm, 3, 0, 0},       // sum
+      {Opcode::LoadImm, 1, 64, 0},  // loop count
+      {Opcode::LoadImm, 2, 7, 0},   // payload
+      {Opcode::LoadImm, 3, 0, 0},   // sum
       // loop at pc=3
-      {Opcode::MakeEnumVariantPayload, 4, 2, 200}, // variant id 200 payload=7
-      {Opcode::EnumIsVariant, 5, 4, 200},          // 1
-      {Opcode::EnumUnwrapPayload, 6, 4, 0},        // 7
-      {Opcode::Add, 3, 3, 6},                      // sum += 7
+      {Opcode::MakeEnumVariantPayload, 4, 2, 200},  // variant id 200 payload=7
+      {Opcode::EnumIsVariant, 5, 4, 200},           // 1
+      {Opcode::EnumUnwrapPayload, 6, 4, 0},         // 7
+      {Opcode::Add, 3, 3, 6},                       // sum += 7
       {Opcode::Dec, 1, 0, 0},
       {Opcode::JumpIfNotZero, 3, 1, 0},
       {Opcode::Halt, 0, 0, 0},
@@ -111,15 +111,15 @@ Program make_hot_enum_program() {
 Program make_hot_call_ret_program() {
   Program p;
   p.insns = {
-    {Opcode::LoadImm, 12, 64, 0},     // loop count (using R12 instead of hardwired R0)
-      {Opcode::LoadImm, 1, 11, 0},      // function entry PC
-      {Opcode::LoadImm, 2, 2, 0},       // function return payload
-      {Opcode::LoadImm, 3, 0, 0},       // sum
+      {Opcode::LoadImm, 12, 64, 0},  // loop count (using R12 instead of hardwired R0)
+      {Opcode::LoadImm, 1, 11, 0},   // function entry PC
+      {Opcode::LoadImm, 2, 2, 0},    // function return payload
+      {Opcode::LoadImm, 3, 0, 0},    // sum
       // loop at pc=4
-      {Opcode::Call, 0, 1, 0},          // call function at r1
-      {Opcode::Add, 3, 3, 10},          // sum += r10
-    {Opcode::Dec, 12, 0, 0},
-    {Opcode::JumpIfNotZero, 4, 12, 0},
+      {Opcode::Call, 0, 1, 0},  // call function at r1
+      {Opcode::Add, 3, 3, 10},  // sum += r10
+      {Opcode::Dec, 12, 0, 0},
+      {Opcode::JumpIfNotZero, 4, 12, 0},
       {Opcode::Halt, 0, 0, 0},
       {Opcode::Nop, 0, 0, 0},
       {Opcode::Nop, 0, 0, 0},
@@ -194,10 +194,8 @@ bool test_jit_trace_equivalence_and_determinism() {
     }
   }
   if (!saw_enter || !saw_exit || !saw_enter_at_loop_pc || !saw_exit_kind) {
-    std::cerr << "missing jit boundary reasons: enter=" << saw_enter
-              << " exit=" << saw_exit
-              << " enter_pc4=" << saw_enter_at_loop_pc
-              << " exit_kind=" << saw_exit_kind << "\n";
+    std::cerr << "missing jit boundary reasons: enter=" << saw_enter << " exit=" << saw_exit
+              << " enter_pc4=" << saw_enter_at_loop_pc << " exit_kind=" << saw_exit_kind << "\n";
     return expect(false, "missing JIT boundary logs for arith trace");
   }
 
@@ -257,7 +255,8 @@ bool test_jit_memory_option_result_trace_determinism() {
   if (!expect(a.tags == b.tags, "memory/option register-tag snapshots diverged")) return false;
   if (!expect(a.pc == b.pc, "memory/option PCs diverged")) return false;
   if (!expect(a.halted == b.halted, "memory/option halted flags diverged")) return false;
-  if (!expect(a.trace_reasons == b.trace_reasons, "memory/option trace reasons diverged")) return false;
+  if (!expect(a.trace_reasons == b.trace_reasons, "memory/option trace reasons diverged"))
+    return false;
 
   bool saw_enter_at_loop_pc = false;
   bool saw_exit_kind = false;
@@ -271,7 +270,8 @@ bool test_jit_memory_option_result_trace_determinism() {
       saw_exit_kind = true;
     }
   }
-  if (!expect(saw_enter_at_loop_pc, "memory/option trace missing jit enter at loop pc=4")) return false;
+  if (!expect(saw_enter_at_loop_pc, "memory/option trace missing jit enter at loop pc=4"))
+    return false;
   if (!expect(saw_exit_kind, "memory/option trace missing jit exit kind annotation")) return false;
 
   if (!expect(a.regs[4] == 448, "memory/option R4 expected 448")) return false;
