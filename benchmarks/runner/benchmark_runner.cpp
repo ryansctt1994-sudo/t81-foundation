@@ -405,14 +405,14 @@ std::string BuildAnalysis(const BenchmarkResult& r) {
     }
     if (r.latency_speedup_computed) {
         oss << "; " << FormatRatio(r.latency_speedup_val)
-            << " iteration speedup (Binary/T81 classic)";
+            << " iteration time ratio (Binary/T81 classic)";
     } else if (BinaryBaselineSemanticallyUnavoidable(r)) {
-        oss << "; iteration speedup not computed (semantic: no binary baseline)";
+        oss << "; iteration time ratio not computed (semantic: no binary baseline)";
     } else if (T81ClassicSemanticallyUnavoidable(r) &&
                !(r.has_t81_flow || r.has_t81_native_flow)) {
-        oss << "; iteration speedup not computed (semantic)";
+        oss << "; iteration time ratio not computed (semantic)";
     } else if (IsBelowResolutionMarker(r.t81_latency_str) || IsBelowResolutionMarker(r.binary_latency_str)) {
-        oss << "; iteration speedup below timer resolution";
+        oss << "; iteration time ratio below timer resolution";
     }
     if (!r.throughput_ratio_computed && !r.latency_speedup_computed) {
         return oss.str();
@@ -427,7 +427,7 @@ std::string BuildAnalysis(const BenchmarkResult& r) {
                 << " (T81 native/Binary)";
         }
         if (r.native_latency_speedup_computed) {
-            oss << "; native iteration speedup "
+            oss << "; native iteration time ratio "
                 << FormatRatio(r.native_latency_speedup_val)
                 << " (Binary/T81 native)";
         }
@@ -1077,10 +1077,11 @@ void GenerateMarkdownReport() {
     md_file << "## Run Metadata\n\n";
     md_file << "- " << SIMDCapabilityLine() << "\n";
     md_file << "- Native benchmark mode: SIMD acceleration may fall back to scalar when unsupported by target/features.\n";
+    md_file << "- CanonFS in-memory binary read baseline is pinned to `baseline=map-read` for cross-run comparability.\n";
     md_file << "- CanonFS persistent rows are labeled `comparison=pipeline-advantage` (systems-path comparison, not strict microkernel fairness).\n\n";
     md_file << "## Summary\n\n";
 
-    md_file << "| Benchmark               | T81 Result     | T81 Iteration Time | T81 Native Result | T81 Native Iteration Time | Binary Result  | Binary Iteration Time | Memory Bandwidth | Throughput Ratio (T81 Classic/Binary) | Iteration Speedup (Binary/T81 Classic) | Throughput Ratio (T81 Native/Binary) | Iteration Speedup (Binary/T81 Native) | T81 Advantage                   | Notes                               |\n";
+    md_file << "| Benchmark               | T81 Result     | T81 Iteration Time | T81 Native Result | T81 Native Iteration Time | Binary Result  | Binary Iteration Time | Memory Bandwidth | Throughput Ratio (T81 Classic/Binary) | Iteration Time Ratio (Binary/T81 Classic) | Throughput Ratio (T81 Native/Binary) | Iteration Time Ratio (Binary/T81 Native) | T81 Advantage                   | Notes                               |\n";
     md_file << "|-------------------------|----------------|----------------|------------------|--------------------|----------------|----------------|--------------------|-------------------------------|------------------------------|-------------------------------|------------------------------|---------------------------------|-------------------------------------|\n";
 
     double best_t81_ratio = 1.0;

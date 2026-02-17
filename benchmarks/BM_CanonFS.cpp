@@ -14,6 +14,7 @@ using namespace t81::canonfs;
 
 namespace {
 constexpr std::size_t kBlockSize = 4096;
+constexpr const char* kInMemoryReadBinaryBaseline = "map-read";
 
 std::string canonfs_work_label(std::size_t bytes) {
     std::ostringstream oss;
@@ -22,6 +23,15 @@ std::string canonfs_work_label(std::size_t bytes) {
         << ", blocks/iter=" << blocks
         << ", block_size=" << kBlockSize
         << ", hash=enabled";
+    return oss.str();
+}
+
+std::string canonfs_persistent_work_label(std::size_t bytes, const char* backend) {
+    std::ostringstream oss;
+    oss << canonfs_work_label(bytes)
+        << ", backend=" << backend
+        << ", io_ops/iter=1"
+        << ", comparison=pipeline-advantage";
     return oss.str();
 }
 }  // namespace
@@ -93,7 +103,7 @@ static void BM_CanonFS_ReadThroughput_Binary(benchmark::State& state) {
     objects[canon_hash] = seed;
     std::vector<std::byte> out;
     out.reserve(data_size);
-    state.SetLabel(canonfs_work_label(data_size) + ", baseline=map-read");
+    state.SetLabel(canonfs_work_label(data_size) + ", baseline=" + std::string(kInMemoryReadBinaryBaseline));
     state.counters["work_per_iter"] = static_cast<double>(data_size);
     for (auto _ : state) {
         auto it = objects.find(canon_hash);
@@ -116,8 +126,7 @@ static void BM_CanonFS_WriteThroughput_Persistent(benchmark::State& state) {
     auto driver = make_persistent_driver(root);
     size_t data_size = state.range(0);
     std::vector<std::byte> data(data_size, std::byte{0x42});
-    state.SetLabel(canonfs_work_label(data_size) +
-                   ", backend=persistent, comparison=pipeline-advantage");
+    state.SetLabel(canonfs_persistent_work_label(data_size, "persistent"));
     state.counters["work_per_iter"] = static_cast<double>(data_size);
 
     // We need different data each time to avoid content-addressing bypass if any,
@@ -144,8 +153,7 @@ static void BM_CanonFS_ReadThroughput_Persistent(benchmark::State& state) {
     auto driver = make_persistent_driver(root);
     size_t data_size = state.range(0);
     std::vector<std::byte> data(data_size, std::byte{0x42});
-    state.SetLabel(canonfs_work_label(data_size) +
-                   ", backend=persistent, comparison=pipeline-advantage");
+    state.SetLabel(canonfs_persistent_work_label(data_size, "persistent"));
     state.counters["work_per_iter"] = static_cast<double>(data_size);
     auto ref_res = driver->write_object(ObjectType::Blob, data);
     auto ref = ref_res.value();
@@ -165,8 +173,7 @@ static void BM_CanonFS_WriteThroughput_Persistent_Binary(benchmark::State& state
     size_t data_size = state.range(0);
     std::vector<std::byte> data(data_size, std::byte{0x42});
     std::filesystem::path p = "bench_binary_persistent.tmp";
-    state.SetLabel(canonfs_work_label(data_size) +
-                   ", backend=persistent-binary, comparison=pipeline-advantage");
+    state.SetLabel(canonfs_persistent_work_label(data_size, "persistent-binary"));
     state.counters["work_per_iter"] = static_cast<double>(data_size);
     for (auto _ : state) {
         std::ofstream ofs(p, std::ios::binary);
@@ -183,8 +190,7 @@ BENCHMARK(BM_CanonFS_WriteThroughput_Persistent_Binary)
 static void BM_CanonFS_ReadThroughput_Persistent_Binary(benchmark::State& state) {
     size_t data_size = state.range(0);
     std::vector<std::byte> data(data_size, std::byte{0x42});
-    state.SetLabel(canonfs_work_label(data_size) +
-                   ", backend=persistent-binary, comparison=pipeline-advantage");
+    state.SetLabel(canonfs_persistent_work_label(data_size, "persistent-binary"));
     state.counters["work_per_iter"] = static_cast<double>(data_size);
     std::filesystem::path p = "bench_binary_persistent_read.tmp";
     {
