@@ -153,8 +153,10 @@ static void BM_NegationSpeed_T81Native(benchmark::State& state) {
     state.SetItemsProcessed(state.iterations() * DATA_SIZE);
 #if defined(__AVX2__)
     state.SetLabel("Native T81 negation (AVX2 path); work: ops/iter=100000");
+#elif defined(__ARM_NEON) || defined(__ARM_NEON__)
+    state.SetLabel("Native T81 negation (scalar fallback: NEON available, native NEON path not implemented); work: ops/iter=100000");
 #else
-    state.SetLabel("Native T81 negation (scalar fallback: AVX2 unavailable); work: ops/iter=100000");
+    state.SetLabel("Native T81 negation (scalar fallback: SIMD unavailable); work: ops/iter=100000");
 #endif
 }
 BENCHMARK(BM_NegationSpeed_T81Native);

@@ -35,6 +35,12 @@ namespace {
 
 static void BM_ArithThroughput_T81Cell(benchmark::State& state) {
     setup();
+    constexpr double kOpsPerIter = static_cast<double>(DATA_SIZE) * 4.0;
+    state.counters["work_per_iter"] = kOpsPerIter;
+    state.counters["adds_per_iter"] = static_cast<double>(DATA_SIZE);
+    state.counters["subs_per_iter"] = static_cast<double>(DATA_SIZE);
+    state.counters["muls_per_iter"] = static_cast<double>(DATA_SIZE);
+    state.counters["divs_per_iter"] = static_cast<double>(DATA_SIZE);
     for (auto _ : state) {
         for (size_t i = 0; i < DATA_SIZE; ++i) {
             try {
@@ -48,12 +54,18 @@ static void BM_ArithThroughput_T81Cell(benchmark::State& state) {
         }
     }
     state.SetItemsProcessed(state.iterations() * DATA_SIZE * 4);
-    state.SetLabel("Cell vs int64_t (+-*/)");
+    state.SetLabel("Cell vs int64_t (+-*/); work: ops/iter=40000");
 }
 BENCHMARK(BM_ArithThroughput_T81Cell);
 
 static void BM_ArithThroughput_Int64(benchmark::State& state) {
     setup();
+    constexpr double kOpsPerIter = static_cast<double>(DATA_SIZE) * 4.0;
+    state.counters["work_per_iter"] = kOpsPerIter;
+    state.counters["adds_per_iter"] = static_cast<double>(DATA_SIZE);
+    state.counters["subs_per_iter"] = static_cast<double>(DATA_SIZE);
+    state.counters["muls_per_iter"] = static_cast<double>(DATA_SIZE);
+    state.counters["divs_per_iter"] = static_cast<double>(DATA_SIZE);
     for (auto _ : state) {
         for (size_t i = 0; i < DATA_SIZE; ++i) {
             benchmark::DoNotOptimize(int64_data_a[i] + int64_data_b[i]);
@@ -63,6 +75,6 @@ static void BM_ArithThroughput_Int64(benchmark::State& state) {
         }
     }
     state.SetItemsProcessed(state.iterations() * DATA_SIZE * 4);
-    state.SetLabel("Cell vs int64_t (+-*/)");
+    state.SetLabel("Cell vs int64_t (+-*/); work: ops/iter=40000");
 }
 BENCHMARK(BM_ArithThroughput_Int64);
