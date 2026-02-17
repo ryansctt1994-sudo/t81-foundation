@@ -20,7 +20,7 @@ enum class CompileError {
 };
 
 class Compiler {
- public:
+public:
   std::expected<t81::tisc::Program, CompileError> compile(const Module& module) const;
 };
 }  // namespace t81::lang

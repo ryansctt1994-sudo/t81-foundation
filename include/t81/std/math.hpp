@@ -16,47 +16,55 @@ namespace t81::math {
 // Constants
 template <typename T>
 T pi() {
-    return T::from_double(3.14159265358979323846);
+  return T::from_double(3.14159265358979323846);
 }
 
 template <typename T>
 T e() {
-    return T::from_double(2.71828182845904523536);
+  return T::from_double(2.71828182845904523536);
 }
 
 // Basic
 template <typename T>
-T abs(T x) { return x.abs(); }
+T abs(T x) {
+  return x.abs();
+}
 
 template <typename T>
-T floor(T x) { return x.floor(); }
+T floor(T x) {
+  return x.floor();
+}
 
 template <typename T>
-T ceil(T x) { return x.ceil(); }
+T ceil(T x) {
+  return x.ceil();
+}
 
 template <typename T>
-T round(T x) { return x.round(); }
+T round(T x) {
+  return x.round();
+}
 
 // Power (integer exponent)
 template <typename T>
 T powi(T b, int exp) {
-    if (exp == 0) return T::from_double(1.0);
-    if (exp < 0) return T::from_double(1.0) / powi(b, -exp);
-    T res = T::from_double(1.0);
-    while (exp > 0) {
-        if (exp & 1) res = res * b;
-        b = b * b;
-        exp >>= 1;
-    }
-    return res;
+  if (exp == 0) return T::from_double(1.0);
+  if (exp < 0) return T::from_double(1.0) / powi(b, -exp);
+  T res = T::from_double(1.0);
+  while (exp > 0) {
+    if (exp & 1) res = res * b;
+    b = b * b;
+    exp >>= 1;
+  }
+  return res;
 }
 
 // Range reduction
 template <typename T>
 T mod_2pi(T x) {
-    T two_pi = pi<T>() * T::from_double(2.0);
-    T div = x / two_pi;
-    return x - two_pi * div.floor();
+  T two_pi = pi<T>() * T::from_double(2.0);
+  T div = x / two_pi;
+  return x - two_pi * div.floor();
 }
 
 // Trigonometric functions
@@ -64,37 +72,37 @@ T mod_2pi(T x) {
 
 template <typename T>
 T sin(T x) {
-    return x.sin();
+  return x.sin();
 }
 
 template <typename T>
 T cos(T x) {
-    return x.cos();
+  return x.cos();
 }
 
 template <typename T>
 T tan(T x) {
-    return x.tan();
+  return x.tan();
 }
 
 template <typename T>
 T sqrt(T x) {
-    return x.sqrt();
+  return x.sqrt();
 }
 
 template <typename T>
 T exp(T x) {
-    return x.exp();
+  return x.exp();
 }
 
 template <typename T>
 T log(T x) {
-    return x.log();
+  return x.log();
 }
 
 template <typename T>
 T pow(T b, T e) {
-    return b.pow(e);
+  return b.pow(e);
 }
 
 // Derived functions (still using ad-hoc implementation or delegating if available)
@@ -104,40 +112,40 @@ T pow(T b, T e) {
 // Inverse Tangent
 template <typename T>
 T atan(T x) {
-    // Ideally delegate to x.atan() but x.atan() might not be fully deterministic yet in Phase 1
-    // (it falls back to std::atan unless T81_DETERMINISTIC is set, in which case it is NaE).
-    // Here we can keep the software implementation if it is better than NaE?
-    // The previous implementation used host-math for large values check?
-    // "double xd = x.to_double(); if (::std::abs(xd) > 1.0) ..."
-    // This is host dependent logic.
+  // Ideally delegate to x.atan() but x.atan() might not be fully deterministic yet in Phase 1
+  // (it falls back to std::atan unless T81_DETERMINISTIC is set, in which case it is NaE).
+  // Here we can keep the software implementation if it is better than NaE?
+  // The previous implementation used host-math for large values check?
+  // "double xd = x.to_double(); if (::std::abs(xd) > 1.0) ..."
+  // This is host dependent logic.
 
-    // For now, delegate to member function.
-    return x.atan();
+  // For now, delegate to member function.
+  return x.atan();
 }
 
 template <typename T>
 T asin(T x) {
-    return x.asin();
+  return x.asin();
 }
 
 template <typename T>
 T acos(T x) {
-    return x.acos();
+  return x.acos();
 }
 
 template <typename T>
 T sinh(T x) {
-    return x.sinh();
+  return x.sinh();
 }
 
 template <typename T>
 T cosh(T x) {
-    return x.cosh();
+  return x.cosh();
 }
 
 template <typename T>
 T tanh(T x) {
-    return x.tanh();
+  return x.tanh();
 }
 
-} // namespace t81::math
+}  // namespace t81::math

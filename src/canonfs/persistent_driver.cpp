@@ -3,20 +3,20 @@
 #include <cstddef>
 #include <filesystem>
 #include <fstream>
-#include <iterator>
 #include <istream>
+#include <iterator>
 #include <list>
 #include <optional>
 #include <stdexcept>
-#include <unordered_map>
-#include <system_error>
 #include <string>
+#include <system_error>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
+#include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 #include <unistd.h>
 
 #include "t81/hash/canonhash.hpp"
@@ -32,29 +32,21 @@ struct hash<t81::canonfs::CanonHash> {
     return seed;
   }
 };
-}
+}  // namespace std
 
 namespace t81::canonfs {
 namespace {
-std::filesystem::path objects_dir(const std::filesystem::path& root) {
-  return root / "objects";
-}
+std::filesystem::path objects_dir(const std::filesystem::path& root) { return root / "objects"; }
 
-std::filesystem::path capabilities_dir(const std::filesystem::path& root) {
-  return root / "caps";
-}
+std::filesystem::path capabilities_dir(const std::filesystem::path& root) { return root / "caps"; }
 
-std::filesystem::path parity_dir(const std::filesystem::path& root) {
-  return root / "parity";
-}
+std::filesystem::path parity_dir(const std::filesystem::path& root) { return root / "parity"; }
 
-std::filesystem::path object_path(const std::filesystem::path& root,
-                                  const CanonHash& hash) {
+std::filesystem::path object_path(const std::filesystem::path& root, const CanonHash& hash) {
   return objects_dir(root) / (hash.h.to_string() + ".blk");
 }
 
-std::filesystem::path capability_path(const std::filesystem::path& root,
-                                      const CanonHash& hash) {
+std::filesystem::path capability_path(const std::filesystem::path& root, const CanonHash& hash) {
   return capabilities_dir(root) / (hash.h.to_string() + ".cap");
 }
 
@@ -76,7 +68,7 @@ bool write_capability(const std::filesystem::path& path, uint16_t perms) {
 }
 
 class PersistentDriver final : public Driver {
- public:
+public:
   explicit PersistentDriver(std::filesystem::path root)
       : root_(std::move(root)),
         objects_dir_(objects_dir(root_)),
@@ -87,19 +79,16 @@ class PersistentDriver final : public Driver {
     std::filesystem::create_directories(capabilities_dir_, ec);
     std::filesystem::create_directories(parity_dir_, ec);
     if (ec) {
-      throw std::runtime_error("CanonFS persistent driver mkdir failed: " +
-                               ec.message());
+      throw std::runtime_error("CanonFS persistent driver mkdir failed: " + ec.message());
     }
     has_capabilities_ = !std::filesystem::is_empty(capabilities_dir_);
   }
 
-  void set_axion_hook(std::function<AxionVerdict(OpKind, const CanonRef&)> hook)
-      override {
+  void set_axion_hook(std::function<AxionVerdict(OpKind, const CanonRef&)> hook) override {
     hook_ = std::move(hook);
   }
 
-  Result<CanonRef> write_object(ObjectType, std::span<const std::byte> bytes)
-      override {
+  Result<CanonRef> write_object(ObjectType, std::span<const std::byte> bytes) override {
     auto hashed = t81::hash::hash_bytes(bytes);
     CanonRef ref{CanonHash{hashed}};
     if (!axion_allow(OpKind::Write, ref)) {
@@ -122,8 +111,7 @@ class PersistentDriver final : public Driver {
     return ref;
   }
 
-  Result<std::vector<std::byte>> read_object_bytes(
-      const CanonRef& ref) override {
+  Result<std::vector<std::byte>> read_object_bytes(const CanonRef& ref) override {
     if (!axion_allow(OpKind::Read, ref)) {
       return Result<std::vector<std::byte>>(t81::unexpect, Error::CapabilityError);
     }
@@ -213,7 +201,7 @@ class PersistentDriver final : public Driver {
     return {};
   }
 
- private:
+private:
   bool axion_allow(OpKind kind, const CanonRef& ref) const {
     if (!hook_) return true;
     AxionVerdict v = hook_(kind, ref);
@@ -247,7 +235,7 @@ class PersistentDriver final : public Driver {
   std::filesystem::path capabilities_dir_;
   std::filesystem::path parity_dir_;
   bool has_capabilities_{false};
-  static constexpr size_t kMaxCacheSize = 2048; // Increased from 1024
+  static constexpr size_t kMaxCacheSize = 2048;  // Increased from 1024
   mutable std::unordered_map<CanonHash, uint16_t> capability_cache_{};
   mutable std::unordered_map<CanonHash, CacheEntry> object_cache_{};
   mutable std::list<CanonHash> lru_list_{};

@@ -10,4 +10,3 @@ struct Verdict {
   std::string reason;
 };
 }  // namespace t81::axion
-

@@ -4,13 +4,13 @@
 #include <string_view>
 #include <t81/support/expected.hpp>
 #include "t81/axion/engine.hpp"
+#include "t81/tisc/program.hpp"
 #include "t81/vm/state.hpp"
 #include "t81/vm/traps.hpp"
-#include "t81/tisc/program.hpp"
 
 namespace t81::vm {
 class IVirtualMachine {
- public:
+public:
   virtual ~IVirtualMachine() = default;
   virtual void load_program(const t81::tisc::Program& program) = 0;
   virtual std::expected<void, Trap> step() = 0;
@@ -22,5 +22,6 @@ class IVirtualMachine {
 };
 
 // Factory for the in-tree interpreter implementation.
-std::unique_ptr<IVirtualMachine> make_interpreter_vm(std::unique_ptr<t81::axion::Engine> engine = nullptr);
+std::unique_ptr<IVirtualMachine> make_interpreter_vm(
+    std::unique_ptr<t81::axion::Engine> engine = nullptr);
 }  // namespace t81::vm

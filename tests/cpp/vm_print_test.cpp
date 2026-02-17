@@ -1,5 +1,5 @@
-#include "test_runtime_check.hpp"
 #include <string>
+#include "test_runtime_check.hpp"
 
 #include "t81/bigint.hpp"
 #include "t81/fraction.hpp"

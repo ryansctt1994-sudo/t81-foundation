@@ -1,10 +1,10 @@
 #pragma once
+#include <fstream>
 #include <istream>
 #include <ostream>
-#include <fstream>
-#include <vector>
-#include <string>
 #include <stdexcept>
+#include <string>
+#include <vector>
 #include "t81/tensor.hpp"
 
 namespace t81::io {
@@ -38,4 +38,4 @@ inline void save_tensor_txt_file(const std::string& path, const T729Tensor& t) {
   save_tensor_txt(f, t);
 }
 
-} // namespace t81::io
+}  // namespace t81::io

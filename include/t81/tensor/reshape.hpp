@@ -30,7 +30,8 @@ inline T729Tensor reshape(const T729Tensor& m, std::vector<int> new_shape) {
   }
 
   if (infer_idx != -1) {
-    if (old_sz % known_prod != 0) throw std::invalid_argument("reshape: size not divisible for inference");
+    if (old_sz % known_prod != 0)
+      throw std::invalid_argument("reshape: size not divisible for inference");
     size_t inferred = old_sz / known_prod;
     if (inferred == 0) throw std::invalid_argument("reshape: inferred dimension cannot be zero");
     if (inferred > static_cast<size_t>(std::numeric_limits<int>::max()))
@@ -47,4 +48,4 @@ inline T729Tensor reshape(const T729Tensor& m, std::vector<int> new_shape) {
   return T729Tensor(std::move(new_shape), m.data());
 }
 
-} // namespace t81::ops
+}  // namespace t81::ops

@@ -6,4 +6,3 @@ struct Metrics {
   double coherence{0.0};
 };
 }  // namespace t81::cog
-

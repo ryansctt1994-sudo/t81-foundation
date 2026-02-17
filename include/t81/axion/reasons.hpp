@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string_view>
 #include <string>
+#include <string_view>
 
 namespace t81::axion {
 
@@ -58,18 +58,18 @@ constexpr std::string_view kEnumGuard = "enum guard";
 constexpr std::string_view kEnumPayload = "enum payload";
 constexpr std::string_view kMetaSlotAxionEvent = "axion event";
 
-} // namespace reasons
+}  // namespace reasons
 
 /**
  * @struct StructuredEvent
  * @brief Represents a structured Axion event for consistent audit trails.
  */
 struct StructuredEvent {
-    std::string reason;
-    uint32_t policy_id{0};
-    uint64_t pc{0};
-    int64_t handle_id{0};
-    std::string_view decision;
+  std::string reason;
+  uint32_t policy_id{0};
+  uint64_t pc{0};
+  int64_t handle_id{0};
+  std::string_view decision;
 };
 
-} // namespace t81::axion
+}  // namespace t81::axion

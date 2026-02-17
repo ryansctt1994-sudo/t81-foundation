@@ -1,12 +1,12 @@
 #pragma once
 #include <array>
+#include <cstddef>
 #include <cstdint>
+#include <cstring>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <cstring>
-#include <span>
-#include <cstddef>
 
 #include "t81/hash/base81.hpp"
 
@@ -19,12 +19,8 @@ namespace t81::hash {
 struct CanonHash81 {
   std::array<std::uint8_t, 32> bytes{};  // 256-bit hash
 
-  bool operator==(const CanonHash81& other) const noexcept {
-    return bytes == other.bytes;
-  }
-  bool operator!=(const CanonHash81& other) const noexcept {
-    return !(*this == other);
-  }
+  bool operator==(const CanonHash81& other) const noexcept { return bytes == other.bytes; }
+  bool operator!=(const CanonHash81& other) const noexcept { return !(*this == other); }
 
   /**
    * @brief Encodes the hash to a Base-81 string.
@@ -56,7 +52,7 @@ struct CanonHash81 {
     std::string_view trimmed = s;
     size_t last = s.find_first_of('\0');
     if (last != std::string_view::npos) {
-        trimmed = s.substr(0, last);
+      trimmed = s.substr(0, last);
     }
 
     std::vector<std::uint8_t> v = decode_base81(std::string(trimmed));
@@ -79,8 +75,6 @@ CanonHash81 hash_bytes(std::span<const std::byte> data);
 CanonHash81 hash_string(std::string_view s);
 
 // Compatibility alias
-inline CanonHash81 make_canonhash81_base81stub(std::string_view s) {
-  return hash_string(s);
-}
+inline CanonHash81 make_canonhash81_base81stub(std::string_view s) { return hash_string(s); }
 
 }  // namespace t81::hash

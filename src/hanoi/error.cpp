@@ -25,4 +25,3 @@ std::string to_string(Error error) {
   return "Unknown";
 }
 }  // namespace t81::hanoi
-

@@ -27,16 +27,16 @@ struct T81Fraction {
     // (a.num/a.den) + (b.num/b.den) = (a.num*b.den + b.num*a.den) / (a.den*b.den)
     T81BigInt ad = T81BigInt::mul(a.num, b.den);
     T81BigInt bc = T81BigInt::mul(b.num, a.den);
-    T81BigInt n  = T81BigInt::add(ad, bc);
-    T81BigInt d  = T81BigInt::mul(a.den, b.den);
+    T81BigInt n = T81BigInt::add(ad, bc);
+    T81BigInt d = T81BigInt::mul(a.den, b.den);
     return T81Fraction(std::move(n), std::move(d));
   }
 
   static T81Fraction sub(const T81Fraction& a, const T81Fraction& b) {
     T81BigInt ad = T81BigInt::mul(a.num, b.den);
     T81BigInt bc = T81BigInt::mul(b.num, a.den);
-    T81BigInt n  = T81BigInt::sub(ad, bc);
-    T81BigInt d  = T81BigInt::mul(a.den, b.den);
+    T81BigInt n = T81BigInt::sub(ad, bc);
+    T81BigInt d = T81BigInt::mul(a.den, b.den);
     return T81Fraction(std::move(n), std::move(d));
   }
 
@@ -54,22 +54,18 @@ struct T81Fraction {
   }
 
   // unary negation
-  static T81Fraction neg(const T81Fraction& x) {
-    return T81Fraction(T81BigInt::neg(x.num), x.den);
-  }
+  static T81Fraction neg(const T81Fraction& x) { return T81Fraction(T81BigInt::neg(x.num), x.den); }
 
   // --- comparison (total order) ---
   static int cmp(const T81Fraction& a, const T81Fraction& b) {
     // Compare a.num*b.den ? b.num*a.den
     T81BigInt lhs = T81BigInt::mul(a.num, b.den);
     T81BigInt rhs = T81BigInt::mul(b.num, a.den);
-    return T81BigInt::cmp(lhs, rhs); // -1,0,1
+    return T81BigInt::cmp(lhs, rhs);  // -1,0,1
   }
 
   // --- formatting ---
-  std::string to_string() const {
-    return num.to_string() + "/" + den.to_string();
-  }
+  std::string to_string() const { return num.to_string() + "/" + den.to_string(); }
 
   // --- Serialization ---
   void serialize(std::ostream& os) const {
@@ -101,13 +97,14 @@ private:
     // Reduce by gcd(|num|, den)
     T81BigInt g = T81BigInt::gcd(T81BigInt::abs(num), den);
     if (!T81BigInt::is_one(g)) {
-      num = T81BigInt::div(num, g); // requires BigInt::div by smallish g; if not present, use exact division helper
+      num = T81BigInt::div(
+          num, g);  // requires BigInt::div by smallish g; if not present, use exact division helper
       den = T81BigInt::div(den, g);
     }
   }
 };
 
-} // namespace t81
+}  // namespace t81
 
 // Staged namespace-convergence contract:
 // keep canonical fraction available in `t81::v1` under a non-colliding name

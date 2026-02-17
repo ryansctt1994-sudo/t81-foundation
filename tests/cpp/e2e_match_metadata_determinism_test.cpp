@@ -2,7 +2,6 @@
 #include "t81/vm/vm.hpp"
 
 #include <algorithm>
-#include "test_runtime_check.hpp"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -11,6 +10,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include "test_runtime_check.hpp"
 
 using namespace t81;
 namespace fs = std::filesystem;

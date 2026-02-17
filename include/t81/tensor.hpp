@@ -1,13 +1,13 @@
 #pragma once
-#include <iostream>
-#include <vector>
-#include <stdexcept>
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
-#include <algorithm>
-#include <numeric>
+#include <iostream>
 #include <limits>
+#include <numeric>
+#include <stdexcept>
+#include <vector>
 #include "t81/core/T81Int.hpp"
 
 namespace t81 {
@@ -20,15 +20,14 @@ public:
   T729TensorBase() = default;
 
   explicit T729TensorBase(std::vector<int> shape)
-  : shape_(std::move(shape)), data_(size_from_shape_(shape_)) {
+      : shape_(std::move(shape)), data_(size_from_shape_(shape_)) {
     if (!valid_shape_(shape_)) throw std::invalid_argument("T729Tensor: invalid shape");
   }
 
-  T729TensorBase(std::initializer_list<int> shape)
-  : T729TensorBase(std::vector<int>(shape)) {}
+  T729TensorBase(std::initializer_list<int> shape) : T729TensorBase(std::vector<int>(shape)) {}
 
   T729TensorBase(std::vector<int> shape, std::vector<T> data)
-  : shape_(std::move(shape)), data_(std::move(data)) {
+      : shape_(std::move(shape)), data_(std::move(data)) {
     if (!valid_shape_(shape_)) throw std::invalid_argument("T729Tensor: invalid shape");
     if (data_.size() != size_from_shape_(shape_))
       throw std::invalid_argument("T729Tensor: data size mismatch");
@@ -47,8 +46,7 @@ public:
   static T729TensorBase contract_dot(const T729TensorBase& a, const T729TensorBase& b) {
     if (a.rank() != 1 || b.rank() != 1)
       throw std::invalid_argument("contract_dot: both inputs must be vectors");
-    if (a.shape_[0] != b.shape_[0])
-      throw std::invalid_argument("contract_dot: size mismatch");
+    if (a.shape_[0] != b.shape_[0]) throw std::invalid_argument("contract_dot: size mismatch");
     T s{};
     for (std::size_t i = 0; i < a.data_.size(); ++i) s += a.data_[i] * b.data_[i];
     return T729TensorBase({1}, std::vector<T>{s});
@@ -95,18 +93,17 @@ public:
       }
       return st;
     };
-    auto in_strides  = strides(cur);
+    auto in_strides = strides(cur);
     auto out_strides = strides(new_shape);
 
-    const std::size_t out_sz =
-      std::accumulate(new_shape.begin(), new_shape.end(), std::size_t{1},
-                      [](std::size_t a, int b){
-                        if (b <= 0) throw std::invalid_argument("broadcast: non-positive dim");
-                        if (a != 0 && static_cast<std::size_t>(b) > std::numeric_limits<std::size_t>::max() / a) {
-                          throw std::overflow_error("broadcast: size overflow");
-                        }
-                        return a * static_cast<std::size_t>(b);
-                      });
+    const std::size_t out_sz = std::accumulate(
+        new_shape.begin(), new_shape.end(), std::size_t{1}, [](std::size_t a, int b) {
+          if (b <= 0) throw std::invalid_argument("broadcast: non-positive dim");
+          if (a != 0 && static_cast<std::size_t>(b) > std::numeric_limits<std::size_t>::max() / a) {
+            throw std::overflow_error("broadcast: size overflow");
+          }
+          return a * static_cast<std::size_t>(b);
+        });
 
     std::vector<T> out(out_sz);
     std::vector<int> idx(nr, 0);
@@ -122,7 +119,7 @@ public:
       std::size_t in_flat = 0;
       for (int d = 0; d < nr; ++d) {
         int dim = cur[(std::size_t)d];
-        int ii  = (dim == 1) ? 0 : idx[(std::size_t)d];
+        int ii = (dim == 1) ? 0 : idx[(std::size_t)d];
         in_flat += (std::size_t)ii * in_strides[(std::size_t)d];
       }
       out[flat] = data_[in_flat];
@@ -132,36 +129,36 @@ public:
   }
 
 private:
-  std::vector<int>   shape_;
+  std::vector<int> shape_;
   std::vector<T> data_;
 
 public:
   // --- Serialization ---
   void serialize(std::ostream& os) const {
-      uint64_t shape_size = shape_.size();
-      os.write(reinterpret_cast<const char*>(&shape_size), sizeof(shape_size));
-      os.write(reinterpret_cast<const char*>(shape_.data()), shape_size * sizeof(int));
+    uint64_t shape_size = shape_.size();
+    os.write(reinterpret_cast<const char*>(&shape_size), sizeof(shape_size));
+    os.write(reinterpret_cast<const char*>(shape_.data()), shape_size * sizeof(int));
 
-      uint64_t data_size = data_.size();
-      os.write(reinterpret_cast<const char*>(&data_size), sizeof(data_size));
-      os.write(reinterpret_cast<const char*>(data_.data()), data_size * sizeof(T));
+    uint64_t data_size = data_.size();
+    os.write(reinterpret_cast<const char*>(&data_size), sizeof(data_size));
+    os.write(reinterpret_cast<const char*>(data_.data()), data_size * sizeof(T));
   }
 
   void deserialize(std::istream& is) {
-      uint64_t shape_size;
-      is.read(reinterpret_cast<char*>(&shape_size), sizeof(shape_size));
-      shape_.resize(shape_size);
-      is.read(reinterpret_cast<char*>(shape_.data()), shape_size * sizeof(int));
+    uint64_t shape_size;
+    is.read(reinterpret_cast<char*>(&shape_size), sizeof(shape_size));
+    shape_.resize(shape_size);
+    is.read(reinterpret_cast<char*>(shape_.data()), shape_size * sizeof(int));
 
-      uint64_t data_size;
-      is.read(reinterpret_cast<char*>(&data_size), sizeof(data_size));
-      data_.resize(data_size);
-      is.read(reinterpret_cast<char*>(data_.data()), data_size * sizeof(T));
+    uint64_t data_size;
+    is.read(reinterpret_cast<char*>(&data_size), sizeof(data_size));
+    data_.resize(data_size);
+    is.read(reinterpret_cast<char*>(data_.data()), data_size * sizeof(T));
   }
 
 private:
   static bool valid_shape_(const std::vector<int>& s) {
-    return std::all_of(s.begin(), s.end(), [](int d){ return d > 0; });
+    return std::all_of(s.begin(), s.end(), [](int d) { return d > 0; });
   }
 
   static std::size_t size_from_shape_(const std::vector<int>& s) {
@@ -181,4 +178,4 @@ private:
 using T729Tensor = T729TensorBase<float>;
 using T729IntTensor = T729TensorBase<T81Int<81>>;
 
-} // namespace t81
+}  // namespace t81

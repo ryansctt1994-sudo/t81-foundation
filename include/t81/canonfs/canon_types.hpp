@@ -30,7 +30,7 @@ struct CapabilityGrant {
   CanonRef target;
   struct Subject {
     std::string id;
-    std::string pubkey; // placeholder
+    std::string pubkey;  // placeholder
   } subject;
   std::uint16_t perms{0};
 };
@@ -47,10 +47,10 @@ struct CanonParityShard {
 
 // Optional permission bits (example; extend as needed)
 enum : uint16_t {
-  CANON_PERM_READ   = 1u << 0,
-  CANON_PERM_WRITE  = 1u << 1,
+  CANON_PERM_READ = 1u << 0,
+  CANON_PERM_WRITE = 1u << 1,
   CANON_PERM_APPEND = 1u << 2,
-  CANON_PERM_ADMIN  = 1u << 15
+  CANON_PERM_ADMIN = 1u << 15
 };
 
 // Minimal Axion verdict hook for CanonFS operations.

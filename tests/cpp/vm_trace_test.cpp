@@ -1,6 +1,6 @@
-#include <t81/vm/vm.hpp>
-#include <t81/tisc/program.hpp>
 #include <iostream>
+#include <t81/tisc/program.hpp>
+#include <t81/vm/vm.hpp>
 
 using namespace t81;
 
@@ -18,12 +18,12 @@ int main() {
     p.insns.push_back({tisc::Opcode::Nop, 0, 0, 0});
   }
   p.insns.push_back({tisc::Opcode::LoadImm, 0, 1, 0});
-  p.insns.push_back({tisc::Opcode::Load, 1, 9999, 0}); // invalid -> trap
+  p.insns.push_back({tisc::Opcode::Load, 1, 9999, 0});  // invalid -> trap
   p.axion_policy_text = "(policy (tier 2) (max-stack 1024))";
 
-  [[maybe_unused]] auto vm= vm::make_interpreter_vm();
+  [[maybe_unused]] auto vm = vm::make_interpreter_vm();
   vm->load_program(p);
-  [[maybe_unused]] auto r1= vm->step();
+  [[maybe_unused]] auto r1 = vm->step();
   if (!expect(r1.has_value(), "first step unexpectedly trapped")) return 1;
   std::expected<void, vm::Trap> r2;
   while (true) {
@@ -32,7 +32,7 @@ int main() {
   }
   if (!expect(r2.error() == vm::Trap::BoundsFault, "expected BoundsFault trap")) return 1;
   if (!expect(!vm->state().trace.empty(), "trace buffer unexpectedly empty")) return 1;
-  [[maybe_unused]] auto last= vm->state().trace.back();
+  [[maybe_unused]] auto last = vm->state().trace.back();
   if (!expect(last.trap.has_value(), "last trace entry missing trap marker")) return 1;
   if (!expect(vm->state().policy.has_value(), "policy metadata missing")) return 1;
   if (!expect(vm->state().policy->tier == 2, "unexpected loaded policy tier")) return 1;

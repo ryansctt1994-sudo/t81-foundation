@@ -2,18 +2,20 @@
 #include <stdexcept>
 #include <vector>
 #include "t81/tensor.hpp"
-#include "t81/tensor/shape.hpp"
 #include "t81/tensor/broadcast.hpp"
+#include "t81/tensor/shape.hpp"
 
 namespace t81::ops {
 
 // Elementwise binary op with NumPy-style right-aligned broadcasting.
 template <typename T, typename Op>
-inline T729TensorBase<T> elemwise_binary(const T729TensorBase<T>& A, const T729TensorBase<T>& B, Op op) {
+inline T729TensorBase<T> elemwise_binary(const T729TensorBase<T>& A, const T729TensorBase<T>& B,
+                                         Op op) {
   // Fast path: exact same shape
   if (A.shape() == B.shape()) {
     std::vector<T> out(A.size());
-    const auto& a = A.data(); const auto& b = B.data();
+    const auto& a = A.data();
+    const auto& b = B.data();
     for (std::size_t i = 0; i < out.size(); ++i) out[i] = op(a[i], b[i]);
     return T729TensorBase<T>(A.shape(), std::move(out));
   }
@@ -24,23 +26,24 @@ inline T729TensorBase<T> elemwise_binary(const T729TensorBase<T>& A, const T729T
   T729TensorBase<T> Bb = (B.shape() == out_shape) ? B : t81::ops::broadcast_to(B, out_shape);
 
   std::vector<T> out(Ab.size());
-  const auto& a = Ab.data(); const auto& b = Bb.data();
+  const auto& a = Ab.data();
+  const auto& b = Bb.data();
   for (std::size_t i = 0; i < out.size(); ++i) out[i] = op(a[i], b[i]);
   return T729TensorBase<T>(std::move(out_shape), std::move(out));
 }
 
 // Convenience wrappers
 inline T729Tensor add(const T729Tensor& A, const T729Tensor& B) {
-  return elemwise_binary(A, B, [](float x, float y){ return x + y; });
+  return elemwise_binary(A, B, [](float x, float y) { return x + y; });
 }
 inline T729Tensor sub(const T729Tensor& A, const T729Tensor& B) {
-  return elemwise_binary(A, B, [](float x, float y){ return x - y; });
+  return elemwise_binary(A, B, [](float x, float y) { return x - y; });
 }
 inline T729Tensor mul(const T729Tensor& A, const T729Tensor& B) {
-  return elemwise_binary(A, B, [](float x, float y){ return x * y; });
+  return elemwise_binary(A, B, [](float x, float y) { return x * y; });
 }
 inline T729Tensor div(const T729Tensor& A, const T729Tensor& B) {
-  return elemwise_binary(A, B, [](float x, float y){
+  return elemwise_binary(A, B, [](float x, float y) {
     if (y == 0.0f) throw std::domain_error("elemwise div: divide by zero");
     return x / y;
   });
@@ -48,13 +51,13 @@ inline T729Tensor div(const T729Tensor& A, const T729Tensor& B) {
 
 // Ternary convenience wrappers
 inline T729IntTensor add(const T729IntTensor& A, const T729IntTensor& B) {
-  return elemwise_binary(A, B, [](const T81Int<81>& x, const T81Int<81>& y){ return x + y; });
+  return elemwise_binary(A, B, [](const T81Int<81>& x, const T81Int<81>& y) { return x + y; });
 }
 inline T729IntTensor sub(const T729IntTensor& A, const T729IntTensor& B) {
-  return elemwise_binary(A, B, [](const T81Int<81>& x, const T81Int<81>& y){ return x - y; });
+  return elemwise_binary(A, B, [](const T81Int<81>& x, const T81Int<81>& y) { return x - y; });
 }
 inline T729IntTensor mul(const T729IntTensor& A, const T729IntTensor& B) {
-  return elemwise_binary(A, B, [](const T81Int<81>& x, const T81Int<81>& y){ return x * y; });
+  return elemwise_binary(A, B, [](const T81Int<81>& x, const T81Int<81>& y) { return x * y; });
 }
 
-} // namespace t81::ops
+}  // namespace t81::ops

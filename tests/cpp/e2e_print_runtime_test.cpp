@@ -5,12 +5,12 @@
 #include "t81/tisc/binary_emitter.hpp"
 #include "t81/vm/vm.hpp"
 
-#include "test_runtime_check.hpp"
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
+#include "test_runtime_check.hpp"
 
 using namespace t81;
 
@@ -119,11 +119,7 @@ static void test_runtime_arithmetic_for_t81_numeric_families() {
 
 static void test_base81_float_parse_print_roundtrip_is_stable() {
   const std::vector<std::string_view> literals = {
-      "1.20t81",
-      "0.5t81",
-      "-2.25t81",
-      "123456.5t81",
-      "0.1t81",
+      "1.20t81", "0.5t81", "-2.25t81", "123456.5t81", "0.1t81",
   };
 
   for (const auto literal : literals) {

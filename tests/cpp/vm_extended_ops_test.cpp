@@ -1,15 +1,15 @@
-#include "test_runtime_check.hpp"
 #include <algorithm>
 #include <memory>
-#include <t81/vm/vm.hpp>
-#include <t81/tisc/program.hpp>
 #include <t81/axion/engine.hpp>
+#include <t81/tisc/program.hpp>
+#include <t81/vm/vm.hpp>
+#include "test_runtime_check.hpp"
 
 using namespace t81;
 
 namespace {
 class DenyEngine : public t81::axion::Engine {
- public:
+public:
   t81::axion::Verdict evaluate(const t81::axion::SyscallContext&) override {
     return {t81::axion::VerdictKind::Deny, "blocked"};
   }
@@ -42,9 +42,9 @@ int main() {
     p.insns.push_back({tisc::Opcode::AxVerify, 6, 0, 0});
     p.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
 
-    [[maybe_unused]] auto vm= vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm = vm::make_interpreter_vm();
     vm->load_program(p);
-    [[maybe_unused]] auto r= vm->run_to_halt();
+    [[maybe_unused]] auto r = vm->run_to_halt();
     T81_TEST_CHECK(r.has_value());
     T81_TEST_CHECK(vm->state().registers[1] == 6);
     T81_TEST_CHECK(vm->state().registers[2] == 4);
@@ -53,14 +53,11 @@ int main() {
     T81_TEST_CHECK(vm->state().registers[5] == 42);
     T81_TEST_CHECK(vm->state().registers[6] == 0);
     T81_TEST_CHECK(vm->state().axion_log.size() >= 3);
-    T81_TEST_CHECK(std::any_of(vm->state().axion_log.begin(),
-                               vm->state().axion_log.end(),
+    T81_TEST_CHECK(std::any_of(vm->state().axion_log.begin(), vm->state().axion_log.end(),
                                [](const auto& e) { return e.opcode == tisc::Opcode::AxRead; }));
-    T81_TEST_CHECK(std::any_of(vm->state().axion_log.begin(),
-                               vm->state().axion_log.end(),
+    T81_TEST_CHECK(std::any_of(vm->state().axion_log.begin(), vm->state().axion_log.end(),
                                [](const auto& e) { return e.opcode == tisc::Opcode::AxSet; }));
-    T81_TEST_CHECK(std::any_of(vm->state().axion_log.begin(),
-                               vm->state().axion_log.end(),
+    T81_TEST_CHECK(std::any_of(vm->state().axion_log.begin(), vm->state().axion_log.end(),
                                [](const auto& e) { return e.opcode == tisc::Opcode::AxVerify; }));
   }
 
@@ -68,9 +65,9 @@ int main() {
   {
     [[maybe_unused]] tisc::Program p;
     p.insns.push_back({tisc::Opcode::Pop, 0, 0, 0});
-    [[maybe_unused]] auto vm= vm::make_interpreter_vm();
+    [[maybe_unused]] auto vm = vm::make_interpreter_vm();
     vm->load_program(p);
-    [[maybe_unused]] auto step= vm->step();
+    [[maybe_unused]] auto step = vm->step();
     T81_TEST_CHECK(!step.has_value());
     T81_TEST_CHECK(step.error() == vm::Trap::StackFault);
   }
@@ -79,9 +76,9 @@ int main() {
   {
     [[maybe_unused]] tisc::Program p;
     p.insns.push_back({tisc::Opcode::AxRead, 0, 1, 0});
-    [[maybe_unused]] auto vm= vm::make_interpreter_vm(std::make_unique<DenyEngine>());
+    [[maybe_unused]] auto vm = vm::make_interpreter_vm(std::make_unique<DenyEngine>());
     vm->load_program(p);
-    [[maybe_unused]] auto res= vm->step();
+    [[maybe_unused]] auto res = vm->step();
     T81_TEST_CHECK(!res.has_value());
     T81_TEST_CHECK(res.error() == vm::Trap::SecurityFault);
   }

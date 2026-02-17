@@ -55,8 +55,8 @@ void assert_tensor_near(const T729Tensor& a, const T729Tensor& b, float eps) {
     const float db = b.data()[i];
     const float diff = std::fabs(da - db);
     if (diff > eps) {
-      std::cerr << "tensor mismatch at " << i << ": " << da << " vs " << db
-                << " (diff=" << diff << ", eps=" << eps << ")\n";
+      std::cerr << "tensor mismatch at " << i << ": " << da << " vs " << db << " (diff=" << diff
+                << ", eps=" << eps << ")\n";
       assert(false);
     }
   }

@@ -1,137 +1,137 @@
-#include "t81/tisc/binary_emitter.hpp"
-#include "t81/tisc/ir.hpp"
 #include <cassert>
 #include <iostream>
+#include "t81/tisc/binary_emitter.hpp"
+#include "t81/tisc/ir.hpp"
 
 using namespace t81::tisc::ir;
 
 void test_simple_program() {
-    [[maybe_unused]] IntermediateProgram ir_program;
-    ir_program.add_instruction({Opcode::LOADI, {Register{0}, Immediate{10}}});
-    ir_program.add_instruction({Opcode::HALT, {}});
+  [[maybe_unused]] IntermediateProgram ir_program;
+  ir_program.add_instruction({Opcode::LOADI, {Register{0}, Immediate{10}}});
+  ir_program.add_instruction({Opcode::HALT, {}});
 
-    [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
-    [[maybe_unused]] auto program= emitter.emit(ir_program);
+  [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
+  [[maybe_unused]] auto program = emitter.emit(ir_program);
 
-    assert(program.insns.size() == 2);
-    assert(program.insns[0].opcode == t81::tisc::Opcode::LoadImm);
-    assert(program.insns[0].a == 0);
-    assert(program.insns[0].b == 10);
-    assert(program.insns[1].opcode == t81::tisc::Opcode::Halt);
+  assert(program.insns.size() == 2);
+  assert(program.insns[0].opcode == t81::tisc::Opcode::LoadImm);
+  assert(program.insns[0].a == 0);
+  assert(program.insns[0].b == 10);
+  assert(program.insns[1].opcode == t81::tisc::Opcode::Halt);
 
-    std::cout << "BinaryEmitterTest test_simple_program passed!" << std::endl;
+  std::cout << "BinaryEmitterTest test_simple_program passed!" << std::endl;
 }
 
 void test_jump() {
-    [[maybe_unused]] IntermediateProgram ir_program;
-    ir_program.add_instruction({Opcode::JMP, {Label{0}}});
-    ir_program.add_instruction({Opcode::LABEL, {Label{0}}});
-    ir_program.add_instruction({Opcode::HALT, {}});
+  [[maybe_unused]] IntermediateProgram ir_program;
+  ir_program.add_instruction({Opcode::JMP, {Label{0}}});
+  ir_program.add_instruction({Opcode::LABEL, {Label{0}}});
+  ir_program.add_instruction({Opcode::HALT, {}});
 
-    [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
-    [[maybe_unused]] auto program= emitter.emit(ir_program);
+  [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
+  [[maybe_unused]] auto program = emitter.emit(ir_program);
 
-    assert(program.insns.size() == 2);
-    assert(program.insns[0].opcode == t81::tisc::Opcode::Jump);
-    assert(program.insns[0].a == 1); // address of HALT
-    assert(program.insns[1].opcode == t81::tisc::Opcode::Halt);
+  assert(program.insns.size() == 2);
+  assert(program.insns[0].opcode == t81::tisc::Opcode::Jump);
+  assert(program.insns[0].a == 1);  // address of HALT
+  assert(program.insns[1].opcode == t81::tisc::Opcode::Halt);
 
-    std::cout << "BinaryEmitterTest test_jump passed!" << std::endl;
+  std::cout << "BinaryEmitterTest test_jump passed!" << std::endl;
 }
 
 void test_comparison_relation() {
+  [[maybe_unused]] IntermediateProgram ir_program;
+  Instruction cmp{Opcode::CMP, {Register{0}, Register{1}, Register{2}}};
+  cmp.boolean_result = true;
+  cmp.relation = ComparisonRelation::LessEqual;
+  ir_program.add_instruction(cmp);
+  ir_program.add_instruction({Opcode::HALT, {}});
+
+  [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
+  [[maybe_unused]] auto program = emitter.emit(ir_program);
+
+  assert(program.insns.size() == 2);
+  assert(program.insns[0].opcode == t81::tisc::Opcode::LessEqual);
+  assert(program.insns[0].a == 0);
+  assert(program.insns[0].b == 1);
+  assert(program.insns[0].c == 2);
+
+  std::cout << "BinaryEmitterTest test_comparison_relation passed!" << std::endl;
+}
+
+void test_all_comparison_relations() {
+  std::vector<std::pair<ComparisonRelation, t81::tisc::Opcode>> cases = {
+      {ComparisonRelation::Less, t81::tisc::Opcode::Less},
+      {ComparisonRelation::LessEqual, t81::tisc::Opcode::LessEqual},
+      {ComparisonRelation::Greater, t81::tisc::Opcode::Greater},
+      {ComparisonRelation::GreaterEqual, t81::tisc::Opcode::GreaterEqual},
+      {ComparisonRelation::Equal, t81::tisc::Opcode::Equal},
+      {ComparisonRelation::NotEqual, t81::tisc::Opcode::NotEqual},
+  };
+
+  for (const auto& [relation, expected_opcode] : cases) {
     [[maybe_unused]] IntermediateProgram ir_program;
     Instruction cmp{Opcode::CMP, {Register{0}, Register{1}, Register{2}}};
     cmp.boolean_result = true;
-    cmp.relation = ComparisonRelation::LessEqual;
+    cmp.relation = relation;
     ir_program.add_instruction(cmp);
     ir_program.add_instruction({Opcode::HALT, {}});
 
     [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
-    [[maybe_unused]] auto program= emitter.emit(ir_program);
+    [[maybe_unused]] auto program = emitter.emit(ir_program);
 
     assert(program.insns.size() == 2);
-    assert(program.insns[0].opcode == t81::tisc::Opcode::LessEqual);
+    assert(program.insns[0].opcode == expected_opcode);
     assert(program.insns[0].a == 0);
     assert(program.insns[0].b == 1);
     assert(program.insns[0].c == 2);
+  }
 
-    std::cout << "BinaryEmitterTest test_comparison_relation passed!" << std::endl;
-}
-
-void test_all_comparison_relations() {
-    std::vector<std::pair<ComparisonRelation, t81::tisc::Opcode>> cases = {
-        {ComparisonRelation::Less, t81::tisc::Opcode::Less},
-        {ComparisonRelation::LessEqual, t81::tisc::Opcode::LessEqual},
-        {ComparisonRelation::Greater, t81::tisc::Opcode::Greater},
-        {ComparisonRelation::GreaterEqual, t81::tisc::Opcode::GreaterEqual},
-        {ComparisonRelation::Equal, t81::tisc::Opcode::Equal},
-        {ComparisonRelation::NotEqual, t81::tisc::Opcode::NotEqual},
-    };
-
-    for (const auto& [relation, expected_opcode] : cases) {
-        [[maybe_unused]] IntermediateProgram ir_program;
-        Instruction cmp{Opcode::CMP, {Register{0}, Register{1}, Register{2}}};
-        cmp.boolean_result = true;
-        cmp.relation = relation;
-        ir_program.add_instruction(cmp);
-        ir_program.add_instruction({Opcode::HALT, {}});
-
-        [[maybe_unused]] t81::tisc::BinaryEmitter emitter;
-        [[maybe_unused]] auto program= emitter.emit(ir_program);
-
-        assert(program.insns.size() == 2);
-        assert(program.insns[0].opcode == expected_opcode);
-        assert(program.insns[0].a == 0);
-        assert(program.insns[0].b == 1);
-        assert(program.insns[0].c == 2);
-    }
-
-    std::cout << "BinaryEmitterTest test_all_comparison_relations passed!" << std::endl;
+  std::cout << "BinaryEmitterTest test_all_comparison_relations passed!" << std::endl;
 }
 
 void test_print_opcode_mapping() {
-    IntermediateProgram ir_program;
-    ir_program.add_instruction({Opcode::PRINT, {Register{3}}});
-    ir_program.add_instruction({Opcode::HALT, {}});
+  IntermediateProgram ir_program;
+  ir_program.add_instruction({Opcode::PRINT, {Register{3}}});
+  ir_program.add_instruction({Opcode::HALT, {}});
 
-    t81::tisc::BinaryEmitter emitter;
-    auto program = emitter.emit(ir_program);
+  t81::tisc::BinaryEmitter emitter;
+  auto program = emitter.emit(ir_program);
 
-    assert(program.insns.size() == 2);
-    assert(program.insns[0].opcode == t81::tisc::Opcode::Print);
-    assert(program.insns[0].a == 3);
-    assert(program.insns[1].opcode == t81::tisc::Opcode::Halt);
+  assert(program.insns.size() == 2);
+  assert(program.insns[0].opcode == t81::tisc::Opcode::Print);
+  assert(program.insns[0].a == 3);
+  assert(program.insns[1].opcode == t81::tisc::Opcode::Halt);
 
-    std::cout << "BinaryEmitterTest test_print_opcode_mapping passed!" << std::endl;
+  std::cout << "BinaryEmitterTest test_print_opcode_mapping passed!" << std::endl;
 }
 
 void test_float_literal_pool_mapping() {
-    IntermediateProgram ir_program;
-    Instruction load_float{Opcode::LOADI, {Register{1}}};
-    load_float.literal_kind = t81::tisc::LiteralKind::FloatHandle;
-    load_float.text_literal = "1.25";
-    ir_program.add_instruction(load_float);
-    ir_program.add_instruction({Opcode::HALT, {}});
+  IntermediateProgram ir_program;
+  Instruction load_float{Opcode::LOADI, {Register{1}}};
+  load_float.literal_kind = t81::tisc::LiteralKind::FloatHandle;
+  load_float.text_literal = "1.25";
+  ir_program.add_instruction(load_float);
+  ir_program.add_instruction({Opcode::HALT, {}});
 
-    t81::tisc::BinaryEmitter emitter;
-    auto program = emitter.emit(ir_program);
+  t81::tisc::BinaryEmitter emitter;
+  auto program = emitter.emit(ir_program);
 
-    assert(program.float_pool.size() == 1);
-    assert(program.float_pool[0] == 1.25);
-    assert(program.insns[0].opcode == t81::tisc::Opcode::LoadImm);
-    assert(program.insns[0].literal_kind == t81::tisc::LiteralKind::FloatHandle);
-    assert(program.insns[0].b == 1);
+  assert(program.float_pool.size() == 1);
+  assert(program.float_pool[0] == 1.25);
+  assert(program.insns[0].opcode == t81::tisc::Opcode::LoadImm);
+  assert(program.insns[0].literal_kind == t81::tisc::LiteralKind::FloatHandle);
+  assert(program.insns[0].b == 1);
 
-    std::cout << "BinaryEmitterTest test_float_literal_pool_mapping passed!" << std::endl;
+  std::cout << "BinaryEmitterTest test_float_literal_pool_mapping passed!" << std::endl;
 }
 
 int main() {
-    test_simple_program();
-    test_jump();
-    test_comparison_relation();
-    test_all_comparison_relations();
-    test_print_opcode_mapping();
-    test_float_literal_pool_mapping();
-    return 0;
+  test_simple_program();
+  test_jump();
+  test_comparison_relation();
+  test_all_comparison_relations();
+  test_print_opcode_mapping();
+  test_float_literal_pool_mapping();
+  return 0;
 }

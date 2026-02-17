@@ -7,53 +7,53 @@
 #include <t81/core/base81.hpp>
 
 int main() {
-    using namespace t81::codec::base81;
+  using namespace t81::codec::base81;
 
-    // Roundtrip bytes (leading zeros are not preserved by the canonical integer codec)
-    {
-        [[maybe_unused]] std::vector<std::uint8_t> bytes= {0xFFu, 0x10u};
-        [[maybe_unused]] auto enc= encode_bytes(bytes);
-        [[maybe_unused]] std::vector<std::uint8_t> dec;
-        [[maybe_unused]] bool ok= decode_bytes(enc, dec);
-        assert(ok);
-        assert(dec == bytes);
-        assert(t81::core::is_base81(enc));
-    }
+  // Roundtrip bytes (leading zeros are not preserved by the canonical integer codec)
+  {
+    [[maybe_unused]] std::vector<std::uint8_t> bytes = {0xFFu, 0x10u};
+    [[maybe_unused]] auto enc = encode_bytes(bytes);
+    [[maybe_unused]] std::vector<std::uint8_t> dec;
+    [[maybe_unused]] bool ok = decode_bytes(enc, dec);
+    assert(ok);
+    assert(dec == bytes);
+    assert(t81::core::is_base81(enc));
+  }
 
-    // Empty input
-    {
-        [[maybe_unused]] std::vector<std::uint8_t> out;
-        [[maybe_unused]] bool ok= decode_bytes("", out);
-        assert(ok);
-        assert(out.empty());
-    }
+  // Empty input
+  {
+    [[maybe_unused]] std::vector<std::uint8_t> out;
+    [[maybe_unused]] bool ok = decode_bytes("", out);
+    assert(ok);
+    assert(out.empty());
+  }
 
-    // Invalid character
-    {
-        [[maybe_unused]] std::vector<std::uint8_t> out;
-        bool ok = decode_bytes("~", out); // '~' not in canonical alphabet
-        assert(!ok);
-        assert(!t81::core::is_base81("~"));
-    }
+  // Invalid character
+  {
+    [[maybe_unused]] std::vector<std::uint8_t> out;
+    bool ok = decode_bytes("~", out);  // '~' not in canonical alphabet
+    assert(!ok);
+    assert(!t81::core::is_base81("~"));
+  }
 
-    // Non-canonical leading zero should fail
-    {
-        [[maybe_unused]] std::vector<std::uint8_t> out;
-        [[maybe_unused]] bool ok= decode_bytes("00", out);
-        assert(!ok);
-    }
+  // Non-canonical leading zero should fail
+  {
+    [[maybe_unused]] std::vector<std::uint8_t> out;
+    [[maybe_unused]] bool ok = decode_bytes("00", out);
+    assert(!ok);
+  }
 
-    // Multi-byte codepoint correctness (uses UTF-8 symbols from the alphabet)
-    {
-        [[maybe_unused]] std::vector<std::uint8_t> bytes= {0x12u, 0x34u};
-        [[maybe_unused]] auto enc= encode_bytes(bytes);
-        assert(!enc.empty()); // sanity check
+  // Multi-byte codepoint correctness (uses UTF-8 symbols from the alphabet)
+  {
+    [[maybe_unused]] std::vector<std::uint8_t> bytes = {0x12u, 0x34u};
+    [[maybe_unused]] auto enc = encode_bytes(bytes);
+    assert(!enc.empty());  // sanity check
 
-        [[maybe_unused]] std::vector<std::uint8_t> dec;
-        [[maybe_unused]] bool ok= decode_bytes(enc, dec);
-        assert(ok);
-        assert(dec == bytes);
-    }
+    [[maybe_unused]] std::vector<std::uint8_t> dec;
+    [[maybe_unused]] bool ok = decode_bytes(enc, dec);
+    assert(ok);
+    assert(dec == bytes);
+  }
 
-    return 0;
+  return 0;
 }

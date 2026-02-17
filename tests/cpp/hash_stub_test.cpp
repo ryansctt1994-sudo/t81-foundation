@@ -1,9 +1,9 @@
 #include <cassert>
 #include <cstdint>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <stdexcept>
 
 #include "t81/hash/base81.hpp"
 #include "t81/hash/canonhash.hpp"
@@ -15,57 +15,56 @@ int main() {
   // Base-81: encode/decode roundtrip over arbitrary bytes.
   // ---------------------------------------------------------------------------
   {
-    std::vector<std::uint8_t> bytes = {
-        0xDE, 0xAD, 0xBE, 0xEF, 0x00, 0x11,
-        0x00, 0x00, 0xFF, 0x7F
-    };
+    std::vector<std::uint8_t> bytes = {0xDE, 0xAD, 0xBE, 0xEF, 0x00, 0x11, 0x00, 0x00, 0xFF, 0x7F};
 
-    [[maybe_unused]] std::string enc= hash::encode_base81(bytes);
+    [[maybe_unused]] std::string enc = hash::encode_base81(bytes);
     // Should not be empty for non-empty input.
     assert(!enc.empty());
     // Canonical form should not include the legacy "b81:" prefix.
     assert(enc.rfind("b81:", 0) != 0);
 
     // Roundtrip must exactly recover original bytes.
-    [[maybe_unused]] std::vector<std::uint8_t> round= hash::decode_base81(enc);
+    [[maybe_unused]] std::vector<std::uint8_t> round = hash::decode_base81(enc);
     assert(round == bytes);
 
-    [[maybe_unused]] bool threw= false;
+    [[maybe_unused]] bool threw = false;
     try {
-      (void)hash::decode_base81("~"); // invalid symbol
+      (void)hash::decode_base81("~");  // invalid symbol
     } catch (const std::invalid_argument&) {
       threw = true;
     }
-    assert(threw); threw = false;
+    assert(threw);
+    threw = false;
     try {
-      (void)hash::decode_base81("b81:00"); // legacy prefix rejected
+      (void)hash::decode_base81("b81:00");  // legacy prefix rejected
     } catch (const std::invalid_argument&) {
       threw = true;
     }
-    assert(threw); }
+    assert(threw);
+  }
 
   // ---------------------------------------------------------------------------
   // CanonHash81: deterministic hashing + base-81 representation.
   // ---------------------------------------------------------------------------
   {
-    [[maybe_unused]] std::string payload= "hello canonhash base81";
+    [[maybe_unused]] std::string payload = "hello canonhash base81";
 
-    [[maybe_unused]] hash::CanonHash81 h1= hash::hash_string(payload);
-    [[maybe_unused]] hash::CanonHash81 h2= hash::hash_string(payload);
+    [[maybe_unused]] hash::CanonHash81 h1 = hash::hash_string(payload);
+    [[maybe_unused]] hash::CanonHash81 h2 = hash::hash_string(payload);
 
     // Same input -> same hash.
     assert(h1 == h2);
 
     // Simple difference sanity check.
-    [[maybe_unused]] hash::CanonHash81 hA= hash::hash_string("A");
-    [[maybe_unused]] hash::CanonHash81 hB= hash::hash_string("B");
+    [[maybe_unused]] hash::CanonHash81 hA = hash::hash_string("A");
+    [[maybe_unused]] hash::CanonHash81 hB = hash::hash_string("B");
     assert(hA != hB);
 
     // String representation roundtrip.
-    [[maybe_unused]] std::string s= h1.to_string();
+    [[maybe_unused]] std::string s = h1.to_string();
     assert(!s.empty());
 
-    [[maybe_unused]] hash::CanonHash81 h_round= hash::CanonHash81::from_string(s);
+    [[maybe_unused]] hash::CanonHash81 h_round = hash::CanonHash81::from_string(s);
     assert(h_round == h1);
   }
 
@@ -73,10 +72,10 @@ int main() {
   // CanonHash81: from_string(to_string(h)) is identity for valid hashes.
   // ---------------------------------------------------------------------------
   {
-    [[maybe_unused]] hash::CanonHash81 h= hash::hash_string("roundtrip sentinel");
-    [[maybe_unused]] std::string encoded= h.to_string();
+    [[maybe_unused]] hash::CanonHash81 h = hash::hash_string("roundtrip sentinel");
+    [[maybe_unused]] std::string encoded = h.to_string();
 
-    [[maybe_unused]] hash::CanonHash81 parsed= hash::CanonHash81::from_string(encoded);
+    [[maybe_unused]] hash::CanonHash81 parsed = hash::CanonHash81::from_string(encoded);
     assert(parsed == h);
     assert(parsed.to_string() == encoded);
   }

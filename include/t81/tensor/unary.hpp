@@ -16,22 +16,22 @@ inline T729Tensor unary_map(const T729Tensor& x, Fn fn) {
 }
 
 inline T729Tensor relu(const T729Tensor& x) {
-  return unary_map(x, [](float v){ return v < 0.0f ? 0.0f : v; });
+  return unary_map(x, [](float v) { return v < 0.0f ? 0.0f : v; });
 }
 
 inline T729Tensor tanh(const T729Tensor& x) {
-  return unary_map(x, [](float v){ return std::tanh(v); });
+  return unary_map(x, [](float v) { return std::tanh(v); });
 }
 
 inline T729Tensor exp(const T729Tensor& x) {
-  return unary_map(x, [](float v){ return std::exp(v); });
+  return unary_map(x, [](float v) { return std::exp(v); });
 }
 
 inline T729Tensor log(const T729Tensor& x) {
-  return unary_map(x, [](float v){
+  return unary_map(x, [](float v) {
     if (v <= 0.0f) throw std::domain_error("unary log: non-positive input");
     return std::log(v);
   });
 }
 
-} // namespace t81::ops
+}  // namespace t81::ops

@@ -1,5 +1,5 @@
-#include "t81/vm/vm.hpp"
 #include "t81/tisc/program.hpp"
+#include "t81/vm/vm.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -26,8 +26,8 @@ static void test_policy_recursion_limit_applies_to_call_chain() {
   auto result = vm->run_to_halt(200);
 
   if (!expect(!result.has_value(), "expected trap from recursion limit")) std::exit(1);
-  if (!expect(result.error() == t81::vm::Trap::SecurityFault,
-              "expected SecurityFault trap")) std::exit(1);
+  if (!expect(result.error() == t81::vm::Trap::SecurityFault, "expected SecurityFault trap"))
+    std::exit(1);
 }
 
 int main() {

@@ -4,41 +4,41 @@
 #include <cassert>
 #include <filesystem>
 #include <fstream>
-#include <system_error>
 #include <iostream>
 #include <iterator>
 #include <memory>
 #include <sstream>
 #include <string>
+#include <system_error>
 
 namespace {
 class StreamCapture {
- public:
+public:
   StreamCapture(std::ostream& target, std::streambuf* new_buf)
       : stream_(target), old_buf_(stream_.rdbuf(new_buf)) {}
 
   ~StreamCapture() { stream_.rdbuf(old_buf_); }
 
- private:
+private:
   std::ostream& stream_;
   std::streambuf* old_buf_;
 };
 
 struct ReplResult {
-  [[maybe_unused]] int rc= 0;
+  [[maybe_unused]] int rc = 0;
   [[maybe_unused]] std::string output;
   [[maybe_unused]] std::string errors;
 };
 
 ReplResult run_repl_script(const std::string& script,
-                          const std::shared_ptr<t81::weights::ModelFile>& weights_model) {
+                           const std::shared_ptr<t81::weights::ModelFile>& weights_model) {
   std::istringstream input(script);
   [[maybe_unused]] std::ostringstream output;
   [[maybe_unused]] std::ostringstream errors;
   StreamCapture stdout_capture(std::cout, output.rdbuf());
   StreamCapture stderr_capture(std::cerr, errors.rdbuf());
 
-  [[maybe_unused]] int rc= t81::cli::repl(weights_model, std::nullopt, input);
+  [[maybe_unused]] int rc = t81::cli::repl(weights_model, std::nullopt, input);
   return {rc, output.str(), errors.str()};
 }
 }  // namespace
@@ -85,7 +85,7 @@ int main() {
   script << ":quit\n";
 
   auto run_and_assert = [&](const std::shared_ptr<t81::weights::ModelFile>& weights_model) {
-    [[maybe_unused]] ReplResult result= run_repl_script(script.str(), weights_model);
+    [[maybe_unused]] ReplResult result = run_repl_script(script.str(), weights_model);
     assert(result.rc == 0);
     assert(result.output.find("REPL buffer") != std::string::npos);
     assert(result.output.find("REPL buffer cleared") != std::string::npos);
@@ -102,7 +102,7 @@ int main() {
   };
 
   run_and_assert(nullptr);
-  [[maybe_unused]] auto weights= std::make_shared<t81::weights::ModelFile>();
+  [[maybe_unused]] auto weights = std::make_shared<t81::weights::ModelFile>();
   run_and_assert(weights);
 
   {

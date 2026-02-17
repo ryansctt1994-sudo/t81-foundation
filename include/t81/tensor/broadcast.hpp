@@ -10,7 +10,8 @@ namespace t81::ops {
 // Repeats elements of `src` to match `new_shape`.
 // Example: {3} -> {2,3}, {1,3} -> {4,3}, {2,1,4} -> {2,3,4}.
 template <typename T>
-inline T729TensorBase<T> broadcast_to(const T729TensorBase<T>& src, const std::vector<int>& new_shape) {
+inline T729TensorBase<T> broadcast_to(const T729TensorBase<T>& src,
+                                      const std::vector<int>& new_shape) {
   if (new_shape.empty()) throw std::invalid_argument("broadcast_to: empty new_shape");
   // Build the right-aligned view of src.shape() against new_shape.
   const auto& a = src.shape();
@@ -26,7 +27,7 @@ inline T729TensorBase<T> broadcast_to(const T729TensorBase<T>& src, const std::v
   }
 
   // Precompute strides (row-major) for both shapes.
-  const auto in_strides  = t81::shape::strides_of(src_aligned);
+  const auto in_strides = t81::shape::strides_of(src_aligned);
   const auto out_strides = t81::shape::strides_of(new_shape);
 
   // Total output elements.
@@ -57,4 +58,4 @@ inline T729TensorBase<T> broadcast_to(const T729TensorBase<T>& src, const std::v
   return T729TensorBase<T>(new_shape, std::move(out));
 }
 
-} // namespace t81::ops
+}  // namespace t81::ops

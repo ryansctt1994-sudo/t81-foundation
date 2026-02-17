@@ -18,4 +18,4 @@ inline T729Tensor transpose(const T729Tensor& m) {
   return T729Tensor({cols, rows}, std::move(out));
 }
 
-} // namespace t81::ops
+}  // namespace t81::ops

@@ -24,7 +24,7 @@ int main() {
   for (int i = 0; i < kIters; ++i) {
     acc += a;
     acc -= b;
-    acc *= T81BigInt::from_i64(1); // multiplication fast path should keep this cheap.
+    acc *= T81BigInt::from_i64(1);  // multiplication fast path should keep this cheap.
   }
   const auto t1 = Clock::now();
   const auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count();
@@ -37,8 +37,8 @@ int main() {
   // This bound is intentionally loose for CI variability.
   constexpr long long kMaxMs = 8000;
   if (elapsed_ms > kMaxMs) {
-    std::cerr << "bigint perf guardrail failed: elapsed_ms=" << elapsed_ms
-              << " > " << kMaxMs << "\n";
+    std::cerr << "bigint perf guardrail failed: elapsed_ms=" << elapsed_ms << " > " << kMaxMs
+              << "\n";
     return 1;
   }
 

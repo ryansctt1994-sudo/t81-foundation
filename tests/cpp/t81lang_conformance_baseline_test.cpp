@@ -19,7 +19,8 @@ static bool analyzes(std::string_view source, const char* label = "t81lang_confo
   return !analyzer.had_error();
 }
 
-static bool fails_semantic(std::string_view source, const char* label = "t81lang_conformance_failure") {
+static bool fails_semantic(std::string_view source,
+                           const char* label = "t81lang_conformance_failure") {
   std::string source_text(source);
   Lexer lexer{source_text};
   Parser parser(lexer, label);
@@ -58,7 +59,8 @@ static void test_tier_annotation_supported_for_functions() {
       return 0;
     }
   )";
-  require_true(analyzes(source, "t81lang_tier_annotation_supported"), "t81lang_tier_annotation_supported");
+  require_true(analyzes(source, "t81lang_tier_annotation_supported"),
+               "t81lang_tier_annotation_supported");
 }
 
 static void test_t81_numeric_types_bind_and_widen() {
@@ -82,8 +84,7 @@ static void test_t81_mixed_numeric_widening_matrix() {
       return out;
     }
   )";
-  require_true(analyzes(bigint_float, "t81lang_widen_bigint_float"),
-               "t81lang_widen_bigint_float");
+  require_true(analyzes(bigint_float, "t81lang_widen_bigint_float"), "t81lang_widen_bigint_float");
 
   constexpr const char* bigint_fraction = R"(
     fn main() -> T81Fraction {
@@ -105,7 +106,8 @@ static void test_base81_integer_infers_bigint() {
       return y;
     }
   )";
-  require_true(analyzes(source, "t81lang_base81_integer_infers_bigint"), "t81lang_base81_integer_infers_bigint");
+  require_true(analyzes(source, "t81lang_base81_integer_infers_bigint"),
+               "t81lang_base81_integer_infers_bigint");
 }
 
 static void test_base81_integer_does_not_silently_narrow_to_i32() {
@@ -116,7 +118,8 @@ static void test_base81_integer_does_not_silently_narrow_to_i32() {
       return y;
     }
   )";
-  require_true(fails_semantic(source, "t81lang_base81_integer_no_narrow"), "t81lang_base81_integer_no_narrow");
+  require_true(fails_semantic(source, "t81lang_base81_integer_no_narrow"),
+               "t81lang_base81_integer_no_narrow");
 }
 
 static void test_t81_numeric_type_separation_rejects_invalid_mix() {
@@ -126,7 +129,8 @@ static void test_t81_numeric_type_separation_rejects_invalid_mix() {
       return x + 1.5;
     }
   )";
-  require_true(fails_semantic(source, "t81lang_numeric_type_separation"), "t81lang_numeric_type_separation");
+  require_true(fails_semantic(source, "t81lang_numeric_type_separation"),
+               "t81lang_numeric_type_separation");
 }
 
 static void test_base81_fraction_literal_is_native_t81fraction() {
@@ -137,7 +141,8 @@ static void test_base81_fraction_literal_is_native_t81fraction() {
       return y;
     }
   )";
-  require_true(analyzes(source, "t81lang_base81_fraction_native"), "t81lang_base81_fraction_native");
+  require_true(analyzes(source, "t81lang_base81_fraction_native"),
+               "t81lang_base81_fraction_native");
 }
 
 static void test_base81_fraction_literal_does_not_silently_narrow() {
@@ -148,7 +153,8 @@ static void test_base81_fraction_literal_does_not_silently_narrow() {
       return y;
     }
   )";
-  require_true(fails_semantic(source, "t81lang_base81_fraction_no_narrow"), "t81lang_base81_fraction_no_narrow");
+  require_true(fails_semantic(source, "t81lang_base81_fraction_no_narrow"),
+               "t81lang_base81_fraction_no_narrow");
 }
 
 static void test_print_builtin_accepts_native_t81_numerics() {
@@ -163,7 +169,8 @@ static void test_print_builtin_accepts_native_t81_numerics() {
       return 0;
     }
   )";
-  require_true(analyzes(source, "t81lang_print_builtin_numerics"), "t81lang_print_builtin_numerics");
+  require_true(analyzes(source, "t81lang_print_builtin_numerics"),
+               "t81lang_print_builtin_numerics");
 }
 
 static void test_print_builtin_rejects_bad_arity() {
@@ -173,7 +180,8 @@ static void test_print_builtin_rejects_bad_arity() {
       return 0;
     }
   )";
-  require_true(fails_semantic(source, "t81lang_print_builtin_bad_arity"), "t81lang_print_builtin_bad_arity");
+  require_true(fails_semantic(source, "t81lang_print_builtin_bad_arity"),
+               "t81lang_print_builtin_bad_arity");
 }
 
 static void test_let_is_immutable() {

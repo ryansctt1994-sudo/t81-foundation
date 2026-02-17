@@ -25,8 +25,7 @@ T81_NODISCARD inline uint32_t popcount64(uint64_t x) {
   return static_cast<uint32_t>(__popcnt64(x));
 #else
   // Split into 32-bit halves
-  return popcount32(static_cast<uint32_t>(x)) +
-         popcount32(static_cast<uint32_t>(x >> 32));
+  return popcount32(static_cast<uint32_t>(x)) + popcount32(static_cast<uint32_t>(x >> 32));
 #endif
 }
 
@@ -41,7 +40,10 @@ T81_NODISCARD inline uint32_t clz32(uint32_t x) {
 #else
   if (!x) return 32u;
   uint32_t n = 0;
-  for (int i = 31; i >= 0; --i) { if (x & (1u << i)) break; ++n; }
+  for (int i = 31; i >= 0; --i) {
+    if (x & (1u << i)) break;
+    ++n;
+  }
   return n;
 #endif
 }
@@ -57,7 +59,10 @@ T81_NODISCARD inline uint32_t clz64(uint64_t x) {
 #else
   // 32-bit MSVC: emulate using two scans
   uint32_t hi = static_cast<uint32_t>(x >> 32);
-  if (hi) { _BitScanReverse(&idx, hi); return 31u - idx; }
+  if (hi) {
+    _BitScanReverse(&idx, hi);
+    return 31u - idx;
+  }
   uint32_t lo = static_cast<uint32_t>(x);
   if (_BitScanReverse(&idx, lo)) return 63u - (32u + idx);
   return 64u;
@@ -65,7 +70,10 @@ T81_NODISCARD inline uint32_t clz64(uint64_t x) {
 #else
   if (!x) return 64u;
   uint32_t n = 0;
-  for (int i = 63; i >= 0; --i) { if (x & (1ull << i)) break; ++n; }
+  for (int i = 63; i >= 0; --i) {
+    if (x & (1ull << i)) break;
+    ++n;
+  }
   return n;
 #endif
 }
@@ -84,8 +92,6 @@ T81_NODISCARD inline uint64_t next_pow2_u64(uint64_t x) {
 }
 
 // Check power-of-two
-T81_NODISCARD inline bool is_pow2_u64(uint64_t x) {
-  return x && ((x & (x - 1)) == 0);
-}
+T81_NODISCARD inline bool is_pow2_u64(uint64_t x) { return x && ((x & (x - 1)) == 0); }
 
-} // namespace t81::detail
+}  // namespace t81::detail

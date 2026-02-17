@@ -1,5 +1,5 @@
-#include "t81/vm/vm.hpp"
 #include "t81/tisc/opcodes.hpp"
+#include "t81/vm/vm.hpp"
 
 #include <iostream>
 
@@ -29,7 +29,7 @@ int main() {
     return program;
   };
 
-  [[maybe_unused]] auto program_ok= build_program();
+  [[maybe_unused]] auto program_ok = build_program();
   program_ok.axion_policy_text = R"(
 (policy
   (tier 1)
@@ -40,24 +40,24 @@ int main() {
   (require-axion-event
     (reason "heap relocation from=")))
 )";
-  [[maybe_unused]] auto vm_ok= t81::vm::make_interpreter_vm();
+  [[maybe_unused]] auto vm_ok = t81::vm::make_interpreter_vm();
   vm_ok->load_program(program_ok);
-  [[maybe_unused]] auto result= vm_ok->run_to_halt();
+  [[maybe_unused]] auto result = vm_ok->run_to_halt();
   if (!result) {
     std::cerr << "GC policy run trapped: " << static_cast<int>(result.error()) << '\n';
     return 1;
   }
 
-  [[maybe_unused]] auto program_fail= build_program();
+  [[maybe_unused]] auto program_fail = build_program();
   program_fail.axion_policy_text = R"(
 (policy
   (tier 1)
   (require-axion-event
     (reason "force")))
 )";
-  [[maybe_unused]] auto vm_fail= t81::vm::make_interpreter_vm();
+  [[maybe_unused]] auto vm_fail = t81::vm::make_interpreter_vm();
   vm_fail->load_program(program_fail);
-  [[maybe_unused]] auto fail_result= vm_fail->run_to_halt();
+  [[maybe_unused]] auto fail_result = vm_fail->run_to_halt();
   if (fail_result.has_value()) {
     std::cerr << "GC policy failure did not trap\n";
     return 1;

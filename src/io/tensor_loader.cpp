@@ -1,6 +1,6 @@
-#include <sstream>
-#include <limits>
 #include "t81/io/tensor_loader.hpp"
+#include <limits>
+#include <sstream>
 
 namespace t81::io {
 
@@ -17,7 +17,12 @@ T729Tensor load_tensor_txt(std::istream& in) {
       if (header.empty()) continue;
       // allow comments starting with '#'
       bool only_ws = true;
-      for (char c : header) { if (!std::isspace(static_cast<unsigned char>(c))) { only_ws = false; break; } }
+      for (char c : header) {
+        if (!std::isspace(static_cast<unsigned char>(c))) {
+          only_ws = false;
+          break;
+        }
+      }
       if (only_ws) continue;
       if (!header.empty() && header[0] == '#') continue;
       break;
@@ -71,4 +76,4 @@ void save_tensor_txt(std::ostream& out, const T729Tensor& t) {
   out << '\n';
 }
 
-} // namespace t81::io
+}  // namespace t81::io

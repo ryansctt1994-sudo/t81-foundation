@@ -1,10 +1,10 @@
 #pragma once
 
-#include <vector>
 #include <cstdint>
 #include <span>
-#include "t81/core/T81Int.hpp"
+#include <vector>
 #include "t81/core/Result.hpp"
+#include "t81/core/T81Int.hpp"
 
 namespace t81::codec::base81_balanced {
 
@@ -62,4 +62,4 @@ void to_balanced(std::span<const uint8_t> unbalanced, std::span<int8_t> balanced
  */
 void to_unbalanced(std::span<const int8_t> balanced, std::span<uint8_t> unbalanced);
 
-} // namespace t81::codec::base81_balanced
+}  // namespace t81::codec::base81_balanced
