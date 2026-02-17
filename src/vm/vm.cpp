@@ -292,7 +292,7 @@ public:
     };
     auto set_reg = [this](int reg, std::int64_t val_data, ValueTag tag) {
       if (reg == 0 || (reg >= 75 && reg <= 80)) return;
-      state_.registers[reg] = value;
+      state_.registers[reg] = val_data;
       state_.register_tags[reg] = tag;
     };
     auto copy_reg = [this](int dst, int src) {

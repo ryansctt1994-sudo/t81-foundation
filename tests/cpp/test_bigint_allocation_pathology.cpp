@@ -2,7 +2,7 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
-#include "t81/core/T81BigInt.hpp"
+#include "t81/bigint.hpp"
 
 class BigIntAllocationPathologyTest {
 public:

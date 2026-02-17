@@ -2,7 +2,7 @@
 #include <cstring>
 #include <iostream>
 #include <vector>
-#include "t81/core/T81BigInt.hpp"
+#include "t81/bigint.hpp"
 
 #if defined(__unix__) || defined(__APPLE__) || defined(__linux__)
 #include <sys/resource.h>

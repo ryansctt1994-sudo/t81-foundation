@@ -24,6 +24,7 @@ FORBIDDEN = {
 
 # Paths are repository-relative (POSIX style).
 ALLOWLIST = {
+    "include/t81/bigint.hpp",
     "include/t81/core/all.hpp",
     "include/t81/lang/numeric_format.hpp",
     "src/python/t81_python.cpp",

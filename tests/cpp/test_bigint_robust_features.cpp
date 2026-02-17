@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "t81/core/T81BigInt.hpp"
+#include "t81/bigint.hpp"
 
 using namespace t81::v1;
 
