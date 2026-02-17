@@ -412,6 +412,9 @@ Type SemanticAnalyzer::type_from_token(const Token& name) {
   std::string name_str{name.lexeme};
   if (name_str == "Option") return Type{Type::Kind::Option};
   if (name_str == "Result") return Type{Type::Kind::Result};
+  if (name_str == "Vector") return Type{Type::Kind::Vector};
+  if (name_str == "Matrix") return Type{Type::Kind::Matrix};
+  if (name_str == "Tensor") return Type{Type::Kind::Tensor};
   return Type{Type::Kind::Custom, {}, name_str};
 }
 
@@ -536,14 +539,20 @@ std::string SemanticAnalyzer::type_to_string(const Type& type) const {
       result = "T81Fraction";
       break;
     case Type::Kind::Vector:
-      result = "Vector";
-      break;
     case Type::Kind::Matrix:
-      result = "Matrix";
+    case Type::Kind::Tensor: {
+      result = (type.kind == Type::Kind::Vector ? "Vector" :
+                type.kind == Type::Kind::Matrix ? "Matrix" : "Tensor");
+      if (!type.params.empty()) {
+        result += "[";
+        for (size_t i = 0; i < type.params.size(); ++i) {
+          if (i > 0) result += ", ";
+          result += type_to_string(type.params[i]);
+        }
+        result += "]";
+      }
       break;
-    case Type::Kind::Tensor:
-      result = "Tensor";
-      break;
+    }
     case Type::Kind::Graph:
       result = "Graph";
       break;
@@ -737,7 +746,7 @@ Token SemanticAnalyzer::extract_token(const Expr& expr) const {
   if (auto* unary = dynamic_cast<const UnaryExpr*>(&expr)) return unary->op;
   if (auto* literal = dynamic_cast<const LiteralExpr*>(&expr)) return literal->value;
   if (auto* variable = dynamic_cast<const VariableExpr*>(&expr)) return variable->name;
-  if (auto* assign = dynamic_cast<const AssignExpr*>(&expr)) return assign->name;
+  if (auto* assign = dynamic_cast<const AssignExpr*>(&expr)) return extract_token(*assign->target);
   if (auto* call = dynamic_cast<const CallExpr*>(&expr)) return extract_token(*call->callee);
   if (auto* grouping = dynamic_cast<const GroupingExpr*>(&expr))
     return extract_token(*grouping->expression);
@@ -1124,24 +1133,60 @@ std::any SemanticAnalyzer::visit(const EnumDecl& stmt) {
 }
 
 std::any SemanticAnalyzer::visit(const AssignExpr& expr) {
-  auto* symbol = resolve_symbol(expr.name);
-  if (!symbol) {
-    error(expr.name, "Undefined variable '" + std::string(expr.name.lexeme) + "'.");
-    evaluate_expression(*expr.value);
+  Type target_type = Type{Type::Kind::Unknown};
+  bool mutable_target = false;
+  Token error_token;
+
+  if (auto* variable = dynamic_cast<const VariableExpr*>(expr.target.get())) {
+    error_token = variable->name;
+    auto* symbol = resolve_symbol(variable->name);
+    if (!symbol) {
+      error(variable->name, "Undefined variable '" + std::string(variable->name.lexeme) + "'.");
+      evaluate_expression(*expr.value);
+      return make_error_type();
+    }
+    if (symbol->kind != SymbolKind::Variable) {
+      error(variable->name,
+            "Cannot assign to non-variable '" + std::string(variable->name.lexeme) + "'.");
+    } else if (!symbol->is_mutable) {
+      error(variable->name,
+            "Cannot assign to immutable binding '" + std::string(variable->name.lexeme) + "'.");
+    } else {
+      mutable_target = true;
+      target_type = symbol->type;
+    }
+  } else if (auto* index_expr = dynamic_cast<const IndexExpr*>(expr.target.get())) {
+    error_token = index_expr->bracket;
+    target_type = evaluate_expression(*expr.target);
+    if (is_mutable_lvalue(*expr.target)) {
+      mutable_target = true;
+    } else {
+      error(error_token, "Cannot assign to immutable index expression.");
+    }
+
+  } else if (auto* field_expr = dynamic_cast<const FieldAccessExpr*>(expr.target.get())) {
+    error_token = field_expr->field;
+    target_type = evaluate_expression(*expr.target);
+    if (is_mutable_lvalue(*expr.target)) {
+      mutable_target = true;
+    } else {
+      error(error_token, "Cannot assign to immutable field.");
+    }
+  } else {
+    error(extract_token(*expr.target), "Invalid assignment target.");
     return make_error_type();
   }
-  if (symbol->kind != SymbolKind::Variable) {
-    error(expr.name, "Cannot assign to non-variable '" + std::string(expr.name.lexeme) + "'.");
-  } else if (!symbol->is_mutable) {
-    error(expr.name, "Cannot assign to immutable binding '" + std::string(expr.name.lexeme) + "'.");
+
+  Type value_type = evaluate_expression(*expr.value, &target_type);
+
+  if (mutable_target) {
+    if (!is_assignable(target_type, value_type)) {
+      error(error_token, "Cannot assign value of type '" + type_to_string(value_type) +
+                             "' to target of type '" + type_to_string(target_type) + "'.");
+    }
   }
 
-  Type value_type = evaluate_expression(*expr.value, &symbol->type);
-  if (!is_assignable(symbol->type, value_type)) {
-    error(expr.name, "Cannot assign value of type '" + type_to_string(value_type) +
-                         "' to variable of type '" + type_to_string(symbol->type) + "'.");
-  }
-  return symbol->type;
+  return target_type;
 }
 
 std::any SemanticAnalyzer::visit(const BinaryExpr& expr) {
@@ -1658,6 +1703,10 @@ std::any SemanticAnalyzer::visit(const IndexExpr& expr) {
   Type obj_type = evaluate_expression(*expr.object);
   Type index_type = evaluate_expression(*expr.index);
 
+  if (obj_type.kind == Type::Kind::Error || index_type.kind == Type::Kind::Error) {
+    return make_error_type();
+  }
+
   if (!is_integer_type(index_type)) {
     error(expr.bracket, "Index must be an integer type, got '" + type_to_string(index_type) + "'.");
     return make_error_type();
@@ -1667,7 +1716,13 @@ std::any SemanticAnalyzer::visit(const IndexExpr& expr) {
     if (obj_type.params.empty()) {
       return Type{Type::Kind::Unknown};
     }
-    return obj_type.params[0];
+    if (obj_type.params.size() <= 2) {
+      return obj_type.params[0];
+    } else {
+      Type result = obj_type;
+      result.params.erase(result.params.begin() + 1);
+      return result;
+    }
   }
 
   error(expr.bracket, "Type '" + type_to_string(obj_type) + "' does not support indexing.");
@@ -1815,8 +1870,9 @@ std::any SemanticAnalyzer::visit(const EnumLiteralExpr& expr) {
 }
 
 std::any SemanticAnalyzer::visit(const VectorLiteralExpr& expr) {
+  const Type* expected = current_expected_type();
+
   if (expr.elements.empty()) {
-    const Type* expected = current_expected_type();
     if (expected &&
         (expected->kind == Type::Kind::Vector || expected->kind == Type::Kind::Tensor)) {
       Type result;
@@ -1841,8 +1897,17 @@ std::any SemanticAnalyzer::visit(const VectorLiteralExpr& expr) {
   std::vector<float> values;
   values.reserve(expr.elements.size());
 
+  Type expected_element;
+  bool has_expected_element = false;
+  if (expected && (expected->kind == Type::Kind::Vector || expected->kind == Type::Kind::Tensor)) {
+    if (!expected->params.empty()) {
+      expected_element = expected->params[0];
+      has_expected_element = true;
+    }
+  }
+
   for (const auto& element : expr.elements) {
-    Type elem_type = evaluate_expression(*element);
+    Type elem_type = evaluate_expression(*element, has_expected_element ? &expected_element : nullptr);
     if (elem_type.kind == Type::Kind::Error) {
       return make_error_type();
     }
@@ -2263,6 +2328,20 @@ void SemanticAnalyzer::bind_pattern_symbol(const Token& name, const Type& type) 
   if (auto* symbol = resolve_symbol(name)) {
     symbol->type = type;
   }
+}
+
+bool SemanticAnalyzer::is_mutable_lvalue(const Expr& expr) {
+  if (auto* var = dynamic_cast<const VariableExpr*>(&expr)) {
+    auto* symbol = resolve_symbol(var->name);
+    return symbol && symbol->is_mutable;
+  }
+  if (auto* index = dynamic_cast<const IndexExpr*>(&expr)) {
+    return is_mutable_lvalue(*index->object);
+  }
+  if (auto* field = dynamic_cast<const FieldAccessExpr*>(&expr)) {
+    return is_mutable_lvalue(*field->object);
+  }
+  return false;
 }
 
 }  // namespace frontend
