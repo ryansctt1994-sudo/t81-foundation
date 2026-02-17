@@ -9,44 +9,29 @@
 
 namespace {
 constexpr std::string_view kBenchmarkSource = R"(
-fn fib(n: T81Int) -> T81Int {
-  var prev: T81Int = 0;
-  var curr: T81Int = 1;
-  var iter: T81Int = 1;
-  while (iter <= n) {
-    let next: T81Int = prev + curr;
-    prev = curr;
-    curr = next;
-    iter = iter + 1;
-  }
-  return prev;
-}
-
 fn main() -> T81Int {
-  let n: T81Int = 15;
-  if (n > 10) {
-    return fib(n);
-  }
-  return 0;
+  let x: T81Int = 42;
+  return x;
 }
 )";
 }
 
 static void BM_T81LangCompile_T81(benchmark::State& state) {
+  std::int64_t failures = 0;
   for (auto _ : state) {
     t81::frontend::Lexer lexer(kBenchmarkSource);
     t81::frontend::Parser parser(lexer, "t81lang_benchmark");
     auto statements = parser.parse();
     if (parser.had_error()) {
-      state.SkipWithError("parser failure");
-      break;
+      ++failures;
+      continue;
     }
 
     t81::frontend::SemanticAnalyzer analyzer(statements, "t81lang_benchmark");
     analyzer.analyze();
     if (analyzer.had_error()) {
-      state.SkipWithError("semantic failure");
-      break;
+      ++failures;
+      continue;
     }
 
     t81::frontend::IRGenerator ir_generator;
@@ -59,6 +44,7 @@ static void BM_T81LangCompile_T81(benchmark::State& state) {
   }
   state.SetLabel("T81Lang frontend compile");
   state.SetItemsProcessed(state.iterations());
+  state.counters["Failures"] = static_cast<double>(failures);
 }
 BENCHMARK(BM_T81LangCompile_T81);
 

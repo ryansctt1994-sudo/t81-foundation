@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <iostream>
+#include <cstdint>
 
 #include "t81/vm/vm.hpp"
 #include "t81/tisc/program.hpp"
@@ -72,4 +73,21 @@ static void BM_TensorPromotion(benchmark::State& state) {
 }
 
 // Register the benchmark with a high rank (1,000,000) to exaggerate the allocation cost.
-BENCHMARK_TEMPLATE(BM_TensorPromotion, 1000000);
+BENCHMARK_TEMPLATE(BM_TensorPromotion, 1000000)
+    ->Name("BM_TensorPromotion_T81");
+
+template <int Rank>
+static void BM_TensorPromotion_Binary(benchmark::State& state) {
+    std::vector<std::uint32_t> shape(static_cast<std::size_t>(Rank), 1u);
+    std::vector<std::uint32_t> promoted;
+    promoted.reserve(shape.size());
+
+    for (auto _ : state) {
+        promoted.assign(shape.begin(), shape.end());
+        benchmark::DoNotOptimize(promoted.data());
+    }
+    state.SetItemsProcessed(state.iterations() * Rank);
+}
+
+BENCHMARK_TEMPLATE(BM_TensorPromotion_Binary, 1000000)
+    ->Name("BM_TensorPromotion_Binary");

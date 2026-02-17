@@ -39,12 +39,21 @@ struct BenchmarkResult {
     std::string t81_native_latency_str;
     std::string binary_latency_str;
     std::string analysis;
+    bool t81_classic_skipped = false;
+    bool t81_native_skipped = false;
+    bool binary_skipped = false;
+    std::string t81_classic_skip_reason;
+    std::string t81_native_skip_reason;
+    std::string binary_skip_reason;
     bool has_t81_flow = false;
     bool has_t81_native_flow = false;
     bool has_binary_flow = false;
-    bool ratio_computed = false;
-    std::string ratio_str;
-    double ratio_val = 0.0;
+    bool throughput_ratio_computed = false;
+    std::string throughput_ratio_str;
+    double throughput_ratio_val = 0.0;
+    bool latency_speedup_computed = false;
+    std::string latency_speedup_str;
+    double latency_speedup_val = 0.0;
 };
 
 std::map<std::string, BenchmarkResult> final_results;
@@ -294,37 +303,68 @@ std::string BuildNotesDisplay(const BenchmarkResult& r) {
     return oss.str();
 }
 
+static bool BinaryBaselineSemanticallyUnavoidable(const BenchmarkResult& r);
+static bool T81ClassicSemanticallyUnavoidable(const BenchmarkResult& r);
+
 std::string BuildAnalysis(const BenchmarkResult& r) {
     std::ostringstream oss;
-    if (!r.ratio_computed) {
-        oss << "Throughput data unavailable";
-        const bool has_any_t81_flow = r.has_t81_flow || r.has_t81_native_flow;
-        if (!has_any_t81_flow && !r.has_binary_flow) {
-            oss << " (needs `items_per_second` counters from the runner)";
-        } else if (!has_any_t81_flow) {
-            oss << " (T81 throughput missing due to metadata-only run)";
-        } else if (!r.has_binary_flow) {
-            oss << " (binary throughput missing for this suite)";
+    if (!r.throughput_ratio_computed) {
+        if (BinaryBaselineSemanticallyUnavoidable(r)) {
+            oss << "Throughput ratio not computed (semantic: no binary baseline)";
+        } else if (T81ClassicSemanticallyUnavoidable(r) &&
+                   !(r.has_t81_flow || r.has_t81_native_flow)) {
+            oss << "Throughput ratio not computed (semantic)";
+        } else if ((r.t81_classic_skipped || r.t81_native_skipped || r.binary_skipped)) {
+            oss << "Throughput ratio skipped (no counters emitted)";
+        } else {
+            oss << "Throughput ratio not-implemented (missing baseline)";
         }
+    } else {
+        const double ratio = r.throughput_ratio_val;
+        oss << std::fixed << std::setprecision(2) << ratio << "x throughput ratio";
+        if (ratio > 1.05) {
+            oss << " — T81 leads";
+            const auto advantage = BuildT81AdvantageDisplay(r);
+            if (!advantage.empty()) {
+                oss << " (" << advantage << ")";
+            }
+        } else if (ratio < 0.95) {
+            oss << " — binary wins";
+        } else {
+            oss << " — throughputs comparable";
+        }
+    }
+    if (r.latency_speedup_computed) {
+        oss << "; " << std::fixed << std::setprecision(2) << r.latency_speedup_val
+            << "x latency speedup (Binary/T81)";
+    }
+    if (!r.throughput_ratio_computed && !r.latency_speedup_computed) {
         return oss.str();
     }
-    double ratio = r.ratio_val;
-    oss << std::fixed << std::setprecision(2) << ratio << "x throughput ratio";
-    if (ratio > 1.05) {
-        oss << " — T81 leads";
-        const auto advantage = BuildT81AdvantageDisplay(r);
-        if (!advantage.empty()) {
-            oss << " (" << advantage << ")";
-        }
-    } else if (ratio < 0.95) {
-        oss << " — binary wins";
-    } else {
-        oss << " — throughputs comparable";
-    }
-    if (!r.t81_latency_str.empty() && !r.binary_latency_str.empty()) {
-        oss << "; latencies " << r.t81_latency_str << " vs " << r.binary_latency_str;
+    const std::string& comparable_t81_latency =
+        (!r.t81_native_latency_str.empty() ? r.t81_native_latency_str : r.t81_latency_str);
+    if (!comparable_t81_latency.empty() && !r.binary_latency_str.empty()) {
+        oss << "; latencies " << comparable_t81_latency << " vs " << r.binary_latency_str;
     }
     return oss.str();
+}
+
+static bool NameContains(std::string_view name, std::string_view token) {
+    const std::string lower_name = ToLower(name);
+    const std::string lower_token = ToLower(token);
+    return lower_name.find(lower_token) != std::string::npos;
+}
+
+static bool BinaryBaselineSemanticallyUnavoidable(const BenchmarkResult& r) {
+    // Packing-density metrics are ternary-encoding properties, not direct throughput parity tests.
+    if (NameContains(r.name, "PackingDensity")) return true;
+    return false;
+}
+
+static bool T81ClassicSemanticallyUnavoidable(const BenchmarkResult& r) {
+    // Binary silent-overflow semantics have no ternary equivalent in this project.
+    if (NameContains(r.name, "overflow_binary_silent")) return true;
+    return false;
 }
 
 class CustomReporter : public ::benchmark::BenchmarkReporter {
@@ -385,12 +425,42 @@ public:
                 final_results[family].binary_note = run.report_label;
             }
 
+            const bool skipped = run.skipped != benchmark::internal::NotSkipped;
+            const std::string skip_reason = run.skip_message.empty() ?
+                "no counters emitted" : run.skip_message;
+            if (skipped) {
+                if (is_t81_classic) {
+                    final_results[family].t81_classic_skipped = true;
+                    final_results[family].t81_classic_skip_reason = skip_reason;
+                } else if (is_t81_native) {
+                    final_results[family].t81_native_skipped = true;
+                    final_results[family].t81_native_skip_reason = skip_reason;
+                } else if (is_binary) {
+                    final_results[family].binary_skipped = true;
+                    final_results[family].binary_skip_reason = skip_reason;
+                } else {
+                    final_results[family].t81_classic_skipped = true;
+                    final_results[family].t81_classic_skip_reason = skip_reason;
+                }
+                continue;
+            }
+
             std::string summary;
             double gops = 0.0;
             bool throughput_recorded = false;
+            double items_per_second = 0.0;
             auto items_it = run.counters.find("items_per_second");
+            auto bandwidth_it = run.counters.find("bytes_per_second");
             if (items_it != run.counters.end()) {
-                double items_per_second = items_it->second;
+                items_per_second = items_it->second;
+            } else if (bandwidth_it == run.counters.end()) {
+                // Fallback for benchmark libraries that don't surface items_per_second as a counter.
+                const double latency_seconds = ExtractLatency(run);
+                if (latency_seconds > 0.0 && run.iterations > 0) {
+                    items_per_second = 1.0 / latency_seconds;
+                }
+            }
+            if (items_per_second > 0.0) {
                 if (items_per_second > 0.0) {
                     gops = items_per_second / 1e9;
                     throughput_recorded = true;
@@ -409,7 +479,6 @@ public:
                 }
                 summary = ss.str();
             }
-            auto bandwidth_it = run.counters.find("bytes_per_second");
             bool bandwidth_recorded = false;
             double bandwidth = 0.0;
             if (bandwidth_it != run.counters.end()) {
@@ -507,7 +576,7 @@ void GenerateMarkdownReport() {
     std::cout << "\nGenerating benchmark report...\n";
 
     auto DisplayValue = [](const std::string& value) -> std::string {
-        return value.empty() ? "n/a" : value;
+        return value.empty() ? "not-applicable (no annotation)" : value;
     };
     auto EscapePipes = [](const std::string& value) -> std::string {
         std::string result;
@@ -522,9 +591,95 @@ void GenerateMarkdownReport() {
         return result;
     };
 
-    auto FormatRatioValue = [](const BenchmarkResult& r) -> std::string {
-        if (!r.ratio_computed) return "n/a";
-        return r.ratio_str;
+    auto ResolveT81ClassicResultCell = [&](const BenchmarkResult& r) -> std::string {
+        if (!r.t81_result_str.empty()) return r.t81_result_str;
+        if (r.t81_classic_skipped) return "skipped (no counters emitted)";
+        if (T81ClassicSemanticallyUnavoidable(r)) return "not-applicable (semantic)";
+        const bool has_native_only = (r.has_t81_native_flow || !r.t81_native_result_str.empty() || !r.t81_native_note.empty()) &&
+                                     !(r.has_t81_flow || !r.t81_classic_note.empty());
+        if (has_native_only) return "not-applicable (native-only family)";
+        return "not-implemented (missing baseline)";
+    };
+
+    auto ResolveT81ClassicLatencyCell = [&](const BenchmarkResult& r) -> std::string {
+        if (!r.t81_latency_str.empty()) return r.t81_latency_str;
+        if (r.t81_classic_skipped) return "skipped (no counters emitted)";
+        if (T81ClassicSemanticallyUnavoidable(r)) return "not-applicable (semantic)";
+        const bool has_native_only = (r.has_t81_native_flow || !r.t81_native_result_str.empty() || !r.t81_native_note.empty()) &&
+                                     !(r.has_t81_flow || !r.t81_classic_note.empty());
+        if (has_native_only) return "not-applicable (native-only family)";
+        return "not-implemented (missing baseline)";
+    };
+
+    auto ResolveT81NativeResultCell = [&](const BenchmarkResult& r) -> std::string {
+        if (!r.t81_native_result_str.empty()) return r.t81_native_result_str;
+        if (r.t81_native_skipped) return "skipped (no counters emitted)";
+        const bool has_native_variant = r.has_t81_native_flow || !r.t81_native_note.empty();
+        if (!has_native_variant) return "not-applicable (no native variant)";
+        return "not-implemented (missing baseline)";
+    };
+
+    auto ResolveT81NativeLatencyCell = [&](const BenchmarkResult& r) -> std::string {
+        if (!r.t81_native_latency_str.empty()) return r.t81_native_latency_str;
+        if (r.t81_native_skipped) return "skipped (no counters emitted)";
+        const bool has_native_variant = r.has_t81_native_flow || !r.t81_native_note.empty();
+        if (!has_native_variant) return "not-applicable (no native variant)";
+        return "not-implemented (missing baseline)";
+    };
+
+    auto ResolveBinaryResultCell = [&](const BenchmarkResult& r) -> std::string {
+        if (!r.binary_result_str.empty()) return r.binary_result_str;
+        if (r.binary_skipped) return "skipped (no counters emitted)";
+        if (BinaryBaselineSemanticallyUnavoidable(r)) {
+            return "not-applicable (semantic: no binary baseline)";
+        }
+        return "not-implemented (missing baseline)";
+    };
+
+    auto ResolveBinaryLatencyCell = [&](const BenchmarkResult& r) -> std::string {
+        if (!r.binary_latency_str.empty()) return r.binary_latency_str;
+        if (r.binary_skipped) return "skipped (no counters emitted)";
+        if (BinaryBaselineSemanticallyUnavoidable(r)) {
+            return "not-applicable (semantic: no binary baseline)";
+        }
+        return "not-implemented (missing baseline)";
+    };
+
+    auto ResolveBandwidthCell = [&](const BenchmarkResult& r) -> std::string {
+        if (!r.bandwidth_result_str.empty()) return r.bandwidth_result_str;
+        return "not-applicable (non-bandwidth benchmark)";
+    };
+
+    auto ResolveThroughputRatioCell = [&](const BenchmarkResult& r) -> std::string {
+        if (r.throughput_ratio_computed) return r.throughput_ratio_str;
+        const bool t81_semantic_gap = T81ClassicSemanticallyUnavoidable(r) &&
+                                      !(r.has_t81_flow || r.has_t81_native_flow);
+        if (!r.has_binary_flow && BinaryBaselineSemanticallyUnavoidable(r)) {
+            return "not-computable (semantic: no binary baseline)";
+        }
+        if (t81_semantic_gap) {
+            return "not-computable (semantic)";
+        }
+        if (r.t81_classic_skipped || r.t81_native_skipped || r.binary_skipped) {
+            return "skipped (no counters emitted)";
+        }
+        return "not-implemented (missing baseline)";
+    };
+
+    auto ResolveLatencySpeedupCell = [&](const BenchmarkResult& r) -> std::string {
+        if (r.latency_speedup_computed) return r.latency_speedup_str;
+        const bool t81_semantic_gap = T81ClassicSemanticallyUnavoidable(r) &&
+                                      !(r.has_t81_flow || r.has_t81_native_flow);
+        if (!r.has_binary_flow && BinaryBaselineSemanticallyUnavoidable(r)) {
+            return "not-computable (semantic: no binary baseline)";
+        }
+        if (t81_semantic_gap) {
+            return "not-computable (semantic)";
+        }
+        if (r.t81_classic_skipped || r.t81_native_skipped || r.binary_skipped) {
+            return "skipped (no counters emitted)";
+        }
+        return "not-implemented (missing baseline)";
     };
 
     for (auto& [name, r] : final_results) {
@@ -534,26 +689,39 @@ void GenerateMarkdownReport() {
         const double t81_comparable_bw = r.has_t81_native_flow ?
             r.t81_native_bandwidth_val : r.t81_bandwidth_val;
 
-        bool ratio_ready = has_any_t81_flow && r.has_binary_flow &&
-                           r.binary_result_val > 0.0 && t81_comparable_val > 0.0;
-        double ratio = 0.0;
-        if (ratio_ready) {
-            ratio = t81_comparable_val / r.binary_result_val;
+        bool throughput_ratio_ready = has_any_t81_flow && r.has_binary_flow &&
+                                      r.binary_result_val > 0.0 && t81_comparable_val > 0.0;
+        double throughput_ratio = 0.0;
+        if (throughput_ratio_ready) {
+            throughput_ratio = t81_comparable_val / r.binary_result_val;
         } else if (has_any_t81_flow && r.has_binary_flow &&
                    r.binary_bandwidth_val > 0.0 && t81_comparable_bw > 0.0) {
-            ratio = t81_comparable_bw / r.binary_bandwidth_val;
-            ratio_ready = true;
+            throughput_ratio = t81_comparable_bw / r.binary_bandwidth_val;
+            throughput_ratio_ready = true;
         }
 
-        if (ratio_ready) {
-            r.ratio_val = ratio;
+        if (throughput_ratio_ready) {
+            r.throughput_ratio_val = throughput_ratio;
             std::ostringstream temp;
-            temp << std::fixed << std::setprecision(2) << ratio << "x";
-            r.ratio_str = temp.str();
-            r.ratio_computed = true;
+            temp << std::fixed << std::setprecision(2) << throughput_ratio << "x";
+            r.throughput_ratio_str = temp.str();
+            r.throughput_ratio_computed = true;
         } else {
-            r.ratio_str = "n/a";
-            r.ratio_computed = false;
+            r.throughput_ratio_str.clear();
+            r.throughput_ratio_computed = false;
+        }
+
+        const double t81_latency = (r.t81_native_latency_seconds > 0.0) ?
+            r.t81_native_latency_seconds : r.t81_latency_seconds;
+        if (t81_latency > 0.0 && r.binary_latency_seconds > 0.0) {
+            r.latency_speedup_val = r.binary_latency_seconds / t81_latency;
+            std::ostringstream temp;
+            temp << std::fixed << std::setprecision(2) << r.latency_speedup_val << "x";
+            r.latency_speedup_str = temp.str();
+            r.latency_speedup_computed = true;
+        } else {
+            r.latency_speedup_str.clear();
+            r.latency_speedup_computed = false;
         }
         r.analysis = BuildAnalysis(r);
     }
@@ -563,19 +731,27 @@ void GenerateMarkdownReport() {
               << std::setw(16) << "T81 Latency"
               << std::setw(20) << "Binary Result"
               << std::setw(16) << "Binary Latency"
-              << std::setw(8)  << "Ratio"
+              << std::setw(18) << "Thru Ratio"
+              << std::setw(18) << "Lat Speedup"
               << std::setw(25) << "T81 Advantage"
               << "Notes\n";
     std::cout << std::string(140, '-') << "\n";
     for (auto const& [name, r] : final_results) {
+        const std::string t81_result_cell = ResolveT81ClassicResultCell(r);
+        const std::string t81_latency_cell = ResolveT81ClassicLatencyCell(r);
+        const std::string binary_result_cell = ResolveBinaryResultCell(r);
+        const std::string binary_latency_cell = ResolveBinaryLatencyCell(r);
+        const std::string throughput_ratio_cell = ResolveThroughputRatioCell(r);
+        const std::string latency_speedup_cell = ResolveLatencySpeedupCell(r);
         const std::string advantage_display = BuildT81AdvantageDisplay(r);
         const std::string notes_display = BuildNotesDisplay(r);
         std::cout << std::left << std::setw(25) << r.name
-                  << std::setw(20) << DisplayValue(r.t81_result_str)
-                  << std::setw(16) << DisplayValue(r.t81_latency_str)
-                  << std::setw(20) << DisplayValue(r.binary_result_str)
-                  << std::setw(16) << DisplayValue(r.binary_latency_str)
-                  << std::setw(8)  << DisplayValue(FormatRatioValue(r))
+                  << std::setw(20) << DisplayValue(t81_result_cell)
+                  << std::setw(16) << DisplayValue(t81_latency_cell)
+                  << std::setw(20) << DisplayValue(binary_result_cell)
+                  << std::setw(16) << DisplayValue(binary_latency_cell)
+                  << std::setw(18) << DisplayValue(throughput_ratio_cell)
+                  << std::setw(18) << DisplayValue(latency_speedup_cell)
                   << std::setw(25) << DisplayValue(advantage_display)
                   << DisplayValue(notes_display) << "\n";
     }
@@ -601,8 +777,8 @@ void GenerateMarkdownReport() {
     md_file << "\n\n";
     md_file << "## Summary\n\n";
 
-    md_file << "| Benchmark               | T81 Result     | T81 Latency    | T81 Native Result | T81 Native Latency | Binary Result  | Binary Latency | Memory Bandwidth | Ratio (T81/Binary) | T81 Advantage                   | Notes                               |\n";
-    md_file << "|-------------------------|----------------|----------------|------------------|--------------------|----------------|----------------|--------------------|---------------------------------|-------------------------------------|\n";
+    md_file << "| Benchmark               | T81 Result     | T81 Latency    | T81 Native Result | T81 Native Latency | Binary Result  | Binary Latency | Memory Bandwidth | Throughput Ratio (T81/Binary) | Latency Speedup (Binary/T81) | T81 Advantage                   | Notes                               |\n";
+    md_file << "|-------------------------|----------------|----------------|------------------|--------------------|----------------|----------------|--------------------|-------------------------------|------------------------------|---------------------------------|-------------------------------------|\n";
 
     double best_t81_ratio = 1.0;
     double best_binary_ratio = 1.0;
@@ -613,8 +789,8 @@ void GenerateMarkdownReport() {
     int ties = 0;
 
     for (auto& [name, r] : final_results) {
-        if (r.ratio_computed) {
-            double ratio = r.ratio_val;
+        if (r.throughput_ratio_computed) {
+            double ratio = r.throughput_ratio_val;
             if (ratio > 1.0 && ratio > best_t81_ratio) {
                 best_t81_ratio = ratio;
                 best_name = r.name;
@@ -633,17 +809,27 @@ void GenerateMarkdownReport() {
         }
         const std::string advantage_display = BuildT81AdvantageDisplay(r);
         const std::string notes_display = BuildNotesDisplay(r);
+        const std::string t81_result_cell = ResolveT81ClassicResultCell(r);
+        const std::string t81_latency_cell = ResolveT81ClassicLatencyCell(r);
+        const std::string t81_native_result_cell = ResolveT81NativeResultCell(r);
+        const std::string t81_native_latency_cell = ResolveT81NativeLatencyCell(r);
+        const std::string binary_result_cell = ResolveBinaryResultCell(r);
+        const std::string binary_latency_cell = ResolveBinaryLatencyCell(r);
+        const std::string bandwidth_cell = ResolveBandwidthCell(r);
+        const std::string throughput_ratio_cell = ResolveThroughputRatioCell(r);
+        const std::string latency_speedup_cell = ResolveLatencySpeedupCell(r);
         const std::string advantage_display_md = EscapePipes(advantage_display);
         const std::string notes_display_md = EscapePipes(notes_display);
         md_file << "| " << std::left << std::setw(23) << r.name
-                << "| " << std::setw(14) << DisplayValue(r.t81_result_str)
-                << "| " << std::setw(14) << DisplayValue(r.t81_latency_str)
-                << "| " << std::setw(14) << DisplayValue(r.t81_native_result_str)
-                << "| " << std::setw(14) << DisplayValue(r.t81_native_latency_str)
-                << "| " << std::setw(14) << DisplayValue(r.binary_result_str)
-                << "| " << std::setw(14) << DisplayValue(r.binary_latency_str)
-                << "| " << std::setw(14) << DisplayValue(r.bandwidth_result_str)
-                << "| " << std::setw(14) << r.ratio_str
+                << "| " << std::setw(14) << DisplayValue(t81_result_cell)
+                << "| " << std::setw(14) << DisplayValue(t81_latency_cell)
+                << "| " << std::setw(14) << DisplayValue(t81_native_result_cell)
+                << "| " << std::setw(14) << DisplayValue(t81_native_latency_cell)
+                << "| " << std::setw(14) << DisplayValue(binary_result_cell)
+                << "| " << std::setw(14) << DisplayValue(binary_latency_cell)
+                << "| " << std::setw(14) << DisplayValue(bandwidth_cell)
+                << "| " << std::setw(14) << DisplayValue(throughput_ratio_cell)
+                << "| " << std::setw(14) << DisplayValue(latency_speedup_cell)
                 << "| " << std::setw(31) << DisplayValue(advantage_display_md)
                 << "| " << std::setw(35) << DisplayValue(notes_display_md) << "|\n";
     }

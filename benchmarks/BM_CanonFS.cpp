@@ -19,7 +19,9 @@ static void BM_CanonFS_WriteThroughput_InMemory(benchmark::State& state) {
     }
     state.SetBytesProcessed(state.iterations() * data_size);
 }
-BENCHMARK(BM_CanonFS_WriteThroughput_InMemory)->Range(1024, 1024 * 1024);
+BENCHMARK(BM_CanonFS_WriteThroughput_InMemory)
+    ->Name("BM_CanonFS_WriteThroughput_InMemory_T81")
+    ->Range(1024, 1024 * 1024);
 
 static void BM_CanonFS_WriteThroughput_Binary(benchmark::State& state) {
     size_t data_size = state.range(0);
@@ -31,7 +33,9 @@ static void BM_CanonFS_WriteThroughput_Binary(benchmark::State& state) {
     }
     state.SetBytesProcessed(state.iterations() * data_size);
 }
-BENCHMARK(BM_CanonFS_WriteThroughput_Binary)->Range(1024, 1024 * 1024);
+BENCHMARK(BM_CanonFS_WriteThroughput_Binary)
+    ->Name("BM_CanonFS_WriteThroughput_InMemory_Binary")
+    ->Range(1024, 1024 * 1024);
 
 static void BM_CanonFS_ReadThroughput_InMemory(benchmark::State& state) {
     auto driver = make_in_memory_driver();
@@ -46,7 +50,9 @@ static void BM_CanonFS_ReadThroughput_InMemory(benchmark::State& state) {
     }
     state.SetBytesProcessed(state.iterations() * data_size);
 }
-BENCHMARK(BM_CanonFS_ReadThroughput_InMemory)->Range(1024, 1024 * 1024);
+BENCHMARK(BM_CanonFS_ReadThroughput_InMemory)
+    ->Name("BM_CanonFS_ReadThroughput_InMemory_T81")
+    ->Range(1024, 1024 * 1024);
 
 static void BM_CanonFS_ReadThroughput_Binary(benchmark::State& state) {
     size_t data_size = state.range(0);
@@ -57,7 +63,9 @@ static void BM_CanonFS_ReadThroughput_Binary(benchmark::State& state) {
     }
     state.SetBytesProcessed(state.iterations() * data_size);
 }
-BENCHMARK(BM_CanonFS_ReadThroughput_Binary)->Range(1024, 1024 * 1024);
+BENCHMARK(BM_CanonFS_ReadThroughput_Binary)
+    ->Name("BM_CanonFS_ReadThroughput_InMemory_Binary")
+    ->Range(1024, 1024 * 1024);
 
 static void BM_CanonFS_WriteThroughput_Persistent(benchmark::State& state) {
     std::filesystem::path root = "bench_canonfs_root";
@@ -80,7 +88,9 @@ static void BM_CanonFS_WriteThroughput_Persistent(benchmark::State& state) {
     state.SetBytesProcessed(state.iterations() * data_size);
     std::filesystem::remove_all(root);
 }
-BENCHMARK(BM_CanonFS_WriteThroughput_Persistent)->Range(1024, 1024 * 1024);
+BENCHMARK(BM_CanonFS_WriteThroughput_Persistent)
+    ->Name("BM_CanonFS_WriteThroughput_Persistent_T81")
+    ->Range(1024, 1024 * 1024);
 
 static void BM_CanonFS_ReadThroughput_Persistent(benchmark::State& state) {
     std::filesystem::path root = "bench_canonfs_read_root";
@@ -98,7 +108,9 @@ static void BM_CanonFS_ReadThroughput_Persistent(benchmark::State& state) {
     state.SetBytesProcessed(state.iterations() * data_size);
     std::filesystem::remove_all(root);
 }
-BENCHMARK(BM_CanonFS_ReadThroughput_Persistent)->Range(1024, 1024 * 1024);
+BENCHMARK(BM_CanonFS_ReadThroughput_Persistent)
+    ->Name("BM_CanonFS_ReadThroughput_Persistent_T81")
+    ->Range(1024, 1024 * 1024);
 
 static void BM_CanonFS_WriteThroughput_Persistent_Binary(benchmark::State& state) {
     size_t data_size = state.range(0);
@@ -112,7 +124,9 @@ static void BM_CanonFS_WriteThroughput_Persistent_Binary(benchmark::State& state
     state.SetBytesProcessed(state.iterations() * data_size);
     std::filesystem::remove(p);
 }
-BENCHMARK(BM_CanonFS_WriteThroughput_Persistent_Binary)->Range(1024, 1024 * 1024);
+BENCHMARK(BM_CanonFS_WriteThroughput_Persistent_Binary)
+    ->Name("BM_CanonFS_WriteThroughput_Persistent_Binary")
+    ->Range(1024, 1024 * 1024);
 
 static void BM_CanonFS_ReadThroughput_Persistent_Binary(benchmark::State& state) {
     size_t data_size = state.range(0);
@@ -130,4 +144,6 @@ static void BM_CanonFS_ReadThroughput_Persistent_Binary(benchmark::State& state)
     state.SetBytesProcessed(state.iterations() * data_size);
     std::filesystem::remove(p);
 }
-BENCHMARK(BM_CanonFS_ReadThroughput_Persistent_Binary)->Range(1024, 1024 * 1024);
+BENCHMARK(BM_CanonFS_ReadThroughput_Persistent_Binary)
+    ->Name("BM_CanonFS_ReadThroughput_Persistent_Binary")
+    ->Range(1024, 1024 * 1024);

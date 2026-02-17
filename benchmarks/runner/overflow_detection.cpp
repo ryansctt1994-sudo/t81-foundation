@@ -29,6 +29,40 @@ static void BM_overflow_ternary_auto(benchmark::State& state) {
 }
 BENCHMARK(BM_overflow_ternary_auto)->MinTime(0.1);
 
+static void BM_overflow_ternary_auto_Binary(benchmark::State& state) {
+    int64_t max_val = std::numeric_limits<int64_t>::max();
+    int64_t detected = 0;
+    for (auto _ : state) {
+#if defined(__has_builtin)
+#if __has_builtin(__builtin_add_overflow)
+        int64_t out = 0;
+        if (__builtin_add_overflow(max_val, int64_t(1), &out)) {
+            detected++;
+        } else {
+            benchmark::DoNotOptimize(out);
+        }
+#else
+        if (max_val > std::numeric_limits<int64_t>::max() - 1) {
+            detected++;
+        } else {
+            volatile int64_t r = max_val + int64_t(1);
+            benchmark::DoNotOptimize(r);
+        }
+#endif
+#else
+        if (max_val > std::numeric_limits<int64_t>::max() - 1) {
+            detected++;
+        } else {
+            volatile int64_t r = max_val + int64_t(1);
+            benchmark::DoNotOptimize(r);
+        }
+#endif
+    }
+    state.SetItemsProcessed(state.iterations());
+    state.counters["Detected"] = static_cast<double>(detected);
+}
+BENCHMARK(BM_overflow_ternary_auto_Binary)->MinTime(0.1);
+
 static void BM_overflow_binary_silent(benchmark::State& state) {
     int64_t max_val = std::numeric_limits<int64_t>::max();
     for (auto _ : state) {
@@ -54,3 +88,19 @@ static void BM_overflow_binary_checked(benchmark::State& state) {
     state.counters["Detected"] = static_cast<double>(detected);
 }
 BENCHMARK(BM_overflow_binary_checked)->MinTime(0.1);
+
+static void BM_overflow_binary_checked_T81(benchmark::State& state) {
+    Cell max_val = Cell::from_int(Cell::MAX);
+    int64_t detected = 0;
+    for (auto _ : state) {
+        if (max_val == Cell::from_int(Cell::MAX)) {
+            detected++;
+        } else {
+            Cell result = max_val + Cell::from_int(1);
+            benchmark::DoNotOptimize(result);
+        }
+    }
+    state.SetItemsProcessed(state.iterations());
+    state.counters["Detected"] = static_cast<double>(detected);
+}
+BENCHMARK(BM_overflow_binary_checked_T81)->MinTime(0.1);

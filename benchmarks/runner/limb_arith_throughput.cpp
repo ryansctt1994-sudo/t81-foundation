@@ -94,19 +94,113 @@ static void BM_LimbAdd_T81Native(benchmark::State& state) {
 }
 BENCHMARK(BM_LimbAdd_T81Native);
 
-static void BM_vs_int128(benchmark::State& state) {
+static void BM_LimbAdd_T81Limb(benchmark::State& state) {
+    setup_limb_arith();
+    for (auto _ : state) {
+        for (size_t i = 0; i < DATA_SIZE; ++i) {
+            t81_dest_data[i] = t81_source_data_a[i] + t81_source_data_b[i];
+        }
+        auto* classic_ptr = static_cast<const void*>(t81_dest_data.data());
+        benchmark::DoNotOptimize(classic_ptr);
+    }
+    state.SetItemsProcessed(state.iterations() * DATA_SIZE);
+    state.SetLabel("Classic 48-trit Kogge-Stone addition");
+}
+BENCHMARK(BM_LimbAdd_T81Limb);
+
+static void BM_LimbAdd_Int128(benchmark::State& state) {
+    setup_limb_arith();
+    for (auto _ : state) {
+        for (size_t i = 0; i < DATA_SIZE; ++i) {
+            int128_dest_data[i] = int128_data_a[i] + int128_data_b[i];
+        }
+        auto* binary_ptr = static_cast<const void*>(int128_dest_data.data());
+        benchmark::DoNotOptimize(binary_ptr);
+    }
+    state.SetItemsProcessed(state.iterations() * DATA_SIZE);
+    state.SetLabel("__int128 addition baseline");
+}
+BENCHMARK(BM_LimbAdd_Int128);
+
+static void BM_LimbAdd_KoggeStone_Int128(benchmark::State& state) {
+    setup_limb_arith();
+    for (auto _ : state) {
+        for (size_t i = 0; i < DATA_SIZE; ++i) {
+            int128_dest_data[i] = int128_data_a[i] + int128_data_b[i];
+        }
+        auto* binary_ptr = static_cast<const void*>(int128_dest_data.data());
+        benchmark::DoNotOptimize(binary_ptr);
+    }
+    state.SetItemsProcessed(state.iterations() * DATA_SIZE);
+    state.SetLabel("__int128 addition baseline");
+}
+BENCHMARK(BM_LimbAdd_KoggeStone_Int128);
+
+static void BM_LimbAdd_KoggeStone_T81Native(benchmark::State& state) {
+    setup_limb_arith();
+    for (auto _ : state) {
+        for (size_t i = 0; i < DATA_SIZE; ++i) {
+            t81_native_dest_data[i] = t81_native_a[i] + t81_native_b[i];
+        }
+        auto* native_ptr = static_cast<const void*>(t81_native_dest_data.data());
+        benchmark::DoNotOptimize(native_ptr);
+    }
+    state.SetItemsProcessed(state.iterations() * DATA_SIZE);
+    state.SetLabel("Native T81 SIMD Kogge-Stone addition");
+}
+BENCHMARK(BM_LimbAdd_KoggeStone_T81Native);
+
+static void BM_LimbArithThroughput_T81Native(benchmark::State& state) {
+    setup_limb_arith();
+    for (auto _ : state) {
+        for (size_t i = 0; i < DATA_SIZE; ++i) {
+            t81_native_dest_data[i] = t81_native_a[i] + t81_native_b[i];
+        }
+        auto* native_ptr = static_cast<const void*>(t81_native_dest_data.data());
+        benchmark::DoNotOptimize(native_ptr);
+    }
+    state.SetItemsProcessed(state.iterations() * DATA_SIZE);
+    state.SetLabel("Native T81 SIMD addition");
+}
+BENCHMARK(BM_LimbArithThroughput_T81Native);
+
+static void BM_vs_T81Native(benchmark::State& state) {
     setup_limb_arith();
     size_t idx = 0;
     for (auto _ : state) {
         t81_native_dest_data[idx] = t81_native_a[idx] + t81_native_b[idx];
         benchmark::DoNotOptimize(t81_native_dest_data[idx]);
+        idx = (idx + 1) % DATA_SIZE;
+    }
+    state.SetItemsProcessed(state.iterations());
+    state.SetLabel("T81 native addition");
+}
+BENCHMARK(BM_vs_T81Native);
+
+static void BM_vs_T81(benchmark::State& state) {
+    setup_limb_arith();
+    size_t idx = 0;
+    for (auto _ : state) {
+        t81_dest_data[idx] = t81_source_data_a[idx] + t81_source_data_b[idx];
+        benchmark::DoNotOptimize(t81_dest_data[idx]);
+        idx = (idx + 1) % DATA_SIZE;
+    }
+    state.SetItemsProcessed(state.iterations());
+    state.SetLabel("T81 classic limb addition");
+}
+BENCHMARK(BM_vs_T81);
+
+static void BM_vs_Binary(benchmark::State& state) {
+    setup_limb_arith();
+    size_t idx = 0;
+    for (auto _ : state) {
         int128_dest_data[idx] = int128_data_a[idx] + int128_data_b[idx];
         benchmark::DoNotOptimize(int128_dest_data[idx]);
         idx = (idx + 1) % DATA_SIZE;
     }
-    state.SetItemsProcessed(state.iterations() * DATA_SIZE * 2);
-    state.SetLabel("T81 native vs __int128 addition");
+    state.SetItemsProcessed(state.iterations());
+    state.SetLabel("__int128 addition baseline");
 }
-BENCHMARK(BM_vs_int128);
+BENCHMARK(BM_vs_Binary);
 
 #pragma GCC diagnostic pop
