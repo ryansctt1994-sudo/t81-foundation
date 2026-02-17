@@ -107,9 +107,9 @@ int main() {
   insns.push_back({Opcode::Halt});
   program.insns = std::move(insns);
 
-  program.axion_policy_text =
-      "(policy (tier 1)"
-      " (require-axion-event (reason \"weights.load \\\"model.layers.0.input_layernorm.weight\\\"\")))";
+  program.axion_policy_text = "(policy (tier 1)"
+                              " (require-axion-event (reason \"weights.load "
+                              "\\\"model.layers.0.input_layernorm.weight\\\"\")))";
 
   // 3. Run
   auto vm = vm::make_interpreter_vm();

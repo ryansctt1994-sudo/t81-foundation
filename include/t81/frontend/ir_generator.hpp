@@ -474,7 +474,7 @@ public:
 
       NumericCategory left_cat = categorize(left_type);
       NumericCategory right_cat = categorize(right_type);
-      NumericCategory target_category = left_cat;
+      NumericCategory target_category = NumericCategory::Unknown;
       auto merge_category = [](NumericCategory a, NumericCategory b) {
         if (a == NumericCategory::Float || b == NumericCategory::Float)
           return NumericCategory::Float;
@@ -485,10 +485,8 @@ public:
         return NumericCategory::Unknown;
       };
       target_category = merge_category(left_cat, right_cat);
-      if (target_category == NumericCategory::Unknown)
-        target_category = merge_category(target_category, right_cat);
 
-      tisc::ir::PrimitiveKind operand_primitive = primitive_kind;
+      tisc::ir::PrimitiveKind operand_primitive;
       if (!both_bool) {
         switch (target_category) {
           case NumericCategory::Float:

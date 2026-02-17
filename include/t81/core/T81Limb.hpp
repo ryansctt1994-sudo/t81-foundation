@@ -570,7 +570,7 @@ inline std::array<int8_t, T81Limb54::TRITS> T81Limb54::booth_mul_trits(
     int d0 = b[i];
     int d1 = (i + 1 < TRITS) ? b[i + 1] : 0;
     int pattern = d0 + 3 * d1;
-    int shift = i;
+    int shift = 0;
     int8_t mul = 0;
     switch (pattern) {
       case 1:

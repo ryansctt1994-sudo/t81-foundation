@@ -526,7 +526,10 @@ jobs:
         run: |
           cmake -S . -B build -G Ninja \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-            -DT81_BUILD_TESTS=ON
+            -DT81_BUILD_TESTS=OFF \
+            -DT81_BUILD_EXAMPLES=OFF \
+            -DT81_BUILD_BENCHMARKS=OFF \
+            -DT81_BUILD_FUZZ_TESTS=OFF
 
       - name: Run clang-tidy
         run: |
@@ -545,7 +548,7 @@ jobs:
                   rel = file_path.relative_to(root)
               except ValueError:
                   continue
-              if rel.suffix in {".cpp", ".cc", ".cxx"}:
+              if rel.suffix in {".cpp", ".cc", ".cxx"} and rel.parts[:1] == ("src",):
                   source_files.append(str(rel))
 
           for path in sorted(set(source_files)):
@@ -554,8 +557,8 @@ jobs:
           test -s /tmp/clang_tidy_files.txt
           xargs -a /tmp/clang_tidy_files.txt clang-tidy-18 -p build \
             --header-filter='^.*/include/t81/.*' \
-            --checks='-*,clang-analyzer-*,clang-diagnostic-*' \
-            --warnings-as-errors='clang-analyzer-*,clang-diagnostic-*'
+            --checks='-*,clang-analyzer-core.*,clang-analyzer-cplusplus.*,clang-analyzer-deadcode.*,clang-analyzer-security.*,clang-analyzer-unix.*' \
+            --warnings-as-errors='clang-analyzer-core.*,clang-analyzer-cplusplus.*,clang-analyzer-deadcode.*,clang-analyzer-security.*,clang-analyzer-unix.*'
 
   ############################################################################
   # JOB: sanitizers

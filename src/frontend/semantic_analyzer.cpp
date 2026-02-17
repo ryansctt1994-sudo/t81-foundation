@@ -2199,8 +2199,8 @@ std::any SemanticAnalyzer::visit(const GenericTypeExpr& expr) {
       continue;
     }
 
-    Expr* raw = expr.params[i].get();
-    if (auto* type_expr = dynamic_cast<TypeExpr*>(raw)) {
+    const Expr& raw = *expr.params[i];
+    if (auto* type_expr = dynamic_cast<const TypeExpr*>(&raw)) {
       params.push_back(analyze_type_expr(*type_expr));
       continue;
     }
@@ -2208,7 +2208,7 @@ std::any SemanticAnalyzer::visit(const GenericTypeExpr& expr) {
     if (i == 0) {
       // Allow expression if it's T81Fixed, T81Complex, etc.
       if (type_name == "T81Fixed" || type_name == "T81Complex" || type_name == "T81Matrix") {
-        auto constant = constant_type_from_expr(*raw);
+        auto constant = constant_type_from_expr(raw);
         if (constant.has_value()) {
           params.push_back(*constant);
           continue;
@@ -2219,7 +2219,7 @@ std::any SemanticAnalyzer::visit(const GenericTypeExpr& expr) {
       continue;
     }
 
-    auto constant = constant_type_from_expr(*raw);
+    auto constant = constant_type_from_expr(raw);
     if (!constant.has_value()) {
       error(expr.name, "Generic constant parameters must be integer literals or identifiers.");
       params.push_back(make_error_type());
