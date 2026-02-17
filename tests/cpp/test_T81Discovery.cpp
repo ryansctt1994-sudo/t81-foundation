@@ -6,7 +6,7 @@
 using namespace t81;
 
 void test_discovery_basic() {
-  auto agent = T81Agent(T81Symbol::intern("DiscoveryAgent"));
+  static auto agent = T81Agent(T81Symbol::intern("DiscoveryAgent"));
   auto& discovery = T81Discovery::join(agent, 8182);
 
   // In a real test we'd wait for beacons, but here we just check if it joined

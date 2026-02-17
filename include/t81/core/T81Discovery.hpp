@@ -75,15 +75,15 @@ class T81Discovery {
 
   void beacon_loop() {
     while (alive_) {
-      auto fuel = self_.consume_entropy();
-      if (fuel) {
-        T81Beacon beacon{self_.identity(), T81String(self_.identity().to_string().c_str()),
-                         listen_port_};
-        auto packet = beacon.serialize();
-        try {
+      try {
+        auto fuel = self_.consume_entropy();
+        if (fuel) {
+          T81Beacon beacon{self_.identity(), T81String(self_.identity().to_string().c_str()),
+                           listen_port_};
+          auto packet = beacon.serialize();
           socket_.send_to(asio::buffer(packet.data(), packet.size()), broadcast_ep_);
-        } catch (...) {
         }
+      } catch (...) {
       }
 
       std::unique_lock<std::mutex> lock(cv_mutex_);
@@ -98,6 +98,11 @@ class T81Discovery {
     while (alive_) {
       asio::error_code ec;
       size_t len = socket_.receive_from(asio::buffer(buffer.data(), buffer.size()), sender, 0, ec);
+      if (ec == asio::error::would_block || ec == asio::error::try_again) {
+        std::unique_lock<std::mutex> lock(cv_mutex_);
+        cv_.wait_for(lock, std::chrono::milliseconds(50), [this] { return !alive_; });
+        continue;
+      }
       if (ec || len == 0) continue;
 
       try {
@@ -128,6 +133,7 @@ private:
         self_(me),
         listen_port_(port == 0 ? 8181 : port) {
     socket_.set_option(asio::socket_base::broadcast(true));
+    socket_.non_blocking(true);
     listener_ = std::thread([this]() { listen_loop(); });
     beacon_thread_ = std::thread([this]() { beacon_loop(); });
   }
