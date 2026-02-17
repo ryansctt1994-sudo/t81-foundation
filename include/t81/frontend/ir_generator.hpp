@@ -872,6 +872,55 @@ public:
       }
     }
 
+    if (auto* type_expr = dynamic_cast<const SimpleTypeExpr*>(expr.callee.get())) {
+      std::string type_name{type_expr->name.lexeme};
+      if (type_name == "T81Uint" || type_name == "T81Qutrit") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error(type_name + " conversion expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto integer_value = ensure_integer(value);
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        copy_to_dest(integer_value, dest);
+        record_result(&expr, dest);
+        return {};
+      }
+    }
+
+    if (auto* generic_expr = dynamic_cast<const GenericTypeExpr*>(expr.callee.get())) {
+      const Type* callee_type = typed_expr(generic_expr);
+      if (callee_type && callee_type->kind == Type::Kind::Fixed) {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("T81Fixed constructor expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto integer_value = ensure_integer(value);
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        copy_to_dest(integer_value, dest);
+        record_result(&expr, dest);
+        return {};
+      }
+
+      if (callee_type && callee_type->kind == Type::Kind::Complex) {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("T81Complex constructor expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto real = ensure_integer(ensure_expr_result(expr.arguments[0].get()));
+        auto imag = ensure_integer(ensure_expr_result(expr.arguments[1].get()));
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        auto instr =
+            tisc::ir::Instruction{tisc::ir::Opcode::MAKE_COMPLEX, {dest.reg, real.reg, imag.reg}};
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+    }
+
     if (auto* field_expr = dynamic_cast<const FieldAccessExpr*>(expr.callee.get())) {
       if (_semantic) {
         const Type* obj_type = _semantic->type_of(field_expr->object.get());
@@ -1514,6 +1563,28 @@ private:
     auto dest = allocate_typed_register(target);
     auto instr = tisc::ir::Instruction{opcode, {dest.reg, source.reg}};
     instr.primitive = target;
+    instr.is_conversion = true;
+    emit(instr);
+    return dest;
+  }
+
+  TypedRegister ensure_integer(TypedRegister source) {
+    if (source.primitive == tisc::ir::PrimitiveKind::Integer ||
+        source.primitive == tisc::ir::PrimitiveKind::Boolean ||
+        source.primitive == tisc::ir::PrimitiveKind::Unknown) {
+      return source;
+    }
+    tisc::ir::Opcode opcode;
+    if (source.primitive == tisc::ir::PrimitiveKind::Float) {
+      opcode = tisc::ir::Opcode::F2I;
+    } else if (source.primitive == tisc::ir::PrimitiveKind::Fraction) {
+      opcode = tisc::ir::Opcode::FRAC2I;
+    } else {
+      throw std::runtime_error("Unsupported conversion source for integer coercion");
+    }
+    auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+    auto instr = tisc::ir::Instruction{opcode, {dest.reg, source.reg}};
+    instr.primitive = tisc::ir::PrimitiveKind::Integer;
     instr.is_conversion = true;
     emit(instr);
     return dest;

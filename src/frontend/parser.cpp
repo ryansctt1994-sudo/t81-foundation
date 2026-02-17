@@ -11,10 +11,195 @@
 #include "t81/frontend/parser.hpp"
 #include <cctype>
 #include <iostream>
+#include <stdexcept>
 #include "t81/frontend/semantic_analyzer.hpp"
 
 namespace t81 {
 namespace frontend {
+
+namespace {
+
+std::string token_type_name(TokenType type) {
+  switch (type) {
+    case TokenType::Module:
+      return "'module'";
+    case TokenType::Type:
+      return "'type'";
+    case TokenType::Const:
+      return "'const'";
+    case TokenType::Export:
+      return "'export'";
+    case TokenType::Fn:
+      return "'fn'";
+    case TokenType::Let:
+      return "'let'";
+    case TokenType::Var:
+      return "'var'";
+    case TokenType::Record:
+      return "'record'";
+    case TokenType::Enum:
+      return "'enum'";
+    case TokenType::If:
+      return "'if'";
+    case TokenType::Else:
+      return "'else'";
+    case TokenType::For:
+      return "'for'";
+    case TokenType::In:
+      return "'in'";
+    case TokenType::While:
+      return "'while'";
+    case TokenType::Loop:
+      return "'loop'";
+    case TokenType::Reflect:
+      return "'reflect'";
+    case TokenType::Break:
+      return "'break'";
+    case TokenType::Continue:
+      return "'continue'";
+    case TokenType::Return:
+      return "'return'";
+    case TokenType::Match:
+      return "'match'";
+    case TokenType::True:
+      return "'true'";
+    case TokenType::False:
+      return "'false'";
+    case TokenType::Void:
+      return "'void'";
+    case TokenType::Bool:
+      return "'bool'";
+    case TokenType::I32:
+      return "'i32'";
+    case TokenType::I16:
+      return "'i16'";
+    case TokenType::I8:
+      return "'i8'";
+    case TokenType::I2:
+      return "'i2'";
+    case TokenType::T81BigInt:
+      return "'T81BigInt'";
+    case TokenType::T81Float:
+      return "'T81Float'";
+    case TokenType::T81Fraction:
+      return "'T81Fraction'";
+    case TokenType::T81Fixed:
+      return "'T81Fixed'";
+    case TokenType::T81Complex:
+      return "'T81Complex'";
+    case TokenType::T81Qutrit:
+      return "'T81Qutrit'";
+    case TokenType::T81Uint:
+      return "'T81Uint'";
+    case TokenType::T81String:
+      return "'T81String'";
+    case TokenType::T81Vector:
+      return "'T81Vector'";
+    case TokenType::Matrix:
+      return "'matrix'";
+    case TokenType::Tensor:
+      return "'tensor'";
+    case TokenType::Graph:
+      return "'graph'";
+    case TokenType::Integer:
+      return "integer literal";
+    case TokenType::Float:
+      return "float literal";
+    case TokenType::String:
+      return "string literal";
+    case TokenType::Ternary:
+      return "ternary literal";
+    case TokenType::Base81Integer:
+      return "base81 integer literal";
+    case TokenType::Base81Float:
+      return "base81 float literal";
+    case TokenType::Identifier:
+      return "identifier";
+    case TokenType::Plus:
+      return "'+'";
+    case TokenType::Minus:
+      return "'-'";
+    case TokenType::Star:
+      return "'*'";
+    case TokenType::Slash:
+      return "'/'";
+    case TokenType::Percent:
+      return "'%'";
+    case TokenType::Equal:
+      return "'='";
+    case TokenType::EqualEqual:
+      return "'=='";
+    case TokenType::Bang:
+      return "'!'";
+    case TokenType::BangEqual:
+      return "'!='";
+    case TokenType::Less:
+      return "'<'";
+    case TokenType::LessEqual:
+      return "'<='";
+    case TokenType::Greater:
+      return "'>'";
+    case TokenType::GreaterEqual:
+      return "'>='";
+    case TokenType::Amp:
+      return "'&'";
+    case TokenType::AmpAmp:
+      return "'&&'";
+    case TokenType::Pipe:
+      return "'|'";
+    case TokenType::PipePipe:
+      return "'||'";
+    case TokenType::Caret:
+      return "'^'";
+    case TokenType::Question:
+      return "'?'";
+    case TokenType::LParen:
+      return "'('";
+    case TokenType::RParen:
+      return "')'";
+    case TokenType::LBrace:
+      return "'{'";
+    case TokenType::RBrace:
+      return "'}'";
+    case TokenType::LBracket:
+      return "'['";
+    case TokenType::RBracket:
+      return "']'";
+    case TokenType::Comma:
+      return "','";
+    case TokenType::Colon:
+      return "':'";
+    case TokenType::Semicolon:
+      return "';'";
+    case TokenType::Arrow:
+      return "'->'";
+    case TokenType::FatArrow:
+      return "'=>'";
+    case TokenType::DotDot:
+      return "'..'";
+    case TokenType::Dot:
+      return "'.'";
+    case TokenType::At:
+      return "'@'";
+    case TokenType::Eof:
+      return "end of input";
+    case TokenType::Illegal:
+      return "illegal token";
+  }
+  return "token";
+}
+
+std::string token_found_description(const Token& token) {
+  if (token.type == TokenType::Eof) {
+    return "end of input";
+  }
+  if (!token.lexeme.empty()) {
+    return "'" + std::string(token.lexeme) + "'";
+  }
+  return token_type_name(token.type);
+}
+
+}  // namespace
 
 /**
  * @brief Constructs a new Parser.
@@ -87,8 +272,11 @@ Token Parser::previous() { return _previous; }
 // reports an error and returns a dummy token.
 Token Parser::consume(TokenType type, const char* message) {
   if (check(type)) return advance();
-  report_error(peek(), message);
-  return {};
+  const Token found = peek();
+  std::string detailed = std::string(message) + " (expected " + token_type_name(type) +
+                         ", found " + token_found_description(found) + ")";
+  report_error(found, detailed);
+  throw std::runtime_error(detailed);
 }
 
 // Discards tokens until it finds a likely statement boundary. This is a
@@ -804,11 +992,35 @@ std::unique_ptr<Expr> Parser::match_expression() {
 
   std::vector<MatchArm> arms;
   while (!check(TokenType::RBrace) && !is_at_end()) {
-    arms.push_back(match_arm());
+    try {
+      arms.push_back(match_arm());
+    } catch (const std::runtime_error&) {
+      // Recover to the next arm boundary inside match bodies.
+      while (!check(TokenType::Semicolon) && !check(TokenType::Comma) &&
+             !check(TokenType::RBrace) && !is_at_end()) {
+        advance();
+      }
+      match({TokenType::Semicolon, TokenType::Comma});
+      continue;
+    }
     if (match({TokenType::Semicolon, TokenType::Comma})) {
       continue;
     }
-    break;
+    if (check(TokenType::RBrace)) {
+      break;
+    }
+
+    report_error(peek(), "Expect ',' or ';' between match arms.");
+    // If we're already at the next arm, continue parsing without discarding it.
+    if (check(TokenType::Identifier)) {
+      continue;
+    }
+
+    while (!check(TokenType::Semicolon) && !check(TokenType::Comma) && !check(TokenType::RBrace) &&
+           !is_at_end()) {
+      advance();
+    }
+    match({TokenType::Semicolon, TokenType::Comma});
   }
 
   consume(TokenType::RBrace, "Expect '}' after match arms.");
@@ -834,16 +1046,45 @@ MatchPattern Parser::parse_match_pattern() {
   MatchPattern pattern;
   if (match({TokenType::LBrace})) {
     pattern.kind = MatchPattern::Kind::Record;
-    if (!check(TokenType::RBrace)) {
-      do {
-        Token field_name = consume(TokenType::Identifier, "Expect field name in record pattern.");
-        Token binding = field_name;
-        if (match({TokenType::Colon})) {
-          binding =
-              consume(TokenType::Identifier, "Expect binding name after ':' in record pattern.");
+    while (!check(TokenType::RBrace) && !is_at_end()) {
+      if (!check(TokenType::Identifier)) {
+        report_error(peek(), "Expect field name in record pattern.");
+        while (!check(TokenType::Comma) && !check(TokenType::Semicolon) &&
+               !check(TokenType::RBrace) && !is_at_end()) {
+          advance();
         }
-        pattern.record_bindings.emplace_back(field_name, binding);
-      } while (match({TokenType::Comma, TokenType::Semicolon}));
+        match({TokenType::Comma, TokenType::Semicolon});
+        continue;
+      }
+
+      Token field_name = advance();
+      Token binding = field_name;
+      if (match({TokenType::Colon})) {
+        if (check(TokenType::Identifier)) {
+          binding = advance();
+        } else {
+          report_error(peek(), "Expect binding name after ':' in record pattern.");
+          while (!check(TokenType::Comma) && !check(TokenType::Semicolon) &&
+                 !check(TokenType::RBrace) && !is_at_end()) {
+            advance();
+          }
+        }
+      }
+      pattern.record_bindings.emplace_back(field_name, binding);
+
+      if (match({TokenType::Comma, TokenType::Semicolon})) {
+        continue;
+      }
+      if (check(TokenType::RBrace)) {
+        break;
+      }
+
+      report_error(peek(), "Expect ',' or ';' between record pattern fields.");
+      while (!check(TokenType::Comma) && !check(TokenType::Semicolon) &&
+             !check(TokenType::RBrace) && !is_at_end()) {
+        advance();
+      }
+      match({TokenType::Comma, TokenType::Semicolon});
     }
     consume(TokenType::RBrace, "Expect '}' after record pattern.");
     return pattern;
@@ -869,11 +1110,23 @@ MatchPattern Parser::parse_match_pattern() {
     if (match({TokenType::Comma})) {
       pattern.kind = MatchPattern::Kind::Tuple;
       pattern.tuple_bindings.push_back(first);
-      do {
-        Token binding =
-            consume(TokenType::Identifier, "Expect binding identifier in tuple pattern.");
-        pattern.tuple_bindings.push_back(binding);
-      } while (match({TokenType::Comma}));
+      while (true) {
+        if (!check(TokenType::Identifier)) {
+          report_error(peek(), "Expect binding identifier in tuple pattern.");
+          while (!check(TokenType::Comma) && !check(TokenType::RParen) && !is_at_end()) {
+            advance();
+          }
+          if (!match({TokenType::Comma})) {
+            break;
+          }
+          continue;
+        }
+
+        pattern.tuple_bindings.push_back(advance());
+        if (!match({TokenType::Comma})) {
+          break;
+        }
+      }
       return pattern;
     }
     pattern.kind = MatchPattern::Kind::Identifier;
@@ -883,6 +1136,7 @@ MatchPattern Parser::parse_match_pattern() {
   }
 
   report_error(peek(), "Expect pattern binding.");
+  throw std::runtime_error("Expect pattern binding.");
   return pattern;
 }
 
@@ -894,12 +1148,23 @@ MatchArm Parser::match_arm() {
     if (!check(TokenType::RParen)) {
       pattern = parse_match_pattern();
     }
-    consume(TokenType::RParen, "Expect ')' after match binding.");
+    if (check(TokenType::RParen)) {
+      advance();
+    } else {
+      report_error(peek(), "Expect ')' after match binding.");
+      if (!check(TokenType::FatArrow) && !check(TokenType::If)) {
+        throw std::runtime_error("Expect ')' after match binding.");
+      }
+    }
   }
 
   std::unique_ptr<Expr> guard = nullptr;
   if (match({TokenType::If})) {
-    guard = expression();
+    if (check(TokenType::FatArrow)) {
+      report_error(peek(), "Expect guard expression after 'if' in match arm.");
+    } else {
+      guard = expression();
+    }
   }
 
   consume(TokenType::FatArrow, "Expect '=>' after match arm pattern.");
@@ -1162,9 +1427,17 @@ std::unique_ptr<GenericTypeExpr> Parser::parse_generic_type(Token name) {
   // Subsequent parameters are constant value expressions (structural-result types are treated
   // specially).
   while (match({TokenType::Comma})) {
+    if (check(TokenType::RBracket)) {
+      report_error(peek(), "Trailing comma in generic parameter list is not allowed.");
+      break;
+    }
+
     if (param_count >= 8) {
       report_error(peek(), "Too many generic parameters (max 8)");
-      return nullptr;
+      while (!check(TokenType::RBracket) && !is_at_end()) {
+        advance();
+      }
+      break;
     }
     if (type_name == "Result" && param_count == 1) {
       parameters[param_count++] = type();

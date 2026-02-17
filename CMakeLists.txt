@@ -499,6 +499,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_frontend_parser_generics_test tests/cpp/frontend_parser_generics_test.cpp)
   target_link_libraries(t81_frontend_parser_generics_test PRIVATE t81_frontend)
 
+  add_executable(t81_frontend_parser_recovery_test tests/cpp/frontend_parser_recovery_test.cpp)
+  target_link_libraries(t81_frontend_parser_recovery_test PRIVATE t81_frontend)
+
   add_executable(t81_frontend_parser_legacy_rejection_test tests/cpp/frontend_parser_legacy_rejection_test.cpp)
   target_link_libraries(t81_frontend_parser_legacy_rejection_test PRIVATE t81_frontend)
 
@@ -528,6 +531,15 @@ if(T81_BUILD_TESTS)
 
   add_executable(t81_semantic_analyzer_numeric_test tests/cpp/semantic_analyzer_numeric_test.cpp)
   target_link_libraries(t81_semantic_analyzer_numeric_test PRIVATE t81_frontend)
+
+  add_executable(t81_semantic_analyzer_diagnostic_location_test tests/cpp/semantic_analyzer_diagnostic_location_test.cpp)
+  target_link_libraries(t81_semantic_analyzer_diagnostic_location_test PRIVATE t81_frontend)
+
+  add_executable(t81_semantic_analyzer_cascade_suppression_test tests/cpp/semantic_analyzer_cascade_suppression_test.cpp)
+  target_link_libraries(t81_semantic_analyzer_cascade_suppression_test PRIVATE t81_frontend)
+
+  add_executable(t81_semantic_analyzer_diagnostic_precision_test tests/cpp/semantic_analyzer_diagnostic_precision_test.cpp)
+  target_link_libraries(t81_semantic_analyzer_diagnostic_precision_test PRIVATE t81_frontend)
 
   add_executable(t81_tisc_binary_emitter_test tests/cpp/tisc_binary_emitter_test.cpp)
   target_link_libraries(t81_tisc_binary_emitter_test PRIVATE t81_tisc)
@@ -916,6 +928,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_frontend_parser_test
     t81_frontend_expression_features_test
     t81_frontend_parser_generics_test
+    t81_frontend_parser_recovery_test
     t81_frontend_parser_legacy_rejection_test
     t81_frontend_ir_generator_test
     t81_semantic_analyzer_option_result_test
@@ -926,6 +939,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_semantic_analyzer_equality_test
     t81_semantic_analyzer_loop_test
     t81_semantic_analyzer_numeric_test
+    t81_semantic_analyzer_diagnostic_location_test
+    t81_semantic_analyzer_cascade_suppression_test
+    t81_semantic_analyzer_diagnostic_precision_test
     t81_tisc_binary_emitter_test
     t81_tisc_type_alias_io_test
     t81_tisc_binary_io_determinism_test

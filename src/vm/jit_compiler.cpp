@@ -74,6 +74,10 @@ public:
       if (idx >= state.enums.size()) return nullptr;
       return &state.enums[idx];
     };
+    auto intern_complex = [&state](std::int64_t real, std::int64_t imag) -> std::int64_t {
+      state.complexes.push_back(ComplexValue{real, imag});
+      return static_cast<std::int64_t>(state.complexes.size());
+    };
 
     ExecResult result{};
     for (const auto& insn : insns_) {
@@ -473,6 +477,17 @@ public:
           state.register_tags[insn.a] = val->payload_tag;
           break;
         }
+        case t81::tisc::Opcode::MakeComplex:
+          if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c) ||
+              state.register_tags[insn.b] != ValueTag::Int ||
+              state.register_tags[insn.c] != ValueTag::Int) {
+            stop_trace = true;
+            guard_deopt = true;
+            break;
+          }
+          state.registers[insn.a] = intern_complex(state.registers[insn.b], state.registers[insn.c]);
+          state.register_tags[insn.a] = ValueTag::ComplexHandle;
+          break;
         case t81::tisc::Opcode::TMatMul: {
           if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
             stop_trace = true;
@@ -797,6 +812,7 @@ void JitCompiler::record_instruction(const t81::tisc::Insn& insn) {
     case t81::tisc::Opcode::MakeEnumVariantPayload:
     case t81::tisc::Opcode::EnumIsVariant:
     case t81::tisc::Opcode::EnumUnwrapPayload:
+    case t81::tisc::Opcode::MakeComplex:
     case t81::tisc::Opcode::TMatMul:
     case t81::tisc::Opcode::TRMSNorm:
       trace_buffer_.push_back(insn);

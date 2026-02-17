@@ -40,6 +40,7 @@ enum class ValueTag : std::uint8_t {
   OptionHandle,
   ResultHandle,
   EnumHandle,
+  ComplexHandle,
   ReflectionHandle,
 };
 
@@ -67,6 +68,11 @@ struct EnumValue {
   ValueTag payload_tag{ValueTag::Int};
   std::int64_t payload{0};
   int enum_id{-1};
+};
+
+struct ComplexValue {
+  std::int64_t real{0};
+  std::int64_t imag{0};
 };
 
 enum class MemorySegmentKind : std::int32_t {
@@ -174,6 +180,7 @@ struct State {
   std::vector<OptionValue> options;
   std::vector<ResultValue> results;
   std::vector<EnumValue> enums;
+  std::vector<ComplexValue> complexes;
   std::vector<TraceEntry> trace;
   std::vector<AxionEvent> axion_log;
   Flags flags{};

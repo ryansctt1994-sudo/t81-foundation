@@ -11,6 +11,7 @@ thread_local int type_to_string_depth = 0;
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <sstream>
 #include <string_view>
 #include <utility>
@@ -56,6 +57,130 @@ bool is_base81_fraction_literal_expr(const t81::frontend::Expr& left,
   }
   return left_lit->value.type == TokenType::Integer &&
          right_lit->value.type == TokenType::Base81Integer;
+}
+
+std::optional<long long> constant_integer_value(const t81::frontend::Expr& expr) {
+  using t81::frontend::BinaryExpr;
+  using t81::frontend::GroupingExpr;
+  using t81::frontend::LiteralExpr;
+  using t81::frontend::TokenType;
+  using t81::frontend::UnaryExpr;
+
+  auto safe_add = [](long long a, long long b) -> std::optional<long long> {
+    if ((b > 0 && a > std::numeric_limits<long long>::max() - b) ||
+        (b < 0 && a < std::numeric_limits<long long>::min() - b)) {
+      return std::nullopt;
+    }
+    return a + b;
+  };
+
+  auto safe_sub = [](long long a, long long b) -> std::optional<long long> {
+    if ((b > 0 && a < std::numeric_limits<long long>::min() + b) ||
+        (b < 0 && a > std::numeric_limits<long long>::max() + b)) {
+      return std::nullopt;
+    }
+    return a - b;
+  };
+
+  auto safe_mul = [](long long a, long long b) -> std::optional<long long> {
+    if (a == 0 || b == 0) {
+      return 0LL;
+    }
+    if (a == -1 && b == std::numeric_limits<long long>::min()) {
+      return std::nullopt;
+    }
+    if (b == -1 && a == std::numeric_limits<long long>::min()) {
+      return std::nullopt;
+    }
+    if (a > 0) {
+      if (b > 0) {
+        if (a > std::numeric_limits<long long>::max() / b) {
+          return std::nullopt;
+        }
+      } else {
+        if (b < std::numeric_limits<long long>::min() / a) {
+          return std::nullopt;
+        }
+      }
+    } else {
+      if (b > 0) {
+        if (a < std::numeric_limits<long long>::min() / b) {
+          return std::nullopt;
+        }
+      } else {
+        if (a != 0 && b < std::numeric_limits<long long>::max() / a) {
+          return std::nullopt;
+        }
+      }
+    }
+    return a * b;
+  };
+
+  if (const auto* lit = dynamic_cast<const LiteralExpr*>(&expr)) {
+    if (lit->value.type == TokenType::Integer || lit->value.type == TokenType::Base81Integer) {
+      try {
+        return std::stoll(std::string(lit->value.lexeme));
+      } catch (...) {
+        return std::nullopt;
+      }
+    }
+    return std::nullopt;
+  }
+
+  if (const auto* unary = dynamic_cast<const UnaryExpr*>(&expr)) {
+    if (unary->op.type == TokenType::Minus) {
+      auto nested = constant_integer_value(*unary->right);
+      if (!nested.has_value()) {
+        return std::nullopt;
+      }
+      if (*nested == std::numeric_limits<long long>::min()) {
+        return std::nullopt;
+      }
+      return -*nested;
+    }
+    return std::nullopt;
+  }
+
+  if (const auto* binary = dynamic_cast<const BinaryExpr*>(&expr)) {
+    auto left = constant_integer_value(*binary->left);
+    auto right = constant_integer_value(*binary->right);
+    if (!left.has_value() || !right.has_value()) {
+      return std::nullopt;
+    }
+
+    switch (binary->op.type) {
+      case TokenType::Plus:
+        return safe_add(*left, *right);
+      case TokenType::Minus:
+        return safe_sub(*left, *right);
+      case TokenType::Star:
+        return safe_mul(*left, *right);
+      case TokenType::Slash:
+        if (*right == 0) {
+          return std::nullopt;
+        }
+        if (*left == std::numeric_limits<long long>::min() && *right == -1) {
+          return std::nullopt;
+        }
+        return *left / *right;
+      case TokenType::Percent:
+        if (*right == 0) {
+          return std::nullopt;
+        }
+        if (*left == std::numeric_limits<long long>::min() && *right == -1) {
+          return 0LL;
+        }
+        return *left % *right;
+      default:
+        return std::nullopt;
+    }
+  }
+
+  if (const auto* grouping = dynamic_cast<const GroupingExpr*>(&expr)) {
+    return constant_integer_value(*grouping->expression);
+  }
+
+  return std::nullopt;
 }
 }  // namespace
 
@@ -486,6 +611,9 @@ std::string SemanticAnalyzer::expr_to_string(const Expr& expr) const {
   if (auto* field = dynamic_cast<const FieldAccessExpr*>(&expr)) {
     return expr_to_string(*field->object) + "." + std::string(field->field.lexeme);
   }
+  if (auto* index = dynamic_cast<const IndexExpr*>(&expr)) {
+    return expr_to_string(*index->object) + "[" + expr_to_string(*index->index) + "]";
+  }
   if (auto* call = dynamic_cast<const CallExpr*>(&expr)) {
     std::string result = expr_to_string(*call->callee);
     result += "(";
@@ -773,10 +901,30 @@ const SemanticAnalyzer::MatchMetadata* SemanticAnalyzer::match_metadata_for(
 Type SemanticAnalyzer::expect_condition_bool(const Expr& expr, const Token& location) {
   Type cond_type = evaluate_expression(expr);
   if (!is_assignable(Type{Type::Kind::Bool}, cond_type)) {
-    error(location, "Condition must be bool, found '" + type_to_string(cond_type) + "'.");
+    error(location, "Condition expression '" + expr_to_string(expr) + "' must be bool, found '" +
+                        type_to_string(cond_type) + "'.");
     return make_error_type();
   }
   return Type{Type::Kind::Bool};
+}
+
+bool SemanticAnalyzer::validate_constrained_integer_assignment(const Type& target, const Expr& value,
+                                                               const Token& location) {
+  auto maybe_value = constant_integer_value(value);
+  if (!maybe_value.has_value()) {
+    return true;
+  }
+
+  const long long v = *maybe_value;
+  if (target.kind == Type::Kind::Uint && v < 0) {
+    error(location, "T81Uint does not allow negative constants; got '" + std::to_string(v) + "'.");
+    return false;
+  }
+  if (target.kind == Type::Kind::Qutrit && (v < -1 || v > 1)) {
+    error(location, "T81Qutrit constants must be in [-1, 1], got '" + std::to_string(v) + "'.");
+    return false;
+  }
+  return true;
 }
 
 void SemanticAnalyzer::register_function_signatures() {
@@ -813,6 +961,23 @@ Token SemanticAnalyzer::extract_token(const Expr& expr) const {
   if (auto* unary = dynamic_cast<const UnaryExpr*>(&expr)) return unary->op;
   if (auto* literal = dynamic_cast<const LiteralExpr*>(&expr)) return literal->value;
   if (auto* variable = dynamic_cast<const VariableExpr*>(&expr)) return variable->name;
+  if (auto* field = dynamic_cast<const FieldAccessExpr*>(&expr)) return field->field;
+  if (auto* record = dynamic_cast<const RecordLiteralExpr*>(&expr)) return record->type_name;
+  if (auto* enum_literal = dynamic_cast<const EnumLiteralExpr*>(&expr)) return enum_literal->variant;
+  if (auto* index = dynamic_cast<const IndexExpr*>(&expr)) return index->bracket;
+  if (auto* match = dynamic_cast<const MatchExpr*>(&expr)) return extract_token(*match->scrutinee);
+  if (auto* vector = dynamic_cast<const VectorLiteralExpr*>(&expr)) return vector->token;
+  if (auto* if_expr = dynamic_cast<const IfExpr*>(&expr)) return extract_token(*if_expr->condition);
+  if (auto* block = dynamic_cast<const BlockExpr*>(&expr)) {
+    if (block->final_expr) return extract_token(*block->final_expr);
+    if (!block->statements.empty()) {
+      if (auto* expr_stmt = dynamic_cast<const ExpressionStmt*>(block->statements.front().get())) {
+        return extract_token(*expr_stmt->expression);
+      }
+    }
+  }
+  if (auto* simple_type = dynamic_cast<const SimpleTypeExpr*>(&expr)) return simple_type->name;
+  if (auto* generic_type = dynamic_cast<const GenericTypeExpr*>(&expr)) return generic_type->name;
   if (auto* assign = dynamic_cast<const AssignExpr*>(&expr)) return extract_token(*assign->target);
   if (auto* call = dynamic_cast<const CallExpr*>(&expr)) return extract_token(*call->callee);
   if (auto* grouping = dynamic_cast<const GroupingExpr*>(&expr))
@@ -854,6 +1019,9 @@ std::any SemanticAnalyzer::visit(const VarStmt& stmt) {
     error(stmt.name, "Cannot assign initializer of type '" + type_to_string(init_type) +
                          "' to variable of type '" + type_to_string(declared_type) + "'.");
   }
+  if (stmt.initializer && checked_declared.kind != Type::Kind::Unknown) {
+    validate_constrained_integer_assignment(checked_declared, *stmt.initializer, stmt.name);
+  }
 
   Type final_type = declared_type.kind == Type::Kind::Unknown ? init_type : checked_declared;
   define_symbol(stmt.name, SymbolKind::Variable, true);
@@ -888,6 +1056,9 @@ std::any SemanticAnalyzer::visit(const LetStmt& stmt) {
       !is_assignable(checked_declared, init_type)) {
     error(stmt.name, "Cannot assign initializer of type '" + type_to_string(init_type) +
                          "' to constant of type '" + type_to_string(declared_type) + "'.");
+  }
+  if (stmt.initializer && checked_declared.kind != Type::Kind::Unknown) {
+    validate_constrained_integer_assignment(checked_declared, *stmt.initializer, stmt.name);
   }
 
   Type final_type = declared_type.kind == Type::Kind::Unknown ? init_type : checked_declared;
@@ -1225,22 +1396,34 @@ std::any SemanticAnalyzer::visit(const AssignExpr& expr) {
   } else if (auto* index_expr = dynamic_cast<const IndexExpr*>(expr.target.get())) {
     error_token = index_expr->bracket;
     target_type = evaluate_expression(*expr.target);
+    if (target_type.kind == Type::Kind::Error) {
+      evaluate_expression(*expr.value);
+      return make_error_type();
+    }
     if (is_mutable_lvalue(*expr.target)) {
       mutable_target = true;
     } else {
-      error(error_token, "Cannot assign to immutable index expression.");
+      error(error_token,
+            "Cannot assign to immutable index expression '" + expr_to_string(*expr.target) + "'.");
     }
 
   } else if (auto* field_expr = dynamic_cast<const FieldAccessExpr*>(expr.target.get())) {
     error_token = field_expr->field;
     target_type = evaluate_expression(*expr.target);
+    if (target_type.kind == Type::Kind::Error) {
+      evaluate_expression(*expr.value);
+      return make_error_type();
+    }
     if (is_mutable_lvalue(*expr.target)) {
       mutable_target = true;
     } else {
-      error(error_token, "Cannot assign to immutable field.");
+      error(error_token, "Cannot assign to immutable field '" +
+                            std::string(field_expr->field.lexeme) + "' in target '" +
+                            expr_to_string(*expr.target) + "'.");
     }
   } else {
-    error(extract_token(*expr.target), "Invalid assignment target.");
+    error(extract_token(*expr.target),
+          "Invalid assignment target '" + expr_to_string(*expr.target) + "'.");
     return make_error_type();
   }
 
@@ -1248,9 +1431,12 @@ std::any SemanticAnalyzer::visit(const AssignExpr& expr) {
 
   if (mutable_target) {
     if (!is_assignable(target_type, value_type)) {
-      error(error_token, "Cannot assign value of type '" + type_to_string(value_type) +
-                             "' to target of type '" + type_to_string(target_type) + "'.");
+      error(error_token, "Cannot assign expression '" + expr_to_string(*expr.value) +
+                             "' of type '" + type_to_string(value_type) + "' to target '" +
+                             expr_to_string(*expr.target) + "' of type '" +
+                             type_to_string(target_type) + "'.");
     }
+    validate_constrained_integer_assignment(target_type, *expr.value, error_token);
   }
 
   return target_type;
@@ -1295,7 +1481,9 @@ std::any SemanticAnalyzer::visit(const BinaryExpr& expr) {
     case TokenType::PipePipe:
       if (!is_assignable(Type{Type::Kind::Bool}, left_type) ||
           !is_assignable(Type{Type::Kind::Bool}, right_type)) {
-        error(expr.op, "Logical operators require boolean operands.");
+        error(expr.op, "Logical operators require boolean operands, got '" +
+                           type_to_string(left_type) + "' and '" + type_to_string(right_type) +
+                           "'.");
         return make_error_type();
       }
       return Type{Type::Kind::Bool};
@@ -1356,8 +1544,10 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         if (expected_payload.kind != Type::Kind::Unknown &&
             !is_assignable(expected_payload, payload)) {
           error(var_expr->name,
-                "The 'Some' constructor argument must match the contextual Option payload ('" +
-                    type_to_string(expected_payload) + "').");
+                "The 'Some' constructor argument must match the contextual Option payload: "
+                "expected '" +
+                    type_to_string(expected_payload) + "' but got '" + type_to_string(payload) +
+                    "'.");
         } else if (expected_payload.kind != Type::Kind::Unknown) {
           result.params[0] = expected_payload;
         } else {
@@ -1395,9 +1585,11 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       Type success_arg = arg_types[0];
 
       if (!is_assignable(success_expected, success_arg)) {
-        error(
-            var_expr->name,
-            "The 'Ok' constructor argument must match the success type of the contextual Result.");
+        error(var_expr->name,
+              "The 'Ok' constructor argument must match the success type of the contextual "
+              "Result: expected '" +
+                  type_to_string(success_expected) + "' but got '" +
+                  type_to_string(success_arg) + "'.");
       }
       result_type.params[0] =
           (success_expected.kind == Type::Kind::Unknown ? success_arg : success_expected);
@@ -1419,7 +1611,10 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
 
       if (!is_assignable(error_expected, error_arg)) {
         error(var_expr->name,
-              "The 'Err' constructor argument must match the error type of the contextual Result.");
+              "The 'Err' constructor argument must match the error type of the contextual "
+              "Result: expected '" +
+                  type_to_string(error_expected) + "' but got '" + type_to_string(error_arg) +
+                  "'.");
       }
       result_type.params[1] =
           (error_expected.kind == Type::Kind::Unknown ? error_arg : error_expected);
@@ -1534,6 +1729,57 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
     return symbol->type;
   }
 
+  if (auto* type_callee = dynamic_cast<const SimpleTypeExpr*>(expr.callee.get())) {
+    const std::string callee_name(type_callee->name.lexeme);
+    if (callee_name == "T81Uint" || callee_name == "T81Qutrit") {
+      if (arg_types.size() != 1) {
+        error(type_callee->name, callee_name + " conversion expects exactly one argument.");
+        return make_error_type();
+      }
+
+      const Type& argument_type = arg_types[0];
+      if (!is_integer_type(argument_type)) {
+        error(type_callee->name, callee_name + " conversion expects an integer argument, got '" +
+                                   type_to_string(argument_type) + "'.");
+        return make_error_type();
+      }
+
+      const Type target_type = type_from_token(type_callee->name);
+      validate_constrained_integer_assignment(target_type, *expr.arguments[0], type_callee->name);
+      return target_type;
+    }
+  }
+
+  if (auto* generic_callee = dynamic_cast<const GenericTypeExpr*>(expr.callee.get())) {
+    Type constructed_type = evaluate_expression(*generic_callee);
+    if (constructed_type.kind == Type::Kind::Fixed) {
+      if (arg_types.size() != 1) {
+        error(generic_callee->name, "T81Fixed constructor expects exactly one argument.");
+        return make_error_type();
+      }
+      if (!is_numeric(arg_types[0])) {
+        error(generic_callee->name, "T81Fixed constructor argument must be numeric, got '" +
+                                        type_to_string(arg_types[0]) + "'.");
+        return make_error_type();
+      }
+      return constructed_type;
+    }
+
+    if (constructed_type.kind == Type::Kind::Complex) {
+      if (arg_types.size() != 2) {
+        error(generic_callee->name, "T81Complex constructor expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (!is_numeric(arg_types[0]) || !is_numeric(arg_types[1])) {
+        error(generic_callee->name, "T81Complex constructor arguments must be numeric, got '" +
+                                        type_to_string(arg_types[0]) + "' and '" +
+                                        type_to_string(arg_types[1]) + "'.");
+        return make_error_type();
+      }
+      return constructed_type;
+    }
+  }
+
   // Handle Enum.Variant(payload) constructor calls
   if (auto* field_expr = dynamic_cast<const FieldAccessExpr*>(expr.callee.get())) {
     Type object_type = evaluate_expression(*field_expr->object);
@@ -1557,7 +1803,9 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
 
           if (!is_assignable(*variant_it->second.payload, arg_types[0])) {
             error(field_expr->field,
-                  "Argument mismatch for enum constructor '" + variant_name + "'.");
+                  "Argument mismatch for enum constructor '" + variant_name + "': expected '" +
+                      type_to_string(*variant_it->second.payload) + "' but got '" +
+                      type_to_string(arg_types[0]) + "'.");
           }
           return object_type;
         }
@@ -1719,7 +1967,9 @@ std::any SemanticAnalyzer::visit(const MatchExpr& expr) {
 
     if (result_type_locked && arm_type.kind != Type::Kind::Unknown &&
         !is_assignable(result_type, arm_type)) {
-      error(arm.keyword, "All match arms must produce the same type.");
+      error(arm.keyword, "All match arms must produce the same type: expected '" +
+                             type_to_string(result_type) + "' but got '" +
+                             type_to_string(arm_type) + "' for arm '" + name + "'.");
       structural_error = true;
     }
 
@@ -1775,7 +2025,9 @@ std::any SemanticAnalyzer::visit(const IndexExpr& expr) {
   }
 
   if (!is_integer_type(index_type)) {
-    error(expr.bracket, "Index must be an integer type, got '" + type_to_string(index_type) + "'.");
+    error(expr.bracket, "Index expression '" + expr_to_string(*expr.index) + "' for target '" +
+                            expr_to_string(*expr.object) + "' must be an integer type, got '" +
+                            type_to_string(index_type) + "'.");
     return make_error_type();
   }
 
@@ -1792,14 +2044,19 @@ std::any SemanticAnalyzer::visit(const IndexExpr& expr) {
     }
   }
 
-  error(expr.bracket, "Type '" + type_to_string(obj_type) + "' does not support indexing.");
+  error(expr.bracket, "Expression '" + expr_to_string(*expr.object) + "' of type '" +
+                          type_to_string(obj_type) + "' does not support indexing.");
   return make_error_type();
 }
 
 std::any SemanticAnalyzer::visit(const FieldAccessExpr& expr) {
   Type object_type = evaluate_expression(*expr.object);
+  if (object_type.kind == Type::Kind::Error) {
+    return make_error_type();
+  }
   if (object_type.kind != Type::Kind::Custom || object_type.custom_name.empty()) {
-    error(expr.field, "Field access requires a record value.");
+    error(expr.field,
+          "Field access requires a record value, found '" + type_to_string(object_type) + "'.");
     return make_error_type();
   }
 
@@ -1921,7 +2178,8 @@ std::any SemanticAnalyzer::visit(const EnumLiteralExpr& expr) {
     Type actual_type = evaluate_expression(*expr.payload, &expected_type);
     if (!is_assignable(expected_type, actual_type)) {
       error(expr.variant, "Enum payload for '" + variant_name + "' must be '" +
-                              type_to_string(expected_type) + "'.");
+                              type_to_string(expected_type) + "', but got '" +
+                              type_to_string(actual_type) + "'.");
       return make_error_type();
     }
   } else if (expr.payload) {
@@ -2059,7 +2317,8 @@ std::any SemanticAnalyzer::visit(const UnaryExpr& expr) {
   Type right = evaluate_expression(*expr.right);
   if (expr.op.type == TokenType::Bang) {
     if (!is_assignable(Type{Type::Kind::Bool}, right)) {
-      error(expr.op, "Logical not requires a boolean operand.");
+      error(expr.op, "Logical not requires a boolean operand, got '" + type_to_string(right) +
+                         "'.");
       return make_error_type();
     }
     return Type{Type::Kind::Bool};

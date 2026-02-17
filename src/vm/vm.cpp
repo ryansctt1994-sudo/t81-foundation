@@ -476,6 +476,12 @@ public:
       if (idx >= state_.enums.size()) return nullptr;
       return &state_.enums[idx];
     };
+    auto complex_ptr = [this](std::int64_t handle) -> ComplexValue* {
+      if (handle <= 0) return nullptr;
+      std::size_t idx = static_cast<std::size_t>(handle - 1);
+      if (idx >= state_.complexes.size()) return nullptr;
+      return &state_.complexes[idx];
+    };
     auto intern_option = [this](bool has_value, ValueTag payload_tag,
                                 std::int64_t payload) -> std::int64_t {
       for (std::size_t i = 0; i < state_.options.size(); ++i) {
@@ -534,6 +540,16 @@ public:
       state_.enums.push_back(val);
       return static_cast<std::int64_t>(state_.enums.size());
     };
+    auto intern_complex = [this](std::int64_t real, std::int64_t imag) -> std::int64_t {
+      for (std::size_t i = 0; i < state_.complexes.size(); ++i) {
+        const auto& existing = state_.complexes[i];
+        if (existing.real == real && existing.imag == imag) {
+          return static_cast<std::int64_t>(i + 1);
+        }
+      }
+      state_.complexes.push_back(ComplexValue{real, imag});
+      return static_cast<std::int64_t>(state_.complexes.size());
+    };
     auto clamp_trit = [](std::int64_t v) -> int {
       if (v > 0) return 1;
       if (v < 0) return -1;
@@ -575,6 +591,16 @@ public:
         case ValueTag::ReflectionHandle:
           if (lhs_val == rhs_val) return 0;
           return (lhs_val < rhs_val) ? -1 : 1;
+        case ValueTag::ComplexHandle: {
+          auto lhs = complex_ptr(lhs_val);
+          auto rhs = complex_ptr(rhs_val);
+          if (lhs == nullptr || rhs == nullptr) return std::nullopt;
+          if (lhs->real == rhs->real && lhs->imag == rhs->imag) return 0;
+          if (lhs->real == rhs->real) {
+            return (lhs->imag < rhs->imag) ? -1 : 1;
+          }
+          return (lhs->real < rhs->real) ? -1 : 1;
+        }
         case ValueTag::OptionHandle: {
           auto lhs = option_ptr(lhs_val);
           auto rhs = option_ptr(rhs_val);
@@ -638,6 +664,12 @@ public:
           return "<weights#" + std::to_string(val_data) + ">";
         case ValueTag::ReflectionHandle:
           return "<reflection#" + std::to_string(val_data) + ">";
+        case ValueTag::ComplexHandle: {
+          auto* complex = complex_ptr(val_data);
+          if (!complex) return std::nullopt;
+          return "<complex(" + std::to_string(complex->real) + "," + std::to_string(complex->imag) +
+                 ")>";
+        }
         case ValueTag::OptionHandle: {
           auto* opt = option_ptr(val_data);
           if (!opt) return std::nullopt;
@@ -2087,6 +2119,22 @@ public:
                                   state_.registers[insn.b]);
         state_.registers[insn.a] = handle;
         state_.register_tags[insn.a] = ValueTag::EnumHandle;
+        update_flags(state_.registers[insn.a]);
+        break;
+      }
+      case t81::tisc::Opcode::MakeComplex: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] != ValueTag::Int ||
+            state_.register_tags[insn.c] != ValueTag::Int) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto handle = intern_complex(state_.registers[insn.b], state_.registers[insn.c]);
+        state_.registers[insn.a] = handle;
+        state_.register_tags[insn.a] = ValueTag::ComplexHandle;
         update_flags(state_.registers[insn.a]);
         break;
       }

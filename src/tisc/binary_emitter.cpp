@@ -193,6 +193,8 @@ Opcode map_opcode(const ir::Instruction& instr) {
       return Opcode::EnumIsVariant;
     case O::ENUM_UNWRAP_PAYLOAD:
       return Opcode::EnumUnwrapPayload;
+    case O::MAKE_COMPLEX:
+      return Opcode::MakeComplex;
     case O::NOP:
       return Opcode::Nop;
     case O::HALT:

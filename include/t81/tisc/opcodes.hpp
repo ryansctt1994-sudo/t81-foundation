@@ -99,6 +99,7 @@ enum class Opcode : std::uint8_t {
   TGet,
   TNew,
   TSet,
+  MakeComplex,
 };
 
 [[nodiscard]] constexpr std::string_view opcode_name(Opcode opcode) {
@@ -287,12 +288,15 @@ enum class Opcode : std::uint8_t {
       return "TNew";
     case Opcode::TSet:
       return "TSet";
+    case Opcode::MakeComplex:
+      return "MakeComplex";
   }
   return "Unknown";
 }
 
-inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::TSet) + 1> kAllOpcodes = [] {
-  std::array<Opcode, static_cast<std::size_t>(Opcode::TSet) + 1> values{};
+inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::MakeComplex) + 1>
+    kAllOpcodes = [] {
+  std::array<Opcode, static_cast<std::size_t>(Opcode::MakeComplex) + 1> values{};
   for (std::size_t i = 0; i < values.size(); ++i) {
     values[i] = static_cast<Opcode>(i);
   }
@@ -300,6 +304,6 @@ inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::TSet) + 1> 
 }();
 
 [[nodiscard]] constexpr bool is_valid_opcode(std::uint8_t raw_opcode) {
-  return raw_opcode <= static_cast<std::uint8_t>(Opcode::TSet);
+  return raw_opcode <= static_cast<std::uint8_t>(Opcode::MakeComplex);
 }
 }  // namespace t81::tisc

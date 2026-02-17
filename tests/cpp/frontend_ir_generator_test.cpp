@@ -354,6 +354,47 @@ void test_extended_numeric_types_lower_to_arithmetic_ir() {
             << std::endl;
 }
 
+void test_constructor_and_conversion_calls_lower() {
+  std::string source = R"(
+        fn main() -> i32 {
+            let q: T81Qutrit = T81Qutrit(1);
+            let u: T81Uint = T81Uint(q + 2);
+            let f: T81Fixed[8, 4] = T81Fixed[8, 4](u);
+            let _c: T81Complex[18] = T81Complex[18](u, q);
+            return u + 1;
+        }
+    )";
+  Lexer lexer(source);
+  Parser parser(lexer);
+  auto stmts = parser.parse();
+  EXPECT(!parser.had_error(), "parser failed for constructor/conversion fixture");
+
+  SemanticAnalyzer analyzer(stmts);
+  analyzer.analyze();
+  EXPECT(!analyzer.had_error(), "semantic analyzer failed for constructor/conversion fixture");
+
+  IRGenerator generator;
+  generator.attach_semantic_analyzer(&analyzer);
+  auto program = generator.generate(stmts);
+  const auto& instructions = program.instructions();
+  EXPECT(!instructions.empty(), "constructor/conversion fixture produced no IR");
+
+  bool has_add = false;
+  bool has_make_complex = false;
+  for (const auto& inst : instructions) {
+    if (inst.opcode == Opcode::ADD) {
+      has_add = true;
+    }
+    if (inst.opcode == Opcode::MAKE_COMPLEX) {
+      has_make_complex = true;
+    }
+  }
+  EXPECT(has_add, "constructor/conversion fixture should include ADD");
+  EXPECT(has_make_complex, "constructor/conversion fixture should include MAKE_COMPLEX");
+  std::cout << "IRGeneratorTest test_constructor_and_conversion_calls_lower passed!"
+            << std::endl;
+}
+
 int main() {
   test_simple_addition();
   test_if_statement();
@@ -366,6 +407,7 @@ int main() {
   test_match_result();
   test_print_builtin_lowers_to_print_opcode();
   test_extended_numeric_types_lower_to_arithmetic_ir();
+  test_constructor_and_conversion_calls_lower();
 
   std::cout << "All IRGenerator integration tests completed!" << std::endl;
   return 0;

@@ -273,6 +273,8 @@ private:
   }
   std::string type_expr_to_string(const TypeExpr& expr) const;
   std::string expr_to_string(const Expr& expr) const;
+  bool validate_constrained_integer_assignment(const Type& target, const Expr& value,
+                                               const Token& location);
 
   bool is_integer_type(const Type& type) const;
   bool is_float_type(const Type& type) const;

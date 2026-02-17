@@ -94,6 +94,7 @@ enum class Opcode {
   MAKE_ENUM_VARIANT_PAYLOAD,
   ENUM_IS_VARIANT,
   ENUM_UNWRAP_PAYLOAD,
+  MAKE_COMPLEX,
 
   // System
   NOP,

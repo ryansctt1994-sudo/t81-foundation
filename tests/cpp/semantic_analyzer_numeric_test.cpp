@@ -147,6 +147,160 @@ int main() {
     )";
   if (!expect_semantic_failure(uint_unary_minus_failure, "uint_unary_minus_failure")) return 1;
 
+  const std::string uint_negative_constant_failure = R"(
+        fn main() -> i32 {
+            let u: T81Uint = -1;
+            return 0;
+        }
+    )";
+  if (!expect_semantic_failure(uint_negative_constant_failure, "uint_negative_constant_failure")) {
+    return 1;
+  }
+
+  const std::string uint_negative_expr_failure = R"(
+        fn main() -> i32 {
+            let u: T81Uint = 1 - 2;
+            return 0;
+        }
+    )";
+  if (!expect_semantic_failure(uint_negative_expr_failure, "uint_negative_expr_failure")) {
+    return 1;
+  }
+
+  const std::string qutrit_out_of_range_constant_failure = R"(
+        fn main() -> i32 {
+            let q: T81Qutrit = 2;
+            return 0;
+        }
+    )";
+  if (!expect_semantic_failure(qutrit_out_of_range_constant_failure,
+                               "qutrit_out_of_range_constant_failure")) {
+    return 1;
+  }
+
+  const std::string qutrit_assignment_out_of_range_failure = R"(
+        fn main() -> i32 {
+            var q: T81Qutrit = 1;
+            q = 3;
+            return 0;
+        }
+    )";
+  if (!expect_semantic_failure(qutrit_assignment_out_of_range_failure,
+                               "qutrit_assignment_out_of_range_failure")) {
+    return 1;
+  }
+
+  const std::string qutrit_expr_out_of_range_failure = R"(
+        fn main() -> i32 {
+            let q: T81Qutrit = 1 + 1;
+            return 0;
+        }
+    )";
+  if (!expect_semantic_failure(qutrit_expr_out_of_range_failure,
+                               "qutrit_expr_out_of_range_failure")) {
+    return 1;
+  }
+
+  const std::string qutrit_conversion_success = R"(
+        fn main() -> i32 {
+            let q: T81Qutrit = T81Qutrit(1);
+            return 0;
+        }
+    )";
+  if (!expect_semantic_success(qutrit_conversion_success, "qutrit_conversion_success")) return 1;
+
+  const std::string qutrit_conversion_out_of_range_failure = R"(
+        fn main() -> i32 {
+            let q: T81Qutrit = T81Qutrit(2);
+            return 0;
+        }
+    )";
+  if (!expect_semantic_failure(qutrit_conversion_out_of_range_failure,
+                               "qutrit_conversion_out_of_range_failure")) {
+    return 1;
+  }
+
+  const std::string uint_conversion_success = R"(
+        fn main() -> i32 {
+            let u: T81Uint = T81Uint(42);
+            return 0;
+        }
+    )";
+  if (!expect_semantic_success(uint_conversion_success, "uint_conversion_success")) return 1;
+
+  const std::string uint_conversion_negative_failure = R"(
+        fn main() -> i32 {
+            let u: T81Uint = T81Uint(-2);
+            return 0;
+        }
+    )";
+  if (!expect_semantic_failure(uint_conversion_negative_failure,
+                               "uint_conversion_negative_failure")) {
+    return 1;
+  }
+
+  const std::string uint_conversion_negative_expr_failure = R"(
+        fn main() -> i32 {
+            let u: T81Uint = T81Uint(1 - 3);
+            return 0;
+        }
+    )";
+  if (!expect_semantic_failure(uint_conversion_negative_expr_failure,
+                               "uint_conversion_negative_expr_failure")) {
+    return 1;
+  }
+
+  const std::string uint_conversion_non_integer_failure = R"(
+        fn main() -> i32 {
+            let u: T81Uint = T81Uint(1.25);
+            return 0;
+        }
+    )";
+  if (!expect_semantic_failure(uint_conversion_non_integer_failure,
+                               "uint_conversion_non_integer_failure")) {
+    return 1;
+  }
+
+  const std::string fixed_constructor_success = R"(
+        fn main() -> i32 {
+            let f: T81Fixed[8, 4] = T81Fixed[8, 4](1);
+            return 0;
+        }
+    )";
+  if (!expect_semantic_success(fixed_constructor_success, "fixed_constructor_success")) return 1;
+
+  const std::string fixed_constructor_arity_failure = R"(
+        fn main() -> i32 {
+            let f: T81Fixed[8, 4] = T81Fixed[8, 4](1, 2);
+            return 0;
+        }
+    )";
+  if (!expect_semantic_failure(fixed_constructor_arity_failure,
+                               "fixed_constructor_arity_failure")) {
+    return 1;
+  }
+
+  const std::string complex_constructor_success = R"(
+        fn main() -> i32 {
+            let c: T81Complex[18] = T81Complex[18](1, -1);
+            return 0;
+        }
+    )";
+  if (!expect_semantic_success(complex_constructor_success, "complex_constructor_success")) {
+    return 1;
+  }
+
+  const std::string complex_constructor_non_numeric_failure = R"(
+        fn main() -> i32 {
+            let c: T81Complex[18] = T81Complex[18](1, "bad");
+            return 0;
+        }
+    )";
+  if (!expect_semantic_failure(complex_constructor_non_numeric_failure,
+                               "complex_constructor_non_numeric_failure")) {
+    return 1;
+  }
+
   std::cout << "Semantic analyzer numeric rules tests passed!" << std::endl;
   return 0;
 }

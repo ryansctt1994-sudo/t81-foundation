@@ -462,6 +462,8 @@ const char* ir_opcode_name(tisc::ir::Opcode op) {
       return "ENUM_IS_VARIANT";
     case O::ENUM_UNWRAP_PAYLOAD:
       return "ENUM_UNWRAP_PAYLOAD";
+    case O::MAKE_COMPLEX:
+      return "MAKE_COMPLEX";
     case O::NOP:
       return "NOP";
     case O::HALT:
