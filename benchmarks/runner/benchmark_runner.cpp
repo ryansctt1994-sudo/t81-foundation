@@ -751,6 +751,27 @@ std::string get_current_timestamp() {
     return ss.str();
 }
 
+std::string SIMDCapabilityLine() {
+    std::ostringstream oss;
+    oss << "SIMD capabilities (compile target): ";
+#if defined(__AVX2__)
+    oss << "AVX2=1, ";
+#else
+    oss << "AVX2=0, ";
+#endif
+#if defined(__SSE4_2__)
+    oss << "SSE4.2=1, ";
+#else
+    oss << "SSE4.2=0, ";
+#endif
+#if defined(__ARM_NEON) || defined(__ARM_NEON__)
+    oss << "NEON=1";
+#else
+    oss << "NEON=0";
+#endif
+    return oss.str();
+}
+
 void GenerateMarkdownReport() {
     std::lock_guard<std::mutex> guard(final_results_mutex);
     std::cout << "\nGenerating benchmark report...\n";
@@ -1055,6 +1076,10 @@ void GenerateMarkdownReport() {
         md_file << "*Commit: " << git_sha << "*";
     }
     md_file << "\n\n";
+    md_file << "## Run Metadata\n\n";
+    md_file << "- " << SIMDCapabilityLine() << "\n";
+    md_file << "- Native benchmark mode: SIMD acceleration may fall back to scalar when unsupported by target/features.\n";
+    md_file << "- CanonFS persistent rows are labeled `comparison=pipeline-advantage` (systems-path comparison, not strict microkernel fairness).\n\n";
     md_file << "## Summary\n\n";
 
     md_file << "| Benchmark               | T81 Result     | T81 Iteration Time | T81 Native Result | T81 Native Iteration Time | Binary Result  | Binary Iteration Time | Memory Bandwidth | Throughput Ratio (T81 Classic/Binary) | Iteration Speedup (Binary/T81 Classic) | Throughput Ratio (T81 Native/Binary) | Iteration Speedup (Binary/T81 Native) | T81 Advantage                   | Notes                               |\n";
