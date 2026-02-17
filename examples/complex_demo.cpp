@@ -14,7 +14,7 @@
 #include <thread>
 #include <vector>
 #include "t81/core/T81Fixed.hpp"
-#include "t81/core/T81Fraction.hpp"
+#include "t81/fraction.hpp"
 #include "t81/core/T81Result.hpp"
 #include "t81/core/T81Uint.hpp"
 #include "t81/core/all.hpp"

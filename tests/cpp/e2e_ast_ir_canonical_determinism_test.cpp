@@ -133,7 +133,7 @@ std::string expr_repr(const frontend::Expr* expr) {
     return os.str();
   }
   if (const auto* node = dynamic_cast<const frontend::AssignExpr*>(expr)) {
-    return "(assign " + token_repr(node->name) + " " + expr_repr(node->value.get()) + ")";
+    return "(assign " + expr_repr(node->target.get()) + " " + expr_repr(node->value.get()) + ")";
   }
   if (const auto* node = dynamic_cast<const frontend::MatchExpr*>(expr)) {
     std::ostringstream os;
@@ -484,6 +484,12 @@ const char* ir_opcode_name(tisc::ir::Opcode op) {
       return "TMATMUL";
     case t81::tisc::ir::Opcode::TVECADD:
       return "TVECADD";
+    case t81::tisc::ir::Opcode::TGET:
+      return "TGET";
+    case t81::tisc::ir::Opcode::TNEW:
+      return "TNEW";
+    case t81::tisc::ir::Opcode::TSET:
+      return "TSET";
     case O::LABEL:
       return "LABEL";
   }

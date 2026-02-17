@@ -209,7 +209,7 @@ public:
   }
 
   std::any visit(const AssignExpr& expr) override {
-    return parenthesize("= " + std::string(expr.name.lexeme), {&expr.value});
+    return parenthesize("=", std::vector<const Expr*>{expr.target.get(), expr.value.get()});
   }
 
   std::any visit(const MatchExpr& expr) override {
