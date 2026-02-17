@@ -2,6 +2,7 @@
 
 #include <string>
 #include <string_view>
+#include <utility>
 
 #include "t81/support/expected.hpp"
 #include "t81/tisc/program.hpp"
@@ -20,6 +21,20 @@ enum class BridgeError {
 };
 
 struct BridgeDiagnostic {
+  BridgeDiagnostic() = default;
+  BridgeDiagnostic(BridgeError err, std::size_t line_no, std::size_t column_no, std::string msg,
+                   std::string source)
+      : error(err),
+        line(line_no),
+        column(column_no),
+        message(std::move(msg)),
+        source_line(std::move(source)) {}
+
+  BridgeDiagnostic(const BridgeDiagnostic&) = default;
+  BridgeDiagnostic& operator=(const BridgeDiagnostic&) = default;
+  BridgeDiagnostic(BridgeDiagnostic&&) noexcept = default;
+  BridgeDiagnostic& operator=(BridgeDiagnostic&&) noexcept = default;
+
   BridgeError error{BridgeError::EmptyInput};
   std::size_t line{0};    // 1-based line index
   std::size_t column{0};  // 1-based column index
