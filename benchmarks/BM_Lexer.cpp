@@ -17,6 +17,8 @@ static void BM_Lexer_AllTokens_T81(benchmark::State& state) {
   // Setup: Create a large source string
   // 1000 lines of repeating patterns
   const std::string source = BuildLexerSource();
+  const double work_per_iter = static_cast<double>(source.size());
+  state.counters["work_per_iter"] = work_per_iter;
 
   // The code we are benchmarking
   for (auto _ : state) {
@@ -26,11 +28,14 @@ static void BM_Lexer_AllTokens_T81(benchmark::State& state) {
     benchmark::DoNotOptimize(tokens.size());
   }
   state.SetItemsProcessed(state.iterations() * source.size());
+  state.SetLabel("work: ops/iter=" + std::to_string(source.size()));
 }
 BENCHMARK(BM_Lexer_AllTokens_T81);
 
 static void BM_Lexer_AllTokens_Binary(benchmark::State& state) {
   const std::string source = BuildLexerSource();
+  const double work_per_iter = static_cast<double>(source.size());
+  state.counters["work_per_iter"] = work_per_iter;
   for (auto _ : state) {
     std::size_t tokens = 0;
     bool in_token = false;
@@ -44,5 +49,6 @@ static void BM_Lexer_AllTokens_Binary(benchmark::State& state) {
     benchmark::DoNotOptimize(tokens);
   }
   state.SetItemsProcessed(state.iterations() * source.size());
+  state.SetLabel("work: ops/iter=" + std::to_string(source.size()));
 }
 BENCHMARK(BM_Lexer_AllTokens_Binary);

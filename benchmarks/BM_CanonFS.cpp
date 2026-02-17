@@ -86,12 +86,23 @@ BENCHMARK(BM_CanonFS_ReadThroughput_InMemory)
 
 static void BM_CanonFS_ReadThroughput_Binary(benchmark::State& state) {
     size_t data_size = state.range(0);
-    std::vector<std::byte> data(data_size, std::byte{0x42});
-    state.SetLabel(canonfs_work_label(data_size) + ", baseline=copy-read");
+    std::vector<std::byte> seed(data_size, std::byte{0x42});
+    std::map<CanonHash, std::vector<std::byte>> objects;
+    auto hashed = t81::hash::hash_bytes(std::span<const std::byte>(seed.data(), seed.size()));
+    CanonHash canon_hash{hashed};
+    objects[canon_hash] = seed;
+    std::vector<std::byte> out;
+    out.reserve(data_size);
+    state.SetLabel(canonfs_work_label(data_size) + ", baseline=map-read");
     state.counters["work_per_iter"] = static_cast<double>(data_size);
     for (auto _ : state) {
-        std::vector<std::byte> copy = data;
-        benchmark::DoNotOptimize(copy);
+        auto it = objects.find(canon_hash);
+        if (it == objects.end()) {
+            state.SkipWithError("Binary object-map read baseline missing object");
+            break;
+        }
+        out.assign(it->second.begin(), it->second.end());
+        benchmark::DoNotOptimize(out);
     }
     state.SetBytesProcessed(state.iterations() * data_size);
 }
