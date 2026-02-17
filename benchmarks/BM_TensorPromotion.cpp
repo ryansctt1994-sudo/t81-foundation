@@ -70,6 +70,7 @@ static void BM_TensorPromotion(benchmark::State& state) {
             break;
         }
     }
+    state.SetItemsProcessed(state.iterations() * Rank);
 }
 
 // Register the benchmark with a high rank (1,000,000) to exaggerate the allocation cost.

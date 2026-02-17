@@ -22,17 +22,15 @@ public:
       return Result<CanonRef>(t81::unexpect, Error::CapabilityError);
     }
     // Content-address using CanonHash81 over raw bytes.
-    std::vector<std::uint8_t> v(bytes.size());
-    std::memcpy(v.data(), bytes.data(), bytes.size());
-    auto h = t81::hash::hash_bytes(v);
+    auto h = t81::hash::hash_bytes(bytes);
     CanonHash canon_hash{h};
     CanonRef ref{canon_hash};
     if (!has_capability(ref, CANON_PERM_WRITE)) {
       return Result<CanonRef>(t81::unexpect, Error::CapabilityError);
     }
-    std::vector<std::byte> data(bytes.begin(), bytes.end());
-    objects_[ref.hash] = data;
-    parity_shards_[ref.hash] = ReedSolomonRepair::encode(data);
+    auto& stored = objects_[ref.hash];
+    stored.assign(bytes.begin(), bytes.end());
+    parity_shards_[ref.hash] = ReedSolomonRepair::encode(stored);
     return ref;
   }
 

@@ -48,12 +48,30 @@ struct BenchmarkResult {
     bool has_t81_flow = false;
     bool has_t81_native_flow = false;
     bool has_binary_flow = false;
+    long long t81_arg_rank = std::numeric_limits<long long>::min();
+    long long t81_native_arg_rank = std::numeric_limits<long long>::min();
+    long long binary_arg_rank = std::numeric_limits<long long>::min();
     bool throughput_ratio_computed = false;
     std::string throughput_ratio_str;
     double throughput_ratio_val = 0.0;
     bool latency_speedup_computed = false;
     std::string latency_speedup_str;
     double latency_speedup_val = 0.0;
+    bool native_throughput_ratio_computed = false;
+    std::string native_throughput_ratio_str;
+    double native_throughput_ratio_val = 0.0;
+    bool native_latency_speedup_computed = false;
+    std::string native_latency_speedup_str;
+    double native_latency_speedup_val = 0.0;
+    bool t81_classic_inconsistent = false;
+    bool t81_native_inconsistent = false;
+    bool binary_inconsistent = false;
+    double t81_work_per_iter = 0.0;
+    double t81_native_work_per_iter = 0.0;
+    double binary_work_per_iter = 0.0;
+    bool t81_work_defined = false;
+    bool t81_native_work_defined = false;
+    bool binary_work_defined = false;
 };
 
 std::map<std::string, BenchmarkResult> final_results;
@@ -139,8 +157,11 @@ double ExtractLatency(const ::benchmark::BenchmarkReporter::Run& run) {
 }
 
 std::string FormatLatency(double seconds) {
-    if (seconds <= 0.0) {
-        return {};
+    if (!std::isfinite(seconds) || seconds <= 0.0) {
+        return "below timer resolution";
+    }
+    if (seconds < 1e-9) {
+        return "<1 ns (below timer resolution)";
     }
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(2);
@@ -157,7 +178,7 @@ std::string FormatLatency(double seconds) {
 }
 
 std::string FormatBandwidth(double bytes_per_second) {
-    if (bytes_per_second <= 0.0) {
+    if (!std::isfinite(bytes_per_second) || bytes_per_second <= 0.0) {
         return {};
     }
     struct Scale {
@@ -182,6 +203,12 @@ std::string FormatBandwidth(double bytes_per_second) {
 }
 
 std::string FormatThroughput(double items_per_second) {
+    if (!std::isfinite(items_per_second) || items_per_second <= 0.0) {
+        return "below timer resolution";
+    }
+    if (items_per_second > 1e15) {
+        return "below timer resolution";
+    }
     if (items_per_second <= 0.0) {
         return {};
     }
@@ -220,6 +247,32 @@ static std::string ToLower(std::string_view input) {
         result += static_cast<char>(std::tolower(c));
     }
     return result;
+}
+
+static bool IsBelowResolutionMarker(const std::string& s) {
+    return s.find("below timer resolution") != std::string::npos;
+}
+
+static std::string FormatMetric(double value, const char* unit) {
+    if (!std::isfinite(value)) return "not-applicable (metric undefined)";
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(4) << value << " " << unit;
+    return oss.str();
+}
+
+static long long ParseArgRank(const std::string& suffix) {
+    if (suffix.empty()) return 0;
+    const auto pos = suffix.find_last_of('/');
+    const std::string token = (pos == std::string::npos) ? suffix : suffix.substr(pos + 1);
+    if (token.empty()) return 0;
+    for (char c : token) {
+        if (!std::isdigit(static_cast<unsigned char>(c))) return 0;
+    }
+    try {
+        return std::stoll(token);
+    } catch (...) {
+        return 0;
+    }
 }
 
 static bool HasFlowSuffix(std::string_view suffix) {
@@ -305,23 +358,39 @@ std::string BuildNotesDisplay(const BenchmarkResult& r) {
 
 static bool BinaryBaselineSemanticallyUnavoidable(const BenchmarkResult& r);
 static bool T81ClassicSemanticallyUnavoidable(const BenchmarkResult& r);
+static std::string FormatRatio(double value) {
+    std::ostringstream oss;
+    if (!std::isfinite(value) || value <= 0.0) return "below timer resolution";
+    if (value < 1.0) {
+        oss << std::scientific << std::setprecision(2) << value << "x";
+        return oss.str();
+    }
+    oss << std::fixed << std::setprecision(2) << value << "x";
+    return oss.str();
+}
 
 std::string BuildAnalysis(const BenchmarkResult& r) {
     std::ostringstream oss;
+    if (r.t81_classic_inconsistent || r.binary_inconsistent || r.t81_native_inconsistent) {
+        oss << "DEFECT: inconsistent work definition";
+        return oss.str();
+    }
     if (!r.throughput_ratio_computed) {
         if (BinaryBaselineSemanticallyUnavoidable(r)) {
             oss << "Throughput ratio not computed (semantic: no binary baseline)";
         } else if (T81ClassicSemanticallyUnavoidable(r) &&
                    !(r.has_t81_flow || r.has_t81_native_flow)) {
             oss << "Throughput ratio not computed (semantic)";
-        } else if ((r.t81_classic_skipped || r.t81_native_skipped || r.binary_skipped)) {
+        } else if (IsBelowResolutionMarker(r.t81_result_str) || IsBelowResolutionMarker(r.binary_result_str)) {
+            oss << "Throughput ratio below timer resolution";
+        } else if ((r.t81_classic_skipped || r.binary_skipped)) {
             oss << "Throughput ratio skipped (no counters emitted)";
         } else {
             oss << "Throughput ratio not-implemented (missing baseline)";
         }
     } else {
+        oss << FormatRatio(r.throughput_ratio_val) << " throughput ratio";
         const double ratio = r.throughput_ratio_val;
-        oss << std::fixed << std::setprecision(2) << ratio << "x throughput ratio";
         if (ratio > 1.05) {
             oss << " — T81 leads";
             const auto advantage = BuildT81AdvantageDisplay(r);
@@ -335,16 +404,33 @@ std::string BuildAnalysis(const BenchmarkResult& r) {
         }
     }
     if (r.latency_speedup_computed) {
-        oss << "; " << std::fixed << std::setprecision(2) << r.latency_speedup_val
-            << "x latency speedup (Binary/T81)";
+        oss << "; " << FormatRatio(r.latency_speedup_val)
+            << " iteration speedup (Binary/T81 classic)";
+    } else if (BinaryBaselineSemanticallyUnavoidable(r)) {
+        oss << "; iteration speedup not computed (semantic: no binary baseline)";
+    } else if (T81ClassicSemanticallyUnavoidable(r) &&
+               !(r.has_t81_flow || r.has_t81_native_flow)) {
+        oss << "; iteration speedup not computed (semantic)";
+    } else if (IsBelowResolutionMarker(r.t81_latency_str) || IsBelowResolutionMarker(r.binary_latency_str)) {
+        oss << "; iteration speedup below timer resolution";
     }
     if (!r.throughput_ratio_computed && !r.latency_speedup_computed) {
         return oss.str();
     }
-    const std::string& comparable_t81_latency =
-        (!r.t81_native_latency_str.empty() ? r.t81_native_latency_str : r.t81_latency_str);
-    if (!comparable_t81_latency.empty() && !r.binary_latency_str.empty()) {
-        oss << "; latencies " << comparable_t81_latency << " vs " << r.binary_latency_str;
+    if (!r.t81_latency_str.empty() && !r.binary_latency_str.empty()) {
+        oss << "; iteration times " << r.t81_latency_str << " vs " << r.binary_latency_str;
+    }
+    if (r.native_throughput_ratio_computed || r.native_latency_speedup_computed) {
+        if (r.native_throughput_ratio_computed) {
+            oss << "; native throughput ratio "
+                << FormatRatio(r.native_throughput_ratio_val)
+                << " (T81 native/Binary)";
+        }
+        if (r.native_latency_speedup_computed) {
+            oss << "; native iteration speedup "
+                << FormatRatio(r.native_latency_speedup_val)
+                << " (Binary/T81 native)";
+        }
     }
     return oss.str();
 }
@@ -365,6 +451,23 @@ static bool T81ClassicSemanticallyUnavoidable(const BenchmarkResult& r) {
     // Binary silent-overflow semantics have no ternary equivalent in this project.
     if (NameContains(r.name, "overflow_binary_silent")) return true;
     return false;
+}
+
+static bool HasInconsistentCounters(const ::benchmark::BenchmarkReporter::Run& run, double latency_seconds) {
+    if (latency_seconds <= 0.0 || !std::isfinite(latency_seconds)) return false;
+    const auto items_it = run.counters.find("items_per_second");
+    const auto work_it = run.counters.find("work_per_iter");
+    if (items_it == run.counters.end() || work_it == run.counters.end()) return false;
+    const double items_per_second = items_it->second;
+    const double work_per_iter = work_it->second;
+    if (items_per_second <= 0.0 || work_per_iter <= 0.0 ||
+        !std::isfinite(items_per_second) || !std::isfinite(work_per_iter)) {
+        return false;
+    }
+    const double implied = work_per_iter / latency_seconds;
+    if (!std::isfinite(implied) || implied <= 0.0) return false;
+    const double rel_err = std::abs(implied - items_per_second) / items_per_second;
+    return rel_err > 0.25;
 }
 
 class CustomReporter : public ::benchmark::BenchmarkReporter {
@@ -407,6 +510,7 @@ public:
             const bool is_t81_classic = flow_kind == FlowKind::kT81Classic;
             const bool is_t81_native = flow_kind == FlowKind::kT81Native;
             const bool is_binary = flow_kind == FlowKind::kBinary;
+            const long long arg_rank = ParseArgRank(suffix);
 
             if (final_results.find(family) == final_results.end()) {
                 final_results[family].name = family;
@@ -453,12 +557,6 @@ public:
             auto bandwidth_it = run.counters.find("bytes_per_second");
             if (items_it != run.counters.end()) {
                 items_per_second = items_it->second;
-            } else if (bandwidth_it == run.counters.end()) {
-                // Fallback for benchmark libraries that don't surface items_per_second as a counter.
-                const double latency_seconds = ExtractLatency(run);
-                if (latency_seconds > 0.0 && run.iterations > 0) {
-                    items_per_second = 1.0 / latency_seconds;
-                }
             }
             if (items_per_second > 0.0) {
                 if (items_per_second > 0.0) {
@@ -486,19 +584,71 @@ public:
                 if (bandwidth > 0.0) {
                     bandwidth_recorded = true;
                     summary = FormatBandwidth(bandwidth);
-                    if (final_results[family].bandwidth_result_str.empty()) {
-                        final_results[family].bandwidth_result_str = summary;
-                    }
                 }
             }
 
             double latency = ExtractLatency(run);
             std::string latency_str = FormatLatency(latency);
+            const bool inconsistent_counters = HasInconsistentCounters(run, latency);
+            const auto work_it = run.counters.find("work_per_iter");
+            bool has_work = work_it != run.counters.end() &&
+                            work_it->second > 0.0 &&
+                            std::isfinite(work_it->second);
+            double work_per_iter = has_work ? static_cast<double>(work_it->second) : 0.0;
+            bool inferred_work = false;
+            if (!has_work && items_per_second > 0.0 && latency > 0.0 &&
+                std::isfinite(items_per_second) && std::isfinite(latency)) {
+                const double inferred = items_per_second * latency;
+                if (std::isfinite(inferred) && inferred > 0.0) {
+                    has_work = true;
+                    work_per_iter = inferred;
+                    inferred_work = true;
+                }
+            }
+            if (!has_work && bandwidth > 0.0 && latency > 0.0 &&
+                std::isfinite(bandwidth) && std::isfinite(latency)) {
+                const double inferred = bandwidth * latency;
+                if (std::isfinite(inferred) && inferred > 0.0) {
+                    has_work = true;
+                    work_per_iter = inferred;
+                    inferred_work = true;
+                }
+            }
+            std::string effective_label = run.report_label;
+            if (effective_label.empty() && has_work) {
+                std::ostringstream label;
+                if (inferred_work) {
+                    label << "work: inferred units/iter=" << std::fixed << std::setprecision(0) << work_per_iter;
+                } else {
+                    label << "work: units/iter=" << std::fixed << std::setprecision(0) << work_per_iter;
+                }
+                effective_label = label.str();
+            }
+
+            if (NameContains(family, "PackingDensity")) {
+                auto metric_it = run.counters.find("metric_value");
+                if (metric_it != run.counters.end()) {
+                    if (NameContains(family, "Practical")) {
+                        summary = FormatMetric(metric_it->second, "binary-bytes/t81-byte");
+                    } else {
+                        summary = FormatMetric(metric_it->second, "bits/trit");
+                    }
+                }
+                latency_str = "informational-only (metric row)";
+                latency = 0.0;
+                throughput_recorded = false;
+                bandwidth_recorded = false;
+            }
 
             if (is_t81_classic) {
+                if (arg_rank < final_results[family].t81_arg_rank) {
+                    continue;
+                }
+                final_results[family].t81_arg_rank = arg_rank;
                 final_results[family].t81_result_str = summary;
                 final_results[family].t81_latency_seconds = latency;
                 final_results[family].t81_latency_str = latency_str;
+                if (!effective_label.empty()) final_results[family].t81_classic_note = effective_label;
                 if (throughput_recorded) {
                     final_results[family].t81_result_val = gops;
                     final_results[family].has_t81_flow = true;
@@ -507,10 +657,18 @@ public:
                     final_results[family].t81_bandwidth_val = bandwidth;
                     final_results[family].has_t81_flow = true;
                 }
+                final_results[family].t81_classic_inconsistent = inconsistent_counters;
+                final_results[family].t81_work_defined = has_work;
+                final_results[family].t81_work_per_iter = work_per_iter;
             } else if (is_t81_native) {
+                if (arg_rank < final_results[family].t81_native_arg_rank) {
+                    continue;
+                }
+                final_results[family].t81_native_arg_rank = arg_rank;
                 final_results[family].t81_native_result_str = summary;
                 final_results[family].t81_native_latency_seconds = latency;
                 final_results[family].t81_native_latency_str = latency_str;
+                if (!effective_label.empty()) final_results[family].t81_native_note = effective_label;
                 if (throughput_recorded) {
                     final_results[family].t81_native_result_val = gops;
                     final_results[family].has_t81_native_flow = true;
@@ -519,10 +677,18 @@ public:
                     final_results[family].t81_native_bandwidth_val = bandwidth;
                     final_results[family].has_t81_native_flow = true;
                 }
+                final_results[family].t81_native_inconsistent = inconsistent_counters;
+                final_results[family].t81_native_work_defined = has_work;
+                final_results[family].t81_native_work_per_iter = work_per_iter;
             } else if (is_binary) {
+                if (arg_rank < final_results[family].binary_arg_rank) {
+                    continue;
+                }
+                final_results[family].binary_arg_rank = arg_rank;
                 final_results[family].binary_result_str = summary;
                 final_results[family].binary_latency_seconds = latency;
                 final_results[family].binary_latency_str = latency_str;
+                if (!effective_label.empty()) final_results[family].binary_note = effective_label;
                 if (throughput_recorded) {
                     final_results[family].binary_result_val = gops;
                     final_results[family].has_binary_flow = true;
@@ -531,13 +697,27 @@ public:
                     final_results[family].binary_bandwidth_val = bandwidth;
                     final_results[family].has_binary_flow = true;
                 }
-            } else if (final_results[family].t81_result_str.empty()) {
+                final_results[family].binary_inconsistent = inconsistent_counters;
+                final_results[family].binary_work_defined = has_work;
+                final_results[family].binary_work_per_iter = work_per_iter;
+            } else {
+                if (arg_rank < final_results[family].t81_arg_rank) {
+                    continue;
+                }
+                final_results[family].t81_arg_rank = arg_rank;
                 final_results[family].t81_result_str = summary;
                 final_results[family].t81_latency_seconds = latency;
                 final_results[family].t81_latency_str = latency_str;
-                final_results[family].has_t81_flow = throughput_recorded || bandwidth_recorded;
-                final_results[family].t81_result_val = throughput_recorded ? gops : 0.0;
+                if (!effective_label.empty()) final_results[family].t81_classic_note = effective_label;
+                if (throughput_recorded) {
+                    final_results[family].t81_result_val = gops;
+                    final_results[family].has_t81_flow = true;
+                }
                 if (bandwidth_recorded) final_results[family].t81_bandwidth_val = bandwidth;
+                if (bandwidth_recorded) final_results[family].has_t81_flow = true;
+                final_results[family].t81_classic_inconsistent = inconsistent_counters;
+                final_results[family].t81_work_defined = has_work;
+                final_results[family].t81_work_per_iter = work_per_iter;
             }
         }
     }
@@ -646,96 +826,192 @@ void GenerateMarkdownReport() {
     };
 
     auto ResolveBandwidthCell = [&](const BenchmarkResult& r) -> std::string {
-        if (!r.bandwidth_result_str.empty()) return r.bandwidth_result_str;
+        if (r.t81_bandwidth_val > 0.0) return FormatBandwidth(r.t81_bandwidth_val);
         return "not-applicable (non-bandwidth benchmark)";
     };
 
     auto ResolveThroughputRatioCell = [&](const BenchmarkResult& r) -> std::string {
+        if (r.t81_classic_inconsistent || r.binary_inconsistent) {
+            return "DEFECT: inconsistent work definition";
+        }
         if (r.throughput_ratio_computed) return r.throughput_ratio_str;
-        const bool t81_semantic_gap = T81ClassicSemanticallyUnavoidable(r) &&
-                                      !(r.has_t81_flow || r.has_t81_native_flow);
+        const bool t81_semantic_gap = T81ClassicSemanticallyUnavoidable(r) && !r.has_t81_flow;
         if (!r.has_binary_flow && BinaryBaselineSemanticallyUnavoidable(r)) {
             return "not-computable (semantic: no binary baseline)";
         }
         if (t81_semantic_gap) {
             return "not-computable (semantic)";
         }
-        if (r.t81_classic_skipped || r.t81_native_skipped || r.binary_skipped) {
+        if (IsBelowResolutionMarker(r.t81_result_str) || IsBelowResolutionMarker(r.binary_result_str)) {
+            return "below timer resolution";
+        }
+        if (r.t81_classic_skipped || r.binary_skipped) {
             return "skipped (no counters emitted)";
         }
         return "not-implemented (missing baseline)";
     };
 
     auto ResolveLatencySpeedupCell = [&](const BenchmarkResult& r) -> std::string {
+        if (r.t81_classic_inconsistent || r.binary_inconsistent) {
+            return "DEFECT: inconsistent work definition";
+        }
         if (r.latency_speedup_computed) return r.latency_speedup_str;
-        const bool t81_semantic_gap = T81ClassicSemanticallyUnavoidable(r) &&
-                                      !(r.has_t81_flow || r.has_t81_native_flow);
+        const bool t81_semantic_gap = T81ClassicSemanticallyUnavoidable(r) && !r.has_t81_flow;
         if (!r.has_binary_flow && BinaryBaselineSemanticallyUnavoidable(r)) {
             return "not-computable (semantic: no binary baseline)";
         }
         if (t81_semantic_gap) {
             return "not-computable (semantic)";
         }
-        if (r.t81_classic_skipped || r.t81_native_skipped || r.binary_skipped) {
+        if (IsBelowResolutionMarker(r.t81_latency_str) || IsBelowResolutionMarker(r.binary_latency_str)) {
+            return "below timer resolution";
+        }
+        if (r.t81_classic_skipped || r.binary_skipped) {
+            return "skipped (no counters emitted)";
+        }
+        return "not-implemented (missing baseline)";
+    };
+
+    auto ResolveNativeThroughputRatioCell = [&](const BenchmarkResult& r) -> std::string {
+        if (r.t81_native_inconsistent || r.binary_inconsistent) {
+            return "DEFECT: inconsistent work definition";
+        }
+        if (r.native_throughput_ratio_computed) return r.native_throughput_ratio_str;
+        if (!(r.has_t81_native_flow || !r.t81_native_result_str.empty())) {
+            return "not-applicable (no native variant)";
+        }
+        if (IsBelowResolutionMarker(r.t81_native_result_str) || IsBelowResolutionMarker(r.binary_result_str)) {
+            return "below timer resolution";
+        }
+        if (r.t81_native_skipped || r.binary_skipped) {
+            return "skipped (no counters emitted)";
+        }
+        return "not-implemented (missing baseline)";
+    };
+
+    auto ResolveNativeLatencySpeedupCell = [&](const BenchmarkResult& r) -> std::string {
+        if (r.t81_native_inconsistent || r.binary_inconsistent) {
+            return "DEFECT: inconsistent work definition";
+        }
+        if (r.native_latency_speedup_computed) return r.native_latency_speedup_str;
+        if (!(r.has_t81_native_flow || !r.t81_native_latency_str.empty())) {
+            return "not-applicable (no native variant)";
+        }
+        if (IsBelowResolutionMarker(r.t81_native_latency_str) || IsBelowResolutionMarker(r.binary_latency_str)) {
+            return "below timer resolution";
+        }
+        if (r.t81_native_skipped || r.binary_skipped) {
             return "skipped (no counters emitted)";
         }
         return "not-implemented (missing baseline)";
     };
 
     for (auto& [name, r] : final_results) {
-        const bool has_any_t81_flow = r.has_t81_flow || r.has_t81_native_flow;
-        const double t81_comparable_val = r.has_t81_native_flow ?
-            r.t81_native_result_val : r.t81_result_val;
-        const double t81_comparable_bw = r.has_t81_native_flow ?
-            r.t81_native_bandwidth_val : r.t81_bandwidth_val;
-
-        bool throughput_ratio_ready = has_any_t81_flow && r.has_binary_flow &&
-                                      r.binary_result_val > 0.0 && t81_comparable_val > 0.0;
+        const bool has_classic_and_binary = (r.has_t81_flow || !r.t81_result_str.empty()) &&
+                                            (r.has_binary_flow || !r.binary_result_str.empty());
+        if (has_classic_and_binary && (!r.t81_work_defined || !r.binary_work_defined)) {
+            r.t81_classic_inconsistent = true;
+            r.binary_inconsistent = true;
+        }
+        if (r.t81_work_defined && r.binary_work_defined && r.binary_work_per_iter > 0.0) {
+            const double rel = std::abs(r.t81_work_per_iter - r.binary_work_per_iter) / r.binary_work_per_iter;
+            if (rel > 0.05) {
+                r.t81_classic_inconsistent = true;
+                r.binary_inconsistent = true;
+            }
+        }
+        const bool has_native_and_binary = (r.has_t81_native_flow || !r.t81_native_result_str.empty()) &&
+                                           (r.has_binary_flow || !r.binary_result_str.empty());
+        if (has_native_and_binary && (!r.t81_native_work_defined || !r.binary_work_defined)) {
+            r.t81_native_inconsistent = true;
+            r.binary_inconsistent = true;
+        }
+        if (r.t81_native_work_defined && r.binary_work_defined && r.binary_work_per_iter > 0.0) {
+            const double rel = std::abs(r.t81_native_work_per_iter - r.binary_work_per_iter) / r.binary_work_per_iter;
+            if (rel > 0.05) {
+                r.t81_native_inconsistent = true;
+                r.binary_inconsistent = true;
+            }
+        }
+        if (r.t81_classic_inconsistent || r.t81_native_inconsistent || r.binary_inconsistent) {
+            r.throughput_ratio_computed = false;
+            r.latency_speedup_computed = false;
+            r.native_throughput_ratio_computed = false;
+            r.native_latency_speedup_computed = false;
+            r.analysis = BuildAnalysis(r);
+            continue;
+        }
+        bool throughput_ratio_ready = r.has_t81_flow && r.has_binary_flow &&
+                                      r.binary_result_val > 0.0 && r.t81_result_val > 0.0;
+        throughput_ratio_ready = throughput_ratio_ready &&
+            !IsBelowResolutionMarker(r.t81_result_str) &&
+            !IsBelowResolutionMarker(r.binary_result_str);
         double throughput_ratio = 0.0;
         if (throughput_ratio_ready) {
-            throughput_ratio = t81_comparable_val / r.binary_result_val;
-        } else if (has_any_t81_flow && r.has_binary_flow &&
-                   r.binary_bandwidth_val > 0.0 && t81_comparable_bw > 0.0) {
-            throughput_ratio = t81_comparable_bw / r.binary_bandwidth_val;
+            throughput_ratio = r.t81_result_val / r.binary_result_val;
+        } else if (r.has_t81_flow && r.has_binary_flow &&
+                   r.binary_bandwidth_val > 0.0 && r.t81_bandwidth_val > 0.0) {
+            throughput_ratio = r.t81_bandwidth_val / r.binary_bandwidth_val;
             throughput_ratio_ready = true;
         }
 
         if (throughput_ratio_ready) {
             r.throughput_ratio_val = throughput_ratio;
-            std::ostringstream temp;
-            temp << std::fixed << std::setprecision(2) << throughput_ratio << "x";
-            r.throughput_ratio_str = temp.str();
+            r.throughput_ratio_str = FormatRatio(throughput_ratio);
             r.throughput_ratio_computed = true;
         } else {
             r.throughput_ratio_str.clear();
             r.throughput_ratio_computed = false;
         }
 
-        const double t81_latency = (r.t81_native_latency_seconds > 0.0) ?
-            r.t81_native_latency_seconds : r.t81_latency_seconds;
-        if (t81_latency > 0.0 && r.binary_latency_seconds > 0.0) {
-            r.latency_speedup_val = r.binary_latency_seconds / t81_latency;
-            std::ostringstream temp;
-            temp << std::fixed << std::setprecision(2) << r.latency_speedup_val << "x";
-            r.latency_speedup_str = temp.str();
+        if (r.t81_latency_seconds >= 1e-9 && r.binary_latency_seconds >= 1e-9 &&
+            !IsBelowResolutionMarker(r.t81_latency_str) &&
+            !IsBelowResolutionMarker(r.binary_latency_str)) {
+            r.latency_speedup_val = r.binary_latency_seconds / r.t81_latency_seconds;
+            r.latency_speedup_str = FormatRatio(r.latency_speedup_val);
             r.latency_speedup_computed = true;
         } else {
             r.latency_speedup_str.clear();
             r.latency_speedup_computed = false;
+        }
+
+        if (r.has_t81_native_flow && r.has_binary_flow &&
+            r.t81_native_result_val > 0.0 && r.binary_result_val > 0.0 &&
+            !IsBelowResolutionMarker(r.t81_native_result_str) &&
+            !IsBelowResolutionMarker(r.binary_result_str)) {
+            r.native_throughput_ratio_val = r.t81_native_result_val / r.binary_result_val;
+            r.native_throughput_ratio_str = FormatRatio(r.native_throughput_ratio_val);
+            r.native_throughput_ratio_computed = true;
+        } else {
+            r.native_throughput_ratio_computed = false;
+            r.native_throughput_ratio_str.clear();
+        }
+
+        if (r.t81_native_latency_seconds >= 1e-9 && r.binary_latency_seconds >= 1e-9 &&
+            !IsBelowResolutionMarker(r.t81_native_latency_str) &&
+            !IsBelowResolutionMarker(r.binary_latency_str)) {
+            r.native_latency_speedup_val = r.binary_latency_seconds / r.t81_native_latency_seconds;
+            r.native_latency_speedup_str = FormatRatio(r.native_latency_speedup_val);
+            r.native_latency_speedup_computed = true;
+        } else {
+            r.native_latency_speedup_computed = false;
+            r.native_latency_speedup_str.clear();
         }
         r.analysis = BuildAnalysis(r);
     }
 
     std::cout << std::left << std::setw(25) << "Benchmark"
               << std::setw(20) << "T81 Result"
-              << std::setw(16) << "T81 Latency"
+              << std::setw(16) << "T81 Iter Time"
               << std::setw(20) << "Binary Result"
-              << std::setw(16) << "Binary Latency"
+              << std::setw(16) << "Binary Iter"
               << std::setw(18) << "Thru Ratio"
               << std::setw(18) << "Lat Speedup"
+              << std::setw(18) << "NThru Ratio"
+              << std::setw(18) << "NLat Speedup"
               << std::setw(25) << "T81 Advantage"
               << "Notes\n";
-    std::cout << std::string(140, '-') << "\n";
+    std::cout << std::string(176, '-') << "\n";
     for (auto const& [name, r] : final_results) {
         const std::string t81_result_cell = ResolveT81ClassicResultCell(r);
         const std::string t81_latency_cell = ResolveT81ClassicLatencyCell(r);
@@ -743,6 +1019,8 @@ void GenerateMarkdownReport() {
         const std::string binary_latency_cell = ResolveBinaryLatencyCell(r);
         const std::string throughput_ratio_cell = ResolveThroughputRatioCell(r);
         const std::string latency_speedup_cell = ResolveLatencySpeedupCell(r);
+        const std::string native_throughput_ratio_cell = ResolveNativeThroughputRatioCell(r);
+        const std::string native_latency_speedup_cell = ResolveNativeLatencySpeedupCell(r);
         const std::string advantage_display = BuildT81AdvantageDisplay(r);
         const std::string notes_display = BuildNotesDisplay(r);
         std::cout << std::left << std::setw(25) << r.name
@@ -752,6 +1030,8 @@ void GenerateMarkdownReport() {
                   << std::setw(16) << DisplayValue(binary_latency_cell)
                   << std::setw(18) << DisplayValue(throughput_ratio_cell)
                   << std::setw(18) << DisplayValue(latency_speedup_cell)
+                  << std::setw(18) << DisplayValue(native_throughput_ratio_cell)
+                  << std::setw(18) << DisplayValue(native_latency_speedup_cell)
                   << std::setw(25) << DisplayValue(advantage_display)
                   << DisplayValue(notes_display) << "\n";
     }
@@ -777,13 +1057,17 @@ void GenerateMarkdownReport() {
     md_file << "\n\n";
     md_file << "## Summary\n\n";
 
-    md_file << "| Benchmark               | T81 Result     | T81 Latency    | T81 Native Result | T81 Native Latency | Binary Result  | Binary Latency | Memory Bandwidth | Throughput Ratio (T81/Binary) | Latency Speedup (Binary/T81) | T81 Advantage                   | Notes                               |\n";
-    md_file << "|-------------------------|----------------|----------------|------------------|--------------------|----------------|----------------|--------------------|-------------------------------|------------------------------|---------------------------------|-------------------------------------|\n";
+    md_file << "| Benchmark               | T81 Result     | T81 Iteration Time | T81 Native Result | T81 Native Iteration Time | Binary Result  | Binary Iteration Time | Memory Bandwidth | Throughput Ratio (T81 Classic/Binary) | Iteration Speedup (Binary/T81 Classic) | Throughput Ratio (T81 Native/Binary) | Iteration Speedup (Binary/T81 Native) | T81 Advantage                   | Notes                               |\n";
+    md_file << "|-------------------------|----------------|----------------|------------------|--------------------|----------------|----------------|--------------------|-------------------------------|------------------------------|-------------------------------|------------------------------|---------------------------------|-------------------------------------|\n";
 
     double best_t81_ratio = 1.0;
     double best_binary_ratio = 1.0;
+    double best_native_ratio = 1.0;
+    double best_native_iter_speedup = 1.0;
     std::string best_name;
     std::string worst_name;
+    std::string best_native_ratio_name;
+    std::string best_native_speed_name;
     int t81_wins = 0;
     int binary_wins = 0;
     int ties = 0;
@@ -807,6 +1091,14 @@ void GenerateMarkdownReport() {
                 ++ties;
             }
         }
+        if (r.native_throughput_ratio_computed && r.native_throughput_ratio_val > best_native_ratio) {
+            best_native_ratio = r.native_throughput_ratio_val;
+            best_native_ratio_name = r.name;
+        }
+        if (r.native_latency_speedup_computed && r.native_latency_speedup_val > best_native_iter_speedup) {
+            best_native_iter_speedup = r.native_latency_speedup_val;
+            best_native_speed_name = r.name;
+        }
         const std::string advantage_display = BuildT81AdvantageDisplay(r);
         const std::string notes_display = BuildNotesDisplay(r);
         const std::string t81_result_cell = ResolveT81ClassicResultCell(r);
@@ -818,6 +1110,8 @@ void GenerateMarkdownReport() {
         const std::string bandwidth_cell = ResolveBandwidthCell(r);
         const std::string throughput_ratio_cell = ResolveThroughputRatioCell(r);
         const std::string latency_speedup_cell = ResolveLatencySpeedupCell(r);
+        const std::string native_throughput_ratio_cell = ResolveNativeThroughputRatioCell(r);
+        const std::string native_latency_speedup_cell = ResolveNativeLatencySpeedupCell(r);
         const std::string advantage_display_md = EscapePipes(advantage_display);
         const std::string notes_display_md = EscapePipes(notes_display);
         md_file << "| " << std::left << std::setw(23) << r.name
@@ -830,6 +1124,8 @@ void GenerateMarkdownReport() {
                 << "| " << std::setw(14) << DisplayValue(bandwidth_cell)
                 << "| " << std::setw(14) << DisplayValue(throughput_ratio_cell)
                 << "| " << std::setw(14) << DisplayValue(latency_speedup_cell)
+                << "| " << std::setw(14) << DisplayValue(native_throughput_ratio_cell)
+                << "| " << std::setw(14) << DisplayValue(native_latency_speedup_cell)
                 << "| " << std::setw(31) << DisplayValue(advantage_display_md)
                 << "| " << std::setw(35) << DisplayValue(notes_display_md) << "|\n";
     }
@@ -846,12 +1142,20 @@ void GenerateMarkdownReport() {
 
     md_file << "\n## Highlights\n\n";
     if (!best_name.empty()) {
-        md_file << "- Largest T81 advantage: `" << best_name << "` (" << std::fixed << std::setprecision(2)
-                << best_t81_ratio << "x) using Gops/s throughput.\n";
+        md_file << "- Largest T81 Classic advantage: `" << best_name << "` ("
+                << FormatRatio(best_t81_ratio) << ") using Gops/s throughput.\n";
     }
     if (!worst_name.empty() && best_binary_ratio < 1.0) {
-        md_file << "- Largest binary advantage: `" << worst_name << "` (" << std::fixed << std::setprecision(2)
-                << best_binary_ratio << "x) reflects where deterministic handling lags.\n";
+        md_file << "- Largest binary advantage: `" << worst_name << "` ("
+                << FormatRatio(best_binary_ratio) << ") reflects where deterministic handling lags.\n";
+    }
+    if (!best_native_ratio_name.empty() && best_native_ratio > 1.0) {
+        md_file << "- Largest T81 Native throughput advantage: `" << best_native_ratio_name
+                << "` (" << FormatRatio(best_native_ratio) << ").\n";
+    }
+    if (!best_native_speed_name.empty() && best_native_iter_speedup > 1.0) {
+        md_file << "- Largest T81 Native iteration-time advantage: `" << best_native_speed_name
+                << "` (" << FormatRatio(best_native_iter_speedup) << ").\n";
     }
     md_file << "- T81 wins: " << t81_wins << ", Binary wins: " << binary_wins << ", Comparable: " << ties << ".\n";
 

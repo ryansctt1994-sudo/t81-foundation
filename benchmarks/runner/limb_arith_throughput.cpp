@@ -56,6 +56,7 @@ namespace {
 
 static void BM_LimbArithThroughput_T81Limb(benchmark::State& state) {
     setup_limb_arith();
+    state.counters["work_per_iter"] = static_cast<double>(DATA_SIZE);
     for (auto _ : state) {
         for (size_t i = 0; i < DATA_SIZE; ++i) {
             t81_dest_data[i] = t81_source_data_a[i] + t81_source_data_b[i];
@@ -64,24 +65,28 @@ static void BM_LimbArithThroughput_T81Limb(benchmark::State& state) {
         benchmark::DoNotOptimize(dest_ptr);
     }
     state.SetItemsProcessed(state.iterations() * DATA_SIZE);
-    state.SetLabel("48-trit Kogge-Stone addition");
+    state.SetLabel("48-trit Kogge-Stone addition; work: ops/iter=100000");
 }
 BENCHMARK(BM_LimbArithThroughput_T81Limb);
 
 static void BM_LimbArithThroughput_Int128(benchmark::State& state) {
-    __int128 a = 0x123456789ABCDEF0ULL;
-    __int128 b = 0xFEDCBA9876543210ULL;
+    setup_limb_arith();
+    state.counters["work_per_iter"] = static_cast<double>(DATA_SIZE);
     for (auto _ : state) {
-        benchmark::DoNotOptimize(a += b);
-        b ^= a;
+        for (size_t i = 0; i < DATA_SIZE; ++i) {
+            int128_dest_data[i] = int128_data_a[i] + int128_data_b[i];
+        }
+        auto* binary_ptr = static_cast<const void*>(int128_dest_data.data());
+        benchmark::DoNotOptimize(binary_ptr);
     }
-    state.SetItemsProcessed(state.iterations());
-    state.SetLabel("__int128 addition baseline");
+    state.SetItemsProcessed(state.iterations() * DATA_SIZE);
+    state.SetLabel("__int128 addition baseline; work: ops/iter=100000");
 }
 BENCHMARK(BM_LimbArithThroughput_Int128);
 
 static void BM_LimbAdd_T81Native(benchmark::State& state) {
     setup_limb_arith();
+    state.counters["work_per_iter"] = static_cast<double>(DATA_SIZE);
     for (auto _ : state) {
         for (size_t i = 0; i < DATA_SIZE; ++i) {
             t81_native_dest_data[i] = t81_native_a[i] + t81_native_b[i];
@@ -90,12 +95,13 @@ static void BM_LimbAdd_T81Native(benchmark::State& state) {
         benchmark::DoNotOptimize(native_ptr);
     }
     state.SetItemsProcessed(state.iterations() * DATA_SIZE);
-    state.SetLabel("Native T81 SIMD addition");
+    state.SetLabel("Native T81 SIMD addition; work: ops/iter=100000");
 }
 BENCHMARK(BM_LimbAdd_T81Native);
 
 static void BM_LimbAdd_T81Limb(benchmark::State& state) {
     setup_limb_arith();
+    state.counters["work_per_iter"] = static_cast<double>(DATA_SIZE);
     for (auto _ : state) {
         for (size_t i = 0; i < DATA_SIZE; ++i) {
             t81_dest_data[i] = t81_source_data_a[i] + t81_source_data_b[i];
@@ -104,12 +110,13 @@ static void BM_LimbAdd_T81Limb(benchmark::State& state) {
         benchmark::DoNotOptimize(classic_ptr);
     }
     state.SetItemsProcessed(state.iterations() * DATA_SIZE);
-    state.SetLabel("Classic 48-trit Kogge-Stone addition");
+    state.SetLabel("Classic 48-trit Kogge-Stone addition; work: ops/iter=100000");
 }
 BENCHMARK(BM_LimbAdd_T81Limb);
 
 static void BM_LimbAdd_Int128(benchmark::State& state) {
     setup_limb_arith();
+    state.counters["work_per_iter"] = static_cast<double>(DATA_SIZE);
     for (auto _ : state) {
         for (size_t i = 0; i < DATA_SIZE; ++i) {
             int128_dest_data[i] = int128_data_a[i] + int128_data_b[i];
@@ -118,40 +125,13 @@ static void BM_LimbAdd_Int128(benchmark::State& state) {
         benchmark::DoNotOptimize(binary_ptr);
     }
     state.SetItemsProcessed(state.iterations() * DATA_SIZE);
-    state.SetLabel("__int128 addition baseline");
+    state.SetLabel("__int128 addition baseline; work: ops/iter=100000");
 }
 BENCHMARK(BM_LimbAdd_Int128);
 
-static void BM_LimbAdd_KoggeStone_Int128(benchmark::State& state) {
-    setup_limb_arith();
-    for (auto _ : state) {
-        for (size_t i = 0; i < DATA_SIZE; ++i) {
-            int128_dest_data[i] = int128_data_a[i] + int128_data_b[i];
-        }
-        auto* binary_ptr = static_cast<const void*>(int128_dest_data.data());
-        benchmark::DoNotOptimize(binary_ptr);
-    }
-    state.SetItemsProcessed(state.iterations() * DATA_SIZE);
-    state.SetLabel("__int128 addition baseline");
-}
-BENCHMARK(BM_LimbAdd_KoggeStone_Int128);
-
-static void BM_LimbAdd_KoggeStone_T81Native(benchmark::State& state) {
-    setup_limb_arith();
-    for (auto _ : state) {
-        for (size_t i = 0; i < DATA_SIZE; ++i) {
-            t81_native_dest_data[i] = t81_native_a[i] + t81_native_b[i];
-        }
-        auto* native_ptr = static_cast<const void*>(t81_native_dest_data.data());
-        benchmark::DoNotOptimize(native_ptr);
-    }
-    state.SetItemsProcessed(state.iterations() * DATA_SIZE);
-    state.SetLabel("Native T81 SIMD Kogge-Stone addition");
-}
-BENCHMARK(BM_LimbAdd_KoggeStone_T81Native);
-
 static void BM_LimbArithThroughput_T81Native(benchmark::State& state) {
     setup_limb_arith();
+    state.counters["work_per_iter"] = static_cast<double>(DATA_SIZE);
     for (auto _ : state) {
         for (size_t i = 0; i < DATA_SIZE; ++i) {
             t81_native_dest_data[i] = t81_native_a[i] + t81_native_b[i];
@@ -160,12 +140,13 @@ static void BM_LimbArithThroughput_T81Native(benchmark::State& state) {
         benchmark::DoNotOptimize(native_ptr);
     }
     state.SetItemsProcessed(state.iterations() * DATA_SIZE);
-    state.SetLabel("Native T81 SIMD addition");
+    state.SetLabel("Native T81 SIMD addition; work: ops/iter=100000");
 }
 BENCHMARK(BM_LimbArithThroughput_T81Native);
 
 static void BM_vs_T81Native(benchmark::State& state) {
     setup_limb_arith();
+    state.counters["work_per_iter"] = 1.0;
     size_t idx = 0;
     for (auto _ : state) {
         t81_native_dest_data[idx] = t81_native_a[idx] + t81_native_b[idx];
@@ -173,12 +154,13 @@ static void BM_vs_T81Native(benchmark::State& state) {
         idx = (idx + 1) % DATA_SIZE;
     }
     state.SetItemsProcessed(state.iterations());
-    state.SetLabel("T81 native addition");
+    state.SetLabel("T81 native addition; work: ops/iter=1");
 }
 BENCHMARK(BM_vs_T81Native);
 
 static void BM_vs_T81(benchmark::State& state) {
     setup_limb_arith();
+    state.counters["work_per_iter"] = 1.0;
     size_t idx = 0;
     for (auto _ : state) {
         t81_dest_data[idx] = t81_source_data_a[idx] + t81_source_data_b[idx];
@@ -186,12 +168,13 @@ static void BM_vs_T81(benchmark::State& state) {
         idx = (idx + 1) % DATA_SIZE;
     }
     state.SetItemsProcessed(state.iterations());
-    state.SetLabel("T81 classic limb addition");
+    state.SetLabel("T81 classic limb addition; work: ops/iter=1");
 }
 BENCHMARK(BM_vs_T81);
 
 static void BM_vs_Binary(benchmark::State& state) {
     setup_limb_arith();
+    state.counters["work_per_iter"] = 1.0;
     size_t idx = 0;
     for (auto _ : state) {
         int128_dest_data[idx] = int128_data_a[idx] + int128_data_b[idx];
@@ -199,7 +182,7 @@ static void BM_vs_Binary(benchmark::State& state) {
         idx = (idx + 1) % DATA_SIZE;
     }
     state.SetItemsProcessed(state.iterations());
-    state.SetLabel("__int128 addition baseline");
+    state.SetLabel("__int128 addition baseline; work: ops/iter=1");
 }
 BENCHMARK(BM_vs_Binary);
 
