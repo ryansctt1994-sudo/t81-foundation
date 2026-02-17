@@ -541,8 +541,9 @@ std::string SemanticAnalyzer::type_to_string(const Type& type) const {
     case Type::Kind::Vector:
     case Type::Kind::Matrix:
     case Type::Kind::Tensor: {
-      result = (type.kind == Type::Kind::Vector ? "Vector" :
-                type.kind == Type::Kind::Matrix ? "Matrix" : "Tensor");
+      result = (type.kind == Type::Kind::Vector   ? "Vector"
+                : type.kind == Type::Kind::Matrix ? "Matrix"
+                                                  : "Tensor");
       if (!type.params.empty()) {
         result += "[";
         for (size_t i = 0; i < type.params.size(); ++i) {
@@ -1907,7 +1908,8 @@ std::any SemanticAnalyzer::visit(const VectorLiteralExpr& expr) {
   }
 
   for (const auto& element : expr.elements) {
-    Type elem_type = evaluate_expression(*element, has_expected_element ? &expected_element : nullptr);
+    Type elem_type =
+        evaluate_expression(*element, has_expected_element ? &expected_element : nullptr);
     if (elem_type.kind == Type::Kind::Error) {
       return make_error_type();
     }
