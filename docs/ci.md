@@ -62,7 +62,7 @@ ______________________________________________________________________
 | Workflow | Triggers | Key steps |
 | --- | --- | --- |
 | `.github/workflows/ci.yml` | pushes/PRs on `main` | validates docs/spec structure (including ARCHITECTURE target-table sync and legacy numeric include policy), configures CMake, builds `t81` and Google Benchmark, runs `ctest`, runs a C++ standard compatibility matrix (`-DT81_USE_CXX23=ON/OFF`) on linux clang, runs T3_K and T81Lang reproducibility gates on linux clang (`x86_64` + `arm64`), and compares cross-arch gate hashes. |
-| `.github/workflows/codeql.yml` | nightly + PR merges | runs CodeQL analysis on main/master. |
+| `.github/workflows/codeql.yml` | nightly + pull requests | runs CodeQL analysis for C/C++ on incoming changes. |
 | `.github/workflows/bench.yml` | manually via `workflow_dispatch` | builds benchmark runner and pipeline, publishes `docs/benchmarks.md` updates. |
 | `.github/workflows/repro-ledger.yml` | weekly + `workflow_dispatch` | runs build/test + T3_K reproducibility gate + Axion trace capture + benchmark snapshot and publishes `reproducibility-ledger` dashboard artifacts. |
 | `.github/workflows/runtime-contract.yml` | pushes/PRs + nightly + `workflow_dispatch` | validates `contracts/runtime-contract.json` against `t81-vm` contract/tag/pin and requires explicit approval for marker drift. |

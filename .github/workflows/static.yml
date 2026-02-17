@@ -8,6 +8,8 @@ on:
       - 'docs/search/**'
       - 'docs/**'
       - 'spec/**'
+    paths-ignore:
+      - 'docs/search/search_index.json'
   workflow_dispatch:
 
 permissions:

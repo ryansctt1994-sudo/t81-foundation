@@ -15,7 +15,10 @@ import re
 from dataclasses import dataclass
 
 
-USES_PATTERN = re.compile(r"^\s*uses:\s*([^\s#]+)")
+# Match both:
+#   uses: owner/action@ref
+#   - uses: owner/action@ref
+USES_PATTERN = re.compile(r"^\s*(?:-\s*)?uses:\s*([^\s#]+)")
 PINNED_SHA_PATTERN = re.compile(r"^[^@]+@[0-9a-fA-F]{40}$")
 PINNED_DOCKER_DIGEST_PATTERN = re.compile(r"^docker://[^@]+@sha256:[0-9a-fA-F]{64}$")
 TAG_PATTERN = re.compile(r"^[^@]+@.+$")

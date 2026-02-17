@@ -2,8 +2,6 @@
 name: T81 Speed Oracle
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
 
 permissions:
@@ -71,6 +69,7 @@ jobs:
 
       - name: Generate live badge
         run: |
+          mkdir -p .github/badges
           # Extract key metric (example: fastest matmul in ns)
           BEST=$(jq -r '.benchmarks[] | select(.name | contains("MatMul/4096")) | .real_time' bench.json | sort -n | head -1)
           PERF=$(echo "scale=1; 1000000 / $BEST" | bc -l 2>/dev/null || echo "∞")
