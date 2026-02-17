@@ -1,7 +1,10 @@
 fn quaternion_demo() -> i32 {
-    let q: T81Quaternion = (1, 2, 3, 4);
-    let _sum: T81Quaternion = q + q;
-    return 4;
+    // Quaternion literal syntax is not yet available in current T81Lang parser.
+    let w: i32 = 1;
+    let x: i32 = 2;
+    let y: i32 = 3;
+    let z: i32 = 4;
+    return w + x + y + z;
 }
 
 fn main() -> i32 {

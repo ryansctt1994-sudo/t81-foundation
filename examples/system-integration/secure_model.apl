@@ -1,4 +1,6 @@
 (policy
-  (require-self-model-integrity true)
-  (allowed-tensor-hashes ["sha3:4158a421..."])
-  (max-tensor-memory 256MB))
+  (tier 1)
+  (max-instructions 3000)
+  (max-stack 512)
+  (require-axion-event (reason "secure model"))
+)

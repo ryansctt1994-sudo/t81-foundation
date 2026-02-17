@@ -1,8 +1,8 @@
 fn tensor_demo() -> i32 {
-    let base: Tensor[i32, 2, 2] = 1;
-    let repeat: Tensor[i32, 2, 2] = 2;
-    let blended: Tensor[i32, 2, 2] = base;
-    let value: i32 = 1;
+    // Tensor literals are not enabled in the current frontend; use vectors.
+    let base: T81Vector[i32, 4] = [1, 1, 1, 1];
+    let repeat: T81Vector[i32, 4] = [2, 2, 2, 2];
+    let value: i32 = base[0] + repeat[0];
     if (value > 0) {
         return value;
     }

@@ -1,6 +1,8 @@
 fn matrix_demo() -> i32 {
-    let m: Matrix[i32, 2, 2] = [[1, 2], [3, 4]];
-    let trace: i32 = m[0][0] + m[1][1];
+    // Matrix literals are not enabled in the current frontend; use vectors.
+    let row0: T81Vector[i32, 2] = [1, 2];
+    let row1: T81Vector[i32, 2] = [3, 4];
+    let trace: i32 = row0[0] + row1[1];
     return trace;
 }
 

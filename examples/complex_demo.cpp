@@ -94,8 +94,8 @@ void demo_math() {
   std::cout << "T81Quaternion: Rotated identity by 90 deg around X\n";
 
   // T81Fraction - explicitly using 81 trits version
-  T81Fraction<81> fr1(T81Int<81>(1), T81Int<81>(3));
-  T81Fraction<81> fr2(T81Int<81>(1), T81Int<81>(2));
+  t81::v1::T81Fraction<81> fr1(T81Int<81>(1), T81Int<81>(3));
+  t81::v1::T81Fraction<81> fr2(T81Int<81>(1), T81Int<81>(2));
   auto frsum = fr1 + fr2;
   std::cout << "T81Fraction: 1/3 + 1/2 = " << frsum.num().to_string() << "/"
             << frsum.den().to_string() << "\n";

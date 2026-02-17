@@ -1,10 +1,9 @@
 fn graph_demo() -> i32 {
-    let adjacency: Matrix[i32, 3, 3] = [
-        [0, 1, 1],
-        [1, 0, 0],
-        [1, 0, 0],
-    ];
-    let total_edges: i32 = adjacency[0][1] + adjacency[0][2] + adjacency[1][0] + adjacency[2][0];
+    // Matrix[T] literals are not enabled in the current frontend; use vectors.
+    let row0: T81Vector[i32, 3] = [0, 1, 1];
+    let row1: T81Vector[i32, 3] = [1, 0, 0];
+    let row2: T81Vector[i32, 3] = [1, 0, 0];
+    let total_edges: i32 = row0[1] + row0[2] + row1[0] + row2[0];
     return total_edges;
 }
 

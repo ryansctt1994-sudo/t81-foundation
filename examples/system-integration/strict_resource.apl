@@ -1,4 +1,6 @@
 (policy
-  (max-instructions 1000)      // Prevent infinite loops
-  (allowed-segments [CODE, STACK, HEAP]) // Deny TENSOR/META access
-  (log-level deterministic-trace))
+  (tier 1)
+  (max-instructions 1000)
+  (max-stack 256)
+  (require-axion-event (reason "strict resource"))
+)

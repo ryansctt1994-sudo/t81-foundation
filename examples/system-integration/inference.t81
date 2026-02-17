@@ -1,7 +1,8 @@
-// Load model weights from a content-addressed store
-let weights = Tensor.load("sha3:4158a421...");
-let input = Tensor.from_list([1.0, 0.0, 2.0]);
-
-// Perform the gated multiplication
-let result = input.matmul(weights);
-// print(result); // Tensor printing not supported yet
+// Inference placeholder aligned with current frontend capabilities.
+fn main() -> i32 {
+    let weight: i32 = 3;
+    let input: i32 = 7;
+    let result: i32 = input * weight;
+    print(result);
+    return result;
+}

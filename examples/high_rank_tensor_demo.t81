@@ -1,14 +1,11 @@
 fn high_rank_tensor_demo() -> i32 {
-    let block: Tensor[i32, 2, 2, 2] = [
-        [[1, 2], [3, 4]],
-        [[5, 6], [7, 8]]
-    ];
+    // Tensor literals are not enabled in the current frontend; flatten to vectors.
+    let block0: T81Vector[i32, 4] = [1, 2, 3, 4];
+    let block1: T81Vector[i32, 4] = [5, 6, 7, 8];
 
-    let corner = block[0][0][0];
-    let opposite = block[1][1][1];
-    let total = corner + opposite;
-
-    return total;
+    let corner = block0[0];
+    let opposite = block1[3];
+    return corner + opposite;
 }
 
 fn main() -> i32 {
