@@ -775,6 +775,29 @@ public:
         record_result(&expr, dest);
         return {};
       }
+      if (func_name == "T81Bytes") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("T81Bytes conversion expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        copy_to_dest(value, dest);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "T81Uint" || func_name == "T81Qutrit") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error(func_name + " conversion expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto integer_value = ensure_integer(value);
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        copy_to_dest(integer_value, dest);
+        record_result(&expr, dest);
+        return {};
+      }
       if (func_name == "weights.load" || func_name == "Tensor.load") {
         if (expr.arguments.size() != 1) {
           throw std::runtime_error("weights.load expects a single string argument.");
