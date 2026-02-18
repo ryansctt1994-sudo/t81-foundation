@@ -322,6 +322,42 @@ static void test_std_tensor_vec_add_alias() {
                "t81lang_std_tensor_vec_add_bad_arity");
 }
 
+static void test_std_math_tensor_module_wrappers() {
+  constexpr const char* source = R"(
+    fn sin(x: T81Float) -> T81Float {
+      return std.math.sin(x);
+    }
+    fn cos(x: T81Float) -> T81Float {
+      return std.math.cos(x);
+    }
+    fn tan(x: T81Float) -> T81Float {
+      return std.math.tan(x);
+    }
+    fn from_list(values: Vector[i32]) -> Tensor {
+      return std.tensor.from_list(values);
+    }
+    fn matmul(a: Tensor, b: Tensor) -> Tensor {
+      return std.tensor.matmul(a, b);
+    }
+    fn vec_add(a: Tensor, b: Tensor) -> Tensor {
+      return std.tensor.vec_add(a, b);
+    }
+    fn main() -> i32 {
+      let angle: T81Float = sin(1.0);
+      let c: T81Float = cos(angle);
+      let _t: T81Float = tan(c);
+      let a: Tensor = from_list([1, 2, 3]);
+      let b: Tensor = from_list([4, 5, 6]);
+      let _m: Tensor = matmul(a, b);
+      let _v: Tensor = vec_add(a, b);
+      let _h: i32 = std.tensor.load("encoder.weight");
+      return 0;
+    }
+  )";
+  require_true(analyzes(source, "t81lang_std_math_tensor_module_wrappers"),
+               "t81lang_std_math_tensor_module_wrappers");
+}
+
 static void test_std_text_aliases() {
   constexpr const char* valid = R"(
     fn main() -> i32 {
@@ -1223,6 +1259,7 @@ int main() {
   test_std_tensor_from_list_alias();
   test_std_tensor_matmul_alias();
   test_std_tensor_vec_add_alias();
+  test_std_math_tensor_module_wrappers();
   test_std_text_aliases();
   test_std_text_module_wrappers();
   test_std_text_split_join_wrappers();

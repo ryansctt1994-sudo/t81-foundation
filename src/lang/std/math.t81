@@ -5,6 +5,18 @@
 let PI: T81Float = 3.141592653589793;
 let E: T81Float = 2.718281828459045;
 
+fn sin(x: T81Float) -> T81Float {
+    return std.math.sin(x);
+}
+
+fn cos(x: T81Float) -> T81Float {
+    return std.math.cos(x);
+}
+
+fn tan(x: T81Float) -> T81Float {
+    return std.math.tan(x);
+}
+
 fn to_degrees(radians: T81Float) -> T81Float {
     return radians * (180.0 / 3.141592653589793);
 }

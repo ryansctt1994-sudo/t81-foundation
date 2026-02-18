@@ -1,11 +1,17 @@
 // src/lang/std/tensor.t81
 // Tensor operations.
 
-fn tensor_load(path: T81String) -> Tensor {
-    return weights.load(path);
+// NOTE: std.tensor.load currently requires a string literal argument at the callsite,
+// so it is intentionally used directly as std.tensor.load("..."), not wrapped here.
+
+fn from_list(values: Vector[i32]) -> Tensor {
+    return std.tensor.from_list(values);
 }
 
 fn matmul(a: Tensor, b: Tensor) -> Tensor {
-    // Uses method syntax in IRGenerator
-    return a.matmul(b);
+    return std.tensor.matmul(a, b);
+}
+
+fn vec_add(a: Tensor, b: Tensor) -> Tensor {
+    return std.tensor.vec_add(a, b);
 }

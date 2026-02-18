@@ -87,8 +87,10 @@ Deterministic symbol helpers.
 - `fn sleep(duration: T81Float) -> void`: Sleep.
 
 ### `std.tensor`
-- `fn tensor_load(path: T81String) -> Tensor`: Load weights.
+- `std.tensor.load("...") -> i32`: Load weights via deterministic literal-path alias (literal required by current frontend contract).
+- `fn from_list(values: Vector[i32]) -> Tensor`: Build tensor from deterministic integer vector literal.
 - `fn matmul(a: Tensor, b: Tensor) -> Tensor`: Matrix multiplication.
+- `fn vec_add(a: Tensor, b: Tensor) -> Tensor`: Deterministic vector/tensor addition alias.
 
 ### `std.agent`
 - `fn self_reflect() -> void`: Trigger reflection block.
