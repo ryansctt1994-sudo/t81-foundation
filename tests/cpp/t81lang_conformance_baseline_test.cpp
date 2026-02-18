@@ -305,6 +305,14 @@ static void test_std_namespace_builtin_aliases() {
       let _set_h = std.collections.len(set_v);
       let _tree_h = std.collections.len(tree_v);
       let _graph_h = std.collections.len(graph_v);
+      let graph_edges: Vector[T81String] = std.collections.graph_add_edge(graph_v, "a", "b");
+      let graph_edges_dup: Vector[T81String] = std.collections.graph_add_edge(graph_edges, "a", "b");
+      let graph_edges_removed: Vector[T81String] = std.collections.graph_remove_edge(graph_edges_dup, "a", "b");
+      let _graph_edge_count = std.collections.graph_edge_count(graph_edges_dup);
+      let _graph_edge_count_removed = std.collections.graph_edge_count(graph_edges_removed);
+      let _graph_has_ab = std.collections.graph_has_edge(graph_edges_dup, "a", "b");
+      let _graph_has_ab_removed = std.collections.graph_has_edge(graph_edges_removed, "a", "b");
+      let _graph_has_ba = std.collections.graph_has_edge(graph_edges_dup, "b", "a");
       return 0;
     }
   )";
@@ -709,6 +717,62 @@ static void test_std_namespace_builtin_aliases() {
                                   "std.collections.set_remove expects exactly two arguments.",
                                   "t81lang_std_collections_set_remove_bad_arity"),
       "t81lang_std_collections_set_remove_bad_arity");
+
+  constexpr const char* bad_collections_graph_edge_count_type = R"(
+    fn main() -> i32 {
+      let n: i32 = std.collections.graph_edge_count([1, 2, 3]);
+      let _ = n;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(
+          bad_collections_graph_edge_count_type,
+          "std.collections.graph_edge_count expects a Vector[T81String] argument.",
+          "t81lang_std_collections_graph_edge_count_bad_type"),
+      "t81lang_std_collections_graph_edge_count_bad_type");
+
+  constexpr const char* bad_collections_graph_has_edge_arity = R"(
+    fn main() -> i32 {
+      let ok: bool = std.collections.graph_has_edge(["a", "b"], "a");
+      let _ = ok;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(
+          bad_collections_graph_has_edge_arity,
+          "std.collections.graph_has_edge expects exactly three arguments.",
+          "t81lang_std_collections_graph_has_edge_bad_arity"),
+      "t81lang_std_collections_graph_has_edge_bad_arity");
+
+  constexpr const char* bad_collections_graph_add_edge_type = R"(
+    fn main() -> i32 {
+      let out: Vector[T81String] = std.collections.graph_add_edge(["a", "b"], "a", 7);
+      let _ = out;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(
+          bad_collections_graph_add_edge_type,
+          "std.collections.graph_add_edge expects T81String from/to arguments.",
+          "t81lang_std_collections_graph_add_edge_bad_type"),
+      "t81lang_std_collections_graph_add_edge_bad_type");
+
+  constexpr const char* bad_collections_graph_remove_edge_arity = R"(
+    fn main() -> i32 {
+      let out: Vector[T81String] = std.collections.graph_remove_edge(["a", "b"], "a");
+      let _ = out;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(
+          bad_collections_graph_remove_edge_arity,
+          "std.collections.graph_remove_edge expects exactly three arguments.",
+          "t81lang_std_collections_graph_remove_edge_bad_arity"),
+      "t81lang_std_collections_graph_remove_edge_bad_arity");
 
   constexpr const char* bad_async_sleep_type = R"(
     fn main() -> i32 {

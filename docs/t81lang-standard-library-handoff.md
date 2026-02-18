@@ -7,15 +7,16 @@ This document is the execution handoff for continuing the standard library plan 
 Implemented and validated end-to-end (semantic + IR + VM + CLI coverage):
 - `std.core`: `assert`, `debug`, `unwrap_or`
 - `std.math`: `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `sqrt`, `exp`, `log`, `pow`, `clamp`
-- `std.io`: `println`, `print_int`, `print_float`, `stream`, `net` (`stream/net` currently lower to stable symbolic tokens)
+- `std.io`: `println`, `print_int`, `print_float`, `stream`, `net` (`stream/net` currently materialize typed runtime handles with stable textual rendering)
 - `std.text`: `str_len`, `str_is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, `replace`, `to_string`, `from_bytes`, `split`, `join`
 - `std.bytes`: `len`, `is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, `replace`, `to_string`, `from_string`, `split`, `join`, `T81Bytes(...)`
 - `std.collections`: `len`, `is_empty`, `first`, `last`, `push`, `pop`, `list`, `map`, `set`, `tree`, `graph` (all five constructors currently return deterministic empty runtime-backed vector values)
 - `std.collections`: staged map helpers `map_size`, `map_has`, `map_put`, `map_get`, `map_remove`, and `map_keys` are implemented over flat `Vector[T81String]` key/value encodings.
 - `std.collections`: staged set helpers `set_size`, `set_has`, `set_add`, and `set_remove` are implemented over `Vector[T81String]` set encodings (`set_add` idempotent, `set_remove` removes all matches preserving survivor order).
+- `std.collections`: staged graph helpers `graph_edge_count`, `graph_has_edge`, `graph_add_edge`, and `graph_remove_edge` are implemented over flat `Vector[T81String]` edge encodings (`[from0, to0, ...]`, odd tails ignored; `graph_add_edge` idempotent and `graph_remove_edge` removes all matching edges while preserving survivor order).
 - `std.symbol`: `intern`, `to_string`, `eq`, `ne`
-- `std.sys`: `exit`, `time`, `entropy`, `proof`, `reflect` (`proof` currently lowers to stable symbolic token; `reflect` lowers to `META_REFLECT`)
-- `std.async`: `yield`, `sleep`, `thread`, `promise` (`thread/promise` currently lower to stable symbolic tokens)
+- `std.sys`: `exit`, `time`, `entropy`, `proof`, `reflect` (`proof` currently materializes a typed runtime handle with stable textual rendering; `reflect` lowers to `META_REFLECT`)
+- `std.async`: `yield`, `sleep`, `thread`, `promise` (`thread/promise` currently materialize typed runtime handles with stable textual rendering)
 - `std.tensor`: `load`, `from_list`, `matmul`, `vec_add`
 - `std.agent`: `self_reflect`
 - `std.sys` / `std.io` / `std.async`: fixture-driven CLI goldens for runtime observable behavior are now present under `tests/fixtures/t81lang_std_runtime/*` and `tests/cpp/cli_std_runtime_fixtures_test.cpp` (including deterministic `std.sys.reflect` execution coverage)
@@ -34,25 +35,14 @@ Generic function work now supported:
 ## 2. Files Most Recently Touched
 
 Core implementation:
-- `src/frontend/semantic_analyzer.cpp`
-- `include/t81/frontend/ir_generator.hpp`
+- `src/vm/vm.cpp`
+- `src/vm/jit_compiler.cpp`
+- `include/t81/vm/state.hpp`
 
 Coverage:
-- `tests/cpp/t81lang_conformance_baseline_test.cpp`
-- `tests/cpp/semantic_analyzer_generic_test.cpp`
-- `tests/cpp/frontend_parser_generics_test.cpp`
-- `tests/cpp/frontend_ir_generator_test.cpp`
-- `tests/cpp/cli_check_test.cpp`
-- `tests/cpp/cli_std_runtime_fixtures_test.cpp`
-- `tests/fixtures/t81lang_std_collections/02_generic_inference.t81`
-- `tests/fixtures/t81lang_std_collections/02_generic_inference.out`
-- `tests/fixtures/t81lang_std_collections/04_map_ops.t81`
-- `tests/fixtures/t81lang_std_collections/04_map_ops.out`
-- `tests/fixtures/t81lang_std_collections/README.md`
+- `tests/cpp/vm_extended_ops_test.cpp`
 - `tests/fixtures/t81lang_std_runtime/01_tokens.t81`
 - `tests/fixtures/t81lang_std_runtime/01_tokens.out`
-- `tests/fixtures/t81lang_std_runtime/02_time_entropy_async.t81`
-- `tests/fixtures/t81lang_std_runtime/02_time_entropy_async.out`
 - `tests/fixtures/t81lang_std_runtime/README.md`
 
 Tracking/docs:
@@ -78,10 +68,6 @@ Current known good baseline: full suite passing (`212/212`).
    - `std.collections.list/map/set/tree/graph`
    - keyed/tree/graph-specific deterministic data models and operations
 2. Keep fixture-driven CLI goldens for each new module before marking complete.
-3. Replace symbolic-token aliases with full typed runtime objects for:
-   - `std.sys.proof`
-   - `std.io.stream/net`
-   - `std.async.thread/promise`
 
 ## 5. Determinism/Quality Rules To Preserve
 

@@ -112,5 +112,31 @@ int main() {
     }));
   }
 
+  // Runtime std token literals should materialize typed handle tags.
+  {
+    [[maybe_unused]] tisc::Program p;
+    p.symbol_pool = {"std.sys.proof", "std.io.stream", "std.io.net", "std.async.thread",
+                     "std.async.promise"};
+    p.insns.push_back({tisc::Opcode::LoadImm, 1, 1, 0, tisc::LiteralKind::SymbolHandle});
+    p.insns.push_back({tisc::Opcode::LoadImm, 2, 2, 0, tisc::LiteralKind::SymbolHandle});
+    p.insns.push_back({tisc::Opcode::LoadImm, 3, 3, 0, tisc::LiteralKind::SymbolHandle});
+    p.insns.push_back({tisc::Opcode::LoadImm, 4, 4, 0, tisc::LiteralKind::SymbolHandle});
+    p.insns.push_back({tisc::Opcode::LoadImm, 5, 5, 0, tisc::LiteralKind::SymbolHandle});
+    p.insns.push_back({tisc::Opcode::StrLen, 6, 2, 0});
+    p.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
+
+    [[maybe_unused]] auto vm = vm::make_interpreter_vm();
+    vm->load_program(p);
+    [[maybe_unused]] auto r = vm->run_to_halt();
+    T81_TEST_CHECK(r.has_value());
+    T81_TEST_CHECK(vm->state().register_tags[1] == vm::ValueTag::ProofHandle);
+    T81_TEST_CHECK(vm->state().register_tags[2] == vm::ValueTag::IoStreamHandle);
+    T81_TEST_CHECK(vm->state().register_tags[3] == vm::ValueTag::IoNetHandle);
+    T81_TEST_CHECK(vm->state().register_tags[4] == vm::ValueTag::AsyncThreadHandle);
+    T81_TEST_CHECK(vm->state().register_tags[5] == vm::ValueTag::AsyncPromiseHandle);
+    T81_TEST_CHECK(vm->state().registers[6] ==
+                   static_cast<std::int64_t>(std::string("std.io.stream").size()));
+  }
+
   return 0;
 }

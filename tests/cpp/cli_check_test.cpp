@@ -226,6 +226,14 @@ int main() {
             let _set_h = std.collections.len(set_v);
             let _tree_h = std.collections.len(tree_v);
             let _graph_h = std.collections.len(graph_v);
+            let graph_edges: Vector[T81String] = std.collections.graph_add_edge(graph_v, "a", "b");
+            let graph_edges_dup: Vector[T81String] = std.collections.graph_add_edge(graph_edges, "a", "b");
+            let graph_edges_removed: Vector[T81String] = std.collections.graph_remove_edge(graph_edges_dup, "a", "b");
+            let _graph_edge_count = std.collections.graph_edge_count(graph_edges_dup);
+            let _graph_edge_count_removed = std.collections.graph_edge_count(graph_edges_removed);
+            let _graph_has_ab = std.collections.graph_has_edge(graph_edges_dup, "a", "b");
+            let _graph_has_ab_removed = std.collections.graph_has_edge(graph_edges_removed, "a", "b");
+            let _graph_has_ba = std.collections.graph_has_edge(graph_edges_dup, "b", "a");
             return 0;
         }
     )";

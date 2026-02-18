@@ -86,3 +86,19 @@ fn tree() -> Vector[T81String] {
 fn graph() -> Vector[T81String] {
     return std.collections.graph();
 }
+
+fn graph_edge_count(g: Vector[T81String]) -> i32 {
+    return std.collections.graph_edge_count(g);
+}
+
+fn graph_has_edge(g: Vector[T81String], from: T81String, to: T81String) -> bool {
+    return std.collections.graph_has_edge(g, from, to);
+}
+
+fn graph_add_edge(g: Vector[T81String], from: T81String, to: T81String) -> Vector[T81String] {
+    return std.collections.graph_add_edge(g, from, to);
+}
+
+fn graph_remove_edge(g: Vector[T81String], from: T81String, to: T81String) -> Vector[T81String] {
+    return std.collections.graph_remove_edge(g, from, to);
+}

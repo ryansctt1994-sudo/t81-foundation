@@ -48,8 +48,8 @@ Input and Output.
 - `fn println(msg: T81String) -> void`: Print string with newline (implied by print currently).
 - `fn print_int(val: i32) -> void`: Print integer.
 - `fn print_float(val: T81Float) -> void`: Print float.
-- `fn stream() -> T81String`: Deterministic stream token alias (currently lowers to stable symbolic token `std.io.stream`).
-- `fn net() -> T81String`: Deterministic network token alias (currently lowers to stable symbolic token `std.io.net`).
+- `fn stream() -> T81String`: Deterministic stream-handle alias (currently materializes a typed runtime handle with stable textual rendering `std.io.stream`).
+- `fn net() -> T81String`: Deterministic network-handle alias (currently materializes a typed runtime handle with stable textual rendering `std.io.net`).
 
 ## Data Structure Modules
 
@@ -69,6 +69,10 @@ Input and Output.
 - `fn set_has(s: Vector[T81String], key: T81String) -> bool`: Deterministic staged set membership check over string-vector set representations.
 - `fn set_add(s: Vector[T81String], key: T81String) -> Vector[T81String]`: Deterministic staged set insert over string-vector set representations (idempotent: duplicates are not re-added).
 - `fn set_remove(s: Vector[T81String], key: T81String) -> Vector[T81String]`: Deterministic staged set removal over string-vector set representations (removes all matching entries, preserves relative order of survivors).
+- `fn graph_edge_count(g: Vector[T81String]) -> i32`: Deterministic edge count for staged flat-graph vectors (`[from0, to0, ...]`), computed as `floor(len / 2)`.
+- `fn graph_has_edge(g: Vector[T81String], from: T81String, to: T81String) -> bool`: Deterministic edge-membership check over staged flat-graph vectors (odd tails ignored).
+- `fn graph_add_edge(g: Vector[T81String], from: T81String, to: T81String) -> Vector[T81String]`: Deterministic idempotent edge insertion over staged flat-graph vectors; preserves existing edge order and appends new edges at the tail.
+- `fn graph_remove_edge(g: Vector[T81String], from: T81String, to: T81String) -> Vector[T81String]`: Deterministic edge removal over staged flat-graph vectors; removes all matching edges while preserving relative order of survivors (odd tails ignored).
 - `fn map_size(m: Vector[T81String]) -> i32`: Deterministic pair-count for staged flat-map vectors (`[k0, v0, ...]`), computed as `floor(len / 2)`.
 - `fn map_has(m: Vector[T81String], key: T81String) -> bool`: Deterministic key-existence check over staged flat-map vectors; dangling odd-tail entries are ignored.
 - `fn map_put(m: Vector[T81String], key: T81String, value: T81String) -> Vector[T81String]`: Deterministic upsert over staged flat-map vectors (existing key entries removed, then key/value appended).
@@ -119,14 +123,14 @@ Deterministic symbol helpers.
 - `fn exit(code: i32) -> void`: Deterministic terminate/trap alias (`std.sys.exit` lowers to `TRAP`).
 - `fn time() -> T81Float`: Deterministic logical time alias (currently lowers to constant `0.0`).
 - `fn entropy() -> i32`: Deterministic entropy-budget alias (currently lowers to constant `0`).
-- `fn proof() -> T81String`: Deterministic proof token alias (currently lowers to stable symbolic token `std.sys.proof`).
+- `fn proof() -> T81String`: Deterministic proof-handle alias (currently materializes a typed runtime handle with stable textual rendering `std.sys.proof`).
 - `fn reflect() -> void`: Deterministic reflection alias (`std.sys.reflect` lowers to `META_REFLECT`).
 
 ### `std.async`
 - `fn yield() -> void`: Deterministic cooperative-yield alias (currently a no-op).
 - `fn sleep(duration: T81Float) -> void`: Deterministic sleep alias (currently a no-op after float-compatible type check).
-- `fn thread() -> T81String`: Deterministic thread token alias (currently lowers to stable symbolic token `std.async.thread`).
-- `fn promise() -> T81String`: Deterministic promise token alias (currently lowers to stable symbolic token `std.async.promise`).
+- `fn thread() -> T81String`: Deterministic thread-handle alias (currently materializes a typed runtime handle with stable textual rendering `std.async.thread`).
+- `fn promise() -> T81String`: Deterministic promise-handle alias (currently materializes a typed runtime handle with stable textual rendering `std.async.promise`).
 
 ### `std.tensor`
 - `std.tensor.load("...") -> i32`: Load weights via deterministic literal-path alias (literal required by current frontend contract).

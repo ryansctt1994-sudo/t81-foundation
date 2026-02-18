@@ -446,6 +446,41 @@ public:
       if (idx >= state_.symbols.size()) return nullptr;
       return &state_.symbols[idx];
     };
+    auto runtime_token_text = [](ValueTag tag) -> std::optional<std::string_view> {
+      switch (tag) {
+        case ValueTag::ProofHandle:
+          return std::string_view{"std.sys.proof"};
+        case ValueTag::IoStreamHandle:
+          return std::string_view{"std.io.stream"};
+        case ValueTag::IoNetHandle:
+          return std::string_view{"std.io.net"};
+        case ValueTag::AsyncThreadHandle:
+          return std::string_view{"std.async.thread"};
+        case ValueTag::AsyncPromiseHandle:
+          return std::string_view{"std.async.promise"};
+        default:
+          break;
+      }
+      return std::nullopt;
+    };
+    auto symbol_like_text = [&](ValueTag tag, std::int64_t value) -> std::optional<std::string_view> {
+      if (tag == ValueTag::SymbolHandle) {
+        auto* symbol = symbol_ptr(value);
+        if (symbol == nullptr) return std::nullopt;
+        return std::string_view{*symbol};
+      }
+      return runtime_token_text(tag);
+    };
+    auto runtime_token_tag_from_symbol_handle = [&](std::int64_t symbol_handle) -> std::optional<ValueTag> {
+      auto symbol = symbol_ptr(symbol_handle);
+      if (symbol == nullptr) return std::nullopt;
+      if (*symbol == "std.sys.proof") return ValueTag::ProofHandle;
+      if (*symbol == "std.io.stream") return ValueTag::IoStreamHandle;
+      if (*symbol == "std.io.net") return ValueTag::IoNetHandle;
+      if (*symbol == "std.async.thread") return ValueTag::AsyncThreadHandle;
+      if (*symbol == "std.async.promise") return ValueTag::AsyncPromiseHandle;
+      return std::nullopt;
+    };
     auto string_vector_ptr = [this](std::int64_t handle) -> const std::vector<std::string>* {
       if (handle <= 0) return nullptr;
       std::size_t idx = static_cast<std::size_t>(handle - 1);
@@ -584,6 +619,12 @@ public:
 
     std::function<std::optional<int>(ValueTag, std::int64_t, std::int64_t)> compare_value =
         [&](ValueTag tag, std::int64_t lhs_val, std::int64_t rhs_val) -> std::optional<int> {
+      if (auto lhs = symbol_like_text(tag, lhs_val); lhs.has_value()) {
+        auto rhs = symbol_like_text(tag, rhs_val);
+        if (!rhs.has_value()) return std::nullopt;
+        if (*lhs == *rhs) return 0;
+        return (*lhs < *rhs) ? -1 : 1;
+      }
       switch (tag) {
         case ValueTag::Int:
           if (lhs_val == rhs_val) return 0;
@@ -604,13 +645,8 @@ public:
           if (lhs == nullptr || rhs == nullptr) return std::nullopt;
           return t81::T81Fraction::cmp(*lhs, *rhs);
         }
-        case ValueTag::SymbolHandle: {
-          auto lhs = symbol_ptr(lhs_val);
-          auto rhs = symbol_ptr(rhs_val);
-          if (lhs == nullptr || rhs == nullptr) return std::nullopt;
-          if (*lhs == *rhs) return 0;
-          return (*lhs < *rhs) ? -1 : 1;
-        }
+        case ValueTag::SymbolHandle:
+          return std::nullopt;
         case ValueTag::StringVectorHandle:
           if (lhs_val == rhs_val) return 0;
           return (lhs_val < rhs_val) ? -1 : 1;
@@ -618,6 +654,11 @@ public:
         case ValueTag::ShapeHandle:
         case ValueTag::WeightsTensorHandle:
         case ValueTag::ReflectionHandle:
+        case ValueTag::ProofHandle:
+        case ValueTag::IoStreamHandle:
+        case ValueTag::IoNetHandle:
+        case ValueTag::AsyncThreadHandle:
+        case ValueTag::AsyncPromiseHandle:
           if (lhs_val == rhs_val) return 0;
           return (lhs_val < rhs_val) ? -1 : 1;
         case ValueTag::ComplexHandle: {
@@ -660,6 +701,9 @@ public:
     std::function<std::optional<std::string>(ValueTag, std::int64_t, int)> format_value =
         [&](ValueTag tag, std::int64_t val_data, int depth) -> std::optional<std::string> {
       if (depth > 8) return std::nullopt;
+      if (auto symbol = symbol_like_text(tag, val_data); symbol.has_value()) {
+        return std::string(*symbol);
+      }
       switch (tag) {
         case ValueTag::Int:
           return std::to_string(val_data);
@@ -680,11 +724,8 @@ public:
           if (!frac) return std::nullopt;
           return frac->num.to_string() + "/" + frac->den.to_string() + "t81";
         }
-        case ValueTag::SymbolHandle: {
-          auto* symbol = symbol_ptr(val_data);
-          if (!symbol) return std::nullopt;
-          return *symbol;
-        }
+        case ValueTag::SymbolHandle:
+          return std::nullopt;
         case ValueTag::StringVectorHandle: {
           auto* ptr_val = string_vector_ptr(val_data);
           if (!ptr_val) return std::nullopt;
@@ -698,6 +739,12 @@ public:
           return "<weights#" + std::to_string(val_data) + ">";
         case ValueTag::ReflectionHandle:
           return "<reflection#" + std::to_string(val_data) + ">";
+        case ValueTag::ProofHandle:
+        case ValueTag::IoStreamHandle:
+        case ValueTag::IoNetHandle:
+        case ValueTag::AsyncThreadHandle:
+        case ValueTag::AsyncPromiseHandle:
+          return std::nullopt;
         case ValueTag::ComplexHandle: {
           auto* complex = complex_ptr(val_data);
           if (!complex) return std::nullopt;
@@ -759,7 +806,14 @@ public:
           break;
         }
         auto tag = literal_kind_to_tag(insn.literal_kind);
-        set_reg(insn.a, insn.b, tag);
+        std::int64_t value = insn.b;
+        if (tag == ValueTag::SymbolHandle) {
+          if (auto runtime_tag = runtime_token_tag_from_symbol_handle(insn.b); runtime_tag.has_value()) {
+            tag = *runtime_tag;
+            value = 1;
+          }
+        }
+        set_reg(insn.a, value, tag);
         update_flags(state_.registers[insn.a]);
         break;
       }
@@ -1877,12 +1931,8 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::SymbolHandle) {
-          trap = Trap::TypeFault;
-          break;
-        }
-        auto* symbol = symbol_ptr(state_.registers[insn.b]);
-        if (symbol == nullptr) {
+        auto symbol = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+        if (!symbol.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
@@ -1896,12 +1946,8 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::SymbolHandle) {
-          trap = Trap::TypeFault;
-          break;
-        }
-        auto* symbol = symbol_ptr(state_.registers[insn.b]);
-        if (symbol == nullptr) {
+        auto symbol = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+        if (!symbol.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
@@ -2168,19 +2214,14 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::SymbolHandle ||
-            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
-          trap = Trap::TypeFault;
-          break;
-        }
-        auto* lhs = symbol_ptr(state_.registers[insn.b]);
-        auto* rhs = symbol_ptr(state_.registers[insn.c]);
-        if (lhs == nullptr || rhs == nullptr) {
+        auto lhs = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+        auto rhs = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        if (!lhs.has_value() || !rhs.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
-        std::string combined = *lhs;
-        combined += *rhs;
+        std::string combined(*lhs);
+        combined += std::string(*rhs);
         state_.registers[insn.a] = intern_symbol(std::move(combined));
         state_.register_tags[insn.a] = ValueTag::SymbolHandle;
         update_flags(state_.registers[insn.a]);
@@ -2191,14 +2232,9 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::SymbolHandle ||
-            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
-          trap = Trap::TypeFault;
-          break;
-        }
-        auto* value = symbol_ptr(state_.registers[insn.b]);
-        auto* prefix = symbol_ptr(state_.registers[insn.c]);
-        if (value == nullptr || prefix == nullptr) {
+        auto value = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+        auto prefix = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        if (!value.has_value() || !prefix.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
@@ -2214,14 +2250,9 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::SymbolHandle ||
-            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
-          trap = Trap::TypeFault;
-          break;
-        }
-        auto* value = symbol_ptr(state_.registers[insn.b]);
-        auto* suffix = symbol_ptr(state_.registers[insn.c]);
-        if (value == nullptr || suffix == nullptr) {
+        auto value = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+        auto suffix = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        if (!value.has_value() || !suffix.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
@@ -2238,14 +2269,9 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::SymbolHandle ||
-            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
-          trap = Trap::TypeFault;
-          break;
-        }
-        auto* value = symbol_ptr(state_.registers[insn.b]);
-        auto* needle = symbol_ptr(state_.registers[insn.c]);
-        if (value == nullptr || needle == nullptr) {
+        auto value = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+        auto needle = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        if (!value.has_value() || !needle.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
@@ -2260,14 +2286,9 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::SymbolHandle ||
-            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
-          trap = Trap::TypeFault;
-          break;
-        }
-        auto* value = symbol_ptr(state_.registers[insn.b]);
-        auto* needle = symbol_ptr(state_.registers[insn.c]);
-        if (value == nullptr || needle == nullptr) {
+        auto value = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+        auto needle = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        if (!value.has_value() || !needle.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
@@ -2283,16 +2304,10 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.a] != ValueTag::SymbolHandle ||
-            state_.register_tags[insn.b] != ValueTag::SymbolHandle ||
-            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
-          trap = Trap::TypeFault;
-          break;
-        }
-        auto* source = symbol_ptr(state_.registers[insn.a]);
-        auto* needle = symbol_ptr(state_.registers[insn.b]);
-        auto* replacement = symbol_ptr(state_.registers[insn.c]);
-        if (source == nullptr || needle == nullptr || replacement == nullptr) {
+        auto source = symbol_like_text(state_.register_tags[insn.a], state_.registers[insn.a]);
+        auto needle = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+        auto replacement = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        if (!source.has_value() || !needle.has_value() || !replacement.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
@@ -2336,18 +2351,17 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.a] != ValueTag::StringVectorHandle ||
-            state_.register_tags[insn.b] != ValueTag::SymbolHandle) {
+        if (state_.register_tags[insn.a] != ValueTag::StringVectorHandle) {
           trap = Trap::TypeFault;
           break;
         }
         auto* values = string_vector_mut(state_.registers[insn.a]);
-        auto* value = symbol_ptr(state_.registers[insn.b]);
-        if (values == nullptr || value == nullptr) {
+        auto value = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+        if (values == nullptr || !value.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
-        values->push_back(*value);
+        values->push_back(std::string(*value));
         update_flags(state_.registers[insn.a]);
         break;
       }
@@ -2356,14 +2370,9 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::SymbolHandle ||
-            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
-          trap = Trap::TypeFault;
-          break;
-        }
-        auto* value = symbol_ptr(state_.registers[insn.b]);
-        auto* sep = symbol_ptr(state_.registers[insn.c]);
-        if (value == nullptr || sep == nullptr) {
+        auto value = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+        auto sep = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        if (!value.has_value() || !sep.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
@@ -2376,10 +2385,10 @@ public:
         while (true) {
           std::size_t pos = value->find(*sep, start);
           if (pos == std::string::npos) {
-            parts.push_back(value->substr(start));
+            parts.push_back(std::string(value->substr(start)));
             break;
           }
-          parts.push_back(value->substr(start, pos - start));
+          parts.push_back(std::string(value->substr(start, pos - start)));
           start = pos + sep->size();
         }
         state_.string_vectors.push_back(std::move(parts));
@@ -2405,14 +2414,13 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::StringVectorHandle ||
-            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
+        if (state_.register_tags[insn.b] != ValueTag::StringVectorHandle) {
           trap = Trap::TypeFault;
           break;
         }
         auto* parts = string_vector_ptr(state_.registers[insn.b]);
-        auto* sep = symbol_ptr(state_.registers[insn.c]);
-        if (parts == nullptr || sep == nullptr) {
+        auto sep = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        if (parts == nullptr || !sep.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }

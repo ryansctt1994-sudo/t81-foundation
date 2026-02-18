@@ -42,6 +42,11 @@ enum class ValueTag : std::uint8_t {
   EnumHandle,
   ComplexHandle,
   ReflectionHandle,
+  ProofHandle,
+  IoStreamHandle,
+  IoNetHandle,
+  AsyncThreadHandle,
+  AsyncPromiseHandle,
   StringVectorHandle,
 };
 

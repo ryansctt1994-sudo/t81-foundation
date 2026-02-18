@@ -233,6 +233,25 @@ public:
               break;
             case t81::tisc::LiteralKind::SymbolHandle:
               state.register_tags[insn.a] = ValueTag::SymbolHandle;
+              if (insn.b > 0 && static_cast<std::size_t>(insn.b) <= state.symbols.size()) {
+                const auto& symbol = state.symbols[static_cast<std::size_t>(insn.b - 1)];
+                if (symbol == "std.sys.proof") {
+                  state.register_tags[insn.a] = ValueTag::ProofHandle;
+                  state.registers[insn.a] = 1;
+                } else if (symbol == "std.io.stream") {
+                  state.register_tags[insn.a] = ValueTag::IoStreamHandle;
+                  state.registers[insn.a] = 1;
+                } else if (symbol == "std.io.net") {
+                  state.register_tags[insn.a] = ValueTag::IoNetHandle;
+                  state.registers[insn.a] = 1;
+                } else if (symbol == "std.async.thread") {
+                  state.register_tags[insn.a] = ValueTag::AsyncThreadHandle;
+                  state.registers[insn.a] = 1;
+                } else if (symbol == "std.async.promise") {
+                  state.register_tags[insn.a] = ValueTag::AsyncPromiseHandle;
+                  state.registers[insn.a] = 1;
+                }
+              }
               break;
             case t81::tisc::LiteralKind::TensorHandle:
               state.register_tags[insn.a] = ValueTag::TensorHandle;
