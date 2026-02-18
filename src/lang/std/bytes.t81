@@ -1,0 +1,16 @@
+// src/lang/std/bytes.t81
+// Deterministic bytes helpers.
+// NOTE: Frontend-native T81Bytes typing is pending; this wrapper currently
+// uses T81String-backed aliases for deterministic behavior.
+
+fn len(b: T81String) -> i32 {
+    return std.bytes.len(b);
+}
+
+fn is_empty(b: T81String) -> bool {
+    return std.bytes.is_empty(b);
+}
+
+fn concat(a: T81String, b: T81String) -> T81String {
+    return std.bytes.concat(a, b);
+}

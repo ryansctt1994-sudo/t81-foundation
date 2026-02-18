@@ -53,6 +53,13 @@ String manipulation and formatting (backed by `include/t81/std/string.hpp`).
 - `fn replace(s: T81String, needle: T81String, replacement: T81String) -> T81String`: Deterministic global replace (non-overlapping, left-to-right). Empty `needle` leaves `s` unchanged.
 - `to_string`, `split`, `join`: planned, not yet exposed as T81Lang builtins.
 
+### `std.bytes`
+Deterministic bytes helpers.
+- `fn len(b: T81String) -> i32`: Deterministic byte-length alias.
+- `fn is_empty(b: T81String) -> bool`: Deterministic emptiness alias.
+- `fn concat(a: T81String, b: T81String) -> T81String`: Deterministic concatenation alias.
+- Note: Current `std.bytes` aliases are string-backed in the frontend pending native `T81Bytes` typing.
+
 ## System & Runtime
 
 ### `std.sys`

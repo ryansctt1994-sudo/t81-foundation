@@ -173,6 +173,15 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.text.replace") {
     return "str_replace";
   }
+  if (name == "std.bytes.len") {
+    return "bytes_len";
+  }
+  if (name == "std.bytes.is_empty") {
+    return "bytes_is_empty";
+  }
+  if (name == "std.bytes.concat") {
+    return "bytes_concat";
+  }
   return std::string(name);
 }
 
@@ -1056,6 +1065,52 @@ public:
         tisc::ir::Instruction instr;
         instr.opcode = tisc::ir::Opcode::STRREPLACE;
         instr.operands = {dest.reg, needle.reg, replacement.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "bytes_len") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("bytes_len expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRLEN;
+        instr.operands = {dest.reg, value.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "bytes_is_empty") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("bytes_is_empty expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STREMPTY;
+        instr.operands = {dest.reg, value.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Boolean;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "bytes_concat") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("bytes_concat expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto lhs = ensure_expr_result(expr.arguments[0].get());
+        auto rhs = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRCONCAT;
+        instr.operands = {dest.reg, lhs.reg, rhs.reg};
         emit(instr);
         record_result(&expr, dest);
         return {};

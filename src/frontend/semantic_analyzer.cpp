@@ -248,6 +248,15 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.text.replace") {
     return "str_replace";
   }
+  if (name == "std.bytes.len") {
+    return "bytes_len";
+  }
+  if (name == "std.bytes.is_empty") {
+    return "bytes_is_empty";
+  }
+  if (name == "std.bytes.concat") {
+    return "bytes_concat";
+  }
   return std::string(name);
 }
 }  // namespace
@@ -1885,6 +1894,39 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String ||
           arg_types[2].kind != Type::Kind::String) {
         error(call_token, "str_replace expects T81String arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::String};
+    }
+    if (func_name == "bytes_len") {
+      if (arg_types.size() != 1) {
+        error(call_token, "bytes_len expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String) {
+        error(call_token, "bytes_len expects a T81String argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
+    }
+    if (func_name == "bytes_is_empty") {
+      if (arg_types.size() != 1) {
+        error(call_token, "bytes_is_empty expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String) {
+        error(call_token, "bytes_is_empty expects a T81String argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
+    }
+    if (func_name == "bytes_concat") {
+      if (arg_types.size() != 2) {
+        error(call_token, "bytes_concat expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "bytes_concat expects T81String arguments.");
         return make_error_type();
       }
       return Type{Type::Kind::String};

@@ -123,3 +123,4 @@ Building blocks for autonomous agents.
 - `std.tensor`: `load`, `from_list`, `matmul`, and `vec_add` aliases are implemented and tested.
 - `std.text`: `str_len`, `str_is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, and `replace` are implemented end-to-end (semantic, IR, VM) and exposed via `src/lang/std/text.t81`.
 - `std.text`: fixture-driven CLI golden coverage now validates deterministic runtime output via `tests/fixtures/t81lang_std_text/*` and `tests/cpp/cli_std_text_fixtures_test.cpp`.
+- `std.bytes`: `len`, `is_empty`, and `concat` aliases are implemented as deterministic frontend/runtime mappings (currently string-backed pending native `T81Bytes` frontend typing), exposed via `src/lang/std/bytes.t81`, with fixture-driven CLI golden coverage in `tests/fixtures/t81lang_std_bytes/*` and `tests/cpp/cli_std_bytes_fixtures_test.cpp`.

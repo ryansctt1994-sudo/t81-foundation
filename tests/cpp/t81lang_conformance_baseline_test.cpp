@@ -477,6 +477,84 @@ static void test_std_text_module_wrappers() {
                "t81lang_std_text_module_wrappers");
 }
 
+static void test_std_bytes_aliases() {
+  constexpr const char* valid = R"(
+    fn main() -> i32 {
+      let n: i32 = std.bytes.len("alpha");
+      let e: bool = std.bytes.is_empty("");
+      let c: T81String = std.bytes.concat("al", "pha");
+      let m: i32 = std.bytes.len(c);
+      if (e) {
+        if (n == 5) {
+          if (m == 5) {
+            return n;
+          }
+        }
+      }
+      return 0;
+    }
+  )";
+  require_true(analyzes(valid, "t81lang_std_bytes_aliases"), "t81lang_std_bytes_aliases");
+
+  constexpr const char* bad_type = R"(
+    fn main() -> i32 {
+      let n: i32 = std.bytes.len(7);
+      return n;
+    }
+  )";
+  require_true(fails_semantic(bad_type, "t81lang_std_bytes_len_bad_type"),
+               "t81lang_std_bytes_len_bad_type");
+
+  constexpr const char* bad_arity = R"(
+    fn main() -> i32 {
+      let n: i32 = std.bytes.is_empty();
+      return n;
+    }
+  )";
+  require_true(fails_semantic(bad_arity, "t81lang_std_bytes_is_empty_bad_arity"),
+               "t81lang_std_bytes_is_empty_bad_arity");
+
+  constexpr const char* bad_concat_type = R"(
+    fn main() -> i32 {
+      let c: T81String = std.bytes.concat("alpha", 7);
+      let _ = c;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_concat_type, "t81lang_std_bytes_concat_bad_type"),
+               "t81lang_std_bytes_concat_bad_type");
+}
+
+static void test_std_bytes_module_wrappers() {
+  constexpr const char* source = R"(
+    fn len(b: T81String) -> i32 {
+      return std.bytes.len(b);
+    }
+    fn is_empty(b: T81String) -> bool {
+      return std.bytes.is_empty(b);
+    }
+    fn concat(a: T81String, b: T81String) -> T81String {
+      return std.bytes.concat(a, b);
+    }
+    fn main() -> i32 {
+      let merged: T81String = concat("ze", "ta");
+      let n: i32 = len(merged);
+      let e: bool = is_empty("");
+      let m: i32 = len(merged);
+      if (e) {
+        if (n == 4) {
+          if (m == 4) {
+            return n;
+          }
+        }
+      }
+      return 0;
+    }
+  )";
+  require_true(analyzes(source, "t81lang_std_bytes_module_wrappers"),
+               "t81lang_std_bytes_module_wrappers");
+}
+
 static void test_let_is_immutable() {
   constexpr const char* source = R"(
     fn main() -> i32 {
@@ -516,6 +594,8 @@ int main() {
   test_std_tensor_vec_add_alias();
   test_std_text_aliases();
   test_std_text_module_wrappers();
+  test_std_bytes_aliases();
+  test_std_bytes_module_wrappers();
   test_t81_numeric_type_separation_rejects_invalid_mix();
   test_let_is_immutable();
   test_var_is_mutable();

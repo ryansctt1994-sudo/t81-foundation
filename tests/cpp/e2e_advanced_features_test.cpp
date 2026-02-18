@@ -320,6 +320,64 @@ void test_std_text_module_wrapper_pipeline() {
   }
 }
 
+void test_std_bytes_pipeline() {
+  const std::string source = R"(
+        fn main() -> i32 {
+            let n: i32 = std.bytes.len("alpha");
+            let e: bool = std.bytes.is_empty("");
+            let joined: T81String = std.bytes.concat("al", "pha");
+            let m: i32 = std.bytes.len(joined);
+            if (e) {
+                if (n == 5) {
+                    if (m == 5) {
+                        return n;
+                    }
+                }
+            }
+            return 0;
+        }
+    )";
+  [[maybe_unused]] int64_t result = run_e2e_test(source);
+  if (result != 5) {
+    std::cerr << "test_std_bytes_pipeline failed: expected 5, got " << result << std::endl;
+    throw std::runtime_error("test_std_bytes_pipeline failed");
+  }
+}
+
+void test_std_bytes_module_wrapper_pipeline() {
+  const std::string source = R"(
+        fn len(b: T81String) -> i32 {
+            return std.bytes.len(b);
+        }
+        fn is_empty(b: T81String) -> bool {
+            return std.bytes.is_empty(b);
+        }
+        fn concat(a: T81String, b: T81String) -> T81String {
+            return std.bytes.concat(a, b);
+        }
+        fn main() -> i32 {
+            let joined: T81String = concat("om", "ega");
+            let n: i32 = len(joined);
+            let e: bool = is_empty("");
+            let m: i32 = len(joined);
+            if (e) {
+                if (n == 5) {
+                    if (m == 5) {
+                        return n;
+                    }
+                }
+            }
+            return 0;
+        }
+    )";
+  [[maybe_unused]] int64_t result = run_e2e_test(source);
+  if (result != 5) {
+    std::cerr << "test_std_bytes_module_wrapper_pipeline failed: expected 5, got " << result
+              << std::endl;
+    throw std::runtime_error("test_std_bytes_module_wrapper_pipeline failed");
+  }
+}
+
 int main() {
   test_while_break();
   test_nested_loop_continue();
@@ -332,6 +390,8 @@ int main() {
   test_std_tensor_vec_add_pipeline();
   test_std_text_pipeline();
   test_std_text_module_wrapper_pipeline();
+  test_std_bytes_pipeline();
+  test_std_bytes_module_wrapper_pipeline();
   std::cout << "All advanced E2E tests passed!" << std::endl;
   return 0;
 }
