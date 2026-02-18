@@ -1,6 +1,7 @@
 # T81Lang Standard Library Plan
 
 This document outlines the proposed standard libraries for T81Lang, designed to expose the powerful ternary-native types implemented in the `t81-foundation` C++ codebase.
+For implementation continuity, see `docs/t81lang-standard-library-handoff.md`.
 
 ## 1. Design Philosophy
 
