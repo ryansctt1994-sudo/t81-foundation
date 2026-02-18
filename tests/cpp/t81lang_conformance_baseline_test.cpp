@@ -480,15 +480,17 @@ static void test_std_text_module_wrappers() {
 static void test_std_bytes_aliases() {
   constexpr const char* valid = R"(
     fn main() -> i32 {
-      let n: i32 = std.bytes.len("alpha");
-      let e: bool = std.bytes.is_empty("");
-      let c: T81String = std.bytes.concat("al", "pha");
-      let sw: bool = std.bytes.starts_with(c, "al");
-      let ew: bool = std.bytes.ends_with(c, "ha");
-      let has_mid: bool = std.bytes.contains(c, "lp");
-      let idx: i32 = std.bytes.index_of(c, "ph");
-      let repl: T81String = std.bytes.replace(c, "ph", "zz");
-      let repl_idx: i32 = std.bytes.index_of(repl, "zz");
+      let alpha: T81Bytes = T81Bytes("alpha");
+      let empty: T81Bytes = T81Bytes("");
+      let c: T81Bytes = std.bytes.concat(T81Bytes("al"), T81Bytes("pha"));
+      let n: i32 = std.bytes.len(alpha);
+      let e: bool = std.bytes.is_empty(empty);
+      let sw: bool = std.bytes.starts_with(c, T81Bytes("al"));
+      let ew: bool = std.bytes.ends_with(c, T81Bytes("ha"));
+      let has_mid: bool = std.bytes.contains(c, T81Bytes("lp"));
+      let idx: i32 = std.bytes.index_of(c, T81Bytes("ph"));
+      let repl: T81Bytes = std.bytes.replace(c, T81Bytes("ph"), T81Bytes("zz"));
+      let repl_idx: i32 = std.bytes.index_of(repl, T81Bytes("zz"));
       let m: i32 = std.bytes.len(c);
       if (e) {
         if (n == 5) {
@@ -521,6 +523,25 @@ static void test_std_bytes_aliases() {
   require_true(fails_semantic(bad_type, "t81lang_std_bytes_len_bad_type"),
                "t81lang_std_bytes_len_bad_type");
 
+  constexpr const char* bad_string_without_conversion = R"(
+    fn main() -> i32 {
+      let n: i32 = std.bytes.len("alpha");
+      return n;
+    }
+  )";
+  require_true(fails_semantic(bad_string_without_conversion, "t81lang_std_bytes_len_requires_bytes"),
+               "t81lang_std_bytes_len_requires_bytes");
+
+  constexpr const char* bad_bytes_to_text = R"(
+    fn main() -> i32 {
+      let b: T81Bytes = T81Bytes("alpha");
+      let n: i32 = std.text.str_len(b);
+      return n;
+    }
+  )";
+  require_true(fails_semantic(bad_bytes_to_text, "t81lang_std_text_rejects_bytes"),
+               "t81lang_std_text_rejects_bytes");
+
   constexpr const char* bad_arity = R"(
     fn main() -> i32 {
       let n: i32 = std.bytes.is_empty();
@@ -532,7 +553,7 @@ static void test_std_bytes_aliases() {
 
   constexpr const char* bad_concat_type = R"(
     fn main() -> i32 {
-      let c: T81String = std.bytes.concat("alpha", 7);
+      let c: T81Bytes = std.bytes.concat(T81Bytes("alpha"), 7);
       let _ = c;
       return 0;
     }
@@ -542,7 +563,7 @@ static void test_std_bytes_aliases() {
 
   constexpr const char* bad_starts_with_arity = R"(
     fn main() -> i32 {
-      let b: bool = std.bytes.starts_with("alpha");
+      let b: bool = std.bytes.starts_with(T81Bytes("alpha"));
       let _ = b;
       return 0;
     }
@@ -552,7 +573,7 @@ static void test_std_bytes_aliases() {
 
   constexpr const char* bad_ends_with_type = R"(
     fn main() -> i32 {
-      let b: bool = std.bytes.ends_with(7, "a");
+      let b: bool = std.bytes.ends_with(7, T81Bytes("a"));
       let _ = b;
       return 0;
     }
@@ -562,7 +583,7 @@ static void test_std_bytes_aliases() {
 
   constexpr const char* bad_contains_arity = R"(
     fn main() -> i32 {
-      let b: bool = std.bytes.contains("alpha");
+      let b: bool = std.bytes.contains(T81Bytes("alpha"));
       let _ = b;
       return 0;
     }
@@ -572,7 +593,7 @@ static void test_std_bytes_aliases() {
 
   constexpr const char* bad_index_of_type = R"(
     fn main() -> i32 {
-      let i: i32 = std.bytes.index_of("alpha", 7);
+      let i: i32 = std.bytes.index_of(T81Bytes("alpha"), 7);
       let _ = i;
       return 0;
     }
@@ -582,7 +603,7 @@ static void test_std_bytes_aliases() {
 
   constexpr const char* bad_replace_arity = R"(
     fn main() -> i32 {
-      let s: T81String = std.bytes.replace("alpha", "a");
+      let s: T81Bytes = std.bytes.replace(T81Bytes("alpha"), T81Bytes("a"));
       let _ = s;
       return 0;
     }
@@ -592,7 +613,7 @@ static void test_std_bytes_aliases() {
 
   constexpr const char* bad_replace_type = R"(
     fn main() -> i32 {
-      let s: T81String = std.bytes.replace("alpha", 7, "b");
+      let s: T81Bytes = std.bytes.replace(T81Bytes("alpha"), 7, T81Bytes("b"));
       let _ = s;
       return 0;
     }
@@ -603,40 +624,40 @@ static void test_std_bytes_aliases() {
 
 static void test_std_bytes_module_wrappers() {
   constexpr const char* source = R"(
-    fn len(b: T81String) -> i32 {
+    fn len(b: T81Bytes) -> i32 {
       return std.bytes.len(b);
     }
-    fn is_empty(b: T81String) -> bool {
+    fn is_empty(b: T81Bytes) -> bool {
       return std.bytes.is_empty(b);
     }
-    fn concat(a: T81String, b: T81String) -> T81String {
+    fn concat(a: T81Bytes, b: T81Bytes) -> T81Bytes {
       return std.bytes.concat(a, b);
     }
-    fn starts_with(b: T81String, prefix: T81String) -> bool {
+    fn starts_with(b: T81Bytes, prefix: T81Bytes) -> bool {
       return std.bytes.starts_with(b, prefix);
     }
-    fn ends_with(b: T81String, suffix: T81String) -> bool {
+    fn ends_with(b: T81Bytes, suffix: T81Bytes) -> bool {
       return std.bytes.ends_with(b, suffix);
     }
-    fn contains(b: T81String, needle: T81String) -> bool {
+    fn contains(b: T81Bytes, needle: T81Bytes) -> bool {
       return std.bytes.contains(b, needle);
     }
-    fn index_of(b: T81String, needle: T81String) -> i32 {
+    fn index_of(b: T81Bytes, needle: T81Bytes) -> i32 {
       return std.bytes.index_of(b, needle);
     }
-    fn replace(b: T81String, needle: T81String, replacement: T81String) -> T81String {
+    fn replace(b: T81Bytes, needle: T81Bytes, replacement: T81Bytes) -> T81Bytes {
       return std.bytes.replace(b, needle, replacement);
     }
     fn main() -> i32 {
-      let merged: T81String = concat("ze", "ta");
+      let merged: T81Bytes = concat(T81Bytes("ze"), T81Bytes("ta"));
       let n: i32 = len(merged);
-      let e: bool = is_empty("");
-      let sw: bool = starts_with(merged, "ze");
-      let ew: bool = ends_with(merged, "ta");
-      let has_mid: bool = contains(merged, "et");
-      let idx: i32 = index_of(merged, "ta");
-      let replaced: T81String = replace(merged, "ta", "xo");
-      let repl_idx: i32 = index_of(replaced, "xo");
+      let e: bool = is_empty(T81Bytes(""));
+      let sw: bool = starts_with(merged, T81Bytes("ze"));
+      let ew: bool = ends_with(merged, T81Bytes("ta"));
+      let has_mid: bool = contains(merged, T81Bytes("et"));
+      let idx: i32 = index_of(merged, T81Bytes("ta"));
+      let replaced: T81Bytes = replace(merged, T81Bytes("ta"), T81Bytes("xo"));
+      let repl_idx: i32 = index_of(replaced, T81Bytes("xo"));
       let m: i32 = len(merged);
       if (e) {
         if (n == 4) {

@@ -1452,6 +1452,8 @@ std::string type_to_string(const Type& type) {
       return "Result";
     case Type::Kind::String:
       return "T81String";
+    case Type::Kind::Bytes:
+      return "T81Bytes";
     case Type::Kind::Constant:
       return "const(" + type.custom_name + ")";
     case Type::Kind::Custom:

@@ -616,14 +616,16 @@ void test_std_tensor_vec_add_alias_lowers_to_tvecadd() {
 void test_std_bytes_aliases_lower_to_string_opcodes() {
   std::string source = R"(
         fn main() -> i32 {
-            let n: i32 = std.bytes.len("alpha");
-            let e: bool = std.bytes.is_empty("");
-            let joined: T81String = std.bytes.concat("al", "pha");
-            let sw: bool = std.bytes.starts_with(joined, "al");
-            let ew: bool = std.bytes.ends_with(joined, "ha");
-            let has_mid: bool = std.bytes.contains(joined, "lp");
-            let idx: i32 = std.bytes.index_of(joined, "ph");
-            let replaced: T81String = std.bytes.replace(joined, "ph", "zz");
+            let alpha: T81Bytes = T81Bytes("alpha");
+            let empty: T81Bytes = T81Bytes("");
+            let joined: T81Bytes = std.bytes.concat(T81Bytes("al"), T81Bytes("pha"));
+            let n: i32 = std.bytes.len(alpha);
+            let e: bool = std.bytes.is_empty(empty);
+            let sw: bool = std.bytes.starts_with(joined, T81Bytes("al"));
+            let ew: bool = std.bytes.ends_with(joined, T81Bytes("ha"));
+            let has_mid: bool = std.bytes.contains(joined, T81Bytes("lp"));
+            let idx: i32 = std.bytes.index_of(joined, T81Bytes("ph"));
+            let replaced: T81Bytes = std.bytes.replace(joined, T81Bytes("ph"), T81Bytes("zz"));
             let _n = n;
             let _e = e;
             let _j = joined;

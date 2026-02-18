@@ -40,6 +40,7 @@ struct Type {
     Option,
     Result,
     String,
+    Bytes,
     Constant,
     Custom,
     Unknown,

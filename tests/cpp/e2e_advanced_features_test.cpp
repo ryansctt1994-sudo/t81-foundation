@@ -323,15 +323,17 @@ void test_std_text_module_wrapper_pipeline() {
 void test_std_bytes_pipeline() {
   const std::string source = R"(
         fn main() -> i32 {
-            let n: i32 = std.bytes.len("alpha");
-            let e: bool = std.bytes.is_empty("");
-            let joined: T81String = std.bytes.concat("al", "pha");
-            let sw: bool = std.bytes.starts_with(joined, "al");
-            let ew: bool = std.bytes.ends_with(joined, "ha");
-            let has_mid: bool = std.bytes.contains(joined, "lp");
-            let idx: i32 = std.bytes.index_of(joined, "ph");
-            let replaced: T81String = std.bytes.replace(joined, "ph", "zz");
-            let repl_idx: i32 = std.bytes.index_of(replaced, "zz");
+            let alpha: T81Bytes = T81Bytes("alpha");
+            let empty: T81Bytes = T81Bytes("");
+            let joined: T81Bytes = std.bytes.concat(T81Bytes("al"), T81Bytes("pha"));
+            let n: i32 = std.bytes.len(alpha);
+            let e: bool = std.bytes.is_empty(empty);
+            let sw: bool = std.bytes.starts_with(joined, T81Bytes("al"));
+            let ew: bool = std.bytes.ends_with(joined, T81Bytes("ha"));
+            let has_mid: bool = std.bytes.contains(joined, T81Bytes("lp"));
+            let idx: i32 = std.bytes.index_of(joined, T81Bytes("ph"));
+            let replaced: T81Bytes = std.bytes.replace(joined, T81Bytes("ph"), T81Bytes("zz"));
+            let repl_idx: i32 = std.bytes.index_of(replaced, T81Bytes("zz"));
             let m: i32 = std.bytes.len(joined);
             if (e) {
                 if (n == 5) {
@@ -362,40 +364,40 @@ void test_std_bytes_pipeline() {
 
 void test_std_bytes_module_wrapper_pipeline() {
   const std::string source = R"(
-        fn len(b: T81String) -> i32 {
+        fn len(b: T81Bytes) -> i32 {
             return std.bytes.len(b);
         }
-        fn is_empty(b: T81String) -> bool {
+        fn is_empty(b: T81Bytes) -> bool {
             return std.bytes.is_empty(b);
         }
-        fn concat(a: T81String, b: T81String) -> T81String {
+        fn concat(a: T81Bytes, b: T81Bytes) -> T81Bytes {
             return std.bytes.concat(a, b);
         }
-        fn starts_with(b: T81String, prefix: T81String) -> bool {
+        fn starts_with(b: T81Bytes, prefix: T81Bytes) -> bool {
             return std.bytes.starts_with(b, prefix);
         }
-        fn ends_with(b: T81String, suffix: T81String) -> bool {
+        fn ends_with(b: T81Bytes, suffix: T81Bytes) -> bool {
             return std.bytes.ends_with(b, suffix);
         }
-        fn contains(b: T81String, needle: T81String) -> bool {
+        fn contains(b: T81Bytes, needle: T81Bytes) -> bool {
             return std.bytes.contains(b, needle);
         }
-        fn index_of(b: T81String, needle: T81String) -> i32 {
+        fn index_of(b: T81Bytes, needle: T81Bytes) -> i32 {
             return std.bytes.index_of(b, needle);
         }
-        fn replace(b: T81String, needle: T81String, replacement: T81String) -> T81String {
+        fn replace(b: T81Bytes, needle: T81Bytes, replacement: T81Bytes) -> T81Bytes {
             return std.bytes.replace(b, needle, replacement);
         }
         fn main() -> i32 {
-            let joined: T81String = concat("om", "ega");
+            let joined: T81Bytes = concat(T81Bytes("om"), T81Bytes("ega"));
             let n: i32 = len(joined);
-            let e: bool = is_empty("");
-            let sw: bool = starts_with(joined, "om");
-            let ew: bool = ends_with(joined, "ga");
-            let has_mid: bool = contains(joined, "meg");
-            let idx: i32 = index_of(joined, "ga");
-            let replaced: T81String = replace(joined, "ga", "xy");
-            let repl_idx: i32 = index_of(replaced, "xy");
+            let e: bool = is_empty(T81Bytes(""));
+            let sw: bool = starts_with(joined, T81Bytes("om"));
+            let ew: bool = ends_with(joined, T81Bytes("ga"));
+            let has_mid: bool = contains(joined, T81Bytes("meg"));
+            let idx: i32 = index_of(joined, T81Bytes("ga"));
+            let replaced: T81Bytes = replace(joined, T81Bytes("ga"), T81Bytes("xy"));
+            let repl_idx: i32 = index_of(replaced, T81Bytes("xy"));
             let m: i32 = len(joined);
             if (e) {
                 if (n == 5) {

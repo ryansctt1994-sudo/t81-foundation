@@ -1,10 +1,10 @@
 fn main() -> i32 {
-  let b: T81String = "alphabet";
-  print(std.bytes.starts_with(b, "alpha"));
-  print(std.bytes.ends_with(b, "bet"));
-  print(std.bytes.contains(b, "pha"));
-  print(std.bytes.contains(b, "zzz"));
-  print(std.bytes.index_of(b, "pha"));
-  print(std.bytes.index_of(b, "zzz"));
+  let b: T81Bytes = T81Bytes("alphabet");
+  print(std.bytes.starts_with(b, T81Bytes("alpha")));
+  print(std.bytes.ends_with(b, T81Bytes("bet")));
+  print(std.bytes.contains(b, T81Bytes("pha")));
+  print(std.bytes.contains(b, T81Bytes("zzz")));
+  print(std.bytes.index_of(b, T81Bytes("pha")));
+  print(std.bytes.index_of(b, T81Bytes("zzz")));
   return 0;
 }

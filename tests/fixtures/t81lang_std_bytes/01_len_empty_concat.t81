@@ -1,13 +1,13 @@
 fn main() -> i32 {
-  let b: T81String = std.bytes.concat("al", "pha");
+  let b: T81Bytes = std.bytes.concat(T81Bytes("al"), T81Bytes("pha"));
   print(std.bytes.len(b));
-  print(std.bytes.is_empty(""));
-  print(std.bytes.is_empty("x"));
-  print(std.bytes.starts_with(b, "al"));
-  print(std.bytes.ends_with(b, "ha"));
-  print(std.bytes.contains(b, "lp"));
-  print(std.bytes.index_of(b, "ph"));
-  print(std.bytes.index_of(b, "zz"));
-  print(std.bytes.replace(b, "ph", "zz"));
+  print(std.bytes.is_empty(T81Bytes("")));
+  print(std.bytes.is_empty(T81Bytes("x")));
+  print(std.bytes.starts_with(b, T81Bytes("al")));
+  print(std.bytes.ends_with(b, T81Bytes("ha")));
+  print(std.bytes.contains(b, T81Bytes("lp")));
+  print(std.bytes.index_of(b, T81Bytes("ph")));
+  print(std.bytes.index_of(b, T81Bytes("zz")));
+  print(std.bytes.replace(b, T81Bytes("ph"), T81Bytes("zz")));
   return 0;
 }

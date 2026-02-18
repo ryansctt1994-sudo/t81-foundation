@@ -6,5 +6,5 @@ Fixture pack for CLI end-to-end coverage of `std.bytes` aliases.
 - Validate deterministic observable output for `std.bytes` operations.
 
 ## Note
-- Current `std.bytes` aliases are string-backed until native `T81Bytes` frontend
-  typing is introduced.
+- Fixtures construct explicit `T81Bytes` values via `T81Bytes("...")` to validate
+  byte-typed frontend semantics.

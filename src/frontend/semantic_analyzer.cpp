@@ -676,6 +676,7 @@ Type SemanticAnalyzer::type_from_token(const Token& name) {
   if (name_str == "Vector") return Type{Type::Kind::Vector};
   if (name_str == "Matrix") return Type{Type::Kind::Matrix};
   if (name_str == "Tensor") return Type{Type::Kind::Tensor};
+  if (name_str == "T81Bytes") return Type{Type::Kind::Bytes};
   return Type{Type::Kind::Custom, {}, name_str};
 }
 
@@ -835,6 +836,9 @@ std::string SemanticAnalyzer::type_to_string(const Type& type) const {
       break;
     case Type::Kind::String:
       result = "T81String";
+      break;
+    case Type::Kind::Bytes:
+      result = "T81Bytes";
       break;
     case Type::Kind::Constant:
       result = "const(" + type.custom_name + ")";
@@ -1715,6 +1719,37 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       merge_expected_params(result_type, expected);
       return result_type;
     }
+    if (func_name == "T81Bytes") {
+      if (arg_types.size() != 1) {
+        error(call_token, "T81Bytes conversion expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String && arg_types[0].kind != Type::Kind::Bytes) {
+        error(call_token, "T81Bytes conversion expects a T81String or T81Bytes argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bytes};
+    }
+    if (func_name == "T81Uint" || func_name == "T81Qutrit") {
+      if (arg_types.size() != 1) {
+        error(call_token, func_name + " conversion expects exactly one argument.");
+        return make_error_type();
+      }
+      const Type& argument_type = arg_types[0];
+      if (!is_integer_type(argument_type)) {
+        error(call_token, func_name + " conversion expects an integer argument, got '" +
+                             type_to_string(argument_type) + "'.");
+        return make_error_type();
+      }
+      Type target_type = type_from_token(call_token);
+      if (target_type.kind == Type::Kind::Unknown && func_name == "T81Qutrit") {
+        target_type = Type{Type::Kind::Qutrit};
+      } else if (target_type.kind == Type::Kind::Unknown && func_name == "T81Uint") {
+        target_type = Type{Type::Kind::Uint};
+      }
+      validate_constrained_integer_assignment(target_type, *expr.arguments[0], call_token);
+      return target_type;
+    }
     if (func_name == "weights.load" || func_name == "Tensor.load") {
       if (arg_types.size() != 1) {
         error(call_token, "The 'load' builtin expects exactly one argument.");
@@ -1816,10 +1851,11 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       }
       const Type& arg = arg_types[0];
       const bool supported = is_primitive_numeric_type(arg) || arg.kind == Type::Kind::String ||
-                             arg.kind == Type::Kind::Bool;
+                             arg.kind == Type::Kind::Bytes || arg.kind == Type::Kind::Bool;
       if (!supported) {
         error(call_token,
-              "The 'print' builtin requires a scalar T81 numeric, bool, or string argument.");
+              "The 'print' builtin requires a scalar T81 numeric, bool, string, or bytes "
+              "argument.");
         return make_error_type();
       }
       return Type{Type::Kind::Void};
@@ -1918,8 +1954,8 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "bytes_len expects exactly one argument.");
         return make_error_type();
       }
-      if (arg_types[0].kind != Type::Kind::String) {
-        error(call_token, "bytes_len expects a T81String argument.");
+      if (arg_types[0].kind != Type::Kind::Bytes) {
+        error(call_token, "bytes_len expects a T81Bytes argument.");
         return make_error_type();
       }
       return Type{Type::Kind::I32};
@@ -1929,8 +1965,8 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "bytes_is_empty expects exactly one argument.");
         return make_error_type();
       }
-      if (arg_types[0].kind != Type::Kind::String) {
-        error(call_token, "bytes_is_empty expects a T81String argument.");
+      if (arg_types[0].kind != Type::Kind::Bytes) {
+        error(call_token, "bytes_is_empty expects a T81Bytes argument.");
         return make_error_type();
       }
       return Type{Type::Kind::Bool};
@@ -1940,19 +1976,19 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "bytes_concat expects exactly two arguments.");
         return make_error_type();
       }
-      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
-        error(call_token, "bytes_concat expects T81String arguments.");
+      if (arg_types[0].kind != Type::Kind::Bytes || arg_types[1].kind != Type::Kind::Bytes) {
+        error(call_token, "bytes_concat expects T81Bytes arguments.");
         return make_error_type();
       }
-      return Type{Type::Kind::String};
+      return Type{Type::Kind::Bytes};
     }
     if (func_name == "bytes_starts_with") {
       if (arg_types.size() != 2) {
         error(call_token, "bytes_starts_with expects exactly two arguments.");
         return make_error_type();
       }
-      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
-        error(call_token, "bytes_starts_with expects T81String arguments.");
+      if (arg_types[0].kind != Type::Kind::Bytes || arg_types[1].kind != Type::Kind::Bytes) {
+        error(call_token, "bytes_starts_with expects T81Bytes arguments.");
         return make_error_type();
       }
       return Type{Type::Kind::Bool};
@@ -1962,8 +1998,8 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "bytes_ends_with expects exactly two arguments.");
         return make_error_type();
       }
-      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
-        error(call_token, "bytes_ends_with expects T81String arguments.");
+      if (arg_types[0].kind != Type::Kind::Bytes || arg_types[1].kind != Type::Kind::Bytes) {
+        error(call_token, "bytes_ends_with expects T81Bytes arguments.");
         return make_error_type();
       }
       return Type{Type::Kind::Bool};
@@ -1973,8 +2009,8 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "bytes_contains expects exactly two arguments.");
         return make_error_type();
       }
-      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
-        error(call_token, "bytes_contains expects T81String arguments.");
+      if (arg_types[0].kind != Type::Kind::Bytes || arg_types[1].kind != Type::Kind::Bytes) {
+        error(call_token, "bytes_contains expects T81Bytes arguments.");
         return make_error_type();
       }
       return Type{Type::Kind::Bool};
@@ -1984,8 +2020,8 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "bytes_index_of expects exactly two arguments.");
         return make_error_type();
       }
-      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
-        error(call_token, "bytes_index_of expects T81String arguments.");
+      if (arg_types[0].kind != Type::Kind::Bytes || arg_types[1].kind != Type::Kind::Bytes) {
+        error(call_token, "bytes_index_of expects T81Bytes arguments.");
         return make_error_type();
       }
       return Type{Type::Kind::I32};
@@ -1995,12 +2031,12 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "bytes_replace expects exactly three arguments.");
         return make_error_type();
       }
-      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String ||
-          arg_types[2].kind != Type::Kind::String) {
-        error(call_token, "bytes_replace expects T81String arguments.");
+      if (arg_types[0].kind != Type::Kind::Bytes || arg_types[1].kind != Type::Kind::Bytes ||
+          arg_types[2].kind != Type::Kind::Bytes) {
+        error(call_token, "bytes_replace expects T81Bytes arguments.");
         return make_error_type();
       }
-      return Type{Type::Kind::String};
+      return Type{Type::Kind::Bytes};
     }
 
     if (auto* var_expr = dynamic_cast<const VariableExpr*>(expr.callee.get())) {
@@ -2035,6 +2071,18 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
 
   if (auto* type_callee = dynamic_cast<const SimpleTypeExpr*>(expr.callee.get())) {
     const std::string callee_name(type_callee->name.lexeme);
+    if (callee_name == "T81Bytes") {
+      if (arg_types.size() != 1) {
+        error(type_callee->name, "T81Bytes conversion expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String && arg_types[0].kind != Type::Kind::Bytes) {
+        error(type_callee->name,
+              "T81Bytes conversion expects a T81String or T81Bytes argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bytes};
+    }
     if (callee_name == "T81Uint" || callee_name == "T81Qutrit") {
       if (arg_types.size() != 1) {
         error(type_callee->name, callee_name + " conversion expects exactly one argument.");

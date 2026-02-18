@@ -1271,6 +1271,17 @@ public:
 
     if (auto* type_expr = dynamic_cast<const SimpleTypeExpr*>(expr.callee.get())) {
       std::string type_name{type_expr->name.lexeme};
+      if (type_name == "T81Bytes") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("T81Bytes conversion expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        copy_to_dest(value, dest);
+        record_result(&expr, dest);
+        return {};
+      }
       if (type_name == "T81Uint" || type_name == "T81Qutrit") {
         if (expr.arguments.size() != 1) {
           throw std::runtime_error(type_name + " conversion expects exactly one argument.");
