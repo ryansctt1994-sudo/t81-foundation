@@ -1154,7 +1154,9 @@ void SemanticAnalyzer::register_function_signatures() {
     type_env.reserve(func->generic_params.size());
     for (const auto& generic_param : func->generic_params) {
       const std::string param_name(generic_param.lexeme);
-      if (!type_env.emplace(param_name, Type{Type::Kind::Unknown}).second) {
+      Type generic_type{Type::Kind::Custom};
+      generic_type.custom_name = param_name;
+      if (!type_env.emplace(param_name, generic_type).second) {
         error(generic_param,
               "Generic parameter '" + param_name + "' is already defined in this function.");
       }
@@ -1434,7 +1436,9 @@ std::any SemanticAnalyzer::visit(const FunctionStmt& stmt) {
   type_env.reserve(stmt.generic_params.size());
   for (const auto& generic_param : stmt.generic_params) {
     const std::string param_name(generic_param.lexeme);
-    if (!type_env.emplace(param_name, Type{Type::Kind::Unknown}).second) {
+    Type generic_type{Type::Kind::Custom};
+    generic_type.custom_name = param_name;
+    if (!type_env.emplace(param_name, generic_type).second) {
       error(generic_param,
             "Generic parameter '" + param_name + "' is already defined in this function.");
     }

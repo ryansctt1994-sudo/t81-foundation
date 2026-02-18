@@ -1,0 +1,26 @@
+fn passthrough[T](v: Vector[T]) -> Vector[T] {
+    return v;
+}
+
+fn choose_some[T](a: Option[T], b: Option[T]) -> Option[T] {
+    return a;
+}
+
+fn main() -> i32 {
+    let nums: Vector[i32] = passthrough([4, 5, 6]);
+    print(std.collections.len(nums));
+    print(std.collections.first(nums));
+    print(std.collections.last(nums));
+
+    let words: Vector[T81String] = passthrough(["x", "y"]);
+    print(std.collections.first(words));
+    print(std.collections.last(words));
+
+    let picked: Option[i32] = choose_some(Some(42), Some(7));
+    let value: i32 = match (picked) {
+        Some(v) => v;
+        None => 0;
+    };
+    print(value);
+    return 0;
+}

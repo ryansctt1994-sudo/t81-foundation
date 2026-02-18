@@ -273,6 +273,50 @@ int main() {
     )";
   expect_semantic_failure(tensor_loop_inference_failure, "tensor_loop_inference_failure");
 
+  const std::string function_generic_vector_success = R"(
+        fn passthrough[T](v: Vector[T]) -> Vector[T] {
+            return v;
+        }
+        fn main() -> i32 {
+            let value: Vector[i32] = passthrough([1, 2, 3]);
+            return 0;
+        }
+    )";
+  expect_semantic_success(function_generic_vector_success, "function_generic_vector_success");
+
+  const std::string function_generic_vector_failure = R"(
+        fn passthrough[T](v: Vector[T]) -> Vector[T] {
+            return v;
+        }
+        fn main() -> i32 {
+            let value: Vector[T81String] = passthrough([1, 2, 3]);
+            return 0;
+        }
+    )";
+  expect_semantic_failure(function_generic_vector_failure, "function_generic_vector_failure");
+
+  const std::string function_generic_option_success = R"(
+        fn choose_some[T](a: Option[T], b: Option[T]) -> Option[T] {
+            return a;
+        }
+        fn main() -> i32 {
+            let value: Option[i32] = choose_some(Some(1), Some(2));
+            return 0;
+        }
+    )";
+  expect_semantic_success(function_generic_option_success, "function_generic_option_success");
+
+  const std::string function_generic_option_failure = R"(
+        fn choose_some[T](a: Option[T], b: Option[T]) -> Option[T] {
+            return a;
+        }
+        fn main() -> i32 {
+            let value: Option[i32] = choose_some(Some(1), Some("x"));
+            return 0;
+        }
+    )";
+  expect_semantic_failure(function_generic_option_failure, "function_generic_option_failure");
+
   const std::string fixed_generic_var = R"(
         fn main() -> i32 {
             var x: T81Fixed[4, 4];

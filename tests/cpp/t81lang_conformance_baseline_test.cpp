@@ -1592,6 +1592,51 @@ static void test_std_symbol_aliases() {
                "t81lang_std_symbol_eq_bad_type");
 }
 
+static void test_generic_function_inference() {
+  constexpr const char* valid = R"(
+    fn choose[T](a: T, b: T) -> T {
+      return b;
+    }
+    fn main() -> i32 {
+      let out: i32 = choose(7, 9);
+      return out;
+    }
+  )";
+  require_true(analyzes(valid, "t81lang_generic_function_inference_valid"),
+               "t81lang_generic_function_inference_valid");
+
+  constexpr const char* mismatched_args = R"(
+    fn choose[T](a: T, b: T) -> T {
+      return a;
+    }
+    fn main() -> i32 {
+      let out: i32 = choose(7, "oops");
+      return out;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(mismatched_args,
+                                  "Argument 1 for function 'choose' expects 'T' but got "
+                                  "'T81String'.",
+                                  "t81lang_generic_function_inference_mismatched_args"),
+      "t81lang_generic_function_inference_mismatched_args");
+
+  constexpr const char* mismatched_return_assignment = R"(
+    fn first_or[T](a: T, fallback: T) -> T {
+      return a;
+    }
+    fn main() -> i32 {
+      let out: T81String = first_or(7, 9);
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(mismatched_return_assignment,
+                                           "Cannot assign initializer of type 'i32' to constant "
+                                           "of type 'T81String'.",
+                                           "t81lang_generic_function_inference_bad_return_use"),
+               "t81lang_generic_function_inference_bad_return_use");
+}
+
 static void test_let_is_immutable() {
   constexpr const char* source = R"(
     fn main() -> i32 {
@@ -1637,6 +1682,7 @@ int main() {
   test_std_bytes_aliases();
   test_std_bytes_module_wrappers();
   test_std_symbol_aliases();
+  test_generic_function_inference();
   test_t81_numeric_type_separation_rejects_invalid_mix();
   test_let_is_immutable();
   test_var_is_mutable();

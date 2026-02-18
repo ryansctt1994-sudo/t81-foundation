@@ -8,3 +8,6 @@ Fixture pack for CLI end-to-end coverage of `std.collections` aliases.
   `std.collections.push`, and `std.collections.pop`.
 - Validate behavior for both frontend `Vector[i32]` values and
   `Vector[T81String]` values produced via `std.text.split`.
+- Validate end-to-end generic call inference over nested container signatures
+  (for example `Vector[T]` and `Option[T]`) through fixture execution and
+  golden outputs.
