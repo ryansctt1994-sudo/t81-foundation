@@ -18,3 +18,5 @@ Based on the analysis of `advanced_datatypes_showcase.t81` and the current compi
 14. **Add String-Vector Runtime Support for T81Lang:** [Done] Deterministic runtime/IR representation for `Vector[T81String]` is implemented via dedicated VM handle/tag + lowering opcodes.
 15. **Add End-to-End split/join Test Matrix:** [Done] Conformance, IR lowering, e2e behavior, CLI diagnostics, and CLI fixture goldens now cover split/join.
 16. **Expose `std.symbol` Frontend Aliases:** [Done] `std.symbol.intern` and `std.symbol.to_string` are wired through semantic analysis/IR and covered by conformance, e2e, and CLI diagnostics.
+17. **Add `std.tensor` CLI Fixture Goldens:** [Done] Fixture-driven CLI coverage now validates deterministic observable behavior for `std.tensor.load` and runtime execution paths for `std.tensor.from_list` / `std.tensor.vec_add`.
+18. **Add `std.tensor.matmul` CLI Fixture Coverage:** [Done] The tensor fixture harness now injects deterministic in-memory rank-2 weights (`mat_a`, `mat_b`) and validates runtime `std.tensor.matmul` execution with golden output.

@@ -1,0 +1,8 @@
+fn main() -> i32 {
+  let a: i32 = std.tensor.load("mat_a");
+  let b: i32 = std.tensor.load("mat_b");
+  let c: Tensor = std.tensor.matmul(a, b);
+  let _ = c;
+  print(a);
+  return 0;
+}

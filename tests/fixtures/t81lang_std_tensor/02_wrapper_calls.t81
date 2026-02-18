@@ -1,0 +1,17 @@
+fn from_list(values: Vector[i32]) -> Tensor {
+  return std.tensor.from_list(values);
+}
+
+fn vec_add(a: Tensor, b: Tensor) -> Tensor {
+  return std.tensor.vec_add(a, b);
+}
+
+fn main() -> i32 {
+  let a: Tensor = from_list([7, 8, 9]);
+  let b: Tensor = from_list([1, 1, 1]);
+  let c: Tensor = vec_add(a, b);
+  let _ = c;
+  let handle: i32 = std.tensor.load("decoder.weight");
+  print(handle);
+  return 0;
+}

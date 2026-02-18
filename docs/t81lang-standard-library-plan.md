@@ -122,6 +122,7 @@ Building blocks for autonomous agents.
 - `std.io`: `println`, `print_int`, and `print_float` aliases lower to `print`.
 - `std.tensor`: `load`, `from_list`, `matmul`, and `vec_add` aliases are implemented and tested.
 - `std.math` / `std.tensor`: wrapper module files now expose the directly wrappable aliases via `src/lang/std/math.t81` and `src/lang/std/tensor.t81` (`std.tensor.load` remains direct-use because it currently requires a string literal argument at call sites).
+- `std.tensor`: fixture-driven CLI golden coverage now validates deterministic observable output and runtime execution for `load`, `from_list`, `vec_add`, and `matmul` via `tests/fixtures/t81lang_std_tensor/*` and `tests/cpp/cli_std_tensor_fixtures_test.cpp`, using an in-memory deterministic fixture weights model for rank-2 `matmul`.
 - `std.text`: `str_len`, `str_is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, and `replace` are implemented end-to-end (semantic, IR, VM) and exposed via `src/lang/std/text.t81`.
 - `std.text`: `to_string` and `from_bytes` are exposed as deterministic aliases in frontend/IR/module wrappers (`T81String|T81Bytes -> T81String`).
 - `std.text`: fixture-driven CLI golden coverage now validates deterministic runtime output via `tests/fixtures/t81lang_std_text/*` and `tests/cpp/cli_std_text_fixtures_test.cpp`.
