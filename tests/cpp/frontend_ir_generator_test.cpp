@@ -411,6 +411,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let ex: T81Float = std.math.exp(1.0);
             let lg: T81Float = std.math.log(ex);
             let pw: T81Float = std.math.pow(2.0, 8.0);
+            let clamped: T81Float = std.math.clamp(-2.0, 0.0, 1.0);
             let n: i32 = std.text.str_len("hello");
             let e: bool = std.text.str_is_empty("");
             let joined: T81String = std.text.concat("he", "llo");
@@ -425,6 +426,11 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let parts: Vector[T81String] = std.text.split("a,,b", ",");
             let joined_again: T81String = std.text.join(parts, ",");
             let joined_literal: T81String = std.text.join(["x", "y"], "-");
+            let int_parts: Vector[i32] = [1, 2, 3];
+            let part_count: i32 = std.collections.len(int_parts);
+            let part_empty: bool = std.collections.is_empty(int_parts);
+            let str_part_count: i32 = std.collections.len(parts);
+            let str_part_empty: bool = std.collections.is_empty(parts);
             let sym: T81String = std.symbol.intern("omega");
             let rendered_sym: T81String = std.symbol.to_string(sym);
             let same: bool = std.symbol.eq(sym, "omega");
@@ -456,6 +462,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _ex = ex;
             let _lg = lg;
             let _pw = pw;
+            let _cl = clamped;
             let _m = model;
             let _sw = sw;
             let _ew = ew;
@@ -467,6 +474,10 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _rdfb = rendered_from_bytes;
             let _ja = joined_again;
             let _jl = joined_literal;
+            let _pc = part_count;
+            let _pe = part_empty;
+            let _spc = str_part_count;
+            let _spe = str_part_empty;
             let _sym = sym;
             let _rs = rendered_sym;
             let _same = same;
@@ -515,6 +526,8 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   bool has_strjoin = false;
   bool has_strvecnew = false;
   bool has_strvecpush = false;
+  bool has_veclen = false;
+  bool has_vecempty = false;
   bool has_cmp = false;
   bool has_print = false;
   bool has_trap = false;
@@ -573,6 +586,10 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
       has_strvecnew = true;
     } else if (inst.opcode == Opcode::STRVECPUSH) {
       has_strvecpush = true;
+    } else if (inst.opcode == Opcode::VECLEN) {
+      has_veclen = true;
+    } else if (inst.opcode == Opcode::VECEMPTY) {
+      has_vecempty = true;
     } else if (inst.opcode == Opcode::CMP) {
       has_cmp = true;
     } else if (inst.opcode == Opcode::PRINT) {
@@ -615,6 +632,8 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   EXPECT(has_strjoin, "std.text.join should lower to STRJOIN");
   EXPECT(has_strvecnew, "Vector[T81String] literal should lower to STRVECNEW");
   EXPECT(has_strvecpush, "Vector[T81String] literal should lower to STRVECPUSH");
+  EXPECT(has_veclen, "std.collections.len should lower to VECLEN");
+  EXPECT(has_vecempty, "std.collections.is_empty should lower to VECEMPTY");
   EXPECT(has_cmp, "std.symbol.eq/ne should lower to CMP");
   EXPECT(has_print, "std.core.debug/std.io.* should lower to PRINT");
   EXPECT(has_trap, "std.core.assert/std.sys.exit should lower to TRAP");

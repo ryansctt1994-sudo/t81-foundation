@@ -118,7 +118,7 @@ Building blocks for autonomous agents.
 
 ## 5. Implementation Status (Current)
 
-- `std.math`: `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `sqrt`, `exp`, `log`, and `pow` are wired as deterministic frontend/runtime aliases.
+- `std.math`: `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `sqrt`, `exp`, `log`, `pow`, and `clamp` are wired as deterministic frontend/runtime aliases.
 - `std.io`: `println`, `print_int`, and `print_float` aliases lower to `print`.
 - `std.core`: `debug` now lowers as a deterministic frontend/runtime alias to `print` with existing scalar print-type constraints.
 - `std.core`: `assert` now lowers as a deterministic frontend/runtime alias that traps on false conditions.
@@ -133,6 +133,7 @@ Building blocks for autonomous agents.
 - `std.text`: `split` / `join` are implemented end-to-end across semantic analysis, IR lowering, and VM execution, including deterministic handling of `Vector[T81String]` via runtime handles.
 - `std.bytes`: `len`, `is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, `replace`, `to_string`, and `from_string` are implemented for frontend-native `T81Bytes`, with explicit `T81Bytes(...)` conversion calls and fixture-driven CLI golden coverage in `tests/fixtures/t81lang_std_bytes/*` and `tests/cpp/cli_std_bytes_fixtures_test.cpp`.
 - `std.bytes`: `split` / `join` now mirror `std.text` semantics for byte data (`split` preserves empty segments, `join` supports empty vectors) with deterministic semantic diagnostics for empty literal separators.
+- `std.collections`: `len` and `is_empty` are wired as deterministic frontend/runtime aliases over frontend `Vector[T]` values, covering both interned tensor-backed vectors and string-vector runtime handles.
 - `std.symbol`: `intern`, `to_string`, `eq`, and `ne` are exposed as deterministic frontend/IR aliases in `src/lang/std/symbol.t81` (currently represented as interned `T81String` handles in T81Lang runtime state).
 - `std.symbol`: fixture-driven CLI golden coverage now validates deterministic observable output via `tests/fixtures/t81lang_std_symbol/*` and `tests/cpp/cli_std_symbol_fixtures_test.cpp`.
 

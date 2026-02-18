@@ -496,6 +496,10 @@ const char* ir_opcode_name(tisc::ir::Opcode op) {
       return "STRLEN";
     case O::STREMPTY:
       return "STREMPTY";
+    case O::VECLEN:
+      return "VECLEN";
+    case O::VECEMPTY:
+      return "VECEMPTY";
     case O::STRCONCAT:
       return "STRCONCAT";
     case O::STRSTARTSWITH:

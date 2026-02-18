@@ -176,6 +176,9 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.math.sqrt") {
     return "sqrt";
   }
+  if (name == "std.math.clamp") {
+    return "clamp";
+  }
   if (name == "std.sys.exit") {
     return "sys_exit";
   }
@@ -274,6 +277,12 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   }
   if (name == "std.bytes.from_string") {
     return "T81Bytes";
+  }
+  if (name == "std.collections.len") {
+    return "collections_len";
+  }
+  if (name == "std.collections.is_empty") {
+    return "collections_is_empty";
   }
   if (name == "std.symbol.intern") {
     return "symbol_intern";
@@ -1099,6 +1108,55 @@ public:
         record_result(&expr, dest);
         return {};
       }
+      if (func_name == "clamp") {
+        if (expr.arguments.size() != 3) {
+          throw std::runtime_error("clamp expects exactly three arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        expr.arguments[2]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto minv = ensure_expr_result(expr.arguments[1].get());
+        auto maxv = ensure_expr_result(expr.arguments[2].get());
+
+        auto value_f = ensure_kind(value, tisc::ir::PrimitiveKind::Float);
+        auto min_f = ensure_kind(minv, tisc::ir::PrimitiveKind::Float);
+        auto max_f = ensure_kind(maxv, tisc::ir::PrimitiveKind::Float);
+
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Float);
+        copy_to_dest(value_f, dest);
+
+        auto lt_min = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction cmp_low;
+        cmp_low.opcode = tisc::ir::Opcode::CMP;
+        cmp_low.operands = {lt_min.reg, value_f.reg, min_f.reg};
+        cmp_low.primitive = tisc::ir::PrimitiveKind::Boolean;
+        cmp_low.boolean_result = true;
+        cmp_low.relation = tisc::ir::ComparisonRelation::Less;
+        emit(cmp_low);
+
+        auto check_high_label = new_label();
+        auto end_label = new_label();
+        emit_jump_if_zero(check_high_label, lt_min);
+        copy_to_dest(min_f, dest);
+        emit_jump(end_label);
+
+        emit_label(check_high_label);
+        auto gt_max = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction cmp_high;
+        cmp_high.opcode = tisc::ir::Opcode::CMP;
+        cmp_high.operands = {gt_max.reg, value_f.reg, max_f.reg};
+        cmp_high.primitive = tisc::ir::PrimitiveKind::Boolean;
+        cmp_high.boolean_result = true;
+        cmp_high.relation = tisc::ir::ComparisonRelation::Greater;
+        emit(cmp_high);
+
+        emit_jump_if_zero(end_label, gt_max);
+        copy_to_dest(max_f, dest);
+        emit_label(end_label);
+        record_result(&expr, dest);
+        return {};
+      }
       if (func_name == "sys_exit") {
         if (expr.arguments.size() != 1) {
           throw std::runtime_error("sys_exit expects exactly one argument.");
@@ -1547,6 +1605,36 @@ public:
         tisc::ir::Instruction instr;
         instr.opcode = tisc::ir::Opcode::STRJOIN;
         instr.operands = {dest.reg, parts.reg, sep.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "collections_len") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("collections_len expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::VECLEN;
+        instr.operands = {dest.reg, value.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "collections_is_empty") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("collections_is_empty expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::VECEMPTY;
+        instr.operands = {dest.reg, value.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Boolean;
         emit(instr);
         record_result(&expr, dest);
         return {};

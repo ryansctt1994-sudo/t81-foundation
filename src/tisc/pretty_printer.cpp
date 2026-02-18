@@ -34,6 +34,10 @@ std::string opcode_to_string(ir::Opcode opcode) {
       return "STRSPLIT";
     case ir::Opcode::STRJOIN:
       return "STRJOIN";
+    case ir::Opcode::VECLEN:
+      return "VECLEN";
+    case ir::Opcode::VECEMPTY:
+      return "VECEMPTY";
     case ir::Opcode::JMP:
       return "JMP";
     case ir::Opcode::JZ:

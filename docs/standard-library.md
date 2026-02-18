@@ -14,7 +14,7 @@ Basic definitions and utilities.
 ### `std.math`
 Mathematical constants and functions (backed by `include/t81/std/math.hpp`).
 **Note:** Transcendental functions (`sin`, `cos`, `exp`, etc.) currently rely on host `double` precision and are platform-dependent.
-**Current frontend/VM status:** `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `sqrt`, `exp`, `log`, and `pow` are wired.
+**Current frontend/VM status:** `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `sqrt`, `exp`, `log`, `pow`, and `clamp` are wired.
 - `PI`, `E`: Constants (high-precision).
 - `fn sin(x: T81Float) -> T81Float`: Sine (radians).
 - `fn cos(x: T81Float) -> T81Float`: Cosine (radians).
@@ -40,7 +40,8 @@ Input and Output.
 ## Data Structure Modules
 
 ### `std.collections`
-- Placeholder for Vector/Map utilities.
+- `fn len(v: Vector[T]) -> i32`: Deterministic vector length for frontend `Vector[T]` values.
+- `fn is_empty(v: Vector[T]) -> bool`: Deterministic vector emptiness check.
 
 ### `std.text`
 String manipulation and formatting (backed by `include/t81/std/string.hpp`).

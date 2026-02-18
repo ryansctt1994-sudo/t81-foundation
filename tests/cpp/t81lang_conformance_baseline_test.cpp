@@ -220,6 +220,10 @@ static void test_std_namespace_builtin_aliases() {
       let ex: T81Float = std.math.exp(1.0);
       let lg: T81Float = std.math.log(ex);
       let pw: T81Float = std.math.pow(2.0, 8.0);
+      let cl: T81Float = std.math.clamp(-2.0, 0.0, 1.0);
+      let ints: Vector[i32] = [1, 2, 3];
+      let n: i32 = std.collections.len(ints);
+      let e: bool = std.collections.is_empty(ints);
       std.core.assert(1 < 2);
       std.core.debug("dbg");
       let present: Option[i32] = Some(7);
@@ -237,6 +241,10 @@ static void test_std_namespace_builtin_aliases() {
       std.io.print_float(root);
       std.io.print_float(lg);
       std.io.print_float(pw);
+      std.io.print_float(cl);
+      if (e) {
+        return n;
+      }
       let now: T81Float = std.sys.time();
       std.async.yield();
       std.async.sleep(now);
@@ -290,6 +298,55 @@ static void test_std_namespace_builtin_aliases() {
   require_true(fails_semantic_with_message(bad_math_pow_arity, "pow expects exactly two arguments.",
                                            "t81lang_std_math_pow_bad_arity"),
                "t81lang_std_math_pow_bad_arity");
+
+  constexpr const char* bad_math_clamp_arity = R"(
+    fn main() -> i32 {
+      let x: T81Float = std.math.clamp(1.0, 0.0);
+      let _ = x;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(bad_math_clamp_arity,
+                                           "clamp expects exactly three arguments.",
+                                           "t81lang_std_math_clamp_bad_arity"),
+               "t81lang_std_math_clamp_bad_arity");
+
+  constexpr const char* bad_math_clamp_type = R"(
+    fn main() -> i32 {
+      let x: T81Float = std.math.clamp("oops", 0.0, 1.0);
+      let _ = x;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(bad_math_clamp_type,
+                                           "clamp arguments must be convertible to T81Float.",
+                                           "t81lang_std_math_clamp_bad_type"),
+               "t81lang_std_math_clamp_bad_type");
+
+  constexpr const char* bad_collections_len_type = R"(
+    fn main() -> i32 {
+      let n: i32 = std.collections.len(7);
+      let _ = n;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(bad_collections_len_type,
+                                           "std.collections.len expects a Vector[T] argument.",
+                                           "t81lang_std_collections_len_bad_type"),
+               "t81lang_std_collections_len_bad_type");
+
+  constexpr const char* bad_collections_empty_arity = R"(
+    fn main() -> i32 {
+      let e: bool = std.collections.is_empty();
+      let _ = e;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_collections_empty_arity,
+                                  "std.collections.is_empty expects exactly one argument.",
+                                  "t81lang_std_collections_is_empty_bad_arity"),
+      "t81lang_std_collections_is_empty_bad_arity");
 
   constexpr const char* bad_debug_type = R"(
     fn main() -> i32 {
@@ -501,6 +558,15 @@ static void test_std_math_tensor_module_wrappers() {
     fn pow(b: T81Float, e: T81Float) -> T81Float {
       return std.math.pow(b, e);
     }
+    fn clamp(v: T81Float, minv: T81Float, maxv: T81Float) -> T81Float {
+      return std.math.clamp(v, minv, maxv);
+    }
+    fn len_i32(v: Vector[i32]) -> i32 {
+      return std.collections.len(v);
+    }
+    fn is_empty_i32(v: Vector[i32]) -> bool {
+      return std.collections.is_empty(v);
+    }
     fn from_list(values: Vector[i32]) -> Tensor {
       return std.tensor.from_list(values);
     }
@@ -524,6 +590,10 @@ static void test_std_math_tensor_module_wrappers() {
       let _lg: T81Float = log(ex);
       let _rt: T81Float = sqrt(4.0);
       let _pw: T81Float = pow(2.0, 8.0);
+      let _cp: T81Float = clamp(-2.0, 0.0, 1.0);
+      let ints: Vector[i32] = [1, 2, 3];
+      let _len: i32 = len_i32(ints);
+      let _empty: bool = is_empty_i32(ints);
       let a: Tensor = from_list([1, 2, 3]);
       let b: Tensor = from_list([4, 5, 6]);
       let _m: Tensor = matmul(a, b);

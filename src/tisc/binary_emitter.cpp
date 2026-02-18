@@ -227,6 +227,10 @@ Opcode map_opcode(const ir::Instruction& instr) {
       return Opcode::StrLen;
     case O::STREMPTY:
       return Opcode::StrEmpty;
+    case O::VECLEN:
+      return Opcode::VecLen;
+    case O::VECEMPTY:
+      return Opcode::VecEmpty;
     case O::STRCONCAT:
       return Opcode::StrConcat;
     case O::STRSTARTSWITH:

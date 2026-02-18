@@ -1910,6 +1910,72 @@ public:
         update_flags(state_.registers[insn.a]);
         break;
       }
+      case t81::tisc::Opcode::VecLen: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        std::int64_t length = 0;
+        if (state_.register_tags[insn.b] == ValueTag::StringVectorHandle) {
+          auto* values = string_vector_ptr(state_.registers[insn.b]);
+          if (values == nullptr) {
+            trap = Trap::DecodeFault;
+            break;
+          }
+          length = static_cast<std::int64_t>(values->size());
+        } else if (state_.register_tags[insn.b] == ValueTag::TensorHandle) {
+          auto* tensor = tensor_ptr(state_.registers[insn.b]);
+          if (tensor == nullptr) {
+            trap = Trap::DecodeFault;
+            break;
+          }
+          if (tensor->rank() != 1 || tensor->shape().empty()) {
+            trap = Trap::TypeFault;
+            break;
+          }
+          length = static_cast<std::int64_t>(tensor->shape().front());
+        } else {
+          trap = Trap::TypeFault;
+          break;
+        }
+        state_.registers[insn.a] = length;
+        state_.register_tags[insn.a] = ValueTag::Int;
+        update_flags(state_.registers[insn.a]);
+        break;
+      }
+      case t81::tisc::Opcode::VecEmpty: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        bool is_empty = false;
+        if (state_.register_tags[insn.b] == ValueTag::StringVectorHandle) {
+          auto* values = string_vector_ptr(state_.registers[insn.b]);
+          if (values == nullptr) {
+            trap = Trap::DecodeFault;
+            break;
+          }
+          is_empty = values->empty();
+        } else if (state_.register_tags[insn.b] == ValueTag::TensorHandle) {
+          auto* tensor = tensor_ptr(state_.registers[insn.b]);
+          if (tensor == nullptr) {
+            trap = Trap::DecodeFault;
+            break;
+          }
+          if (tensor->rank() != 1 || tensor->shape().empty()) {
+            trap = Trap::TypeFault;
+            break;
+          }
+          is_empty = tensor->shape().front() == 0;
+        } else {
+          trap = Trap::TypeFault;
+          break;
+        }
+        state_.registers[insn.a] = is_empty ? 1 : 0;
+        state_.register_tags[insn.a] = ValueTag::Bool;
+        update_flags(state_.registers[insn.a]);
+        break;
+      }
       case t81::tisc::Opcode::StrConcat: {
         if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
           trap = Trap::DecodeFault;

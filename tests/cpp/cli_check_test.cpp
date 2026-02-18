@@ -233,6 +233,35 @@ int main() {
   }
   fs::remove(transcendental_math_path);
 
+  const std::string clamp_collections_program = R"(
+        fn main() -> i32 {
+            let clamped: T81Float = std.math.clamp(-2.0, 0.0, 1.0);
+            let ints: Vector[i32] = [1, 2, 3];
+            let n: i32 = std.collections.len(ints);
+            let e: bool = std.collections.is_empty(ints);
+            let _c = clamped;
+            let _n = n;
+            let _e = e;
+            return 0;
+        }
+    )";
+
+  [[maybe_unused]] auto clamp_collections_path =
+      make_temp_path("t81-check-clamp-collections", ".t81");
+  write_source(clamp_collections_path, clamp_collections_program);
+
+  [[maybe_unused]] std::ostringstream clamp_collections_captured;
+  old_buf = std::cerr.rdbuf(clamp_collections_captured.rdbuf());
+  [[maybe_unused]] int clamp_collections_rc = t81::cli::check_syntax(clamp_collections_path);
+  std::cerr.rdbuf(old_buf);
+
+  if (clamp_collections_rc != 0) {
+    std::cerr << "Expected `t81 check` to succeed on std.math.clamp/std.collections input\n";
+    std::cerr << clamp_collections_captured.str() << "\n";
+    return 1;
+  }
+  fs::remove(clamp_collections_path);
+
   std::cout << "CliCheckTest passed!" << std::endl;
   return 0;
 }

@@ -1,9 +1,13 @@
 // src/lang/std/collections.t81
 // Collection utilities.
 
-// TODO: Implement List/Map bindings once native types are fully exposed.
+// Deterministic Vector helpers.
+// NOTE: Generic function wrappers are not supported yet by the current parser.
 
-fn is_empty(v: T81Vector) -> bool {
-    // Placeholder
-    return true;
+fn len(v: Vector[i32]) -> i32 {
+    return std.collections.len(v);
+}
+
+fn is_empty(v: Vector[i32]) -> bool {
+    return std.collections.is_empty(v);
 }

@@ -251,6 +251,9 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.math.sqrt") {
     return "sqrt";
   }
+  if (name == "std.math.clamp") {
+    return "clamp";
+  }
   if (name == "std.sys.exit") {
     return "sys_exit";
   }
@@ -349,6 +352,12 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   }
   if (name == "std.bytes.from_string") {
     return "T81Bytes";
+  }
+  if (name == "std.collections.len") {
+    return "collections_len";
+  }
+  if (name == "std.collections.is_empty") {
+    return "collections_is_empty";
   }
   if (name == "std.symbol.intern") {
     return "symbol_intern";
@@ -1959,6 +1968,19 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       }
       return Type{Type::Kind::Float};
     }
+    if (func_name == "clamp") {
+      if (arg_types.size() != 3) {
+        error(call_token, "clamp expects exactly three arguments.");
+        return make_error_type();
+      }
+      if (!is_assignable(Type{Type::Kind::Float}, arg_types[0]) ||
+          !is_assignable(Type{Type::Kind::Float}, arg_types[1]) ||
+          !is_assignable(Type{Type::Kind::Float}, arg_types[2])) {
+        error(call_token, "clamp arguments must be convertible to T81Float.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Float};
+    }
     if (func_name == "sys_exit") {
       if (arg_types.size() != 1) {
         error(call_token, "sys_exit expects exactly one argument.");
@@ -2326,6 +2348,28 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return make_error_type();
       }
       return Type{Type::Kind::Bytes};
+    }
+    if (func_name == "collections_len") {
+      if (arg_types.size() != 1) {
+        error(call_token, "std.collections.len expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Vector) {
+        error(call_token, "std.collections.len expects a Vector[T] argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
+    }
+    if (func_name == "collections_is_empty") {
+      if (arg_types.size() != 1) {
+        error(call_token, "std.collections.is_empty expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Vector) {
+        error(call_token, "std.collections.is_empty expects a Vector[T] argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
     }
     if (func_name == "symbol_intern") {
       if (arg_types.size() != 1) {
