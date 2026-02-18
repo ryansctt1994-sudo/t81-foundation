@@ -1,0 +1,6 @@
+fn main() -> i32 {
+  print(std.bytes.replace("banana", "na", "X"));
+  print(std.bytes.replace("aaaa", "aa", "b"));
+  print(std.bytes.replace("alpha", "", "z"));
+  return 0;
+}
