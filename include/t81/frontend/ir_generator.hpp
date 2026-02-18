@@ -114,6 +114,9 @@ inline std::optional<std::string> qualified_call_name(const Expr& expr) {
   if (const auto* var = dynamic_cast<const VariableExpr*>(&expr)) {
     return std::string(var->name.lexeme);
   }
+  if (const auto* generic = dynamic_cast<const GenericTypeExpr*>(&expr)) {
+    return std::string(generic->name.lexeme);
+  }
   if (const auto* field = dynamic_cast<const FieldAccessExpr*>(&expr)) {
     auto head = qualified_call_name(*field->object);
     if (!head.has_value()) {
@@ -1741,7 +1744,8 @@ public:
         return {};
       }
 
-      if (dynamic_cast<const VariableExpr*>(expr.callee.get())) {
+      if (dynamic_cast<const VariableExpr*>(expr.callee.get()) ||
+          dynamic_cast<const GenericTypeExpr*>(expr.callee.get())) {
         // Check for user-defined function
         auto label_it = _function_labels.find(func_name);
         if (label_it != _function_labels.end()) {

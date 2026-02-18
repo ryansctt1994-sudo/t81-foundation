@@ -1635,6 +1635,33 @@ static void test_generic_function_inference() {
                                            "of type 'T81String'.",
                                            "t81lang_generic_function_inference_bad_return_use"),
                "t81lang_generic_function_inference_bad_return_use");
+
+  constexpr const char* explicit_type_args = R"(
+    fn id[T](x: T) -> T {
+      return x;
+    }
+    fn main() -> i32 {
+      let out: i32 = id[i32](7);
+      return out;
+    }
+  )";
+  require_true(analyzes(explicit_type_args, "t81lang_generic_function_explicit_type_args"),
+               "t81lang_generic_function_explicit_type_args");
+
+  constexpr const char* explicit_type_arg_count_mismatch = R"(
+    fn id[T](x: T) -> T {
+      return x;
+    }
+    fn main() -> i32 {
+      let out: i32 = id[i32, T81String](7);
+      return out;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(explicit_type_arg_count_mismatch,
+                                  "expects 1 explicit type arguments but got 2",
+                                  "t81lang_generic_function_explicit_type_args_bad_arity"),
+      "t81lang_generic_function_explicit_type_args_bad_arity");
 }
 
 static void test_let_is_immutable() {

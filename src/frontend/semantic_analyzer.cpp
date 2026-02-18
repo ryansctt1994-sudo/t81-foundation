@@ -840,6 +840,9 @@ std::string SemanticAnalyzer::expr_to_string(const Expr& expr) const {
     result += ")";
     return result;
   }
+  if (auto* generic = dynamic_cast<const GenericTypeExpr*>(&expr)) {
+    return type_expr_to_string(*generic);
+  }
   return "<expr>";
 }
 
@@ -2661,6 +2664,84 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
   }
 
   if (auto* generic_callee = dynamic_cast<const GenericTypeExpr*>(expr.callee.get())) {
+    if (auto* symbol = resolve_symbol(generic_callee->name);
+        symbol && symbol->kind == SymbolKind::Function) {
+      const std::string func_name(generic_callee->name.lexeme);
+
+      if (symbol->param_types.size() != arg_types.size()) {
+        error(generic_callee->name, "Function '" + func_name + "' expects " +
+                                        std::to_string(symbol->param_types.size()) +
+                                        " arguments but got " + std::to_string(arg_types.size()) +
+                                        ".");
+        return symbol->type;
+      }
+
+      if (symbol->generic_params.empty()) {
+        error(generic_callee->name, "Function '" + func_name +
+                                        "' is not generic and does not accept explicit type "
+                                        "arguments.");
+        return make_error_type();
+      }
+
+      std::vector<Type> explicit_type_args;
+      explicit_type_args.reserve(generic_callee->param_count);
+      for (size_t i = 0; i < generic_callee->param_count; ++i) {
+        const Expr* raw = generic_callee->params[i].get();
+        if (!raw) {
+          error(generic_callee->name,
+                "Explicit function type argument " + std::to_string(i) + " is missing.");
+          return make_error_type();
+        }
+        auto* type_arg = dynamic_cast<const TypeExpr*>(raw);
+        if (!type_arg) {
+          error(generic_callee->name, "Explicit function type arguments must be types.");
+          return make_error_type();
+        }
+        explicit_type_args.push_back(analyze_type_expr(*type_arg));
+      }
+
+      if (explicit_type_args.size() != symbol->generic_params.size()) {
+        error(generic_callee->name,
+              "Function '" + func_name + "' expects " +
+                  std::to_string(symbol->generic_params.size()) +
+                  " explicit type arguments but got " +
+                  std::to_string(explicit_type_args.size()) + ".");
+        return make_error_type();
+      }
+
+      std::unordered_map<std::string, Type> generic_bindings;
+      generic_bindings.reserve(symbol->generic_params.size());
+      for (size_t i = 0; i < symbol->generic_params.size(); ++i) {
+        generic_bindings.emplace(symbol->generic_params[i], explicit_type_args[i]);
+      }
+
+      std::function<Type(const Type&)> instantiate_generic = [&](const Type& in) -> Type {
+        if (in.kind == Type::Kind::Custom) {
+          auto it = generic_bindings.find(in.custom_name);
+          if (it != generic_bindings.end()) {
+            return it->second;
+          }
+          return in;
+        }
+        Type out = in;
+        for (auto& param : out.params) {
+          param = instantiate_generic(param);
+        }
+        return out;
+      };
+
+      for (size_t i = 0; i < arg_types.size(); ++i) {
+        Type expected = instantiate_generic(symbol->param_types[i]);
+        if (!is_assignable(expected, arg_types[i])) {
+          error(generic_callee->name, "Argument " + std::to_string(i) + " for function '" +
+                                          func_name + "' expects '" + type_to_string(expected) +
+                                          "' but got '" + type_to_string(arg_types[i]) + "'.");
+        }
+      }
+
+      return instantiate_generic(symbol->type);
+    }
+
     Type constructed_type = evaluate_expression(*generic_callee);
     if (constructed_type.kind == Type::Kind::Fixed) {
       if (arg_types.size() != 1) {

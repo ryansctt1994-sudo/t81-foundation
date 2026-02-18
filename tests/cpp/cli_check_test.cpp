@@ -269,6 +269,36 @@ int main() {
   }
   fs::remove(clamp_collections_path);
 
+  const std::string generic_explicit_bad_program = R"(
+        fn id[T](x: T) -> T {
+            return x;
+        }
+        fn main() -> i32 {
+            let out: i32 = id[i32]("oops");
+            return out;
+        }
+    )";
+
+  [[maybe_unused]] auto generic_explicit_bad_path =
+      make_temp_path("t81-check-generic-explicit-bad", ".t81");
+  write_source(generic_explicit_bad_path, generic_explicit_bad_program);
+
+  [[maybe_unused]] std::ostringstream generic_explicit_bad_captured;
+  old_buf = std::cerr.rdbuf(generic_explicit_bad_captured.rdbuf());
+  [[maybe_unused]] int generic_explicit_bad_rc = t81::cli::check_syntax(generic_explicit_bad_path);
+  std::cerr.rdbuf(old_buf);
+
+  if (generic_explicit_bad_rc == 0) {
+    std::cerr << "Expected `t81 check` to fail on explicit generic type argument mismatch\n";
+    return 1;
+  }
+  [[maybe_unused]] std::string generic_explicit_bad_output = generic_explicit_bad_captured.str();
+  assert(generic_explicit_bad_output.find(generic_explicit_bad_path.string()) !=
+         std::string::npos);
+  assert(generic_explicit_bad_output.find("expects 'i32' but got 'T81String'") !=
+         std::string::npos);
+  fs::remove(generic_explicit_bad_path);
+
   std::cout << "CliCheckTest passed!" << std::endl;
   return 0;
 }
