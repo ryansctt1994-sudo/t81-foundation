@@ -619,9 +619,19 @@ void test_std_bytes_aliases_lower_to_string_opcodes() {
             let n: i32 = std.bytes.len("alpha");
             let e: bool = std.bytes.is_empty("");
             let joined: T81String = std.bytes.concat("al", "pha");
+            let sw: bool = std.bytes.starts_with(joined, "al");
+            let ew: bool = std.bytes.ends_with(joined, "ha");
+            let has_mid: bool = std.bytes.contains(joined, "lp");
+            let idx: i32 = std.bytes.index_of(joined, "ph");
+            let replaced: T81String = std.bytes.replace(joined, "ph", "zz");
             let _n = n;
             let _e = e;
             let _j = joined;
+            let _sw = sw;
+            let _ew = ew;
+            let _hm = has_mid;
+            let _idx = idx;
+            let _rp = replaced;
             return 0;
         }
     )";
@@ -643,6 +653,11 @@ void test_std_bytes_aliases_lower_to_string_opcodes() {
   bool has_strlen = false;
   bool has_strempty = false;
   bool has_strconcat = false;
+  bool has_strstartswith = false;
+  bool has_strendswith = false;
+  bool has_strcontains = false;
+  bool has_strindexof = false;
+  bool has_strreplace = false;
   for (const auto& inst : instructions) {
     if (inst.opcode == Opcode::STRLEN) {
       has_strlen = true;
@@ -650,12 +665,27 @@ void test_std_bytes_aliases_lower_to_string_opcodes() {
       has_strempty = true;
     } else if (inst.opcode == Opcode::STRCONCAT) {
       has_strconcat = true;
+    } else if (inst.opcode == Opcode::STRSTARTSWITH) {
+      has_strstartswith = true;
+    } else if (inst.opcode == Opcode::STRENDSWITH) {
+      has_strendswith = true;
+    } else if (inst.opcode == Opcode::STRCONTAINS) {
+      has_strcontains = true;
+    } else if (inst.opcode == Opcode::STRINDEXOF) {
+      has_strindexof = true;
+    } else if (inst.opcode == Opcode::STRREPLACE) {
+      has_strreplace = true;
     }
   }
 
   EXPECT(has_strlen, "std.bytes.len should lower to STRLEN");
   EXPECT(has_strempty, "std.bytes.is_empty should lower to STREMPTY");
   EXPECT(has_strconcat, "std.bytes.concat should lower to STRCONCAT");
+  EXPECT(has_strstartswith, "std.bytes.starts_with should lower to STRSTARTSWITH");
+  EXPECT(has_strendswith, "std.bytes.ends_with should lower to STRENDSWITH");
+  EXPECT(has_strcontains, "std.bytes.contains should lower to STRCONTAINS");
+  EXPECT(has_strindexof, "std.bytes.index_of should lower to STRINDEXOF");
+  EXPECT(has_strreplace, "std.bytes.replace should lower to STRREPLACE");
   std::cout << "IRGeneratorTest test_std_bytes_aliases_lower_to_string_opcodes passed!"
             << std::endl;
 }

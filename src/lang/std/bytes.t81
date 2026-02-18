@@ -14,3 +14,23 @@ fn is_empty(b: T81String) -> bool {
 fn concat(a: T81String, b: T81String) -> T81String {
     return std.bytes.concat(a, b);
 }
+
+fn starts_with(b: T81String, prefix: T81String) -> bool {
+    return std.bytes.starts_with(b, prefix);
+}
+
+fn ends_with(b: T81String, suffix: T81String) -> bool {
+    return std.bytes.ends_with(b, suffix);
+}
+
+fn contains(b: T81String, needle: T81String) -> bool {
+    return std.bytes.contains(b, needle);
+}
+
+fn index_of(b: T81String, needle: T81String) -> i32 {
+    return std.bytes.index_of(b, needle);
+}
+
+fn replace(b: T81String, needle: T81String, replacement: T81String) -> T81String {
+    return std.bytes.replace(b, needle, replacement);
+}

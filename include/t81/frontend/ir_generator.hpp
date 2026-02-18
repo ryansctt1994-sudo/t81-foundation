@@ -182,6 +182,21 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.bytes.concat") {
     return "bytes_concat";
   }
+  if (name == "std.bytes.starts_with") {
+    return "bytes_starts_with";
+  }
+  if (name == "std.bytes.ends_with") {
+    return "bytes_ends_with";
+  }
+  if (name == "std.bytes.contains") {
+    return "bytes_contains";
+  }
+  if (name == "std.bytes.index_of") {
+    return "bytes_index_of";
+  }
+  if (name == "std.bytes.replace") {
+    return "bytes_replace";
+  }
   return std::string(name);
 }
 
@@ -1111,6 +1126,96 @@ public:
         tisc::ir::Instruction instr;
         instr.opcode = tisc::ir::Opcode::STRCONCAT;
         instr.operands = {dest.reg, lhs.reg, rhs.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "bytes_starts_with") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("bytes_starts_with expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto prefix = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRSTARTSWITH;
+        instr.operands = {dest.reg, value.reg, prefix.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Boolean;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "bytes_ends_with") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("bytes_ends_with expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto suffix = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRENDSWITH;
+        instr.operands = {dest.reg, value.reg, suffix.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Boolean;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "bytes_contains") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("bytes_contains expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto needle = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRCONTAINS;
+        instr.operands = {dest.reg, value.reg, needle.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Boolean;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "bytes_index_of") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("bytes_index_of expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto needle = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRINDEXOF;
+        instr.operands = {dest.reg, value.reg, needle.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "bytes_replace") {
+        if (expr.arguments.size() != 3) {
+          throw std::runtime_error("bytes_replace expects exactly three arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        expr.arguments[2]->accept(*this);
+        auto source = ensure_expr_result(expr.arguments[0].get());
+        auto needle = ensure_expr_result(expr.arguments[1].get());
+        auto replacement = ensure_expr_result(expr.arguments[2].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction copy;
+        copy.opcode = tisc::ir::Opcode::MOV;
+        copy.operands = {dest.reg, source.reg};
+        emit(copy);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRREPLACE;
+        instr.operands = {dest.reg, needle.reg, replacement.reg};
         emit(instr);
         record_result(&expr, dest);
         return {};

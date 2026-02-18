@@ -58,6 +58,11 @@ Deterministic bytes helpers.
 - `fn len(b: T81String) -> i32`: Deterministic byte-length alias.
 - `fn is_empty(b: T81String) -> bool`: Deterministic emptiness alias.
 - `fn concat(a: T81String, b: T81String) -> T81String`: Deterministic concatenation alias.
+- `fn starts_with(b: T81String, prefix: T81String) -> bool`: Deterministic prefix alias.
+- `fn ends_with(b: T81String, suffix: T81String) -> bool`: Deterministic suffix alias.
+- `fn contains(b: T81String, needle: T81String) -> bool`: Deterministic substring alias.
+- `fn index_of(b: T81String, needle: T81String) -> i32`: Deterministic first-match index (`-1` if not found).
+- `fn replace(b: T81String, needle: T81String, replacement: T81String) -> T81String`: Deterministic global replace alias.
 - Note: Current `std.bytes` aliases are string-backed in the frontend pending native `T81Bytes` typing.
 
 ## System & Runtime

@@ -257,6 +257,21 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.bytes.concat") {
     return "bytes_concat";
   }
+  if (name == "std.bytes.starts_with") {
+    return "bytes_starts_with";
+  }
+  if (name == "std.bytes.ends_with") {
+    return "bytes_ends_with";
+  }
+  if (name == "std.bytes.contains") {
+    return "bytes_contains";
+  }
+  if (name == "std.bytes.index_of") {
+    return "bytes_index_of";
+  }
+  if (name == "std.bytes.replace") {
+    return "bytes_replace";
+  }
   return std::string(name);
 }
 }  // namespace
@@ -1927,6 +1942,62 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       }
       if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
         error(call_token, "bytes_concat expects T81String arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::String};
+    }
+    if (func_name == "bytes_starts_with") {
+      if (arg_types.size() != 2) {
+        error(call_token, "bytes_starts_with expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "bytes_starts_with expects T81String arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
+    }
+    if (func_name == "bytes_ends_with") {
+      if (arg_types.size() != 2) {
+        error(call_token, "bytes_ends_with expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "bytes_ends_with expects T81String arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
+    }
+    if (func_name == "bytes_contains") {
+      if (arg_types.size() != 2) {
+        error(call_token, "bytes_contains expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "bytes_contains expects T81String arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
+    }
+    if (func_name == "bytes_index_of") {
+      if (arg_types.size() != 2) {
+        error(call_token, "bytes_index_of expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "bytes_index_of expects T81String arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
+    }
+    if (func_name == "bytes_replace") {
+      if (arg_types.size() != 3) {
+        error(call_token, "bytes_replace expects exactly three arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String ||
+          arg_types[2].kind != Type::Kind::String) {
+        error(call_token, "bytes_replace expects T81String arguments.");
         return make_error_type();
       }
       return Type{Type::Kind::String};
