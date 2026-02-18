@@ -308,11 +308,13 @@ static void test_std_namespace_builtin_aliases() {
       let graph_edges: Vector[T81String] = std.collections.graph_add_edge(graph_v, "a", "b");
       let graph_edges_dup: Vector[T81String] = std.collections.graph_add_edge(graph_edges, "a", "b");
       let graph_edges_removed: Vector[T81String] = std.collections.graph_remove_edge(graph_edges_dup, "a", "b");
+      let graph_neighbors_b: Vector[T81String] = std.collections.graph_neighbors(graph_edges_dup, "b");
       let _graph_edge_count = std.collections.graph_edge_count(graph_edges_dup);
       let _graph_edge_count_removed = std.collections.graph_edge_count(graph_edges_removed);
       let _graph_has_ab = std.collections.graph_has_edge(graph_edges_dup, "a", "b");
       let _graph_has_ab_removed = std.collections.graph_has_edge(graph_edges_removed, "a", "b");
       let _graph_has_ba = std.collections.graph_has_edge(graph_edges_dup, "b", "a");
+      let _graph_neighbors_b_len = std.collections.len(graph_neighbors_b);
       return 0;
     }
   )";
@@ -773,6 +775,20 @@ static void test_std_namespace_builtin_aliases() {
           "std.collections.graph_remove_edge expects exactly three arguments.",
           "t81lang_std_collections_graph_remove_edge_bad_arity"),
       "t81lang_std_collections_graph_remove_edge_bad_arity");
+
+  constexpr const char* bad_collections_graph_neighbors_type = R"(
+    fn main() -> i32 {
+      let out: Vector[T81String] = std.collections.graph_neighbors(["a", "b"], 7);
+      let _ = out;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(
+          bad_collections_graph_neighbors_type,
+          "std.collections.graph_neighbors expects a T81String from argument.",
+          "t81lang_std_collections_graph_neighbors_bad_type"),
+      "t81lang_std_collections_graph_neighbors_bad_type");
 
   constexpr const char* bad_async_sleep_type = R"(
     fn main() -> i32 {

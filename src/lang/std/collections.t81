@@ -102,3 +102,7 @@ fn graph_add_edge(g: Vector[T81String], from: T81String, to: T81String) -> Vecto
 fn graph_remove_edge(g: Vector[T81String], from: T81String, to: T81String) -> Vector[T81String] {
     return std.collections.graph_remove_edge(g, from, to);
 }
+
+fn graph_neighbors(g: Vector[T81String], from: T81String) -> Vector[T81String] {
+    return std.collections.graph_neighbors(g, from);
+}

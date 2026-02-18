@@ -16,9 +16,9 @@ Fixture pack for CLI end-to-end coverage of `std.collections` aliases.
 - Validate staged set mutation helpers `std.collections.set_add` and
   `std.collections.set_remove`, including deterministic duplicate-elision behavior.
 - Validate staged graph helpers `std.collections.graph_edge_count`,
-  `std.collections.graph_has_edge`, `std.collections.graph_add_edge`, and
-  `std.collections.graph_remove_edge` over flat edge-vector encodings
-  (`[from0, to0, ...]`, odd tails ignored).
+  `std.collections.graph_has_edge`, `std.collections.graph_add_edge`,
+  `std.collections.graph_remove_edge`, and `std.collections.graph_neighbors`
+  over flat edge-vector encodings (`[from0, to0, ...]`, odd tails ignored).
 - Validate behavior for both frontend `Vector[i32]` values and
   `Vector[T81String]` values produced via `std.text.split`.
 - Validate end-to-end generic call inference over nested container signatures

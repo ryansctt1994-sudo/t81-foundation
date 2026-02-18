@@ -73,6 +73,7 @@ Input and Output.
 - `fn graph_has_edge(g: Vector[T81String], from: T81String, to: T81String) -> bool`: Deterministic edge-membership check over staged flat-graph vectors (odd tails ignored).
 - `fn graph_add_edge(g: Vector[T81String], from: T81String, to: T81String) -> Vector[T81String]`: Deterministic idempotent edge insertion over staged flat-graph vectors; preserves existing edge order and appends new edges at the tail.
 - `fn graph_remove_edge(g: Vector[T81String], from: T81String, to: T81String) -> Vector[T81String]`: Deterministic edge removal over staged flat-graph vectors; removes all matching edges while preserving relative order of survivors (odd tails ignored).
+- `fn graph_neighbors(g: Vector[T81String], from: T81String) -> Vector[T81String]`: Deterministic outgoing-neighbor projection over staged flat-graph vectors; preserves encounter order by edge position and ignores odd tails.
 - `fn map_size(m: Vector[T81String]) -> i32`: Deterministic pair-count for staged flat-map vectors (`[k0, v0, ...]`), computed as `floor(len / 2)`.
 - `fn map_has(m: Vector[T81String], key: T81String) -> bool`: Deterministic key-existence check over staged flat-map vectors; dangling odd-tail entries are ignored.
 - `fn map_put(m: Vector[T81String], key: T81String, value: T81String) -> Vector[T81String]`: Deterministic upsert over staged flat-map vectors (existing key entries removed, then key/value appended).
