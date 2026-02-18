@@ -725,10 +725,13 @@ static void test_std_bytes_aliases() {
       let has_mid: bool = std.bytes.contains(c, T81Bytes("lp"));
       let idx: i32 = std.bytes.index_of(c, T81Bytes("ph"));
       let repl: T81Bytes = std.bytes.replace(c, T81Bytes("ph"), T81Bytes("zz"));
+      let parts: Vector[T81Bytes] = std.bytes.split(T81Bytes("a,,b"), T81Bytes(","));
+      let roundtrip: T81Bytes = std.bytes.join(parts, T81Bytes(","));
       let rendered: T81String = std.bytes.to_string(repl);
       let from_text: T81Bytes = std.bytes.from_string("alpha");
       let from_text_len: i32 = std.bytes.len(from_text);
       let repl_idx: i32 = std.bytes.index_of(repl, T81Bytes("zz"));
+      let roundtrip_idx: i32 = std.bytes.index_of(roundtrip, T81Bytes(",,"));
       let m: i32 = std.bytes.len(c);
       if (e) {
         if (n == 5) {
@@ -740,7 +743,9 @@ static void test_std_bytes_aliases() {
                     if (repl_idx == 2) {
                       if (std.text.str_len(rendered) == 5) {
                         if (from_text_len == 5) {
-                          return n;
+                          if (roundtrip_idx == 1) {
+                            return n;
+                          }
                         }
                       }
                     }
@@ -862,6 +867,80 @@ static void test_std_bytes_aliases() {
   )";
   require_true(fails_semantic(bad_replace_type, "t81lang_std_bytes_replace_bad_type"),
                "t81lang_std_bytes_replace_bad_type");
+
+  constexpr const char* bad_split_arity = R"(
+    fn main() -> i32 {
+      let parts: Vector[T81Bytes] = std.bytes.split(T81Bytes("alpha"));
+      let _ = parts;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(bad_split_arity,
+                                           "bytes_split expects exactly two arguments.",
+                                           "t81lang_std_bytes_split_bad_arity"),
+               "t81lang_std_bytes_split_bad_arity");
+
+  constexpr const char* bad_split_type = R"(
+    fn main() -> i32 {
+      let parts: Vector[T81Bytes] = std.bytes.split(T81Bytes("alpha"), 7);
+      let _ = parts;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_split_type, "bytes_split expects T81Bytes arguments.",
+                                  "t81lang_std_bytes_split_bad_type"),
+      "t81lang_std_bytes_split_bad_type");
+
+  constexpr const char* bad_split_empty_separator = R"(
+    fn main() -> i32 {
+      let parts: Vector[T81Bytes] = std.bytes.split(T81Bytes("alpha"), T81Bytes(""));
+      let _ = parts;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_split_empty_separator,
+                                  "bytes_split separator must not be empty.",
+                                  "t81lang_std_bytes_split_bad_empty_separator"),
+      "t81lang_std_bytes_split_bad_empty_separator");
+
+  constexpr const char* bad_join_arity = R"(
+    fn main() -> i32 {
+      let joined: T81Bytes = std.bytes.join([T81Bytes("a"), T81Bytes("b")]);
+      let _ = joined;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(bad_join_arity, "bytes_join expects exactly two arguments.",
+                                           "t81lang_std_bytes_join_bad_arity"),
+               "t81lang_std_bytes_join_bad_arity");
+
+  constexpr const char* bad_join_parts_type = R"(
+    fn main() -> i32 {
+      let joined: T81Bytes = std.bytes.join(T81Bytes("abc"), T81Bytes(","));
+      let _ = joined;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_join_parts_type,
+                                  "bytes_join expects a Vector[T81Bytes] first argument.",
+                                  "t81lang_std_bytes_join_bad_parts_type"),
+      "t81lang_std_bytes_join_bad_parts_type");
+
+  constexpr const char* bad_join_sep_type = R"(
+    fn main() -> i32 {
+      let joined: T81Bytes = std.bytes.join([T81Bytes("a"), T81Bytes("b")], 7);
+      let _ = joined;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_join_sep_type,
+                                  "bytes_join expects a T81Bytes separator argument.",
+                                  "t81lang_std_bytes_join_bad_separator_type"),
+      "t81lang_std_bytes_join_bad_separator_type");
 
   constexpr const char* bad_from_string_type = R"(
     fn main() -> i32 {
@@ -996,6 +1075,12 @@ static void test_std_bytes_module_wrappers() {
     fn replace(b: T81Bytes, needle: T81Bytes, replacement: T81Bytes) -> T81Bytes {
       return std.bytes.replace(b, needle, replacement);
     }
+    fn split(b: T81Bytes, sep: T81Bytes) -> Vector[T81Bytes] {
+      return std.bytes.split(b, sep);
+    }
+    fn join(parts: Vector[T81Bytes], sep: T81Bytes) -> T81Bytes {
+      return std.bytes.join(parts, sep);
+    }
     fn to_string(b: T81Bytes) -> T81String {
       return std.bytes.to_string(b);
     }
@@ -1012,9 +1097,12 @@ static void test_std_bytes_module_wrappers() {
       let has_mid: bool = contains(merged, T81Bytes("et"));
       let idx: i32 = index_of(merged, T81Bytes("ta"));
       let replaced: T81Bytes = replace(merged, T81Bytes("ta"), T81Bytes("xo"));
+      let parts: Vector[T81Bytes] = split(T81Bytes("x,,z"), T81Bytes(","));
+      let roundtrip: T81Bytes = join(parts, T81Bytes(","));
       let rendered: T81String = to_string(replaced);
       let from_text_len: i32 = len(from_text);
       let repl_idx: i32 = index_of(replaced, T81Bytes("xo"));
+      let roundtrip_idx: i32 = index_of(roundtrip, T81Bytes(",,"));
       let m: i32 = len(merged);
       if (e) {
         if (n == 4) {
@@ -1026,7 +1114,9 @@ static void test_std_bytes_module_wrappers() {
                     if (idx == 2) {
                       if (repl_idx == 2) {
                         if (std.text.str_len(rendered) == 4) {
-                          return n;
+                          if (roundtrip_idx == 1) {
+                            return n;
+                          }
                         }
                       }
                     }

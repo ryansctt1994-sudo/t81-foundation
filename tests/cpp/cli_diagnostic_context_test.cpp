@@ -87,6 +87,22 @@ fn main() -> i32 {
 }
 )";
 
+  const std::string bytes_split_source = R"(
+fn main() -> i32 {
+    let parts: Vector[T81Bytes] = std.bytes.split(T81Bytes("alpha"), T81Bytes(""));
+    let _ = parts;
+    return 0;
+}
+)";
+
+  const std::string bytes_join_source = R"(
+fn main() -> i32 {
+    let joined: T81Bytes = std.bytes.join([T81Bytes("a"), T81Bytes("b")], 7);
+    let _ = joined;
+    return 0;
+}
+)";
+
   {
     [[maybe_unused]] auto output = capture_diagnostics(option_source, "option");
     assert_contains(output, "Some(true);", "option");
@@ -128,6 +144,20 @@ fn main() -> i32 {
     assert_contains(output, "std.text.join([\"a\", \"b\"], 7)", "join");
     assert_contains(output, "str_join expects a T81String separator argument.", "join");
     assert_contains(output, "^", "join");
+  }
+
+  {
+    [[maybe_unused]] auto output = capture_diagnostics(bytes_split_source, "bytes_split");
+    assert_contains(output, "std.bytes.split(T81Bytes(\"alpha\"), T81Bytes(\"\"))", "bytes_split");
+    assert_contains(output, "bytes_split separator must not be empty.", "bytes_split");
+    assert_contains(output, "^", "bytes_split");
+  }
+
+  {
+    [[maybe_unused]] auto output = capture_diagnostics(bytes_join_source, "bytes_join");
+    assert_contains(output, "std.bytes.join([T81Bytes(\"a\"), T81Bytes(\"b\")], 7)", "bytes_join");
+    assert_contains(output, "bytes_join expects a T81Bytes separator argument.", "bytes_join");
+    assert_contains(output, "^", "bytes_join");
   }
 
   return 0;

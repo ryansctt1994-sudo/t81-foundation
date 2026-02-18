@@ -390,10 +390,13 @@ void test_std_bytes_pipeline() {
             let has_mid: bool = std.bytes.contains(joined, T81Bytes("lp"));
             let idx: i32 = std.bytes.index_of(joined, T81Bytes("ph"));
             let replaced: T81Bytes = std.bytes.replace(joined, T81Bytes("ph"), T81Bytes("zz"));
+            let parts: Vector[T81Bytes] = std.bytes.split(T81Bytes("a,,b"), T81Bytes(","));
+            let roundtrip: T81Bytes = std.bytes.join(parts, T81Bytes(","));
             let rendered: T81String = std.bytes.to_string(replaced);
             let from_text: T81Bytes = std.bytes.from_string("alpha");
             let from_text_len: i32 = std.bytes.len(from_text);
             let repl_idx: i32 = std.bytes.index_of(replaced, T81Bytes("zz"));
+            let roundtrip_idx: i32 = std.bytes.index_of(roundtrip, T81Bytes(",,"));
             let m: i32 = std.bytes.len(joined);
             if (e) {
                 if (n == 5) {
@@ -405,7 +408,9 @@ void test_std_bytes_pipeline() {
                                         if (repl_idx == 2) {
                                             if (std.text.str_len(rendered) == 5) {
                                                 if (from_text_len == 5) {
-                                                    return n;
+                                                    if (roundtrip_idx == 1) {
+                                                        return n;
+                                                    }
                                                 }
                                             }
                                         }
@@ -452,6 +457,12 @@ void test_std_bytes_module_wrapper_pipeline() {
         fn replace(b: T81Bytes, needle: T81Bytes, replacement: T81Bytes) -> T81Bytes {
             return std.bytes.replace(b, needle, replacement);
         }
+        fn split(b: T81Bytes, sep: T81Bytes) -> Vector[T81Bytes] {
+            return std.bytes.split(b, sep);
+        }
+        fn join(parts: Vector[T81Bytes], sep: T81Bytes) -> T81Bytes {
+            return std.bytes.join(parts, sep);
+        }
         fn to_string(b: T81Bytes) -> T81String {
             return std.bytes.to_string(b);
         }
@@ -468,9 +479,12 @@ void test_std_bytes_module_wrapper_pipeline() {
             let has_mid: bool = contains(joined, T81Bytes("meg"));
             let idx: i32 = index_of(joined, T81Bytes("ga"));
             let replaced: T81Bytes = replace(joined, T81Bytes("ga"), T81Bytes("xy"));
+            let parts: Vector[T81Bytes] = split(T81Bytes("x,,z"), T81Bytes(","));
+            let roundtrip: T81Bytes = join(parts, T81Bytes(","));
             let rendered: T81String = to_string(replaced);
             let from_text_len: i32 = len(from_text);
             let repl_idx: i32 = index_of(replaced, T81Bytes("xy"));
+            let roundtrip_idx: i32 = index_of(roundtrip, T81Bytes(",,"));
             let m: i32 = len(joined);
             if (e) {
                 if (n == 5) {
@@ -482,7 +496,9 @@ void test_std_bytes_module_wrapper_pipeline() {
                                         if (idx == 3) {
                                             if (repl_idx == 3) {
                                                 if (std.text.str_len(rendered) == 5) {
-                                                    return n;
+                                                    if (roundtrip_idx == 1) {
+                                                        return n;
+                                                    }
                                                 }
                                             }
                                         }

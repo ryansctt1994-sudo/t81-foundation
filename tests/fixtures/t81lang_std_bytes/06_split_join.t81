@@ -1,0 +1,10 @@
+fn main() -> i32 {
+  let parts: Vector[T81Bytes] = std.bytes.split(T81Bytes("a,,b"), T81Bytes(","));
+  let joined: T81Bytes = std.bytes.join(parts, T81Bytes(","));
+  let direct: T81Bytes =
+      std.bytes.join(std.bytes.split(T81Bytes("x,,z"), T81Bytes(",")), T81Bytes(","));
+  print(std.bytes.to_string(joined));
+  print(std.bytes.to_string(direct));
+  print(std.bytes.index_of(joined, T81Bytes(",,")));
+  return 0;
+}

@@ -653,6 +653,8 @@ void test_std_bytes_aliases_lower_to_string_opcodes() {
             let has_mid: bool = std.bytes.contains(joined, T81Bytes("lp"));
             let idx: i32 = std.bytes.index_of(joined, T81Bytes("ph"));
             let replaced: T81Bytes = std.bytes.replace(joined, T81Bytes("ph"), T81Bytes("zz"));
+            let parts: Vector[T81Bytes] = std.bytes.split(T81Bytes("a,,b"), T81Bytes(","));
+            let roundtrip: T81Bytes = std.bytes.join(parts, T81Bytes(","));
             let rendered: T81String = std.bytes.to_string(replaced);
             let from_text: T81Bytes = std.bytes.from_string("alpha");
             let from_text_len: i32 = std.bytes.len(from_text);
@@ -664,6 +666,7 @@ void test_std_bytes_aliases_lower_to_string_opcodes() {
             let _hm = has_mid;
             let _idx = idx;
             let _rp = replaced;
+            let _rt = roundtrip;
             let _rd = rendered;
             let _ftl = from_text_len;
             return 0;
@@ -692,6 +695,8 @@ void test_std_bytes_aliases_lower_to_string_opcodes() {
   bool has_strcontains = false;
   bool has_strindexof = false;
   bool has_strreplace = false;
+  bool has_strsplit = false;
+  bool has_strjoin = false;
   for (const auto& inst : instructions) {
     if (inst.opcode == Opcode::STRLEN) {
       has_strlen = true;
@@ -709,6 +714,10 @@ void test_std_bytes_aliases_lower_to_string_opcodes() {
       has_strindexof = true;
     } else if (inst.opcode == Opcode::STRREPLACE) {
       has_strreplace = true;
+    } else if (inst.opcode == Opcode::STRSPLIT) {
+      has_strsplit = true;
+    } else if (inst.opcode == Opcode::STRJOIN) {
+      has_strjoin = true;
     }
   }
 
@@ -720,6 +729,8 @@ void test_std_bytes_aliases_lower_to_string_opcodes() {
   EXPECT(has_strcontains, "std.bytes.contains should lower to STRCONTAINS");
   EXPECT(has_strindexof, "std.bytes.index_of should lower to STRINDEXOF");
   EXPECT(has_strreplace, "std.bytes.replace should lower to STRREPLACE");
+  EXPECT(has_strsplit, "std.bytes.split should lower to STRSPLIT");
+  EXPECT(has_strjoin, "std.bytes.join should lower to STRJOIN");
   std::cout << "IRGeneratorTest test_std_bytes_aliases_lower_to_string_opcodes passed!"
             << std::endl;
 }

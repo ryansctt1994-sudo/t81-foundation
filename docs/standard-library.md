@@ -65,6 +65,8 @@ Deterministic bytes helpers.
 - `fn contains(b: T81Bytes, needle: T81Bytes) -> bool`: Deterministic subsequence check.
 - `fn index_of(b: T81Bytes, needle: T81Bytes) -> i32`: Deterministic first-match index (`-1` if not found).
 - `fn replace(b: T81Bytes, needle: T81Bytes, replacement: T81Bytes) -> T81Bytes`: Deterministic global replace.
+- `fn split(b: T81Bytes, sep: T81Bytes) -> Vector[T81Bytes]`: Deterministic split preserving empty segments. Empty separator is rejected.
+- `fn join(parts: Vector[T81Bytes], sep: T81Bytes) -> T81Bytes`: Deterministic join over byte-vector parts.
 - `fn to_string(b: T81Bytes) -> T81String`: Deterministic bytes-to-text conversion alias.
 - `fn from_string(s: T81String) -> T81Bytes`: Deterministic text-to-bytes conversion alias.
 - `fn T81Bytes(s: T81String) -> T81Bytes`: Deterministic conversion constructor.

@@ -24,6 +24,8 @@ constexpr std::string_view kStackFree = "stack frame freed";
 constexpr std::string_view kHeapAlloc = "heap block allocated";
 constexpr std::string_view kHeapFree = "heap block freed";
 constexpr std::string_view kTensorAlloc = "tensor slot allocated";
+constexpr std::string_view kStringSplit = "string split";
+constexpr std::string_view kStringJoin = "string join";
 
 // --- Faults ---
 constexpr std::string_view kBoundsFault = "bounds fault";

@@ -112,6 +112,32 @@ int main() {
 
   fs::remove(join_path);
 
+  const std::string bytes_split_join_program = R"(
+        fn main() -> i32 {
+            let parts: Vector[T81Bytes] = std.bytes.split(T81Bytes("a,,b"), T81Bytes(","));
+            let joined: T81Bytes = std.bytes.join(parts, T81Bytes(","));
+            let _ = joined;
+            return 0;
+        }
+    )";
+
+  [[maybe_unused]] auto bytes_split_join_path =
+      make_temp_path("t81-check-bytes-split-join", ".t81");
+  write_source(bytes_split_join_path, bytes_split_join_program);
+
+  [[maybe_unused]] std::ostringstream bytes_split_join_captured;
+  old_buf = std::cerr.rdbuf(bytes_split_join_captured.rdbuf());
+  [[maybe_unused]] int bytes_split_join_rc = t81::cli::check_syntax(bytes_split_join_path);
+  std::cerr.rdbuf(old_buf);
+
+  if (bytes_split_join_rc != 0) {
+    std::cerr << "Expected `t81 check` to succeed on valid bytes split/join input\n";
+    std::cerr << bytes_split_join_captured.str() << "\n";
+    return 1;
+  }
+
+  fs::remove(bytes_split_join_path);
+
   std::cout << "CliCheckTest passed!" << std::endl;
   return 0;
 }

@@ -2132,6 +2132,18 @@ public:
         state_.string_vectors.push_back(std::move(parts));
         state_.registers[insn.a] = static_cast<std::int64_t>(state_.string_vectors.size());
         state_.register_tags[insn.a] = ValueTag::StringVectorHandle;
+        {
+          t81::axion::Verdict verdict;
+          verdict.kind = t81::axion::VerdictKind::Allow;
+          std::ostringstream reason;
+          reason << t81::axion::reasons::kStringSplit << " input_len=" << value->size()
+                 << " sep_len=" << sep->size()
+                 << " parts=" << state_.string_vectors.back().size();
+          verdict.reason = reason.str();
+          record_axion_event(insn.opcode, static_cast<std::int32_t>(state_.string_vectors.size()),
+                             static_cast<std::int64_t>(state_.string_vectors.back().size()),
+                             verdict);
+        }
         update_flags(state_.registers[insn.a]);
         break;
       }
@@ -2161,6 +2173,16 @@ public:
         }
         state_.registers[insn.a] = intern_symbol(std::move(joined));
         state_.register_tags[insn.a] = ValueTag::SymbolHandle;
+        {
+          t81::axion::Verdict verdict;
+          verdict.kind = t81::axion::VerdictKind::Allow;
+          std::ostringstream reason;
+          reason << t81::axion::reasons::kStringJoin << " parts=" << parts->size()
+                 << " sep_len=" << sep->size();
+          verdict.reason = reason.str();
+          record_axion_event(insn.opcode, static_cast<std::int32_t>(parts->size()),
+                             state_.registers[insn.a], verdict);
+        }
         update_flags(state_.registers[insn.a]);
         break;
       }

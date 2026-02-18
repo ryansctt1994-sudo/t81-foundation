@@ -284,6 +284,12 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.bytes.replace") {
     return "bytes_replace";
   }
+  if (name == "std.bytes.split") {
+    return "bytes_split";
+  }
+  if (name == "std.bytes.join") {
+    return "bytes_join";
+  }
   if (name == "std.bytes.to_string") {
     return "str_to_string";
   }
@@ -2100,6 +2106,56 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       if (arg_types[0].kind != Type::Kind::Bytes || arg_types[1].kind != Type::Kind::Bytes ||
           arg_types[2].kind != Type::Kind::Bytes) {
         error(call_token, "bytes_replace expects T81Bytes arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bytes};
+    }
+    if (func_name == "bytes_split") {
+      if (arg_types.size() != 2) {
+        error(call_token, "bytes_split expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Bytes || arg_types[1].kind != Type::Kind::Bytes) {
+        error(call_token, "bytes_split expects T81Bytes arguments.");
+        return make_error_type();
+      }
+      if (auto* sep_constructor = dynamic_cast<const CallExpr*>(expr.arguments[1].get())) {
+        bool is_bytes_constructor = false;
+        if (auto* sep_type = dynamic_cast<const SimpleTypeExpr*>(sep_constructor->callee.get())) {
+          is_bytes_constructor = sep_type->name.lexeme == "T81Bytes";
+        } else if (auto* sep_var =
+                       dynamic_cast<const VariableExpr*>(sep_constructor->callee.get())) {
+          is_bytes_constructor = sep_var->name.lexeme == "T81Bytes";
+        }
+        if (is_bytes_constructor && sep_constructor->arguments.size() == 1) {
+          if (auto* sep_literal =
+                  dynamic_cast<const LiteralExpr*>(sep_constructor->arguments[0].get())) {
+            if (sep_literal->value.type == TokenType::String &&
+                sep_literal->value.lexeme == "\"\"") {
+              error(call_token, "bytes_split separator must not be empty.");
+              return make_error_type();
+            }
+          }
+        }
+      }
+      Type result{Type::Kind::Vector};
+      result.params.push_back(Type{Type::Kind::Bytes});
+      return result;
+    }
+    if (func_name == "bytes_join") {
+      if (arg_types.size() != 2) {
+        error(call_token, "bytes_join expects exactly two arguments.");
+        return make_error_type();
+      }
+      const bool is_bytes_vector = arg_types[0].kind == Type::Kind::Vector &&
+                                   !arg_types[0].params.empty() &&
+                                   arg_types[0].params[0].kind == Type::Kind::Bytes;
+      if (!is_bytes_vector) {
+        error(call_token, "bytes_join expects a Vector[T81Bytes] first argument.");
+        return make_error_type();
+      }
+      if (arg_types[1].kind != Type::Kind::Bytes) {
+        error(call_token, "bytes_join expects a T81Bytes separator argument.");
         return make_error_type();
       }
       return Type{Type::Kind::Bytes};

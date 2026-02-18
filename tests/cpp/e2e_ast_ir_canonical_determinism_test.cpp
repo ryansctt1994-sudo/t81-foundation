@@ -488,6 +488,14 @@ const char* ir_opcode_name(tisc::ir::Opcode op) {
       return "STRINDEXOF";
     case O::STRREPLACE:
       return "STRREPLACE";
+    case O::STRVECNEW:
+      return "STRVECNEW";
+    case O::STRVECPUSH:
+      return "STRVECPUSH";
+    case O::STRSPLIT:
+      return "STRSPLIT";
+    case O::STRJOIN:
+      return "STRJOIN";
     case O::WEIGHTS_LOAD:
       return "WEIGHTS_LOAD";
     case O::META_READ:

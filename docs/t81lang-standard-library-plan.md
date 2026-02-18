@@ -126,6 +126,7 @@ Building blocks for autonomous agents.
 - `std.text`: fixture-driven CLI golden coverage now validates deterministic runtime output via `tests/fixtures/t81lang_std_text/*` and `tests/cpp/cli_std_text_fixtures_test.cpp`.
 - `std.text`: `split` / `join` are implemented end-to-end across semantic analysis, IR lowering, and VM execution, including deterministic handling of `Vector[T81String]` via runtime handles.
 - `std.bytes`: `len`, `is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, `replace`, `to_string`, and `from_string` are implemented for frontend-native `T81Bytes`, with explicit `T81Bytes(...)` conversion calls and fixture-driven CLI golden coverage in `tests/fixtures/t81lang_std_bytes/*` and `tests/cpp/cli_std_bytes_fixtures_test.cpp`.
+- `std.bytes`: `split` / `join` now mirror `std.text` semantics for byte data (`split` preserves empty segments, `join` supports empty vectors) with deterministic semantic diagnostics for empty literal separators.
 
 ## 6. Completed Milestone: `std.text.split` / `std.text.join`
 

@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <memory>
+#include <string>
 #include <t81/axion/engine.hpp>
 #include <t81/tisc/program.hpp>
 #include <t81/vm/vm.hpp>
@@ -81,6 +82,34 @@ int main() {
     [[maybe_unused]] auto res = vm->step();
     T81_TEST_CHECK(!res.has_value());
     T81_TEST_CHECK(res.error() == vm::Trap::SecurityFault);
+  }
+
+  // Split/join should emit deterministic Axion trace events.
+  {
+    [[maybe_unused]] tisc::Program p;
+    p.symbol_pool = {"a,,b", ","};
+    p.insns.push_back({tisc::Opcode::LoadImm, 1, 1, 0, tisc::LiteralKind::SymbolHandle});
+    p.insns.push_back({tisc::Opcode::LoadImm, 2, 2, 0, tisc::LiteralKind::SymbolHandle});
+    p.insns.push_back({tisc::Opcode::StrSplit, 3, 1, 2});
+    p.insns.push_back({tisc::Opcode::StrJoin, 4, 3, 2});
+    p.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
+
+    [[maybe_unused]] auto vm = vm::make_interpreter_vm();
+    vm->load_program(p);
+    [[maybe_unused]] auto r = vm->run_to_halt();
+    T81_TEST_CHECK(r.has_value());
+    T81_TEST_CHECK(vm->state().register_tags[3] == vm::ValueTag::StringVectorHandle);
+    T81_TEST_CHECK(vm->state().register_tags[4] == vm::ValueTag::SymbolHandle);
+
+    const auto& log = vm->state().axion_log;
+    T81_TEST_CHECK(std::any_of(log.begin(), log.end(), [](const auto& e) {
+      return e.opcode == tisc::Opcode::StrSplit &&
+             e.verdict.reason.find("string split") != std::string::npos;
+    }));
+    T81_TEST_CHECK(std::any_of(log.begin(), log.end(), [](const auto& e) {
+      return e.opcode == tisc::Opcode::StrJoin &&
+             e.verdict.reason.find("string join") != std::string::npos;
+    }));
   }
 
   return 0;

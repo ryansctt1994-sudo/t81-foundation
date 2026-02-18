@@ -34,6 +34,14 @@ fn replace(b: T81Bytes, needle: T81Bytes, replacement: T81Bytes) -> T81Bytes {
     return std.bytes.replace(b, needle, replacement);
 }
 
+fn split(b: T81Bytes, sep: T81Bytes) -> Vector[T81Bytes] {
+    return std.bytes.split(b, sep);
+}
+
+fn join(parts: Vector[T81Bytes], sep: T81Bytes) -> T81Bytes {
+    return std.bytes.join(parts, sep);
+}
+
 fn to_string(b: T81Bytes) -> T81String {
     return std.bytes.to_string(b);
 }

@@ -209,6 +209,12 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.bytes.replace") {
     return "bytes_replace";
   }
+  if (name == "std.bytes.split") {
+    return "bytes_split";
+  }
+  if (name == "std.bytes.join") {
+    return "bytes_join";
+  }
   if (name == "std.bytes.to_string") {
     return "str_to_string";
   }
@@ -1300,6 +1306,38 @@ public:
         tisc::ir::Instruction instr;
         instr.opcode = tisc::ir::Opcode::STRREPLACE;
         instr.operands = {dest.reg, needle.reg, replacement.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "bytes_split") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("bytes_split expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto sep = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRSPLIT;
+        instr.operands = {dest.reg, value.reg, sep.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "bytes_join") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("bytes_join expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto parts = ensure_expr_result(expr.arguments[0].get());
+        auto sep = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRJOIN;
+        instr.operands = {dest.reg, parts.reg, sep.reg};
         emit(instr);
         record_result(&expr, dest);
         return {};
