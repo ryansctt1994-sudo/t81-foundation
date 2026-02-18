@@ -11,6 +11,8 @@ Fixture pack for CLI end-to-end coverage of `std.collections` aliases.
   `std.collections.map_get` / `std.collections.map_remove` /
   `std.collections.map_keys` over `Vector[T81String]` map data encoded as
   alternating key/value entries.
+- Validate staged set helpers `std.collections.set_size` and
+  `std.collections.set_has` over `Vector[T81String]` data.
 - Validate behavior for both frontend `Vector[i32]` values and
   `Vector[T81String]` values produced via `std.text.split`.
 - Validate end-to-end generic call inference over nested container signatures

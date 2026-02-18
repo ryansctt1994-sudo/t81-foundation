@@ -213,6 +213,9 @@ int main() {
                 Some(v) => v;
                 None => "none";
             };
+            let set_flat: Vector[T81String] = ["city", "lang", "city"];
+            let _set_size = std.collections.set_size(set_flat);
+            let _set_has_city = std.collections.set_has(set_flat, "city");
             let _set_h = std.collections.len(set_v);
             let _tree_h = std.collections.len(tree_v);
             let _graph_h = std.collections.len(graph_v);

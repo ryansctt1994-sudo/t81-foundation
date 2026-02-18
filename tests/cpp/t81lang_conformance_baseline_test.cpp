@@ -292,6 +292,9 @@ static void test_std_namespace_builtin_aliases() {
         Some(v) => v;
         None => "none";
       };
+      let set_flat: Vector[T81String] = ["city", "lang", "city"];
+      let _set_size = std.collections.set_size(set_flat);
+      let _set_has_city = std.collections.set_has(set_flat, "city");
       let _set_h = std.collections.len(set_v);
       let _tree_h = std.collections.len(tree_v);
       let _graph_h = std.collections.len(graph_v);
@@ -647,6 +650,32 @@ static void test_std_namespace_builtin_aliases() {
                                   "std.collections.map_keys expects a Vector[T81String] argument.",
                                   "t81lang_std_collections_map_keys_bad_type"),
       "t81lang_std_collections_map_keys_bad_type");
+
+  constexpr const char* bad_collections_set_size_type = R"(
+    fn main() -> i32 {
+      let n: i32 = std.collections.set_size([1, 2, 3]);
+      let _ = n;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_collections_set_size_type,
+                                  "std.collections.set_size expects a Vector[T81String] argument.",
+                                  "t81lang_std_collections_set_size_bad_type"),
+      "t81lang_std_collections_set_size_bad_type");
+
+  constexpr const char* bad_collections_set_has_key_type = R"(
+    fn main() -> i32 {
+      let ok: bool = std.collections.set_has(["city"], 7);
+      let _ = ok;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_collections_set_has_key_type,
+                                  "std.collections.set_has expects a T81String key argument.",
+                                  "t81lang_std_collections_set_has_bad_key_type"),
+      "t81lang_std_collections_set_has_bad_key_type");
 
   constexpr const char* bad_async_sleep_type = R"(
     fn main() -> i32 {

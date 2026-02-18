@@ -65,6 +65,8 @@ Input and Output.
 - `fn set() -> Vector[T81String]`: Deterministic empty set-constructor placeholder value (runtime-backed string-vector form).
 - `fn tree() -> Vector[T81String]`: Deterministic empty tree-constructor placeholder value (runtime-backed string-vector form).
 - `fn graph() -> Vector[T81String]`: Deterministic empty graph-constructor placeholder value (runtime-backed string-vector form).
+- `fn set_size(s: Vector[T81String]) -> i32`: Deterministic staged set cardinality for string-vector set representations.
+- `fn set_has(s: Vector[T81String], key: T81String) -> bool`: Deterministic staged set membership check over string-vector set representations.
 - `fn map_size(m: Vector[T81String]) -> i32`: Deterministic pair-count for staged flat-map vectors (`[k0, v0, ...]`), computed as `floor(len / 2)`.
 - `fn map_has(m: Vector[T81String], key: T81String) -> bool`: Deterministic key-existence check over staged flat-map vectors; dangling odd-tail entries are ignored.
 - `fn map_put(m: Vector[T81String], key: T81String, value: T81String) -> Vector[T81String]`: Deterministic upsert over staged flat-map vectors (existing key entries removed, then key/value appended).

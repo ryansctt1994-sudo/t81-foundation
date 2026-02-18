@@ -420,6 +420,12 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.collections.set") {
     return "collections_set";
   }
+  if (name == "std.collections.set_size") {
+    return "collections_set_size";
+  }
+  if (name == "std.collections.set_has") {
+    return "collections_set_has";
+  }
   if (name == "std.collections.tree") {
     return "collections_tree";
   }
@@ -2759,6 +2765,38 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       Type out{Type::Kind::Vector};
       out.params.push_back(Type{Type::Kind::String});
       return out;
+    }
+    if (func_name == "collections_set_size") {
+      if (arg_types.size() != 1) {
+        error(call_token, "std.collections.set_size expects exactly one argument.");
+        return make_error_type();
+      }
+      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
+                                    !arg_types[0].params.empty() &&
+                                    arg_types[0].params[0].kind == Type::Kind::String;
+      if (!is_string_vector) {
+        error(call_token, "std.collections.set_size expects a Vector[T81String] argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
+    }
+    if (func_name == "collections_set_has") {
+      if (arg_types.size() != 2) {
+        error(call_token, "std.collections.set_has expects exactly two arguments.");
+        return make_error_type();
+      }
+      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
+                                    !arg_types[0].params.empty() &&
+                                    arg_types[0].params[0].kind == Type::Kind::String;
+      if (!is_string_vector) {
+        error(call_token, "std.collections.set_has expects a Vector[T81String] first argument.");
+        return make_error_type();
+      }
+      if (arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "std.collections.set_has expects a T81String key argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
     }
     if (func_name == "collections_tree" || func_name == "collections_graph") {
       if (!arg_types.empty()) {

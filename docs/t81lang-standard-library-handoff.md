@@ -12,6 +12,7 @@ Implemented and validated end-to-end (semantic + IR + VM + CLI coverage):
 - `std.bytes`: `len`, `is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, `replace`, `to_string`, `from_string`, `split`, `join`, `T81Bytes(...)`
 - `std.collections`: `len`, `is_empty`, `first`, `last`, `push`, `pop`, `list`, `map`, `set`, `tree`, `graph` (all five constructors currently return deterministic empty runtime-backed vector values)
 - `std.collections`: staged map helpers `map_size`, `map_has`, `map_put`, `map_get`, `map_remove`, and `map_keys` are implemented over flat `Vector[T81String]` key/value encodings.
+- `std.collections`: staged set helpers `set_size` and `set_has` are implemented over `Vector[T81String]` set encodings.
 - `std.symbol`: `intern`, `to_string`, `eq`, `ne`
 - `std.sys`: `exit`, `time`, `entropy`, `proof`, `reflect` (`proof` currently lowers to stable symbolic token; `reflect` lowers to `META_REFLECT`)
 - `std.async`: `yield`, `sleep`, `thread`, `promise` (`thread/promise` currently lower to stable symbolic tokens)
