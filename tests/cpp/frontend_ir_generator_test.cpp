@@ -429,8 +429,16 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let int_parts: Vector[i32] = [1, 2, 3];
             let part_count: i32 = std.collections.len(int_parts);
             let part_empty: bool = std.collections.is_empty(int_parts);
+            let part_first: i32 = std.collections.first(int_parts);
+            let part_last: i32 = std.collections.last(int_parts);
+            let part_pushed: Vector[i32] = std.collections.push(int_parts, 4);
+            let part_popped: Vector[i32] = std.collections.pop(part_pushed);
             let str_part_count: i32 = std.collections.len(parts);
             let str_part_empty: bool = std.collections.is_empty(parts);
+            let str_first: T81String = std.collections.first(parts);
+            let str_last: T81String = std.collections.last(parts);
+            let str_pushed: Vector[T81String] = std.collections.push(parts, "tail");
+            let str_popped: Vector[T81String] = std.collections.pop(str_pushed);
             let sym: T81String = std.symbol.intern("omega");
             let rendered_sym: T81String = std.symbol.to_string(sym);
             let same: bool = std.symbol.eq(sym, "omega");
@@ -476,8 +484,14 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _jl = joined_literal;
             let _pc = part_count;
             let _pe = part_empty;
+            let _pf = part_first;
+            let _pl = part_last;
+            let _pp = part_popped;
             let _spc = str_part_count;
             let _spe = str_part_empty;
+            let _sf = str_first;
+            let _sl = str_last;
+            let _spp = str_popped;
             let _sym = sym;
             let _rs = rendered_sym;
             let _same = same;
@@ -528,6 +542,10 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   bool has_strvecpush = false;
   bool has_veclen = false;
   bool has_vecempty = false;
+  bool has_vecfirst = false;
+  bool has_veclast = false;
+  bool has_vecpush = false;
+  bool has_vecpop = false;
   bool has_cmp = false;
   bool has_print = false;
   bool has_trap = false;
@@ -590,6 +608,14 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
       has_veclen = true;
     } else if (inst.opcode == Opcode::VECEMPTY) {
       has_vecempty = true;
+    } else if (inst.opcode == Opcode::VECFIRST) {
+      has_vecfirst = true;
+    } else if (inst.opcode == Opcode::VECLAST) {
+      has_veclast = true;
+    } else if (inst.opcode == Opcode::VECPUSH) {
+      has_vecpush = true;
+    } else if (inst.opcode == Opcode::VECPOP) {
+      has_vecpop = true;
     } else if (inst.opcode == Opcode::CMP) {
       has_cmp = true;
     } else if (inst.opcode == Opcode::PRINT) {
@@ -634,6 +660,10 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   EXPECT(has_strvecpush, "Vector[T81String] literal should lower to STRVECPUSH");
   EXPECT(has_veclen, "std.collections.len should lower to VECLEN");
   EXPECT(has_vecempty, "std.collections.is_empty should lower to VECEMPTY");
+  EXPECT(has_vecfirst, "std.collections.first should lower to VECFIRST");
+  EXPECT(has_veclast, "std.collections.last should lower to VECLAST");
+  EXPECT(has_vecpush, "std.collections.push should lower to VECPUSH");
+  EXPECT(has_vecpop, "std.collections.pop should lower to VECPOP");
   EXPECT(has_cmp, "std.symbol.eq/ne should lower to CMP");
   EXPECT(has_print, "std.core.debug/std.io.* should lower to PRINT");
   EXPECT(has_trap, "std.core.assert/std.sys.exit should lower to TRAP");

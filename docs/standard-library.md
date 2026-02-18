@@ -42,6 +42,10 @@ Input and Output.
 ### `std.collections`
 - `fn len(v: Vector[T]) -> i32`: Deterministic vector length for frontend `Vector[T]` values.
 - `fn is_empty(v: Vector[T]) -> bool`: Deterministic vector emptiness check.
+- `fn first(v: Vector[T]) -> T`: Deterministic first-element lookup; empty vectors are rejected deterministically.
+- `fn last(v: Vector[T]) -> T`: Deterministic last-element lookup; empty vectors are rejected deterministically.
+- `fn push(v: Vector[T], value: T) -> Vector[T]`: Deterministic append returning a new vector value.
+- `fn pop(v: Vector[T]) -> Vector[T]`: Deterministic drop-last returning a new vector value; empty vectors are rejected deterministically.
 
 ### `std.text`
 String manipulation and formatting (backed by `include/t81/std/string.hpp`).

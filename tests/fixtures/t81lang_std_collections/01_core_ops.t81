@@ -1,0 +1,27 @@
+fn main() -> i32 {
+    let ints: Vector[i32] = [1, 2, 3];
+    print(std.collections.len(ints));
+    print(std.collections.is_empty(ints));
+    print(std.collections.first(ints));
+    print(std.collections.last(ints));
+
+    let pushed_ints: Vector[i32] = std.collections.push(ints, 9);
+    print(std.collections.len(pushed_ints));
+    print(std.collections.last(pushed_ints));
+
+    let popped_ints: Vector[i32] = std.collections.pop(pushed_ints);
+    print(std.collections.len(popped_ints));
+    print(std.collections.first(popped_ints));
+
+    let parts: Vector[T81String] = std.text.split("a,,b", ",");
+    print(std.collections.first(parts));
+    print(std.collections.last(parts));
+
+    let pushed_parts: Vector[T81String] = std.collections.push(parts, "tail");
+    print(std.collections.last(pushed_parts));
+
+    let popped_parts: Vector[T81String] = std.collections.pop(pushed_parts);
+    print(std.collections.len(popped_parts));
+    print(std.collections.last(popped_parts));
+    return 0;
+}

@@ -11,3 +11,19 @@ fn len(v: Vector[i32]) -> i32 {
 fn is_empty(v: Vector[i32]) -> bool {
     return std.collections.is_empty(v);
 }
+
+fn first(v: Vector[i32]) -> i32 {
+    return std.collections.first(v);
+}
+
+fn last(v: Vector[i32]) -> i32 {
+    return std.collections.last(v);
+}
+
+fn push(v: Vector[i32], value: i32) -> Vector[i32] {
+    return std.collections.push(v, value);
+}
+
+fn pop(v: Vector[i32]) -> Vector[i32] {
+    return std.collections.pop(v);
+}

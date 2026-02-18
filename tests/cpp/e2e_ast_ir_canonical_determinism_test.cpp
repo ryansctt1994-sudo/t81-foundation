@@ -500,6 +500,14 @@ const char* ir_opcode_name(tisc::ir::Opcode op) {
       return "VECLEN";
     case O::VECEMPTY:
       return "VECEMPTY";
+    case O::VECFIRST:
+      return "VECFIRST";
+    case O::VECLAST:
+      return "VECLAST";
+    case O::VECPUSH:
+      return "VECPUSH";
+    case O::VECPOP:
+      return "VECPOP";
     case O::STRCONCAT:
       return "STRCONCAT";
     case O::STRSTARTSWITH:

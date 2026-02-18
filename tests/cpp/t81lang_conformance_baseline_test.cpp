@@ -224,6 +224,10 @@ static void test_std_namespace_builtin_aliases() {
       let ints: Vector[i32] = [1, 2, 3];
       let n: i32 = std.collections.len(ints);
       let e: bool = std.collections.is_empty(ints);
+      let f: i32 = std.collections.first(ints);
+      let l: i32 = std.collections.last(ints);
+      let pushed: Vector[i32] = std.collections.push(ints, 4);
+      let popped: Vector[i32] = std.collections.pop(pushed);
       std.core.assert(1 < 2);
       std.core.debug("dbg");
       let present: Option[i32] = Some(7);
@@ -244,6 +248,9 @@ static void test_std_namespace_builtin_aliases() {
       std.io.print_float(cl);
       if (e) {
         return n;
+      }
+      if (f == l) {
+        return std.collections.len(popped);
       }
       let now: T81Float = std.sys.time();
       std.async.yield();
@@ -347,6 +354,47 @@ static void test_std_namespace_builtin_aliases() {
                                   "std.collections.is_empty expects exactly one argument.",
                                   "t81lang_std_collections_is_empty_bad_arity"),
       "t81lang_std_collections_is_empty_bad_arity");
+
+  constexpr const char* bad_collections_first_empty_literal = R"(
+    fn main() -> i32 {
+      let first: i32 = std.collections.first([]);
+      let _ = first;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_collections_first_empty_literal,
+                                  "std.collections.first does not accept empty vector literals.",
+                                  "t81lang_std_collections_first_empty_literal"),
+      "t81lang_std_collections_first_empty_literal");
+
+  constexpr const char* bad_collections_push_type = R"(
+    fn main() -> i32 {
+      let ints: Vector[i32] = [1, 2, 3];
+      let pushed: Vector[i32] = std.collections.push(ints, "oops");
+      let _ = pushed;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_collections_push_type,
+                                  "std.collections.push second argument must match Vector element "
+                                  "type.",
+                                  "t81lang_std_collections_push_bad_type"),
+      "t81lang_std_collections_push_bad_type");
+
+  constexpr const char* bad_collections_pop_empty_literal = R"(
+    fn main() -> i32 {
+      let popped: Vector[i32] = std.collections.pop([]);
+      let _ = popped;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_collections_pop_empty_literal,
+                                  "std.collections.pop does not accept empty vector literals.",
+                                  "t81lang_std_collections_pop_empty_literal"),
+      "t81lang_std_collections_pop_empty_literal");
 
   constexpr const char* bad_debug_type = R"(
     fn main() -> i32 {
@@ -567,6 +615,18 @@ static void test_std_math_tensor_module_wrappers() {
     fn is_empty_i32(v: Vector[i32]) -> bool {
       return std.collections.is_empty(v);
     }
+    fn first_i32(v: Vector[i32]) -> i32 {
+      return std.collections.first(v);
+    }
+    fn last_i32(v: Vector[i32]) -> i32 {
+      return std.collections.last(v);
+    }
+    fn push_i32(v: Vector[i32], value: i32) -> Vector[i32] {
+      return std.collections.push(v, value);
+    }
+    fn pop_i32(v: Vector[i32]) -> Vector[i32] {
+      return std.collections.pop(v);
+    }
     fn from_list(values: Vector[i32]) -> Tensor {
       return std.tensor.from_list(values);
     }
@@ -594,6 +654,10 @@ static void test_std_math_tensor_module_wrappers() {
       let ints: Vector[i32] = [1, 2, 3];
       let _len: i32 = len_i32(ints);
       let _empty: bool = is_empty_i32(ints);
+      let _first: i32 = first_i32(ints);
+      let _last: i32 = last_i32(ints);
+      let pushed: Vector[i32] = push_i32(ints, 4);
+      let _popped: Vector[i32] = pop_i32(pushed);
       let a: Tensor = from_list([1, 2, 3]);
       let b: Tensor = from_list([4, 5, 6]);
       let _m: Tensor = matmul(a, b);

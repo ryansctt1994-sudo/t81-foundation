@@ -110,6 +110,10 @@ enum class Opcode : std::uint8_t {
   StrEmpty,
   VecLen,
   VecEmpty,
+  VecFirst,
+  VecLast,
+  VecPush,
+  VecPop,
   TGet,
   TNew,
   TSet,
@@ -334,6 +338,14 @@ enum class Opcode : std::uint8_t {
       return "VecLen";
     case Opcode::VecEmpty:
       return "VecEmpty";
+    case Opcode::VecFirst:
+      return "VecFirst";
+    case Opcode::VecLast:
+      return "VecLast";
+    case Opcode::VecPush:
+      return "VecPush";
+    case Opcode::VecPop:
+      return "VecPop";
     case Opcode::TGet:
       return "TGet";
     case Opcode::TNew:

@@ -38,6 +38,14 @@ std::string opcode_to_string(ir::Opcode opcode) {
       return "VECLEN";
     case ir::Opcode::VECEMPTY:
       return "VECEMPTY";
+    case ir::Opcode::VECFIRST:
+      return "VECFIRST";
+    case ir::Opcode::VECLAST:
+      return "VECLAST";
+    case ir::Opcode::VECPUSH:
+      return "VECPUSH";
+    case ir::Opcode::VECPOP:
+      return "VECPOP";
     case ir::Opcode::JMP:
       return "JMP";
     case ir::Opcode::JZ:

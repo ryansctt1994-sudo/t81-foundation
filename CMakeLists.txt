@@ -612,6 +612,9 @@ if(T81_BUILD_TESTS)
   add_executable(cli_std_symbol_fixtures_test tests/cpp/cli_std_symbol_fixtures_test.cpp)
   target_link_libraries(cli_std_symbol_fixtures_test PRIVATE t81_cli_driver t81_tisc t81_vm)
 
+  add_executable(cli_std_collections_fixtures_test tests/cpp/cli_std_collections_fixtures_test.cpp)
+  target_link_libraries(cli_std_collections_fixtures_test PRIVATE t81_cli_driver t81_tisc t81_vm)
+
   add_executable(cli_std_tensor_fixtures_test tests/cpp/cli_std_tensor_fixtures_test.cpp)
   target_link_libraries(cli_std_tensor_fixtures_test PRIVATE t81_cli_driver t81_tisc t81_vm)
 
@@ -1014,6 +1017,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_test(NAME t81_cli_std_text_fixtures_test COMMAND $<TARGET_FILE:cli_std_text_fixtures_test>)
   add_test(NAME t81_cli_std_bytes_fixtures_test COMMAND $<TARGET_FILE:cli_std_bytes_fixtures_test>)
   add_test(NAME t81_cli_std_symbol_fixtures_test COMMAND $<TARGET_FILE:cli_std_symbol_fixtures_test>)
+  add_test(NAME t81_cli_std_collections_fixtures_test COMMAND $<TARGET_FILE:cli_std_collections_fixtures_test>)
   add_test(NAME t81_cli_std_tensor_fixtures_test COMMAND $<TARGET_FILE:cli_std_tensor_fixtures_test>)
   add_test(
     NAME t81_legacy_core_numeric_include_policy_test

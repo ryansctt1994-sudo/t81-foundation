@@ -359,6 +359,18 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.collections.is_empty") {
     return "collections_is_empty";
   }
+  if (name == "std.collections.first") {
+    return "collections_first";
+  }
+  if (name == "std.collections.last") {
+    return "collections_last";
+  }
+  if (name == "std.collections.push") {
+    return "collections_push";
+  }
+  if (name == "std.collections.pop") {
+    return "collections_pop";
+  }
   if (name == "std.symbol.intern") {
     return "symbol_intern";
   }
@@ -1688,6 +1700,28 @@ std::any SemanticAnalyzer::visit(const BinaryExpr& expr) {
 }
 
 std::any SemanticAnalyzer::visit(const CallExpr& expr) {
+  if (auto callee_name = qualified_call_name(*expr.callee); callee_name.has_value()) {
+    const std::string canonical = canonical_stdlib_call_name(*callee_name);
+    const bool checks_empty_literal = canonical == "collections_first" ||
+                                      canonical == "collections_last" ||
+                                      canonical == "collections_pop";
+    if (checks_empty_literal && expr.arguments.size() == 1) {
+      if (auto* literal = dynamic_cast<const VectorLiteralExpr*>(expr.arguments[0].get())) {
+        if (literal->elements.empty()) {
+          Token call_token = extract_token(*expr.callee);
+          if (canonical == "collections_first") {
+            error(call_token, "std.collections.first does not accept empty vector literals.");
+          } else if (canonical == "collections_last") {
+            error(call_token, "std.collections.last does not accept empty vector literals.");
+          } else {
+            error(call_token, "std.collections.pop does not accept empty vector literals.");
+          }
+          return make_error_type();
+        }
+      }
+    }
+  }
+
   std::vector<Type> arg_types;
   arg_types.reserve(expr.arguments.size());
   for (const auto& arg : expr.arguments) {
@@ -2370,6 +2404,63 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return make_error_type();
       }
       return Type{Type::Kind::Bool};
+    }
+    if (func_name == "collections_first" || func_name == "collections_last") {
+      const bool is_first = func_name == "collections_first";
+      if (arg_types.size() != 1) {
+        error(call_token,
+              std::string(is_first ? "std.collections.first" : "std.collections.last") +
+                  " expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Vector || arg_types[0].params.empty()) {
+        error(call_token,
+              std::string(is_first ? "std.collections.first" : "std.collections.last") +
+                  " expects a Vector[T] argument.");
+        return make_error_type();
+      }
+      if (auto* literal = dynamic_cast<const VectorLiteralExpr*>(expr.arguments[0].get())) {
+        if (literal->elements.empty()) {
+          error(call_token,
+                std::string(is_first ? "std.collections.first" : "std.collections.last") +
+                    " does not accept empty vector literals.");
+          return make_error_type();
+        }
+      }
+      return arg_types[0].params[0];
+    }
+    if (func_name == "collections_push") {
+      if (arg_types.size() != 2) {
+        error(call_token, "std.collections.push expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Vector || arg_types[0].params.empty()) {
+        error(call_token, "std.collections.push expects a Vector[T] first argument.");
+        return make_error_type();
+      }
+      const Type& element_type = arg_types[0].params[0];
+      if (!is_assignable(element_type, arg_types[1])) {
+        error(call_token, "std.collections.push second argument must match Vector element type.");
+        return make_error_type();
+      }
+      return arg_types[0];
+    }
+    if (func_name == "collections_pop") {
+      if (arg_types.size() != 1) {
+        error(call_token, "std.collections.pop expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Vector || arg_types[0].params.empty()) {
+        error(call_token, "std.collections.pop expects a Vector[T] argument.");
+        return make_error_type();
+      }
+      if (auto* literal = dynamic_cast<const VectorLiteralExpr*>(expr.arguments[0].get())) {
+        if (literal->elements.empty()) {
+          error(call_token, "std.collections.pop does not accept empty vector literals.");
+          return make_error_type();
+        }
+      }
+      return arg_types[0];
     }
     if (func_name == "symbol_intern") {
       if (arg_types.size() != 1) {

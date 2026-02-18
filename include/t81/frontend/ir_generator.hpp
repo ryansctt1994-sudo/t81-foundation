@@ -284,6 +284,18 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.collections.is_empty") {
     return "collections_is_empty";
   }
+  if (name == "std.collections.first") {
+    return "collections_first";
+  }
+  if (name == "std.collections.last") {
+    return "collections_last";
+  }
+  if (name == "std.collections.push") {
+    return "collections_push";
+  }
+  if (name == "std.collections.pop") {
+    return "collections_pop";
+  }
   if (name == "std.symbol.intern") {
     return "symbol_intern";
   }
@@ -1635,6 +1647,64 @@ public:
         instr.opcode = tisc::ir::Opcode::VECEMPTY;
         instr.operands = {dest.reg, value.reg};
         instr.primitive = tisc::ir::PrimitiveKind::Boolean;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "collections_first") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("collections_first expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::VECFIRST;
+        instr.operands = {dest.reg, value.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "collections_last") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("collections_last expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::VECLAST;
+        instr.operands = {dest.reg, value.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "collections_push") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("collections_push expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto item = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::VECPUSH;
+        instr.operands = {dest.reg, value.reg, item.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "collections_pop") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("collections_pop expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::VECPOP;
+        instr.operands = {dest.reg, value.reg};
         emit(instr);
         record_result(&expr, dest);
         return {};

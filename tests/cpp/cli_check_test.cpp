@@ -239,9 +239,16 @@ int main() {
             let ints: Vector[i32] = [1, 2, 3];
             let n: i32 = std.collections.len(ints);
             let e: bool = std.collections.is_empty(ints);
+            let f: i32 = std.collections.first(ints);
+            let l: i32 = std.collections.last(ints);
+            let pushed: Vector[i32] = std.collections.push(ints, 4);
+            let popped: Vector[i32] = std.collections.pop(pushed);
             let _c = clamped;
             let _n = n;
             let _e = e;
+            let _f = f;
+            let _l = l;
+            let _p = popped;
             return 0;
         }
     )";

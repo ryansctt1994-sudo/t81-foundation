@@ -1976,6 +1976,193 @@ public:
         update_flags(state_.registers[insn.a]);
         break;
       }
+      case t81::tisc::Opcode::VecFirst: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] == ValueTag::StringVectorHandle) {
+          auto* values = string_vector_ptr(state_.registers[insn.b]);
+          if (values == nullptr) {
+            trap = Trap::DecodeFault;
+            break;
+          }
+          if (values->empty()) {
+            trap = Trap::TypeFault;
+            break;
+          }
+          state_.registers[insn.a] = intern_symbol(values->front());
+          state_.register_tags[insn.a] = ValueTag::SymbolHandle;
+          update_flags(state_.registers[insn.a]);
+          break;
+        }
+        if (state_.register_tags[insn.b] == ValueTag::TensorHandle) {
+          auto* tensor = tensor_ptr(state_.registers[insn.b]);
+          if (tensor == nullptr) {
+            trap = Trap::DecodeFault;
+            break;
+          }
+          if (tensor->rank() != 1 || tensor->shape().empty() || tensor->shape().front() <= 0) {
+            trap = Trap::TypeFault;
+            break;
+          }
+          const auto& data = tensor->data();
+          if (data.empty()) {
+            trap = Trap::TypeFault;
+            break;
+          }
+          state_.registers[insn.a] = static_cast<std::int64_t>(data.front());
+          state_.register_tags[insn.a] = ValueTag::Int;
+          update_flags(state_.registers[insn.a]);
+          break;
+        }
+        trap = Trap::TypeFault;
+        break;
+      }
+      case t81::tisc::Opcode::VecLast: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] == ValueTag::StringVectorHandle) {
+          auto* values = string_vector_ptr(state_.registers[insn.b]);
+          if (values == nullptr) {
+            trap = Trap::DecodeFault;
+            break;
+          }
+          if (values->empty()) {
+            trap = Trap::TypeFault;
+            break;
+          }
+          state_.registers[insn.a] = intern_symbol(values->back());
+          state_.register_tags[insn.a] = ValueTag::SymbolHandle;
+          update_flags(state_.registers[insn.a]);
+          break;
+        }
+        if (state_.register_tags[insn.b] == ValueTag::TensorHandle) {
+          auto* tensor = tensor_ptr(state_.registers[insn.b]);
+          if (tensor == nullptr) {
+            trap = Trap::DecodeFault;
+            break;
+          }
+          if (tensor->rank() != 1 || tensor->shape().empty() || tensor->shape().front() <= 0) {
+            trap = Trap::TypeFault;
+            break;
+          }
+          const auto& data = tensor->data();
+          if (data.empty()) {
+            trap = Trap::TypeFault;
+            break;
+          }
+          state_.registers[insn.a] = static_cast<std::int64_t>(data.back());
+          state_.register_tags[insn.a] = ValueTag::Int;
+          update_flags(state_.registers[insn.a]);
+          break;
+        }
+        trap = Trap::TypeFault;
+        break;
+      }
+      case t81::tisc::Opcode::VecPush: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] == ValueTag::StringVectorHandle) {
+          if (state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
+            trap = Trap::TypeFault;
+            break;
+          }
+          auto* values = string_vector_ptr(state_.registers[insn.b]);
+          auto* value = symbol_ptr(state_.registers[insn.c]);
+          if (values == nullptr || value == nullptr) {
+            trap = Trap::DecodeFault;
+            break;
+          }
+          std::vector<std::string> pushed = *values;
+          pushed.push_back(*value);
+          state_.string_vectors.push_back(std::move(pushed));
+          state_.registers[insn.a] = static_cast<std::int64_t>(state_.string_vectors.size());
+          state_.register_tags[insn.a] = ValueTag::StringVectorHandle;
+          update_flags(state_.registers[insn.a]);
+          break;
+        }
+        if (state_.register_tags[insn.b] == ValueTag::TensorHandle) {
+          if (state_.register_tags[insn.c] != ValueTag::Int) {
+            trap = Trap::TypeFault;
+            break;
+          }
+          auto* tensor = tensor_ptr(state_.registers[insn.b]);
+          if (tensor == nullptr) {
+            trap = Trap::DecodeFault;
+            break;
+          }
+          if (tensor->rank() != 1 || tensor->shape().empty()) {
+            trap = Trap::TypeFault;
+            break;
+          }
+          const auto old_len = tensor->shape().front();
+          if (old_len < 0) {
+            trap = Trap::TypeFault;
+            break;
+          }
+          auto data = tensor->data();
+          data.push_back(static_cast<float>(state_.registers[insn.c]));
+          state_.registers[insn.a] = alloc_tensor(T729Tensor({old_len + 1}, std::move(data)));
+          state_.register_tags[insn.a] = ValueTag::TensorHandle;
+          update_flags(state_.registers[insn.a]);
+          break;
+        }
+        trap = Trap::TypeFault;
+        break;
+      }
+      case t81::tisc::Opcode::VecPop: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] == ValueTag::StringVectorHandle) {
+          auto* values = string_vector_ptr(state_.registers[insn.b]);
+          if (values == nullptr) {
+            trap = Trap::DecodeFault;
+            break;
+          }
+          if (values->empty()) {
+            trap = Trap::TypeFault;
+            break;
+          }
+          std::vector<std::string> popped = *values;
+          popped.pop_back();
+          state_.string_vectors.push_back(std::move(popped));
+          state_.registers[insn.a] = static_cast<std::int64_t>(state_.string_vectors.size());
+          state_.register_tags[insn.a] = ValueTag::StringVectorHandle;
+          update_flags(state_.registers[insn.a]);
+          break;
+        }
+        if (state_.register_tags[insn.b] == ValueTag::TensorHandle) {
+          auto* tensor = tensor_ptr(state_.registers[insn.b]);
+          if (tensor == nullptr) {
+            trap = Trap::DecodeFault;
+            break;
+          }
+          if (tensor->rank() != 1 || tensor->shape().empty() || tensor->shape().front() <= 0) {
+            trap = Trap::TypeFault;
+            break;
+          }
+          auto data = tensor->data();
+          if (data.empty()) {
+            trap = Trap::TypeFault;
+            break;
+          }
+          data.pop_back();
+          state_.registers[insn.a] =
+              alloc_tensor(T729Tensor({tensor->shape().front() - 1}, std::move(data)));
+          state_.register_tags[insn.a] = ValueTag::TensorHandle;
+          update_flags(state_.registers[insn.a]);
+          break;
+        }
+        trap = Trap::TypeFault;
+        break;
+      }
       case t81::tisc::Opcode::StrConcat: {
         if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
           trap = Trap::DecodeFault;
