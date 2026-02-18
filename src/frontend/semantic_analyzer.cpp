@@ -273,6 +273,9 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.sys.proof") {
     return "sys_proof";
   }
+  if (name == "std.sys.reflect") {
+    return "sys_reflect";
+  }
   if (name == "std.async.yield") {
     return "async_yield";
   }
@@ -2178,6 +2181,13 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return make_error_type();
       }
       return Type{Type::Kind::String};
+    }
+    if (func_name == "sys_reflect") {
+      if (!arg_types.empty()) {
+        error(call_token, "sys_reflect expects no arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Void};
     }
     if (func_name == "async_yield") {
       if (!arg_types.empty()) {

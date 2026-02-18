@@ -549,6 +549,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _kp = kept;
             let _entropy = entropy;
             let _proof = proof;
+            std.sys.reflect();
             let _stream_h = stream_h;
             let _net_h = net_h;
             let _thread_h = thread_h;

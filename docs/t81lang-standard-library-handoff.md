@@ -13,11 +13,11 @@ Implemented and validated end-to-end (semantic + IR + VM + CLI coverage):
 - `std.collections`: `len`, `is_empty`, `first`, `last`, `push`, `pop`, `list`, `map`, `set`, `tree`, `graph` (all five constructors currently return deterministic empty runtime-backed vector values)
 - `std.collections`: staged map helpers `map_size`, `map_has`, `map_put`, `map_get`, `map_remove`, and `map_keys` are implemented over flat `Vector[T81String]` key/value encodings.
 - `std.symbol`: `intern`, `to_string`, `eq`, `ne`
-- `std.sys`: `exit`, `time`, `entropy`, `proof` (`proof` currently lowers to stable symbolic token)
+- `std.sys`: `exit`, `time`, `entropy`, `proof`, `reflect` (`proof` currently lowers to stable symbolic token; `reflect` lowers to `META_REFLECT`)
 - `std.async`: `yield`, `sleep`, `thread`, `promise` (`thread/promise` currently lower to stable symbolic tokens)
 - `std.tensor`: `load`, `from_list`, `matmul`, `vec_add`
 - `std.agent`: `self_reflect`
-- `std.sys` / `std.io` / `std.async`: fixture-driven CLI goldens for runtime observable behavior are now present under `tests/fixtures/t81lang_std_runtime/*` and `tests/cpp/cli_std_runtime_fixtures_test.cpp`
+- `std.sys` / `std.io` / `std.async`: fixture-driven CLI goldens for runtime observable behavior are now present under `tests/fixtures/t81lang_std_runtime/*` and `tests/cpp/cli_std_runtime_fixtures_test.cpp` (including deterministic `std.sys.reflect` execution coverage)
 
 Generic function work now supported:
 - Generic declarations: `fn id[T](x: T) -> T`

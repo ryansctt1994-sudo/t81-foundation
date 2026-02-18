@@ -255,6 +255,7 @@ static void test_std_namespace_builtin_aliases() {
       let now: T81Float = std.sys.time();
       let ent: i32 = std.sys.entropy();
       let proof: T81String = std.sys.proof();
+      std.sys.reflect();
       let stream_h: T81String = std.io.stream();
       let net_h: T81String = std.io.net();
       std.async.yield();
@@ -518,6 +519,17 @@ static void test_std_namespace_builtin_aliases() {
   )";
   require_true(fails_semantic(bad_sys_proof_arity, "t81lang_std_sys_proof_bad_arity"),
                "t81lang_std_sys_proof_bad_arity");
+
+  constexpr const char* bad_sys_reflect_arity = R"(
+    fn main() -> i32 {
+      std.sys.reflect(1);
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(bad_sys_reflect_arity,
+                                           "sys_reflect expects no arguments.",
+                                           "t81lang_std_sys_reflect_bad_arity"),
+               "t81lang_std_sys_reflect_bad_arity");
 
   constexpr const char* bad_io_stream_arity = R"(
     fn main() -> i32 {

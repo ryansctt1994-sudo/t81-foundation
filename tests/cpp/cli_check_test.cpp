@@ -177,6 +177,7 @@ int main() {
             let now: T81Float = std.sys.time();
             let ent: i32 = std.sys.entropy();
             let proof: T81String = std.sys.proof();
+            std.sys.reflect();
             let stream_h: T81String = std.io.stream();
             let net_h: T81String = std.io.net();
             std.async.yield();
@@ -264,6 +265,35 @@ int main() {
   assert(bad_sys_entropy_arity_output.find("sys_entropy expects no arguments.") !=
          std::string::npos);
   fs::remove(bad_sys_entropy_arity_path);
+
+  const std::string bad_sys_reflect_arity_program = R"(
+        fn main() -> i32 {
+            std.sys.reflect(1);
+            return 0;
+        }
+    )";
+
+  [[maybe_unused]] auto bad_sys_reflect_arity_path =
+      make_temp_path("t81-check-sys-reflect-arity-bad", ".t81");
+  write_source(bad_sys_reflect_arity_path, bad_sys_reflect_arity_program);
+
+  [[maybe_unused]] std::ostringstream bad_sys_reflect_arity_captured;
+  old_buf = std::cerr.rdbuf(bad_sys_reflect_arity_captured.rdbuf());
+  [[maybe_unused]] int bad_sys_reflect_arity_rc =
+      t81::cli::check_syntax(bad_sys_reflect_arity_path);
+  std::cerr.rdbuf(old_buf);
+
+  if (bad_sys_reflect_arity_rc == 0) {
+    std::cerr << "Expected `t81 check` to fail on std.sys.reflect bad arity\n";
+    return 1;
+  }
+  [[maybe_unused]] std::string bad_sys_reflect_arity_output =
+      bad_sys_reflect_arity_captured.str();
+  assert(bad_sys_reflect_arity_output.find(bad_sys_reflect_arity_path.string()) !=
+         std::string::npos);
+  assert(bad_sys_reflect_arity_output.find("sys_reflect expects no arguments.") !=
+         std::string::npos);
+  fs::remove(bad_sys_reflect_arity_path);
 
   const std::string bad_runtime_aliases_arity_program = R"(
         fn main() -> i32 {

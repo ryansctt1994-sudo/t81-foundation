@@ -1,6 +1,7 @@
 fn main() -> i32 {
     let now: T81Float = std.sys.time();
     let ent: i32 = std.sys.entropy();
+    std.sys.reflect();
     std.async.yield();
     std.async.sleep(now);
     print(ent);

@@ -16,3 +16,7 @@ fn entropy() -> i32 {
 fn proof() -> T81String {
     return std.sys.proof();
 }
+
+fn reflect() -> void {
+    std.sys.reflect();
+}

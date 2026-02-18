@@ -200,6 +200,9 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.sys.proof") {
     return "sys_proof";
   }
+  if (name == "std.sys.reflect") {
+    return "sys_reflect";
+  }
   if (name == "std.async.yield") {
     return "async_yield";
   }
@@ -1272,6 +1275,17 @@ public:
         instr.primitive = tisc::ir::PrimitiveKind::Integer;
         emit(instr);
         record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "sys_reflect") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("sys_reflect expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::META_REFLECT;
+        instr.operands = {dest.reg};
+        emit(instr);
         return {};
       }
       if (func_name == "async_yield") {

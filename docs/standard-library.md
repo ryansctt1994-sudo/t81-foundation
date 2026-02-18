@@ -116,6 +116,7 @@ Deterministic symbol helpers.
 - `fn time() -> T81Float`: Deterministic logical time alias (currently lowers to constant `0.0`).
 - `fn entropy() -> i32`: Deterministic entropy-budget alias (currently lowers to constant `0`).
 - `fn proof() -> T81String`: Deterministic proof token alias (currently lowers to stable symbolic token `std.sys.proof`).
+- `fn reflect() -> void`: Deterministic reflection alias (`std.sys.reflect` lowers to `META_REFLECT`).
 
 ### `std.async`
 - `fn yield() -> void`: Deterministic cooperative-yield alias (currently a no-op).
