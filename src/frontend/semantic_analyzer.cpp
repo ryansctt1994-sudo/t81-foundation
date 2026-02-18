@@ -1957,8 +1957,8 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "str_to_string expects exactly one argument.");
         return make_error_type();
       }
-      if (arg_types[0].kind != Type::Kind::String) {
-        error(call_token, "str_to_string expects a T81String argument.");
+      if (arg_types[0].kind != Type::Kind::String && arg_types[0].kind != Type::Kind::Bytes) {
+        error(call_token, "str_to_string expects a T81String or T81Bytes argument.");
         return make_error_type();
       }
       return Type{Type::Kind::String};

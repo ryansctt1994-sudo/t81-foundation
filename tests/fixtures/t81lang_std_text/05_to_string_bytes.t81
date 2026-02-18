@@ -1,0 +1,8 @@
+fn main() -> i32 {
+  let a: T81String = std.text.to_string(T81Bytes("beta"));
+  let b: T81String = std.text.to_string(T81Bytes("mimma"));
+  let c: T81String = std.text.replace(b, "im", "ag");
+  print(a);
+  print(c);
+  return 0;
+}

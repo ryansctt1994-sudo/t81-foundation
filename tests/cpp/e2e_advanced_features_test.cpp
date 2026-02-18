@@ -237,6 +237,7 @@ void test_std_text_pipeline() {
             let idx: i32 = std.text.index_of(joined, "ph");
             let replaced: T81String = std.text.replace(joined, "ph", "zz");
             let rendered: T81String = std.text.to_string(replaced);
+            let rendered_bytes: T81String = std.text.to_string(T81Bytes("beta"));
             let repl_idx: i32 = std.text.index_of(replaced, "zz");
             if (e) {
                 if (sw) {
@@ -245,7 +246,9 @@ void test_std_text_pipeline() {
                             if (idx == 2) {
                                 if (repl_idx == 2) {
                                     if (std.text.str_len(rendered) == 5) {
-                                        return n;
+                                        if (std.text.str_len(rendered_bytes) == 4) {
+                                            return n;
+                                        }
                                     }
                                 }
                             }
@@ -292,6 +295,9 @@ void test_std_text_module_wrapper_pipeline() {
         fn to_string(s: T81String) -> T81String {
             return std.text.to_string(s);
         }
+        fn from_bytes(b: T81Bytes) -> T81String {
+            return std.text.to_string(b);
+        }
         fn main() -> i32 {
             let joined: T81String = concat("om", "ega");
             let n: i32 = str_len(joined);
@@ -302,6 +308,7 @@ void test_std_text_module_wrapper_pipeline() {
             let idx: i32 = index_of(joined, "ga");
             let replaced: T81String = replace(joined, "ga", "xy");
             let rendered: T81String = to_string(replaced);
+            let rendered_bytes: T81String = from_bytes(T81Bytes("beta"));
             let repl_idx: i32 = index_of(replaced, "xy");
             if (e) {
                 if (sw) {
@@ -310,7 +317,9 @@ void test_std_text_module_wrapper_pipeline() {
                             if (idx == 3) {
                                 if (repl_idx == 3) {
                                     if (str_len(rendered) == 5) {
-                                        return n;
+                                        if (str_len(rendered_bytes) == 4) {
+                                            return n;
+                                        }
                                     }
                                 }
                             }

@@ -36,3 +36,7 @@ fn replace(s: T81String, needle: T81String, replacement: T81String) -> T81String
 fn to_string(s: T81String) -> T81String {
     return std.text.to_string(s);
 }
+
+fn from_bytes(b: T81Bytes) -> T81String {
+    return std.text.to_string(b);
+}

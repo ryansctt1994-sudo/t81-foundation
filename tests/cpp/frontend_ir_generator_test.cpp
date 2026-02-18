@@ -410,6 +410,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let idx: i32 = std.text.index_of(joined, "ll");
             let replaced: T81String = std.text.replace(joined, "ll", "yy");
             let rendered: T81String = std.text.to_string(replaced);
+            let rendered_bytes: T81String = std.text.to_string(T81Bytes("beta"));
             std.io.println("hello");
             std.io.print_int(7);
             std.io.print_float(t);
@@ -425,6 +426,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _idx = idx;
             let _rp = replaced;
             let _rd = rendered;
+            let _rdb = rendered_bytes;
             return 0;
         }
     )";
