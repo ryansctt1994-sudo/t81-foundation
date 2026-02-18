@@ -65,6 +65,12 @@ Input and Output.
 - `fn set() -> Vector[T81String]`: Deterministic empty set-constructor placeholder value (runtime-backed string-vector form).
 - `fn tree() -> Vector[T81String]`: Deterministic empty tree-constructor placeholder value (runtime-backed string-vector form).
 - `fn graph() -> Vector[T81String]`: Deterministic empty graph-constructor placeholder value (runtime-backed string-vector form).
+- `fn map_size(m: Vector[T81String]) -> i32`: Deterministic pair-count for staged flat-map vectors (`[k0, v0, ...]`), computed as `floor(len / 2)`.
+- `fn map_has(m: Vector[T81String], key: T81String) -> bool`: Deterministic key-existence check over staged flat-map vectors; dangling odd-tail entries are ignored.
+- `fn map_put(m: Vector[T81String], key: T81String, value: T81String) -> Vector[T81String]`: Deterministic upsert over staged flat-map vectors (existing key entries removed, then key/value appended).
+- `fn map_get(m: Vector[T81String], key: T81String) -> Option[T81String]`: Deterministic lookup over staged flat-map vectors (`Some(value)` on hit, `None` on miss), scanning right-to-left with odd tails ignored.
+- `fn map_remove(m: Vector[T81String], key: T81String) -> Vector[T81String]`: Deterministic key removal over staged flat-map vectors (removes all key matches, preserves surviving pair order, ignores odd tail).
+- `fn map_keys(m: Vector[T81String]) -> Vector[T81String]`: Deterministic key projection from staged flat-map vectors (preserves pair order, ignores odd tail).
 
 ### `std.text`
 String manipulation and formatting (backed by `include/t81/std/string.hpp`).

@@ -396,6 +396,24 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.collections.map") {
     return "collections_map";
   }
+  if (name == "std.collections.map_put") {
+    return "collections_map_put";
+  }
+  if (name == "std.collections.map_get") {
+    return "collections_map_get";
+  }
+  if (name == "std.collections.map_has") {
+    return "collections_map_has";
+  }
+  if (name == "std.collections.map_remove") {
+    return "collections_map_remove";
+  }
+  if (name == "std.collections.map_size") {
+    return "collections_map_size";
+  }
+  if (name == "std.collections.map_keys") {
+    return "collections_map_keys";
+  }
   if (name == "std.collections.set") {
     return "collections_set";
   }
@@ -2609,6 +2627,114 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
     if (func_name == "collections_map") {
       if (!arg_types.empty()) {
         error(call_token, "std.collections.map expects no arguments.");
+        return make_error_type();
+      }
+      Type out{Type::Kind::Vector};
+      out.params.push_back(Type{Type::Kind::String});
+      return out;
+    }
+    if (func_name == "collections_map_size") {
+      if (arg_types.size() != 1) {
+        error(call_token, "std.collections.map_size expects exactly one argument.");
+        return make_error_type();
+      }
+      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
+                                    !arg_types[0].params.empty() &&
+                                    arg_types[0].params[0].kind == Type::Kind::String;
+      if (!is_string_vector) {
+        error(call_token, "std.collections.map_size expects a Vector[T81String] argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
+    }
+    if (func_name == "collections_map_has") {
+      if (arg_types.size() != 2) {
+        error(call_token, "std.collections.map_has expects exactly two arguments.");
+        return make_error_type();
+      }
+      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
+                                    !arg_types[0].params.empty() &&
+                                    arg_types[0].params[0].kind == Type::Kind::String;
+      if (!is_string_vector) {
+        error(call_token, "std.collections.map_has expects a Vector[T81String] first argument.");
+        return make_error_type();
+      }
+      if (arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "std.collections.map_has expects a T81String key argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
+    }
+    if (func_name == "collections_map_put") {
+      if (arg_types.size() != 3) {
+        error(call_token, "std.collections.map_put expects exactly three arguments.");
+        return make_error_type();
+      }
+      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
+                                    !arg_types[0].params.empty() &&
+                                    arg_types[0].params[0].kind == Type::Kind::String;
+      if (!is_string_vector) {
+        error(call_token, "std.collections.map_put expects a Vector[T81String] first argument.");
+        return make_error_type();
+      }
+      if (arg_types[1].kind != Type::Kind::String || arg_types[2].kind != Type::Kind::String) {
+        error(call_token, "std.collections.map_put expects T81String key/value arguments.");
+        return make_error_type();
+      }
+      Type out{Type::Kind::Vector};
+      out.params.push_back(Type{Type::Kind::String});
+      return out;
+    }
+    if (func_name == "collections_map_get") {
+      if (arg_types.size() != 2) {
+        error(call_token, "std.collections.map_get expects exactly two arguments.");
+        return make_error_type();
+      }
+      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
+                                    !arg_types[0].params.empty() &&
+                                    arg_types[0].params[0].kind == Type::Kind::String;
+      if (!is_string_vector) {
+        error(call_token, "std.collections.map_get expects a Vector[T81String] first argument.");
+        return make_error_type();
+      }
+      if (arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "std.collections.map_get expects a T81String key argument.");
+        return make_error_type();
+      }
+      Type out{Type::Kind::Option};
+      out.params.push_back(Type{Type::Kind::String});
+      return out;
+    }
+    if (func_name == "collections_map_remove") {
+      if (arg_types.size() != 2) {
+        error(call_token, "std.collections.map_remove expects exactly two arguments.");
+        return make_error_type();
+      }
+      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
+                                    !arg_types[0].params.empty() &&
+                                    arg_types[0].params[0].kind == Type::Kind::String;
+      if (!is_string_vector) {
+        error(call_token, "std.collections.map_remove expects a Vector[T81String] first argument.");
+        return make_error_type();
+      }
+      if (arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "std.collections.map_remove expects a T81String key argument.");
+        return make_error_type();
+      }
+      Type out{Type::Kind::Vector};
+      out.params.push_back(Type{Type::Kind::String});
+      return out;
+    }
+    if (func_name == "collections_map_keys") {
+      if (arg_types.size() != 1) {
+        error(call_token, "std.collections.map_keys expects exactly one argument.");
+        return make_error_type();
+      }
+      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
+                                    !arg_types[0].params.empty() &&
+                                    arg_types[0].params[0].kind == Type::Kind::String;
+      if (!is_string_vector) {
+        error(call_token, "std.collections.map_keys expects a Vector[T81String] argument.");
         return make_error_type();
       }
       Type out{Type::Kind::Vector};

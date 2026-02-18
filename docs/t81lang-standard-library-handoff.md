@@ -11,6 +11,7 @@ Implemented and validated end-to-end (semantic + IR + VM + CLI coverage):
 - `std.text`: `str_len`, `str_is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, `replace`, `to_string`, `from_bytes`, `split`, `join`
 - `std.bytes`: `len`, `is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, `replace`, `to_string`, `from_string`, `split`, `join`, `T81Bytes(...)`
 - `std.collections`: `len`, `is_empty`, `first`, `last`, `push`, `pop`, `list`, `map`, `set`, `tree`, `graph` (all five constructors currently return deterministic empty runtime-backed vector values)
+- `std.collections`: staged map helpers `map_size`, `map_has`, `map_put`, `map_get`, `map_remove`, and `map_keys` are implemented over flat `Vector[T81String]` key/value encodings.
 - `std.symbol`: `intern`, `to_string`, `eq`, `ne`
 - `std.sys`: `exit`, `time`, `entropy`, `proof` (`proof` currently lowers to stable symbolic token)
 - `std.async`: `yield`, `sleep`, `thread`, `promise` (`thread/promise` currently lower to stable symbolic tokens)
@@ -44,6 +45,8 @@ Coverage:
 - `tests/cpp/cli_std_runtime_fixtures_test.cpp`
 - `tests/fixtures/t81lang_std_collections/02_generic_inference.t81`
 - `tests/fixtures/t81lang_std_collections/02_generic_inference.out`
+- `tests/fixtures/t81lang_std_collections/04_map_ops.t81`
+- `tests/fixtures/t81lang_std_collections/04_map_ops.out`
 - `tests/fixtures/t81lang_std_collections/README.md`
 - `tests/fixtures/t81lang_std_runtime/01_tokens.t81`
 - `tests/fixtures/t81lang_std_runtime/01_tokens.out`
@@ -66,7 +69,7 @@ cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
 
-Current known good baseline: full suite passing (`211/211`).
+Current known good baseline: full suite passing (`212/212`).
 
 ## 4. What Is Next (Priority Order)
 

@@ -263,6 +263,7 @@ static void test_std_namespace_builtin_aliases() {
       let promise_h: T81String = std.async.promise();
       let list_v: Vector[T81String] = std.collections.list();
       let map_v: Vector[T81String] = std.collections.map();
+      let map_flat: Vector[T81String] = ["city", "sf", "lang", "t81"];
       let set_v: Vector[T81String] = std.collections.set();
       let tree_v: Vector[T81String] = std.collections.tree();
       let graph_v: Vector[T81String] = std.collections.graph();
@@ -277,6 +278,19 @@ static void test_std_namespace_builtin_aliases() {
       let _promise_h = promise_h;
       let _list_h = std.collections.len(list_v);
       let _map_h = std.collections.len(map_v);
+      let _map_pairs = std.collections.map_size(map_flat);
+      let _map_has_city = std.collections.map_has(map_flat, "city");
+      let map_updated: Vector[T81String] = std.collections.map_put(map_flat, "city", "oakland");
+      let map_keys: Vector[T81String] = std.collections.map_keys(map_updated);
+      let map_removed: Vector[T81String] = std.collections.map_remove(map_updated, "lang");
+      let map_lookup: Option[T81String] = std.collections.map_get(map_removed, "city");
+      let _map_keys_len = std.collections.len(map_keys);
+      let _map_removed_pairs = std.collections.map_size(map_removed);
+      let _map_lookup_has = std.collections.map_has(map_removed, "city");
+      let _map_lookup_value = match (map_lookup) {
+        Some(v) => v;
+        None => "none";
+      };
       let _set_h = std.collections.len(set_v);
       let _tree_h = std.collections.len(tree_v);
       let _graph_h = std.collections.len(graph_v);
@@ -540,6 +554,87 @@ static void test_std_namespace_builtin_aliases() {
                    "std.collections container constructors expect no arguments.",
                    "t81lang_std_collections_container_bad_arity"),
                "t81lang_std_collections_container_bad_arity");
+
+  constexpr const char* bad_collections_map_put_value_type = R"(
+    fn main() -> i32 {
+      let m: Vector[T81String] = std.collections.map();
+      let out: Vector[T81String] = std.collections.map_put(m, "k", 7);
+      let _ = out;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(
+          bad_collections_map_put_value_type,
+          "std.collections.map_put expects T81String key/value arguments.",
+          "t81lang_std_collections_map_put_bad_value_type"),
+      "t81lang_std_collections_map_put_bad_value_type");
+
+  constexpr const char* bad_collections_map_size_type = R"(
+    fn main() -> i32 {
+      let n: i32 = std.collections.map_size([1, 2, 3]);
+      let _ = n;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(
+          bad_collections_map_size_type,
+          "std.collections.map_size expects a Vector[T81String] argument.",
+          "t81lang_std_collections_map_size_bad_type"),
+      "t81lang_std_collections_map_size_bad_type");
+
+  constexpr const char* bad_collections_map_has_key_type = R"(
+    fn main() -> i32 {
+      let ok: bool = std.collections.map_has(["k", "v"], 7);
+      let _ = ok;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_collections_map_has_key_type,
+                                  "std.collections.map_has expects a T81String key argument.",
+                                  "t81lang_std_collections_map_has_bad_key_type"),
+      "t81lang_std_collections_map_has_bad_key_type");
+
+  constexpr const char* bad_collections_map_get_key_type = R"(
+    fn main() -> i32 {
+      let maybe: Option[T81String] = std.collections.map_get(["k", "v"], 7);
+      let _ = maybe;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_collections_map_get_key_type,
+                                  "std.collections.map_get expects a T81String key argument.",
+                                  "t81lang_std_collections_map_get_bad_key_type"),
+      "t81lang_std_collections_map_get_bad_key_type");
+
+  constexpr const char* bad_collections_map_remove_arity = R"(
+    fn main() -> i32 {
+      let out: Vector[T81String] = std.collections.map_remove(["k", "v"]);
+      let _ = out;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_collections_map_remove_arity,
+                                  "std.collections.map_remove expects exactly two arguments.",
+                                  "t81lang_std_collections_map_remove_bad_arity"),
+      "t81lang_std_collections_map_remove_bad_arity");
+
+  constexpr const char* bad_collections_map_keys_type = R"(
+    fn main() -> i32 {
+      let keys: Vector[T81String] = std.collections.map_keys([1, 2, 3]);
+      let _ = keys;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_collections_map_keys_type,
+                                  "std.collections.map_keys expects a Vector[T81String] argument.",
+                                  "t81lang_std_collections_map_keys_bad_type"),
+      "t81lang_std_collections_map_keys_bad_type");
 
   constexpr const char* bad_async_sleep_type = R"(
     fn main() -> i32 {

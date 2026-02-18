@@ -185,6 +185,7 @@ int main() {
             let promise_h: T81String = std.async.promise();
             let list_v: Vector[T81String] = std.collections.list();
             let map_v: Vector[T81String] = std.collections.map();
+            let map_flat: Vector[T81String] = ["city", "sf", "lang", "t81"];
             let set_v: Vector[T81String] = std.collections.set();
             let tree_v: Vector[T81String] = std.collections.tree();
             let graph_v: Vector[T81String] = std.collections.graph();
@@ -198,6 +199,19 @@ int main() {
             let _promise_h = promise_h;
             let _list_h = std.collections.len(list_v);
             let _map_h = std.collections.len(map_v);
+            let _map_pairs = std.collections.map_size(map_flat);
+            let _map_has_city = std.collections.map_has(map_flat, "city");
+            let map_updated: Vector[T81String] = std.collections.map_put(map_flat, "city", "oakland");
+            let map_keys: Vector[T81String] = std.collections.map_keys(map_updated);
+            let map_removed: Vector[T81String] = std.collections.map_remove(map_updated, "lang");
+            let map_lookup: Option[T81String] = std.collections.map_get(map_removed, "city");
+            let _map_keys_len = std.collections.len(map_keys);
+            let _map_removed_pairs = std.collections.map_size(map_removed);
+            let _map_lookup_has = std.collections.map_has(map_removed, "city");
+            let _map_lookup_value = match (map_lookup) {
+                Some(v) => v;
+                None => "none";
+            };
             let _set_h = std.collections.len(set_v);
             let _tree_h = std.collections.len(tree_v);
             let _graph_h = std.collections.len(graph_v);
@@ -285,6 +299,38 @@ int main() {
          std::string::npos);
   assert(bad_runtime_aliases_arity_output.find("expects no arguments") != std::string::npos);
   fs::remove(bad_runtime_aliases_arity_path);
+
+  const std::string bad_collections_map_helper_program = R"(
+        fn main() -> i32 {
+            let m: Vector[T81String] = std.collections.map();
+            let out: Vector[T81String] = std.collections.map_put(m, "k", 7);
+            let _ = out;
+            return 0;
+        }
+    )";
+
+  [[maybe_unused]] auto bad_collections_map_helper_path =
+      make_temp_path("t81-check-collections-map-helper-bad-types", ".t81");
+  write_source(bad_collections_map_helper_path, bad_collections_map_helper_program);
+
+  [[maybe_unused]] std::ostringstream bad_collections_map_helper_captured;
+  old_buf = std::cerr.rdbuf(bad_collections_map_helper_captured.rdbuf());
+  [[maybe_unused]] int bad_collections_map_helper_rc =
+      t81::cli::check_syntax(bad_collections_map_helper_path);
+  std::cerr.rdbuf(old_buf);
+
+  if (bad_collections_map_helper_rc == 0) {
+    std::cerr << "Expected `t81 check` to fail on std.collections map helper alias\n";
+    return 1;
+  }
+  [[maybe_unused]] std::string bad_collections_map_helper_output =
+      bad_collections_map_helper_captured.str();
+  assert(bad_collections_map_helper_output.find(bad_collections_map_helper_path.string()) !=
+         std::string::npos);
+  assert(bad_collections_map_helper_output.find(
+             "std.collections.map_put expects T81String key/value arguments.") !=
+         std::string::npos);
+  fs::remove(bad_collections_map_helper_path);
 
   const std::string transcendental_math_program = R"(
         fn main() -> i32 {

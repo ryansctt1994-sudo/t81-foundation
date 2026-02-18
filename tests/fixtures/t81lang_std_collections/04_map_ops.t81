@@ -1,0 +1,28 @@
+fn render(opt: Option[T81String]) -> T81String {
+    return match (opt) {
+        Some(v) => v;
+        None => "none";
+    };
+}
+
+fn main() -> i32 {
+    let m0: Vector[T81String] = std.collections.map();
+    let m1: Vector[T81String] = std.collections.map_put(m0, "city", "sf");
+    let m2: Vector[T81String] = std.collections.map_put(m1, "lang", "t81");
+    let m3: Vector[T81String] = std.collections.map_put(m2, "city", "oakland");
+
+    let keys: Vector[T81String] = std.collections.map_keys(m3);
+    let city: Option[T81String] = std.collections.map_get(m3, "city");
+    let missing: Option[T81String] = std.collections.map_get(m3, "missing");
+
+    let m4: Vector[T81String] = std.collections.map_remove(m3, "lang");
+
+    print(std.collections.map_size(m3));
+    print(std.collections.len(keys));
+    print(std.collections.map_has(m3, "city"));
+    print(render(city));
+    print(render(missing));
+    print(std.collections.map_size(m4));
+    print(std.collections.map_has(m4, "lang"));
+    return 0;
+}

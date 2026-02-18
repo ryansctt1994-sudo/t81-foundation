@@ -35,6 +35,30 @@ fn map() -> Vector[T81String] {
     return std.collections.map();
 }
 
+fn map_size(m: Vector[T81String]) -> i32 {
+    return std.collections.map_size(m);
+}
+
+fn map_has(m: Vector[T81String], key: T81String) -> bool {
+    return std.collections.map_has(m, key);
+}
+
+fn map_put(m: Vector[T81String], key: T81String, value: T81String) -> Vector[T81String] {
+    return std.collections.map_put(m, key, value);
+}
+
+fn map_get(m: Vector[T81String], key: T81String) -> Option[T81String] {
+    return std.collections.map_get(m, key);
+}
+
+fn map_remove(m: Vector[T81String], key: T81String) -> Vector[T81String] {
+    return std.collections.map_remove(m, key);
+}
+
+fn map_keys(m: Vector[T81String]) -> Vector[T81String] {
+    return std.collections.map_keys(m);
+}
+
 fn set() -> Vector[T81String] {
     return std.collections.set();
 }
