@@ -144,6 +144,7 @@ int main() {
             let rendered: T81String = std.symbol.to_string(sym);
             let same: bool = std.symbol.eq(sym, "omega");
             let diff: bool = std.symbol.ne(sym, "alpha");
+            std.core.assert(same);
             std.core.debug(rendered);
             let present: Option[i32] = Some(7);
             let keep: i32 = std.core.unwrap_or(present, 9);

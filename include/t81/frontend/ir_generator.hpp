@@ -125,6 +125,9 @@ inline std::optional<std::string> qualified_call_name(const Expr& expr) {
 }
 
 inline std::string canonical_stdlib_call_name(std::string_view name) {
+  if (name == "std.core.assert") {
+    return "core_assert";
+  }
   if (name == "std.core.debug") {
     return "print";
   }
@@ -1011,6 +1014,18 @@ public:
         instr.opcode = tisc::ir::Opcode::PRINT;
         instr.operands = {value.reg};
         emit(instr);
+        return {};
+      }
+      if (func_name == "core_assert") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("core_assert expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto cond = ensure_expr_result(expr.arguments[0].get());
+        auto pass_label = new_label();
+        emit_jump_if_not_zero(pass_label, cond);
+        emit_simple(tisc::ir::Opcode::TRAP);
+        emit_label(pass_label);
         return {};
       }
       if (func_name == "option_unwrap_or") {

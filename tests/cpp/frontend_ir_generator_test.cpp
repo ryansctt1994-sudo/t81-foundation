@@ -419,6 +419,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let rendered_sym: T81String = std.symbol.to_string(sym);
             let same: bool = std.symbol.eq(sym, "omega");
             let diff: bool = std.symbol.ne(sym, "alpha");
+            std.core.assert(1 < 2);
             std.core.debug("debug");
             let maybe: Option[i32] = Some(7);
             let kept: i32 = std.core.unwrap_or(maybe, 9);
@@ -481,6 +482,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   bool has_strvecpush = false;
   bool has_cmp = false;
   bool has_print = false;
+  bool has_trap = false;
   bool has_option_is_some = false;
   bool has_option_unwrap = false;
   bool has_weights_load = false;
@@ -519,6 +521,8 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
       has_cmp = true;
     } else if (inst.opcode == Opcode::PRINT) {
       has_print = true;
+    } else if (inst.opcode == Opcode::TRAP) {
+      has_trap = true;
     } else if (inst.opcode == Opcode::OPTION_IS_SOME) {
       has_option_is_some = true;
     } else if (inst.opcode == Opcode::OPTION_UNWRAP) {
@@ -545,6 +549,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   EXPECT(has_strvecpush, "Vector[T81String] literal should lower to STRVECPUSH");
   EXPECT(has_cmp, "std.symbol.eq/ne should lower to CMP");
   EXPECT(has_print, "std.core.debug/std.io.* should lower to PRINT");
+  EXPECT(has_trap, "std.core.assert should lower to TRAP");
   EXPECT(has_option_is_some, "std.core.unwrap_or should lower to OPTION_IS_SOME");
   EXPECT(has_option_unwrap, "std.core.unwrap_or should lower to OPTION_UNWRAP");
   EXPECT(has_weights_load, "std.tensor.load should lower to WEIGHTS_LOAD");

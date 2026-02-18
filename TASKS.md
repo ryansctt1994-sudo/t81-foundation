@@ -22,3 +22,4 @@ Based on the analysis of `advanced_datatypes_showcase.t81` and the current compi
 18. **Add `std.tensor.matmul` CLI Fixture Coverage:** [Done] The tensor fixture harness now injects deterministic in-memory rank-2 weights (`mat_a`, `mat_b`) and validates runtime `std.tensor.matmul` execution with golden output.
 19. **Expose `std.core.debug` Frontend Alias:** [Done] `std.core.debug` now canonicalizes to builtin `print`, with conformance, IR-lowering, and CLI check coverage.
 20. **Expose `std.core.unwrap_or` Frontend Alias:** [Done] `std.core.unwrap_or` now canonicalizes to deterministic Option lowering (`OPTION_IS_SOME` / `OPTION_UNWRAP`) with conformance, IR-lowering, and CLI check coverage.
+21. **Expose `std.core.assert` Frontend Alias:** [Done] `std.core.assert` now canonicalizes to deterministic trap-on-false lowering with conformance, IR-lowering, and CLI check coverage.

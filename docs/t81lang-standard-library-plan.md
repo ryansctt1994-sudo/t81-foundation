@@ -121,6 +121,7 @@ Building blocks for autonomous agents.
 - `std.math`: `sin`, `cos`, `tan` are wired as deterministic frontend/runtime aliases.
 - `std.io`: `println`, `print_int`, and `print_float` aliases lower to `print`.
 - `std.core`: `debug` now lowers as a deterministic frontend/runtime alias to `print` with existing scalar print-type constraints.
+- `std.core`: `assert` now lowers as a deterministic frontend/runtime alias that traps on false conditions.
 - `std.core`: `unwrap_or` now lowers as a deterministic frontend/runtime alias over `Option[T]` via `OPTION_IS_SOME` / `OPTION_UNWRAP`.
 - `std.tensor`: `load`, `from_list`, `matmul`, and `vec_add` aliases are implemented and tested.
 - `std.math` / `std.tensor`: wrapper module files now expose the directly wrappable aliases via `src/lang/std/math.t81` and `src/lang/std/tensor.t81` (`std.tensor.load` remains direct-use because it currently requires a string literal argument at call sites).

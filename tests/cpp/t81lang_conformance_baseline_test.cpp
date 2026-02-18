@@ -210,6 +210,7 @@ static void test_std_namespace_builtin_aliases() {
       let angle: T81Float = std.math.sin(1.0);
       let c: T81Float = std.math.cos(angle);
       let t: T81Float = std.math.tan(c);
+      std.core.assert(1 < 2);
       std.core.debug("dbg");
       let present: Option[i32] = Some(7);
       let keep: i32 = std.core.unwrap_or(present, 9);
@@ -252,6 +253,24 @@ static void test_std_namespace_builtin_aliases() {
   )";
   require_true(fails_semantic(bad_debug_type, "t81lang_std_core_debug_bad_type"),
                "t81lang_std_core_debug_bad_type");
+
+  constexpr const char* bad_assert_arity = R"(
+    fn main() -> i32 {
+      std.core.assert();
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_assert_arity, "t81lang_std_core_assert_bad_arity"),
+               "t81lang_std_core_assert_bad_arity");
+
+  constexpr const char* bad_assert_type = R"(
+    fn main() -> i32 {
+      std.core.assert(7);
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_assert_type, "t81lang_std_core_assert_bad_type"),
+               "t81lang_std_core_assert_bad_type");
 
   constexpr const char* bad_unwrap_or_arity = R"(
     fn main() -> i32 {

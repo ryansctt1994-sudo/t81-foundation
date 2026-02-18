@@ -200,6 +200,9 @@ std::optional<std::string> qualified_call_name(const t81::frontend::Expr& expr) 
 }
 
 std::string canonical_stdlib_call_name(std::string_view name) {
+  if (name == "std.core.assert") {
+    return "core_assert";
+  }
   if (name == "std.core.debug") {
     return "print";
   }
@@ -1898,6 +1901,17 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token,
               "The 'print' builtin requires a scalar T81 numeric, bool, string, or bytes "
               "argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Void};
+    }
+    if (func_name == "core_assert") {
+      if (arg_types.size() != 1) {
+        error(call_token, "core_assert expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Bool) {
+        error(call_token, "core_assert expects a bool argument.");
         return make_error_type();
       }
       return Type{Type::Kind::Void};
