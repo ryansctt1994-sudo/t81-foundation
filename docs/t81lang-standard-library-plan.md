@@ -128,6 +128,7 @@ Building blocks for autonomous agents.
 - `std.bytes`: `len`, `is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, `replace`, `to_string`, and `from_string` are implemented for frontend-native `T81Bytes`, with explicit `T81Bytes(...)` conversion calls and fixture-driven CLI golden coverage in `tests/fixtures/t81lang_std_bytes/*` and `tests/cpp/cli_std_bytes_fixtures_test.cpp`.
 - `std.bytes`: `split` / `join` now mirror `std.text` semantics for byte data (`split` preserves empty segments, `join` supports empty vectors) with deterministic semantic diagnostics for empty literal separators.
 - `std.symbol`: `intern` and `to_string` are now exposed as deterministic frontend/IR aliases in `src/lang/std/symbol.t81` (currently represented as interned `T81String` handles in T81Lang runtime state).
+- `std.symbol`: fixture-driven CLI golden coverage now validates deterministic observable output via `tests/fixtures/t81lang_std_symbol/*` and `tests/cpp/cli_std_symbol_fixtures_test.cpp`.
 
 ## 6. Completed Milestone: `std.text.split` / `std.text.join`
 
