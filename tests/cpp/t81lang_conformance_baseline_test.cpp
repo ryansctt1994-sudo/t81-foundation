@@ -1648,6 +1648,19 @@ static void test_generic_function_inference() {
   require_true(analyzes(explicit_type_args, "t81lang_generic_function_explicit_type_args"),
                "t81lang_generic_function_explicit_type_args");
 
+  constexpr const char* partial_explicit_type_args = R"(
+    fn first[T, U](a: T, b: U) -> T {
+      return a;
+    }
+    fn main() -> i32 {
+      let out: i32 = first[i32](7, "tail");
+      return out;
+    }
+  )";
+  require_true(analyzes(partial_explicit_type_args,
+                        "t81lang_generic_function_partial_explicit_type_args"),
+               "t81lang_generic_function_partial_explicit_type_args");
+
   constexpr const char* explicit_type_arg_count_mismatch = R"(
     fn id[T](x: T) -> T {
       return x;
@@ -1659,7 +1672,7 @@ static void test_generic_function_inference() {
   )";
   require_true(
       fails_semantic_with_message(explicit_type_arg_count_mismatch,
-                                  "expects 1 explicit type arguments but got 2",
+                                  "expects 1 explicit type arguments at most but got 2",
                                   "t81lang_generic_function_explicit_type_args_bad_arity"),
       "t81lang_generic_function_explicit_type_args_bad_arity");
 }

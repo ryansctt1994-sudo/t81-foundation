@@ -2722,20 +2722,55 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         explicit_type_args.push_back(analyze_type_expr(*type_arg));
       }
 
-      if (explicit_type_args.size() != symbol->generic_params.size()) {
+      if (explicit_type_args.size() > symbol->generic_params.size()) {
         error(generic_callee->name,
               "Function '" + func_name + "' expects " +
                   std::to_string(symbol->generic_params.size()) +
-                  " explicit type arguments but got " +
+                  " explicit type arguments at most but got " +
                   std::to_string(explicit_type_args.size()) + ".");
         return make_error_type();
       }
 
       std::unordered_map<std::string, Type> generic_bindings;
       generic_bindings.reserve(symbol->generic_params.size());
-      for (size_t i = 0; i < symbol->generic_params.size(); ++i) {
+      for (size_t i = 0; i < explicit_type_args.size(); ++i) {
         generic_bindings.emplace(symbol->generic_params[i], explicit_type_args[i]);
       }
+
+      std::function<bool(const Type&, const Type&)> bind_generic =
+          [&](const Type& pattern, const Type& actual) -> bool {
+        if (pattern.kind == Type::Kind::Custom) {
+          auto generic_it =
+              std::find(symbol->generic_params.begin(), symbol->generic_params.end(),
+                        pattern.custom_name);
+          if (generic_it != symbol->generic_params.end()) {
+            auto [it, inserted] = generic_bindings.emplace(pattern.custom_name, actual);
+            if (!inserted) {
+              return it->second == actual;
+            }
+            return true;
+          }
+        }
+
+        if (pattern.kind != actual.kind) {
+          return is_assignable(pattern, actual);
+        }
+
+        if (pattern.kind == Type::Kind::Custom || pattern.kind == Type::Kind::Constant) {
+          return pattern.custom_name == actual.custom_name;
+        }
+
+        if (pattern.params.size() != actual.params.size()) {
+          return is_assignable(pattern, actual);
+        }
+
+        for (size_t i = 0; i < pattern.params.size(); ++i) {
+          if (!bind_generic(pattern.params[i], actual.params[i])) {
+            return false;
+          }
+        }
+        return true;
+      };
 
       std::function<Type(const Type&)> instantiate_generic = [&](const Type& in) -> Type {
         if (in.kind == Type::Kind::Custom) {
@@ -2753,8 +2788,8 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       };
 
       for (size_t i = 0; i < arg_types.size(); ++i) {
-        Type expected = instantiate_generic(symbol->param_types[i]);
-        if (!is_assignable(expected, arg_types[i])) {
+        if (!bind_generic(symbol->param_types[i], arg_types[i])) {
+          Type expected = instantiate_generic(symbol->param_types[i]);
           std::vector<Type> instantiated_params;
           instantiated_params.reserve(symbol->param_types.size());
           for (const auto& param : symbol->param_types) {

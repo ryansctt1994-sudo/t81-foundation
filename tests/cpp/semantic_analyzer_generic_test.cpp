@@ -341,6 +341,30 @@ int main() {
   expect_semantic_failure(function_generic_explicit_type_arg_failure,
                           "function_generic_explicit_type_arg_failure");
 
+  const std::string function_generic_partial_explicit_type_arg_success = R"(
+        fn first[T, U](a: T, b: U) -> T {
+            return a;
+        }
+        fn main() -> i32 {
+            let value: i32 = first[i32](7, "tail");
+            return value;
+        }
+    )";
+  expect_semantic_success(function_generic_partial_explicit_type_arg_success,
+                          "function_generic_partial_explicit_type_arg_success");
+
+  const std::string function_generic_partial_explicit_type_arg_failure = R"(
+        fn first[T, U](a: T, b: U) -> T {
+            return a;
+        }
+        fn main() -> i32 {
+            let value: i32 = first[i32]("oops", "tail");
+            return value;
+        }
+    )";
+  expect_semantic_failure(function_generic_partial_explicit_type_arg_failure,
+                          "function_generic_partial_explicit_type_arg_failure");
+
   const std::string fixed_generic_var = R"(
         fn main() -> i32 {
             var x: T81Fixed[4, 4];

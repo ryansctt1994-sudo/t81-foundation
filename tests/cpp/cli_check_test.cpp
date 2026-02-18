@@ -234,6 +234,9 @@ int main() {
   fs::remove(transcendental_math_path);
 
   const std::string clamp_collections_program = R"(
+        fn first[T, U](a: T, b: U) -> T {
+            return a;
+        }
         fn main() -> i32 {
             let clamped: T81Float = std.math.clamp(-2.0, 0.0, 1.0);
             let ints: Vector[i32] = [1, 2, 3];
@@ -243,12 +246,14 @@ int main() {
             let l: i32 = std.collections.last(ints);
             let pushed: Vector[i32] = std.collections.push(ints, 4);
             let popped: Vector[i32] = std.collections.pop(pushed);
+            let partial: i32 = first[i32](7, "tail");
             let _c = clamped;
             let _n = n;
             let _e = e;
             let _f = f;
             let _l = l;
             let _p = popped;
+            let _partial = partial;
             return 0;
         }
     )";
@@ -327,8 +332,9 @@ int main() {
       generic_explicit_arity_bad_captured.str();
   assert(generic_explicit_arity_bad_output.find(generic_explicit_arity_bad_path.string()) !=
          std::string::npos);
-  assert(generic_explicit_arity_bad_output.find("expects 1 explicit type arguments but got 2") !=
-         std::string::npos);
+  assert(
+      generic_explicit_arity_bad_output.find("expects 1 explicit type arguments at most but got 2") !=
+      std::string::npos);
   fs::remove(generic_explicit_arity_bad_path);
 
   std::cout << "CliCheckTest passed!" << std::endl;
