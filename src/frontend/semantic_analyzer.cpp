@@ -2606,8 +2606,25 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       out.params.push_back(Type{Type::Kind::String});
       return out;
     }
-    if (func_name == "collections_map" || func_name == "collections_set" ||
-        func_name == "collections_tree" || func_name == "collections_graph") {
+    if (func_name == "collections_map") {
+      if (!arg_types.empty()) {
+        error(call_token, "std.collections.map expects no arguments.");
+        return make_error_type();
+      }
+      Type out{Type::Kind::Vector};
+      out.params.push_back(Type{Type::Kind::String});
+      return out;
+    }
+    if (func_name == "collections_set") {
+      if (!arg_types.empty()) {
+        error(call_token, "std.collections.set expects no arguments.");
+        return make_error_type();
+      }
+      Type out{Type::Kind::Vector};
+      out.params.push_back(Type{Type::Kind::String});
+      return out;
+    }
+    if (func_name == "collections_tree" || func_name == "collections_graph") {
       if (!arg_types.empty()) {
         error(call_token, "std.collections container constructors expect no arguments.");
         return make_error_type();

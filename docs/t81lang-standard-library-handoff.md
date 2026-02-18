@@ -10,7 +10,7 @@ Implemented and validated end-to-end (semantic + IR + VM + CLI coverage):
 - `std.io`: `println`, `print_int`, `print_float`, `stream`, `net`
 - `std.text`: `str_len`, `str_is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, `replace`, `to_string`, `from_bytes`, `split`, `join`
 - `std.bytes`: `len`, `is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, `replace`, `to_string`, `from_string`, `split`, `join`, `T81Bytes(...)`
-- `std.collections`: `len`, `is_empty`, `first`, `last`, `push`, `pop`, `list`, `map`, `set`, `tree`, `graph` (`list` returns a real empty vector value; `map/set/tree/graph` are currently placeholder handles)
+- `std.collections`: `len`, `is_empty`, `first`, `last`, `push`, `pop`, `list`, `map`, `set`, `tree`, `graph` (`list`/`map`/`set` return real empty vector values; `tree`/`graph` are currently placeholder handles)
 - `std.symbol`: `intern`, `to_string`, `eq`, `ne`
 - `std.sys`: `exit`, `time`, `entropy`, `proof`
 - `std.async`: `yield`, `sleep`, `thread`, `promise`
@@ -64,7 +64,7 @@ Current known good baseline: full suite passing (`211/211`).
 ## 4. What Is Next (Priority Order)
 
 1. Replace remaining placeholder handle aliases with full runtime semantics for:
-   - `std.collections.map/set/tree/graph` (`list` already upgraded to real vector semantics)
+   - `std.collections.tree/graph` (`list`/`map`/`set` already upgraded to real vector semantics)
    - `std.sys.proof`
    - `std.io.stream/net`
    - `std.async.thread/promise`

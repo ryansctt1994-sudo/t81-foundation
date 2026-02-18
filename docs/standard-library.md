@@ -61,8 +61,8 @@ Input and Output.
 - `fn push(v: Vector[T], value: T) -> Vector[T]`: Deterministic append returning a new vector value.
 - `fn pop(v: Vector[T]) -> Vector[T]`: Deterministic drop-last returning a new vector value; empty vectors are rejected deterministically.
 - `fn list() -> Vector[T81String]`: Deterministic empty list constructor (runtime-backed string-vector value).
-- `fn map() -> i32`: Deterministic map-module placeholder handle.
-- `fn set() -> i32`: Deterministic set-module placeholder handle.
+- `fn map() -> Vector[T81String]`: Deterministic empty map-constructor placeholder value (runtime-backed string-vector form).
+- `fn set() -> Vector[T81String]`: Deterministic empty set-constructor placeholder value (runtime-backed string-vector form).
 - `fn tree() -> i32`: Deterministic tree-module placeholder handle.
 - `fn graph() -> i32`: Deterministic graph-module placeholder handle.
 

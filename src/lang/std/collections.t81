@@ -31,11 +31,11 @@ fn list() -> Vector[T81String] {
     return std.collections.list();
 }
 
-fn map() -> i32 {
+fn map() -> Vector[T81String] {
     return std.collections.map();
 }
 
-fn set() -> i32 {
+fn set() -> Vector[T81String] {
     return std.collections.set();
 }
 

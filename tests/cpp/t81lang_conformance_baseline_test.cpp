@@ -262,8 +262,8 @@ static void test_std_namespace_builtin_aliases() {
       let thread_h: i32 = std.async.thread();
       let promise_h: i32 = std.async.promise();
       let list_v: Vector[T81String] = std.collections.list();
-      let map_h: i32 = std.collections.map();
-      let set_h: i32 = std.collections.set();
+      let map_v: Vector[T81String] = std.collections.map();
+      let set_v: Vector[T81String] = std.collections.set();
       let tree_h: i32 = std.collections.tree();
       let graph_h: i32 = std.collections.graph();
       std.agent.self_reflect();
@@ -276,8 +276,8 @@ static void test_std_namespace_builtin_aliases() {
       let _thread_h = thread_h;
       let _promise_h = promise_h;
       let _list_h = std.collections.len(list_v);
-      let _map_h = map_h;
-      let _set_h = set_h;
+      let _map_h = std.collections.len(map_v);
+      let _set_h = std.collections.len(set_v);
       let _tree_h = tree_h;
       let _graph_h = graph_h;
       return 0;

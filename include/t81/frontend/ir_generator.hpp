@@ -1818,13 +1818,35 @@ public:
         record_result(&expr, dest);
         return {};
       }
-      if (func_name == "collections_map" || func_name == "collections_set" ||
-          func_name == "collections_tree" || func_name == "collections_graph") {
+      if (func_name == "collections_map") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("collections_map expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction vec_new;
+        vec_new.opcode = tisc::ir::Opcode::STRVECNEW;
+        vec_new.operands = {dest.reg};
+        emit(vec_new);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "collections_set") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("collections_set expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction vec_new;
+        vec_new.opcode = tisc::ir::Opcode::STRVECNEW;
+        vec_new.operands = {dest.reg};
+        emit(vec_new);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "collections_tree" || func_name == "collections_graph") {
         if (!expr.arguments.empty()) {
           throw std::runtime_error("collections container constructors expect no arguments.");
         }
-        long long handle = 107;
-        if (func_name == "collections_set") handle = 108;
+        long long handle = 109;
         if (func_name == "collections_tree") handle = 109;
         if (func_name == "collections_graph") handle = 110;
         auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
