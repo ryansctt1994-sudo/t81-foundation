@@ -26,6 +26,14 @@ std::string opcode_to_string(ir::Opcode opcode) {
       return "CMP";
     case ir::Opcode::MOD:
       return "MOD";
+    case ir::Opcode::STRVECNEW:
+      return "STRVECNEW";
+    case ir::Opcode::STRVECPUSH:
+      return "STRVECPUSH";
+    case ir::Opcode::STRSPLIT:
+      return "STRSPLIT";
+    case ir::Opcode::STRJOIN:
+      return "STRJOIN";
     case ir::Opcode::JMP:
       return "JMP";
     case ir::Opcode::JZ:

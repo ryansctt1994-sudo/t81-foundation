@@ -53,7 +53,7 @@ String manipulation and formatting (backed by `include/t81/std/string.hpp`).
 - `fn replace(s: T81String, needle: T81String, replacement: T81String) -> T81String`: Deterministic global replace (non-overlapping, left-to-right). Empty `needle` leaves `s` unchanged.
 - `fn to_string(s: T81String|T81Bytes) -> T81String`: Deterministic conversion to text.
 - `fn from_bytes(b: T81Bytes) -> T81String`: Deterministic bytes-to-text alias.
-- `split`, `join`: planned. Calls currently fail with explicit semantic diagnostics until deterministic `Vector[T81String]` runtime support lands. Design/checklist tracked in `docs/t81lang-standard-library-plan.md` ("Next Milestone: std.text.split / std.text.join").
+- `split`, `join`: implemented with deterministic semantics (`split` preserves empty segments; `join` supports empty vectors) backed by `Vector[T81String]` VM runtime handles.
 
 ### `std.bytes`
 Deterministic bytes helpers.

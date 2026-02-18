@@ -73,7 +73,7 @@ fn main() -> i32 {
 
   const std::string split_source = R"(
 fn main() -> i32 {
-    let parts: Vector[T81String] = std.text.split("alpha", ",");
+    let parts: Vector[T81String] = std.text.split("alpha", "");
     let _ = parts;
     return 0;
 }
@@ -81,7 +81,7 @@ fn main() -> i32 {
 
   const std::string join_source = R"(
 fn main() -> i32 {
-    let joined: T81String = std.text.join(["a", "b"], ",");
+    let joined: T81String = std.text.join(["a", "b"], 7);
     let _ = joined;
     return 0;
 }
@@ -118,15 +118,15 @@ fn main() -> i32 {
 
   {
     [[maybe_unused]] auto output = capture_diagnostics(split_source, "split");
-    assert_contains(output, "std.text.split(\"alpha\", \",\")", "split");
-    assert_contains(output, "std.text.split is not implemented yet", "split");
+    assert_contains(output, "std.text.split(\"alpha\", \"\")", "split");
+    assert_contains(output, "str_split separator must not be empty.", "split");
     assert_contains(output, "^", "split");
   }
 
   {
     [[maybe_unused]] auto output = capture_diagnostics(join_source, "join");
-    assert_contains(output, "std.text.join([\"a\", \"b\"], \",\")", "join");
-    assert_contains(output, "std.text.join is not implemented yet", "join");
+    assert_contains(output, "std.text.join([\"a\", \"b\"], 7)", "join");
+    assert_contains(output, "str_join expects a T81String separator argument.", "join");
     assert_contains(output, "^", "join");
   }
 

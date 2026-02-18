@@ -1137,14 +1137,36 @@ public:
         return {};
       }
       if (func_name == "str_split") {
-        throw std::runtime_error(
-            "std.text.split is not implemented yet. Runtime support for Vector[T81String] is "
-            "required first.");
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("str_split expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto sep = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRSPLIT;
+        instr.operands = {dest.reg, value.reg, sep.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
       }
       if (func_name == "str_join") {
-        throw std::runtime_error(
-            "std.text.join is not implemented yet. Runtime support for Vector[T81String] is "
-            "required first.");
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("str_join expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto parts = ensure_expr_result(expr.arguments[0].get());
+        auto sep = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRJOIN;
+        instr.operands = {dest.reg, parts.reg, sep.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
       }
       if (func_name == "bytes_len") {
         if (expr.arguments.size() != 1) {
@@ -1755,6 +1777,28 @@ public:
   }
 
   std::any visit(const VectorLiteralExpr& expr) override {
+    const Type* vector_type = typed_expr(&expr);
+    const bool is_string_vector = vector_type && vector_type->kind == Type::Kind::Vector &&
+                                  !vector_type->params.empty() &&
+                                  vector_type->params[0].kind == Type::Kind::String;
+    if (is_string_vector) {
+      auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+      tisc::ir::Instruction vec_new;
+      vec_new.opcode = tisc::ir::Opcode::STRVECNEW;
+      vec_new.operands = {dest.reg};
+      emit(vec_new);
+      for (const auto& element : expr.elements) {
+        element->accept(*this);
+        auto value = ensure_expr_result(element.get());
+        tisc::ir::Instruction push;
+        push.opcode = tisc::ir::Opcode::STRVECPUSH;
+        push.operands = {dest.reg, value.reg};
+        emit(push);
+      }
+      record_result(&expr, dest);
+      return {};
+    }
+
     if (!_semantic) return {};
     const auto* data = _semantic->vector_literal_data(&expr);
     if (!data) {

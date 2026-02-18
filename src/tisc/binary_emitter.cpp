@@ -219,6 +219,14 @@ Opcode map_opcode(const ir::Instruction& instr) {
       return Opcode::StrIndexOf;
     case O::STRREPLACE:
       return Opcode::StrReplace;
+    case O::STRVECNEW:
+      return Opcode::StrVecNew;
+    case O::STRVECPUSH:
+      return Opcode::StrVecPush;
+    case O::STRSPLIT:
+      return Opcode::StrSplit;
+    case O::STRJOIN:
+      return Opcode::StrJoin;
     case O::WEIGHTS_LOAD:
       return Opcode::WeightsLoad;
     case O::META_READ:

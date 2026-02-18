@@ -107,6 +107,10 @@ enum class Opcode : std::uint8_t {
   StrContains,
   StrIndexOf,
   StrReplace,
+  StrVecNew,
+  StrVecPush,
+  StrSplit,
+  StrJoin,
   MakeComplex,
 };
 
@@ -312,6 +316,14 @@ enum class Opcode : std::uint8_t {
       return "StrIndexOf";
     case Opcode::StrReplace:
       return "StrReplace";
+    case Opcode::StrVecNew:
+      return "StrVecNew";
+    case Opcode::StrVecPush:
+      return "StrVecPush";
+    case Opcode::StrSplit:
+      return "StrSplit";
+    case Opcode::StrJoin:
+      return "StrJoin";
     case Opcode::MakeComplex:
       return "MakeComplex";
   }

@@ -469,29 +469,29 @@ static void test_std_text_aliases() {
   require_true(fails_semantic(bad_to_string_type, "t81lang_std_text_to_string_bad_type"),
                "t81lang_std_text_to_string_bad_type");
 
-  constexpr const char* split_not_implemented = R"(
+  constexpr const char* split_valid = R"(
     fn main() -> i32 {
       let parts: Vector[T81String] = std.text.split("a,b", ",");
-      let _ = parts;
+      let joined: T81String = std.text.join(parts, ",");
+      let n: i32 = std.text.str_len(joined);
+      if (n == 3) {
+        return 1;
+      }
       return 0;
     }
   )";
-  require_true(
-      fails_semantic_with_message(split_not_implemented, "std.text.split is not implemented yet",
-                                  "t81lang_std_text_split_not_implemented"),
-      "t81lang_std_text_split_not_implemented");
+  require_true(analyzes(split_valid, "t81lang_std_text_split_valid"),
+               "t81lang_std_text_split_valid");
 
-  constexpr const char* join_not_implemented = R"(
+  constexpr const char* join_valid_literal_vector = R"(
     fn main() -> i32 {
       let joined: T81String = std.text.join(["a", "b"], ",");
-      let _ = joined;
-      return 0;
+      let n: i32 = std.text.str_len(joined);
+      return n;
     }
   )";
-  require_true(
-      fails_semantic_with_message(join_not_implemented, "std.text.join is not implemented yet",
-                                  "t81lang_std_text_join_not_implemented"),
-      "t81lang_std_text_join_not_implemented");
+  require_true(analyzes(join_valid_literal_vector, "t81lang_std_text_join_valid_literal_vector"),
+               "t81lang_std_text_join_valid_literal_vector");
 
   constexpr const char* bad_split_arity = R"(
     fn main() -> i32 {
@@ -528,19 +528,18 @@ static void test_std_text_aliases() {
                                            "t81lang_std_text_split_empty_separator"),
                "t81lang_std_text_split_empty_separator");
 
-  constexpr const char* split_variable_separator_not_implemented = R"(
+  constexpr const char* split_variable_separator_valid = R"(
     fn main() -> i32 {
-      let sep: T81String = "";
+      let sep: T81String = ",";
       let parts: Vector[T81String] = std.text.split("alpha", sep);
-      let _ = parts;
+      let joined: T81String = std.text.join(parts, sep);
+      let _ = joined;
       return 0;
     }
   )";
-  require_true(
-      fails_semantic_with_message(split_variable_separator_not_implemented,
-                                  "std.text.split is not implemented yet",
-                                  "t81lang_std_text_split_variable_separator_not_implemented"),
-      "t81lang_std_text_split_variable_separator_not_implemented");
+  require_true(analyzes(split_variable_separator_valid,
+                        "t81lang_std_text_split_variable_separator_valid"),
+               "t81lang_std_text_split_variable_separator_valid");
 
   constexpr const char* bad_join_arity = R"(
     fn main() -> i32 {
@@ -685,7 +684,7 @@ static void test_std_text_module_wrappers() {
                "t81lang_std_text_module_wrappers");
 }
 
-static void test_std_text_split_join_wrapper_feature_gate() {
+static void test_std_text_split_join_wrappers() {
   constexpr const char* split_wrapper = R"(
     fn split_wrapper(s: T81String, sep: T81String) -> Vector[T81String] {
       return std.text.split(s, sep);
@@ -696,10 +695,8 @@ static void test_std_text_split_join_wrapper_feature_gate() {
       return 0;
     }
   )";
-  require_true(
-      fails_semantic_with_message(split_wrapper, "std.text.split is not implemented yet",
-                                  "t81lang_std_text_split_wrapper_not_implemented"),
-      "t81lang_std_text_split_wrapper_not_implemented");
+  require_true(analyzes(split_wrapper, "t81lang_std_text_split_wrapper_valid"),
+               "t81lang_std_text_split_wrapper_valid");
 
   constexpr const char* join_wrapper = R"(
     fn join_wrapper(parts: Vector[T81String], sep: T81String) -> T81String {
@@ -711,9 +708,8 @@ static void test_std_text_split_join_wrapper_feature_gate() {
       return 0;
     }
   )";
-  require_true(fails_semantic_with_message(join_wrapper, "std.text.join is not implemented yet",
-                                           "t81lang_std_text_join_wrapper_not_implemented"),
-               "t81lang_std_text_join_wrapper_not_implemented");
+  require_true(analyzes(join_wrapper, "t81lang_std_text_join_wrapper_valid"),
+               "t81lang_std_text_join_wrapper_valid");
 }
 
 static void test_std_bytes_aliases() {
@@ -1087,7 +1083,7 @@ int main() {
   test_std_tensor_vec_add_alias();
   test_std_text_aliases();
   test_std_text_module_wrappers();
-  test_std_text_split_join_wrapper_feature_gate();
+  test_std_text_split_join_wrappers();
   test_std_bytes_aliases();
   test_std_bytes_module_wrappers();
   test_t81_numeric_type_separation_rejects_invalid_mix();

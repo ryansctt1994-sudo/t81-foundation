@@ -347,6 +347,36 @@ void test_std_text_module_wrapper_pipeline() {
   }
 }
 
+void test_std_text_split_join_pipeline() {
+  const std::string source = R"(
+        fn main() -> i32 {
+            let parts: Vector[T81String] = std.text.split("a,,b", ",");
+            let joined: T81String = std.text.join(parts, ",");
+            let direct: T81String = std.text.join(["x", "", "z"], ",");
+            let n: i32 = std.text.str_len(joined);
+            let m: i32 = std.text.str_len(direct);
+            let idx_joined: i32 = std.text.index_of(joined, ",,");
+            let idx_direct: i32 = std.text.index_of(direct, ",,");
+            if (n == 4) {
+                if (m == 4) {
+                    if (idx_joined == 1) {
+                        if (idx_direct == 1) {
+                            return 29;
+                        }
+                    }
+                }
+            }
+            return 0;
+        }
+    )";
+  [[maybe_unused]] int64_t result = run_e2e_test(source);
+  if (result != 29) {
+    std::cerr << "test_std_text_split_join_pipeline failed: expected 29, got " << result
+              << std::endl;
+    throw std::runtime_error("test_std_text_split_join_pipeline failed");
+  }
+}
+
 void test_std_bytes_pipeline() {
   const std::string source = R"(
         fn main() -> i32 {
@@ -486,6 +516,7 @@ int main() {
   test_std_tensor_vec_add_pipeline();
   test_std_text_pipeline();
   test_std_text_module_wrapper_pipeline();
+  test_std_text_split_join_pipeline();
   test_std_bytes_pipeline();
   test_std_bytes_module_wrapper_pipeline();
   std::cout << "All advanced E2E tests passed!" << std::endl;

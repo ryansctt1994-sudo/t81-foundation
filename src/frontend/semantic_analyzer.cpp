@@ -1993,10 +1993,9 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
           return make_error_type();
         }
       }
-      error(call_token,
-            "std.text.split is not implemented yet. Runtime support for Vector[T81String] is "
-            "required first.");
-      return make_error_type();
+      Type result{Type::Kind::Vector};
+      result.params.push_back(Type{Type::Kind::String});
+      return result;
     }
     if (func_name == "str_join") {
       if (arg_types.size() != 2) {
@@ -2014,10 +2013,7 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "str_join expects a T81String separator argument.");
         return make_error_type();
       }
-      error(call_token,
-            "std.text.join is not implemented yet. Runtime support for Vector[T81String] is "
-            "required first.");
-      return make_error_type();
+      return Type{Type::Kind::String};
     }
     if (func_name == "bytes_len") {
       if (arg_types.size() != 1) {

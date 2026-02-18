@@ -412,6 +412,9 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let rendered: T81String = std.text.to_string(replaced);
             let rendered_bytes: T81String = std.text.to_string(T81Bytes("beta"));
             let rendered_from_bytes: T81String = std.text.from_bytes(T81Bytes("beta"));
+            let parts: Vector[T81String] = std.text.split("a,,b", ",");
+            let joined_again: T81String = std.text.join(parts, ",");
+            let joined_literal: T81String = std.text.join(["x", "y"], "-");
             std.io.println("hello");
             std.io.print_int(7);
             std.io.print_float(t);
@@ -429,6 +432,8 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _rd = rendered;
             let _rdb = rendered_bytes;
             let _rdfb = rendered_from_bytes;
+            let _ja = joined_again;
+            let _jl = joined_literal;
             return 0;
         }
     )";
@@ -458,6 +463,10 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   bool has_strcontains = false;
   bool has_strindexof = false;
   bool has_strreplace = false;
+  bool has_strsplit = false;
+  bool has_strjoin = false;
+  bool has_strvecnew = false;
+  bool has_strvecpush = false;
   bool has_print = false;
   bool has_weights_load = false;
   for (const auto& inst : instructions) {
@@ -483,6 +492,14 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
       has_strindexof = true;
     } else if (inst.opcode == Opcode::STRREPLACE) {
       has_strreplace = true;
+    } else if (inst.opcode == Opcode::STRSPLIT) {
+      has_strsplit = true;
+    } else if (inst.opcode == Opcode::STRJOIN) {
+      has_strjoin = true;
+    } else if (inst.opcode == Opcode::STRVECNEW) {
+      has_strvecnew = true;
+    } else if (inst.opcode == Opcode::STRVECPUSH) {
+      has_strvecpush = true;
     } else if (inst.opcode == Opcode::PRINT) {
       has_print = true;
     } else if (inst.opcode == Opcode::WEIGHTS_LOAD) {
@@ -501,6 +518,10 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   EXPECT(has_strcontains, "std.text.contains should lower to STRCONTAINS");
   EXPECT(has_strindexof, "std.text.index_of should lower to STRINDEXOF");
   EXPECT(has_strreplace, "std.text.replace should lower to STRREPLACE");
+  EXPECT(has_strsplit, "std.text.split should lower to STRSPLIT");
+  EXPECT(has_strjoin, "std.text.join should lower to STRJOIN");
+  EXPECT(has_strvecnew, "Vector[T81String] literal should lower to STRVECNEW");
+  EXPECT(has_strvecpush, "Vector[T81String] literal should lower to STRVECPUSH");
   EXPECT(has_print, "std.io.println should lower to PRINT");
   EXPECT(has_weights_load, "std.tensor.load should lower to WEIGHTS_LOAD");
   std::cout << "IRGeneratorTest test_std_namespace_aliases_lower_to_builtin_opcodes passed!"

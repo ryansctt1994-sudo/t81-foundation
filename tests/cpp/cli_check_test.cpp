@@ -80,13 +80,11 @@ int main() {
   [[maybe_unused]] int split_rc = t81::cli::check_syntax(split_path);
   std::cerr.rdbuf(old_buf);
 
-  if (split_rc == 0) {
-    std::cerr << "Expected `t81 check` to fail on split feature-gate input\n";
+  if (split_rc != 0) {
+    std::cerr << "Expected `t81 check` to succeed on valid split input\n";
+    std::cerr << split_captured.str() << "\n";
     return 1;
   }
-  [[maybe_unused]] std::string split_output = split_captured.str();
-  assert(split_output.find(split_path.string()) != std::string::npos);
-  assert(split_output.find("std.text.split is not implemented yet") != std::string::npos);
 
   fs::remove(split_path);
 
@@ -106,13 +104,11 @@ int main() {
   [[maybe_unused]] int join_rc = t81::cli::check_syntax(join_path);
   std::cerr.rdbuf(old_buf);
 
-  if (join_rc == 0) {
-    std::cerr << "Expected `t81 check` to fail on join feature-gate input\n";
+  if (join_rc != 0) {
+    std::cerr << "Expected `t81 check` to succeed on valid join input\n";
+    std::cerr << join_captured.str() << "\n";
     return 1;
   }
-  [[maybe_unused]] std::string join_output = join_captured.str();
-  assert(join_output.find(join_path.string()) != std::string::npos);
-  assert(join_output.find("std.text.join is not implemented yet") != std::string::npos);
 
   fs::remove(join_path);
 

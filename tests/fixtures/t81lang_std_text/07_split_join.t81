@@ -1,0 +1,10 @@
+fn main() -> i32 {
+  let parts: Vector[T81String] = std.text.split("a,,b", ",");
+  let joined: T81String = std.text.join(parts, ",");
+  let direct: T81String = std.text.join(["x", "", "z"], ",");
+  print(joined);
+  print(direct);
+  print(std.text.str_len(joined));
+  print(std.text.index_of(joined, ",,"));
+  return 0;
+}

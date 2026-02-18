@@ -461,6 +461,16 @@ public:
       state_.symbols.push_back(std::move(text));
       return static_cast<std::int64_t>(state_.symbols.size());
     };
+    auto string_vector_mut = [this](std::int64_t handle) -> std::vector<std::string>* {
+      if (handle <= 0) return nullptr;
+      std::size_t idx = static_cast<std::size_t>(handle - 1);
+      if (idx >= state_.string_vectors.size()) return nullptr;
+      return &state_.string_vectors[idx];
+    };
+    auto alloc_string_vector = [this]() -> std::int64_t {
+      state_.string_vectors.emplace_back();
+      return static_cast<std::int64_t>(state_.string_vectors.size());
+    };
     auto alloc_fraction = [this, current_pc](t81::T81Fraction frac) -> std::int64_t {
       state_.fractions.push_back(std::move(frac));
       auto idx = state_.fractions.size();
@@ -2054,6 +2064,102 @@ public:
         }
 
         state_.registers[insn.a] = intern_symbol(std::move(replaced));
+        state_.register_tags[insn.a] = ValueTag::SymbolHandle;
+        update_flags(state_.registers[insn.a]);
+        break;
+      }
+      case t81::tisc::Opcode::StrVecNew: {
+        if (!reg_ok(insn.a)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        state_.registers[insn.a] = alloc_string_vector();
+        state_.register_tags[insn.a] = ValueTag::StringVectorHandle;
+        update_flags(state_.registers[insn.a]);
+        break;
+      }
+      case t81::tisc::Opcode::StrVecPush: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.a] != ValueTag::StringVectorHandle ||
+            state_.register_tags[insn.b] != ValueTag::SymbolHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* values = string_vector_mut(state_.registers[insn.a]);
+        auto* value = symbol_ptr(state_.registers[insn.b]);
+        if (values == nullptr || value == nullptr) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        values->push_back(*value);
+        update_flags(state_.registers[insn.a]);
+        break;
+      }
+      case t81::tisc::Opcode::StrSplit: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] != ValueTag::SymbolHandle ||
+            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* value = symbol_ptr(state_.registers[insn.b]);
+        auto* sep = symbol_ptr(state_.registers[insn.c]);
+        if (value == nullptr || sep == nullptr) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (sep->empty()) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        std::vector<std::string> parts;
+        std::size_t start = 0;
+        while (true) {
+          std::size_t pos = value->find(*sep, start);
+          if (pos == std::string::npos) {
+            parts.push_back(value->substr(start));
+            break;
+          }
+          parts.push_back(value->substr(start, pos - start));
+          start = pos + sep->size();
+        }
+        state_.string_vectors.push_back(std::move(parts));
+        state_.registers[insn.a] = static_cast<std::int64_t>(state_.string_vectors.size());
+        state_.register_tags[insn.a] = ValueTag::StringVectorHandle;
+        update_flags(state_.registers[insn.a]);
+        break;
+      }
+      case t81::tisc::Opcode::StrJoin: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] != ValueTag::StringVectorHandle ||
+            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* parts = string_vector_ptr(state_.registers[insn.b]);
+        auto* sep = symbol_ptr(state_.registers[insn.c]);
+        if (parts == nullptr || sep == nullptr) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        std::string joined;
+        if (!parts->empty()) {
+          joined = parts->front();
+          for (std::size_t i = 1; i < parts->size(); ++i) {
+            joined += *sep;
+            joined += parts->at(i);
+          }
+        }
+        state_.registers[insn.a] = intern_symbol(std::move(joined));
         state_.register_tags[insn.a] = ValueTag::SymbolHandle;
         update_flags(state_.registers[insn.a]);
         break;
