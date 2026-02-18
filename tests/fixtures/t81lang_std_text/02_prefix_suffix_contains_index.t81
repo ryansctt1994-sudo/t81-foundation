@@ -1,0 +1,10 @@
+fn main() -> i32 {
+  let s: T81String = "alphabet";
+  print(std.text.starts_with(s, "alpha"));
+  print(std.text.ends_with(s, "bet"));
+  print(std.text.contains(s, "pha"));
+  print(std.text.contains(s, "zzz"));
+  print(std.text.index_of(s, "pha"));
+  print(std.text.index_of(s, "zzz"));
+  return 0;
+}

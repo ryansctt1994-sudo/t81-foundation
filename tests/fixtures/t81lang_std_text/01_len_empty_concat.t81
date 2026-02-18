@@ -1,0 +1,7 @@
+fn main() -> i32 {
+  print(std.text.str_len("alpha"));
+  print(std.text.str_is_empty(""));
+  print(std.text.str_is_empty("x"));
+  print(std.text.concat("al", "pha"));
+  return 0;
+}

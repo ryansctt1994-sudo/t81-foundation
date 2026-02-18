@@ -1,0 +1,6 @@
+fn main() -> i32 {
+  print(std.text.replace("banana", "na", "X"));
+  print(std.text.replace("aaaa", "aa", "b"));
+  print(std.text.replace("alpha", "", "z"));
+  return 0;
+}
