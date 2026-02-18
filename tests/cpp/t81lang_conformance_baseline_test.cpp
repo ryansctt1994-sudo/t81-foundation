@@ -249,6 +249,30 @@ static void test_std_namespace_builtin_aliases() {
   require_true(fails_semantic(bad_math_type, "t81lang_std_math_cos_bad_type"),
                "t81lang_std_math_cos_bad_type");
 
+  constexpr const char* unsupported_math_sqrt = R"(
+    fn main() -> i32 {
+      let x: T81Float = std.math.sqrt(4.0);
+      let _ = x;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(unsupported_math_sqrt,
+                                           "std.math.sqrt is not implemented yet",
+                                           "t81lang_std_math_sqrt_unimplemented"),
+               "t81lang_std_math_sqrt_unimplemented");
+
+  constexpr const char* unsupported_math_pow = R"(
+    fn main() -> i32 {
+      let x: T81Float = std.math.pow(2.0, 8.0);
+      let _ = x;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(unsupported_math_pow,
+                                           "std.math.pow is not implemented yet",
+                                           "t81lang_std_math_pow_unimplemented"),
+               "t81lang_std_math_pow_unimplemented");
+
   constexpr const char* bad_debug_type = R"(
     fn main() -> i32 {
       let t: Tensor = std.tensor.from_list([1, 2, 3]);

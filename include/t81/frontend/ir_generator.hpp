@@ -146,6 +146,36 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.math.tan") {
     return "tan";
   }
+  if (name == "std.math.asin") {
+    return "stdmath_asin_unimplemented";
+  }
+  if (name == "std.math.acos") {
+    return "stdmath_acos_unimplemented";
+  }
+  if (name == "std.math.atan") {
+    return "stdmath_atan_unimplemented";
+  }
+  if (name == "std.math.sinh") {
+    return "stdmath_sinh_unimplemented";
+  }
+  if (name == "std.math.cosh") {
+    return "stdmath_cosh_unimplemented";
+  }
+  if (name == "std.math.tanh") {
+    return "stdmath_tanh_unimplemented";
+  }
+  if (name == "std.math.exp") {
+    return "stdmath_exp_unimplemented";
+  }
+  if (name == "std.math.log") {
+    return "stdmath_log_unimplemented";
+  }
+  if (name == "std.math.pow") {
+    return "stdmath_pow_unimplemented";
+  }
+  if (name == "std.math.sqrt") {
+    return "stdmath_sqrt_unimplemented";
+  }
   if (name == "std.sys.exit") {
     return "sys_exit";
   }
@@ -1017,6 +1047,17 @@ public:
         emit(instr);
         record_result(&expr, dest);
         return {};
+      }
+      if (func_name == "stdmath_asin_unimplemented" || func_name == "stdmath_acos_unimplemented" ||
+          func_name == "stdmath_atan_unimplemented" ||
+          func_name == "stdmath_sinh_unimplemented" ||
+          func_name == "stdmath_cosh_unimplemented" ||
+          func_name == "stdmath_tanh_unimplemented" || func_name == "stdmath_exp_unimplemented" ||
+          func_name == "stdmath_log_unimplemented" || func_name == "stdmath_pow_unimplemented" ||
+          func_name == "stdmath_sqrt_unimplemented") {
+        throw std::runtime_error(
+            "std.math transcendental alias is not implemented yet (missing scalar VM "
+            "opcode/runtime support).");
       }
       if (func_name == "sys_exit") {
         if (expr.arguments.size() != 1) {
