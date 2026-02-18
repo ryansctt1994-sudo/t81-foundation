@@ -1,0 +1,117 @@
+fn render_opt_text(opt: Option[T81String]) -> T81String {
+    return match (opt) {
+        Some(v) => v;
+        None => "<none>";
+    };
+}
+
+fn build_pipeline_graph(edges_csv: T81String) -> Vector[T81String] {
+    let edges: Vector[T81String] = std.text.split(edges_csv, ",");
+    var g: Vector[T81String] = std.collections.graph();
+
+    var i: i32 = 0;
+    @bounded(64)
+    loop {
+        if (i >= std.collections.len(edges)) {
+            break;
+        }
+
+        let edge: T81String = edges[i];
+        let pair: Vector[T81String] = std.text.split(edge, ">");
+        if (std.collections.len(pair) == 2) {
+            let from: T81String = std.collections.first(pair);
+            let to: T81String = std.collections.last(pair);
+            g = std.collections.graph_add_edge(g, from, to);
+        }
+
+        i = i + 1;
+    }
+
+    return g;
+}
+
+fn main() -> i32 {
+    let edge_spec: T81String = "ingest>parse,parse>index,index>serve,parse>serve";
+    let g: Vector[T81String] = build_pipeline_graph(edge_spec);
+
+    var nodes: Vector[T81String] = std.collections.set();
+    let edges: Vector[T81String] = std.text.split(edge_spec, ",");
+    var j: i32 = 0;
+    @bounded(64)
+    loop {
+        if (j >= std.collections.len(edges)) {
+            break;
+        }
+
+        let pair: Vector[T81String] = std.text.split(edges[j], ">");
+        if (std.collections.len(pair) == 2) {
+            nodes = std.collections.set_add(nodes, std.collections.first(pair));
+            nodes = std.collections.set_add(nodes, std.collections.last(pair));
+        }
+
+        j = j + 1;
+    }
+
+    var owners: Vector[T81String] = std.collections.map();
+    owners = std.collections.map_put(owners, "ingest", "sensor");
+    owners = std.collections.map_put(owners, "parse", "compiler");
+    owners = std.collections.map_put(owners, "index", "storage");
+
+    if (!std.collections.map_has(owners, "serve")) {
+        owners = std.collections.map_put(owners, "serve", "gateway");
+    }
+
+    let serve_owner: Option[T81String] = std.collections.map_get(owners, "serve");
+    let unknown_owner: Option[T81String] = std.collections.map_get(owners, "unknown");
+
+    let parse_neighbors: Vector[T81String] = std.collections.graph_neighbors(g, "parse");
+    let route_hint: T81String = std.text.join(parse_neighbors, "|");
+    let route_tag: T81String = std.text.replace(route_hint, "|", "->");
+
+    let sym_a: T81String = std.symbol.intern("pipeline:parse");
+    let sym_b: T81String = std.symbol.intern("pipeline:parse");
+    let sym_c: T81String = std.symbol.intern("pipeline:serve");
+
+    let t0: Tensor = std.tensor.from_list([1, 2, 3]);
+    let t1: Tensor = std.tensor.from_list([3, 2, 1]);
+    let tsum: Tensor = std.tensor.vec_add(t0, t1);
+    let _ = tsum;
+
+    let mat_a: i32 = std.tensor.load("mat_a");
+    let mat_b: i32 = std.tensor.load("mat_b");
+    let product: Tensor = std.tensor.matmul(mat_a, mat_b);
+    let _p = product;
+
+    let baseline: T81Float = std.math.sqrt(9.0) + std.math.log(1.0);
+    let boosted: T81Float = std.math.exp(std.sys.time()) + std.math.pow(2.0, 3.0);
+    let score: T81Float = std.math.clamp(baseline + boosted, 0.0, 20.0);
+
+    let proof_h: T81String = std.sys.proof();
+    let stream_h: T81String = std.io.stream();
+    let net_h: T81String = std.io.net();
+    let thread_h: T81String = std.async.thread();
+    let promise_h: T81String = std.async.promise();
+
+    std.sys.reflect();
+    std.async.yield();
+    std.async.sleep(score);
+
+    print(std.collections.graph_edge_count(g));
+    print(std.collections.set_size(nodes));
+    print(std.collections.map_size(owners));
+    print(render_opt_text(serve_owner));
+    print(render_opt_text(unknown_owner));
+    print(route_tag);
+    print(std.collections.graph_has_edge(g, "parse", "serve"));
+    print(std.symbol.eq(sym_a, sym_b));
+    print(std.symbol.ne(sym_a, sym_c));
+    print(std.symbol.to_string(sym_a));
+    print(score);
+    print(proof_h);
+    print(stream_h);
+    print(net_h);
+    print(thread_h);
+    print(promise_h);
+
+    return std.collections.graph_edge_count(g) + std.collections.set_size(nodes);
+}
