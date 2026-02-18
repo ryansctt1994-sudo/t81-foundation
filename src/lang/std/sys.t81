@@ -8,3 +8,7 @@ fn exit(code: i32) -> void {
 fn time() -> T81Float {
     return std.sys.time();
 }
+
+fn entropy() -> i32 {
+    return std.sys.entropy();
+}

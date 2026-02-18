@@ -378,6 +378,19 @@ int main() {
   expect_semantic_failure(function_generic_unresolved_inference_failure,
                           "function_generic_unresolved_inference_failure");
 
+  const std::string function_generic_unresolved_multiple_inference_failure = R"(
+        fn none_pair[T, U]() -> Option[Result[T, U]] {
+            return None;
+        }
+        fn main() -> i32 {
+            let value = none_pair();
+            let _ = value;
+            return 0;
+        }
+    )";
+  expect_semantic_failure(function_generic_unresolved_multiple_inference_failure,
+                          "function_generic_unresolved_multiple_inference_failure");
+
   const std::string fixed_generic_var = R"(
         fn main() -> i32 {
             var x: T81Fixed[4, 4];

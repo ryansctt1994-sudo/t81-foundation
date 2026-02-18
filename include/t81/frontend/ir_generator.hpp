@@ -188,6 +188,9 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.sys.time") {
     return "sys_time";
   }
+  if (name == "std.sys.entropy") {
+    return "sys_entropy";
+  }
   if (name == "std.async.yield") {
     return "async_yield";
   }
@@ -1192,6 +1195,18 @@ public:
         instr.literal_kind = tisc::LiteralKind::FloatHandle;
         instr.text_literal = "0";
         instr.primitive = tisc::ir::PrimitiveKind::Float;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "sys_entropy") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("sys_entropy expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        auto instr = tisc::ir::Instruction{tisc::ir::Opcode::LOADI,
+                                           {dest.reg, tisc::ir::Immediate{0}}};
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
         emit(instr);
         record_result(&expr, dest);
         return {};

@@ -253,11 +253,13 @@ static void test_std_namespace_builtin_aliases() {
         return std.collections.len(popped);
       }
       let now: T81Float = std.sys.time();
+      let ent: i32 = std.sys.entropy();
       std.async.yield();
       std.async.sleep(now);
       std.agent.self_reflect();
       std.sys.exit(0);
       let handle: i32 = std.tensor.load("layer0.weight");
+      let _ent = ent;
       return 0;
     }
   )";
@@ -462,6 +464,16 @@ static void test_std_namespace_builtin_aliases() {
   )";
   require_true(fails_semantic(bad_sys_time_arity, "t81lang_std_sys_time_bad_arity"),
                "t81lang_std_sys_time_bad_arity");
+
+  constexpr const char* bad_sys_entropy_arity = R"(
+    fn main() -> i32 {
+      let e: i32 = std.sys.entropy(1);
+      let _ = e;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_sys_entropy_arity, "t81lang_std_sys_entropy_bad_arity"),
+               "t81lang_std_sys_entropy_bad_arity");
 
   constexpr const char* bad_async_sleep_type = R"(
     fn main() -> i32 {
@@ -1691,6 +1703,23 @@ static void test_generic_function_inference() {
                                   "Cannot infer generic parameter 'T' for function 'none_of'.",
                                   "t81lang_generic_function_unresolved_inference"),
       "t81lang_generic_function_unresolved_inference");
+
+  constexpr const char* unresolved_multiple_generic_inference = R"(
+    fn none_pair[T, U]() -> Option[Result[T, U]] {
+      return None;
+    }
+    fn main() -> i32 {
+      let out = none_pair();
+      let _ = out;
+      return 1;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(
+          unresolved_multiple_generic_inference,
+          "Cannot infer generic parameters 'T', 'U' for function 'none_pair'.",
+          "t81lang_generic_function_unresolved_multiple_inference"),
+      "t81lang_generic_function_unresolved_multiple_inference");
 }
 
 static void test_let_is_immutable() {

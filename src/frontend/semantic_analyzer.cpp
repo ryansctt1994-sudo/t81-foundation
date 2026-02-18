@@ -261,6 +261,9 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.sys.time") {
     return "sys_time";
   }
+  if (name == "std.sys.entropy") {
+    return "sys_entropy";
+  }
   if (name == "std.async.yield") {
     return "async_yield";
   }
@@ -1781,6 +1784,34 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
     return sig;
   };
 
+  auto emit_unbound_generic_error =
+      [&](const Token& where, std::string_view func_name, const std::vector<std::string>& params,
+          const std::unordered_map<std::string, Type>& bindings) -> bool {
+    std::vector<std::string> missing;
+    missing.reserve(params.size());
+    for (const auto& param : params) {
+      if (bindings.find(param) == bindings.end()) {
+        missing.push_back(param);
+      }
+    }
+    if (missing.empty()) {
+      return false;
+    }
+    if (missing.size() == 1) {
+      error(where, "Cannot infer generic parameter '" + missing[0] + "' for function '" +
+                       std::string(func_name) + "'.");
+      return true;
+    }
+    std::string joined;
+    for (size_t i = 0; i < missing.size(); ++i) {
+      if (i > 0) joined += ", ";
+      joined += "'" + missing[i] + "'";
+    }
+    error(where, "Cannot infer generic parameters " + joined + " for function '" +
+                     std::string(func_name) + "'.");
+    return true;
+  };
+
   if (auto callee_name = qualified_call_name(*expr.callee); callee_name.has_value()) {
     const std::string raw_name = *callee_name;
     std::string func_name = canonical_stdlib_call_name(raw_name);
@@ -2085,6 +2116,13 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return make_error_type();
       }
       return Type{Type::Kind::Float};
+    }
+    if (func_name == "sys_entropy") {
+      if (!arg_types.empty()) {
+        error(call_token, "sys_entropy expects no arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
     }
     if (func_name == "async_yield") {
       if (!arg_types.empty()) {
@@ -2631,22 +2669,6 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return out;
       };
 
-      std::function<bool(const Type&)> has_unresolved_generic = [&](const Type& t) -> bool {
-        if (t.kind == Type::Kind::Custom) {
-          if (std::find(symbol->generic_params.begin(), symbol->generic_params.end(),
-                        t.custom_name) != symbol->generic_params.end()) {
-            return generic_bindings.find(t.custom_name) == generic_bindings.end();
-          }
-          return false;
-        }
-        for (const auto& param : t.params) {
-          if (has_unresolved_generic(param)) {
-            return true;
-          }
-        }
-        return false;
-      };
-
       for (size_t i = 0; i < arg_types.size(); ++i) {
         if (!bind_generic(symbol->param_types[i], arg_types[i])) {
           const Type instantiated_return = instantiate_generic(symbol->type);
@@ -2664,17 +2686,12 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         }
       }
 
-      Type instantiated_return = instantiate_generic(symbol->type);
-      if (has_unresolved_generic(instantiated_return)) {
-        for (const auto& generic_param : symbol->generic_params) {
-          if (generic_bindings.find(generic_param) == generic_bindings.end()) {
-            error(var_expr->name, "Cannot infer generic parameter '" + generic_param +
-                                      "' for function '" + func_name + "'.");
-            break;
-          }
-        }
+      if (emit_unbound_generic_error(var_expr->name, func_name, symbol->generic_params,
+                                     generic_bindings)) {
         return make_error_type();
       }
+
+      Type instantiated_return = instantiate_generic(symbol->type);
       return instantiated_return;
     }
   }
@@ -2814,22 +2831,6 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return out;
       };
 
-      std::function<bool(const Type&)> has_unresolved_generic = [&](const Type& t) -> bool {
-        if (t.kind == Type::Kind::Custom) {
-          if (std::find(symbol->generic_params.begin(), symbol->generic_params.end(),
-                        t.custom_name) != symbol->generic_params.end()) {
-            return generic_bindings.find(t.custom_name) == generic_bindings.end();
-          }
-          return false;
-        }
-        for (const auto& param : t.params) {
-          if (has_unresolved_generic(param)) {
-            return true;
-          }
-        }
-        return false;
-      };
-
       for (size_t i = 0; i < arg_types.size(); ++i) {
         if (!bind_generic(symbol->param_types[i], arg_types[i])) {
           Type expected = instantiate_generic(symbol->param_types[i]);
@@ -2848,17 +2849,12 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         }
       }
 
-      Type instantiated_return = instantiate_generic(symbol->type);
-      if (has_unresolved_generic(instantiated_return)) {
-        for (const auto& generic_param : symbol->generic_params) {
-          if (generic_bindings.find(generic_param) == generic_bindings.end()) {
-            error(generic_callee->name, "Cannot infer generic parameter '" + generic_param +
-                                            "' for function '" + func_name + "'.");
-            break;
-          }
-        }
+      if (emit_unbound_generic_error(generic_callee->name, func_name, symbol->generic_params,
+                                     generic_bindings)) {
         return make_error_type();
       }
+
+      Type instantiated_return = instantiate_generic(symbol->type);
       return instantiated_return;
     }
 

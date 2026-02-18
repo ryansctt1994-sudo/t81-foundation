@@ -485,6 +485,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let maybe: Option[i32] = Some(7);
             let kept: i32 = std.core.unwrap_or(maybe, 9);
             let now: T81Float = std.sys.time();
+            let entropy: i32 = std.sys.entropy();
             std.async.yield();
             std.async.sleep(now);
             std.agent.self_reflect();
@@ -534,6 +535,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _same = same;
             let _diff = diff;
             let _kp = kept;
+            let _entropy = entropy;
             return 0;
         }
     )";
@@ -709,6 +711,44 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   EXPECT(has_option_unwrap, "std.core.unwrap_or should lower to OPTION_UNWRAP");
   EXPECT(has_weights_load, "std.tensor.load should lower to WEIGHTS_LOAD");
   std::cout << "IRGeneratorTest test_std_namespace_aliases_lower_to_builtin_opcodes passed!"
+            << std::endl;
+}
+
+void test_std_sys_entropy_alias_lowers_to_integer_zero() {
+  std::string source = R"(
+        fn main() -> i32 {
+            let e: i32 = std.sys.entropy();
+            return e;
+        }
+    )";
+  Lexer lexer(source);
+  Parser parser(lexer);
+  auto stmts = parser.parse();
+  EXPECT(!parser.had_error(), "parser failed for std.sys.entropy alias fixture");
+
+  SemanticAnalyzer analyzer(stmts);
+  analyzer.analyze();
+  EXPECT(!analyzer.had_error(), "semantic analyzer failed for std.sys.entropy alias fixture");
+
+  IRGenerator generator;
+  generator.attach_semantic_analyzer(&analyzer);
+  auto program = generator.generate(stmts);
+  const auto& instructions = program.instructions();
+  EXPECT(!instructions.empty(), "std.sys.entropy alias fixture produced no IR");
+
+  bool has_entropy_zero_load = false;
+  for (const auto& inst : instructions) {
+    if (inst.opcode == Opcode::LOADI && inst.operands.size() >= 2) {
+      if (const auto* imm = std::get_if<t81::tisc::ir::Immediate>(&inst.operands[1]);
+          imm != nullptr && imm->value == 0) {
+        has_entropy_zero_load = true;
+        break;
+      }
+    }
+  }
+
+  EXPECT(has_entropy_zero_load, "std.sys.entropy should lower to deterministic integer zero");
+  std::cout << "IRGeneratorTest test_std_sys_entropy_alias_lowers_to_integer_zero passed!"
             << std::endl;
 }
 
@@ -934,6 +974,7 @@ int main() {
   test_constructor_and_conversion_calls_lower();
   test_generic_call_with_explicit_type_args_lowers_to_call();
   test_std_namespace_aliases_lower_to_builtin_opcodes();
+  test_std_sys_entropy_alias_lowers_to_integer_zero();
   test_std_tensor_from_list_alias_lowers_vector_literal_to_tensor_handle();
   test_std_tensor_matmul_alias_lowers_to_tmatmul();
   test_std_tensor_vec_add_alias_lowers_to_tvecadd();

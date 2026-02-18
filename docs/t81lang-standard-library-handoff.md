@@ -12,7 +12,7 @@ Implemented and validated end-to-end (semantic + IR + VM + CLI coverage):
 - `std.bytes`: `len`, `is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, `replace`, `to_string`, `from_string`, `split`, `join`, `T81Bytes(...)`
 - `std.collections`: `len`, `is_empty`, `first`, `last`, `push`, `pop`
 - `std.symbol`: `intern`, `to_string`, `eq`, `ne`
-- `std.sys`: `exit`, `time`
+- `std.sys`: `exit`, `time`, `entropy`
 - `std.async`: `yield`, `sleep`
 - `std.tensor`: `load`, `from_list`, `matmul`, `vec_add`
 - `std.agent`: `self_reflect`
@@ -22,9 +22,11 @@ Generic function work now supported:
 - Inferred calls: `id(7)`
 - Explicit calls: `id[i32](7)`
 - Partial explicit calls with inference fallback: `first[i32](7, "tail")`
-- Deterministic unresolved inference diagnostics for return-affecting generics:
+- Deterministic unresolved inference diagnostics for unbound generics:
   - Example: `fn none_of[T]() -> Option[T] { return None; }` then `none_of()`
   - Diagnostic: `Cannot infer generic parameter 'T' for function 'none_of'.`
+  - Example: `fn none_pair[T, U]() -> Option[Result[T, U]] { return None; }` then `none_pair()`
+  - Diagnostic: `Cannot infer generic parameters 'T', 'U' for function 'none_pair'.`
 
 ## 2. Files Most Recently Touched
 
@@ -61,15 +63,13 @@ Current known good baseline: full suite passing (`211/211`).
 
 ## 4. What Is Next (Priority Order)
 
-1. Extend generic inference diagnostics quality:
-   - Include which generic params remained unbound when multiple are unresolved.
-2. Add remaining `std.collections` roadmap surface:
+1. Add remaining `std.collections` roadmap surface:
    - Move from helper aliases toward full `list/map/set/tree/graph` module plan.
-3. Add missing long-range plan modules with deterministic contracts:
-   - `std.sys.entropy`, `std.sys.proof`
+2. Add missing long-range plan modules with deterministic contracts:
+   - `std.sys.proof`
    - `std.io.stream`, `std.io.net`
    - `std.async.thread`, `std.async.promise`
-4. Keep fixture-driven CLI goldens for each new module before marking complete.
+3. Keep fixture-driven CLI goldens for each new module before marking complete.
 
 ## 5. Determinism/Quality Rules To Preserve
 

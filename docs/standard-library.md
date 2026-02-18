@@ -101,6 +101,7 @@ Deterministic symbol helpers.
 ### `std.sys`
 - `fn exit(code: i32) -> void`: Deterministic terminate/trap alias (`std.sys.exit` lowers to `TRAP`).
 - `fn time() -> T81Float`: Deterministic logical time alias (currently lowers to constant `0.0`).
+- `fn entropy() -> i32`: Deterministic entropy-budget alias (currently lowers to constant `0`).
 
 ### `std.async`
 - `fn yield() -> void`: Deterministic cooperative-yield alias (currently a no-op).

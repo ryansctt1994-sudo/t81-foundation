@@ -175,10 +175,12 @@ int main() {
   const std::string sys_async_agent_program = R"(
         fn main() -> i32 {
             let now: T81Float = std.sys.time();
+            let ent: i32 = std.sys.entropy();
             std.async.yield();
             std.async.sleep(now);
             std.agent.self_reflect();
             std.sys.exit(0);
+            let _ent = ent;
             return 0;
         }
     )";
@@ -198,6 +200,36 @@ int main() {
   }
 
   fs::remove(sys_async_agent_path);
+
+  const std::string bad_sys_entropy_arity_program = R"(
+        fn main() -> i32 {
+            let ent: i32 = std.sys.entropy(1);
+            let _ = ent;
+            return 0;
+        }
+    )";
+
+  [[maybe_unused]] auto bad_sys_entropy_arity_path =
+      make_temp_path("t81-check-sys-entropy-arity-bad", ".t81");
+  write_source(bad_sys_entropy_arity_path, bad_sys_entropy_arity_program);
+
+  [[maybe_unused]] std::ostringstream bad_sys_entropy_arity_captured;
+  old_buf = std::cerr.rdbuf(bad_sys_entropy_arity_captured.rdbuf());
+  [[maybe_unused]] int bad_sys_entropy_arity_rc =
+      t81::cli::check_syntax(bad_sys_entropy_arity_path);
+  std::cerr.rdbuf(old_buf);
+
+  if (bad_sys_entropy_arity_rc == 0) {
+    std::cerr << "Expected `t81 check` to fail on std.sys.entropy bad arity\n";
+    return 1;
+  }
+  [[maybe_unused]] std::string bad_sys_entropy_arity_output =
+      bad_sys_entropy_arity_captured.str();
+  assert(bad_sys_entropy_arity_output.find(bad_sys_entropy_arity_path.string()) !=
+         std::string::npos);
+  assert(bad_sys_entropy_arity_output.find("sys_entropy expects no arguments.") !=
+         std::string::npos);
+  fs::remove(bad_sys_entropy_arity_path);
 
   const std::string transcendental_math_program = R"(
         fn main() -> i32 {
@@ -369,6 +401,41 @@ int main() {
   assert(generic_unresolved_inference_bad_output.find(
              "Cannot infer generic parameter 'T' for function 'none_of'.") != std::string::npos);
   fs::remove(generic_unresolved_inference_bad_path);
+
+  const std::string generic_unresolved_multiple_inference_bad_program = R"(
+        fn none_pair[T, U]() -> Option[Result[T, U]] {
+            return None;
+        }
+        fn main() -> i32 {
+            let out = none_pair();
+            return 0;
+        }
+    )";
+
+  [[maybe_unused]] auto generic_unresolved_multiple_inference_bad_path =
+      make_temp_path("t81-check-generic-unresolved-multiple-inference-bad", ".t81");
+  write_source(generic_unresolved_multiple_inference_bad_path,
+               generic_unresolved_multiple_inference_bad_program);
+
+  [[maybe_unused]] std::ostringstream generic_unresolved_multiple_inference_bad_captured;
+  old_buf = std::cerr.rdbuf(generic_unresolved_multiple_inference_bad_captured.rdbuf());
+  [[maybe_unused]] int generic_unresolved_multiple_inference_bad_rc =
+      t81::cli::check_syntax(generic_unresolved_multiple_inference_bad_path);
+  std::cerr.rdbuf(old_buf);
+
+  if (generic_unresolved_multiple_inference_bad_rc == 0) {
+    std::cerr
+        << "Expected `t81 check` to fail on unresolved multiple generic inference for call\n";
+    return 1;
+  }
+  [[maybe_unused]] std::string generic_unresolved_multiple_inference_bad_output =
+      generic_unresolved_multiple_inference_bad_captured.str();
+  assert(generic_unresolved_multiple_inference_bad_output.find(
+             generic_unresolved_multiple_inference_bad_path.string()) != std::string::npos);
+  assert(generic_unresolved_multiple_inference_bad_output.find(
+             "Cannot infer generic parameters 'T', 'U' for function 'none_pair'.") !=
+         std::string::npos);
+  fs::remove(generic_unresolved_multiple_inference_bad_path);
 
   std::cout << "CliCheckTest passed!" << std::endl;
   return 0;
