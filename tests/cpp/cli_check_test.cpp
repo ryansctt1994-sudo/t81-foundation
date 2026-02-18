@@ -199,6 +199,32 @@ int main() {
 
   fs::remove(sys_async_agent_path);
 
+  const std::string unsupported_math_program = R"(
+        fn main() -> i32 {
+            let x: T81Float = std.math.sqrt(4.0);
+            let _ = x;
+            return 0;
+        }
+    )";
+
+  [[maybe_unused]] auto unsupported_math_path = make_temp_path("t81-check-math-unsupported", ".t81");
+  write_source(unsupported_math_path, unsupported_math_program);
+
+  [[maybe_unused]] std::ostringstream unsupported_math_captured;
+  old_buf = std::cerr.rdbuf(unsupported_math_captured.rdbuf());
+  [[maybe_unused]] int unsupported_math_rc = t81::cli::check_syntax(unsupported_math_path);
+  std::cerr.rdbuf(old_buf);
+
+  if (unsupported_math_rc == 0) {
+    std::cerr << "Expected `t81 check` to fail on unsupported std.math alias input\n";
+    return 1;
+  }
+
+  [[maybe_unused]] std::string unsupported_math_output = unsupported_math_captured.str();
+  assert(unsupported_math_output.find("std.math.sqrt is not implemented yet") !=
+         std::string::npos);
+  fs::remove(unsupported_math_path);
+
   std::cout << "CliCheckTest passed!" << std::endl;
   return 0;
 }

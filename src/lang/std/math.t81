@@ -17,6 +17,46 @@ fn tan(x: T81Float) -> T81Float {
     return std.math.tan(x);
 }
 
+fn asin(x: T81Float) -> T81Float {
+    return std.math.asin(x);
+}
+
+fn acos(x: T81Float) -> T81Float {
+    return std.math.acos(x);
+}
+
+fn atan(x: T81Float) -> T81Float {
+    return std.math.atan(x);
+}
+
+fn sinh(x: T81Float) -> T81Float {
+    return std.math.sinh(x);
+}
+
+fn cosh(x: T81Float) -> T81Float {
+    return std.math.cosh(x);
+}
+
+fn tanh(x: T81Float) -> T81Float {
+    return std.math.tanh(x);
+}
+
+fn exp(x: T81Float) -> T81Float {
+    return std.math.exp(x);
+}
+
+fn log(x: T81Float) -> T81Float {
+    return std.math.log(x);
+}
+
+fn pow(b: T81Float, e: T81Float) -> T81Float {
+    return std.math.pow(b, e);
+}
+
+fn sqrt(x: T81Float) -> T81Float {
+    return std.math.sqrt(x);
+}
+
 fn to_degrees(radians: T81Float) -> T81Float {
     return radians * (180.0 / 3.141592653589793);
 }
