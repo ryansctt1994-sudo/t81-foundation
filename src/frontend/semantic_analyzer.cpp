@@ -254,6 +254,12 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.text.from_bytes") {
     return "str_to_string";
   }
+  if (name == "std.text.split") {
+    return "str_split";
+  }
+  if (name == "std.text.join") {
+    return "str_join";
+  }
   if (name == "std.bytes.len") {
     return "bytes_len";
   }
@@ -1971,6 +1977,47 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return make_error_type();
       }
       return Type{Type::Kind::String};
+    }
+    if (func_name == "str_split") {
+      if (arg_types.size() != 2) {
+        error(call_token, "str_split expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "str_split expects T81String arguments.");
+        return make_error_type();
+      }
+      if (auto* sep_literal = dynamic_cast<const LiteralExpr*>(expr.arguments[1].get())) {
+        if (sep_literal->value.type == TokenType::String && sep_literal->value.lexeme == "\"\"") {
+          error(call_token, "str_split separator must not be empty.");
+          return make_error_type();
+        }
+      }
+      error(call_token,
+            "std.text.split is not implemented yet. Runtime support for Vector[T81String] is "
+            "required first.");
+      return make_error_type();
+    }
+    if (func_name == "str_join") {
+      if (arg_types.size() != 2) {
+        error(call_token, "str_join expects exactly two arguments.");
+        return make_error_type();
+      }
+      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
+                                    !arg_types[0].params.empty() &&
+                                    arg_types[0].params[0].kind == Type::Kind::String;
+      if (!is_string_vector) {
+        error(call_token, "str_join expects a Vector[T81String] first argument.");
+        return make_error_type();
+      }
+      if (arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "str_join expects a T81String separator argument.");
+        return make_error_type();
+      }
+      error(call_token,
+            "std.text.join is not implemented yet. Runtime support for Vector[T81String] is "
+            "required first.");
+      return make_error_type();
     }
     if (func_name == "bytes_len") {
       if (arg_types.size() != 1) {

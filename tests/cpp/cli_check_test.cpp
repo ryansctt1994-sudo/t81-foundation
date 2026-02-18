@@ -64,6 +64,58 @@ int main() {
 
   fs::remove(broken_path);
 
+  const std::string split_program = R"(
+        fn main() -> i32 {
+            let parts: Vector[T81String] = std.text.split("alpha", ",");
+            let _ = parts;
+            return 0;
+        }
+    )";
+
+  [[maybe_unused]] auto split_path = make_temp_path("t81-check-split-fail", ".t81");
+  write_source(split_path, split_program);
+
+  [[maybe_unused]] std::ostringstream split_captured;
+  old_buf = std::cerr.rdbuf(split_captured.rdbuf());
+  [[maybe_unused]] int split_rc = t81::cli::check_syntax(split_path);
+  std::cerr.rdbuf(old_buf);
+
+  if (split_rc == 0) {
+    std::cerr << "Expected `t81 check` to fail on split feature-gate input\n";
+    return 1;
+  }
+  [[maybe_unused]] std::string split_output = split_captured.str();
+  assert(split_output.find(split_path.string()) != std::string::npos);
+  assert(split_output.find("std.text.split is not implemented yet") != std::string::npos);
+
+  fs::remove(split_path);
+
+  const std::string join_program = R"(
+        fn main() -> i32 {
+            let joined: T81String = std.text.join(["a", "b"], ",");
+            let _ = joined;
+            return 0;
+        }
+    )";
+
+  [[maybe_unused]] auto join_path = make_temp_path("t81-check-join-fail", ".t81");
+  write_source(join_path, join_program);
+
+  [[maybe_unused]] std::ostringstream join_captured;
+  old_buf = std::cerr.rdbuf(join_captured.rdbuf());
+  [[maybe_unused]] int join_rc = t81::cli::check_syntax(join_path);
+  std::cerr.rdbuf(old_buf);
+
+  if (join_rc == 0) {
+    std::cerr << "Expected `t81 check` to fail on join feature-gate input\n";
+    return 1;
+  }
+  [[maybe_unused]] std::string join_output = join_captured.str();
+  assert(join_output.find(join_path.string()) != std::string::npos);
+  assert(join_output.find("std.text.join is not implemented yet") != std::string::npos);
+
+  fs::remove(join_path);
+
   std::cout << "CliCheckTest passed!" << std::endl;
   return 0;
 }

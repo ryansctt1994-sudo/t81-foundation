@@ -42,6 +42,7 @@ enum class ValueTag : std::uint8_t {
   EnumHandle,
   ComplexHandle,
   ReflectionHandle,
+  StringVectorHandle,
 };
 
 struct Flags {
@@ -175,6 +176,7 @@ struct State {
   std::vector<double> floats;
   std::vector<t81::T81Fraction> fractions;
   std::vector<std::string> symbols;
+  std::vector<std::vector<std::string>> string_vectors;
   std::vector<std::string> printed_output;
   std::vector<std::vector<int>> shapes;
   std::vector<OptionValue> options;

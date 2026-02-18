@@ -72,6 +72,7 @@ public:
     state_.floats = program_.float_pool;
     state_.fractions = program_.fraction_pool;
     state_.symbols = program_.symbol_pool;
+    state_.string_vectors.clear();
     state_.tensors = program_.tensor_pool;
     state_.shapes = program_.shape_pool;
     state_.weights_model = program_.weights_model;
@@ -445,6 +446,12 @@ public:
       if (idx >= state_.symbols.size()) return nullptr;
       return &state_.symbols[idx];
     };
+    auto string_vector_ptr = [this](std::int64_t handle) -> const std::vector<std::string>* {
+      if (handle <= 0) return nullptr;
+      std::size_t idx = static_cast<std::size_t>(handle - 1);
+      if (idx >= state_.string_vectors.size()) return nullptr;
+      return &state_.string_vectors[idx];
+    };
     auto intern_symbol = [this](std::string text) -> std::int64_t {
       for (std::size_t i = 0; i < state_.symbols.size(); ++i) {
         if (state_.symbols[i] == text) {
@@ -594,6 +601,9 @@ public:
           if (*lhs == *rhs) return 0;
           return (*lhs < *rhs) ? -1 : 1;
         }
+        case ValueTag::StringVectorHandle:
+          if (lhs_val == rhs_val) return 0;
+          return (lhs_val < rhs_val) ? -1 : 1;
         case ValueTag::TensorHandle:
         case ValueTag::ShapeHandle:
         case ValueTag::WeightsTensorHandle:
@@ -664,6 +674,11 @@ public:
           auto* symbol = symbol_ptr(val_data);
           if (!symbol) return std::nullopt;
           return *symbol;
+        }
+        case ValueTag::StringVectorHandle: {
+          auto* ptr_val = string_vector_ptr(val_data);
+          if (!ptr_val) return std::nullopt;
+          return "<strvec#" + std::to_string(val_data) + ">";
         }
         case ValueTag::TensorHandle:
           return "<tensor#" + std::to_string(val_data) + ">";

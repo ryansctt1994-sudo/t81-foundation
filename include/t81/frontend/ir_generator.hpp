@@ -179,6 +179,12 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.text.from_bytes") {
     return "str_to_string";
   }
+  if (name == "std.text.split") {
+    return "str_split";
+  }
+  if (name == "std.text.join") {
+    return "str_join";
+  }
   if (name == "std.bytes.len") {
     return "bytes_len";
   }
@@ -1129,6 +1135,16 @@ public:
         copy_to_dest(value, dest);
         record_result(&expr, dest);
         return {};
+      }
+      if (func_name == "str_split") {
+        throw std::runtime_error(
+            "std.text.split is not implemented yet. Runtime support for Vector[T81String] is "
+            "required first.");
+      }
+      if (func_name == "str_join") {
+        throw std::runtime_error(
+            "std.text.join is not implemented yet. Runtime support for Vector[T81String] is "
+            "required first.");
       }
       if (func_name == "bytes_len") {
         if (expr.arguments.size() != 1) {

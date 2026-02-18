@@ -60,5 +60,16 @@ int main() {
     T81_TEST_CHECK(run.error() == vm::Trap::TypeFault);
   }
 
+  {
+    tisc::Program program;
+    program.insns.push_back({tisc::Opcode::Print, 1, 0, 0});
+    auto vm = vm::make_interpreter_vm();
+    vm->load_program(program);
+    vm->set_register(1, 1, vm::ValueTag::StringVectorHandle);
+    [[maybe_unused]] auto run = vm->run_to_halt();
+    T81_TEST_CHECK(!run.has_value());
+    T81_TEST_CHECK(run.error() == vm::Trap::TypeFault);
+  }
+
   return 0;
 }

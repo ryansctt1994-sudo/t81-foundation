@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <string_view>
 
 using namespace t81::frontend;
 
@@ -29,6 +30,25 @@ static bool fails_semantic(std::string_view source,
   SemanticAnalyzer analyzer(stmts, label);
   analyzer.analyze();
   return analyzer.had_error();
+}
+
+static bool fails_semantic_with_message(std::string_view source,
+                                        std::string_view needle,
+                                        const char* label = "t81lang_conformance_failure") {
+  std::string source_text(source);
+  Lexer lexer{source_text};
+  Parser parser(lexer, label);
+  auto stmts = parser.parse();
+  if (parser.had_error()) return false;
+  SemanticAnalyzer analyzer(stmts, label);
+  analyzer.analyze();
+  if (!analyzer.had_error()) return false;
+  for (const auto& diagnostic : analyzer.diagnostics()) {
+    if (diagnostic.message.find(needle) != std::string::npos) {
+      return true;
+    }
+  }
+  return false;
 }
 
 static void require_true(bool condition, const char* label) {
@@ -448,6 +468,147 @@ static void test_std_text_aliases() {
   )";
   require_true(fails_semantic(bad_to_string_type, "t81lang_std_text_to_string_bad_type"),
                "t81lang_std_text_to_string_bad_type");
+
+  constexpr const char* split_not_implemented = R"(
+    fn main() -> i32 {
+      let parts: Vector[T81String] = std.text.split("a,b", ",");
+      let _ = parts;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(split_not_implemented, "std.text.split is not implemented yet",
+                                  "t81lang_std_text_split_not_implemented"),
+      "t81lang_std_text_split_not_implemented");
+
+  constexpr const char* join_not_implemented = R"(
+    fn main() -> i32 {
+      let joined: T81String = std.text.join(["a", "b"], ",");
+      let _ = joined;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(join_not_implemented, "std.text.join is not implemented yet",
+                                  "t81lang_std_text_join_not_implemented"),
+      "t81lang_std_text_join_not_implemented");
+
+  constexpr const char* bad_split_arity = R"(
+    fn main() -> i32 {
+      let parts: Vector[T81String] = std.text.split("alpha");
+      let _ = parts;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(bad_split_arity, "str_split expects exactly two arguments.",
+                                           "t81lang_std_text_split_bad_arity"),
+               "t81lang_std_text_split_bad_arity");
+
+  constexpr const char* bad_split_type = R"(
+    fn main() -> i32 {
+      let parts: Vector[T81String] = std.text.split("alpha", 7);
+      let _ = parts;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_split_type, "str_split expects T81String arguments.",
+                                  "t81lang_std_text_split_bad_type"),
+      "t81lang_std_text_split_bad_type");
+
+  constexpr const char* bad_split_empty_separator = R"(
+    fn main() -> i32 {
+      let parts: Vector[T81String] = std.text.split("alpha", "");
+      let _ = parts;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(bad_split_empty_separator,
+                                           "str_split separator must not be empty.",
+                                           "t81lang_std_text_split_empty_separator"),
+               "t81lang_std_text_split_empty_separator");
+
+  constexpr const char* split_variable_separator_not_implemented = R"(
+    fn main() -> i32 {
+      let sep: T81String = "";
+      let parts: Vector[T81String] = std.text.split("alpha", sep);
+      let _ = parts;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(split_variable_separator_not_implemented,
+                                  "std.text.split is not implemented yet",
+                                  "t81lang_std_text_split_variable_separator_not_implemented"),
+      "t81lang_std_text_split_variable_separator_not_implemented");
+
+  constexpr const char* bad_join_arity = R"(
+    fn main() -> i32 {
+      let joined: T81String = std.text.join(["a", "b"]);
+      let _ = joined;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_join_arity, "str_join expects exactly two arguments.",
+                                  "t81lang_std_text_join_bad_arity"),
+      "t81lang_std_text_join_bad_arity");
+
+  constexpr const char* bad_join_parts_type = R"(
+    fn main() -> i32 {
+      let joined: T81String = std.text.join("abc", ",");
+      let _ = joined;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_join_parts_type,
+                                  "str_join expects a Vector[T81String] first argument.",
+                                  "t81lang_std_text_join_bad_parts_type"),
+      "t81lang_std_text_join_bad_parts_type");
+
+  constexpr const char* bad_join_sep_type = R"(
+    fn main() -> i32 {
+      let joined: T81String = std.text.join(["a", "b"], 7);
+      let _ = joined;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(bad_join_sep_type,
+                                           "str_join expects a T81String separator argument.",
+                                           "t81lang_std_text_join_bad_separator_type"),
+               "t81lang_std_text_join_bad_separator_type");
+
+  constexpr const char* bad_from_bytes_arity = R"(
+    fn main() -> i32 {
+      let s: T81String = std.text.from_bytes();
+      let _ = s;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_from_bytes_arity, "t81lang_std_text_from_bytes_bad_arity"),
+               "t81lang_std_text_from_bytes_bad_arity");
+
+  constexpr const char* bad_from_bytes_type = R"(
+    fn main() -> i32 {
+      let s: T81String = std.text.from_bytes(7);
+      let _ = s;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_from_bytes_type, "t81lang_std_text_from_bytes_bad_type"),
+               "t81lang_std_text_from_bytes_bad_type");
+
+  constexpr const char* bad_from_bytes_arity_extra = R"(
+    fn main() -> i32 {
+      let s: T81String = std.text.from_bytes(T81Bytes("alpha"), T81Bytes("beta"));
+      let _ = s;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_from_bytes_arity_extra,
+                              "t81lang_std_text_from_bytes_bad_arity_extra"),
+               "t81lang_std_text_from_bytes_bad_arity_extra");
 }
 
 static void test_std_text_module_wrappers() {
@@ -522,6 +683,37 @@ static void test_std_text_module_wrappers() {
   )";
   require_true(analyzes(source, "t81lang_std_text_module_wrappers"),
                "t81lang_std_text_module_wrappers");
+}
+
+static void test_std_text_split_join_wrapper_feature_gate() {
+  constexpr const char* split_wrapper = R"(
+    fn split_wrapper(s: T81String, sep: T81String) -> Vector[T81String] {
+      return std.text.split(s, sep);
+    }
+    fn main() -> i32 {
+      let parts: Vector[T81String] = split_wrapper("a,b", ",");
+      let _ = parts;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(split_wrapper, "std.text.split is not implemented yet",
+                                  "t81lang_std_text_split_wrapper_not_implemented"),
+      "t81lang_std_text_split_wrapper_not_implemented");
+
+  constexpr const char* join_wrapper = R"(
+    fn join_wrapper(parts: Vector[T81String], sep: T81String) -> T81String {
+      return std.text.join(parts, sep);
+    }
+    fn main() -> i32 {
+      let joined: T81String = join_wrapper(["a", "b"], ",");
+      let _ = joined;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(join_wrapper, "std.text.join is not implemented yet",
+                                           "t81lang_std_text_join_wrapper_not_implemented"),
+               "t81lang_std_text_join_wrapper_not_implemented");
 }
 
 static void test_std_bytes_aliases() {
@@ -674,6 +866,112 @@ static void test_std_bytes_aliases() {
   )";
   require_true(fails_semantic(bad_replace_type, "t81lang_std_bytes_replace_bad_type"),
                "t81lang_std_bytes_replace_bad_type");
+
+  constexpr const char* bad_from_string_type = R"(
+    fn main() -> i32 {
+      let b: T81Bytes = std.bytes.from_string(7);
+      let _ = b;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_from_string_type, "t81lang_std_bytes_from_string_bad_type"),
+               "t81lang_std_bytes_from_string_bad_type");
+
+  constexpr const char* bad_from_string_arity = R"(
+    fn main() -> i32 {
+      let b: T81Bytes = std.bytes.from_string();
+      let _ = b;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_from_string_arity, "t81lang_std_bytes_from_string_bad_arity"),
+               "t81lang_std_bytes_from_string_bad_arity");
+
+  constexpr const char* bad_from_string_arity_extra = R"(
+    fn main() -> i32 {
+      let b: T81Bytes = std.bytes.from_string("alpha", "beta");
+      let _ = b;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_from_string_arity_extra,
+                              "t81lang_std_bytes_from_string_bad_arity_extra"),
+               "t81lang_std_bytes_from_string_bad_arity_extra");
+
+  constexpr const char* bad_to_string_arity = R"(
+    fn main() -> i32 {
+      let s: T81String = std.bytes.to_string();
+      let _ = s;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_to_string_arity, "t81lang_std_bytes_to_string_bad_arity"),
+               "t81lang_std_bytes_to_string_bad_arity");
+
+  constexpr const char* bad_to_string_type = R"(
+    fn main() -> i32 {
+      let s: T81String = std.bytes.to_string(7);
+      let _ = s;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_to_string_type, "t81lang_std_bytes_to_string_bad_type"),
+               "t81lang_std_bytes_to_string_bad_type");
+
+  constexpr const char* bad_to_string_arity_extra = R"(
+    fn main() -> i32 {
+      let s: T81String = std.bytes.to_string(T81Bytes("alpha"), T81Bytes("beta"));
+      let _ = s;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_to_string_arity_extra,
+                              "t81lang_std_bytes_to_string_bad_arity_extra"),
+               "t81lang_std_bytes_to_string_bad_arity_extra");
+
+  constexpr const char* valid_constructor = R"(
+    fn main() -> i32 {
+      let direct: T81Bytes = T81Bytes("alpha");
+      let passthrough: T81Bytes = T81Bytes(direct);
+      if (std.bytes.len(passthrough) == 5) {
+        return 5;
+      }
+      return 0;
+    }
+  )";
+  require_true(analyzes(valid_constructor, "t81lang_t81bytes_constructor_valid"),
+               "t81lang_t81bytes_constructor_valid");
+
+  constexpr const char* bad_constructor_type = R"(
+    fn main() -> i32 {
+      let b: T81Bytes = T81Bytes(7);
+      let _ = b;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_constructor_type, "t81lang_t81bytes_constructor_bad_type"),
+               "t81lang_t81bytes_constructor_bad_type");
+
+  constexpr const char* bad_constructor_arity = R"(
+    fn main() -> i32 {
+      let b: T81Bytes = T81Bytes();
+      let _ = b;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_constructor_arity, "t81lang_t81bytes_constructor_bad_arity"),
+               "t81lang_t81bytes_constructor_bad_arity");
+
+  constexpr const char* bad_constructor_arity_extra = R"(
+    fn main() -> i32 {
+      let b: T81Bytes = T81Bytes("alpha", "beta");
+      let _ = b;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_constructor_arity_extra,
+                              "t81lang_t81bytes_constructor_bad_arity_extra"),
+               "t81lang_t81bytes_constructor_bad_arity_extra");
 }
 
 static void test_std_bytes_module_wrappers() {
@@ -789,6 +1087,7 @@ int main() {
   test_std_tensor_vec_add_alias();
   test_std_text_aliases();
   test_std_text_module_wrappers();
+  test_std_text_split_join_wrapper_feature_gate();
   test_std_bytes_aliases();
   test_std_bytes_module_wrappers();
   test_t81_numeric_type_separation_rejects_invalid_mix();

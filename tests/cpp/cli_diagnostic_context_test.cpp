@@ -71,6 +71,22 @@ fn main() -> i32 {
 }
 )";
 
+  const std::string split_source = R"(
+fn main() -> i32 {
+    let parts: Vector[T81String] = std.text.split("alpha", ",");
+    let _ = parts;
+    return 0;
+}
+)";
+
+  const std::string join_source = R"(
+fn main() -> i32 {
+    let joined: T81String = std.text.join(["a", "b"], ",");
+    let _ = joined;
+    return 0;
+}
+)";
+
   {
     [[maybe_unused]] auto output = capture_diagnostics(option_source, "option");
     assert_contains(output, "Some(true);", "option");
@@ -98,6 +114,20 @@ fn main() -> i32 {
     assert_contains(output, "Some(v) => v;", "match");
     assert_contains(output, "requires 'None' arm", "match");
     assert_contains(output, "^", "match");
+  }
+
+  {
+    [[maybe_unused]] auto output = capture_diagnostics(split_source, "split");
+    assert_contains(output, "std.text.split(\"alpha\", \",\")", "split");
+    assert_contains(output, "std.text.split is not implemented yet", "split");
+    assert_contains(output, "^", "split");
+  }
+
+  {
+    [[maybe_unused]] auto output = capture_diagnostics(join_source, "join");
+    assert_contains(output, "std.text.join([\"a\", \"b\"], \",\")", "join");
+    assert_contains(output, "std.text.join is not implemented yet", "join");
+    assert_contains(output, "^", "join");
   }
 
   return 0;

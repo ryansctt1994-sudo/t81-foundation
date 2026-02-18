@@ -40,3 +40,11 @@ fn to_string(s: T81String) -> T81String {
 fn from_bytes(b: T81Bytes) -> T81String {
     return std.text.from_bytes(b);
 }
+
+fn split(s: T81String, sep: T81String) -> Vector[T81String] {
+    return std.text.split(s, sep);
+}
+
+fn join(parts: Vector[T81String], sep: T81String) -> T81String {
+    return std.text.join(parts, sep);
+}

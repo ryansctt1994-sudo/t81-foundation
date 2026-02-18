@@ -124,4 +124,33 @@ Building blocks for autonomous agents.
 - `std.text`: `str_len`, `str_is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, and `replace` are implemented end-to-end (semantic, IR, VM) and exposed via `src/lang/std/text.t81`.
 - `std.text`: `to_string` and `from_bytes` are exposed as deterministic aliases in frontend/IR/module wrappers (`T81String|T81Bytes -> T81String`).
 - `std.text`: fixture-driven CLI golden coverage now validates deterministic runtime output via `tests/fixtures/t81lang_std_text/*` and `tests/cpp/cli_std_text_fixtures_test.cpp`.
+- `std.text`: `split` / `join` are now feature-gated with explicit semantic diagnostics pointing to the pending runtime requirement (`Vector[T81String]` execution support).
+- `std.text`: VM runtime scaffolding for `Vector[T81String]` is in progress (`ValueTag::StringVectorHandle`, state pool, and deterministic print/compare handling) to unblock split/join execution wiring.
 - `std.bytes`: `len`, `is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, `replace`, `to_string`, and `from_string` are implemented for frontend-native `T81Bytes`, with explicit `T81Bytes(...)` conversion calls and fixture-driven CLI golden coverage in `tests/fixtures/t81lang_std_bytes/*` and `tests/cpp/cli_std_bytes_fixtures_test.cpp`.
+
+## 6. Next Milestone: `std.text.split` / `std.text.join`
+
+### 6.1 Deterministic Semantics (Target)
+
+- `split(s: T81String, sep: T81String) -> Vector[T81String]`
+- `join(parts: Vector[T81String], sep: T81String) -> T81String`
+- `split` keeps empty segments:
+  - `split("a,,b", ",") == ["a", "", "b"]`
+  - `split(",a,", ",") == ["", "a", ""]`
+- `split` with empty separator is invalid and must fail deterministically in semantic analysis.
+- `join([] , sep) == ""`
+- `join(["a", "b"], ",") == "a,b"`
+
+### 6.2 Required Runtime/IR Work
+
+1. Introduce a deterministic runtime representation for `Vector[T81String]` values that is usable by both frontend and VM.
+2. Add lowering path for `std.text.split` and `std.text.join` in semantic analyzer + IR generator.
+3. Implement VM execution path for split/join operations without host-dependent behavior.
+4. Add Axion hooks for resource accounting on split/join operations.
+
+### 6.3 Acceptance Criteria
+
+1. Conformance tests validate type checking and error diagnostics (bad arity, bad type, empty separator).
+2. IR tests validate lowering for both operations.
+3. E2E tests validate observable behavior including empty-segment preservation.
+4. CLI fixtures under `tests/fixtures/t81lang_std_text/` include golden outputs for split/join.
