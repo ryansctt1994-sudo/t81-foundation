@@ -365,6 +365,19 @@ int main() {
   expect_semantic_failure(function_generic_partial_explicit_type_arg_failure,
                           "function_generic_partial_explicit_type_arg_failure");
 
+  const std::string function_generic_unresolved_inference_failure = R"(
+        fn none_of[T]() -> Option[T] {
+            return None;
+        }
+        fn main() -> i32 {
+            let value = none_of();
+            let _ = value;
+            return 0;
+        }
+    )";
+  expect_semantic_failure(function_generic_unresolved_inference_failure,
+                          "function_generic_unresolved_inference_failure");
+
   const std::string fixed_generic_var = R"(
         fn main() -> i32 {
             var x: T81Fixed[4, 4];

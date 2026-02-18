@@ -1675,6 +1675,22 @@ static void test_generic_function_inference() {
                                   "expects 1 explicit type arguments at most but got 2",
                                   "t81lang_generic_function_explicit_type_args_bad_arity"),
       "t81lang_generic_function_explicit_type_args_bad_arity");
+
+  constexpr const char* unresolved_generic_inference = R"(
+    fn none_of[T]() -> Option[T] {
+      return None;
+    }
+    fn main() -> i32 {
+      let out = none_of();
+      let _ = out;
+      return 1;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(unresolved_generic_inference,
+                                  "Cannot infer generic parameter 'T' for function 'none_of'.",
+                                  "t81lang_generic_function_unresolved_inference"),
+      "t81lang_generic_function_unresolved_inference");
 }
 
 static void test_let_is_immutable() {

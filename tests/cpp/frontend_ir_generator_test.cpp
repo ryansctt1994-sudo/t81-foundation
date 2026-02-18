@@ -395,6 +395,43 @@ void test_constructor_and_conversion_calls_lower() {
             << std::endl;
 }
 
+void test_generic_call_with_explicit_type_args_lowers_to_call() {
+  std::string source = R"(
+        fn id[T](x: T) -> T {
+            return x;
+        }
+        fn main() -> i32 {
+            let v: i32 = id[i32](7);
+            return v;
+        }
+    )";
+  Lexer lexer(source);
+  Parser parser(lexer);
+  auto stmts = parser.parse();
+  EXPECT(!parser.had_error(), "parser failed for explicit generic call lowering fixture");
+
+  SemanticAnalyzer analyzer(stmts);
+  analyzer.analyze();
+  EXPECT(!analyzer.had_error(),
+         "semantic analyzer failed for explicit generic call lowering fixture");
+
+  IRGenerator generator;
+  generator.attach_semantic_analyzer(&analyzer);
+  auto program = generator.generate(stmts);
+  const auto& instructions = program.instructions();
+  EXPECT(!instructions.empty(), "explicit generic call lowering fixture produced no IR");
+
+  int call_count = 0;
+  for (const auto& inst : instructions) {
+    if (inst.opcode == Opcode::CALL) {
+      ++call_count;
+    }
+  }
+  EXPECT(call_count >= 2, "Expected CALL for startup main and explicit generic function call");
+  std::cout << "IRGeneratorTest test_generic_call_with_explicit_type_args_lowers_to_call passed!"
+            << std::endl;
+}
+
 void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   std::string source = R"(
         fn main() -> i32 {
@@ -895,6 +932,7 @@ int main() {
   test_print_builtin_lowers_to_print_opcode();
   test_extended_numeric_types_lower_to_arithmetic_ir();
   test_constructor_and_conversion_calls_lower();
+  test_generic_call_with_explicit_type_args_lowers_to_call();
   test_std_namespace_aliases_lower_to_builtin_opcodes();
   test_std_tensor_from_list_alias_lowers_vector_literal_to_tensor_handle();
   test_std_tensor_matmul_alias_lowers_to_tmatmul();

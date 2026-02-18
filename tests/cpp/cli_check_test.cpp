@@ -337,6 +337,39 @@ int main() {
       std::string::npos);
   fs::remove(generic_explicit_arity_bad_path);
 
+  const std::string generic_unresolved_inference_bad_program = R"(
+        fn none_of[T]() -> Option[T] {
+            return None;
+        }
+        fn main() -> i32 {
+            let out = none_of();
+            return 0;
+        }
+    )";
+
+  [[maybe_unused]] auto generic_unresolved_inference_bad_path =
+      make_temp_path("t81-check-generic-unresolved-inference-bad", ".t81");
+  write_source(generic_unresolved_inference_bad_path, generic_unresolved_inference_bad_program);
+
+  [[maybe_unused]] std::ostringstream generic_unresolved_inference_bad_captured;
+  old_buf = std::cerr.rdbuf(generic_unresolved_inference_bad_captured.rdbuf());
+  [[maybe_unused]] int generic_unresolved_inference_bad_rc =
+      t81::cli::check_syntax(generic_unresolved_inference_bad_path);
+  std::cerr.rdbuf(old_buf);
+
+  if (generic_unresolved_inference_bad_rc == 0) {
+    std::cerr
+        << "Expected `t81 check` to fail on unresolved generic inference for call return type\n";
+    return 1;
+  }
+  [[maybe_unused]] std::string generic_unresolved_inference_bad_output =
+      generic_unresolved_inference_bad_captured.str();
+  assert(generic_unresolved_inference_bad_output.find(generic_unresolved_inference_bad_path.string()) !=
+         std::string::npos);
+  assert(generic_unresolved_inference_bad_output.find(
+             "Cannot infer generic parameter 'T' for function 'none_of'.") != std::string::npos);
+  fs::remove(generic_unresolved_inference_bad_path);
+
   std::cout << "CliCheckTest passed!" << std::endl;
   return 0;
 }

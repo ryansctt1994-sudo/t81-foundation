@@ -11,6 +11,9 @@ User-defined generic functions support both inferred and explicit call-site type
 - Partial explicit with inference fallback: `first[i32](7, "tail")`
 
 Explicit type arguments must match the function generic arity and argument types deterministically.
+Calls that leave return-affecting generic parameters unresolved fail deterministically, for example:
+- `fn none_of[T]() -> Option[T] { return None; }`
+- `none_of()` -> `Cannot infer generic parameter 'T' for function 'none_of'.`
 
 ## Core Modules
 
