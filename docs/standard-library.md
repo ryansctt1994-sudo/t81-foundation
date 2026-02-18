@@ -48,6 +48,8 @@ Input and Output.
 - `fn println(msg: T81String) -> void`: Print string with newline (implied by print currently).
 - `fn print_int(val: i32) -> void`: Print integer.
 - `fn print_float(val: T81Float) -> void`: Print float.
+- `fn stream() -> i32`: Deterministic stream-handle alias (currently a stable placeholder handle).
+- `fn net() -> i32`: Deterministic network-handle alias (currently a stable placeholder handle).
 
 ## Data Structure Modules
 
@@ -58,6 +60,11 @@ Input and Output.
 - `fn last(v: Vector[T]) -> T`: Deterministic last-element lookup; empty vectors are rejected deterministically.
 - `fn push(v: Vector[T], value: T) -> Vector[T]`: Deterministic append returning a new vector value.
 - `fn pop(v: Vector[T]) -> Vector[T]`: Deterministic drop-last returning a new vector value; empty vectors are rejected deterministically.
+- `fn list() -> i32`: Deterministic list-module placeholder handle.
+- `fn map() -> i32`: Deterministic map-module placeholder handle.
+- `fn set() -> i32`: Deterministic set-module placeholder handle.
+- `fn tree() -> i32`: Deterministic tree-module placeholder handle.
+- `fn graph() -> i32`: Deterministic graph-module placeholder handle.
 
 ### `std.text`
 String manipulation and formatting (backed by `include/t81/std/string.hpp`).
@@ -102,10 +109,13 @@ Deterministic symbol helpers.
 - `fn exit(code: i32) -> void`: Deterministic terminate/trap alias (`std.sys.exit` lowers to `TRAP`).
 - `fn time() -> T81Float`: Deterministic logical time alias (currently lowers to constant `0.0`).
 - `fn entropy() -> i32`: Deterministic entropy-budget alias (currently lowers to constant `0`).
+- `fn proof() -> i32`: Deterministic proof-handle alias (currently a stable placeholder handle).
 
 ### `std.async`
 - `fn yield() -> void`: Deterministic cooperative-yield alias (currently a no-op).
 - `fn sleep(duration: T81Float) -> void`: Deterministic sleep alias (currently a no-op after float-compatible type check).
+- `fn thread() -> i32`: Deterministic thread-handle alias (currently a stable placeholder handle).
+- `fn promise() -> i32`: Deterministic promise-handle alias (currently a stable placeholder handle).
 
 ### `std.tensor`
 - `std.tensor.load("...") -> i32`: Load weights via deterministic literal-path alias (literal required by current frontend contract).

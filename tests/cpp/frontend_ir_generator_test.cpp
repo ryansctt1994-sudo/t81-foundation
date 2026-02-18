@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <set>
 #include <stdexcept>
 #include <vector>
 
@@ -486,8 +487,18 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let kept: i32 = std.core.unwrap_or(maybe, 9);
             let now: T81Float = std.sys.time();
             let entropy: i32 = std.sys.entropy();
+            let proof: i32 = std.sys.proof();
+            let stream_h: i32 = std.io.stream();
+            let net_h: i32 = std.io.net();
             std.async.yield();
             std.async.sleep(now);
+            let thread_h: i32 = std.async.thread();
+            let promise_h: i32 = std.async.promise();
+            let list_h: i32 = std.collections.list();
+            let map_h: i32 = std.collections.map();
+            let set_h: i32 = std.collections.set();
+            let tree_h: i32 = std.collections.tree();
+            let graph_h: i32 = std.collections.graph();
             std.agent.self_reflect();
             std.sys.exit(0);
             std.io.println("hello");
@@ -536,6 +547,16 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _diff = diff;
             let _kp = kept;
             let _entropy = entropy;
+            let _proof = proof;
+            let _stream_h = stream_h;
+            let _net_h = net_h;
+            let _thread_h = thread_h;
+            let _promise_h = promise_h;
+            let _list_h = list_h;
+            let _map_h = map_h;
+            let _set_h = set_h;
+            let _tree_h = tree_h;
+            let _graph_h = graph_h;
             return 0;
         }
     )";
@@ -749,6 +770,63 @@ void test_std_sys_entropy_alias_lowers_to_integer_zero() {
 
   EXPECT(has_entropy_zero_load, "std.sys.entropy should lower to deterministic integer zero");
   std::cout << "IRGeneratorTest test_std_sys_entropy_alias_lowers_to_integer_zero passed!"
+            << std::endl;
+}
+
+void test_std_runtime_handle_aliases_lower_to_deterministic_immediates() {
+  std::string source = R"(
+        fn main() -> i32 {
+            let proof: i32 = std.sys.proof();
+            let stream_h: i32 = std.io.stream();
+            let net_h: i32 = std.io.net();
+            let thread_h: i32 = std.async.thread();
+            let promise_h: i32 = std.async.promise();
+            let list_h: i32 = std.collections.list();
+            let map_h: i32 = std.collections.map();
+            let set_h: i32 = std.collections.set();
+            let tree_h: i32 = std.collections.tree();
+            let graph_h: i32 = std.collections.graph();
+            return proof + stream_h + net_h + thread_h + promise_h + list_h + map_h + set_h +
+                   tree_h + graph_h;
+        }
+    )";
+  Lexer lexer(source);
+  Parser parser(lexer);
+  auto stmts = parser.parse();
+  EXPECT(!parser.had_error(), "parser failed for std runtime handle alias fixture");
+
+  SemanticAnalyzer analyzer(stmts);
+  analyzer.analyze();
+  EXPECT(!analyzer.had_error(), "semantic analyzer failed for std runtime handle alias fixture");
+
+  IRGenerator generator;
+  generator.attach_semantic_analyzer(&analyzer);
+  auto program = generator.generate(stmts);
+  const auto& instructions = program.instructions();
+  EXPECT(!instructions.empty(), "std runtime handle alias fixture produced no IR");
+
+  std::set<long long> seen;
+  for (const auto& inst : instructions) {
+    if (inst.opcode != Opcode::LOADI || inst.operands.size() < 2) {
+      continue;
+    }
+    if (const auto* imm = std::get_if<t81::tisc::ir::Immediate>(&inst.operands[1])) {
+      seen.insert(imm->value);
+    }
+  }
+
+  EXPECT(seen.count(101) == 1, "std.sys.proof should lower to deterministic handle 101");
+  EXPECT(seen.count(102) == 1, "std.io.stream should lower to deterministic handle 102");
+  EXPECT(seen.count(103) == 1, "std.io.net should lower to deterministic handle 103");
+  EXPECT(seen.count(104) == 1, "std.async.thread should lower to deterministic handle 104");
+  EXPECT(seen.count(105) == 1, "std.async.promise should lower to deterministic handle 105");
+  EXPECT(seen.count(106) == 1, "std.collections.list should lower to deterministic handle 106");
+  EXPECT(seen.count(107) == 1, "std.collections.map should lower to deterministic handle 107");
+  EXPECT(seen.count(108) == 1, "std.collections.set should lower to deterministic handle 108");
+  EXPECT(seen.count(109) == 1, "std.collections.tree should lower to deterministic handle 109");
+  EXPECT(seen.count(110) == 1, "std.collections.graph should lower to deterministic handle 110");
+  std::cout << "IRGeneratorTest test_std_runtime_handle_aliases_lower_to_deterministic_immediates "
+               "passed!"
             << std::endl;
 }
 
@@ -975,6 +1053,7 @@ int main() {
   test_generic_call_with_explicit_type_args_lowers_to_call();
   test_std_namespace_aliases_lower_to_builtin_opcodes();
   test_std_sys_entropy_alias_lowers_to_integer_zero();
+  test_std_runtime_handle_aliases_lower_to_deterministic_immediates();
   test_std_tensor_from_list_alias_lowers_vector_literal_to_tensor_handle();
   test_std_tensor_matmul_alias_lowers_to_tmatmul();
   test_std_tensor_vec_add_alias_lowers_to_tvecadd();

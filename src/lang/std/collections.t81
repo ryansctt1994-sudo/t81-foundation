@@ -25,3 +25,24 @@ fn push[T](v: Vector[T], value: T) -> Vector[T] {
 fn pop[T](v: Vector[T]) -> Vector[T] {
     return std.collections.pop(v);
 }
+
+// Deterministic container-handle constructors for roadmap modules.
+fn list() -> i32 {
+    return std.collections.list();
+}
+
+fn map() -> i32 {
+    return std.collections.map();
+}
+
+fn set() -> i32 {
+    return std.collections.set();
+}
+
+fn tree() -> i32 {
+    return std.collections.tree();
+}
+
+fn graph() -> i32 {
+    return std.collections.graph();
+}

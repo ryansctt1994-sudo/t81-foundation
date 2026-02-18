@@ -176,11 +176,31 @@ int main() {
         fn main() -> i32 {
             let now: T81Float = std.sys.time();
             let ent: i32 = std.sys.entropy();
+            let proof: i32 = std.sys.proof();
+            let stream_h: i32 = std.io.stream();
+            let net_h: i32 = std.io.net();
             std.async.yield();
             std.async.sleep(now);
+            let thread_h: i32 = std.async.thread();
+            let promise_h: i32 = std.async.promise();
+            let list_h: i32 = std.collections.list();
+            let map_h: i32 = std.collections.map();
+            let set_h: i32 = std.collections.set();
+            let tree_h: i32 = std.collections.tree();
+            let graph_h: i32 = std.collections.graph();
             std.agent.self_reflect();
             std.sys.exit(0);
             let _ent = ent;
+            let _proof = proof;
+            let _stream_h = stream_h;
+            let _net_h = net_h;
+            let _thread_h = thread_h;
+            let _promise_h = promise_h;
+            let _list_h = list_h;
+            let _map_h = map_h;
+            let _set_h = set_h;
+            let _tree_h = tree_h;
+            let _graph_h = graph_h;
             return 0;
         }
     )";
@@ -230,6 +250,41 @@ int main() {
   assert(bad_sys_entropy_arity_output.find("sys_entropy expects no arguments.") !=
          std::string::npos);
   fs::remove(bad_sys_entropy_arity_path);
+
+  const std::string bad_runtime_aliases_arity_program = R"(
+        fn main() -> i32 {
+            let p: i32 = std.sys.proof(1);
+            let s: i32 = std.io.stream(1);
+            let t: i32 = std.async.thread(1);
+            let g: i32 = std.collections.graph(1);
+            let _ = p;
+            let _s = s;
+            let _t = t;
+            let _g = g;
+            return 0;
+        }
+    )";
+
+  [[maybe_unused]] auto bad_runtime_aliases_arity_path =
+      make_temp_path("t81-check-runtime-aliases-arity-bad", ".t81");
+  write_source(bad_runtime_aliases_arity_path, bad_runtime_aliases_arity_program);
+
+  [[maybe_unused]] std::ostringstream bad_runtime_aliases_arity_captured;
+  old_buf = std::cerr.rdbuf(bad_runtime_aliases_arity_captured.rdbuf());
+  [[maybe_unused]] int bad_runtime_aliases_arity_rc =
+      t81::cli::check_syntax(bad_runtime_aliases_arity_path);
+  std::cerr.rdbuf(old_buf);
+
+  if (bad_runtime_aliases_arity_rc == 0) {
+    std::cerr << "Expected `t81 check` to fail on runtime handle alias bad arity\n";
+    return 1;
+  }
+  [[maybe_unused]] std::string bad_runtime_aliases_arity_output =
+      bad_runtime_aliases_arity_captured.str();
+  assert(bad_runtime_aliases_arity_output.find(bad_runtime_aliases_arity_path.string()) !=
+         std::string::npos);
+  assert(bad_runtime_aliases_arity_output.find("expects no arguments") != std::string::npos);
+  fs::remove(bad_runtime_aliases_arity_path);
 
   const std::string transcendental_math_program = R"(
         fn main() -> i32 {

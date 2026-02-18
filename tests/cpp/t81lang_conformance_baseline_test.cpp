@@ -254,12 +254,32 @@ static void test_std_namespace_builtin_aliases() {
       }
       let now: T81Float = std.sys.time();
       let ent: i32 = std.sys.entropy();
+      let proof: i32 = std.sys.proof();
+      let stream_h: i32 = std.io.stream();
+      let net_h: i32 = std.io.net();
       std.async.yield();
       std.async.sleep(now);
+      let thread_h: i32 = std.async.thread();
+      let promise_h: i32 = std.async.promise();
+      let list_h: i32 = std.collections.list();
+      let map_h: i32 = std.collections.map();
+      let set_h: i32 = std.collections.set();
+      let tree_h: i32 = std.collections.tree();
+      let graph_h: i32 = std.collections.graph();
       std.agent.self_reflect();
       std.sys.exit(0);
       let handle: i32 = std.tensor.load("layer0.weight");
       let _ent = ent;
+      let _proof = proof;
+      let _stream_h = stream_h;
+      let _net_h = net_h;
+      let _thread_h = thread_h;
+      let _promise_h = promise_h;
+      let _list_h = list_h;
+      let _map_h = map_h;
+      let _set_h = set_h;
+      let _tree_h = tree_h;
+      let _graph_h = graph_h;
       return 0;
     }
   )";
@@ -474,6 +494,52 @@ static void test_std_namespace_builtin_aliases() {
   )";
   require_true(fails_semantic(bad_sys_entropy_arity, "t81lang_std_sys_entropy_bad_arity"),
                "t81lang_std_sys_entropy_bad_arity");
+
+  constexpr const char* bad_sys_proof_arity = R"(
+    fn main() -> i32 {
+      let p: i32 = std.sys.proof(1);
+      let _ = p;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_sys_proof_arity, "t81lang_std_sys_proof_bad_arity"),
+               "t81lang_std_sys_proof_bad_arity");
+
+  constexpr const char* bad_io_stream_arity = R"(
+    fn main() -> i32 {
+      let s: i32 = std.io.stream(1);
+      let _ = s;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(bad_io_stream_arity, "io_stream expects no arguments.",
+                                           "t81lang_std_io_stream_bad_arity"),
+               "t81lang_std_io_stream_bad_arity");
+
+  constexpr const char* bad_async_thread_arity = R"(
+    fn main() -> i32 {
+      let t: i32 = std.async.thread(1);
+      let _ = t;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_async_thread_arity, "async_thread expects no arguments.",
+                                  "t81lang_std_async_thread_bad_arity"),
+      "t81lang_std_async_thread_bad_arity");
+
+  constexpr const char* bad_collections_container_arity = R"(
+    fn main() -> i32 {
+      let g: i32 = std.collections.graph(1);
+      let _ = g;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(
+                   bad_collections_container_arity,
+                   "std.collections container constructors expect no arguments.",
+                   "t81lang_std_collections_container_bad_arity"),
+               "t81lang_std_collections_container_bad_arity");
 
   constexpr const char* bad_async_sleep_type = R"(
     fn main() -> i32 {

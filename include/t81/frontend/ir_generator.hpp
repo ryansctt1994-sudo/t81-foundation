@@ -140,6 +140,12 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.io.println" || name == "std.io.print_int" || name == "std.io.print_float") {
     return "print";
   }
+  if (name == "std.io.stream") {
+    return "io_stream";
+  }
+  if (name == "std.io.net") {
+    return "io_net";
+  }
   if (name == "std.math.sin") {
     return "sin";
   }
@@ -191,11 +197,20 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.sys.entropy") {
     return "sys_entropy";
   }
+  if (name == "std.sys.proof") {
+    return "sys_proof";
+  }
   if (name == "std.async.yield") {
     return "async_yield";
   }
   if (name == "std.async.sleep") {
     return "async_sleep";
+  }
+  if (name == "std.async.thread") {
+    return "async_thread";
+  }
+  if (name == "std.async.promise") {
+    return "async_promise";
   }
   if (name == "std.agent.self_reflect") {
     return "agent_self_reflect";
@@ -301,6 +316,21 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   }
   if (name == "std.collections.pop") {
     return "collections_pop";
+  }
+  if (name == "std.collections.list") {
+    return "collections_list";
+  }
+  if (name == "std.collections.map") {
+    return "collections_map";
+  }
+  if (name == "std.collections.set") {
+    return "collections_set";
+  }
+  if (name == "std.collections.tree") {
+    return "collections_tree";
+  }
+  if (name == "std.collections.graph") {
+    return "collections_graph";
   }
   if (name == "std.symbol.intern") {
     return "symbol_intern";
@@ -1211,6 +1241,18 @@ public:
         record_result(&expr, dest);
         return {};
       }
+      if (func_name == "sys_proof") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("sys_proof expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        auto instr = tisc::ir::Instruction{tisc::ir::Opcode::LOADI,
+                                           {dest.reg, tisc::ir::Immediate{101}}};
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
       if (func_name == "async_yield") {
         if (!expr.arguments.empty()) {
           throw std::runtime_error("async_yield expects no arguments.");
@@ -1223,6 +1265,30 @@ public:
         }
         expr.arguments[0]->accept(*this);
         (void)ensure_expr_result(expr.arguments[0].get());
+        return {};
+      }
+      if (func_name == "async_thread") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("async_thread expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        auto instr = tisc::ir::Instruction{tisc::ir::Opcode::LOADI,
+                                           {dest.reg, tisc::ir::Immediate{104}}};
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "async_promise") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("async_promise expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        auto instr = tisc::ir::Instruction{tisc::ir::Opcode::LOADI,
+                                           {dest.reg, tisc::ir::Immediate{105}}};
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
+        record_result(&expr, dest);
         return {};
       }
       if (func_name == "agent_self_reflect") {
@@ -1247,6 +1313,19 @@ public:
         instr.opcode = tisc::ir::Opcode::PRINT;
         instr.operands = {value.reg};
         emit(instr);
+        return {};
+      }
+      if (func_name == "io_stream" || func_name == "io_net") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error(func_name + " expects no arguments.");
+        }
+        const long long handle = (func_name == "io_stream") ? 102 : 103;
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        auto instr = tisc::ir::Instruction{tisc::ir::Opcode::LOADI,
+                                           {dest.reg, tisc::ir::Immediate{handle}}};
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
+        record_result(&expr, dest);
         return {};
       }
       if (func_name == "core_assert") {
@@ -1723,6 +1802,25 @@ public:
         tisc::ir::Instruction instr;
         instr.opcode = tisc::ir::Opcode::VECPOP;
         instr.operands = {dest.reg, value.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "collections_list" || func_name == "collections_map" ||
+          func_name == "collections_set" || func_name == "collections_tree" ||
+          func_name == "collections_graph") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("collections container constructors expect no arguments.");
+        }
+        long long handle = 106;
+        if (func_name == "collections_map") handle = 107;
+        if (func_name == "collections_set") handle = 108;
+        if (func_name == "collections_tree") handle = 109;
+        if (func_name == "collections_graph") handle = 110;
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        auto instr = tisc::ir::Instruction{tisc::ir::Opcode::LOADI,
+                                           {dest.reg, tisc::ir::Immediate{handle}}};
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
         emit(instr);
         record_result(&expr, dest);
         return {};

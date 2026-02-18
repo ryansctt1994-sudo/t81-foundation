@@ -7,13 +7,13 @@ This document is the execution handoff for continuing the standard library plan 
 Implemented and validated end-to-end (semantic + IR + VM + CLI coverage):
 - `std.core`: `assert`, `debug`, `unwrap_or`
 - `std.math`: `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `sqrt`, `exp`, `log`, `pow`, `clamp`
-- `std.io`: `println`, `print_int`, `print_float`
+- `std.io`: `println`, `print_int`, `print_float`, `stream`, `net`
 - `std.text`: `str_len`, `str_is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, `replace`, `to_string`, `from_bytes`, `split`, `join`
 - `std.bytes`: `len`, `is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, `replace`, `to_string`, `from_string`, `split`, `join`, `T81Bytes(...)`
-- `std.collections`: `len`, `is_empty`, `first`, `last`, `push`, `pop`
+- `std.collections`: `len`, `is_empty`, `first`, `last`, `push`, `pop`, `list`, `map`, `set`, `tree`, `graph`
 - `std.symbol`: `intern`, `to_string`, `eq`, `ne`
-- `std.sys`: `exit`, `time`, `entropy`
-- `std.async`: `yield`, `sleep`
+- `std.sys`: `exit`, `time`, `entropy`, `proof`
+- `std.async`: `yield`, `sleep`, `thread`, `promise`
 - `std.tensor`: `load`, `from_list`, `matmul`, `vec_add`
 - `std.agent`: `self_reflect`
 
@@ -63,13 +63,12 @@ Current known good baseline: full suite passing (`211/211`).
 
 ## 4. What Is Next (Priority Order)
 
-1. Add remaining `std.collections` roadmap surface:
-   - Move from helper aliases toward full `list/map/set/tree/graph` module plan.
-2. Add missing long-range plan modules with deterministic contracts:
+1. Replace placeholder handle aliases with full runtime semantics for:
+   - `std.collections.list/map/set/tree/graph`
    - `std.sys.proof`
-   - `std.io.stream`, `std.io.net`
-   - `std.async.thread`, `std.async.promise`
-3. Keep fixture-driven CLI goldens for each new module before marking complete.
+   - `std.io.stream/net`
+   - `std.async.thread/promise`
+2. Keep fixture-driven CLI goldens for each new module before marking complete.
 
 ## 5. Determinism/Quality Rules To Preserve
 

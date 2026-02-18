@@ -12,3 +12,7 @@ fn time() -> T81Float {
 fn entropy() -> i32 {
     return std.sys.entropy();
 }
+
+fn proof() -> i32 {
+    return std.sys.proof();
+}

@@ -8,3 +8,11 @@ fn yield() -> void {
 fn sleep(duration: T81Float) -> void {
     std.async.sleep(duration);
 }
+
+fn thread() -> i32 {
+    return std.async.thread();
+}
+
+fn promise() -> i32 {
+    return std.async.promise();
+}

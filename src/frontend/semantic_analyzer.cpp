@@ -213,6 +213,12 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.io.println" || name == "std.io.print_int" || name == "std.io.print_float") {
     return "print";
   }
+  if (name == "std.io.stream") {
+    return "io_stream";
+  }
+  if (name == "std.io.net") {
+    return "io_net";
+  }
   if (name == "std.math.sin") {
     return "sin";
   }
@@ -264,11 +270,20 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.sys.entropy") {
     return "sys_entropy";
   }
+  if (name == "std.sys.proof") {
+    return "sys_proof";
+  }
   if (name == "std.async.yield") {
     return "async_yield";
   }
   if (name == "std.async.sleep") {
     return "async_sleep";
+  }
+  if (name == "std.async.thread") {
+    return "async_thread";
+  }
+  if (name == "std.async.promise") {
+    return "async_promise";
   }
   if (name == "std.agent.self_reflect") {
     return "agent_self_reflect";
@@ -374,6 +389,21 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   }
   if (name == "std.collections.pop") {
     return "collections_pop";
+  }
+  if (name == "std.collections.list") {
+    return "collections_list";
+  }
+  if (name == "std.collections.map") {
+    return "collections_map";
+  }
+  if (name == "std.collections.set") {
+    return "collections_set";
+  }
+  if (name == "std.collections.tree") {
+    return "collections_tree";
+  }
+  if (name == "std.collections.graph") {
+    return "collections_graph";
   }
   if (name == "std.symbol.intern") {
     return "symbol_intern";
@@ -2124,6 +2154,13 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       }
       return Type{Type::Kind::I32};
     }
+    if (func_name == "sys_proof") {
+      if (!arg_types.empty()) {
+        error(call_token, "sys_proof expects no arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
+    }
     if (func_name == "async_yield") {
       if (!arg_types.empty()) {
         error(call_token, "async_yield expects no arguments.");
@@ -2141,6 +2178,13 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return make_error_type();
       }
       return Type{Type::Kind::Void};
+    }
+    if (func_name == "async_thread" || func_name == "async_promise") {
+      if (!arg_types.empty()) {
+        error(call_token, func_name + " expects no arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
     }
     if (func_name == "agent_self_reflect") {
       if (!arg_types.empty()) {
@@ -2552,6 +2596,22 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         }
       }
       return arg_types[0];
+    }
+    if (func_name == "collections_list" || func_name == "collections_map" ||
+        func_name == "collections_set" || func_name == "collections_tree" ||
+        func_name == "collections_graph") {
+      if (!arg_types.empty()) {
+        error(call_token, "std.collections container constructors expect no arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
+    }
+    if (func_name == "io_stream" || func_name == "io_net") {
+      if (!arg_types.empty()) {
+        error(call_token, func_name + " expects no arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
     }
     if (func_name == "symbol_intern") {
       if (arg_types.size() != 1) {

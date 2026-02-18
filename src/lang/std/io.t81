@@ -12,3 +12,11 @@ fn print_int(val: i32) -> void {
 fn print_float(val: T81Float) -> void {
     print(val);
 }
+
+fn stream() -> i32 {
+    return std.io.stream();
+}
+
+fn net() -> i32 {
+    return std.io.net();
+}
