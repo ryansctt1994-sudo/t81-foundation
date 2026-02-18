@@ -173,6 +173,9 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.text.replace") {
     return "str_replace";
   }
+  if (name == "std.text.to_string") {
+    return "str_to_string";
+  }
   if (name == "std.bytes.len") {
     return "bytes_len";
   }
@@ -1104,6 +1107,17 @@ public:
         instr.opcode = tisc::ir::Opcode::STRREPLACE;
         instr.operands = {dest.reg, needle.reg, replacement.reg};
         emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "str_to_string") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("str_to_string expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        copy_to_dest(value, dest);
         record_result(&expr, dest);
         return {};
       }

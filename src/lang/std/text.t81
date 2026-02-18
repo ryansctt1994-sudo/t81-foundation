@@ -32,3 +32,7 @@ fn index_of(s: T81String, needle: T81String) -> i32 {
 fn replace(s: T81String, needle: T81String, replacement: T81String) -> T81String {
     return std.text.replace(s, needle, replacement);
 }
+
+fn to_string(s: T81String) -> T81String {
+    return std.text.to_string(s);
+}

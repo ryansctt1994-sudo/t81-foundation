@@ -248,6 +248,9 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.text.replace") {
     return "str_replace";
   }
+  if (name == "std.text.to_string") {
+    return "str_to_string";
+  }
   if (name == "std.bytes.len") {
     return "bytes_len";
   }
@@ -1945,6 +1948,17 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String ||
           arg_types[2].kind != Type::Kind::String) {
         error(call_token, "str_replace expects T81String arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::String};
+    }
+    if (func_name == "str_to_string") {
+      if (arg_types.size() != 1) {
+        error(call_token, "str_to_string expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String) {
+        error(call_token, "str_to_string expects a T81String argument.");
         return make_error_type();
       }
       return Type{Type::Kind::String};

@@ -409,6 +409,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let has_mid: bool = std.text.contains(joined, "ell");
             let idx: i32 = std.text.index_of(joined, "ll");
             let replaced: T81String = std.text.replace(joined, "ll", "yy");
+            let rendered: T81String = std.text.to_string(replaced);
             std.io.println("hello");
             std.io.print_int(7);
             std.io.print_float(t);
@@ -423,6 +424,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _hm = has_mid;
             let _idx = idx;
             let _rp = replaced;
+            let _rd = rendered;
             return 0;
         }
     )";

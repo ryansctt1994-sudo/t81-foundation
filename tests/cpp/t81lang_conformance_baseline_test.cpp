@@ -313,6 +313,7 @@ static void test_std_text_aliases() {
       let has_mid: bool = std.text.contains(c, "lp");
       let idx: i32 = std.text.index_of(c, "ph");
       let repl: T81String = std.text.replace(c, "ph", "zz");
+      let rendered: T81String = std.text.to_string(repl);
       let repl_idx: i32 = std.text.index_of(repl, "zz");
       if (e) {
         if (sw) {
@@ -320,7 +321,9 @@ static void test_std_text_aliases() {
             if (has_mid) {
               if (idx == 2) {
                 if (repl_idx == 2) {
-                  return n;
+                  if (std.text.str_len(rendered) == 5) {
+                    return n;
+                  }
                 }
               }
             }
@@ -419,6 +422,26 @@ static void test_std_text_aliases() {
   )";
   require_true(fails_semantic(bad_replace_type, "t81lang_std_text_replace_bad_type"),
                "t81lang_std_text_replace_bad_type");
+
+  constexpr const char* bad_to_string_arity = R"(
+    fn main() -> i32 {
+      let s: T81String = std.text.to_string();
+      let _ = s;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_to_string_arity, "t81lang_std_text_to_string_bad_arity"),
+               "t81lang_std_text_to_string_bad_arity");
+
+  constexpr const char* bad_to_string_type = R"(
+    fn main() -> i32 {
+      let s: T81String = std.text.to_string(7);
+      let _ = s;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_to_string_type, "t81lang_std_text_to_string_bad_type"),
+               "t81lang_std_text_to_string_bad_type");
 }
 
 static void test_std_text_module_wrappers() {
@@ -447,6 +470,9 @@ static void test_std_text_module_wrappers() {
     fn replace(s: T81String, needle: T81String, replacement: T81String) -> T81String {
       return std.text.replace(s, needle, replacement);
     }
+    fn to_string(s: T81String) -> T81String {
+      return std.text.to_string(s);
+    }
     fn main() -> i32 {
       let joined: T81String = concat("ze", "ta");
       let n: i32 = str_len(joined);
@@ -456,6 +482,7 @@ static void test_std_text_module_wrappers() {
       let has_mid: bool = contains(joined, "et");
       let idx: i32 = index_of(joined, "ta");
       let replaced: T81String = replace(joined, "ta", "xo");
+      let rendered: T81String = to_string(replaced);
       let repl_idx: i32 = index_of(replaced, "xo");
       if (e) {
         if (sw) {
@@ -463,7 +490,9 @@ static void test_std_text_module_wrappers() {
             if (has_mid) {
               if (idx == 2) {
                 if (repl_idx == 2) {
-                  return n;
+                  if (str_len(rendered) == 4) {
+                    return n;
+                  }
                 }
               }
             }

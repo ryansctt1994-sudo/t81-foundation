@@ -1,0 +1,9 @@
+fn main() -> i32 {
+  let a: T81String = std.text.to_string("alpha");
+  let b: T81String = std.text.to_string(std.text.concat("be", "ta"));
+  let c: T81String = std.text.to_string(std.text.replace("gimma", "im", "am"));
+  print(a);
+  print(b);
+  print(c);
+  return 0;
+}

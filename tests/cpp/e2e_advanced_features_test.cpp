@@ -236,6 +236,7 @@ void test_std_text_pipeline() {
             let has_mid: bool = std.text.contains(joined, "lp");
             let idx: i32 = std.text.index_of(joined, "ph");
             let replaced: T81String = std.text.replace(joined, "ph", "zz");
+            let rendered: T81String = std.text.to_string(replaced);
             let repl_idx: i32 = std.text.index_of(replaced, "zz");
             if (e) {
                 if (sw) {
@@ -243,7 +244,9 @@ void test_std_text_pipeline() {
                         if (has_mid) {
                             if (idx == 2) {
                                 if (repl_idx == 2) {
-                                    return n;
+                                    if (std.text.str_len(rendered) == 5) {
+                                        return n;
+                                    }
                                 }
                             }
                         }
@@ -286,6 +289,9 @@ void test_std_text_module_wrapper_pipeline() {
         fn replace(s: T81String, needle: T81String, replacement: T81String) -> T81String {
             return std.text.replace(s, needle, replacement);
         }
+        fn to_string(s: T81String) -> T81String {
+            return std.text.to_string(s);
+        }
         fn main() -> i32 {
             let joined: T81String = concat("om", "ega");
             let n: i32 = str_len(joined);
@@ -295,6 +301,7 @@ void test_std_text_module_wrapper_pipeline() {
             let has_mid: bool = contains(joined, "meg");
             let idx: i32 = index_of(joined, "ga");
             let replaced: T81String = replace(joined, "ga", "xy");
+            let rendered: T81String = to_string(replaced);
             let repl_idx: i32 = index_of(replaced, "xy");
             if (e) {
                 if (sw) {
@@ -302,7 +309,9 @@ void test_std_text_module_wrapper_pipeline() {
                         if (has_mid) {
                             if (idx == 3) {
                                 if (repl_idx == 3) {
-                                    return n;
+                                    if (str_len(rendered) == 5) {
+                                        return n;
+                                    }
                                 }
                             }
                         }
