@@ -191,6 +191,135 @@ void test_complex_constructor_pipeline() {
   }
 }
 
+void test_std_tensor_from_list_pipeline() {
+  const std::string source = R"(
+        fn main() -> i32 {
+            let t: Tensor = std.tensor.from_list([1, 2, 3]);
+            let _ = t;
+            return 17;
+        }
+    )";
+  [[maybe_unused]] int64_t result = run_e2e_test(source);
+  if (result != 17) {
+    std::cerr << "test_std_tensor_from_list_pipeline failed: expected 17, got " << result
+              << std::endl;
+    throw std::runtime_error("test_std_tensor_from_list_pipeline failed");
+  }
+}
+
+void test_std_tensor_vec_add_pipeline() {
+  const std::string source = R"(
+        fn main() -> i32 {
+            let a: Tensor = std.tensor.from_list([1, 2, 3]);
+            let b: Tensor = std.tensor.from_list([4, 5, 6]);
+            let c: Tensor = std.tensor.vec_add(a, b);
+            let _ = c;
+            return 19;
+        }
+    )";
+  [[maybe_unused]] int64_t result = run_e2e_test(source);
+  if (result != 19) {
+    std::cerr << "test_std_tensor_vec_add_pipeline failed: expected 19, got " << result
+              << std::endl;
+    throw std::runtime_error("test_std_tensor_vec_add_pipeline failed");
+  }
+}
+
+void test_std_text_pipeline() {
+  const std::string source = R"(
+        fn main() -> i32 {
+            let n: i32 = std.text.str_len("alpha");
+            let e: bool = std.text.str_is_empty("");
+            let joined: T81String = std.text.concat("al", "pha");
+            let sw: bool = std.text.starts_with(joined, "al");
+            let ew: bool = std.text.ends_with(joined, "ha");
+            let has_mid: bool = std.text.contains(joined, "lp");
+            let idx: i32 = std.text.index_of(joined, "ph");
+            let replaced: T81String = std.text.replace(joined, "ph", "zz");
+            let repl_idx: i32 = std.text.index_of(replaced, "zz");
+            if (e) {
+                if (sw) {
+                    if (ew) {
+                        if (has_mid) {
+                            if (idx == 2) {
+                                if (repl_idx == 2) {
+                                    return n;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return 0;
+        }
+    )";
+  [[maybe_unused]] int64_t result = run_e2e_test(source);
+  if (result != 5) {
+    std::cerr << "test_std_text_pipeline failed: expected 5, got " << result << std::endl;
+    throw std::runtime_error("test_std_text_pipeline failed");
+  }
+}
+
+void test_std_text_module_wrapper_pipeline() {
+  const std::string source = R"(
+        fn str_len(s: T81String) -> i32 {
+            return std.text.str_len(s);
+        }
+        fn str_is_empty(s: T81String) -> bool {
+            return std.text.str_is_empty(s);
+        }
+        fn concat(a: T81String, b: T81String) -> T81String {
+            return std.text.concat(a, b);
+        }
+        fn starts_with(s: T81String, prefix: T81String) -> bool {
+            return std.text.starts_with(s, prefix);
+        }
+        fn ends_with(s: T81String, suffix: T81String) -> bool {
+            return std.text.ends_with(s, suffix);
+        }
+        fn contains(s: T81String, needle: T81String) -> bool {
+            return std.text.contains(s, needle);
+        }
+        fn index_of(s: T81String, needle: T81String) -> i32 {
+            return std.text.index_of(s, needle);
+        }
+        fn replace(s: T81String, needle: T81String, replacement: T81String) -> T81String {
+            return std.text.replace(s, needle, replacement);
+        }
+        fn main() -> i32 {
+            let joined: T81String = concat("om", "ega");
+            let n: i32 = str_len(joined);
+            let e: bool = str_is_empty("");
+            let sw: bool = starts_with(joined, "om");
+            let ew: bool = ends_with(joined, "ga");
+            let has_mid: bool = contains(joined, "meg");
+            let idx: i32 = index_of(joined, "ga");
+            let replaced: T81String = replace(joined, "ga", "xy");
+            let repl_idx: i32 = index_of(replaced, "xy");
+            if (e) {
+                if (sw) {
+                    if (ew) {
+                        if (has_mid) {
+                            if (idx == 3) {
+                                if (repl_idx == 3) {
+                                    return n;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return 0;
+        }
+    )";
+  [[maybe_unused]] int64_t result = run_e2e_test(source);
+  if (result != 5) {
+    std::cerr << "test_std_text_module_wrapper_pipeline failed: expected 5, got " << result
+              << std::endl;
+    throw std::runtime_error("test_std_text_module_wrapper_pipeline failed");
+  }
+}
+
 int main() {
   test_while_break();
   test_nested_loop_continue();
@@ -199,6 +328,10 @@ int main() {
   test_extended_numeric_types_pipeline();
   test_constructor_and_conversion_pipeline();
   test_complex_constructor_pipeline();
+  test_std_tensor_from_list_pipeline();
+  test_std_tensor_vec_add_pipeline();
+  test_std_text_pipeline();
+  test_std_text_module_wrapper_pipeline();
   std::cout << "All advanced E2E tests passed!" << std::endl;
   return 0;
 }

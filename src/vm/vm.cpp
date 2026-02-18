@@ -445,6 +445,15 @@ public:
       if (idx >= state_.symbols.size()) return nullptr;
       return &state_.symbols[idx];
     };
+    auto intern_symbol = [this](std::string text) -> std::int64_t {
+      for (std::size_t i = 0; i < state_.symbols.size(); ++i) {
+        if (state_.symbols[i] == text) {
+          return static_cast<std::int64_t>(i + 1);
+        }
+      }
+      state_.symbols.push_back(std::move(text));
+      return static_cast<std::int64_t>(state_.symbols.size());
+    };
     auto alloc_fraction = [this, current_pc](t81::T81Fraction frac) -> std::int64_t {
       state_.fractions.push_back(std::move(frac));
       auto idx = state_.fractions.size();
@@ -1836,6 +1845,202 @@ public:
           break;
         }
         state_.printed_output.push_back(*rendered);
+        break;
+      }
+      case t81::tisc::Opcode::StrLen: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] != ValueTag::SymbolHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* symbol = symbol_ptr(state_.registers[insn.b]);
+        if (symbol == nullptr) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        state_.registers[insn.a] = static_cast<std::int64_t>(symbol->size());
+        state_.register_tags[insn.a] = ValueTag::Int;
+        update_flags(state_.registers[insn.a]);
+        break;
+      }
+      case t81::tisc::Opcode::StrEmpty: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] != ValueTag::SymbolHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* symbol = symbol_ptr(state_.registers[insn.b]);
+        if (symbol == nullptr) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        state_.registers[insn.a] = symbol->empty() ? 1 : 0;
+        state_.register_tags[insn.a] = ValueTag::Bool;
+        update_flags(state_.registers[insn.a]);
+        break;
+      }
+      case t81::tisc::Opcode::StrConcat: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] != ValueTag::SymbolHandle ||
+            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* lhs = symbol_ptr(state_.registers[insn.b]);
+        auto* rhs = symbol_ptr(state_.registers[insn.c]);
+        if (lhs == nullptr || rhs == nullptr) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        std::string combined = *lhs;
+        combined += *rhs;
+        state_.registers[insn.a] = intern_symbol(std::move(combined));
+        state_.register_tags[insn.a] = ValueTag::SymbolHandle;
+        update_flags(state_.registers[insn.a]);
+        break;
+      }
+      case t81::tisc::Opcode::StrStartsWith: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] != ValueTag::SymbolHandle ||
+            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* value = symbol_ptr(state_.registers[insn.b]);
+        auto* prefix = symbol_ptr(state_.registers[insn.c]);
+        if (value == nullptr || prefix == nullptr) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        const bool match = value->size() >= prefix->size() &&
+                           value->compare(0, prefix->size(), *prefix) == 0;
+        state_.registers[insn.a] = match ? 1 : 0;
+        state_.register_tags[insn.a] = ValueTag::Bool;
+        update_flags(state_.registers[insn.a]);
+        break;
+      }
+      case t81::tisc::Opcode::StrEndsWith: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] != ValueTag::SymbolHandle ||
+            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* value = symbol_ptr(state_.registers[insn.b]);
+        auto* suffix = symbol_ptr(state_.registers[insn.c]);
+        if (value == nullptr || suffix == nullptr) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        const bool match =
+            value->size() >= suffix->size() &&
+            value->compare(value->size() - suffix->size(), suffix->size(), *suffix) == 0;
+        state_.registers[insn.a] = match ? 1 : 0;
+        state_.register_tags[insn.a] = ValueTag::Bool;
+        update_flags(state_.registers[insn.a]);
+        break;
+      }
+      case t81::tisc::Opcode::StrContains: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] != ValueTag::SymbolHandle ||
+            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* value = symbol_ptr(state_.registers[insn.b]);
+        auto* needle = symbol_ptr(state_.registers[insn.c]);
+        if (value == nullptr || needle == nullptr) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        const bool contains = value->find(*needle) != std::string::npos;
+        state_.registers[insn.a] = contains ? 1 : 0;
+        state_.register_tags[insn.a] = ValueTag::Bool;
+        update_flags(state_.registers[insn.a]);
+        break;
+      }
+      case t81::tisc::Opcode::StrIndexOf: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] != ValueTag::SymbolHandle ||
+            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* value = symbol_ptr(state_.registers[insn.b]);
+        auto* needle = symbol_ptr(state_.registers[insn.c]);
+        if (value == nullptr || needle == nullptr) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        const std::size_t pos = value->find(*needle);
+        state_.registers[insn.a] =
+            pos == std::string::npos ? -1 : static_cast<std::int64_t>(pos);
+        state_.register_tags[insn.a] = ValueTag::Int;
+        update_flags(state_.registers[insn.a]);
+        break;
+      }
+      case t81::tisc::Opcode::StrReplace: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.a] != ValueTag::SymbolHandle ||
+            state_.register_tags[insn.b] != ValueTag::SymbolHandle ||
+            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* source = symbol_ptr(state_.registers[insn.a]);
+        auto* needle = symbol_ptr(state_.registers[insn.b]);
+        auto* replacement = symbol_ptr(state_.registers[insn.c]);
+        if (source == nullptr || needle == nullptr || replacement == nullptr) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (needle->empty()) {
+          state_.register_tags[insn.a] = ValueTag::SymbolHandle;
+          update_flags(state_.registers[insn.a]);
+          break;
+        }
+
+        std::string replaced;
+        replaced.reserve(source->size());
+        std::size_t search_from = 0;
+        while (true) {
+          std::size_t pos = source->find(*needle, search_from);
+          if (pos == std::string::npos) {
+            replaced.append(*source, search_from, std::string::npos);
+            break;
+          }
+          replaced.append(*source, search_from, pos - search_from);
+          replaced.append(*replacement);
+          search_from = pos + needle->size();
+        }
+
+        state_.registers[insn.a] = intern_symbol(std::move(replaced));
+        state_.register_tags[insn.a] = ValueTag::SymbolHandle;
+        update_flags(state_.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::I2F: {

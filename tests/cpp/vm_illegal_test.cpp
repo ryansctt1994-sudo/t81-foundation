@@ -23,7 +23,7 @@ int main() {
   T81_TEST_CHECK(r.error() == vm::Trap::DecodeFault);
 
   // Unknown opcode
-  tisc::Insn bogus{static_cast<tisc::Opcode>(99), 0, 0, 0};
+  tisc::Insn bogus{static_cast<tisc::Opcode>(255), 0, 0, 0};
   [[maybe_unused]] tisc::Program bad_op;
   bad_op.insns.push_back(bogus);
   vm->load_program(bad_op);

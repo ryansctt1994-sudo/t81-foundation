@@ -115,3 +115,10 @@ Building blocks for autonomous agents.
 -   **`std.crypto`**: Cryptographic primitives (hashing, signing) - potentially leveraging `T81Proof`.
 -   **`std.physics`**: Engines using `T81Quaternion` and `T81Vector`.
 -   **`std.ui`**: Abstract UI definitions for terminal or graphical output.
+
+## 5. Implementation Status (Current)
+
+- `std.math`: `sin`, `cos`, `tan` are wired as deterministic frontend/runtime aliases.
+- `std.io`: `println`, `print_int`, and `print_float` aliases lower to `print`.
+- `std.tensor`: `load`, `from_list`, `matmul`, and `vec_add` aliases are implemented and tested.
+- `std.text`: `str_len`, `str_is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, and `replace` are implemented end-to-end (semantic, IR, VM) and exposed via `src/lang/std/text.t81`.

@@ -182,6 +182,74 @@ std::optional<long long> constant_integer_value(const t81::frontend::Expr& expr)
 
   return std::nullopt;
 }
+
+std::optional<std::string> qualified_call_name(const t81::frontend::Expr& expr) {
+  using t81::frontend::FieldAccessExpr;
+  using t81::frontend::VariableExpr;
+  if (const auto* var = dynamic_cast<const VariableExpr*>(&expr)) {
+    return std::string(var->name.lexeme);
+  }
+  if (const auto* field = dynamic_cast<const FieldAccessExpr*>(&expr)) {
+    auto head = qualified_call_name(*field->object);
+    if (!head.has_value()) {
+      return std::nullopt;
+    }
+    return *head + "." + std::string(field->field.lexeme);
+  }
+  return std::nullopt;
+}
+
+std::string canonical_stdlib_call_name(std::string_view name) {
+  if (name == "std.io.println" || name == "std.io.print_int" || name == "std.io.print_float") {
+    return "print";
+  }
+  if (name == "std.math.sin") {
+    return "sin";
+  }
+  if (name == "std.math.cos") {
+    return "cos";
+  }
+  if (name == "std.math.tan") {
+    return "tan";
+  }
+  if (name == "std.tensor.load") {
+    return "weights.load";
+  }
+  if (name == "std.tensor.from_list") {
+    return "Tensor.from_list";
+  }
+  if (name == "std.tensor.matmul") {
+    return "Tensor.matmul";
+  }
+  if (name == "std.tensor.vec_add") {
+    return "Tensor.vec_add";
+  }
+  if (name == "std.text.str_len") {
+    return "str_len";
+  }
+  if (name == "std.text.str_is_empty") {
+    return "str_is_empty";
+  }
+  if (name == "std.text.concat") {
+    return "str_concat";
+  }
+  if (name == "std.text.starts_with") {
+    return "str_starts_with";
+  }
+  if (name == "std.text.ends_with") {
+    return "str_ends_with";
+  }
+  if (name == "std.text.contains") {
+    return "str_contains";
+  }
+  if (name == "std.text.index_of") {
+    return "str_index_of";
+  }
+  if (name == "std.text.replace") {
+    return "str_replace";
+  }
+  return std::string(name);
+}
 }  // namespace
 
 namespace t81 {
@@ -1499,8 +1567,10 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
     arg_types.push_back(evaluate_expression(*arg));
   }
 
-  if (auto var_expr = dynamic_cast<const VariableExpr*>(expr.callee.get())) {
-    std::string func_name = std::string(var_expr->name.lexeme);
+  if (auto callee_name = qualified_call_name(*expr.callee); callee_name.has_value()) {
+    const std::string raw_name = *callee_name;
+    std::string func_name = canonical_stdlib_call_name(raw_name);
+    Token call_token = extract_token(*expr.callee);
     if (func_name.find('.') != std::string::npos) {
       size_t dot = func_name.find('.');
       std::string obj_name = func_name.substr(0, dot);
@@ -1511,7 +1581,7 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
                          obj_symbol->type.kind == Type::Kind::I32)) {
         if (method_name == "matmul" || method_name == "vec_add") {
           if (arg_types.size() != 1) {
-            error(var_expr->name, method_name + " expects 1 argument.");
+            error(call_token, method_name + " expects 1 argument.");
             return make_error_type();
           }
           return obj_symbol->type;
@@ -1533,7 +1603,7 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
 
     if (func_name == "Some") {
       if (arg_types.size() != 1) {
-        error(var_expr->name, "The 'Some' constructor expects exactly one argument.");
+        error(call_token, "The 'Some' constructor expects exactly one argument.");
         return make_error_type();
       }
       Type payload = arg_types[0];
@@ -1543,7 +1613,7 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
             expected->params.empty() ? Type{Type::Kind::Unknown} : expected->params[0];
         if (expected_payload.kind != Type::Kind::Unknown &&
             !is_assignable(expected_payload, payload)) {
-          error(var_expr->name,
+          error(call_token,
                 "The 'Some' constructor argument must match the contextual Option payload: "
                 "expected '" +
                     type_to_string(expected_payload) + "' but got '" + type_to_string(payload) +
@@ -1559,10 +1629,10 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
     }
     if (func_name == "None") {
       if (!arg_types.empty()) {
-        error(var_expr->name, "The 'None' constructor does not take arguments.");
+        error(call_token, "The 'None' constructor does not take arguments.");
       }
       if (!expected || expected->kind != Type::Kind::Option) {
-        error(var_expr->name, "The 'None' constructor requires a contextual Option[T] type.");
+        error(call_token, "The 'None' constructor requires a contextual Option[T] type.");
         return make_error_type();
       }
       Type option_type = *expected;
@@ -1573,11 +1643,11 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
     }
     if (func_name == "Ok") {
       if (arg_types.size() != 1) {
-        error(var_expr->name, "The 'Ok' constructor expects exactly one argument.");
+        error(call_token, "The 'Ok' constructor expects exactly one argument.");
         return make_error_type();
       }
       if (!expected || expected->kind != Type::Kind::Result) {
-        error(var_expr->name, "The 'Ok' constructor requires a contextual Result[T, E] type.");
+        error(call_token, "The 'Ok' constructor requires a contextual Result[T, E] type.");
         return make_error_type();
       }
       Type result_type = build_result_template(expected);
@@ -1585,7 +1655,7 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       Type success_arg = arg_types[0];
 
       if (!is_assignable(success_expected, success_arg)) {
-        error(var_expr->name,
+        error(call_token,
               "The 'Ok' constructor argument must match the success type of the contextual "
               "Result: expected '" +
                   type_to_string(success_expected) + "' but got '" +
@@ -1598,11 +1668,11 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
     }
     if (func_name == "Err") {
       if (arg_types.size() != 1) {
-        error(var_expr->name, "The 'Err' constructor expects exactly one argument.");
+        error(call_token, "The 'Err' constructor expects exactly one argument.");
         return make_error_type();
       }
       if (!expected || expected->kind != Type::Kind::Result) {
-        error(var_expr->name, "The 'Err' constructor requires a contextual Result[T, E] type.");
+        error(call_token, "The 'Err' constructor requires a contextual Result[T, E] type.");
         return make_error_type();
       }
       Type result_type = build_result_template(expected);
@@ -1610,7 +1680,7 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       Type error_arg = arg_types[0];
 
       if (!is_assignable(error_expected, error_arg)) {
-        error(var_expr->name,
+        error(call_token,
               "The 'Err' constructor argument must match the error type of the contextual "
               "Result: expected '" +
                   type_to_string(error_expected) + "' but got '" + type_to_string(error_arg) +
@@ -1623,47 +1693,77 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
     }
     if (func_name == "weights.load" || func_name == "Tensor.load") {
       if (arg_types.size() != 1) {
-        error(var_expr->name, "The 'load' builtin expects exactly one argument.");
+        error(call_token, "The 'load' builtin expects exactly one argument.");
         return make_error_type();
       }
       if (arg_types[0].kind != Type::Kind::String) {
-        error(var_expr->name, "The 'load' argument must be a string literal.");
+        error(call_token, "The 'load' argument must be a string literal.");
         return make_error_type();
       }
       if (!dynamic_cast<const LiteralExpr*>(expr.arguments[0].get())) {
-        error(var_expr->name, "The 'load' argument must be a string literal.");
+        error(call_token, "The 'load' argument must be a string literal.");
         return make_error_type();
       }
       return Type{Type::Kind::I32};
     }
     if (func_name == "Tensor.from_list") {
       if (arg_types.size() != 1) {
-        error(var_expr->name, "Tensor.from_list expects a single argument.");
+        error(call_token, "Tensor.from_list expects a single argument.");
         return make_error_type();
       }
       if (arg_types[0].kind != Type::Kind::Vector && arg_types[0].kind != Type::Kind::I32) {
-        error(var_expr->name, "Tensor.from_list expects a Vector or Tensor handle.");
+        error(call_token, "Tensor.from_list expects a Vector or Tensor handle.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Tensor};
+    }
+    if (func_name == "Tensor.matmul") {
+      if (arg_types.size() != 2) {
+        error(call_token, "Tensor.matmul expects two arguments.");
+        return make_error_type();
+      }
+      const bool left_ok =
+          arg_types[0].kind == Type::Kind::Tensor || arg_types[0].kind == Type::Kind::I32;
+      const bool right_ok =
+          arg_types[1].kind == Type::Kind::Tensor || arg_types[1].kind == Type::Kind::I32;
+      if (!left_ok || !right_ok) {
+        error(call_token, "Tensor.matmul expects Tensor or tensor-handle arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Tensor};
+    }
+    if (func_name == "Tensor.vec_add") {
+      if (arg_types.size() != 2) {
+        error(call_token, "Tensor.vec_add expects two arguments.");
+        return make_error_type();
+      }
+      const bool left_ok =
+          arg_types[0].kind == Type::Kind::Tensor || arg_types[0].kind == Type::Kind::I32;
+      const bool right_ok =
+          arg_types[1].kind == Type::Kind::Tensor || arg_types[1].kind == Type::Kind::I32;
+      if (!left_ok || !right_ok) {
+        error(call_token, "Tensor.vec_add expects Tensor or tensor-handle arguments.");
         return make_error_type();
       }
       return Type{Type::Kind::Tensor};
     }
     if (func_name == "read_code") {
       if (arg_types.size() != 1) {
-        error(var_expr->name, "read_code expects 1 argument.");
+        error(call_token, "read_code expects 1 argument.");
         return make_error_type();
       }
       return Type{Type::Kind::I32};
     }
     if (func_name == "write_code") {
       if (arg_types.size() != 2) {
-        error(var_expr->name, "write_code expects 2 arguments.");
+        error(call_token, "write_code expects 2 arguments.");
         return make_error_type();
       }
       return Type{Type::Kind::Void};
     }
     if (func_name == "refine") {
       if (arg_types.size() != 2) {
-        error(var_expr->name, "refine expects 2 arguments.");
+        error(call_token, "refine expects 2 arguments.");
         return make_error_type();
       }
       return Type{Type::Kind::I32};
@@ -1676,57 +1776,148 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
     }
     if (func_name == "sin" || func_name == "cos" || func_name == "tan") {
       if (arg_types.size() != 1) {
-        error(var_expr->name, func_name + " expects exactly one argument.");
+        error(call_token, func_name + " expects exactly one argument.");
         return make_error_type();
       }
       if (!is_assignable(Type{Type::Kind::Float}, arg_types[0])) {
-        error(var_expr->name, func_name + " argument must be convertible to T81Float.");
+        error(call_token, func_name + " argument must be convertible to T81Float.");
         return make_error_type();
       }
       return Type{Type::Kind::Float};
     }
     if (func_name == "print") {
       if (arg_types.size() != 1) {
-        error(var_expr->name, "The 'print' builtin expects exactly one argument.");
+        error(call_token, "The 'print' builtin expects exactly one argument.");
         return make_error_type();
       }
       const Type& arg = arg_types[0];
       const bool supported = is_primitive_numeric_type(arg) || arg.kind == Type::Kind::String ||
                              arg.kind == Type::Kind::Bool;
       if (!supported) {
-        error(var_expr->name,
+        error(call_token,
               "The 'print' builtin requires a scalar T81 numeric, bool, or string argument.");
         return make_error_type();
       }
       return Type{Type::Kind::Void};
     }
-
-    auto* symbol = resolve_symbol(var_expr->name);
-    if (!symbol) {
-      error(var_expr->name, "Undefined function '" + func_name + "'.");
-      return make_error_type();
+    if (func_name == "str_len") {
+      if (arg_types.size() != 1) {
+        error(call_token, "str_len expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String) {
+        error(call_token, "str_len expects a T81String argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
     }
-    if (symbol->kind != SymbolKind::Function) {
-      error(var_expr->name, "'" + func_name + "' is not a function.");
-      return make_error_type();
+    if (func_name == "str_is_empty") {
+      if (arg_types.size() != 1) {
+        error(call_token, "str_is_empty expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String) {
+        error(call_token, "str_is_empty expects a T81String argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
+    }
+    if (func_name == "str_concat") {
+      if (arg_types.size() != 2) {
+        error(call_token, "str_concat expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "str_concat expects T81String arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::String};
+    }
+    if (func_name == "str_starts_with") {
+      if (arg_types.size() != 2) {
+        error(call_token, "str_starts_with expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "str_starts_with expects T81String arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
+    }
+    if (func_name == "str_ends_with") {
+      if (arg_types.size() != 2) {
+        error(call_token, "str_ends_with expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "str_ends_with expects T81String arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
+    }
+    if (func_name == "str_contains") {
+      if (arg_types.size() != 2) {
+        error(call_token, "str_contains expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "str_contains expects T81String arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
+    }
+    if (func_name == "str_index_of") {
+      if (arg_types.size() != 2) {
+        error(call_token, "str_index_of expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "str_index_of expects T81String arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
+    }
+    if (func_name == "str_replace") {
+      if (arg_types.size() != 3) {
+        error(call_token, "str_replace expects exactly three arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String ||
+          arg_types[2].kind != Type::Kind::String) {
+        error(call_token, "str_replace expects T81String arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::String};
     }
 
-    if (symbol->param_types.size() != arg_types.size()) {
-      error(var_expr->name, "Function '" + func_name + "' expects " +
-                                std::to_string(symbol->param_types.size()) + " arguments but got " +
-                                std::to_string(arg_types.size()) + ".");
+    if (auto* var_expr = dynamic_cast<const VariableExpr*>(expr.callee.get())) {
+      auto* symbol = resolve_symbol(var_expr->name);
+      if (!symbol) {
+        error(var_expr->name, "Undefined function '" + func_name + "'.");
+        return make_error_type();
+      }
+      if (symbol->kind != SymbolKind::Function) {
+        error(var_expr->name, "'" + func_name + "' is not a function.");
+        return make_error_type();
+      }
+
+      if (symbol->param_types.size() != arg_types.size()) {
+        error(var_expr->name, "Function '" + func_name + "' expects " +
+                                  std::to_string(symbol->param_types.size()) +
+                                  " arguments but got " + std::to_string(arg_types.size()) + ".");
+        return symbol->type;
+      }
+
+      for (size_t i = 0; i < arg_types.size(); ++i) {
+        if (!is_assignable(symbol->param_types[i], arg_types[i])) {
+          error(var_expr->name, "Argument " + std::to_string(i) + " for function '" + func_name +
+                                    "' expects '" + type_to_string(symbol->param_types[i]) +
+                                    "' but got '" + type_to_string(arg_types[i]) + "'.");
+        }
+      }
+
       return symbol->type;
     }
-
-    for (size_t i = 0; i < arg_types.size(); ++i) {
-      if (!is_assignable(symbol->param_types[i], arg_types[i])) {
-        error(var_expr->name, "Argument " + std::to_string(i) + " for function '" + func_name +
-                                  "' expects '" + type_to_string(symbol->param_types[i]) +
-                                  "' but got '" + type_to_string(arg_types[i]) + "'.");
-      }
-    }
-
-    return symbol->type;
   }
 
   if (auto* type_callee = dynamic_cast<const SimpleTypeExpr*>(expr.callee.get())) {

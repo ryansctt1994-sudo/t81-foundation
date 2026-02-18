@@ -184,6 +184,299 @@ static void test_print_builtin_rejects_bad_arity() {
                "t81lang_print_builtin_bad_arity");
 }
 
+static void test_std_namespace_builtin_aliases() {
+  constexpr const char* source = R"(
+    fn main() -> i32 {
+      let angle: T81Float = std.math.sin(1.0);
+      let c: T81Float = std.math.cos(angle);
+      let t: T81Float = std.math.tan(c);
+      std.io.println("ok");
+      std.io.print_int(7);
+      std.io.print_float(t);
+      let handle: i32 = std.tensor.load("layer0.weight");
+      return 0;
+    }
+  )";
+  require_true(analyzes(source, "t81lang_std_namespace_builtin_aliases"),
+               "t81lang_std_namespace_builtin_aliases");
+
+  constexpr const char* bad_print_arity = R"(
+    fn main() -> i32 {
+      std.io.print_int();
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_print_arity, "t81lang_std_print_int_bad_arity"),
+               "t81lang_std_print_int_bad_arity");
+
+  constexpr const char* bad_math_type = R"(
+    fn main() -> i32 {
+      let x: T81Float = std.math.cos("oops");
+      let _ = x;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_math_type, "t81lang_std_math_cos_bad_type"),
+               "t81lang_std_math_cos_bad_type");
+}
+
+static void test_std_tensor_from_list_alias() {
+  constexpr const char* valid = R"(
+    fn main() -> i32 {
+      let t: Tensor = std.tensor.from_list([1, 2, 3]);
+      let _ = t;
+      return 0;
+    }
+  )";
+  require_true(analyzes(valid, "t81lang_std_tensor_from_list_alias"),
+               "t81lang_std_tensor_from_list_alias");
+
+  constexpr const char* bad_arity = R"(
+    fn main() -> i32 {
+      let t: Tensor = std.tensor.from_list();
+      let _ = t;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_arity, "t81lang_std_tensor_from_list_bad_arity"),
+               "t81lang_std_tensor_from_list_bad_arity");
+
+  constexpr const char* bad_arg = R"(
+    fn main() -> i32 {
+      let t: Tensor = std.tensor.from_list("abc");
+      let _ = t;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_arg, "t81lang_std_tensor_from_list_bad_arg"),
+               "t81lang_std_tensor_from_list_bad_arg");
+}
+
+static void test_std_tensor_matmul_alias() {
+  constexpr const char* valid = R"(
+    fn main() -> i32 {
+      let a: Tensor = std.tensor.from_list([1, 2, 3]);
+      let b: Tensor = std.tensor.from_list([4, 5, 6]);
+      let c: Tensor = std.tensor.matmul(a, b);
+      let _ = c;
+      return 0;
+    }
+  )";
+  require_true(analyzes(valid, "t81lang_std_tensor_matmul_alias"),
+               "t81lang_std_tensor_matmul_alias");
+
+  constexpr const char* bad_arity = R"(
+    fn main() -> i32 {
+      let a: Tensor = std.tensor.from_list([1, 2, 3]);
+      let c: Tensor = std.tensor.matmul(a);
+      let _ = c;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_arity, "t81lang_std_tensor_matmul_bad_arity"),
+               "t81lang_std_tensor_matmul_bad_arity");
+}
+
+static void test_std_tensor_vec_add_alias() {
+  constexpr const char* valid = R"(
+    fn main() -> i32 {
+      let a: Tensor = std.tensor.from_list([1, 2, 3]);
+      let b: Tensor = std.tensor.from_list([4, 5, 6]);
+      let c: Tensor = std.tensor.vec_add(a, b);
+      let _ = c;
+      return 0;
+    }
+  )";
+  require_true(analyzes(valid, "t81lang_std_tensor_vec_add_alias"),
+               "t81lang_std_tensor_vec_add_alias");
+
+  constexpr const char* bad_arity = R"(
+    fn main() -> i32 {
+      let a: Tensor = std.tensor.from_list([1, 2, 3]);
+      let c: Tensor = std.tensor.vec_add(a);
+      let _ = c;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_arity, "t81lang_std_tensor_vec_add_bad_arity"),
+               "t81lang_std_tensor_vec_add_bad_arity");
+}
+
+static void test_std_text_aliases() {
+  constexpr const char* valid = R"(
+    fn main() -> i32 {
+      let n: i32 = std.text.str_len("alpha");
+      let e: bool = std.text.str_is_empty("");
+      let c: T81String = std.text.concat("al", "pha");
+      let sw: bool = std.text.starts_with(c, "al");
+      let ew: bool = std.text.ends_with(c, "ha");
+      let has_mid: bool = std.text.contains(c, "lp");
+      let idx: i32 = std.text.index_of(c, "ph");
+      let repl: T81String = std.text.replace(c, "ph", "zz");
+      let repl_idx: i32 = std.text.index_of(repl, "zz");
+      if (e) {
+        if (sw) {
+          if (ew) {
+            if (has_mid) {
+              if (idx == 2) {
+                if (repl_idx == 2) {
+                  return n;
+                }
+              }
+            }
+          }
+        }
+      }
+      return 0;
+    }
+  )";
+  require_true(analyzes(valid, "t81lang_std_text_aliases"), "t81lang_std_text_aliases");
+
+  constexpr const char* bad_type = R"(
+    fn main() -> i32 {
+      let n: i32 = std.text.str_len(7);
+      return n;
+    }
+  )";
+  require_true(fails_semantic(bad_type, "t81lang_std_text_str_len_bad_type"),
+               "t81lang_std_text_str_len_bad_type");
+
+  constexpr const char* bad_arity = R"(
+    fn main() -> i32 {
+      let n: i32 = std.text.str_is_empty();
+      return n;
+    }
+  )";
+  require_true(fails_semantic(bad_arity, "t81lang_std_text_str_is_empty_bad_arity"),
+               "t81lang_std_text_str_is_empty_bad_arity");
+
+  constexpr const char* bad_concat_type = R"(
+    fn main() -> i32 {
+      let c: T81String = std.text.concat("alpha", 7);
+      let _ = c;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_concat_type, "t81lang_std_text_concat_bad_type"),
+               "t81lang_std_text_concat_bad_type");
+
+  constexpr const char* bad_starts_with_arity = R"(
+    fn main() -> i32 {
+      let b: bool = std.text.starts_with("alpha");
+      let _ = b;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_starts_with_arity, "t81lang_std_text_starts_with_bad_arity"),
+               "t81lang_std_text_starts_with_bad_arity");
+
+  constexpr const char* bad_ends_with_type = R"(
+    fn main() -> i32 {
+      let b: bool = std.text.ends_with(7, "a");
+      let _ = b;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_ends_with_type, "t81lang_std_text_ends_with_bad_type"),
+               "t81lang_std_text_ends_with_bad_type");
+
+  constexpr const char* bad_contains_arity = R"(
+    fn main() -> i32 {
+      let b: bool = std.text.contains("alpha");
+      let _ = b;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_contains_arity, "t81lang_std_text_contains_bad_arity"),
+               "t81lang_std_text_contains_bad_arity");
+
+  constexpr const char* bad_index_of_type = R"(
+    fn main() -> i32 {
+      let i: i32 = std.text.index_of("alpha", 7);
+      let _ = i;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_index_of_type, "t81lang_std_text_index_of_bad_type"),
+               "t81lang_std_text_index_of_bad_type");
+
+  constexpr const char* bad_replace_arity = R"(
+    fn main() -> i32 {
+      let s: T81String = std.text.replace("alpha", "a");
+      let _ = s;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_replace_arity, "t81lang_std_text_replace_bad_arity"),
+               "t81lang_std_text_replace_bad_arity");
+
+  constexpr const char* bad_replace_type = R"(
+    fn main() -> i32 {
+      let s: T81String = std.text.replace("alpha", 7, "b");
+      let _ = s;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_replace_type, "t81lang_std_text_replace_bad_type"),
+               "t81lang_std_text_replace_bad_type");
+}
+
+static void test_std_text_module_wrappers() {
+  constexpr const char* source = R"(
+    fn str_len(s: T81String) -> i32 {
+      return std.text.str_len(s);
+    }
+    fn str_is_empty(s: T81String) -> bool {
+      return std.text.str_is_empty(s);
+    }
+    fn concat(a: T81String, b: T81String) -> T81String {
+      return std.text.concat(a, b);
+    }
+    fn starts_with(s: T81String, prefix: T81String) -> bool {
+      return std.text.starts_with(s, prefix);
+    }
+    fn ends_with(s: T81String, suffix: T81String) -> bool {
+      return std.text.ends_with(s, suffix);
+    }
+    fn contains(s: T81String, needle: T81String) -> bool {
+      return std.text.contains(s, needle);
+    }
+    fn index_of(s: T81String, needle: T81String) -> i32 {
+      return std.text.index_of(s, needle);
+    }
+    fn replace(s: T81String, needle: T81String, replacement: T81String) -> T81String {
+      return std.text.replace(s, needle, replacement);
+    }
+    fn main() -> i32 {
+      let joined: T81String = concat("ze", "ta");
+      let n: i32 = str_len(joined);
+      let e: bool = str_is_empty("");
+      let sw: bool = starts_with(joined, "ze");
+      let ew: bool = ends_with(joined, "ta");
+      let has_mid: bool = contains(joined, "et");
+      let idx: i32 = index_of(joined, "ta");
+      let replaced: T81String = replace(joined, "ta", "xo");
+      let repl_idx: i32 = index_of(replaced, "xo");
+      if (e) {
+        if (sw) {
+          if (ew) {
+            if (has_mid) {
+              if (idx == 2) {
+                if (repl_idx == 2) {
+                  return n;
+                }
+              }
+            }
+          }
+        }
+      }
+      return 0;
+    }
+  )";
+  require_true(analyzes(source, "t81lang_std_text_module_wrappers"),
+               "t81lang_std_text_module_wrappers");
+}
+
 static void test_let_is_immutable() {
   constexpr const char* source = R"(
     fn main() -> i32 {
@@ -217,6 +510,12 @@ int main() {
   test_base81_fraction_literal_does_not_silently_narrow();
   test_print_builtin_accepts_native_t81_numerics();
   test_print_builtin_rejects_bad_arity();
+  test_std_namespace_builtin_aliases();
+  test_std_tensor_from_list_alias();
+  test_std_tensor_matmul_alias();
+  test_std_tensor_vec_add_alias();
+  test_std_text_aliases();
+  test_std_text_module_wrappers();
   test_t81_numeric_type_separation_rejects_invalid_mix();
   test_let_is_immutable();
   test_var_is_mutable();

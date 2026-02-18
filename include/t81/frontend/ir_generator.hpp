@@ -110,6 +110,72 @@ inline double parse_base81_float_literal(std::string_view literal) {
   return std::stod(value);
 }
 
+inline std::optional<std::string> qualified_call_name(const Expr& expr) {
+  if (const auto* var = dynamic_cast<const VariableExpr*>(&expr)) {
+    return std::string(var->name.lexeme);
+  }
+  if (const auto* field = dynamic_cast<const FieldAccessExpr*>(&expr)) {
+    auto head = qualified_call_name(*field->object);
+    if (!head.has_value()) {
+      return std::nullopt;
+    }
+    return *head + "." + std::string(field->field.lexeme);
+  }
+  return std::nullopt;
+}
+
+inline std::string canonical_stdlib_call_name(std::string_view name) {
+  if (name == "std.io.println" || name == "std.io.print_int" || name == "std.io.print_float") {
+    return "print";
+  }
+  if (name == "std.math.sin") {
+    return "sin";
+  }
+  if (name == "std.math.cos") {
+    return "cos";
+  }
+  if (name == "std.math.tan") {
+    return "tan";
+  }
+  if (name == "std.tensor.load") {
+    return "weights.load";
+  }
+  if (name == "std.tensor.from_list") {
+    return "Tensor.from_list";
+  }
+  if (name == "std.tensor.matmul") {
+    return "Tensor.matmul";
+  }
+  if (name == "std.tensor.vec_add") {
+    return "Tensor.vec_add";
+  }
+  if (name == "std.text.str_len") {
+    return "str_len";
+  }
+  if (name == "std.text.str_is_empty") {
+    return "str_is_empty";
+  }
+  if (name == "std.text.concat") {
+    return "str_concat";
+  }
+  if (name == "std.text.starts_with") {
+    return "str_starts_with";
+  }
+  if (name == "std.text.ends_with") {
+    return "str_ends_with";
+  }
+  if (name == "std.text.contains") {
+    return "str_contains";
+  }
+  if (name == "std.text.index_of") {
+    return "str_index_of";
+  }
+  if (name == "std.text.replace") {
+    return "str_replace";
+  }
+  return std::string(name);
+}
+
 class IRGenerator : public ExprVisitor, public StmtVisitor {
 public:
   struct LoopInfo {
@@ -643,8 +709,9 @@ public:
     return {};
   }
   std::any visit(const CallExpr& expr) override {
-    if (auto var_expr = dynamic_cast<const VariableExpr*>(expr.callee.get())) {
-      std::string func_name{var_expr->name.lexeme};
+    if (auto callee_name = qualified_call_name(*expr.callee); callee_name.has_value()) {
+      const std::string raw_name = *callee_name;
+      std::string func_name = canonical_stdlib_call_name(raw_name);
       if (func_name == "Some") {
         if (expr.arguments.empty()) {
           throw std::runtime_error("Some() requires a payload");
@@ -710,6 +777,38 @@ public:
         expr.arguments[0]->accept(*this);
         auto val = ensure_expr_result(expr.arguments[0].get());
         record_result(&expr, val);
+        return {};
+      }
+      if (func_name == "Tensor.matmul") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("Tensor.matmul expects two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto left = ensure_expr_result(expr.arguments[0].get());
+        expr.arguments[1]->accept(*this);
+        auto right = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::TMATMUL;
+        instr.operands = {dest.reg, left.reg, right.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "Tensor.vec_add") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("Tensor.vec_add expects two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto left = ensure_expr_result(expr.arguments[0].get());
+        expr.arguments[1]->accept(*this);
+        auto right = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::TVECADD;
+        instr.operands = {dest.reg, left.reg, right.reg};
+        emit(instr);
+        record_result(&expr, dest);
         return {};
       }
 
@@ -825,50 +924,188 @@ public:
         emit(instr);
         return {};
       }
-
-      // Check for user-defined function
-      auto label_it = _function_labels.find(func_name);
-      if (label_it != _function_labels.end()) {
-        // Push arguments
-        for (const auto& arg : expr.arguments) {
-          arg->accept(*this);
-          auto val = ensure_expr_result(arg.get());
-          tisc::ir::Instruction push;
-          push.opcode = tisc::ir::Opcode::PUSH;
-          push.operands = {val.reg};
-          emit(push);
+      if (func_name == "str_len") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("str_len expects exactly one argument.");
         }
-
-        // Load function address
-        auto addr = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction load;
-        load.opcode = tisc::ir::Opcode::LOADI;
-        load.operands = {addr.reg, label_it->second};
-        emit(load);
-
-        // CALL
-        tisc::ir::Instruction call;
-        call.opcode = tisc::ir::Opcode::CALL;
-        call.operands = {tisc::ir::Register{0}, addr.reg};
-        emit(call);
-
-        // Pop result if not void
-        bool returns_void = false;
-        if (_semantic) {
-          const Type* type = _semantic->type_of(&expr);
-          if (type && type->kind == Type::Kind::Void) {
-            returns_void = true;
-          }
-        }
-        if (!returns_void) {
-          auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-          tisc::ir::Instruction pop;
-          pop.opcode = tisc::ir::Opcode::POP;
-          pop.operands = {dest.reg};
-          emit(pop);
-          record_result(&expr, dest);
-        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRLEN;
+        instr.operands = {dest.reg, value.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
+        record_result(&expr, dest);
         return {};
+      }
+      if (func_name == "str_is_empty") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("str_is_empty expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STREMPTY;
+        instr.operands = {dest.reg, value.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Boolean;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "str_concat") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("str_concat expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto lhs = ensure_expr_result(expr.arguments[0].get());
+        auto rhs = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRCONCAT;
+        instr.operands = {dest.reg, lhs.reg, rhs.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "str_starts_with") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("str_starts_with expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto prefix = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRSTARTSWITH;
+        instr.operands = {dest.reg, value.reg, prefix.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Boolean;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "str_ends_with") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("str_ends_with expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto suffix = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRENDSWITH;
+        instr.operands = {dest.reg, value.reg, suffix.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Boolean;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "str_contains") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("str_contains expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto needle = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRCONTAINS;
+        instr.operands = {dest.reg, value.reg, needle.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Boolean;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "str_index_of") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("str_index_of expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto needle = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRINDEXOF;
+        instr.operands = {dest.reg, value.reg, needle.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "str_replace") {
+        if (expr.arguments.size() != 3) {
+          throw std::runtime_error("str_replace expects exactly three arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        expr.arguments[2]->accept(*this);
+        auto source = ensure_expr_result(expr.arguments[0].get());
+        auto needle = ensure_expr_result(expr.arguments[1].get());
+        auto replacement = ensure_expr_result(expr.arguments[2].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction copy;
+        copy.opcode = tisc::ir::Opcode::MOV;
+        copy.operands = {dest.reg, source.reg};
+        emit(copy);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::STRREPLACE;
+        instr.operands = {dest.reg, needle.reg, replacement.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+
+      if (dynamic_cast<const VariableExpr*>(expr.callee.get())) {
+        // Check for user-defined function
+        auto label_it = _function_labels.find(func_name);
+        if (label_it != _function_labels.end()) {
+          // Push arguments
+          for (const auto& arg : expr.arguments) {
+            arg->accept(*this);
+            auto val = ensure_expr_result(arg.get());
+            tisc::ir::Instruction push;
+            push.opcode = tisc::ir::Opcode::PUSH;
+            push.operands = {val.reg};
+            emit(push);
+          }
+
+          // Load function address
+          auto addr = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+          tisc::ir::Instruction load;
+          load.opcode = tisc::ir::Opcode::LOADI;
+          load.operands = {addr.reg, label_it->second};
+          emit(load);
+
+          // CALL
+          tisc::ir::Instruction call;
+          call.opcode = tisc::ir::Opcode::CALL;
+          call.operands = {tisc::ir::Register{0}, addr.reg};
+          emit(call);
+
+          // Pop result if not void
+          bool returns_void = false;
+          if (_semantic) {
+            const Type* type = _semantic->type_of(&expr);
+            if (type && type->kind == Type::Kind::Void) {
+              returns_void = true;
+            }
+          }
+          if (!returns_void) {
+            auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+            tisc::ir::Instruction pop;
+            pop.opcode = tisc::ir::Opcode::POP;
+            pop.operands = {dest.reg};
+            emit(pop);
+            record_result(&expr, dest);
+          }
+          return {};
+        }
       }
     }
 

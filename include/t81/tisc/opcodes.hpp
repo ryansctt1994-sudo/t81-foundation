@@ -96,9 +96,17 @@ enum class Opcode : std::uint8_t {
   MetaReflect,
   MetaRefine,
   Print,
+  StrLen,
+  StrEmpty,
   TGet,
   TNew,
   TSet,
+  StrConcat,
+  StrStartsWith,
+  StrEndsWith,
+  StrContains,
+  StrIndexOf,
+  StrReplace,
   MakeComplex,
 };
 
@@ -282,12 +290,28 @@ enum class Opcode : std::uint8_t {
       return "MetaRefine";
     case Opcode::Print:
       return "Print";
+    case Opcode::StrLen:
+      return "StrLen";
+    case Opcode::StrEmpty:
+      return "StrEmpty";
     case Opcode::TGet:
       return "TGet";
     case Opcode::TNew:
       return "TNew";
     case Opcode::TSet:
       return "TSet";
+    case Opcode::StrConcat:
+      return "StrConcat";
+    case Opcode::StrStartsWith:
+      return "StrStartsWith";
+    case Opcode::StrEndsWith:
+      return "StrEndsWith";
+    case Opcode::StrContains:
+      return "StrContains";
+    case Opcode::StrIndexOf:
+      return "StrIndexOf";
+    case Opcode::StrReplace:
+      return "StrReplace";
     case Opcode::MakeComplex:
       return "MakeComplex";
   }

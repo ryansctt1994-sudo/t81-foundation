@@ -472,6 +472,22 @@ const char* ir_opcode_name(tisc::ir::Opcode op) {
       return "TRAP";
     case O::PRINT:
       return "PRINT";
+    case O::STRLEN:
+      return "STRLEN";
+    case O::STREMPTY:
+      return "STREMPTY";
+    case O::STRCONCAT:
+      return "STRCONCAT";
+    case O::STRSTARTSWITH:
+      return "STRSTARTSWITH";
+    case O::STRENDSWITH:
+      return "STRENDSWITH";
+    case O::STRCONTAINS:
+      return "STRCONTAINS";
+    case O::STRINDEXOF:
+      return "STRINDEXOF";
+    case O::STRREPLACE:
+      return "STRREPLACE";
     case O::WEIGHTS_LOAD:
       return "WEIGHTS_LOAD";
     case O::META_READ:

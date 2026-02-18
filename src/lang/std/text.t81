@@ -2,11 +2,33 @@
 // String manipulation.
 
 fn str_len(s: T81String) -> i32 {
-    // Placeholder for string length
-    return 0;
+    return std.text.str_len(s);
 }
 
 fn str_is_empty(s: T81String) -> bool {
-    // Basic check (if length supported)
-    return false; // Stub
+    return std.text.str_is_empty(s);
+}
+
+fn concat(a: T81String, b: T81String) -> T81String {
+    return std.text.concat(a, b);
+}
+
+fn starts_with(s: T81String, prefix: T81String) -> bool {
+    return std.text.starts_with(s, prefix);
+}
+
+fn ends_with(s: T81String, suffix: T81String) -> bool {
+    return std.text.ends_with(s, suffix);
+}
+
+fn contains(s: T81String, needle: T81String) -> bool {
+    return std.text.contains(s, needle);
+}
+
+fn index_of(s: T81String, needle: T81String) -> i32 {
+    return std.text.index_of(s, needle);
+}
+
+fn replace(s: T81String, needle: T81String, replacement: T81String) -> T81String {
+    return std.text.replace(s, needle, replacement);
 }

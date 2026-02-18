@@ -395,6 +395,224 @@ void test_constructor_and_conversion_calls_lower() {
             << std::endl;
 }
 
+void test_std_namespace_aliases_lower_to_builtin_opcodes() {
+  std::string source = R"(
+        fn main() -> i32 {
+            let angle: T81Float = std.math.sin(1.0);
+            let c: T81Float = std.math.cos(angle);
+            let t: T81Float = std.math.tan(c);
+            let n: i32 = std.text.str_len("hello");
+            let e: bool = std.text.str_is_empty("");
+            let joined: T81String = std.text.concat("he", "llo");
+            let sw: bool = std.text.starts_with(joined, "he");
+            let ew: bool = std.text.ends_with(joined, "lo");
+            let has_mid: bool = std.text.contains(joined, "ell");
+            let idx: i32 = std.text.index_of(joined, "ll");
+            let replaced: T81String = std.text.replace(joined, "ll", "yy");
+            std.io.println("hello");
+            std.io.print_int(7);
+            std.io.print_float(t);
+            let model: i32 = std.tensor.load("encoder.weight");
+            let _ = angle;
+            let _n = n;
+            let _e = e;
+            let _t = t;
+            let _m = model;
+            let _sw = sw;
+            let _ew = ew;
+            let _hm = has_mid;
+            let _idx = idx;
+            let _rp = replaced;
+            return 0;
+        }
+    )";
+  Lexer lexer(source);
+  Parser parser(lexer);
+  auto stmts = parser.parse();
+  EXPECT(!parser.had_error(), "parser failed for std namespace alias fixture");
+
+  SemanticAnalyzer analyzer(stmts);
+  analyzer.analyze();
+  EXPECT(!analyzer.had_error(), "semantic analyzer failed for std namespace alias fixture");
+
+  IRGenerator generator;
+  generator.attach_semantic_analyzer(&analyzer);
+  auto program = generator.generate(stmts);
+  const auto& instructions = program.instructions();
+  EXPECT(!instructions.empty(), "std namespace alias fixture produced no IR");
+
+  bool has_fsin = false;
+  bool has_fcos = false;
+  bool has_ftan = false;
+  bool has_strlen = false;
+  bool has_strempty = false;
+  bool has_strconcat = false;
+  bool has_strstartswith = false;
+  bool has_strendswith = false;
+  bool has_strcontains = false;
+  bool has_strindexof = false;
+  bool has_strreplace = false;
+  bool has_print = false;
+  bool has_weights_load = false;
+  for (const auto& inst : instructions) {
+    if (inst.opcode == Opcode::FSIN) {
+      has_fsin = true;
+    } else if (inst.opcode == Opcode::FCOS) {
+      has_fcos = true;
+    } else if (inst.opcode == Opcode::FTAN) {
+      has_ftan = true;
+    } else if (inst.opcode == Opcode::STRLEN) {
+      has_strlen = true;
+    } else if (inst.opcode == Opcode::STREMPTY) {
+      has_strempty = true;
+    } else if (inst.opcode == Opcode::STRCONCAT) {
+      has_strconcat = true;
+    } else if (inst.opcode == Opcode::STRSTARTSWITH) {
+      has_strstartswith = true;
+    } else if (inst.opcode == Opcode::STRENDSWITH) {
+      has_strendswith = true;
+    } else if (inst.opcode == Opcode::STRCONTAINS) {
+      has_strcontains = true;
+    } else if (inst.opcode == Opcode::STRINDEXOF) {
+      has_strindexof = true;
+    } else if (inst.opcode == Opcode::STRREPLACE) {
+      has_strreplace = true;
+    } else if (inst.opcode == Opcode::PRINT) {
+      has_print = true;
+    } else if (inst.opcode == Opcode::WEIGHTS_LOAD) {
+      has_weights_load = true;
+    }
+  }
+
+  EXPECT(has_fsin, "std.math.sin should lower to FSIN");
+  EXPECT(has_fcos, "std.math.cos should lower to FCOS");
+  EXPECT(has_ftan, "std.math.tan should lower to FTAN");
+  EXPECT(has_strlen, "std.text.str_len should lower to STRLEN");
+  EXPECT(has_strempty, "std.text.str_is_empty should lower to STREMPTY");
+  EXPECT(has_strconcat, "std.text.concat should lower to STRCONCAT");
+  EXPECT(has_strstartswith, "std.text.starts_with should lower to STRSTARTSWITH");
+  EXPECT(has_strendswith, "std.text.ends_with should lower to STRENDSWITH");
+  EXPECT(has_strcontains, "std.text.contains should lower to STRCONTAINS");
+  EXPECT(has_strindexof, "std.text.index_of should lower to STRINDEXOF");
+  EXPECT(has_strreplace, "std.text.replace should lower to STRREPLACE");
+  EXPECT(has_print, "std.io.println should lower to PRINT");
+  EXPECT(has_weights_load, "std.tensor.load should lower to WEIGHTS_LOAD");
+  std::cout << "IRGeneratorTest test_std_namespace_aliases_lower_to_builtin_opcodes passed!"
+            << std::endl;
+}
+
+void test_std_tensor_from_list_alias_lowers_vector_literal_to_tensor_handle() {
+  std::string source = R"(
+        fn main() -> i32 {
+            let t: Tensor = std.tensor.from_list([1, 2, 3]);
+            let _ = t;
+            return 0;
+        }
+    )";
+  Lexer lexer(source);
+  Parser parser(lexer);
+  auto stmts = parser.parse();
+  EXPECT(!parser.had_error(), "parser failed for std.tensor.from_list alias fixture");
+
+  SemanticAnalyzer analyzer(stmts);
+  analyzer.analyze();
+  EXPECT(!analyzer.had_error(), "semantic analyzer failed for std.tensor.from_list alias fixture");
+
+  IRGenerator generator;
+  generator.attach_semantic_analyzer(&analyzer);
+  auto program = generator.generate(stmts);
+  const auto& instructions = program.instructions();
+  EXPECT(!instructions.empty(), "std.tensor.from_list alias fixture produced no IR");
+
+  bool has_tensor_handle_load = false;
+  for (const auto& inst : instructions) {
+    if (inst.opcode == Opcode::LOADI && inst.literal_kind == t81::tisc::LiteralKind::TensorHandle) {
+      has_tensor_handle_load = true;
+      break;
+    }
+  }
+  EXPECT(has_tensor_handle_load,
+         "std.tensor.from_list([..]) should lower vector literal to TensorHandle LOADI");
+  std::cout
+      << "IRGeneratorTest test_std_tensor_from_list_alias_lowers_vector_literal_to_tensor_handle "
+         "passed!"
+      << std::endl;
+}
+
+void test_std_tensor_matmul_alias_lowers_to_tmatmul() {
+  std::string source = R"(
+        fn main() -> i32 {
+            let a: Tensor = std.tensor.from_list([1, 2, 3]);
+            let b: Tensor = std.tensor.from_list([4, 5, 6]);
+            let c: Tensor = std.tensor.matmul(a, b);
+            let _ = c;
+            return 0;
+        }
+    )";
+  Lexer lexer(source);
+  Parser parser(lexer);
+  auto stmts = parser.parse();
+  EXPECT(!parser.had_error(), "parser failed for std.tensor.matmul alias fixture");
+
+  SemanticAnalyzer analyzer(stmts);
+  analyzer.analyze();
+  EXPECT(!analyzer.had_error(), "semantic analyzer failed for std.tensor.matmul alias fixture");
+
+  IRGenerator generator;
+  generator.attach_semantic_analyzer(&analyzer);
+  auto program = generator.generate(stmts);
+  const auto& instructions = program.instructions();
+  EXPECT(!instructions.empty(), "std.tensor.matmul alias fixture produced no IR");
+
+  bool has_tmatmul = false;
+  for (const auto& inst : instructions) {
+    if (inst.opcode == Opcode::TMATMUL) {
+      has_tmatmul = true;
+      break;
+    }
+  }
+  EXPECT(has_tmatmul, "std.tensor.matmul(a, b) should lower to TMATMUL");
+  std::cout << "IRGeneratorTest test_std_tensor_matmul_alias_lowers_to_tmatmul passed!"
+            << std::endl;
+}
+
+void test_std_tensor_vec_add_alias_lowers_to_tvecadd() {
+  std::string source = R"(
+        fn main() -> i32 {
+            let a: Tensor = std.tensor.from_list([1, 2, 3]);
+            let b: Tensor = std.tensor.from_list([4, 5, 6]);
+            let c: Tensor = std.tensor.vec_add(a, b);
+            let _ = c;
+            return 0;
+        }
+    )";
+  Lexer lexer(source);
+  Parser parser(lexer);
+  auto stmts = parser.parse();
+  EXPECT(!parser.had_error(), "parser failed for std.tensor.vec_add alias fixture");
+
+  SemanticAnalyzer analyzer(stmts);
+  analyzer.analyze();
+  EXPECT(!analyzer.had_error(), "semantic analyzer failed for std.tensor.vec_add alias fixture");
+
+  IRGenerator generator;
+  generator.attach_semantic_analyzer(&analyzer);
+  auto program = generator.generate(stmts);
+  const auto& instructions = program.instructions();
+  EXPECT(!instructions.empty(), "std.tensor.vec_add alias fixture produced no IR");
+
+  bool has_tvecadd = false;
+  for (const auto& inst : instructions) {
+    if (inst.opcode == Opcode::TVECADD) {
+      has_tvecadd = true;
+      break;
+    }
+  }
+  EXPECT(has_tvecadd, "std.tensor.vec_add(a, b) should lower to TVECADD");
+  std::cout << "IRGeneratorTest test_std_tensor_vec_add_alias_lowers_to_tvecadd passed!"
+            << std::endl;
+}
+
 int main() {
   test_simple_addition();
   test_if_statement();
@@ -408,6 +626,10 @@ int main() {
   test_print_builtin_lowers_to_print_opcode();
   test_extended_numeric_types_lower_to_arithmetic_ir();
   test_constructor_and_conversion_calls_lower();
+  test_std_namespace_aliases_lower_to_builtin_opcodes();
+  test_std_tensor_from_list_alias_lowers_vector_literal_to_tensor_handle();
+  test_std_tensor_matmul_alias_lowers_to_tmatmul();
+  test_std_tensor_vec_add_alias_lowers_to_tvecadd();
 
   std::cout << "All IRGenerator integration tests completed!" << std::endl;
   return 0;

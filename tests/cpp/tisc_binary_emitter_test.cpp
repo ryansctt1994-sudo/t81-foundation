@@ -126,6 +126,31 @@ void test_float_literal_pool_mapping() {
   std::cout << "BinaryEmitterTest test_float_literal_pool_mapping passed!" << std::endl;
 }
 
+void test_string_opcode_mappings() {
+  IntermediateProgram ir_program;
+  ir_program.add_instruction({Opcode::STRCONCAT, {Register{1}, Register{2}, Register{3}}});
+  ir_program.add_instruction({Opcode::STRSTARTSWITH, {Register{4}, Register{5}, Register{6}}});
+  ir_program.add_instruction({Opcode::STRENDSWITH, {Register{7}, Register{8}, Register{9}}});
+  ir_program.add_instruction({Opcode::STRCONTAINS, {Register{10}, Register{11}, Register{12}}});
+  ir_program.add_instruction({Opcode::STRINDEXOF, {Register{13}, Register{14}, Register{15}}});
+  ir_program.add_instruction({Opcode::STRREPLACE, {Register{16}, Register{17}, Register{18}}});
+  ir_program.add_instruction({Opcode::HALT, {}});
+
+  t81::tisc::BinaryEmitter emitter;
+  auto program = emitter.emit(ir_program);
+
+  assert(program.insns.size() == 7);
+  assert(program.insns[0].opcode == t81::tisc::Opcode::StrConcat);
+  assert(program.insns[1].opcode == t81::tisc::Opcode::StrStartsWith);
+  assert(program.insns[2].opcode == t81::tisc::Opcode::StrEndsWith);
+  assert(program.insns[3].opcode == t81::tisc::Opcode::StrContains);
+  assert(program.insns[4].opcode == t81::tisc::Opcode::StrIndexOf);
+  assert(program.insns[5].opcode == t81::tisc::Opcode::StrReplace);
+  assert(program.insns[6].opcode == t81::tisc::Opcode::Halt);
+
+  std::cout << "BinaryEmitterTest test_string_opcode_mappings passed!" << std::endl;
+}
+
 int main() {
   test_simple_program();
   test_jump();
@@ -133,5 +158,6 @@ int main() {
   test_all_comparison_relations();
   test_print_opcode_mapping();
   test_float_literal_pool_mapping();
+  test_string_opcode_mappings();
   return 0;
 }

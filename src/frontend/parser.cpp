@@ -199,6 +199,55 @@ std::string token_found_description(const Token& token) {
   return token_type_name(token.type);
 }
 
+bool is_dot_field_segment_token(TokenType type) {
+  switch (type) {
+    case TokenType::Identifier:
+    case TokenType::Module:
+    case TokenType::Type:
+    case TokenType::Const:
+    case TokenType::Export:
+    case TokenType::Fn:
+    case TokenType::Let:
+    case TokenType::Var:
+    case TokenType::Record:
+    case TokenType::Enum:
+    case TokenType::If:
+    case TokenType::Else:
+    case TokenType::For:
+    case TokenType::In:
+    case TokenType::While:
+    case TokenType::Loop:
+    case TokenType::Reflect:
+    case TokenType::Break:
+    case TokenType::Continue:
+    case TokenType::Return:
+    case TokenType::Match:
+    case TokenType::True:
+    case TokenType::False:
+    case TokenType::Void:
+    case TokenType::Bool:
+    case TokenType::I32:
+    case TokenType::I16:
+    case TokenType::I8:
+    case TokenType::I2:
+    case TokenType::T81BigInt:
+    case TokenType::T81Float:
+    case TokenType::T81Fraction:
+    case TokenType::T81Fixed:
+    case TokenType::T81Complex:
+    case TokenType::T81Qutrit:
+    case TokenType::T81Uint:
+    case TokenType::T81String:
+    case TokenType::T81Vector:
+    case TokenType::Matrix:
+    case TokenType::Tensor:
+    case TokenType::Graph:
+      return true;
+    default:
+      return false;
+  }
+}
+
 }  // namespace
 
 /**
@@ -957,7 +1006,11 @@ std::unique_ptr<Expr> Parser::primary() {
   // Handle postfix operators: Call, FieldAccess, Indexing
   while (true) {
     if (match({TokenType::Dot})) {
-      Token field = consume(TokenType::Identifier, "Expect field name after '.'.");
+      if (!is_dot_field_segment_token(peek().type)) {
+        report_error(peek(), "Expect field name after '.'.");
+        throw std::runtime_error("Expect field name after '.'.");
+      }
+      Token field = advance();
       expr = std::make_unique<FieldAccessExpr>(std::move(expr), field);
     } else if (match({TokenType::LParen})) {
       std::vector<std::unique_ptr<Expr>> arguments;

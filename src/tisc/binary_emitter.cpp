@@ -203,6 +203,22 @@ Opcode map_opcode(const ir::Instruction& instr) {
       return Opcode::Trap;
     case O::PRINT:
       return Opcode::Print;
+    case O::STRLEN:
+      return Opcode::StrLen;
+    case O::STREMPTY:
+      return Opcode::StrEmpty;
+    case O::STRCONCAT:
+      return Opcode::StrConcat;
+    case O::STRSTARTSWITH:
+      return Opcode::StrStartsWith;
+    case O::STRENDSWITH:
+      return Opcode::StrEndsWith;
+    case O::STRCONTAINS:
+      return Opcode::StrContains;
+    case O::STRINDEXOF:
+      return Opcode::StrIndexOf;
+    case O::STRREPLACE:
+      return Opcode::StrReplace;
     case O::WEIGHTS_LOAD:
       return Opcode::WeightsLoad;
     case O::META_READ:
