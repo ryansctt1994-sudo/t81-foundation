@@ -528,6 +528,7 @@ static void test_std_bytes_aliases() {
       let has_mid: bool = std.bytes.contains(c, T81Bytes("lp"));
       let idx: i32 = std.bytes.index_of(c, T81Bytes("ph"));
       let repl: T81Bytes = std.bytes.replace(c, T81Bytes("ph"), T81Bytes("zz"));
+      let rendered: T81String = std.bytes.to_string(repl);
       let repl_idx: i32 = std.bytes.index_of(repl, T81Bytes("zz"));
       let m: i32 = std.bytes.len(c);
       if (e) {
@@ -538,7 +539,9 @@ static void test_std_bytes_aliases() {
                 if (has_mid) {
                   if (idx == 2) {
                     if (repl_idx == 2) {
-                      return n;
+                      if (std.text.str_len(rendered) == 5) {
+                        return n;
+                      }
                     }
                   }
                 }
@@ -686,6 +689,9 @@ static void test_std_bytes_module_wrappers() {
     fn replace(b: T81Bytes, needle: T81Bytes, replacement: T81Bytes) -> T81Bytes {
       return std.bytes.replace(b, needle, replacement);
     }
+    fn to_string(b: T81Bytes) -> T81String {
+      return std.bytes.to_string(b);
+    }
     fn main() -> i32 {
       let merged: T81Bytes = concat(T81Bytes("ze"), T81Bytes("ta"));
       let n: i32 = len(merged);
@@ -695,6 +701,7 @@ static void test_std_bytes_module_wrappers() {
       let has_mid: bool = contains(merged, T81Bytes("et"));
       let idx: i32 = index_of(merged, T81Bytes("ta"));
       let replaced: T81Bytes = replace(merged, T81Bytes("ta"), T81Bytes("xo"));
+      let rendered: T81String = to_string(replaced);
       let repl_idx: i32 = index_of(replaced, T81Bytes("xo"));
       let m: i32 = len(merged);
       if (e) {
@@ -705,7 +712,9 @@ static void test_std_bytes_module_wrappers() {
                 if (has_mid) {
                   if (idx == 2) {
                     if (repl_idx == 2) {
-                      return n;
+                      if (std.text.str_len(rendered) == 4) {
+                        return n;
+                      }
                     }
                   }
                 }

@@ -65,6 +65,7 @@ Deterministic bytes helpers.
 - `fn contains(b: T81Bytes, needle: T81Bytes) -> bool`: Deterministic subsequence check.
 - `fn index_of(b: T81Bytes, needle: T81Bytes) -> i32`: Deterministic first-match index (`-1` if not found).
 - `fn replace(b: T81Bytes, needle: T81Bytes, replacement: T81Bytes) -> T81Bytes`: Deterministic global replace.
+- `fn to_string(b: T81Bytes) -> T81String`: Deterministic bytes-to-text conversion alias.
 - `fn T81Bytes(s: T81String) -> T81Bytes`: Deterministic conversion constructor.
 
 ## System & Runtime

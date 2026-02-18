@@ -351,6 +351,7 @@ void test_std_bytes_pipeline() {
             let has_mid: bool = std.bytes.contains(joined, T81Bytes("lp"));
             let idx: i32 = std.bytes.index_of(joined, T81Bytes("ph"));
             let replaced: T81Bytes = std.bytes.replace(joined, T81Bytes("ph"), T81Bytes("zz"));
+            let rendered: T81String = std.bytes.to_string(replaced);
             let repl_idx: i32 = std.bytes.index_of(replaced, T81Bytes("zz"));
             let m: i32 = std.bytes.len(joined);
             if (e) {
@@ -361,7 +362,9 @@ void test_std_bytes_pipeline() {
                                 if (has_mid) {
                                     if (idx == 2) {
                                         if (repl_idx == 2) {
-                                            return n;
+                                            if (std.text.str_len(rendered) == 5) {
+                                                return n;
+                                            }
                                         }
                                     }
                                 }
@@ -406,6 +409,9 @@ void test_std_bytes_module_wrapper_pipeline() {
         fn replace(b: T81Bytes, needle: T81Bytes, replacement: T81Bytes) -> T81Bytes {
             return std.bytes.replace(b, needle, replacement);
         }
+        fn to_string(b: T81Bytes) -> T81String {
+            return std.bytes.to_string(b);
+        }
         fn main() -> i32 {
             let joined: T81Bytes = concat(T81Bytes("om"), T81Bytes("ega"));
             let n: i32 = len(joined);
@@ -415,6 +421,7 @@ void test_std_bytes_module_wrapper_pipeline() {
             let has_mid: bool = contains(joined, T81Bytes("meg"));
             let idx: i32 = index_of(joined, T81Bytes("ga"));
             let replaced: T81Bytes = replace(joined, T81Bytes("ga"), T81Bytes("xy"));
+            let rendered: T81String = to_string(replaced);
             let repl_idx: i32 = index_of(replaced, T81Bytes("xy"));
             let m: i32 = len(joined);
             if (e) {
@@ -425,7 +432,9 @@ void test_std_bytes_module_wrapper_pipeline() {
                                 if (has_mid) {
                                     if (idx == 3) {
                                         if (repl_idx == 3) {
-                                            return n;
+                                            if (std.text.str_len(rendered) == 5) {
+                                                return n;
+                                            }
                                         }
                                     }
                                 }

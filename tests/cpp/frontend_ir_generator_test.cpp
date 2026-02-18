@@ -630,6 +630,7 @@ void test_std_bytes_aliases_lower_to_string_opcodes() {
             let has_mid: bool = std.bytes.contains(joined, T81Bytes("lp"));
             let idx: i32 = std.bytes.index_of(joined, T81Bytes("ph"));
             let replaced: T81Bytes = std.bytes.replace(joined, T81Bytes("ph"), T81Bytes("zz"));
+            let rendered: T81String = std.bytes.to_string(replaced);
             let _n = n;
             let _e = e;
             let _j = joined;
@@ -638,6 +639,7 @@ void test_std_bytes_aliases_lower_to_string_opcodes() {
             let _hm = has_mid;
             let _idx = idx;
             let _rp = replaced;
+            let _rd = rendered;
             return 0;
         }
     )";

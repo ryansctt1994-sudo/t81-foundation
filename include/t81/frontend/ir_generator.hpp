@@ -200,6 +200,9 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.bytes.replace") {
     return "bytes_replace";
   }
+  if (name == "std.bytes.to_string") {
+    return "str_to_string";
+  }
   return std::string(name);
 }
 

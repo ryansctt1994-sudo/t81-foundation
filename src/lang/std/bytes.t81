@@ -33,3 +33,7 @@ fn index_of(b: T81Bytes, needle: T81Bytes) -> i32 {
 fn replace(b: T81Bytes, needle: T81Bytes, replacement: T81Bytes) -> T81Bytes {
     return std.bytes.replace(b, needle, replacement);
 }
+
+fn to_string(b: T81Bytes) -> T81String {
+    return std.bytes.to_string(b);
+}
