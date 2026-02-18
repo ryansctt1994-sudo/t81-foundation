@@ -14,7 +14,7 @@ Basic definitions and utilities.
 ### `std.math`
 Mathematical constants and functions (backed by `include/t81/std/math.hpp`).
 **Note:** Transcendental functions (`sin`, `cos`, `exp`, etc.) currently rely on host `double` precision and are platform-dependent.
-**Current frontend/VM status:** `sin`, `cos`, and `tan` are wired; `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `exp`, `log`, `pow`, and `sqrt` currently produce deterministic "not implemented yet" diagnostics.
+**Current frontend/VM status:** `sin`, `cos`, `tan`, `sqrt`, `exp`, `log`, and `pow` are wired; `asin`, `acos`, `atan`, `sinh`, `cosh`, and `tanh` currently produce deterministic "not implemented yet" diagnostics.
 - `PI`, `E`: Constants (high-precision).
 - `fn sin(x: T81Float) -> T81Float`: Sine (radians).
 - `fn cos(x: T81Float) -> T81Float`: Cosine (radians).

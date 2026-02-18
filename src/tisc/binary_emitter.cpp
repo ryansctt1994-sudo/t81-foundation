@@ -126,6 +126,14 @@ Opcode map_opcode(const ir::Instruction& instr) {
       return Opcode::FCos;
     case O::FTAN:
       return Opcode::FTan;
+    case O::FSQRT:
+      return Opcode::FSqrt;
+    case O::FEXP:
+      return Opcode::FExp;
+    case O::FLOG:
+      return Opcode::FLog;
+    case O::FPOW:
+      return Opcode::FPow;
     case O::NEG:
       return Opcode::Neg;
     case O::CMP:

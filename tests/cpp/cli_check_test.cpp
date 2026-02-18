@@ -201,7 +201,7 @@ int main() {
 
   const std::string unsupported_math_program = R"(
         fn main() -> i32 {
-            let x: T81Float = std.math.sqrt(4.0);
+            let x: T81Float = std.math.asin(0.5);
             let _ = x;
             return 0;
         }
@@ -221,7 +221,7 @@ int main() {
   }
 
   [[maybe_unused]] std::string unsupported_math_output = unsupported_math_captured.str();
-  assert(unsupported_math_output.find("std.math.sqrt is not implemented yet") !=
+  assert(unsupported_math_output.find("std.math.asin is not implemented yet") !=
          std::string::npos);
   fs::remove(unsupported_math_path);
 

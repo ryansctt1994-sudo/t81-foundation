@@ -91,6 +91,10 @@ enum class Opcode : std::uint8_t {
   FSin,
   FCos,
   FTan,
+  FSqrt,
+  FExp,
+  FLog,
+  FPow,
   MetaRead,
   MetaWrite,
   MetaReflect,
@@ -284,6 +288,14 @@ enum class Opcode : std::uint8_t {
       return "FCos";
     case Opcode::FTan:
       return "FTan";
+    case Opcode::FSqrt:
+      return "FSqrt";
+    case Opcode::FExp:
+      return "FExp";
+    case Opcode::FLog:
+      return "FLog";
+    case Opcode::FPow:
+      return "FPow";
     case Opcode::MetaRead:
       return "MetaRead";
     case Opcode::MetaWrite:

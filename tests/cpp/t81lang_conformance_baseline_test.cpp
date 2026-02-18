@@ -210,6 +210,10 @@ static void test_std_namespace_builtin_aliases() {
       let angle: T81Float = std.math.sin(1.0);
       let c: T81Float = std.math.cos(angle);
       let t: T81Float = std.math.tan(c);
+      let root: T81Float = std.math.sqrt(4.0);
+      let ex: T81Float = std.math.exp(1.0);
+      let lg: T81Float = std.math.log(ex);
+      let pw: T81Float = std.math.pow(2.0, 8.0);
       std.core.assert(1 < 2);
       std.core.debug("dbg");
       let present: Option[i32] = Some(7);
@@ -218,6 +222,9 @@ static void test_std_namespace_builtin_aliases() {
       std.io.println("ok");
       std.io.print_int(7);
       std.io.print_float(t);
+      std.io.print_float(root);
+      std.io.print_float(lg);
+      std.io.print_float(pw);
       let now: T81Float = std.sys.time();
       std.async.yield();
       std.async.sleep(now);
@@ -249,29 +256,28 @@ static void test_std_namespace_builtin_aliases() {
   require_true(fails_semantic(bad_math_type, "t81lang_std_math_cos_bad_type"),
                "t81lang_std_math_cos_bad_type");
 
-  constexpr const char* unsupported_math_sqrt = R"(
+  constexpr const char* unsupported_math_asin = R"(
     fn main() -> i32 {
-      let x: T81Float = std.math.sqrt(4.0);
+      let x: T81Float = std.math.asin(0.5);
       let _ = x;
       return 0;
     }
   )";
-  require_true(fails_semantic_with_message(unsupported_math_sqrt,
-                                           "std.math.sqrt is not implemented yet",
-                                           "t81lang_std_math_sqrt_unimplemented"),
-               "t81lang_std_math_sqrt_unimplemented");
+  require_true(fails_semantic_with_message(unsupported_math_asin,
+                                           "std.math.asin is not implemented yet",
+                                           "t81lang_std_math_asin_unimplemented"),
+               "t81lang_std_math_asin_unimplemented");
 
-  constexpr const char* unsupported_math_pow = R"(
+  constexpr const char* bad_math_pow_arity = R"(
     fn main() -> i32 {
-      let x: T81Float = std.math.pow(2.0, 8.0);
+      let x: T81Float = std.math.pow(2.0);
       let _ = x;
       return 0;
     }
   )";
-  require_true(fails_semantic_with_message(unsupported_math_pow,
-                                           "std.math.pow is not implemented yet",
-                                           "t81lang_std_math_pow_unimplemented"),
-               "t81lang_std_math_pow_unimplemented");
+  require_true(fails_semantic_with_message(bad_math_pow_arity, "pow expects exactly two arguments.",
+                                           "t81lang_std_math_pow_bad_arity"),
+               "t81lang_std_math_pow_bad_arity");
 
   constexpr const char* bad_debug_type = R"(
     fn main() -> i32 {
@@ -453,6 +459,18 @@ static void test_std_math_tensor_module_wrappers() {
     fn tan(x: T81Float) -> T81Float {
       return std.math.tan(x);
     }
+    fn exp(x: T81Float) -> T81Float {
+      return std.math.exp(x);
+    }
+    fn log(x: T81Float) -> T81Float {
+      return std.math.log(x);
+    }
+    fn sqrt(x: T81Float) -> T81Float {
+      return std.math.sqrt(x);
+    }
+    fn pow(b: T81Float, e: T81Float) -> T81Float {
+      return std.math.pow(b, e);
+    }
     fn from_list(values: Vector[i32]) -> Tensor {
       return std.tensor.from_list(values);
     }
@@ -466,6 +484,10 @@ static void test_std_math_tensor_module_wrappers() {
       let angle: T81Float = sin(1.0);
       let c: T81Float = cos(angle);
       let _t: T81Float = tan(c);
+      let ex: T81Float = exp(1.0);
+      let _lg: T81Float = log(ex);
+      let _rt: T81Float = sqrt(4.0);
+      let _pw: T81Float = pow(2.0, 8.0);
       let a: Tensor = from_list([1, 2, 3]);
       let b: Tensor = from_list([4, 5, 6]);
       let _m: Tensor = matmul(a, b);

@@ -2294,12 +2294,22 @@ public:
       }
       case t81::tisc::Opcode::FSin:
       case t81::tisc::Opcode::FCos:
-      case t81::tisc::Opcode::FTan: {
-        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+      case t81::tisc::Opcode::FTan:
+      case t81::tisc::Opcode::FSqrt:
+      case t81::tisc::Opcode::FExp:
+      case t81::tisc::Opcode::FLog:
+      case t81::tisc::Opcode::FPow: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) ||
+            (insn.opcode == t81::tisc::Opcode::FPow && !reg_ok(insn.c))) {
           trap = Trap::DecodeFault;
           break;
         }
         if (state_.register_tags[insn.b] != ValueTag::FloatHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        if (insn.opcode == t81::tisc::Opcode::FPow &&
+            state_.register_tags[insn.c] != ValueTag::FloatHandle) {
           trap = Trap::TypeFault;
           break;
         }
@@ -2313,8 +2323,21 @@ public:
           result = std::sin(*ptr_val);
         } else if (insn.opcode == t81::tisc::Opcode::FCos) {
           result = std::cos(*ptr_val);
-        } else {
+        } else if (insn.opcode == t81::tisc::Opcode::FTan) {
           result = std::tan(*ptr_val);
+        } else if (insn.opcode == t81::tisc::Opcode::FSqrt) {
+          result = std::sqrt(*ptr_val);
+        } else if (insn.opcode == t81::tisc::Opcode::FExp) {
+          result = std::exp(*ptr_val);
+        } else if (insn.opcode == t81::tisc::Opcode::FLog) {
+          result = std::log(*ptr_val);
+        } else {
+          auto* exponent = float_ptr(state_.registers[insn.c]);
+          if (!exponent) {
+            trap = Trap::DecodeFault;
+            break;
+          }
+          result = std::pow(*ptr_val, *exponent);
         }
         state_.registers[insn.a] = alloc_float(result);
         state_.register_tags[insn.a] = ValueTag::FloatHandle;

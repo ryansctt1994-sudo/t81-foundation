@@ -401,6 +401,10 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let angle: T81Float = std.math.sin(1.0);
             let c: T81Float = std.math.cos(angle);
             let t: T81Float = std.math.tan(c);
+            let root: T81Float = std.math.sqrt(4.0);
+            let ex: T81Float = std.math.exp(1.0);
+            let lg: T81Float = std.math.log(ex);
+            let pw: T81Float = std.math.pow(2.0, 8.0);
             let n: i32 = std.text.str_len("hello");
             let e: bool = std.text.str_is_empty("");
             let joined: T81String = std.text.concat("he", "llo");
@@ -436,6 +440,10 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _n = n;
             let _e = e;
             let _t = t;
+            let _rt = root;
+            let _ex = ex;
+            let _lg = lg;
+            let _pw = pw;
             let _m = model;
             let _sw = sw;
             let _ew = ew;
@@ -473,6 +481,10 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   bool has_fsin = false;
   bool has_fcos = false;
   bool has_ftan = false;
+  bool has_fsqrt = false;
+  bool has_fexp = false;
+  bool has_flog = false;
+  bool has_fpow = false;
   bool has_strlen = false;
   bool has_strempty = false;
   bool has_strconcat = false;
@@ -499,6 +511,14 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
       has_fcos = true;
     } else if (inst.opcode == Opcode::FTAN) {
       has_ftan = true;
+    } else if (inst.opcode == Opcode::FSQRT) {
+      has_fsqrt = true;
+    } else if (inst.opcode == Opcode::FEXP) {
+      has_fexp = true;
+    } else if (inst.opcode == Opcode::FLOG) {
+      has_flog = true;
+    } else if (inst.opcode == Opcode::FPOW) {
+      has_fpow = true;
     } else if (inst.opcode == Opcode::STRLEN) {
       has_strlen = true;
     } else if (inst.opcode == Opcode::STREMPTY) {
@@ -543,6 +563,10 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   EXPECT(has_fsin, "std.math.sin should lower to FSIN");
   EXPECT(has_fcos, "std.math.cos should lower to FCOS");
   EXPECT(has_ftan, "std.math.tan should lower to FTAN");
+  EXPECT(has_fsqrt, "std.math.sqrt should lower to FSQRT");
+  EXPECT(has_fexp, "std.math.exp should lower to FEXP");
+  EXPECT(has_flog, "std.math.log should lower to FLOG");
+  EXPECT(has_fpow, "std.math.pow should lower to FPOW");
   EXPECT(has_strlen, "std.text.str_len should lower to STRLEN");
   EXPECT(has_strempty, "std.text.str_is_empty should lower to STREMPTY");
   EXPECT(has_strconcat, "std.text.concat should lower to STRCONCAT");
