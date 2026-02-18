@@ -48,8 +48,8 @@ Input and Output.
 - `fn println(msg: T81String) -> void`: Print string with newline (implied by print currently).
 - `fn print_int(val: i32) -> void`: Print integer.
 - `fn print_float(val: T81Float) -> void`: Print float.
-- `fn stream() -> i32`: Deterministic stream-handle alias (currently a stable placeholder handle).
-- `fn net() -> i32`: Deterministic network-handle alias (currently a stable placeholder handle).
+- `fn stream() -> T81String`: Deterministic stream token alias (currently lowers to stable symbolic token `std.io.stream`).
+- `fn net() -> T81String`: Deterministic network token alias (currently lowers to stable symbolic token `std.io.net`).
 
 ## Data Structure Modules
 
@@ -63,8 +63,8 @@ Input and Output.
 - `fn list() -> Vector[T81String]`: Deterministic empty list constructor (runtime-backed string-vector value).
 - `fn map() -> Vector[T81String]`: Deterministic empty map-constructor placeholder value (runtime-backed string-vector form).
 - `fn set() -> Vector[T81String]`: Deterministic empty set-constructor placeholder value (runtime-backed string-vector form).
-- `fn tree() -> i32`: Deterministic tree-module placeholder handle.
-- `fn graph() -> i32`: Deterministic graph-module placeholder handle.
+- `fn tree() -> Vector[T81String]`: Deterministic empty tree-constructor placeholder value (runtime-backed string-vector form).
+- `fn graph() -> Vector[T81String]`: Deterministic empty graph-constructor placeholder value (runtime-backed string-vector form).
 
 ### `std.text`
 String manipulation and formatting (backed by `include/t81/std/string.hpp`).
@@ -109,13 +109,13 @@ Deterministic symbol helpers.
 - `fn exit(code: i32) -> void`: Deterministic terminate/trap alias (`std.sys.exit` lowers to `TRAP`).
 - `fn time() -> T81Float`: Deterministic logical time alias (currently lowers to constant `0.0`).
 - `fn entropy() -> i32`: Deterministic entropy-budget alias (currently lowers to constant `0`).
-- `fn proof() -> i32`: Deterministic proof-handle alias (currently a stable placeholder handle).
+- `fn proof() -> T81String`: Deterministic proof token alias (currently lowers to stable symbolic token `std.sys.proof`).
 
 ### `std.async`
 - `fn yield() -> void`: Deterministic cooperative-yield alias (currently a no-op).
 - `fn sleep(duration: T81Float) -> void`: Deterministic sleep alias (currently a no-op after float-compatible type check).
-- `fn thread() -> i32`: Deterministic thread-handle alias (currently a stable placeholder handle).
-- `fn promise() -> i32`: Deterministic promise-handle alias (currently a stable placeholder handle).
+- `fn thread() -> T81String`: Deterministic thread token alias (currently lowers to stable symbolic token `std.async.thread`).
+- `fn promise() -> T81String`: Deterministic promise token alias (currently lowers to stable symbolic token `std.async.promise`).
 
 ### `std.tensor`
 - `std.tensor.load("...") -> i32`: Load weights via deterministic literal-path alias (literal required by current frontend contract).

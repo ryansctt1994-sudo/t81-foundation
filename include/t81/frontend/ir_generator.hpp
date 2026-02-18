@@ -1246,8 +1246,11 @@ public:
           throw std::runtime_error("sys_proof expects no arguments.");
         }
         auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        auto instr = tisc::ir::Instruction{tisc::ir::Opcode::LOADI,
-                                           {dest.reg, tisc::ir::Immediate{101}}};
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::LOADI;
+        instr.operands = {dest.reg};
+        instr.literal_kind = tisc::LiteralKind::SymbolHandle;
+        instr.text_literal = "std.sys.proof";
         instr.primitive = tisc::ir::PrimitiveKind::Integer;
         emit(instr);
         record_result(&expr, dest);
@@ -1272,8 +1275,11 @@ public:
           throw std::runtime_error("async_thread expects no arguments.");
         }
         auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        auto instr = tisc::ir::Instruction{tisc::ir::Opcode::LOADI,
-                                           {dest.reg, tisc::ir::Immediate{104}}};
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::LOADI;
+        instr.operands = {dest.reg};
+        instr.literal_kind = tisc::LiteralKind::SymbolHandle;
+        instr.text_literal = "std.async.thread";
         instr.primitive = tisc::ir::PrimitiveKind::Integer;
         emit(instr);
         record_result(&expr, dest);
@@ -1284,8 +1290,11 @@ public:
           throw std::runtime_error("async_promise expects no arguments.");
         }
         auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        auto instr = tisc::ir::Instruction{tisc::ir::Opcode::LOADI,
-                                           {dest.reg, tisc::ir::Immediate{105}}};
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::LOADI;
+        instr.operands = {dest.reg};
+        instr.literal_kind = tisc::LiteralKind::SymbolHandle;
+        instr.text_literal = "std.async.promise";
         instr.primitive = tisc::ir::PrimitiveKind::Integer;
         emit(instr);
         record_result(&expr, dest);
@@ -1319,10 +1328,12 @@ public:
         if (!expr.arguments.empty()) {
           throw std::runtime_error(func_name + " expects no arguments.");
         }
-        const long long handle = (func_name == "io_stream") ? 102 : 103;
         auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        auto instr = tisc::ir::Instruction{tisc::ir::Opcode::LOADI,
-                                           {dest.reg, tisc::ir::Immediate{handle}}};
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::LOADI;
+        instr.operands = {dest.reg};
+        instr.literal_kind = tisc::LiteralKind::SymbolHandle;
+        instr.text_literal = (func_name == "io_stream") ? "std.io.stream" : "std.io.net";
         instr.primitive = tisc::ir::PrimitiveKind::Integer;
         emit(instr);
         record_result(&expr, dest);
@@ -1846,14 +1857,11 @@ public:
         if (!expr.arguments.empty()) {
           throw std::runtime_error("collections container constructors expect no arguments.");
         }
-        long long handle = 109;
-        if (func_name == "collections_tree") handle = 109;
-        if (func_name == "collections_graph") handle = 110;
-        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        auto instr = tisc::ir::Instruction{tisc::ir::Opcode::LOADI,
-                                           {dest.reg, tisc::ir::Immediate{handle}}};
-        instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(instr);
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction vec_new;
+        vec_new.opcode = tisc::ir::Opcode::STRVECNEW;
+        vec_new.operands = {dest.reg};
+        emit(vec_new);
         record_result(&expr, dest);
         return {};
       }

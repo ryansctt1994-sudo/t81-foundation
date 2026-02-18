@@ -39,10 +39,10 @@ fn set() -> Vector[T81String] {
     return std.collections.set();
 }
 
-fn tree() -> i32 {
+fn tree() -> Vector[T81String] {
     return std.collections.tree();
 }
 
-fn graph() -> i32 {
+fn graph() -> Vector[T81String] {
     return std.collections.graph();
 }

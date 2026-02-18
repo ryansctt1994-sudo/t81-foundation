@@ -13,10 +13,10 @@ fn print_float(val: T81Float) -> void {
     print(val);
 }
 
-fn stream() -> i32 {
+fn stream() -> T81String {
     return std.io.stream();
 }
 
-fn net() -> i32 {
+fn net() -> T81String {
     return std.io.net();
 }

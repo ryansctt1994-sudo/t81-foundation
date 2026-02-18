@@ -7,13 +7,13 @@ This document is the execution handoff for continuing the standard library plan 
 Implemented and validated end-to-end (semantic + IR + VM + CLI coverage):
 - `std.core`: `assert`, `debug`, `unwrap_or`
 - `std.math`: `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `sqrt`, `exp`, `log`, `pow`, `clamp`
-- `std.io`: `println`, `print_int`, `print_float`, `stream`, `net`
+- `std.io`: `println`, `print_int`, `print_float`, `stream`, `net` (`stream/net` currently lower to stable symbolic tokens)
 - `std.text`: `str_len`, `str_is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, `replace`, `to_string`, `from_bytes`, `split`, `join`
 - `std.bytes`: `len`, `is_empty`, `concat`, `starts_with`, `ends_with`, `contains`, `index_of`, `replace`, `to_string`, `from_string`, `split`, `join`, `T81Bytes(...)`
-- `std.collections`: `len`, `is_empty`, `first`, `last`, `push`, `pop`, `list`, `map`, `set`, `tree`, `graph` (`list`/`map`/`set` return real empty vector values; `tree`/`graph` are currently placeholder handles)
+- `std.collections`: `len`, `is_empty`, `first`, `last`, `push`, `pop`, `list`, `map`, `set`, `tree`, `graph` (all five constructors currently return deterministic empty runtime-backed vector values)
 - `std.symbol`: `intern`, `to_string`, `eq`, `ne`
-- `std.sys`: `exit`, `time`, `entropy`, `proof`
-- `std.async`: `yield`, `sleep`, `thread`, `promise`
+- `std.sys`: `exit`, `time`, `entropy`, `proof` (`proof` currently lowers to stable symbolic token)
+- `std.async`: `yield`, `sleep`, `thread`, `promise` (`thread/promise` currently lower to stable symbolic tokens)
 - `std.tensor`: `load`, `from_list`, `matmul`, `vec_add`
 - `std.agent`: `self_reflect`
 
@@ -63,12 +63,14 @@ Current known good baseline: full suite passing (`211/211`).
 
 ## 4. What Is Next (Priority Order)
 
-1. Replace remaining placeholder handle aliases with full runtime semantics for:
-   - `std.collections.tree/graph` (`list`/`map`/`set` already upgraded to real vector semantics)
+1. Replace vector-placeholder constructor semantics with full runtime semantics for:
+   - `std.collections.list/map/set/tree/graph`
+   - keyed/tree/graph-specific deterministic data models and operations
+2. Keep fixture-driven CLI goldens for each new module before marking complete.
+3. Replace symbolic-token aliases with full typed runtime objects for:
    - `std.sys.proof`
    - `std.io.stream/net`
    - `std.async.thread/promise`
-2. Keep fixture-driven CLI goldens for each new module before marking complete.
 
 ## 5. Determinism/Quality Rules To Preserve
 

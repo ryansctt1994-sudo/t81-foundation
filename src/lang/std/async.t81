@@ -9,10 +9,10 @@ fn sleep(duration: T81Float) -> void {
     std.async.sleep(duration);
 }
 
-fn thread() -> i32 {
+fn thread() -> T81String {
     return std.async.thread();
 }
 
-fn promise() -> i32 {
+fn promise() -> T81String {
     return std.async.promise();
 }

@@ -254,18 +254,18 @@ static void test_std_namespace_builtin_aliases() {
       }
       let now: T81Float = std.sys.time();
       let ent: i32 = std.sys.entropy();
-      let proof: i32 = std.sys.proof();
-      let stream_h: i32 = std.io.stream();
-      let net_h: i32 = std.io.net();
+      let proof: T81String = std.sys.proof();
+      let stream_h: T81String = std.io.stream();
+      let net_h: T81String = std.io.net();
       std.async.yield();
       std.async.sleep(now);
-      let thread_h: i32 = std.async.thread();
-      let promise_h: i32 = std.async.promise();
+      let thread_h: T81String = std.async.thread();
+      let promise_h: T81String = std.async.promise();
       let list_v: Vector[T81String] = std.collections.list();
       let map_v: Vector[T81String] = std.collections.map();
       let set_v: Vector[T81String] = std.collections.set();
-      let tree_h: i32 = std.collections.tree();
-      let graph_h: i32 = std.collections.graph();
+      let tree_v: Vector[T81String] = std.collections.tree();
+      let graph_v: Vector[T81String] = std.collections.graph();
       std.agent.self_reflect();
       std.sys.exit(0);
       let handle: i32 = std.tensor.load("layer0.weight");
@@ -278,8 +278,8 @@ static void test_std_namespace_builtin_aliases() {
       let _list_h = std.collections.len(list_v);
       let _map_h = std.collections.len(map_v);
       let _set_h = std.collections.len(set_v);
-      let _tree_h = tree_h;
-      let _graph_h = graph_h;
+      let _tree_h = std.collections.len(tree_v);
+      let _graph_h = std.collections.len(graph_v);
       return 0;
     }
   )";
@@ -497,7 +497,7 @@ static void test_std_namespace_builtin_aliases() {
 
   constexpr const char* bad_sys_proof_arity = R"(
     fn main() -> i32 {
-      let p: i32 = std.sys.proof(1);
+      let p: T81String = std.sys.proof(1);
       let _ = p;
       return 0;
     }
@@ -507,7 +507,7 @@ static void test_std_namespace_builtin_aliases() {
 
   constexpr const char* bad_io_stream_arity = R"(
     fn main() -> i32 {
-      let s: i32 = std.io.stream(1);
+      let s: T81String = std.io.stream(1);
       let _ = s;
       return 0;
     }
@@ -518,7 +518,7 @@ static void test_std_namespace_builtin_aliases() {
 
   constexpr const char* bad_async_thread_arity = R"(
     fn main() -> i32 {
-      let t: i32 = std.async.thread(1);
+      let t: T81String = std.async.thread(1);
       let _ = t;
       return 0;
     }

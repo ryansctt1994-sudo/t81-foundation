@@ -2159,7 +2159,7 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "sys_proof expects no arguments.");
         return make_error_type();
       }
-      return Type{Type::Kind::I32};
+      return Type{Type::Kind::String};
     }
     if (func_name == "async_yield") {
       if (!arg_types.empty()) {
@@ -2184,7 +2184,7 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, func_name + " expects no arguments.");
         return make_error_type();
       }
-      return Type{Type::Kind::I32};
+      return Type{Type::Kind::String};
     }
     if (func_name == "agent_self_reflect") {
       if (!arg_types.empty()) {
@@ -2629,14 +2629,16 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "std.collections container constructors expect no arguments.");
         return make_error_type();
       }
-      return Type{Type::Kind::I32};
+      Type out{Type::Kind::Vector};
+      out.params.push_back(Type{Type::Kind::String});
+      return out;
     }
     if (func_name == "io_stream" || func_name == "io_net") {
       if (!arg_types.empty()) {
         error(call_token, func_name + " expects no arguments.");
         return make_error_type();
       }
-      return Type{Type::Kind::I32};
+      return Type{Type::Kind::String};
     }
     if (func_name == "symbol_intern") {
       if (arg_types.size() != 1) {

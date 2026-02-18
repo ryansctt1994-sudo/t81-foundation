@@ -487,18 +487,18 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let kept: i32 = std.core.unwrap_or(maybe, 9);
             let now: T81Float = std.sys.time();
             let entropy: i32 = std.sys.entropy();
-            let proof: i32 = std.sys.proof();
-            let stream_h: i32 = std.io.stream();
-            let net_h: i32 = std.io.net();
+            let proof: T81String = std.sys.proof();
+            let stream_h: T81String = std.io.stream();
+            let net_h: T81String = std.io.net();
             std.async.yield();
             std.async.sleep(now);
-            let thread_h: i32 = std.async.thread();
-            let promise_h: i32 = std.async.promise();
+            let thread_h: T81String = std.async.thread();
+            let promise_h: T81String = std.async.promise();
             let list_v: Vector[T81String] = std.collections.list();
             let map_v: Vector[T81String] = std.collections.map();
             let set_v: Vector[T81String] = std.collections.set();
-            let tree_h: i32 = std.collections.tree();
-            let graph_h: i32 = std.collections.graph();
+            let tree_v: Vector[T81String] = std.collections.tree();
+            let graph_v: Vector[T81String] = std.collections.graph();
             std.agent.self_reflect();
             std.sys.exit(0);
             std.io.println("hello");
@@ -555,8 +555,8 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _list_h = std.collections.len(list_v);
             let _map_h = std.collections.len(map_v);
             let _set_h = std.collections.len(set_v);
-            let _tree_h = tree_h;
-            let _graph_h = graph_h;
+            let _tree_h = std.collections.len(tree_v);
+            let _graph_h = std.collections.len(graph_v);
             return 0;
         }
     )";
@@ -773,21 +773,26 @@ void test_std_sys_entropy_alias_lowers_to_integer_zero() {
             << std::endl;
 }
 
-void test_std_runtime_handle_aliases_lower_to_deterministic_immediates() {
+void test_std_runtime_handle_aliases_lower_to_deterministic_tokens() {
   std::string source = R"(
         fn main() -> i32 {
-            let proof: i32 = std.sys.proof();
-            let stream_h: i32 = std.io.stream();
-            let net_h: i32 = std.io.net();
-            let thread_h: i32 = std.async.thread();
-            let promise_h: i32 = std.async.promise();
+            let proof: T81String = std.sys.proof();
+            let stream_h: T81String = std.io.stream();
+            let net_h: T81String = std.io.net();
+            let thread_h: T81String = std.async.thread();
+            let promise_h: T81String = std.async.promise();
             let list_v: Vector[T81String] = std.collections.list();
             let map_v: Vector[T81String] = std.collections.map();
             let set_v: Vector[T81String] = std.collections.set();
-            let tree_h: i32 = std.collections.tree();
-            let graph_h: i32 = std.collections.graph();
-            return proof + stream_h + net_h + thread_h + promise_h + std.collections.len(list_v) + std.collections.len(map_v) + std.collections.len(set_v) +
-                   tree_h + graph_h;
+            let tree_v: Vector[T81String] = std.collections.tree();
+            let graph_v: Vector[T81String] = std.collections.graph();
+            let _proof = proof;
+            let _stream_h = stream_h;
+            let _net_h = net_h;
+            let _thread_h = thread_h;
+            let _promise_h = promise_h;
+            return std.collections.len(list_v) + std.collections.len(map_v) + std.collections.len(set_v) +
+                   std.collections.len(tree_v) + std.collections.len(graph_v);
         }
     )";
   Lexer lexer(source);
@@ -805,7 +810,7 @@ void test_std_runtime_handle_aliases_lower_to_deterministic_immediates() {
   const auto& instructions = program.instructions();
   EXPECT(!instructions.empty(), "std runtime handle alias fixture produced no IR");
 
-  std::set<long long> seen;
+  std::set<std::string> seen_tokens;
   int strvecnew_count = 0;
   for (const auto& inst : instructions) {
     if (inst.opcode != Opcode::LOADI) {
@@ -814,25 +819,26 @@ void test_std_runtime_handle_aliases_lower_to_deterministic_immediates() {
       }
       continue;
     }
-    if (inst.operands.size() < 2) {
-      continue;
-    }
-    if (const auto* imm = std::get_if<t81::tisc::ir::Immediate>(&inst.operands[1])) {
-      seen.insert(imm->value);
+    if (inst.literal_kind == t81::tisc::LiteralKind::SymbolHandle &&
+        inst.text_literal.has_value()) {
+      seen_tokens.insert(*inst.text_literal);
     }
   }
 
-  EXPECT(seen.count(101) == 1, "std.sys.proof should lower to deterministic handle 101");
-  EXPECT(seen.count(102) == 1, "std.io.stream should lower to deterministic handle 102");
-  EXPECT(seen.count(103) == 1, "std.io.net should lower to deterministic handle 103");
-  EXPECT(seen.count(104) == 1, "std.async.thread should lower to deterministic handle 104");
-  EXPECT(seen.count(105) == 1, "std.async.promise should lower to deterministic handle 105");
-  EXPECT(seen.count(109) == 1, "std.collections.tree should lower to deterministic handle 109");
-  EXPECT(seen.count(110) == 1, "std.collections.graph should lower to deterministic handle 110");
-  EXPECT(strvecnew_count >= 3,
-         "std.collections.list/map/set should each lower to STRVECNEW-backed vector "
+  EXPECT(seen_tokens.count("std.sys.proof") == 1,
+         "std.sys.proof should lower to deterministic symbol token");
+  EXPECT(seen_tokens.count("std.io.stream") == 1,
+         "std.io.stream should lower to deterministic symbol token");
+  EXPECT(seen_tokens.count("std.io.net") == 1,
+         "std.io.net should lower to deterministic symbol token");
+  EXPECT(seen_tokens.count("std.async.thread") == 1,
+         "std.async.thread should lower to deterministic symbol token");
+  EXPECT(seen_tokens.count("std.async.promise") == 1,
+         "std.async.promise should lower to deterministic symbol token");
+  EXPECT(strvecnew_count >= 5,
+         "std.collections.list/map/set/tree/graph should each lower to STRVECNEW-backed vector "
          "construction");
-  std::cout << "IRGeneratorTest test_std_runtime_handle_aliases_lower_to_deterministic_immediates "
+  std::cout << "IRGeneratorTest test_std_runtime_handle_aliases_lower_to_deterministic_tokens "
                "passed!"
             << std::endl;
 }
@@ -1060,7 +1066,7 @@ int main() {
   test_generic_call_with_explicit_type_args_lowers_to_call();
   test_std_namespace_aliases_lower_to_builtin_opcodes();
   test_std_sys_entropy_alias_lowers_to_integer_zero();
-  test_std_runtime_handle_aliases_lower_to_deterministic_immediates();
+  test_std_runtime_handle_aliases_lower_to_deterministic_tokens();
   test_std_tensor_from_list_alias_lowers_vector_literal_to_tensor_handle();
   test_std_tensor_matmul_alias_lowers_to_tmatmul();
   test_std_tensor_vec_add_alias_lowers_to_tvecadd();
