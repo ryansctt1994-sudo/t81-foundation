@@ -415,6 +415,8 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let parts: Vector[T81String] = std.text.split("a,,b", ",");
             let joined_again: T81String = std.text.join(parts, ",");
             let joined_literal: T81String = std.text.join(["x", "y"], "-");
+            let sym: T81String = std.symbol.intern("omega");
+            let rendered_sym: T81String = std.symbol.to_string(sym);
             std.io.println("hello");
             std.io.print_int(7);
             std.io.print_float(t);
@@ -434,6 +436,8 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _rdfb = rendered_from_bytes;
             let _ja = joined_again;
             let _jl = joined_literal;
+            let _sym = sym;
+            let _rs = rendered_sym;
             return 0;
         }
     )";

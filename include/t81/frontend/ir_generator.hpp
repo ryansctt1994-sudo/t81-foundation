@@ -221,6 +221,12 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.bytes.from_string") {
     return "T81Bytes";
   }
+  if (name == "std.symbol.intern") {
+    return "symbol_intern";
+  }
+  if (name == "std.symbol.to_string") {
+    return "symbol_to_string";
+  }
   return std::string(name);
 }
 
@@ -1339,6 +1345,17 @@ public:
         instr.opcode = tisc::ir::Opcode::STRJOIN;
         instr.operands = {dest.reg, parts.reg, sep.reg};
         emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "symbol_intern" || func_name == "symbol_to_string") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error(func_name + " expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        copy_to_dest(value, dest);
         record_result(&expr, dest);
         return {};
       }

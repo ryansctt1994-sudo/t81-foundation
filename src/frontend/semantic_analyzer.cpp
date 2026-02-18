@@ -296,6 +296,12 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.bytes.from_string") {
     return "T81Bytes";
   }
+  if (name == "std.symbol.intern") {
+    return "symbol_intern";
+  }
+  if (name == "std.symbol.to_string") {
+    return "symbol_to_string";
+  }
   return std::string(name);
 }
 }  // namespace
@@ -2159,6 +2165,28 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return make_error_type();
       }
       return Type{Type::Kind::Bytes};
+    }
+    if (func_name == "symbol_intern") {
+      if (arg_types.size() != 1) {
+        error(call_token, "symbol_intern expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String) {
+        error(call_token, "symbol_intern expects a T81String argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::String};
+    }
+    if (func_name == "symbol_to_string") {
+      if (arg_types.size() != 1) {
+        error(call_token, "symbol_to_string expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String) {
+        error(call_token, "symbol_to_string expects a T81String argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::String};
     }
 
     if (auto* var_expr = dynamic_cast<const VariableExpr*>(expr.callee.get())) {

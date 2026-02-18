@@ -520,6 +520,25 @@ void test_std_bytes_module_wrapper_pipeline() {
   }
 }
 
+void test_std_symbol_pipeline() {
+  const std::string source = R"(
+        fn main() -> i32 {
+            let sym: T81String = std.symbol.intern("omega");
+            let rendered: T81String = std.symbol.to_string(sym);
+            let n: i32 = std.text.str_len(rendered);
+            if (n == 5) {
+                return n;
+            }
+            return 0;
+        }
+    )";
+  [[maybe_unused]] int64_t result = run_e2e_test(source);
+  if (result != 5) {
+    std::cerr << "test_std_symbol_pipeline failed: expected 5, got " << result << std::endl;
+    throw std::runtime_error("test_std_symbol_pipeline failed");
+  }
+}
+
 int main() {
   test_while_break();
   test_nested_loop_continue();
@@ -535,6 +554,7 @@ int main() {
   test_std_text_split_join_pipeline();
   test_std_bytes_pipeline();
   test_std_bytes_module_wrapper_pipeline();
+  test_std_symbol_pipeline();
   std::cout << "All advanced E2E tests passed!" << std::endl;
   return 0;
 }

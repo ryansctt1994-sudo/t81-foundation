@@ -138,6 +138,31 @@ int main() {
 
   fs::remove(bytes_split_join_path);
 
+  const std::string symbol_program = R"(
+        fn main() -> i32 {
+            let sym: T81String = std.symbol.intern("omega");
+            let rendered: T81String = std.symbol.to_string(sym);
+            let _ = rendered;
+            return 0;
+        }
+    )";
+
+  [[maybe_unused]] auto symbol_path = make_temp_path("t81-check-symbol", ".t81");
+  write_source(symbol_path, symbol_program);
+
+  [[maybe_unused]] std::ostringstream symbol_captured;
+  old_buf = std::cerr.rdbuf(symbol_captured.rdbuf());
+  [[maybe_unused]] int symbol_rc = t81::cli::check_syntax(symbol_path);
+  std::cerr.rdbuf(old_buf);
+
+  if (symbol_rc != 0) {
+    std::cerr << "Expected `t81 check` to succeed on valid symbol input\n";
+    std::cerr << symbol_captured.str() << "\n";
+    return 1;
+  }
+
+  fs::remove(symbol_path);
+
   std::cout << "CliCheckTest passed!" << std::endl;
   return 0;
 }

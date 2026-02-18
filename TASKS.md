@@ -17,3 +17,4 @@ Based on the analysis of `advanced_datatypes_showcase.t81` and the current compi
 13. **Implement `std.text.split` / `std.text.join`:** [Done] Deterministic split/join semantics now execute end-to-end, including empty-segment preservation and semantic rejection of empty literal separators.
 14. **Add String-Vector Runtime Support for T81Lang:** [Done] Deterministic runtime/IR representation for `Vector[T81String]` is implemented via dedicated VM handle/tag + lowering opcodes.
 15. **Add End-to-End split/join Test Matrix:** [Done] Conformance, IR lowering, e2e behavior, CLI diagnostics, and CLI fixture goldens now cover split/join.
+16. **Expose `std.symbol` Frontend Aliases:** [Done] `std.symbol.intern` and `std.symbol.to_string` are wired through semantic analysis/IR and covered by conformance, e2e, and CLI diagnostics.

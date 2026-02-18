@@ -71,6 +71,11 @@ Deterministic bytes helpers.
 - `fn from_string(s: T81String) -> T81Bytes`: Deterministic text-to-bytes conversion alias.
 - `fn T81Bytes(s: T81String) -> T81Bytes`: Deterministic conversion constructor.
 
+### `std.symbol`
+Deterministic symbol helpers.
+- `fn intern(s: T81String) -> T81String`: Deterministic symbol interning alias (currently represented as interned string handles in T81Lang).
+- `fn to_string(sym: T81String) -> T81String`: Deterministic symbol-to-text alias.
+
 ## System & Runtime
 
 ### `std.sys`

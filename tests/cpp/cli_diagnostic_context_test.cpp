@@ -103,6 +103,14 @@ fn main() -> i32 {
 }
 )";
 
+  const std::string symbol_source = R"(
+fn main() -> i32 {
+    let sym: T81String = std.symbol.intern(7);
+    let _ = sym;
+    return 0;
+}
+)";
+
   {
     [[maybe_unused]] auto output = capture_diagnostics(option_source, "option");
     assert_contains(output, "Some(true);", "option");
@@ -158,6 +166,13 @@ fn main() -> i32 {
     assert_contains(output, "std.bytes.join([T81Bytes(\"a\"), T81Bytes(\"b\")], 7)", "bytes_join");
     assert_contains(output, "bytes_join expects a T81Bytes separator argument.", "bytes_join");
     assert_contains(output, "^", "bytes_join");
+  }
+
+  {
+    [[maybe_unused]] auto output = capture_diagnostics(symbol_source, "symbol");
+    assert_contains(output, "std.symbol.intern(7)", "symbol");
+    assert_contains(output, "symbol_intern expects a T81String argument.", "symbol");
+    assert_contains(output, "^", "symbol");
   }
 
   return 0;

@@ -1134,6 +1134,58 @@ static void test_std_bytes_module_wrappers() {
                "t81lang_std_bytes_module_wrappers");
 }
 
+static void test_std_symbol_aliases() {
+  constexpr const char* valid = R"(
+    fn main() -> i32 {
+      let sym: T81String = std.symbol.intern("omega");
+      let rendered: T81String = std.symbol.to_string(sym);
+      if (std.text.str_len(rendered) == 5) {
+        return 5;
+      }
+      return 0;
+    }
+  )";
+  require_true(analyzes(valid, "t81lang_std_symbol_aliases_valid"),
+               "t81lang_std_symbol_aliases_valid");
+
+  constexpr const char* bad_intern_arity = R"(
+    fn main() -> i32 {
+      let sym: T81String = std.symbol.intern();
+      let _ = sym;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(bad_intern_arity,
+                                           "symbol_intern expects exactly one argument.",
+                                           "t81lang_std_symbol_intern_bad_arity"),
+               "t81lang_std_symbol_intern_bad_arity");
+
+  constexpr const char* bad_intern_type = R"(
+    fn main() -> i32 {
+      let sym: T81String = std.symbol.intern(7);
+      let _ = sym;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_intern_type, "symbol_intern expects a T81String argument.",
+                                  "t81lang_std_symbol_intern_bad_type"),
+      "t81lang_std_symbol_intern_bad_type");
+
+  constexpr const char* bad_to_string_type = R"(
+    fn main() -> i32 {
+      let rendered: T81String = std.symbol.to_string(7);
+      let _ = rendered;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_to_string_type,
+                                  "symbol_to_string expects a T81String argument.",
+                                  "t81lang_std_symbol_to_string_bad_type"),
+      "t81lang_std_symbol_to_string_bad_type");
+}
+
 static void test_let_is_immutable() {
   constexpr const char* source = R"(
     fn main() -> i32 {
@@ -1176,6 +1228,7 @@ int main() {
   test_std_text_split_join_wrappers();
   test_std_bytes_aliases();
   test_std_bytes_module_wrappers();
+  test_std_symbol_aliases();
   test_t81_numeric_type_separation_rejects_invalid_mix();
   test_let_is_immutable();
   test_var_is_mutable();

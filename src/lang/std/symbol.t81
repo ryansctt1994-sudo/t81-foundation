@@ -1,0 +1,11 @@
+// src/lang/std/symbol.t81
+// Deterministic symbol helpers.
+// NOTE: T81Lang currently represents symbol values as interned T81String handles.
+
+fn intern(s: T81String) -> T81String {
+    return std.symbol.intern(s);
+}
+
+fn to_string(sym: T81String) -> T81String {
+    return std.symbol.to_string(sym);
+}
