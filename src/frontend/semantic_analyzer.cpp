@@ -1768,6 +1768,19 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
     arg_types.push_back(evaluate_expression(*arg));
   }
 
+  auto render_function_signature = [&](std::string_view name, const std::vector<Type>& params,
+                                       const Type& ret) -> std::string {
+    std::string sig(name);
+    sig += "(";
+    for (size_t i = 0; i < params.size(); ++i) {
+      if (i > 0) sig += ", ";
+      sig += type_to_string(params[i]);
+    }
+    sig += ") -> ";
+    sig += type_to_string(ret);
+    return sig;
+  };
+
   if (auto callee_name = qualified_call_name(*expr.callee); callee_name.has_value()) {
     const std::string raw_name = *callee_name;
     std::string func_name = canonical_stdlib_call_name(raw_name);
@@ -2603,14 +2616,6 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return true;
       };
 
-      for (size_t i = 0; i < arg_types.size(); ++i) {
-        if (!bind_generic(symbol->param_types[i], arg_types[i])) {
-          error(var_expr->name, "Argument " + std::to_string(i) + " for function '" + func_name +
-                                    "' expects '" + type_to_string(symbol->param_types[i]) +
-                                    "' but got '" + type_to_string(arg_types[i]) + "'.");
-        }
-      }
-
       std::function<Type(const Type&)> instantiate_generic = [&](const Type& in) -> Type {
         if (in.kind == Type::Kind::Custom) {
           auto it = generic_bindings.find(in.custom_name);
@@ -2625,6 +2630,23 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         }
         return out;
       };
+
+      for (size_t i = 0; i < arg_types.size(); ++i) {
+        if (!bind_generic(symbol->param_types[i], arg_types[i])) {
+          const Type instantiated_return = instantiate_generic(symbol->type);
+          std::vector<Type> instantiated_params;
+          instantiated_params.reserve(symbol->param_types.size());
+          for (const auto& param : symbol->param_types) {
+            instantiated_params.push_back(instantiate_generic(param));
+          }
+          const std::string instantiated_sig =
+              render_function_signature(func_name, instantiated_params, instantiated_return);
+          error(var_expr->name, "Argument " + std::to_string(i) + " for function '" + func_name +
+                                    "' expects '" + type_to_string(symbol->param_types[i]) +
+                                    "' but got '" + type_to_string(arg_types[i]) +
+                                    "'. Instantiated signature: " + instantiated_sig + ".");
+        }
+      }
 
       return instantiate_generic(symbol->type);
     }
@@ -2733,9 +2755,18 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       for (size_t i = 0; i < arg_types.size(); ++i) {
         Type expected = instantiate_generic(symbol->param_types[i]);
         if (!is_assignable(expected, arg_types[i])) {
+          std::vector<Type> instantiated_params;
+          instantiated_params.reserve(symbol->param_types.size());
+          for (const auto& param : symbol->param_types) {
+            instantiated_params.push_back(instantiate_generic(param));
+          }
+          const Type instantiated_return = instantiate_generic(symbol->type);
+          const std::string instantiated_sig =
+              render_function_signature(func_name, instantiated_params, instantiated_return);
           error(generic_callee->name, "Argument " + std::to_string(i) + " for function '" +
                                           func_name + "' expects '" + type_to_string(expected) +
-                                          "' but got '" + type_to_string(arg_types[i]) + "'.");
+                                          "' but got '" + type_to_string(arg_types[i]) +
+                                          "'. Instantiated signature: " + instantiated_sig + ".");
         }
       }
 

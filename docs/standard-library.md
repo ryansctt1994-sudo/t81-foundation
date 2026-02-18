@@ -3,6 +3,14 @@
 This document describes the standard library modules available in T81Lang.
 These modules are located in `src/lang/std/`.
 
+## Generic Call Syntax
+
+User-defined generic functions support both inferred and explicit call-site type arguments:
+- Inferred: `id(7)`
+- Explicit: `id[i32](7)`
+
+Explicit type arguments must match the function generic arity and argument types deterministically.
+
 ## Core Modules
 
 ### `std.core`
