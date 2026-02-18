@@ -417,6 +417,8 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let joined_literal: T81String = std.text.join(["x", "y"], "-");
             let sym: T81String = std.symbol.intern("omega");
             let rendered_sym: T81String = std.symbol.to_string(sym);
+            let same: bool = std.symbol.eq(sym, "omega");
+            let diff: bool = std.symbol.ne(sym, "alpha");
             std.io.println("hello");
             std.io.print_int(7);
             std.io.print_float(t);
@@ -438,6 +440,8 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _jl = joined_literal;
             let _sym = sym;
             let _rs = rendered_sym;
+            let _same = same;
+            let _diff = diff;
             return 0;
         }
     )";
@@ -471,6 +475,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   bool has_strjoin = false;
   bool has_strvecnew = false;
   bool has_strvecpush = false;
+  bool has_cmp = false;
   bool has_print = false;
   bool has_weights_load = false;
   for (const auto& inst : instructions) {
@@ -504,6 +509,8 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
       has_strvecnew = true;
     } else if (inst.opcode == Opcode::STRVECPUSH) {
       has_strvecpush = true;
+    } else if (inst.opcode == Opcode::CMP) {
+      has_cmp = true;
     } else if (inst.opcode == Opcode::PRINT) {
       has_print = true;
     } else if (inst.opcode == Opcode::WEIGHTS_LOAD) {
@@ -526,6 +533,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   EXPECT(has_strjoin, "std.text.join should lower to STRJOIN");
   EXPECT(has_strvecnew, "Vector[T81String] literal should lower to STRVECNEW");
   EXPECT(has_strvecpush, "Vector[T81String] literal should lower to STRVECPUSH");
+  EXPECT(has_cmp, "std.symbol.eq/ne should lower to CMP");
   EXPECT(has_print, "std.io.println should lower to PRINT");
   EXPECT(has_weights_load, "std.tensor.load should lower to WEIGHTS_LOAD");
   std::cout << "IRGeneratorTest test_std_namespace_aliases_lower_to_builtin_opcodes passed!"

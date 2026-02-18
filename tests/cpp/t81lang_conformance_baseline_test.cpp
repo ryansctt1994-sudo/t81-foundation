@@ -1175,8 +1175,14 @@ static void test_std_symbol_aliases() {
     fn main() -> i32 {
       let sym: T81String = std.symbol.intern("omega");
       let rendered: T81String = std.symbol.to_string(sym);
+      let same: bool = std.symbol.eq(sym, "omega");
+      let diff: bool = std.symbol.ne(sym, "alpha");
       if (std.text.str_len(rendered) == 5) {
-        return 5;
+        if (same) {
+          if (diff) {
+            return 5;
+          }
+        }
       }
       return 0;
     }
@@ -1220,6 +1226,29 @@ static void test_std_symbol_aliases() {
                                   "symbol_to_string expects a T81String argument.",
                                   "t81lang_std_symbol_to_string_bad_type"),
       "t81lang_std_symbol_to_string_bad_type");
+
+  constexpr const char* bad_eq_arity = R"(
+    fn main() -> i32 {
+      let same: bool = std.symbol.eq("a");
+      let _ = same;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(bad_eq_arity,
+                                           "symbol_eq expects exactly two arguments.",
+                                           "t81lang_std_symbol_eq_bad_arity"),
+               "t81lang_std_symbol_eq_bad_arity");
+
+  constexpr const char* bad_eq_type = R"(
+    fn main() -> i32 {
+      let same: bool = std.symbol.eq("a", 7);
+      let _ = same;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(bad_eq_type, "symbol_eq expects T81String arguments.",
+                                           "t81lang_std_symbol_eq_bad_type"),
+               "t81lang_std_symbol_eq_bad_type");
 }
 
 static void test_let_is_immutable() {

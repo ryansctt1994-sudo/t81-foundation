@@ -111,6 +111,14 @@ fn main() -> i32 {
 }
 )";
 
+  const std::string symbol_eq_source = R"(
+fn main() -> i32 {
+    let same: bool = std.symbol.eq("a", 7);
+    let _ = same;
+    return 0;
+}
+)";
+
   {
     [[maybe_unused]] auto output = capture_diagnostics(option_source, "option");
     assert_contains(output, "Some(true);", "option");
@@ -173,6 +181,13 @@ fn main() -> i32 {
     assert_contains(output, "std.symbol.intern(7)", "symbol");
     assert_contains(output, "symbol_intern expects a T81String argument.", "symbol");
     assert_contains(output, "^", "symbol");
+  }
+
+  {
+    [[maybe_unused]] auto output = capture_diagnostics(symbol_eq_source, "symbol_eq");
+    assert_contains(output, "std.symbol.eq(\"a\", 7)", "symbol_eq");
+    assert_contains(output, "symbol_eq expects T81String arguments.", "symbol_eq");
+    assert_contains(output, "^", "symbol_eq");
   }
 
   return 0;

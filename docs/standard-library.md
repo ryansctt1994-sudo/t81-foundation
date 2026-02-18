@@ -75,6 +75,8 @@ Deterministic bytes helpers.
 Deterministic symbol helpers.
 - `fn intern(s: T81String) -> T81String`: Deterministic symbol interning alias (currently represented as interned string handles in T81Lang).
 - `fn to_string(sym: T81String) -> T81String`: Deterministic symbol-to-text alias.
+- `fn eq(a: T81String, b: T81String) -> bool`: Deterministic symbol equality alias.
+- `fn ne(a: T81String, b: T81String) -> bool`: Deterministic symbol inequality alias.
 
 ## System & Runtime
 

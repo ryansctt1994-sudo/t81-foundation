@@ -302,6 +302,12 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.symbol.to_string") {
     return "symbol_to_string";
   }
+  if (name == "std.symbol.eq") {
+    return "symbol_eq";
+  }
+  if (name == "std.symbol.ne") {
+    return "symbol_ne";
+  }
   return std::string(name);
 }
 }  // namespace
@@ -2187,6 +2193,17 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return make_error_type();
       }
       return Type{Type::Kind::String};
+    }
+    if (func_name == "symbol_eq" || func_name == "symbol_ne") {
+      if (arg_types.size() != 2) {
+        error(call_token, func_name + " expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
+        error(call_token, func_name + " expects T81String arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
     }
 
     if (auto* var_expr = dynamic_cast<const VariableExpr*>(expr.callee.get())) {

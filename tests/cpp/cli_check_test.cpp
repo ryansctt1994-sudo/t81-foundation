@@ -142,7 +142,11 @@ int main() {
         fn main() -> i32 {
             let sym: T81String = std.symbol.intern("omega");
             let rendered: T81String = std.symbol.to_string(sym);
-            let _ = rendered;
+            let same: bool = std.symbol.eq(sym, "omega");
+            let diff: bool = std.symbol.ne(sym, "alpha");
+            let _ = same;
+            let _d = diff;
+            let _r = rendered;
             return 0;
         }
     )";

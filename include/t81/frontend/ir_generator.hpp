@@ -227,6 +227,12 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.symbol.to_string") {
     return "symbol_to_string";
   }
+  if (name == "std.symbol.eq") {
+    return "symbol_eq";
+  }
+  if (name == "std.symbol.ne") {
+    return "symbol_ne";
+  }
   return std::string(name);
 }
 
@@ -1356,6 +1362,26 @@ public:
         auto value = ensure_expr_result(expr.arguments[0].get());
         auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
         copy_to_dest(value, dest);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "symbol_eq" || func_name == "symbol_ne") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error(func_name + " expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto lhs = ensure_expr_result(expr.arguments[0].get());
+        auto rhs = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::CMP;
+        instr.operands = {dest.reg, lhs.reg, rhs.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Boolean;
+        instr.boolean_result = true;
+        instr.relation = (func_name == "symbol_eq") ? tisc::ir::ComparisonRelation::Equal
+                                                     : tisc::ir::ComparisonRelation::NotEqual;
+        emit(instr);
         record_result(&expr, dest);
         return {};
       }

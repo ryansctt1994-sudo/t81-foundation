@@ -5,6 +5,8 @@ Fixture pack for CLI end-to-end coverage of `std.symbol` aliases.
 ## Purpose
 - Validate deterministic observable output for `std.symbol.intern` and
   `std.symbol.to_string`.
+- Validate deterministic equality semantics via `std.symbol.eq` and
+  `std.symbol.ne`.
 
 ## Note
 - T81Lang currently represents symbol values as interned `T81String` handles,

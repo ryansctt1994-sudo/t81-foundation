@@ -9,3 +9,11 @@ fn intern(s: T81String) -> T81String {
 fn to_string(sym: T81String) -> T81String {
     return std.symbol.to_string(sym);
 }
+
+fn eq(a: T81String, b: T81String) -> bool {
+    return std.symbol.eq(a, b);
+}
+
+fn ne(a: T81String, b: T81String) -> bool {
+    return std.symbol.ne(a, b);
+}
