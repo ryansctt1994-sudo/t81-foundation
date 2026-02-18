@@ -221,6 +221,24 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.math.tan") {
     return "tan";
   }
+  if (name == "std.math.asin") {
+    return "asin";
+  }
+  if (name == "std.math.acos") {
+    return "acos";
+  }
+  if (name == "std.math.atan") {
+    return "atan";
+  }
+  if (name == "std.math.sinh") {
+    return "sinh";
+  }
+  if (name == "std.math.cosh") {
+    return "cosh";
+  }
+  if (name == "std.math.tanh") {
+    return "tanh";
+  }
   if (name == "std.math.exp") {
     return "exp";
   }
@@ -232,24 +250,6 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   }
   if (name == "std.math.sqrt") {
     return "sqrt";
-  }
-  if (name == "std.math.asin") {
-    return "stdmath_asin_unimplemented";
-  }
-  if (name == "std.math.acos") {
-    return "stdmath_acos_unimplemented";
-  }
-  if (name == "std.math.atan") {
-    return "stdmath_atan_unimplemented";
-  }
-  if (name == "std.math.sinh") {
-    return "stdmath_sinh_unimplemented";
-  }
-  if (name == "std.math.cosh") {
-    return "stdmath_cosh_unimplemented";
-  }
-  if (name == "std.math.tanh") {
-    return "stdmath_tanh_unimplemented";
   }
   if (name == "std.sys.exit") {
     return "sys_exit";
@@ -1923,7 +1923,9 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
     if (func_name == "optimize") {
       return Type{Type::Kind::I32};
     }
-    if (func_name == "sin" || func_name == "cos" || func_name == "tan") {
+    if (func_name == "sin" || func_name == "cos" || func_name == "tan" || func_name == "asin" ||
+        func_name == "acos" || func_name == "atan" || func_name == "sinh" ||
+        func_name == "cosh" || func_name == "tanh") {
       if (arg_types.size() != 1) {
         error(call_token, func_name + " expects exactly one argument.");
         return make_error_type();
@@ -1956,20 +1958,6 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return make_error_type();
       }
       return Type{Type::Kind::Float};
-    }
-    if (func_name == "stdmath_asin_unimplemented" || func_name == "stdmath_acos_unimplemented" ||
-        func_name == "stdmath_atan_unimplemented" || func_name == "stdmath_sinh_unimplemented" ||
-        func_name == "stdmath_cosh_unimplemented" || func_name == "stdmath_tanh_unimplemented") {
-      std::string pretty_name = "std.math.<unknown>";
-      if (func_name == "stdmath_asin_unimplemented") pretty_name = "std.math.asin";
-      if (func_name == "stdmath_acos_unimplemented") pretty_name = "std.math.acos";
-      if (func_name == "stdmath_atan_unimplemented") pretty_name = "std.math.atan";
-      if (func_name == "stdmath_sinh_unimplemented") pretty_name = "std.math.sinh";
-      if (func_name == "stdmath_cosh_unimplemented") pretty_name = "std.math.cosh";
-      if (func_name == "stdmath_tanh_unimplemented") pretty_name = "std.math.tanh";
-      error(call_token, pretty_name +
-                            " is not implemented yet (missing scalar VM opcode/runtime support).");
-      return make_error_type();
     }
     if (func_name == "sys_exit") {
       if (arg_types.size() != 1) {

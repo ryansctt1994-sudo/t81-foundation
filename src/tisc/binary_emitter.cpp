@@ -126,6 +126,18 @@ Opcode map_opcode(const ir::Instruction& instr) {
       return Opcode::FCos;
     case O::FTAN:
       return Opcode::FTan;
+    case O::FASIN:
+      return Opcode::FAsin;
+    case O::FACOS:
+      return Opcode::FAcos;
+    case O::FATAN:
+      return Opcode::FAtan;
+    case O::FSINH:
+      return Opcode::FSinh;
+    case O::FCOSH:
+      return Opcode::FCosh;
+    case O::FTANH:
+      return Opcode::FTanh;
     case O::FSQRT:
       return Opcode::FSqrt;
     case O::FEXP:

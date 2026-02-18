@@ -2295,6 +2295,12 @@ public:
       case t81::tisc::Opcode::FSin:
       case t81::tisc::Opcode::FCos:
       case t81::tisc::Opcode::FTan:
+      case t81::tisc::Opcode::FAsin:
+      case t81::tisc::Opcode::FAcos:
+      case t81::tisc::Opcode::FAtan:
+      case t81::tisc::Opcode::FSinh:
+      case t81::tisc::Opcode::FCosh:
+      case t81::tisc::Opcode::FTanh:
       case t81::tisc::Opcode::FSqrt:
       case t81::tisc::Opcode::FExp:
       case t81::tisc::Opcode::FLog:
@@ -2325,6 +2331,18 @@ public:
           result = std::cos(*ptr_val);
         } else if (insn.opcode == t81::tisc::Opcode::FTan) {
           result = std::tan(*ptr_val);
+        } else if (insn.opcode == t81::tisc::Opcode::FAsin) {
+          result = std::asin(*ptr_val);
+        } else if (insn.opcode == t81::tisc::Opcode::FAcos) {
+          result = std::acos(*ptr_val);
+        } else if (insn.opcode == t81::tisc::Opcode::FAtan) {
+          result = std::atan(*ptr_val);
+        } else if (insn.opcode == t81::tisc::Opcode::FSinh) {
+          result = std::sinh(*ptr_val);
+        } else if (insn.opcode == t81::tisc::Opcode::FCosh) {
+          result = std::cosh(*ptr_val);
+        } else if (insn.opcode == t81::tisc::Opcode::FTanh) {
+          result = std::tanh(*ptr_val);
         } else if (insn.opcode == t81::tisc::Opcode::FSqrt) {
           result = std::sqrt(*ptr_val);
         } else if (insn.opcode == t81::tisc::Opcode::FExp) {

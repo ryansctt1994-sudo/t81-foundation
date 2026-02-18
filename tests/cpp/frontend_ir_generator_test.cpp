@@ -401,6 +401,12 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let angle: T81Float = std.math.sin(1.0);
             let c: T81Float = std.math.cos(angle);
             let t: T81Float = std.math.tan(c);
+            let asn: T81Float = std.math.asin(0.5);
+            let acs: T81Float = std.math.acos(0.5);
+            let atn: T81Float = std.math.atan(1.0);
+            let sh: T81Float = std.math.sinh(1.0);
+            let ch: T81Float = std.math.cosh(1.0);
+            let th: T81Float = std.math.tanh(1.0);
             let root: T81Float = std.math.sqrt(4.0);
             let ex: T81Float = std.math.exp(1.0);
             let lg: T81Float = std.math.log(ex);
@@ -440,6 +446,12 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _n = n;
             let _e = e;
             let _t = t;
+            let _asn = asn;
+            let _acs = acs;
+            let _atn = atn;
+            let _sh = sh;
+            let _ch = ch;
+            let _th = th;
             let _rt = root;
             let _ex = ex;
             let _lg = lg;
@@ -481,6 +493,12 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   bool has_fsin = false;
   bool has_fcos = false;
   bool has_ftan = false;
+  bool has_fasin = false;
+  bool has_facos = false;
+  bool has_fatan = false;
+  bool has_fsinh = false;
+  bool has_fcosh = false;
+  bool has_ftanh = false;
   bool has_fsqrt = false;
   bool has_fexp = false;
   bool has_flog = false;
@@ -511,6 +529,18 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
       has_fcos = true;
     } else if (inst.opcode == Opcode::FTAN) {
       has_ftan = true;
+    } else if (inst.opcode == Opcode::FASIN) {
+      has_fasin = true;
+    } else if (inst.opcode == Opcode::FACOS) {
+      has_facos = true;
+    } else if (inst.opcode == Opcode::FATAN) {
+      has_fatan = true;
+    } else if (inst.opcode == Opcode::FSINH) {
+      has_fsinh = true;
+    } else if (inst.opcode == Opcode::FCOSH) {
+      has_fcosh = true;
+    } else if (inst.opcode == Opcode::FTANH) {
+      has_ftanh = true;
     } else if (inst.opcode == Opcode::FSQRT) {
       has_fsqrt = true;
     } else if (inst.opcode == Opcode::FEXP) {
@@ -563,6 +593,12 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   EXPECT(has_fsin, "std.math.sin should lower to FSIN");
   EXPECT(has_fcos, "std.math.cos should lower to FCOS");
   EXPECT(has_ftan, "std.math.tan should lower to FTAN");
+  EXPECT(has_fasin, "std.math.asin should lower to FASIN");
+  EXPECT(has_facos, "std.math.acos should lower to FACOS");
+  EXPECT(has_fatan, "std.math.atan should lower to FATAN");
+  EXPECT(has_fsinh, "std.math.sinh should lower to FSINH");
+  EXPECT(has_fcosh, "std.math.cosh should lower to FCOSH");
+  EXPECT(has_ftanh, "std.math.tanh should lower to FTANH");
   EXPECT(has_fsqrt, "std.math.sqrt should lower to FSQRT");
   EXPECT(has_fexp, "std.math.exp should lower to FEXP");
   EXPECT(has_flog, "std.math.log should lower to FLOG");

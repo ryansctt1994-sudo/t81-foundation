@@ -118,7 +118,7 @@ Building blocks for autonomous agents.
 
 ## 5. Implementation Status (Current)
 
-- `std.math`: `sin`, `cos`, `tan`, `sqrt`, `exp`, `log`, and `pow` are wired as deterministic frontend/runtime aliases; remaining documented transcendental aliases (`asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`) currently fail with deterministic "not implemented yet" diagnostics until scalar VM opcode/runtime support is added.
+- `std.math`: `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `sqrt`, `exp`, `log`, and `pow` are wired as deterministic frontend/runtime aliases.
 - `std.io`: `println`, `print_int`, and `print_float` aliases lower to `print`.
 - `std.core`: `debug` now lowers as a deterministic frontend/runtime alias to `print` with existing scalar print-type constraints.
 - `std.core`: `assert` now lowers as a deterministic frontend/runtime alias that traps on false conditions.

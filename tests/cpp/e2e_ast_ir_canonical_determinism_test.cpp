@@ -392,6 +392,26 @@ const char* ir_opcode_name(tisc::ir::Opcode op) {
       return "FCOS";
     case O::FTAN:
       return "FTAN";
+    case O::FASIN:
+      return "FASIN";
+    case O::FACOS:
+      return "FACOS";
+    case O::FATAN:
+      return "FATAN";
+    case O::FSINH:
+      return "FSINH";
+    case O::FCOSH:
+      return "FCOSH";
+    case O::FTANH:
+      return "FTANH";
+    case O::FSQRT:
+      return "FSQRT";
+    case O::FEXP:
+      return "FEXP";
+    case O::FLOG:
+      return "FLOG";
+    case O::FPOW:
+      return "FPOW";
     case O::FRACADD:
       return "FRACADD";
     case O::FRACSUB:

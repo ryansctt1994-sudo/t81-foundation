@@ -210,6 +210,12 @@ static void test_std_namespace_builtin_aliases() {
       let angle: T81Float = std.math.sin(1.0);
       let c: T81Float = std.math.cos(angle);
       let t: T81Float = std.math.tan(c);
+      let a1: T81Float = std.math.asin(0.5);
+      let a2: T81Float = std.math.acos(0.5);
+      let a3: T81Float = std.math.atan(1.0);
+      let h1: T81Float = std.math.sinh(1.0);
+      let h2: T81Float = std.math.cosh(1.0);
+      let h3: T81Float = std.math.tanh(1.0);
       let root: T81Float = std.math.sqrt(4.0);
       let ex: T81Float = std.math.exp(1.0);
       let lg: T81Float = std.math.log(ex);
@@ -222,6 +228,12 @@ static void test_std_namespace_builtin_aliases() {
       std.io.println("ok");
       std.io.print_int(7);
       std.io.print_float(t);
+      std.io.print_float(a1);
+      std.io.print_float(a2);
+      std.io.print_float(a3);
+      std.io.print_float(h1);
+      std.io.print_float(h2);
+      std.io.print_float(h3);
       std.io.print_float(root);
       std.io.print_float(lg);
       std.io.print_float(pw);
@@ -256,17 +268,17 @@ static void test_std_namespace_builtin_aliases() {
   require_true(fails_semantic(bad_math_type, "t81lang_std_math_cos_bad_type"),
                "t81lang_std_math_cos_bad_type");
 
-  constexpr const char* unsupported_math_asin = R"(
+  constexpr const char* bad_math_asin_arity = R"(
     fn main() -> i32 {
-      let x: T81Float = std.math.asin(0.5);
+      let x: T81Float = std.math.asin(0.5, 0.2);
       let _ = x;
       return 0;
     }
   )";
-  require_true(fails_semantic_with_message(unsupported_math_asin,
-                                           "std.math.asin is not implemented yet",
-                                           "t81lang_std_math_asin_unimplemented"),
-               "t81lang_std_math_asin_unimplemented");
+  require_true(fails_semantic_with_message(bad_math_asin_arity,
+                                           "asin expects exactly one argument.",
+                                           "t81lang_std_math_asin_bad_arity"),
+               "t81lang_std_math_asin_bad_arity");
 
   constexpr const char* bad_math_pow_arity = R"(
     fn main() -> i32 {
@@ -459,6 +471,24 @@ static void test_std_math_tensor_module_wrappers() {
     fn tan(x: T81Float) -> T81Float {
       return std.math.tan(x);
     }
+    fn asin(x: T81Float) -> T81Float {
+      return std.math.asin(x);
+    }
+    fn acos(x: T81Float) -> T81Float {
+      return std.math.acos(x);
+    }
+    fn atan(x: T81Float) -> T81Float {
+      return std.math.atan(x);
+    }
+    fn sinh(x: T81Float) -> T81Float {
+      return std.math.sinh(x);
+    }
+    fn cosh(x: T81Float) -> T81Float {
+      return std.math.cosh(x);
+    }
+    fn tanh(x: T81Float) -> T81Float {
+      return std.math.tanh(x);
+    }
     fn exp(x: T81Float) -> T81Float {
       return std.math.exp(x);
     }
@@ -484,6 +514,12 @@ static void test_std_math_tensor_module_wrappers() {
       let angle: T81Float = sin(1.0);
       let c: T81Float = cos(angle);
       let _t: T81Float = tan(c);
+      let _asin: T81Float = asin(0.5);
+      let _acos: T81Float = acos(0.5);
+      let _atan: T81Float = atan(1.0);
+      let _sinh: T81Float = sinh(1.0);
+      let _cosh: T81Float = cosh(1.0);
+      let _tanh: T81Float = tanh(1.0);
       let ex: T81Float = exp(1.0);
       let _lg: T81Float = log(ex);
       let _rt: T81Float = sqrt(4.0);

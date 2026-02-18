@@ -91,6 +91,12 @@ enum class Opcode : std::uint8_t {
   FSin,
   FCos,
   FTan,
+  FAsin,
+  FAcos,
+  FAtan,
+  FSinh,
+  FCosh,
+  FTanh,
   FSqrt,
   FExp,
   FLog,
@@ -288,6 +294,18 @@ enum class Opcode : std::uint8_t {
       return "FCos";
     case Opcode::FTan:
       return "FTan";
+    case Opcode::FAsin:
+      return "FAsin";
+    case Opcode::FAcos:
+      return "FAcos";
+    case Opcode::FAtan:
+      return "FAtan";
+    case Opcode::FSinh:
+      return "FSinh";
+    case Opcode::FCosh:
+      return "FCosh";
+    case Opcode::FTanh:
+      return "FTanh";
     case Opcode::FSqrt:
       return "FSqrt";
     case Opcode::FExp:

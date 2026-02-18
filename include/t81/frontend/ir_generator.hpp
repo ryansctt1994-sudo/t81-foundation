@@ -146,6 +146,24 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.math.tan") {
     return "tan";
   }
+  if (name == "std.math.asin") {
+    return "asin";
+  }
+  if (name == "std.math.acos") {
+    return "acos";
+  }
+  if (name == "std.math.atan") {
+    return "atan";
+  }
+  if (name == "std.math.sinh") {
+    return "sinh";
+  }
+  if (name == "std.math.cosh") {
+    return "cosh";
+  }
+  if (name == "std.math.tanh") {
+    return "tanh";
+  }
   if (name == "std.math.exp") {
     return "exp";
   }
@@ -157,24 +175,6 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   }
   if (name == "std.math.sqrt") {
     return "sqrt";
-  }
-  if (name == "std.math.asin") {
-    return "stdmath_asin_unimplemented";
-  }
-  if (name == "std.math.acos") {
-    return "stdmath_acos_unimplemented";
-  }
-  if (name == "std.math.atan") {
-    return "stdmath_atan_unimplemented";
-  }
-  if (name == "std.math.sinh") {
-    return "stdmath_sinh_unimplemented";
-  }
-  if (name == "std.math.cosh") {
-    return "stdmath_cosh_unimplemented";
-  }
-  if (name == "std.math.tanh") {
-    return "stdmath_tanh_unimplemented";
   }
   if (name == "std.sys.exit") {
     return "sys_exit";
@@ -1028,7 +1028,9 @@ public:
         return {};
       }
 
-      if (func_name == "sin" || func_name == "cos" || func_name == "tan") {
+      if (func_name == "sin" || func_name == "cos" || func_name == "tan" || func_name == "asin" ||
+          func_name == "acos" || func_name == "atan" || func_name == "sinh" ||
+          func_name == "cosh" || func_name == "tanh") {
         if (expr.arguments.size() != 1) {
           throw std::runtime_error("Math functions expect 1 argument.");
         }
@@ -1040,8 +1042,20 @@ public:
           instr.opcode = tisc::ir::Opcode::FSIN;
         else if (func_name == "cos")
           instr.opcode = tisc::ir::Opcode::FCOS;
-        else
+        else if (func_name == "tan")
           instr.opcode = tisc::ir::Opcode::FTAN;
+        else if (func_name == "asin")
+          instr.opcode = tisc::ir::Opcode::FASIN;
+        else if (func_name == "acos")
+          instr.opcode = tisc::ir::Opcode::FACOS;
+        else if (func_name == "atan")
+          instr.opcode = tisc::ir::Opcode::FATAN;
+        else if (func_name == "sinh")
+          instr.opcode = tisc::ir::Opcode::FSINH;
+        else if (func_name == "cosh")
+          instr.opcode = tisc::ir::Opcode::FCOSH;
+        else
+          instr.opcode = tisc::ir::Opcode::FTANH;
         instr.operands = {dest.reg, val.reg};
         instr.primitive = tisc::ir::PrimitiveKind::Float;
         emit(instr);
@@ -1084,15 +1098,6 @@ public:
         emit(instr);
         record_result(&expr, dest);
         return {};
-      }
-      if (func_name == "stdmath_asin_unimplemented" || func_name == "stdmath_acos_unimplemented" ||
-          func_name == "stdmath_atan_unimplemented" ||
-          func_name == "stdmath_sinh_unimplemented" ||
-          func_name == "stdmath_cosh_unimplemented" ||
-          func_name == "stdmath_tanh_unimplemented") {
-        throw std::runtime_error(
-            "std.math transcendental alias is not implemented yet (missing scalar VM "
-            "opcode/runtime support).");
       }
       if (func_name == "sys_exit") {
         if (expr.arguments.size() != 1) {

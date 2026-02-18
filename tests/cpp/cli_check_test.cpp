@@ -199,31 +199,39 @@ int main() {
 
   fs::remove(sys_async_agent_path);
 
-  const std::string unsupported_math_program = R"(
+  const std::string transcendental_math_program = R"(
         fn main() -> i32 {
-            let x: T81Float = std.math.asin(0.5);
-            let _ = x;
+            let a1: T81Float = std.math.asin(0.5);
+            let a2: T81Float = std.math.acos(0.5);
+            let a3: T81Float = std.math.atan(1.0);
+            let h1: T81Float = std.math.sinh(1.0);
+            let h2: T81Float = std.math.cosh(1.0);
+            let h3: T81Float = std.math.tanh(1.0);
+            let _a1 = a1;
+            let _a2 = a2;
+            let _a3 = a3;
+            let _h1 = h1;
+            let _h2 = h2;
+            let _h3 = h3;
             return 0;
         }
     )";
 
-  [[maybe_unused]] auto unsupported_math_path = make_temp_path("t81-check-math-unsupported", ".t81");
-  write_source(unsupported_math_path, unsupported_math_program);
+  [[maybe_unused]] auto transcendental_math_path =
+      make_temp_path("t81-check-math-transcendental", ".t81");
+  write_source(transcendental_math_path, transcendental_math_program);
 
-  [[maybe_unused]] std::ostringstream unsupported_math_captured;
-  old_buf = std::cerr.rdbuf(unsupported_math_captured.rdbuf());
-  [[maybe_unused]] int unsupported_math_rc = t81::cli::check_syntax(unsupported_math_path);
+  [[maybe_unused]] std::ostringstream transcendental_math_captured;
+  old_buf = std::cerr.rdbuf(transcendental_math_captured.rdbuf());
+  [[maybe_unused]] int transcendental_math_rc = t81::cli::check_syntax(transcendental_math_path);
   std::cerr.rdbuf(old_buf);
 
-  if (unsupported_math_rc == 0) {
-    std::cerr << "Expected `t81 check` to fail on unsupported std.math alias input\n";
+  if (transcendental_math_rc != 0) {
+    std::cerr << "Expected `t81 check` to succeed on std.math transcendental alias input\n";
+    std::cerr << transcendental_math_captured.str() << "\n";
     return 1;
   }
-
-  [[maybe_unused]] std::string unsupported_math_output = unsupported_math_captured.str();
-  assert(unsupported_math_output.find("std.math.asin is not implemented yet") !=
-         std::string::npos);
-  fs::remove(unsupported_math_path);
+  fs::remove(transcendental_math_path);
 
   std::cout << "CliCheckTest passed!" << std::endl;
   return 0;
