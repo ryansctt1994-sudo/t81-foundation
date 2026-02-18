@@ -494,7 +494,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             std.async.sleep(now);
             let thread_h: i32 = std.async.thread();
             let promise_h: i32 = std.async.promise();
-            let list_h: i32 = std.collections.list();
+            let list_v: Vector[T81String] = std.collections.list();
             let map_h: i32 = std.collections.map();
             let set_h: i32 = std.collections.set();
             let tree_h: i32 = std.collections.tree();
@@ -552,7 +552,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _net_h = net_h;
             let _thread_h = thread_h;
             let _promise_h = promise_h;
-            let _list_h = list_h;
+            let _list_h = std.collections.len(list_v);
             let _map_h = map_h;
             let _set_h = set_h;
             let _tree_h = tree_h;
@@ -781,12 +781,12 @@ void test_std_runtime_handle_aliases_lower_to_deterministic_immediates() {
             let net_h: i32 = std.io.net();
             let thread_h: i32 = std.async.thread();
             let promise_h: i32 = std.async.promise();
-            let list_h: i32 = std.collections.list();
+            let list_v: Vector[T81String] = std.collections.list();
             let map_h: i32 = std.collections.map();
             let set_h: i32 = std.collections.set();
             let tree_h: i32 = std.collections.tree();
             let graph_h: i32 = std.collections.graph();
-            return proof + stream_h + net_h + thread_h + promise_h + list_h + map_h + set_h +
+            return proof + stream_h + net_h + thread_h + promise_h + std.collections.len(list_v) + map_h + set_h +
                    tree_h + graph_h;
         }
     )";
@@ -806,8 +806,15 @@ void test_std_runtime_handle_aliases_lower_to_deterministic_immediates() {
   EXPECT(!instructions.empty(), "std runtime handle alias fixture produced no IR");
 
   std::set<long long> seen;
+  bool has_strvecnew = false;
   for (const auto& inst : instructions) {
-    if (inst.opcode != Opcode::LOADI || inst.operands.size() < 2) {
+    if (inst.opcode != Opcode::LOADI) {
+      if (inst.opcode == Opcode::STRVECNEW) {
+        has_strvecnew = true;
+      }
+      continue;
+    }
+    if (inst.operands.size() < 2) {
       continue;
     }
     if (const auto* imm = std::get_if<t81::tisc::ir::Immediate>(&inst.operands[1])) {
@@ -820,11 +827,11 @@ void test_std_runtime_handle_aliases_lower_to_deterministic_immediates() {
   EXPECT(seen.count(103) == 1, "std.io.net should lower to deterministic handle 103");
   EXPECT(seen.count(104) == 1, "std.async.thread should lower to deterministic handle 104");
   EXPECT(seen.count(105) == 1, "std.async.promise should lower to deterministic handle 105");
-  EXPECT(seen.count(106) == 1, "std.collections.list should lower to deterministic handle 106");
   EXPECT(seen.count(107) == 1, "std.collections.map should lower to deterministic handle 107");
   EXPECT(seen.count(108) == 1, "std.collections.set should lower to deterministic handle 108");
   EXPECT(seen.count(109) == 1, "std.collections.tree should lower to deterministic handle 109");
   EXPECT(seen.count(110) == 1, "std.collections.graph should lower to deterministic handle 110");
+  EXPECT(has_strvecnew, "std.collections.list should lower to STRVECNEW");
   std::cout << "IRGeneratorTest test_std_runtime_handle_aliases_lower_to_deterministic_immediates "
                "passed!"
             << std::endl;

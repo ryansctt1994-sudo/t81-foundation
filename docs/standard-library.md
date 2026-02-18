@@ -60,7 +60,7 @@ Input and Output.
 - `fn last(v: Vector[T]) -> T`: Deterministic last-element lookup; empty vectors are rejected deterministically.
 - `fn push(v: Vector[T], value: T) -> Vector[T]`: Deterministic append returning a new vector value.
 - `fn pop(v: Vector[T]) -> Vector[T]`: Deterministic drop-last returning a new vector value; empty vectors are rejected deterministically.
-- `fn list() -> i32`: Deterministic list-module placeholder handle.
+- `fn list() -> Vector[T81String]`: Deterministic empty list constructor (runtime-backed string-vector value).
 - `fn map() -> i32`: Deterministic map-module placeholder handle.
 - `fn set() -> i32`: Deterministic set-module placeholder handle.
 - `fn tree() -> i32`: Deterministic tree-module placeholder handle.

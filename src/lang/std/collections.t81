@@ -27,7 +27,7 @@ fn pop[T](v: Vector[T]) -> Vector[T] {
 }
 
 // Deterministic container-handle constructors for roadmap modules.
-fn list() -> i32 {
+fn list() -> Vector[T81String] {
     return std.collections.list();
 }
 
