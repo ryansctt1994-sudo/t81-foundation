@@ -281,7 +281,14 @@ std::string stmt_repr(const frontend::Stmt* stmt) {
   }
   if (const auto* node = dynamic_cast<const frontend::FunctionStmt*>(stmt)) {
     std::ostringstream os;
-    os << "(fn " << token_repr(node->name) << " params";
+    os << "(fn " << token_repr(node->name);
+    if (!node->generic_params.empty()) {
+      os << " generics";
+      for (const auto& gp : node->generic_params) {
+        os << " " << token_repr(gp);
+      }
+    }
+    os << " params";
     for (const auto& param : node->params) {
       os << " (" << token_repr(param.name);
       if (param.type) {

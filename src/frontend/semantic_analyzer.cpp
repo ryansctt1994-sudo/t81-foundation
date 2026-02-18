@@ -10,6 +10,7 @@ thread_local int type_to_string_depth = 0;
 #include "t81/frontend/semantic_analyzer.hpp"
 #include <algorithm>
 #include <cstdlib>
+#include <functional>
 #include <iostream>
 #include <limits>
 #include <sstream>
@@ -464,7 +465,7 @@ void SemanticAnalyzer::exit_scope() {
 void SemanticAnalyzer::define_symbol(const Token& name, SymbolKind kind, bool is_mutable) {
   if (!_scopes.empty()) {
     std::string name_str = std::string(name.lexeme);
-    _scopes.back()[name_str] = SemanticSymbol{kind, name, Type{}, {}, is_mutable, false};
+    _scopes.back()[name_str] = SemanticSymbol{kind, name, Type{}, {}, {}, is_mutable, false};
   }
 }
 
@@ -740,6 +741,13 @@ void SemanticAnalyzer::enforce_generic_arity(const Type& type, const Token& loca
 }
 
 Type SemanticAnalyzer::type_from_token(const Token& name) {
+  if (_current_type_env) {
+    auto env_it = _current_type_env->find(std::string(name.lexeme));
+    if (env_it != _current_type_env->end()) {
+      return env_it->second;
+    }
+  }
+
   switch (name.type) {
     case TokenType::Void:
       return Type{Type::Kind::Void};
@@ -1142,6 +1150,16 @@ void SemanticAnalyzer::register_function_signatures() {
     SemanticSymbol* symbol = resolve_symbol(func->name);
     if (!symbol) continue;
 
+    std::unordered_map<std::string, Type> type_env;
+    type_env.reserve(func->generic_params.size());
+    for (const auto& generic_param : func->generic_params) {
+      const std::string param_name(generic_param.lexeme);
+      if (!type_env.emplace(param_name, Type{Type::Kind::Unknown}).second) {
+        error(generic_param,
+              "Generic parameter '" + param_name + "' is already defined in this function.");
+      }
+    }
+
     std::vector<Type> param_types;
     bool param_error = false;
     for (const auto& param : func->params) {
@@ -1152,13 +1170,18 @@ void SemanticAnalyzer::register_function_signatures() {
         param_types.push_back(make_error_type());
         continue;
       }
-      param_types.push_back(analyze_type_expr(*param.type));
+      param_types.push_back(analyze_type_expr(*param.type, &type_env));
     }
 
-    Type return_type =
-        func->return_type ? analyze_type_expr(*func->return_type) : Type{Type::Kind::Void};
+    Type return_type = func->return_type ? analyze_type_expr(*func->return_type, &type_env)
+                                         : Type{Type::Kind::Void};
     symbol->param_types = param_types;
     symbol->type = return_type;
+    symbol->generic_params.clear();
+    symbol->generic_params.reserve(func->generic_params.size());
+    for (const auto& generic_param : func->generic_params) {
+      symbol->generic_params.emplace_back(std::string(generic_param.lexeme));
+    }
     symbol->is_defined = !param_error;
   }
 }
@@ -1407,6 +1430,16 @@ std::any SemanticAnalyzer::visit(const FunctionStmt& stmt) {
     symbol = resolve_symbol(stmt.name);
   }
 
+  std::unordered_map<std::string, Type> type_env;
+  type_env.reserve(stmt.generic_params.size());
+  for (const auto& generic_param : stmt.generic_params) {
+    const std::string param_name(generic_param.lexeme);
+    if (!type_env.emplace(param_name, Type{Type::Kind::Unknown}).second) {
+      error(generic_param,
+            "Generic parameter '" + param_name + "' is already defined in this function.");
+    }
+  }
+
   enter_scope();
   _function_return_stack.push_back(symbol ? symbol->type : Type{Type::Kind::Unknown});
 
@@ -1420,7 +1453,7 @@ std::any SemanticAnalyzer::visit(const FunctionStmt& stmt) {
                                                                  : Type{Type::Kind::Unknown};
 
     if (param.type && param_type.kind == Type::Kind::Unknown) {
-      param_type = analyze_type_expr(*param.type);
+      param_type = analyze_type_expr(*param.type, &type_env);
     }
 
     if (is_defined_in_current_scope(std::string(param.name.lexeme))) {
@@ -2514,15 +2547,79 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return symbol->type;
       }
 
+      if (symbol->generic_params.empty()) {
+        for (size_t i = 0; i < arg_types.size(); ++i) {
+          if (!is_assignable(symbol->param_types[i], arg_types[i])) {
+            error(var_expr->name, "Argument " + std::to_string(i) + " for function '" + func_name +
+                                      "' expects '" + type_to_string(symbol->param_types[i]) +
+                                      "' but got '" + type_to_string(arg_types[i]) + "'.");
+          }
+        }
+        return symbol->type;
+      }
+
+      std::unordered_map<std::string, Type> generic_bindings;
+      generic_bindings.reserve(symbol->generic_params.size());
+
+      std::function<bool(const Type&, const Type&)> bind_generic =
+          [&](const Type& pattern, const Type& actual) -> bool {
+        if (pattern.kind == Type::Kind::Custom) {
+          auto generic_it =
+              std::find(symbol->generic_params.begin(), symbol->generic_params.end(),
+                        pattern.custom_name);
+          if (generic_it != symbol->generic_params.end()) {
+            auto [it, inserted] = generic_bindings.emplace(pattern.custom_name, actual);
+            if (!inserted) {
+              return it->second == actual;
+            }
+            return true;
+          }
+        }
+
+        if (pattern.kind != actual.kind) {
+          return is_assignable(pattern, actual);
+        }
+
+        if (pattern.kind == Type::Kind::Custom || pattern.kind == Type::Kind::Constant) {
+          return pattern.custom_name == actual.custom_name;
+        }
+
+        if (pattern.params.size() != actual.params.size()) {
+          return is_assignable(pattern, actual);
+        }
+
+        for (size_t i = 0; i < pattern.params.size(); ++i) {
+          if (!bind_generic(pattern.params[i], actual.params[i])) {
+            return false;
+          }
+        }
+        return true;
+      };
+
       for (size_t i = 0; i < arg_types.size(); ++i) {
-        if (!is_assignable(symbol->param_types[i], arg_types[i])) {
+        if (!bind_generic(symbol->param_types[i], arg_types[i])) {
           error(var_expr->name, "Argument " + std::to_string(i) + " for function '" + func_name +
                                     "' expects '" + type_to_string(symbol->param_types[i]) +
                                     "' but got '" + type_to_string(arg_types[i]) + "'.");
         }
       }
 
-      return symbol->type;
+      std::function<Type(const Type&)> instantiate_generic = [&](const Type& in) -> Type {
+        if (in.kind == Type::Kind::Custom) {
+          auto it = generic_bindings.find(in.custom_name);
+          if (it != generic_bindings.end()) {
+            return it->second;
+          }
+          return in;
+        }
+        Type out = in;
+        for (auto& param : out.params) {
+          param = instantiate_generic(param);
+        }
+        return out;
+      };
+
+      return instantiate_generic(symbol->type);
     }
   }
 

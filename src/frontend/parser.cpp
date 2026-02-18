@@ -383,6 +383,17 @@ std::unique_ptr<Stmt> Parser::declaration() {
 // function -> "fn" IDENTIFIER "(" parameters? ")" ( "->" type )? "{" block "}" ;
 std::unique_ptr<Stmt> Parser::function(const std::string& kind) {
   Token name = consume(TokenType::Identifier, ("Expect " + kind + " name.").c_str());
+  std::vector<Token> generic_params;
+  if (match({TokenType::LBracket})) {
+    do {
+      if (generic_params.size() >= 8) {
+        report_error(peek(), "Too many generic parameters (max 8)");
+        break;
+      }
+      generic_params.push_back(consume(TokenType::Identifier, "Expect generic parameter name."));
+    } while (match({TokenType::Comma}));
+    consume(TokenType::RBracket, "Expect ']' after generic parameters.");
+  }
   consume(TokenType::LParen, ("Expect '(' after " + kind + " name.").c_str());
   std::vector<Parameter> parameters;
   if (!check(TokenType::RParen)) {
@@ -404,8 +415,8 @@ std::unique_ptr<Stmt> Parser::function(const std::string& kind) {
 
   consume(TokenType::LBrace, ("Expect '{' before " + kind + " body.").c_str());
   std::vector<std::unique_ptr<Stmt>> body = block();
-  return std::make_unique<FunctionStmt>(name, std::move(parameters), std::move(return_type),
-                                        std::move(body));
+  return std::make_unique<FunctionStmt>(name, std::move(generic_params), std::move(parameters),
+                                        std::move(return_type), std::move(body));
 }
 
 std::unique_ptr<Stmt> Parser::type_declaration() {

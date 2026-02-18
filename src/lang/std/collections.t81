@@ -2,28 +2,26 @@
 // Collection utilities.
 
 // Deterministic Vector helpers.
-// NOTE: Generic function wrappers are not supported yet by the current parser.
-
-fn len(v: Vector[i32]) -> i32 {
+fn len[T](v: Vector[T]) -> i32 {
     return std.collections.len(v);
 }
 
-fn is_empty(v: Vector[i32]) -> bool {
+fn is_empty[T](v: Vector[T]) -> bool {
     return std.collections.is_empty(v);
 }
 
-fn first(v: Vector[i32]) -> i32 {
+fn first[T](v: Vector[T]) -> T {
     return std.collections.first(v);
 }
 
-fn last(v: Vector[i32]) -> i32 {
+fn last[T](v: Vector[T]) -> T {
     return std.collections.last(v);
 }
 
-fn push(v: Vector[i32], value: i32) -> Vector[i32] {
+fn push[T](v: Vector[T], value: T) -> Vector[T] {
     return std.collections.push(v, value);
 }
 
-fn pop(v: Vector[i32]) -> Vector[i32] {
+fn pop[T](v: Vector[T]) -> Vector[T] {
     return std.collections.pop(v);
 }

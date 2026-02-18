@@ -27,6 +27,8 @@ int main() {
   run_test("let x: Result[T81Int, Symbol] = 1;", "(let x: (generic Result T81Int Symbol) = 1)");
   run_test("let x: Tensor[T81Int, 5] = 1;", "(let x: (generic Tensor T81Int 5) = 1)");
   run_test("let x: Tensor[T81Int, 5, 10] = 1;", "(let x: (generic Tensor T81Int 5 10) = 1)");
+  run_test("fn id[T](x: T) -> T { return x; }",
+           "(fn id [T] (x: T ) -> T (block (return x)))");
 
   return 0;
 }

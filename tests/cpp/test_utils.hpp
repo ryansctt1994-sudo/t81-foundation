@@ -109,6 +109,16 @@ public:
   std::any visit(const FunctionStmt& stmt) override {
     [[maybe_unused]] std::stringstream ss;
     ss << "(fn " << stmt.name.lexeme;
+    if (!stmt.generic_params.empty()) {
+      ss << " [";
+      for (size_t i = 0; i < stmt.generic_params.size(); ++i) {
+        ss << stmt.generic_params[i].lexeme;
+        if (i + 1 < stmt.generic_params.size()) {
+          ss << ", ";
+        }
+      }
+      ss << "]";
+    }
     ss << " (";
     for (size_t i = 0; i < stmt.params.size(); ++i) {
       ss << stmt.params[i].name.lexeme << ": " << print(*stmt.params[i].type);

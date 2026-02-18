@@ -609,22 +609,22 @@ static void test_std_math_tensor_module_wrappers() {
     fn clamp(v: T81Float, minv: T81Float, maxv: T81Float) -> T81Float {
       return std.math.clamp(v, minv, maxv);
     }
-    fn len_i32(v: Vector[i32]) -> i32 {
+    fn len_wrap[T](v: Vector[T]) -> i32 {
       return std.collections.len(v);
     }
-    fn is_empty_i32(v: Vector[i32]) -> bool {
+    fn is_empty_wrap[T](v: Vector[T]) -> bool {
       return std.collections.is_empty(v);
     }
-    fn first_i32(v: Vector[i32]) -> i32 {
+    fn first_wrap[T](v: Vector[T]) -> T {
       return std.collections.first(v);
     }
-    fn last_i32(v: Vector[i32]) -> i32 {
+    fn last_wrap[T](v: Vector[T]) -> T {
       return std.collections.last(v);
     }
-    fn push_i32(v: Vector[i32], value: i32) -> Vector[i32] {
+    fn push_wrap[T](v: Vector[T], value: T) -> Vector[T] {
       return std.collections.push(v, value);
     }
-    fn pop_i32(v: Vector[i32]) -> Vector[i32] {
+    fn pop_wrap[T](v: Vector[T]) -> Vector[T] {
       return std.collections.pop(v);
     }
     fn from_list(values: Vector[i32]) -> Tensor {
@@ -652,12 +652,12 @@ static void test_std_math_tensor_module_wrappers() {
       let _pw: T81Float = pow(2.0, 8.0);
       let _cp: T81Float = clamp(-2.0, 0.0, 1.0);
       let ints: Vector[i32] = [1, 2, 3];
-      let _len: i32 = len_i32(ints);
-      let _empty: bool = is_empty_i32(ints);
-      let _first: i32 = first_i32(ints);
-      let _last: i32 = last_i32(ints);
-      let pushed: Vector[i32] = push_i32(ints, 4);
-      let _popped: Vector[i32] = pop_i32(pushed);
+      let _len: i32 = len_wrap(ints);
+      let _empty: bool = is_empty_wrap(ints);
+      let _first: i32 = first_wrap(ints);
+      let _last: i32 = last_wrap(ints);
+      let pushed: Vector[i32] = push_wrap(ints, 4);
+      let _popped: Vector[i32] = pop_wrap(pushed);
       let a: Tensor = from_list([1, 2, 3]);
       let b: Tensor = from_list([4, 5, 6]);
       let _m: Tensor = matmul(a, b);
