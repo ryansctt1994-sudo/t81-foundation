@@ -210,6 +210,7 @@ static void test_std_namespace_builtin_aliases() {
       let angle: T81Float = std.math.sin(1.0);
       let c: T81Float = std.math.cos(angle);
       let t: T81Float = std.math.tan(c);
+      std.core.debug("dbg");
       std.io.println("ok");
       std.io.print_int(7);
       std.io.print_float(t);
@@ -238,6 +239,16 @@ static void test_std_namespace_builtin_aliases() {
   )";
   require_true(fails_semantic(bad_math_type, "t81lang_std_math_cos_bad_type"),
                "t81lang_std_math_cos_bad_type");
+
+  constexpr const char* bad_debug_type = R"(
+    fn main() -> i32 {
+      let t: Tensor = std.tensor.from_list([1, 2, 3]);
+      std.core.debug(t);
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_debug_type, "t81lang_std_core_debug_bad_type"),
+               "t81lang_std_core_debug_bad_type");
 }
 
 static void test_std_tensor_from_list_alias() {

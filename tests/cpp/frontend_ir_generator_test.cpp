@@ -419,6 +419,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let rendered_sym: T81String = std.symbol.to_string(sym);
             let same: bool = std.symbol.eq(sym, "omega");
             let diff: bool = std.symbol.ne(sym, "alpha");
+            std.core.debug("debug");
             std.io.println("hello");
             std.io.print_int(7);
             std.io.print_float(t);
@@ -534,7 +535,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   EXPECT(has_strvecnew, "Vector[T81String] literal should lower to STRVECNEW");
   EXPECT(has_strvecpush, "Vector[T81String] literal should lower to STRVECPUSH");
   EXPECT(has_cmp, "std.symbol.eq/ne should lower to CMP");
-  EXPECT(has_print, "std.io.println should lower to PRINT");
+  EXPECT(has_print, "std.core.debug/std.io.* should lower to PRINT");
   EXPECT(has_weights_load, "std.tensor.load should lower to WEIGHTS_LOAD");
   std::cout << "IRGeneratorTest test_std_namespace_aliases_lower_to_builtin_opcodes passed!"
             << std::endl;

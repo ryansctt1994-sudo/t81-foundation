@@ -125,6 +125,9 @@ inline std::optional<std::string> qualified_call_name(const Expr& expr) {
 }
 
 inline std::string canonical_stdlib_call_name(std::string_view name) {
+  if (name == "std.core.debug") {
+    return "print";
+  }
   if (name == "std.io.println" || name == "std.io.print_int" || name == "std.io.print_float") {
     return "print";
   }

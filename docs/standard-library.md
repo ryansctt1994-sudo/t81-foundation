@@ -8,7 +8,7 @@ These modules are located in `src/lang/std/`.
 ### `std.core`
 Basic definitions and utilities.
 - `fn assert(condition: bool) -> void`: Aborts execution if condition is false.
-- `fn debug(msg: T81String) -> void`: Prints a debug message.
+- `fn debug(msg: T81String) -> void`: Prints a debug message (`std.core.debug` lowers to builtin `print` and therefore accepts the same scalar-printable types).
 - `fn unwrap_or(opt: Option[i32], default: i32) -> i32`: Option helper.
 
 ### `std.math`
