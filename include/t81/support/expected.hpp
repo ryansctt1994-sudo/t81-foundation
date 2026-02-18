@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <cstdlib>
 #include <type_traits>
 #include <utility>
 #include <variant>
@@ -81,14 +82,26 @@ public:
   [[nodiscard]] bool has_value() const noexcept { return has_; }
   [[nodiscard]] explicit operator bool() const noexcept { return has_; }
 
-  T& value() { return std::get<0>(storage_); }
-  const T& value() const { return std::get<0>(storage_); }
+  T& value() {
+    if (!has_) std::abort();
+    return std::get<0>(storage_);
+  }
+  const T& value() const {
+    if (!has_) std::abort();
+    return std::get<0>(storage_);
+  }
   T* operator->() { return &std::get<0>(storage_); }
   const T* operator->() const { return &std::get<0>(storage_); }
   T& operator*() { return value(); }
   const T& operator*() const { return value(); }
-  E& error() { return std::get<1>(storage_); }
-  const E& error() const { return std::get<1>(storage_); }
+  E& error() {
+    if (has_) std::abort();
+    return std::get<1>(storage_);
+  }
+  const E& error() const {
+    if (has_) std::abort();
+    return std::get<1>(storage_);
+  }
 
   template <typename F>
   auto and_then(F&& f) & {
