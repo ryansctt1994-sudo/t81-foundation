@@ -23,3 +23,4 @@ Based on the analysis of `advanced_datatypes_showcase.t81` and the current compi
 19. **Expose `std.core.debug` Frontend Alias:** [Done] `std.core.debug` now canonicalizes to builtin `print`, with conformance, IR-lowering, and CLI check coverage.
 20. **Expose `std.core.unwrap_or` Frontend Alias:** [Done] `std.core.unwrap_or` now canonicalizes to deterministic Option lowering (`OPTION_IS_SOME` / `OPTION_UNWRAP`) with conformance, IR-lowering, and CLI check coverage.
 21. **Expose `std.core.assert` Frontend Alias:** [Done] `std.core.assert` now canonicalizes to deterministic trap-on-false lowering with conformance, IR-lowering, and CLI check coverage.
+22. **Expose `std.sys` / `std.async` / `std.agent` Frontend Aliases:** [Done] `std.sys.exit/time`, `std.async.yield/sleep`, and `std.agent.self_reflect` now canonicalize to deterministic builtin lowerings (`TRAP`, `0.0`, no-op, `META_REFLECT`) with conformance, IR-lowering, and CLI check coverage.

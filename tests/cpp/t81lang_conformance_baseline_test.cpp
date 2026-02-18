@@ -218,6 +218,11 @@ static void test_std_namespace_builtin_aliases() {
       std.io.println("ok");
       std.io.print_int(7);
       std.io.print_float(t);
+      let now: T81Float = std.sys.time();
+      std.async.yield();
+      std.async.sleep(now);
+      std.agent.self_reflect();
+      std.sys.exit(0);
       let handle: i32 = std.tensor.load("layer0.weight");
       return 0;
     }
@@ -291,6 +296,44 @@ static void test_std_namespace_builtin_aliases() {
   )";
   require_true(fails_semantic(bad_unwrap_or_type, "t81lang_std_core_unwrap_or_bad_type"),
                "t81lang_std_core_unwrap_or_bad_type");
+
+  constexpr const char* bad_sys_exit_type = R"(
+    fn main() -> i32 {
+      std.sys.exit(1.5);
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_sys_exit_type, "t81lang_std_sys_exit_bad_type"),
+               "t81lang_std_sys_exit_bad_type");
+
+  constexpr const char* bad_sys_time_arity = R"(
+    fn main() -> i32 {
+      let now: T81Float = std.sys.time(1);
+      let _ = now;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_sys_time_arity, "t81lang_std_sys_time_bad_arity"),
+               "t81lang_std_sys_time_bad_arity");
+
+  constexpr const char* bad_async_sleep_type = R"(
+    fn main() -> i32 {
+      std.async.sleep("slow");
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_async_sleep_type, "t81lang_std_async_sleep_bad_type"),
+               "t81lang_std_async_sleep_bad_type");
+
+  constexpr const char* bad_agent_self_reflect_arity = R"(
+    fn main() -> i32 {
+      std.agent.self_reflect(1);
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic(bad_agent_self_reflect_arity, "t81lang_std_agent_self_reflect_bad_arity"),
+      "t81lang_std_agent_self_reflect_bad_arity");
 }
 
 static void test_std_tensor_from_list_alias() {

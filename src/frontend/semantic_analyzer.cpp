@@ -221,6 +221,21 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.math.tan") {
     return "tan";
   }
+  if (name == "std.sys.exit") {
+    return "sys_exit";
+  }
+  if (name == "std.sys.time") {
+    return "sys_time";
+  }
+  if (name == "std.async.yield") {
+    return "async_yield";
+  }
+  if (name == "std.async.sleep") {
+    return "async_sleep";
+  }
+  if (name == "std.agent.self_reflect") {
+    return "agent_self_reflect";
+  }
   if (name == "std.tensor.load") {
     return "weights.load";
   }
@@ -1888,6 +1903,49 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return make_error_type();
       }
       return Type{Type::Kind::Float};
+    }
+    if (func_name == "sys_exit") {
+      if (arg_types.size() != 1) {
+        error(call_token, "sys_exit expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::I32) {
+        error(call_token, "sys_exit expects an i32 exit code argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Void};
+    }
+    if (func_name == "sys_time") {
+      if (!arg_types.empty()) {
+        error(call_token, "sys_time expects no arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Float};
+    }
+    if (func_name == "async_yield") {
+      if (!arg_types.empty()) {
+        error(call_token, "async_yield expects no arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Void};
+    }
+    if (func_name == "async_sleep") {
+      if (arg_types.size() != 1) {
+        error(call_token, "async_sleep expects exactly one argument.");
+        return make_error_type();
+      }
+      if (!is_assignable(Type{Type::Kind::Float}, arg_types[0])) {
+        error(call_token, "async_sleep duration must be convertible to T81Float.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Void};
+    }
+    if (func_name == "agent_self_reflect") {
+      if (!arg_types.empty()) {
+        error(call_token, "agent_self_reflect expects no arguments.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Void};
     }
     if (func_name == "print") {
       if (arg_types.size() != 1) {

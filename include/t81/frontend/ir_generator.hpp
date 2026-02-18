@@ -146,6 +146,21 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.math.tan") {
     return "tan";
   }
+  if (name == "std.sys.exit") {
+    return "sys_exit";
+  }
+  if (name == "std.sys.time") {
+    return "sys_time";
+  }
+  if (name == "std.async.yield") {
+    return "async_yield";
+  }
+  if (name == "std.async.sleep") {
+    return "async_sleep";
+  }
+  if (name == "std.agent.self_reflect") {
+    return "agent_self_reflect";
+  }
   if (name == "std.tensor.load") {
     return "weights.load";
   }
@@ -1001,6 +1016,55 @@ public:
         instr.primitive = tisc::ir::PrimitiveKind::Float;
         emit(instr);
         record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "sys_exit") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("sys_exit expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        (void)ensure_expr_result(expr.arguments[0].get());
+        emit_simple(tisc::ir::Opcode::TRAP);
+        return {};
+      }
+      if (func_name == "sys_time") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("sys_time expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Float);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::LOADI;
+        instr.operands = {dest.reg};
+        instr.literal_kind = tisc::LiteralKind::FloatHandle;
+        instr.text_literal = "0";
+        instr.primitive = tisc::ir::PrimitiveKind::Float;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "async_yield") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("async_yield expects no arguments.");
+        }
+        return {};
+      }
+      if (func_name == "async_sleep") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("async_sleep expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        (void)ensure_expr_result(expr.arguments[0].get());
+        return {};
+      }
+      if (func_name == "agent_self_reflect") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("agent_self_reflect expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::META_REFLECT;
+        instr.operands = {dest.reg};
+        emit(instr);
         return {};
       }
 

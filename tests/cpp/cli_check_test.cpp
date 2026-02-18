@@ -172,6 +172,33 @@ int main() {
 
   fs::remove(symbol_path);
 
+  const std::string sys_async_agent_program = R"(
+        fn main() -> i32 {
+            let now: T81Float = std.sys.time();
+            std.async.yield();
+            std.async.sleep(now);
+            std.agent.self_reflect();
+            std.sys.exit(0);
+            return 0;
+        }
+    )";
+
+  [[maybe_unused]] auto sys_async_agent_path = make_temp_path("t81-check-sys-async-agent", ".t81");
+  write_source(sys_async_agent_path, sys_async_agent_program);
+
+  [[maybe_unused]] std::ostringstream sys_async_agent_captured;
+  old_buf = std::cerr.rdbuf(sys_async_agent_captured.rdbuf());
+  [[maybe_unused]] int sys_async_agent_rc = t81::cli::check_syntax(sys_async_agent_path);
+  std::cerr.rdbuf(old_buf);
+
+  if (sys_async_agent_rc != 0) {
+    std::cerr << "Expected `t81 check` to succeed on std.sys/std.async/std.agent input\n";
+    std::cerr << sys_async_agent_captured.str() << "\n";
+    return 1;
+  }
+
+  fs::remove(sys_async_agent_path);
+
   std::cout << "CliCheckTest passed!" << std::endl;
   return 0;
 }

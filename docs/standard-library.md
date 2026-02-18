@@ -81,12 +81,12 @@ Deterministic symbol helpers.
 ## System & Runtime
 
 ### `std.sys`
-- `fn exit(code: i32) -> void`: Terminate execution.
-- `fn time() -> T81Float`: Logical time.
+- `fn exit(code: i32) -> void`: Deterministic terminate/trap alias (`std.sys.exit` lowers to `TRAP`).
+- `fn time() -> T81Float`: Deterministic logical time alias (currently lowers to constant `0.0`).
 
 ### `std.async`
-- `fn yield() -> void`: Cooperative yield.
-- `fn sleep(duration: T81Float) -> void`: Sleep.
+- `fn yield() -> void`: Deterministic cooperative-yield alias (currently a no-op).
+- `fn sleep(duration: T81Float) -> void`: Deterministic sleep alias (currently a no-op after float-compatible type check).
 
 ### `std.tensor`
 - `std.tensor.load("...") -> i32`: Load weights via deterministic literal-path alias (literal required by current frontend contract).
@@ -95,4 +95,4 @@ Deterministic symbol helpers.
 - `fn vec_add(a: Tensor, b: Tensor) -> Tensor`: Deterministic vector/tensor addition alias.
 
 ### `std.agent`
-- `fn self_reflect() -> void`: Trigger reflection block.
+- `fn self_reflect() -> void`: Trigger deterministic reflection opcode (`META_REFLECT`).
