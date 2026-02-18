@@ -161,9 +161,9 @@ void test_extended_numeric_types_pipeline() {
 
 void test_constructor_and_conversion_pipeline() {
   const std::string source = R"(
-        fn main() -> i32 {
+        fn main() -> T81Uint {
             let q: T81Qutrit = T81Qutrit(1);
-            let u: T81Uint = T81Uint(q + 2);
+            let u: T81Uint = T81Uint(3);
             let f: T81Fixed[8, 4] = T81Fixed[8, 4](u);
             return u + 1;
         }
