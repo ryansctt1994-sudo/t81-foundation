@@ -1,0 +1,13 @@
+fn main() -> i32 {
+    let proof: T81String = std.sys.proof();
+    let stream_h: T81String = std.io.stream();
+    let net_h: T81String = std.io.net();
+    let thread_h: T81String = std.async.thread();
+    let promise_h: T81String = std.async.promise();
+    print(proof);
+    print(stream_h);
+    print(net_h);
+    print(thread_h);
+    print(promise_h);
+    return 0;
+}

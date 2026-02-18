@@ -16,6 +16,7 @@ Implemented and validated end-to-end (semantic + IR + VM + CLI coverage):
 - `std.async`: `yield`, `sleep`, `thread`, `promise` (`thread/promise` currently lower to stable symbolic tokens)
 - `std.tensor`: `load`, `from_list`, `matmul`, `vec_add`
 - `std.agent`: `self_reflect`
+- `std.sys` / `std.io` / `std.async`: fixture-driven CLI goldens for runtime observable behavior are now present under `tests/fixtures/t81lang_std_runtime/*` and `tests/cpp/cli_std_runtime_fixtures_test.cpp`
 
 Generic function work now supported:
 - Generic declarations: `fn id[T](x: T) -> T`
@@ -40,9 +41,15 @@ Coverage:
 - `tests/cpp/frontend_parser_generics_test.cpp`
 - `tests/cpp/frontend_ir_generator_test.cpp`
 - `tests/cpp/cli_check_test.cpp`
+- `tests/cpp/cli_std_runtime_fixtures_test.cpp`
 - `tests/fixtures/t81lang_std_collections/02_generic_inference.t81`
 - `tests/fixtures/t81lang_std_collections/02_generic_inference.out`
 - `tests/fixtures/t81lang_std_collections/README.md`
+- `tests/fixtures/t81lang_std_runtime/01_tokens.t81`
+- `tests/fixtures/t81lang_std_runtime/01_tokens.out`
+- `tests/fixtures/t81lang_std_runtime/02_time_entropy_async.t81`
+- `tests/fixtures/t81lang_std_runtime/02_time_entropy_async.out`
+- `tests/fixtures/t81lang_std_runtime/README.md`
 
 Tracking/docs:
 - `docs/standard-library.md`
