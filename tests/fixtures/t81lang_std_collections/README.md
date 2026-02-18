@@ -13,6 +13,8 @@ Fixture pack for CLI end-to-end coverage of `std.collections` aliases.
   alternating key/value entries.
 - Validate staged set helpers `std.collections.set_size` and
   `std.collections.set_has` over `Vector[T81String]` data.
+- Validate staged set mutation helpers `std.collections.set_add` and
+  `std.collections.set_remove`, including deterministic duplicate-elision behavior.
 - Validate behavior for both frontend `Vector[i32]` values and
   `Vector[T81String]` values produced via `std.text.split`.
 - Validate end-to-end generic call inference over nested container signatures

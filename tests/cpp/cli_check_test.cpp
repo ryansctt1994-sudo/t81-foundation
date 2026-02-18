@@ -214,8 +214,15 @@ int main() {
                 None => "none";
             };
             let set_flat: Vector[T81String] = ["city", "lang", "city"];
+            let set_added: Vector[T81String] = std.collections.set_add(set_flat, "edge");
+            let set_added_dup: Vector[T81String] = std.collections.set_add(set_added, "city");
+            let set_removed: Vector[T81String] = std.collections.set_remove(set_added_dup, "lang");
             let _set_size = std.collections.set_size(set_flat);
             let _set_has_city = std.collections.set_has(set_flat, "city");
+            let _set_added_size = std.collections.set_size(set_added);
+            let _set_added_dup_size = std.collections.set_size(set_added_dup);
+            let _set_removed_size = std.collections.set_size(set_removed);
+            let _set_removed_has_lang = std.collections.set_has(set_removed, "lang");
             let _set_h = std.collections.len(set_v);
             let _tree_h = std.collections.len(tree_v);
             let _graph_h = std.collections.len(graph_v);

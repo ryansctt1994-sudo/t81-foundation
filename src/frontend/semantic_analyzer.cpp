@@ -426,6 +426,12 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.collections.set_has") {
     return "collections_set_has";
   }
+  if (name == "std.collections.set_add") {
+    return "collections_set_add";
+  }
+  if (name == "std.collections.set_remove") {
+    return "collections_set_remove";
+  }
   if (name == "std.collections.tree") {
     return "collections_tree";
   }
@@ -2797,6 +2803,47 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return make_error_type();
       }
       return Type{Type::Kind::Bool};
+    }
+    if (func_name == "collections_set_add") {
+      if (arg_types.size() != 2) {
+        error(call_token, "std.collections.set_add expects exactly two arguments.");
+        return make_error_type();
+      }
+      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
+                                    !arg_types[0].params.empty() &&
+                                    arg_types[0].params[0].kind == Type::Kind::String;
+      if (!is_string_vector) {
+        error(call_token, "std.collections.set_add expects a Vector[T81String] first argument.");
+        return make_error_type();
+      }
+      if (arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "std.collections.set_add expects a T81String key argument.");
+        return make_error_type();
+      }
+      Type out{Type::Kind::Vector};
+      out.params.push_back(Type{Type::Kind::String});
+      return out;
+    }
+    if (func_name == "collections_set_remove") {
+      if (arg_types.size() != 2) {
+        error(call_token, "std.collections.set_remove expects exactly two arguments.");
+        return make_error_type();
+      }
+      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
+                                    !arg_types[0].params.empty() &&
+                                    arg_types[0].params[0].kind == Type::Kind::String;
+      if (!is_string_vector) {
+        error(call_token,
+              "std.collections.set_remove expects a Vector[T81String] first argument.");
+        return make_error_type();
+      }
+      if (arg_types[1].kind != Type::Kind::String) {
+        error(call_token, "std.collections.set_remove expects a T81String key argument.");
+        return make_error_type();
+      }
+      Type out{Type::Kind::Vector};
+      out.params.push_back(Type{Type::Kind::String});
+      return out;
     }
     if (func_name == "collections_tree" || func_name == "collections_graph") {
       if (!arg_types.empty()) {

@@ -293,8 +293,15 @@ static void test_std_namespace_builtin_aliases() {
         None => "none";
       };
       let set_flat: Vector[T81String] = ["city", "lang", "city"];
+      let set_added: Vector[T81String] = std.collections.set_add(set_flat, "edge");
+      let set_added_dup: Vector[T81String] = std.collections.set_add(set_added, "city");
+      let set_removed: Vector[T81String] = std.collections.set_remove(set_added_dup, "lang");
       let _set_size = std.collections.set_size(set_flat);
       let _set_has_city = std.collections.set_has(set_flat, "city");
+      let _set_added_size = std.collections.set_size(set_added);
+      let _set_added_dup_size = std.collections.set_size(set_added_dup);
+      let _set_removed_size = std.collections.set_size(set_removed);
+      let _set_removed_has_lang = std.collections.set_has(set_removed, "lang");
       let _set_h = std.collections.len(set_v);
       let _tree_h = std.collections.len(tree_v);
       let _graph_h = std.collections.len(graph_v);
@@ -676,6 +683,32 @@ static void test_std_namespace_builtin_aliases() {
                                   "std.collections.set_has expects a T81String key argument.",
                                   "t81lang_std_collections_set_has_bad_key_type"),
       "t81lang_std_collections_set_has_bad_key_type");
+
+  constexpr const char* bad_collections_set_add_key_type = R"(
+    fn main() -> i32 {
+      let out: Vector[T81String] = std.collections.set_add(["city"], 7);
+      let _ = out;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_collections_set_add_key_type,
+                                  "std.collections.set_add expects a T81String key argument.",
+                                  "t81lang_std_collections_set_add_bad_key_type"),
+      "t81lang_std_collections_set_add_bad_key_type");
+
+  constexpr const char* bad_collections_set_remove_arity = R"(
+    fn main() -> i32 {
+      let out: Vector[T81String] = std.collections.set_remove(["city"]);
+      let _ = out;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(bad_collections_set_remove_arity,
+                                  "std.collections.set_remove expects exactly two arguments.",
+                                  "t81lang_std_collections_set_remove_bad_arity"),
+      "t81lang_std_collections_set_remove_bad_arity");
 
   constexpr const char* bad_async_sleep_type = R"(
     fn main() -> i32 {

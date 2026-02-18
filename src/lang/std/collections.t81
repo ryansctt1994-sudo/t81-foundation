@@ -71,6 +71,14 @@ fn set_has(s: Vector[T81String], key: T81String) -> bool {
     return std.collections.set_has(s, key);
 }
 
+fn set_add(s: Vector[T81String], key: T81String) -> Vector[T81String] {
+    return std.collections.set_add(s, key);
+}
+
+fn set_remove(s: Vector[T81String], key: T81String) -> Vector[T81String] {
+    return std.collections.set_remove(s, key);
+}
+
 fn tree() -> Vector[T81String] {
     return std.collections.tree();
 }
