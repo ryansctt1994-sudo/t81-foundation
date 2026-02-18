@@ -145,9 +145,12 @@ int main() {
             let same: bool = std.symbol.eq(sym, "omega");
             let diff: bool = std.symbol.ne(sym, "alpha");
             std.core.debug(rendered);
+            let present: Option[i32] = Some(7);
+            let keep: i32 = std.core.unwrap_or(present, 9);
             let _ = same;
             let _d = diff;
             let _r = rendered;
+            let _k = keep;
             return 0;
         }
     )";

@@ -203,6 +203,9 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.core.debug") {
     return "print";
   }
+  if (name == "std.core.unwrap_or") {
+    return "option_unwrap_or";
+  }
   if (name == "std.io.println" || name == "std.io.print_int" || name == "std.io.print_float") {
     return "print";
   }
@@ -1898,6 +1901,28 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return make_error_type();
       }
       return Type{Type::Kind::Void};
+    }
+    if (func_name == "option_unwrap_or") {
+      if (arg_types.size() != 2) {
+        error(call_token, "option_unwrap_or expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Option) {
+        error(call_token, "option_unwrap_or expects Option[T] as the first argument.");
+        return make_error_type();
+      }
+      Type payload =
+          arg_types[0].params.empty() ? Type{Type::Kind::Unknown} : arg_types[0].params[0];
+      if (payload.kind != Type::Kind::Unknown && !is_assignable(payload, arg_types[1])) {
+        error(call_token, "option_unwrap_or default value must match Option payload type '" +
+                              type_to_string(payload) + "', got '" +
+                              type_to_string(arg_types[1]) + "'.");
+        return make_error_type();
+      }
+      if (payload.kind == Type::Kind::Unknown) {
+        payload = arg_types[1];
+      }
+      return payload;
     }
     if (func_name == "str_len") {
       if (arg_types.size() != 1) {

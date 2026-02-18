@@ -420,6 +420,8 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let same: bool = std.symbol.eq(sym, "omega");
             let diff: bool = std.symbol.ne(sym, "alpha");
             std.core.debug("debug");
+            let maybe: Option[i32] = Some(7);
+            let kept: i32 = std.core.unwrap_or(maybe, 9);
             std.io.println("hello");
             std.io.print_int(7);
             std.io.print_float(t);
@@ -443,6 +445,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _rs = rendered_sym;
             let _same = same;
             let _diff = diff;
+            let _kp = kept;
             return 0;
         }
     )";
@@ -478,6 +481,8 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   bool has_strvecpush = false;
   bool has_cmp = false;
   bool has_print = false;
+  bool has_option_is_some = false;
+  bool has_option_unwrap = false;
   bool has_weights_load = false;
   for (const auto& inst : instructions) {
     if (inst.opcode == Opcode::FSIN) {
@@ -514,6 +519,10 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
       has_cmp = true;
     } else if (inst.opcode == Opcode::PRINT) {
       has_print = true;
+    } else if (inst.opcode == Opcode::OPTION_IS_SOME) {
+      has_option_is_some = true;
+    } else if (inst.opcode == Opcode::OPTION_UNWRAP) {
+      has_option_unwrap = true;
     } else if (inst.opcode == Opcode::WEIGHTS_LOAD) {
       has_weights_load = true;
     }
@@ -536,6 +545,8 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
   EXPECT(has_strvecpush, "Vector[T81String] literal should lower to STRVECPUSH");
   EXPECT(has_cmp, "std.symbol.eq/ne should lower to CMP");
   EXPECT(has_print, "std.core.debug/std.io.* should lower to PRINT");
+  EXPECT(has_option_is_some, "std.core.unwrap_or should lower to OPTION_IS_SOME");
+  EXPECT(has_option_unwrap, "std.core.unwrap_or should lower to OPTION_UNWRAP");
   EXPECT(has_weights_load, "std.tensor.load should lower to WEIGHTS_LOAD");
   std::cout << "IRGeneratorTest test_std_namespace_aliases_lower_to_builtin_opcodes passed!"
             << std::endl;

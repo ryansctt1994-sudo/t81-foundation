@@ -211,6 +211,9 @@ static void test_std_namespace_builtin_aliases() {
       let c: T81Float = std.math.cos(angle);
       let t: T81Float = std.math.tan(c);
       std.core.debug("dbg");
+      let present: Option[i32] = Some(7);
+      let keep: i32 = std.core.unwrap_or(present, 9);
+      let _k = keep;
       std.io.println("ok");
       std.io.print_int(7);
       std.io.print_float(t);
@@ -249,6 +252,26 @@ static void test_std_namespace_builtin_aliases() {
   )";
   require_true(fails_semantic(bad_debug_type, "t81lang_std_core_debug_bad_type"),
                "t81lang_std_core_debug_bad_type");
+
+  constexpr const char* bad_unwrap_or_arity = R"(
+    fn main() -> i32 {
+      let value: i32 = std.core.unwrap_or(Some(1));
+      let _ = value;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_unwrap_or_arity, "t81lang_std_core_unwrap_or_bad_arity"),
+               "t81lang_std_core_unwrap_or_bad_arity");
+
+  constexpr const char* bad_unwrap_or_type = R"(
+    fn main() -> i32 {
+      let value: i32 = std.core.unwrap_or(Some(1), "oops");
+      let _ = value;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic(bad_unwrap_or_type, "t81lang_std_core_unwrap_or_bad_type"),
+               "t81lang_std_core_unwrap_or_bad_type");
 }
 
 static void test_std_tensor_from_list_alias() {

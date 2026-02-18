@@ -128,6 +128,9 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.core.debug") {
     return "print";
   }
+  if (name == "std.core.unwrap_or") {
+    return "option_unwrap_or";
+  }
   if (name == "std.io.println" || name == "std.io.print_int" || name == "std.io.print_float") {
     return "print";
   }
@@ -1008,6 +1011,37 @@ public:
         instr.opcode = tisc::ir::Opcode::PRINT;
         instr.operands = {value.reg};
         emit(instr);
+        return {};
+      }
+      if (func_name == "option_unwrap_or") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("option_unwrap_or expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto opt = ensure_expr_result(expr.arguments[0].get());
+        expr.arguments[1]->accept(*this);
+        auto fallback = ensure_expr_result(expr.arguments[1].get());
+
+        auto cond = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        emit_option_is_some(cond, opt);
+
+        tisc::ir::PrimitiveKind dest_kind = fallback.primitive;
+        if (const auto* ty = typed_expr(&expr)) {
+          auto inferred = categorize_primitive(ty);
+          if (inferred != tisc::ir::PrimitiveKind::Unknown) {
+            dest_kind = inferred;
+          }
+        }
+        auto dest = allocate_typed_register(dest_kind);
+        copy_to_dest(fallback, dest);
+
+        auto use_fallback = new_label();
+        emit_jump_if_zero(use_fallback, cond);
+        auto payload = allocate_typed_register(dest_kind);
+        emit_option_unwrap(payload, opt);
+        copy_to_dest(payload, dest);
+        emit_label(use_fallback);
+        record_result(&expr, dest);
         return {};
       }
       if (func_name == "str_len") {

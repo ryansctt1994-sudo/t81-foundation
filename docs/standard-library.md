@@ -9,7 +9,7 @@ These modules are located in `src/lang/std/`.
 Basic definitions and utilities.
 - `fn assert(condition: bool) -> void`: Aborts execution if condition is false.
 - `fn debug(msg: T81String) -> void`: Prints a debug message (`std.core.debug` lowers to builtin `print` and therefore accepts the same scalar-printable types).
-- `fn unwrap_or(opt: Option[i32], default: i32) -> i32`: Option helper.
+- `fn unwrap_or(opt: Option[T], default: T) -> T`: Option helper (`std.core.unwrap_or` lowers via `OPTION_IS_SOME` / `OPTION_UNWRAP`).
 
 ### `std.math`
 Mathematical constants and functions (backed by `include/t81/std/math.hpp`).
