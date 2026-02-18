@@ -454,6 +454,35 @@ static void test_std_math_tensor_module_wrappers() {
                "t81lang_std_math_tensor_module_wrappers");
 }
 
+static void test_std_sys_async_agent_module_wrappers() {
+  constexpr const char* source = R"(
+    fn exit(code: i32) -> void {
+      std.sys.exit(code);
+    }
+    fn time() -> T81Float {
+      return std.sys.time();
+    }
+    fn yield() -> void {
+      std.async.yield();
+    }
+    fn sleep(duration: T81Float) -> void {
+      std.async.sleep(duration);
+    }
+    fn self_reflect() -> void {
+      std.agent.self_reflect();
+    }
+    fn main() -> i32 {
+      let now: T81Float = time();
+      yield();
+      sleep(now);
+      self_reflect();
+      return 0;
+    }
+  )";
+  require_true(analyzes(source, "t81lang_std_sys_async_agent_module_wrappers"),
+               "t81lang_std_sys_async_agent_module_wrappers");
+}
+
 static void test_std_text_aliases() {
   constexpr const char* valid = R"(
     fn main() -> i32 {
@@ -1385,6 +1414,7 @@ int main() {
   test_std_tensor_matmul_alias();
   test_std_tensor_vec_add_alias();
   test_std_math_tensor_module_wrappers();
+  test_std_sys_async_agent_module_wrappers();
   test_std_text_aliases();
   test_std_text_module_wrappers();
   test_std_text_split_join_wrappers();

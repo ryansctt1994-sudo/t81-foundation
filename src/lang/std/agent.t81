@@ -2,7 +2,5 @@
 // Agent abstractions.
 
 fn self_reflect() -> void {
-    reflect {
-       // Reflection block
-    }
+    std.agent.self_reflect();
 }

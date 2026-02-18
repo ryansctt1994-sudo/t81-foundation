@@ -1,10 +1,10 @@
 // src/lang/std/async.t81
-// Concurrency primitives (stubs).
+// Deterministic concurrency primitives.
 
 fn yield() -> void {
-    // Yield execution
+    std.async.yield();
 }
 
 fn sleep(duration: T81Float) -> void {
-    // Sleep
+    std.async.sleep(duration);
 }

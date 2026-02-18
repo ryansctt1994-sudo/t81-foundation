@@ -2,12 +2,9 @@
 // System interactions.
 
 fn exit(code: i32) -> void {
-    // Currently no explicit exit opcode exposed via built-in, but HALT is implicit.
-    // Maybe trap with code?
-    let _ = code; // unused
+    std.sys.exit(code);
 }
 
 fn time() -> T81Float {
-    // Return system time (deterministic logical tick)
-    return 0.0;
+    return std.sys.time();
 }
