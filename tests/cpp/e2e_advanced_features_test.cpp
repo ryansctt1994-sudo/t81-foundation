@@ -238,6 +238,7 @@ void test_std_text_pipeline() {
             let replaced: T81String = std.text.replace(joined, "ph", "zz");
             let rendered: T81String = std.text.to_string(replaced);
             let rendered_bytes: T81String = std.text.to_string(T81Bytes("beta"));
+            let rendered_from_bytes: T81String = std.text.from_bytes(T81Bytes("beta"));
             let repl_idx: i32 = std.text.index_of(replaced, "zz");
             if (e) {
                 if (sw) {
@@ -247,7 +248,9 @@ void test_std_text_pipeline() {
                                 if (repl_idx == 2) {
                                     if (std.text.str_len(rendered) == 5) {
                                         if (std.text.str_len(rendered_bytes) == 4) {
-                                            return n;
+                                            if (std.text.str_len(rendered_from_bytes) == 4) {
+                                                return n;
+                                            }
                                         }
                                     }
                                 }
@@ -298,6 +301,9 @@ void test_std_text_module_wrapper_pipeline() {
         fn from_bytes(b: T81Bytes) -> T81String {
             return std.text.to_string(b);
         }
+        fn from_bytes_alias(b: T81Bytes) -> T81String {
+            return std.text.from_bytes(b);
+        }
         fn main() -> i32 {
             let joined: T81String = concat("om", "ega");
             let n: i32 = str_len(joined);
@@ -309,6 +315,7 @@ void test_std_text_module_wrapper_pipeline() {
             let replaced: T81String = replace(joined, "ga", "xy");
             let rendered: T81String = to_string(replaced);
             let rendered_bytes: T81String = from_bytes(T81Bytes("beta"));
+            let rendered_from_bytes: T81String = from_bytes_alias(T81Bytes("beta"));
             let repl_idx: i32 = index_of(replaced, "xy");
             if (e) {
                 if (sw) {
@@ -318,7 +325,9 @@ void test_std_text_module_wrapper_pipeline() {
                                 if (repl_idx == 3) {
                                     if (str_len(rendered) == 5) {
                                         if (str_len(rendered_bytes) == 4) {
-                                            return n;
+                                            if (str_len(rendered_from_bytes) == 4) {
+                                                return n;
+                                            }
                                         }
                                     }
                                 }
@@ -352,6 +361,8 @@ void test_std_bytes_pipeline() {
             let idx: i32 = std.bytes.index_of(joined, T81Bytes("ph"));
             let replaced: T81Bytes = std.bytes.replace(joined, T81Bytes("ph"), T81Bytes("zz"));
             let rendered: T81String = std.bytes.to_string(replaced);
+            let from_text: T81Bytes = std.bytes.from_string("alpha");
+            let from_text_len: i32 = std.bytes.len(from_text);
             let repl_idx: i32 = std.bytes.index_of(replaced, T81Bytes("zz"));
             let m: i32 = std.bytes.len(joined);
             if (e) {
@@ -363,7 +374,9 @@ void test_std_bytes_pipeline() {
                                     if (idx == 2) {
                                         if (repl_idx == 2) {
                                             if (std.text.str_len(rendered) == 5) {
-                                                return n;
+                                                if (from_text_len == 5) {
+                                                    return n;
+                                                }
                                             }
                                         }
                                     }
@@ -412,8 +425,12 @@ void test_std_bytes_module_wrapper_pipeline() {
         fn to_string(b: T81Bytes) -> T81String {
             return std.bytes.to_string(b);
         }
+        fn from_string(s: T81String) -> T81Bytes {
+            return std.bytes.from_string(s);
+        }
         fn main() -> i32 {
             let joined: T81Bytes = concat(T81Bytes("om"), T81Bytes("ega"));
+            let from_text: T81Bytes = from_string("omega");
             let n: i32 = len(joined);
             let e: bool = is_empty(T81Bytes(""));
             let sw: bool = starts_with(joined, T81Bytes("om"));
@@ -422,18 +439,21 @@ void test_std_bytes_module_wrapper_pipeline() {
             let idx: i32 = index_of(joined, T81Bytes("ga"));
             let replaced: T81Bytes = replace(joined, T81Bytes("ga"), T81Bytes("xy"));
             let rendered: T81String = to_string(replaced);
+            let from_text_len: i32 = len(from_text);
             let repl_idx: i32 = index_of(replaced, T81Bytes("xy"));
             let m: i32 = len(joined);
             if (e) {
                 if (n == 5) {
                     if (m == 5) {
-                        if (sw) {
-                            if (ew) {
-                                if (has_mid) {
-                                    if (idx == 3) {
-                                        if (repl_idx == 3) {
-                                            if (std.text.str_len(rendered) == 5) {
-                                                return n;
+                        if (from_text_len == 5) {
+                            if (sw) {
+                                if (ew) {
+                                    if (has_mid) {
+                                        if (idx == 3) {
+                                            if (repl_idx == 3) {
+                                                if (std.text.str_len(rendered) == 5) {
+                                                    return n;
+                                                }
                                             }
                                         }
                                     }

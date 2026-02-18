@@ -52,7 +52,7 @@ String manipulation and formatting (backed by `include/t81/std/string.hpp`).
 - `fn index_of(s: T81String, needle: T81String) -> i32`: Deterministic first-match index (`-1` if not found).
 - `fn replace(s: T81String, needle: T81String, replacement: T81String) -> T81String`: Deterministic global replace (non-overlapping, left-to-right). Empty `needle` leaves `s` unchanged.
 - `fn to_string(s: T81String|T81Bytes) -> T81String`: Deterministic conversion to text.
-- `fn from_bytes(b: T81Bytes) -> T81String`: Module wrapper around `std.text.to_string`.
+- `fn from_bytes(b: T81Bytes) -> T81String`: Deterministic bytes-to-text alias.
 - `split`, `join`: planned, not yet exposed as T81Lang builtins.
 
 ### `std.bytes`
@@ -66,6 +66,7 @@ Deterministic bytes helpers.
 - `fn index_of(b: T81Bytes, needle: T81Bytes) -> i32`: Deterministic first-match index (`-1` if not found).
 - `fn replace(b: T81Bytes, needle: T81Bytes, replacement: T81Bytes) -> T81Bytes`: Deterministic global replace.
 - `fn to_string(b: T81Bytes) -> T81String`: Deterministic bytes-to-text conversion alias.
+- `fn from_string(s: T81String) -> T81Bytes`: Deterministic text-to-bytes conversion alias.
 - `fn T81Bytes(s: T81String) -> T81Bytes`: Deterministic conversion constructor.
 
 ## System & Runtime

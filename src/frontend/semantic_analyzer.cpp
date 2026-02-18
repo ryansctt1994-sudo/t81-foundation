@@ -251,6 +251,9 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.text.to_string") {
     return "str_to_string";
   }
+  if (name == "std.text.from_bytes") {
+    return "str_to_string";
+  }
   if (name == "std.bytes.len") {
     return "bytes_len";
   }
@@ -277,6 +280,9 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   }
   if (name == "std.bytes.to_string") {
     return "str_to_string";
+  }
+  if (name == "std.bytes.from_string") {
+    return "T81Bytes";
   }
   return std::string(name);
 }

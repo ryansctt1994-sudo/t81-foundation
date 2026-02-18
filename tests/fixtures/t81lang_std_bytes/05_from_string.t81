@@ -1,0 +1,7 @@
+fn main() -> i32 {
+  let b: T81Bytes = std.bytes.from_string("omega");
+  let s: T81String = std.bytes.to_string(b);
+  print(s);
+  print(std.bytes.len(b));
+  return 0;
+}

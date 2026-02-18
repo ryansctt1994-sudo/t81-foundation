@@ -1,0 +1,7 @@
+fn main() -> i32 {
+  let a: T81String = std.text.from_bytes(T81Bytes("beta"));
+  let b: T81String = std.text.from_bytes(std.bytes.replace(T81Bytes("gimma"), T81Bytes("im"), T81Bytes("am")));
+  print(a);
+  print(b);
+  return 0;
+}

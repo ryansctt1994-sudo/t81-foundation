@@ -38,5 +38,5 @@ fn to_string(s: T81String) -> T81String {
 }
 
 fn from_bytes(b: T81Bytes) -> T81String {
-    return std.text.to_string(b);
+    return std.text.from_bytes(b);
 }

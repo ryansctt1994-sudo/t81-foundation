@@ -411,6 +411,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let replaced: T81String = std.text.replace(joined, "ll", "yy");
             let rendered: T81String = std.text.to_string(replaced);
             let rendered_bytes: T81String = std.text.to_string(T81Bytes("beta"));
+            let rendered_from_bytes: T81String = std.text.from_bytes(T81Bytes("beta"));
             std.io.println("hello");
             std.io.print_int(7);
             std.io.print_float(t);
@@ -427,6 +428,7 @@ void test_std_namespace_aliases_lower_to_builtin_opcodes() {
             let _rp = replaced;
             let _rd = rendered;
             let _rdb = rendered_bytes;
+            let _rdfb = rendered_from_bytes;
             return 0;
         }
     )";
@@ -631,6 +633,8 @@ void test_std_bytes_aliases_lower_to_string_opcodes() {
             let idx: i32 = std.bytes.index_of(joined, T81Bytes("ph"));
             let replaced: T81Bytes = std.bytes.replace(joined, T81Bytes("ph"), T81Bytes("zz"));
             let rendered: T81String = std.bytes.to_string(replaced);
+            let from_text: T81Bytes = std.bytes.from_string("alpha");
+            let from_text_len: i32 = std.bytes.len(from_text);
             let _n = n;
             let _e = e;
             let _j = joined;
@@ -640,6 +644,7 @@ void test_std_bytes_aliases_lower_to_string_opcodes() {
             let _idx = idx;
             let _rp = replaced;
             let _rd = rendered;
+            let _ftl = from_text_len;
             return 0;
         }
     )";

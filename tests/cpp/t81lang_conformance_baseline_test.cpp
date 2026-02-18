@@ -315,6 +315,7 @@ static void test_std_text_aliases() {
       let repl: T81String = std.text.replace(c, "ph", "zz");
       let rendered: T81String = std.text.to_string(repl);
       let rendered_bytes: T81String = std.text.to_string(T81Bytes("beta"));
+      let rendered_from_bytes: T81String = std.text.from_bytes(T81Bytes("beta"));
       let repl_idx: i32 = std.text.index_of(repl, "zz");
       if (e) {
         if (sw) {
@@ -324,7 +325,9 @@ static void test_std_text_aliases() {
                 if (repl_idx == 2) {
                   if (std.text.str_len(rendered) == 5) {
                     if (std.text.str_len(rendered_bytes) == 4) {
-                      return n;
+                      if (std.text.str_len(rendered_from_bytes) == 4) {
+                        return n;
+                      }
                     }
                   }
                 }
@@ -479,6 +482,9 @@ static void test_std_text_module_wrappers() {
     fn from_bytes(b: T81Bytes) -> T81String {
       return std.text.to_string(b);
     }
+    fn from_bytes_alias(b: T81Bytes) -> T81String {
+      return std.text.from_bytes(b);
+    }
     fn main() -> i32 {
       let joined: T81String = concat("ze", "ta");
       let n: i32 = str_len(joined);
@@ -490,6 +496,7 @@ static void test_std_text_module_wrappers() {
       let replaced: T81String = replace(joined, "ta", "xo");
       let rendered: T81String = to_string(replaced);
       let rendered_bytes: T81String = from_bytes(T81Bytes("beta"));
+      let rendered_from_bytes: T81String = from_bytes_alias(T81Bytes("beta"));
       let repl_idx: i32 = index_of(replaced, "xo");
       if (e) {
         if (sw) {
@@ -499,7 +506,9 @@ static void test_std_text_module_wrappers() {
                 if (repl_idx == 2) {
                   if (str_len(rendered) == 4) {
                     if (str_len(rendered_bytes) == 4) {
-                      return n;
+                      if (str_len(rendered_from_bytes) == 4) {
+                        return n;
+                      }
                     }
                   }
                 }
@@ -529,6 +538,8 @@ static void test_std_bytes_aliases() {
       let idx: i32 = std.bytes.index_of(c, T81Bytes("ph"));
       let repl: T81Bytes = std.bytes.replace(c, T81Bytes("ph"), T81Bytes("zz"));
       let rendered: T81String = std.bytes.to_string(repl);
+      let from_text: T81Bytes = std.bytes.from_string("alpha");
+      let from_text_len: i32 = std.bytes.len(from_text);
       let repl_idx: i32 = std.bytes.index_of(repl, T81Bytes("zz"));
       let m: i32 = std.bytes.len(c);
       if (e) {
@@ -540,7 +551,9 @@ static void test_std_bytes_aliases() {
                   if (idx == 2) {
                     if (repl_idx == 2) {
                       if (std.text.str_len(rendered) == 5) {
-                        return n;
+                        if (from_text_len == 5) {
+                          return n;
+                        }
                       }
                     }
                   }
@@ -692,8 +705,12 @@ static void test_std_bytes_module_wrappers() {
     fn to_string(b: T81Bytes) -> T81String {
       return std.bytes.to_string(b);
     }
+    fn from_string(s: T81String) -> T81Bytes {
+      return std.bytes.from_string(s);
+    }
     fn main() -> i32 {
       let merged: T81Bytes = concat(T81Bytes("ze"), T81Bytes("ta"));
+      let from_text: T81Bytes = from_string("zeta");
       let n: i32 = len(merged);
       let e: bool = is_empty(T81Bytes(""));
       let sw: bool = starts_with(merged, T81Bytes("ze"));
@@ -702,18 +719,21 @@ static void test_std_bytes_module_wrappers() {
       let idx: i32 = index_of(merged, T81Bytes("ta"));
       let replaced: T81Bytes = replace(merged, T81Bytes("ta"), T81Bytes("xo"));
       let rendered: T81String = to_string(replaced);
+      let from_text_len: i32 = len(from_text);
       let repl_idx: i32 = index_of(replaced, T81Bytes("xo"));
       let m: i32 = len(merged);
       if (e) {
         if (n == 4) {
           if (m == 4) {
-            if (sw) {
-              if (ew) {
-                if (has_mid) {
-                  if (idx == 2) {
-                    if (repl_idx == 2) {
-                      if (std.text.str_len(rendered) == 4) {
-                        return n;
+            if (from_text_len == 4) {
+              if (sw) {
+                if (ew) {
+                  if (has_mid) {
+                    if (idx == 2) {
+                      if (repl_idx == 2) {
+                        if (std.text.str_len(rendered) == 4) {
+                          return n;
+                        }
                       }
                     }
                   }
