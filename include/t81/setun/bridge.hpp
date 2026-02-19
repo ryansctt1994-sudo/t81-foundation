@@ -21,7 +21,9 @@ enum class BridgeError {
 };
 
 struct BridgeDiagnostic {
-  BridgeDiagnostic() = default;
+  // Explicitly defaulted default constructor to ensure initialization
+  BridgeDiagnostic() : error(BridgeError::EmptyInput), line(0), column(0) {}
+
   BridgeDiagnostic(BridgeError err, std::size_t line_no, std::size_t column_no, std::string msg,
                    std::string source)
       : error(err),
@@ -30,7 +32,14 @@ struct BridgeDiagnostic {
         message(std::move(msg)),
         source_line(std::move(source)) {}
 
-  BridgeDiagnostic(const BridgeDiagnostic&) = default;
+  // Explicit copy constructor to satisfy static analysis
+  BridgeDiagnostic(const BridgeDiagnostic& other)
+      : error(other.error),
+        line(other.line),
+        column(other.column),
+        message(other.message),
+        source_line(other.source_line) {}
+
   BridgeDiagnostic& operator=(const BridgeDiagnostic&) = default;
   BridgeDiagnostic(BridgeDiagnostic&&) noexcept = default;
   BridgeDiagnostic& operator=(BridgeDiagnostic&&) noexcept = default;
