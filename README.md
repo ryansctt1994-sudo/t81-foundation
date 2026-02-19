@@ -10,7 +10,7 @@
 [![Русский](https://img.shields.io/badge/Language-Русский-brightgreen?style=flat-square)](README.ru.md)
 [![Português](https://img.shields.io/badge/Language-Português%20(Brasil)-blueviolet?style=flat-square)](README.pt-BR.md)
 
-T81 Ecosystem: a deterministic, ternary-native computing stack featuring base-81 data types, the TISC instruction set, T81VM, T81Lang, Axion safety/optimization, and the full recursive cognition tiers.
+A deterministic, ternary-native computing stack featuring base-81 data types, the TISC instruction set, T81VM, T81Lang, Axion safety/optimization, and the full recursive cognition tiers.
 
 > **Note on Floating Point Determinism:** T81Float transcendental functions (sin, cos, tan, log, exp, sqrt) are implemented via a deterministic software-defined backend (dmath) and are guaranteed bit-exact across platforms. T81Float division and inverse/hyperbolic trigonometric functions (asin, sinh, etc.) may rely on host-platform behavior in non-strict modes. Strict bit-exact determinism is guaranteed for T81Int, T81BigInt, T81Fraction (canonical), and core T81Float operations.
 
