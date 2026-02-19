@@ -108,7 +108,8 @@ public:
   //===================================================================
   // Edge manipulation — O(1), hardware-accelerated on Axion
   //===================================================================
-  constexpr void add_edge(NodeID from, NodeID to, Weight w = detail::default_weight<Weight>()) noexcept {
+  constexpr void add_edge(NodeID from, NodeID to,
+                          Weight w = detail::default_weight<Weight>()) noexcept {
     for (auto& e : adj[from]) {
       if (e.first == NodeID(-1) || e.first == to) {
         e = {to, w};
@@ -191,8 +192,9 @@ public:
 
   // PageRank → manual iteration for Rank 1 tensors
   // Optimized to use sparse updates (O(E) per step) instead of dense matrix (O(N²)).
-  [[nodiscard]] friend constexpr auto pagerank(const T81Graph& g, int steps = 20,
-                                               WeightType epsilon = detail::default_epsilon<WeightType>()) noexcept
+  [[nodiscard]] friend constexpr auto pagerank(
+      const T81Graph& g, int steps = 20,
+      WeightType epsilon = detail::default_epsilon<WeightType>()) noexcept
       -> T81Tensor<WeightType, 1, NodeCount> {
     using Tensor1D = T81Tensor<WeightType, 1, NodeCount>;
     auto v = Tensor1D::zeros();
@@ -444,9 +446,11 @@ public:
 // ======================================================================
 // Canonical graph types of the new era
 // ======================================================================
-using SymbolGraph81 = T81Graph<6561, 81, T81Symbol>;    // 81² nodes, degree 81 → full HRR binding graph
+using SymbolGraph81 =
+    T81Graph<6561, 81, T81Symbol>;           // 81² nodes, degree 81 → full HRR binding graph
 using AttentionGraph = T81Graph<4096, 128>;  // transformer KV graph
-using KnowledgeGraph = T81Graph<81 * 81 * 81, 27, T81Symbol>;  // 81³ nodes (531441), sparse symbolic
+using KnowledgeGraph =
+    T81Graph<81 * 81 * 81, 27, T81Symbol>;  // 81³ nodes (531441), sparse symbolic
 
 // ======================================================================
 // The future of all computation is a graph of 81-trit weights
