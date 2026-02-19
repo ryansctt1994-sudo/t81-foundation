@@ -344,6 +344,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_hash_stub_test tests/cpp/hash_stub_test.cpp)
   target_link_libraries(t81_hash_stub_test PRIVATE t81_core)
 
+  add_executable(t81_sha3_test tests/cpp/test_sha3.cpp)
+  target_link_libraries(t81_sha3_test PRIVATE t81_core)
+
   add_executable(t81_axion_stub_test tests/cpp/axion_stub_test.cpp)
   target_link_libraries(t81_axion_stub_test PRIVATE t81_core)
 
@@ -886,6 +889,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_ir_encoding_test
     t81_tisc_encoding_test
     t81_hash_stub_test
+    t81_sha3_test
     t81_axion_stub_test
     t81_codec_base243_test
     t81_codec_base81_test
