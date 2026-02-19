@@ -3,6 +3,7 @@
 [![CI](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml/badge.svg)](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![C++ Standard](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://en.cppreference.com/w/cpp/23)
+[![GitHub stars](https://img.shields.io/github/stars/t81dev/t81-foundation?style=social)](https://github.com/t81dev/t81-foundation/stargazers)
 
 [![English](https://img.shields.io/badge/Language-English-blue?style=flat-square)](README.md)
 [![简体中文](https://img.shields.io/badge/Language-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-red?style=flat-square)](README.zh-CN.md)
@@ -10,9 +11,14 @@
 [![Русский](https://img.shields.io/badge/Language-Русский-brightgreen?style=flat-square)](README.ru.md)
 [![Português](https://img.shields.io/badge/Language-Português%20(Brasil)-blueviolet?style=flat-square)](README.pt-BR.md)
 
-A deterministic, ternary-native computing stack featuring base-81 data types, the TISC instruction set, T81VM, T81Lang, Axion safety/optimization, and the full recursive cognition tiers.
+T81: a deterministic, ternary-native computing stack featuring base-81 data types, the TISC instruction set, T81VM, T81Lang, Axion safety/optimization, and the full recursive cognition tiers.
 
-> **Note on Floating Point Determinism:** T81Float transcendental functions (sin, cos, tan, log, exp, sqrt) are implemented via a deterministic software-defined backend (dmath) and are guaranteed bit-exact across platforms. T81Float division and inverse/hyperbolic trigonometric functions (asin, sinh, etc.) may rely on host-platform behavior in non-strict modes. Strict bit-exact determinism is guaranteed for T81Int, T81BigInt, T81Fraction (canonical), and core T81Float operations.
+T81 delivers bit-exact, auditable execution in arithmetic-heavy domains by combining ternary-native types with strict runtime governance — ideal for verifiable AI, cryptography, and scientific computing.
+
+> **Note on Floating Point Determinism:**  
+> T81Float transcendental functions (`sin`, `cos`, `tan`, `log`, `exp`, `sqrt`) are implemented via a deterministic software-defined backend (`dmath`) and are guaranteed bit-exact across platforms.  
+> T81Float division and inverse/hyperbolic trigonometric functions (`asin`, `sinh`, etc.) may rely on host-platform behavior in non-strict modes.  
+> Strict bit-exact determinism is guaranteed for `T81Int`, `T81BigInt`, `T81Fraction` (canonical), and core `T81Float` operations.
 
 ## Table of Contents
 
@@ -63,24 +69,24 @@ Verify key claims in under 30 seconds:
 | **Deterministic Execution** | ✅ Stable   | Bit-exact reproducibility across platforms via T81Lang → TISC → T81VM pipeline. |
 | **Ternary-Native Data Types** | ✅ Stable | Base-81 types with balanced ternary arithmetic for efficient computations.  |
 | **Axion Policy Engine** | ✅ Stable    | Runtime safety enforcement and optimization policies.                       |
-| **T81VM (HanoiVM)**     | ✅ Stable    | 81-register virtual machine with deterministic interpretation and trace-JIT. |
+| **T81VM**                | ✅ Stable    | 81-register virtual machine with deterministic interpretation and trace-JIT. |
 | **TISC IR**              | ✅ Stable    | Ternary Instruction Set Computer intermediate representation.               |
-| **Software-Defined Math** | ✅ Stable   | dmath backend for cross-platform consistent floating-point operations.      |
+| **Software-Defined Math** | ✅ Stable   | `dmath` backend for cross-platform consistent floating-point operations.    |
 | **Trace-JIT Compilation** | 🚧 Experimental | Hotspot detection and deterministic JIT for performance gains.              |
 | **Distributed Tensors**  | 🚧 Experimental | Support for large-scale tensor operations in distributed environments.      |
 | **Model Tooling**        | ✅ Stable    | Weights import, quantization, and inspection for ML integrations (SafeTensors, GGUF). |
 
 ## Why Ternary?
 
-Balanced ternary (using digits -1, 0, +1) and base-81 (3^4) data types optimize arithmetic-intensive workloads, such as signal processing, AI inference, and cryptography. Unlike binary, balanced ternary eliminates separate sign bits, simplifies addition/subtraction without extensive carry propagation, and offers potential energy efficiency in specialized hardware.
+Balanced ternary (using digits -1, 0, +1) and base-81 (3⁴) data types optimize arithmetic-intensive workloads such as signal processing, AI inference, and cryptography. Unlike binary, balanced ternary eliminates separate sign bits, simplifies addition/subtraction without extensive carry propagation, and offers potential energy efficiency in specialized hardware.
 
 T81 emulates these advantages in software for deterministic, auditable environments. It complements binary systems in mixed-radix setups, providing density and energy wins in numerical substrates (e.g., quantized engines, tensor cores). Ternary is not a universal replacement but a targeted wedge for domains where overhead is minimal and benefits are clear.
 
-For hardware insights, see recent SPICE simulations in related repos like [ternary-memory-research](https://github.com/t81dev/ternary-memory-research), showing real energy/delay metrics for ternary gates in SKY130 PDK.
+For hardware insights, see recent SPICE simulations in the related repository [ternary-memory-research](https://github.com/t81dev/ternary-memory-research), showing real energy/delay metrics for ternary gates in the SKY130 PDK.
 
 ## Architecture
 
-T81 separates compilation and execution with explicit contracts for determinism and safety.
+T81 enforces a strict separation between compilation and execution, governed by explicit contracts for determinism and safety.
 
 ```mermaid
 graph TD
@@ -88,26 +94,26 @@ graph TD
         A["T81Lang Source (.t81)"] --> B[Lexer]
         B --> C[Parser]
         C --> D[AST]
-        D --> E[Semantic Analyzer]
-        E --> F[IR Generator]
-        F --> G[TISC IR]
-        G --> H[Binary Emitter/IO]
-        H --> I[TISC Bytecode]
+        D --> E["Semantic Analyzer"]
+        E --> F["IR Generator"]
+        F --> G["TISC IR"]
+        G --> H["Binary Emitter / IO"]
+        H --> I["TISC Bytecode"]
     end
     subgraph "Runtime"
-        I --> J[T81VM Interpreter]
-        J --> K[Trace Hotspot Detection]
-        K --> L[Deterministic Trace JIT]
-        L --> M[Compiled Trace Execution]
+        I --> J["T81VM Interpreter"]
+        J --> K["Trace Hotspot Detection"]
+        K --> L["Deterministic Trace JIT"]
+        L --> M["Compiled Trace Execution"]
     end
     subgraph "Safety & Audit"
-        J --> N[Axion Policy Checks]
+        J --> N["Axion Policy Checks"]
         M --> N
-        N --> O[Axion Events/Verdicts]
+        N --> O["Axion Events / Verdicts"]
     end
     subgraph "Model & Tensor Tooling"
-        P[SafeTensors/GGUF/T81W] --> Q[Weights Tooling]
-        Q --> R[Tensor Pools/Handles]
+        P["SafeTensors / GGUF / T81W"] --> Q["Weights Tooling"]
+        Q --> R["Tensor Pools / Handles"]
         R --> J
     end
 ```
@@ -122,7 +128,7 @@ graph TD
 
 ## CLI Examples
 
-The `t81` CLI unifies compilation, execution, and diagnostics.
+The `t81` CLI provides a unified interface for compilation, execution, and diagnostics.
 
 - **Compile & Run**  
   ```bash
@@ -152,7 +158,7 @@ The `t81` CLI unifies compilation, execution, and diagnostics.
   t81 weights quantize model.safetensors --to-gguf model.gguf
   ```
 
-Full usage: `t81 help`
+Full usage: *`t81 help`*
 
 ## Repository Map
 
@@ -192,7 +198,7 @@ Full usage: `t81 help`
 
 ## Runtime Boundary
 
-Defined in [contracts/runtime-contract.json](contracts/runtime-contract.json) and specs like [spec/t81vm-spec.md](spec/t81vm-spec.md).
+Defined in [contracts/runtime-contract.json](contracts/runtime-contract.json) and detailed in specs such as [spec/t81vm-spec.md](spec/t81vm-spec.md).
 
 ## Further Reading
 
@@ -204,4 +210,4 @@ Defined in [contracts/runtime-contract.json](contracts/runtime-contract.json) an
 
 ## License
 
-MIT License – see [LICENSE](LICENSE).
+MIT License — see [LICENSE](LICENSE).
