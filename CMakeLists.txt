@@ -580,6 +580,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_cli_check_test tests/cpp/cli_check_test.cpp)
   target_link_libraries(t81_cli_check_test PRIVATE t81_cli_driver)
 
+  add_executable(security_package_init_test tests/cpp/security_package_init_test.cpp)
+  target_link_libraries(security_package_init_test PRIVATE t81_cli_driver)
+
   add_executable(t81_cli_pipeline_test tests/cpp/cli_pipeline_test.cpp)
   target_link_libraries(t81_cli_pipeline_test PRIVATE t81_cli_driver)
 

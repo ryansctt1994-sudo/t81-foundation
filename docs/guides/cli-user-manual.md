@@ -106,3 +106,35 @@ These samples ensure auditors can audit Axion traces without reading the VM code
 - `spec/axion-kernel.md` section 1.5‑1.10 (Axion responsibilities, metadata contract).  
 - RFC-0009, RFC-0020, RFC-0019 (policy language, segment trace semantics, match metadata).  
 - `docs/guides/cli-toolkit.md` for tooling that wraps the CLI in reproducible scripts.
+
+## 9. Project & Package Management
+
+### 9.1 `t81 init`
+
+Scaffold a new T81 project with a default directory structure and `main.t81`.
+
+```bash
+t81 init <project_name>
+```
+
+- Creates a directory named `<project_name>`.
+- Generates a sample `main.t81` and `README.md`.
+- **Security Note**: Project names are restricted to alphanumeric characters, underscores (`_`), and hyphens (`-`).
+
+### 9.2 `t81 pkg`
+
+Manage package manifests (`package.t81`).
+
+```bash
+t81 pkg init [package_name]
+```
+
+- Generates a `package.t81` manifest file in the current directory.
+- Defaults to `my-t81-pkg` if no name is provided.
+- Enforces strict naming conventions (alphanumeric, `_`, `-`) to prevent configuration injection.
+
+```bash
+t81 pkg check
+```
+
+- Validates the current `package.t81` manifest.
