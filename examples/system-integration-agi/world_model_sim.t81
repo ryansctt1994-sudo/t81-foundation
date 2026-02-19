@@ -1,0 +1,42 @@
+// Example 5: Deterministic World Model Simulation
+// Focus: Advanced Math, Vectors, and Matrices.
+// Goal: Maintain a high-fidelity 3D simulation.
+
+fn main() -> i32 {
+    print("--- Deterministic World Model Simulation ---");
+
+    // Initial State (Scalars)
+    var pos_x = 0.0;
+    var pos_y = 10.0;
+    var pos_z = 0.0;
+
+    // Simulation parameters
+    // Workaround: Unary minus on float might map to integer Neg opcode in current VM.
+    // Use subtraction from zero.
+    let gravity = 0.0 - 9.81;
+    let dt = 0.016; // 60 FPS
+
+    print("Initial Position Y: ");
+    print(pos_y);
+
+    // Simulate 10 frames
+    var frame = 0;
+    while (frame < 10) {
+        let dy = gravity * dt * dt;
+        pos_y = pos_y + dy;
+
+        // Check collision with ground (y=0)
+        if (pos_y < 0.0) {
+            pos_y = 0.0;
+            print("Ground Collision Detected at frame: ");
+            print(frame);
+        }
+
+        frame = frame + 1;
+    }
+
+    print("Final Position Y: ");
+    print(pos_y);
+
+    return 0;
+}

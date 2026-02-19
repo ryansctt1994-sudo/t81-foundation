@@ -1,0 +1,49 @@
+// Example 1: The Ethical Decision Accumulator
+// Focus: Logic, Reproducibility, and Fundamental Governance.
+// Goal: Sum "Value Shares" to determine a utility score while filtering each against an ethics set.
+
+fn main() -> i32 {
+    print("--- Ethical Decision Accumulator ---");
+
+    // "Value Shares" represented as T81BigInt
+    // Note: T81BigInt literals use standard integer syntax or specific constructors if needed.
+    // Here we use standard int which promotes to BigInt where required or T81Int.
+    let shares = [100, 200, 50, 300, 500]; // Vector[i32]
+
+    // "Ethical Violations" set (simulated with a Vector and membership check)
+    // In a real system, this might be a T81Set loaded from CanonFS.
+    let violations = [50, 500];
+
+    var utility_score: T81BigInt = 0;
+    var rejected_count = 0;
+
+    print("Processing shares...");
+
+    for share in (shares) {
+        // Governance check: Is this share in the violations set?
+        var is_unethical = false;
+        for v in (violations) {
+            if (share == v) {
+                is_unethical = true;
+                break;
+            }
+        }
+
+        if (is_unethical) {
+            print("Rejected unethical share: ");
+            print(share);
+            rejected_count = rejected_count + 1;
+        } else {
+            // "Axion" monitors that this addition only happens if the check passed (implicitly via control flow).
+            // In a strict policy, we might have an `AxVerify(is_unethical == false)` instruction.
+            utility_score = utility_score + share;
+        }
+    }
+
+    print("Final Utility Score: ");
+    print(utility_score); // Should be 100 + 200 + 300 = 600
+    print("Rejected Count: ");
+    print(rejected_count); // Should be 2
+
+    return 0;
+}
