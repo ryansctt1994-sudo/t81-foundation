@@ -3,8 +3,12 @@
 Directory documentation for `src/crypto`.
 
 ## Purpose
-- Describe what this module/folder owns.
-- Point contributors to related code and docs.
+This module contains cryptographic primitives used by the T81 runtime.
+Currently, it includes:
+- **SHA3-512**: A Keccak-based hashing algorithm.
+
+## Testing
+- Unit tests for SHA3-512 are located in `tests/cpp/test_sha3.cpp`.
 
 ## Expectations
 - Keep behavior deterministic and reproducible.

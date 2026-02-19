@@ -46,11 +46,13 @@ void keccakf(uint64_t state[25]) noexcept {
       state[j] = rol(temp, kKeccakfRotc[i]);
       temp = t;
     }
-    for (int i = 0; i < 5; ++i) {
-      for (int j = 0; j < 25; j += 5) {
-        uint64_t a = state[j + i];
-        uint64_t b = state[j + ((i + 1) % 5)];
-        state[j + i] = a ^ ((~b) & state[j + ((i + 2) % 5)]);
+    for (int j = 0; j < 25; j += 5) {
+      uint64_t t[5];
+      for (int i = 0; i < 5; ++i) {
+        t[i] = state[j + i];
+      }
+      for (int i = 0; i < 5; ++i) {
+        state[j + i] = t[i] ^ ((~t[(i + 1) % 5]) & t[(i + 2) % 5]);
       }
     }
     state[0] ^= kKeccakfRoundConstants[round];
