@@ -40,7 +40,7 @@ def main() -> None:
         base_ref = f"origin/{github_base_ref}" if github_base_ref else "origin/main"
 
     marker_path = root / "contracts/runtime-contract.json"
-    boundary_doc_path = root / "docs/runtime-semantics-boundary.md"
+    boundary_doc_path = root / "docs/explanation/runtime-semantics-boundary.md"
     vm_contract_path = vm_dir / "docs/contracts/vm-compatibility.json"
 
     if not marker_path.exists():

@@ -9,8 +9,8 @@ T81 prioritizes **bit-exact reproducibility**, **runtime governance** via Axion,
 - Floating-point transcendental functions are **bit-exact** via the `dmath` backend.
 - Axion policies **cannot be bypassed** — violations trigger explicit events/verdicts.
 
-For foundational concepts → see [spec/t81-overview.md](../spec/t81-overview.md)
-For normative specs → see [spec/index.md](../spec/index.md)
+For foundational concepts → see [spec/t81-overview.md](../../spec/t81-overview.md)
+For normative specs → see [spec/index.md](../../spec/index.md)
 
 ## Table of Contents
 
@@ -126,7 +126,7 @@ Typical edit-compile-debug loop:
 
 T81 provides ternary-native types with strict determinism.
 
-Common types (see [spec/t81-data-types.md](../spec/t81-data-types.md)):
+Common types (see [spec/t81-data-types.md](../../spec/t81-data-types.md)):
 
 ```t81
 let i   : i32          = 42;
@@ -286,7 +286,7 @@ Report issues → GitHub Issues.
 
 - Explore all examples → `examples/`
 - Read architecture → [docs/explanation/ARCHITECTURE.md](../explanation/ARCHITECTURE.md)
-- Deep dive specs → [spec/index.md](../spec/index.md)
+- Deep dive specs → [spec/index.md](../../spec/index.md)
 - AI/research quickstarts → `docs/tutorials/ai-quickstart.md`, `docs/how-to/research-guide.md`
 - Contribute → [CONTRIBUTING.md](../../CONTRIBUTING.md)
 
