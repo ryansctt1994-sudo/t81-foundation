@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import pathlib
 import re
+import sys
 from dataclasses import dataclass
 
 
@@ -30,7 +31,7 @@ class WorkflowPermissions:
 
 
 def parse_permissions(path: pathlib.Path) -> WorkflowPermissions:
-    lines = path.read_text(encoding="utf-8").splitlines()
+    lines = path.read_text(encoding="utf-8-sig").splitlines()
     has = False
     entries: dict[str, str] = {}
     i = 0
@@ -112,6 +113,8 @@ def main() -> int:
 
     if args.max_missing is not None and len(missing) > args.max_missing:
         print(f"ERROR: missing explicit permissions {len(missing)} exceed allowed maximum {args.max_missing}")
+        for p in missing:
+            print(f"  - {p.path.relative_to(root)}", file=sys.stderr)
         return 1
 
     return 0
