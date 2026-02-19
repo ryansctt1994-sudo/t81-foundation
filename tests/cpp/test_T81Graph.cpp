@@ -27,8 +27,32 @@ void test_pagerank() {
   std::cout << "test_pagerank PASSED\n";
 }
 
+void test_symbolic_graph() {
+  using SymGraph = T81Graph<5, 2, T81Symbol>;
+  SymGraph g;
+
+  auto loves = T81Symbol::intern("LOVES");
+  auto hates = T81Symbol::intern("HATES");
+
+  g.add_edge(0, 1, loves);
+  g.add_edge(1, 0, hates);
+
+  assert(g.weight(0, 1) == loves);
+  assert(g.weight(1, 0) == hates);
+  // Default constructed symbol should be empty/null
+  assert(g.weight(0, 2) == T81Symbol());
+
+  auto outgoing = g.outgoing(0);
+  assert(outgoing.size() == 1);
+  assert(outgoing[0].first == 1);
+  assert(outgoing[0].second == loves);
+
+  std::cout << "test_symbolic_graph PASSED\n";
+}
+
 int main() {
   test_basic_operations();
   test_pagerank();
+  test_symbolic_graph();
   return 0;
 }

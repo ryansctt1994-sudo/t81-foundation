@@ -37,7 +37,27 @@ using Weight81 = T81Float<72, 9>;  // 81-trit floating weight
 #include <type_traits>
 #include <vector>
 
-template <size_t NodeCount, size_t MaxDegree = 81>
+namespace detail {
+template <typename T>
+constexpr T default_epsilon() {
+  if constexpr (std::is_constructible_v<T, double>) {
+    return T(1e-6);
+  } else {
+    return T{};
+  }
+}
+
+template <typename T>
+constexpr T default_weight() {
+  if constexpr (std::is_constructible_v<T, int>) {
+    return T(1);
+  } else {
+    return T{};
+  }
+}
+}  // namespace detail
+
+template <size_t NodeCount, size_t MaxDegree = 81, typename WeightType = Weight81>
 class T81Graph {
   // KnowledgeGraph is 81*81*81 (531441). Assert adjusted to allow 3 trytes.
   static_assert(NodeCount <= 81 * 81 * 81, "NodeCount fits in three trytes (symbolic ID)");
@@ -46,7 +66,7 @@ class T81Graph {
 public:
   // P1: Widen NodeID if needed to support >65535 nodes
   using NodeID = std::conditional_t<(NodeCount > 65535), uint32_t, uint16_t>;
-  using Weight = Weight81;
+  using Weight = WeightType;
   using EdgeList = std::array<std::pair<NodeID, Weight>, MaxDegree>;
 
   static constexpr size_t nodes() noexcept { return NodeCount; }
@@ -88,7 +108,7 @@ public:
   //===================================================================
   // Edge manipulation — O(1), hardware-accelerated on Axion
   //===================================================================
-  constexpr void add_edge(NodeID from, NodeID to, Weight w = Weight(1)) noexcept {
+  constexpr void add_edge(NodeID from, NodeID to, Weight w = detail::default_weight<Weight>()) noexcept {
     for (auto& e : adj[from]) {
       if (e.first == NodeID(-1) || e.first == to) {
         e = {to, w};
@@ -111,7 +131,7 @@ public:
     for (const auto& e : adj[from]) {
       if (e.first == to) return e.second;
     }
-    return Weight(0);
+    return Weight{};
   }
 
   //===================================================================
@@ -172,35 +192,35 @@ public:
   // PageRank → manual iteration for Rank 1 tensors
   // Optimized to use sparse updates (O(E) per step) instead of dense matrix (O(N²)).
   [[nodiscard]] friend constexpr auto pagerank(const T81Graph& g, int steps = 20,
-                                               Weight81 epsilon = Weight81(1e-6)) noexcept
-      -> T81Tensor<Weight81, 1, NodeCount> {
-    using Tensor1D = T81Tensor<Weight81, 1, NodeCount>;
+                                               WeightType epsilon = detail::default_epsilon<WeightType>()) noexcept
+      -> T81Tensor<WeightType, 1, NodeCount> {
+    using Tensor1D = T81Tensor<WeightType, 1, NodeCount>;
     auto v = Tensor1D::zeros();
 
     // Initialize uniformly: 1/N
-    Weight81 init_val = Weight81(1) / Weight81(static_cast<long long>(NodeCount));
+    WeightType init_val = WeightType(1) / WeightType(static_cast<long long>(NodeCount));
     for (size_t i = 0; i < NodeCount; ++i) v(i) = init_val;
 
-    Weight81 damping(0.85);
-    Weight81 inv_damping = Weight81(1) - damping;  // 0.15
+    WeightType damping(0.85);
+    WeightType inv_damping = WeightType(1) - damping;  // 0.15
 
     // Ensure epsilon is positive
-    if (epsilon < Weight81(0)) epsilon = -epsilon;
+    if (epsilon < WeightType(0)) epsilon = -epsilon;
 
     for (int s = 0; s < steps; ++s) {
-      Weight81 sink_mass = Weight81::zero();
+      WeightType sink_mass = WeightType::zero();
       for (size_t i = 0; i < NodeCount; ++i) {
         if (g.outgoing(static_cast<NodeID>(i)).empty()) {
           sink_mass = sink_mass + v(i);
         }
       }
 
-      Weight81 total_mass = reduce_sum(v);
+      WeightType total_mass = reduce_sum(v);
 
       // Amount to distribute to everyone: (1-d)*Total + d*Sink
       // This correctly handles dangling nodes (sinks) by redistributing their mass
-      Weight81 distribute_mass = (total_mass * inv_damping) + (sink_mass * damping);
-      Weight81 base_add = distribute_mass / Weight81(static_cast<long long>(NodeCount));
+      WeightType distribute_mass = (total_mass * inv_damping) + (sink_mass * damping);
+      WeightType base_add = distribute_mass / WeightType(static_cast<long long>(NodeCount));
 
       Tensor1D next_v;  // Zeros
       for (size_t i = 0; i < NodeCount; ++i) next_v(i) = base_add;
@@ -210,8 +230,8 @@ public:
         auto out_edges = g.outgoing(i);
         size_t deg = out_edges.size();
         if (deg > 0) {
-          Weight81 w_scale = Weight81(1) / Weight81(static_cast<long long>(deg));
-          Weight81 mass = v(i) * damping * w_scale;
+          WeightType w_scale = WeightType(1) / WeightType(static_cast<long long>(deg));
+          WeightType mass = v(i) * damping * w_scale;
           for (auto [j, w] : out_edges) {
             // Accumulate contribution
             next_v(j) = next_v(j) + mass * w;
@@ -220,9 +240,9 @@ public:
       }
 
       // Check convergence
-      Weight81 diff_sum = Weight81::zero();
+      WeightType diff_sum = WeightType::zero();
       for (size_t i = 0; i < NodeCount; ++i) {
-        Weight81 d = next_v(i) - v(i);
+        WeightType d = next_v(i) - v(i);
         diff_sum = diff_sum + d.abs();
       }
 
@@ -317,13 +337,13 @@ public:
    * @return Tensor of distances.
    */
   [[nodiscard]] constexpr auto shortest_path(NodeID start) const noexcept
-      -> T81Tensor<Weight81, 1, NodeCount> {
-    T81Tensor<Weight81, 1, NodeCount> dist;
+      -> T81Tensor<WeightType, 1, NodeCount> {
+    T81Tensor<WeightType, 1, NodeCount> dist;
     // Initialize with infinity
-    Weight81 inf = Weight81::inf(true);
+    WeightType inf = WeightType::inf(true);
     for (size_t i = 0; i < NodeCount; ++i) dist(i) = inf;
 
-    dist(start) = Weight81(0);
+    dist(start) = WeightType(0);
 
     // Visited set
     bool visited[NodeCount] = {};
@@ -331,13 +351,13 @@ public:
     for (size_t i = 0; i < NodeCount; ++i) {
       // Find min dist node among unvisited
       NodeID u = NodeID(-1);
-      Weight81 min_d = inf;
+      WeightType min_d = inf;
 
       for (size_t j = 0; j < NodeCount; ++j) {
         // Check dist(j) < min_d.
         // We must handle NaE/Inf correctly. T81Float comparison works.
         if (!visited[j]) {
-          Weight81 d = dist(j);
+          WeightType d = dist(j);
           if (d < min_d) {
             min_d = d;
             u = static_cast<NodeID>(j);
@@ -352,7 +372,7 @@ public:
       // Relax neighbors
       for (auto [v, w] : outgoing(u)) {
         if (!visited[v]) {
-          Weight81 new_dist = dist(u) + w;
+          WeightType new_dist = dist(u) + w;
           if (new_dist < dist(v)) {
             dist(v) = new_dist;
           }
@@ -364,11 +384,11 @@ public:
   }
 
   // Message passing (one step) → single sparse tensor contraction
-  [[nodiscard]] constexpr auto message_pass(const T81Tensor<Weight81, 1, NodeCount>& node_states)
-      const noexcept -> T81Tensor<Weight81, 1, NodeCount> {
-    T81Tensor<Weight81, 1, NodeCount> out{};
+  [[nodiscard]] constexpr auto message_pass(const T81Tensor<WeightType, 1, NodeCount>& node_states)
+      const noexcept -> T81Tensor<WeightType, 1, NodeCount> {
+    T81Tensor<WeightType, 1, NodeCount> out{};
     for (NodeID i = 0; i < NodeCount; ++i) {
-      Weight81 sum{};
+      WeightType sum{};
       for (auto [j, w] : outgoing(i)) {
         sum = sum + node_states(j) * w;
       }
@@ -409,7 +429,7 @@ public:
           // For now, let's assume we want to infer connections.
           if (u != z) {
             // Check if edge exists
-            Weight81 existing = g.weight(u, z);
+            WeightType existing = g.weight(u, z);
             if (existing.is_zero()) {
               g.add_edge(u, z, w1 * w2);
             }
@@ -424,9 +444,9 @@ public:
 // ======================================================================
 // Canonical graph types of the new era
 // ======================================================================
-using SymbolGraph81 = T81Graph<6561, 81>;    // 81² nodes, degree 81 → full HRR binding graph
+using SymbolGraph81 = T81Graph<6561, 81, T81Symbol>;    // 81² nodes, degree 81 → full HRR binding graph
 using AttentionGraph = T81Graph<4096, 128>;  // transformer KV graph
-using KnowledgeGraph = T81Graph<81 * 81 * 81, 27>;  // 81³ nodes (531441), sparse symbolic
+using KnowledgeGraph = T81Graph<81 * 81 * 81, 27, T81Symbol>;  // 81³ nodes (531441), sparse symbolic
 
 // ======================================================================
 // The future of all computation is a graph of 81-trit weights
