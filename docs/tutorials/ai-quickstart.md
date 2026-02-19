@@ -284,9 +284,9 @@ graph TD
 ```mermaid
 graph LR
   subgraph Tooling
-    CLI["`t81` CLI"] -->|compile| TISC["TISC bytecode"]
+    CLI["t81 CLI"] -->|compile| TISC["TISC bytecode"]
     TISC -->|run| VM["HanoiVM + Axion"]
-    CLI -->|weights import/quantize| Weights["`.t81w` / GGUF"]
+    CLI -->|weights import/quantize| Weights[".t81w / GGUF"]
   end
   VM --> Trace["Axion log + `VERDICT_*`"]
   Weights --> VM
