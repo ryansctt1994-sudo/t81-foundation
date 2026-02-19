@@ -1,5 +1,15 @@
 # T81 Foundation
 
+[![CI](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml/badge.svg)](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![C++ Standard](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://en.cppreference.com/w/cpp/23)
+
+[![English](https://img.shields.io/badge/Language-English-blue?style=flat-square)](README.md)
+[![简体中文](https://img.shields.io/badge/Language-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-red?style=flat-square)](README.zh-CN.md)
+[![Español](https://img.shields.io/badge/Language-Español-green?style=flat-square)](README.es.md)
+[![Русский](https://img.shields.io/badge/Language-Русский-brightgreen?style=flat-square)](README.ru.md)
+[![Português](https://img.shields.io/badge/Language-Português%20(Brasil)-blueviolet?style=flat-square)](README.pt-BR.md)
+
 T81：一个确定的、三进制原生的计算栈。其特性包括 Base-81 数据类型、TISC 指令集、T81VM、T81Lang、Axion 安全/优化引擎以及完整的递归认知层级。
 
 T81 通过将三进制原生类型与严格的运行时治理相结合，在算术密集型领域提供位精确（bit-exact）且可审计的执行。它是可验证 AI、密码学和科学计算的理想选择。
