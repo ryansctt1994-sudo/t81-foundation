@@ -57,4 +57,4 @@ We actively mitigate the following sources of nondeterminism:
 - **Concurrency:** Parallel builds (`--parallel`) must not affect output linking order determinism.
 - **ASLR/mmap:** JIT compilation uses deterministic memory mapping strategies (see `spec/vm/jit-determinism.md`).
 
-If you find a nondeterministic result, please file a [Bug Report](../.github/ISSUE_TEMPLATE/bug_report.md).
+If you find a nondeterministic result, please file a [Bug Report](../../.github/ISSUE_TEMPLATE/bug_report.md).

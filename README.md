@@ -205,7 +205,7 @@ Defined in [contracts/runtime-contract.json](contracts/runtime-contract.json) an
 - [spec/t81-overview.md](spec/t81-overview.md)
 - [CONTRIBUTING.md](CONTRIBUTING.md)
 - [SECURITY.md](SECURITY.md)
-- [CHANGELOG.md](CHANGELOG.md) (if available via commits)
+- [CHANGELOG.md](docs/reference/CHANGELOG.md) (if available via commits)
 
 ## License
 

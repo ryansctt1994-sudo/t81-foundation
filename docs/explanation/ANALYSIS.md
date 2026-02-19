@@ -8,7 +8,7 @@ ______________________________________________________________________
 
 ## 1. Core Numerics (`t81_core`)
 
-- **Specification:** [`spec/t81-data-types.md`](spec/t81-data-types.md)
+- **Specification:** [`spec/t81-data-types.md`](../../spec/t81-data-types.md)
 - **Status:** `Complete`
 - **Analysis:**
   - **`T81Int<N>`:** **Complete.** The fixed-size ternary integer implementation is robust, well-tested, and fully conforms to the spec's requirements for arithmetic, comparison, and overflow behavior.
@@ -22,7 +22,7 @@ ______________________________________________________________________
 
 ## 2. TISC ISA & VM (`t81_tisc`, `t81_vm`)
 
-- **Specification:** [`spec/tisc-spec.md`](spec/tisc-spec.md), [`spec/t81vm-spec.md`](spec/t81vm-spec.md)
+- **Specification:** [`spec/tisc-spec.md`](../../spec/tisc-spec.md), [`spec/t81vm-spec.md`](../../spec/t81vm-spec.md)
 - **Status:** `Complete`
 - **Analysis:**
   - **Instruction Set:** **Complete.** The TISC opcodes are defined and executed by the interpreter, including family-specific opcodes for Axion kernel interaction and extended memory primitives. Supports 81 registers (R0-R80) including the Axion System Window.
@@ -35,7 +35,7 @@ ______________________________________________________________________
 
 ## 3. T81Lang Frontend (`t81_frontend`)
 
-- **Specification:** [`spec/t81lang-spec.md`](spec/t81lang-spec.md)
+- **Specification:** [`spec/t81lang-spec.md`](../../spec/t81lang-spec.md)
 - **Status:** `Implemented`
 - **Analysis:**
   - **Lexer & Parser:** The parser now covers the full grammar, including `match`, structural declarations, and generic type syntax, and reports errors with file/line/column information so the CLI can guide fixes immediately.

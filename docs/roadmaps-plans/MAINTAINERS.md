@@ -22,4 +22,4 @@ Maintainership is earned through consistent, high-quality contributions and comm
 2.  **Nominate:** Existing maintainers can nominate new maintainers.
 3.  **Vote:** Maintainers vote on the nomination.
 
-See [GOVERNANCE.md](GOVERNANCE.md) for more details.
+See [GOVERNANCE.md](../policies/GOVERNANCE.md) for more details.
