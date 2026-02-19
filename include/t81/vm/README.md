@@ -14,4 +14,4 @@ Public VM interfaces for HanoiVM.
 
 ## Compatibility
 - Treat these headers as stable API surfaces.
-- Prefer additive changes; document breaking changes in `CHANGELOG.md`.
+- Prefer additive changes; document breaking changes in `../../../docs/reference/CHANGELOG.md`.

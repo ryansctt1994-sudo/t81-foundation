@@ -15,7 +15,7 @@ We have successfully implemented deep optimization for `T81BigInt` to handle arb
 -   **Memory Management**: Allocation is minimized using small-object optimization and custom allocators where beneficial.
 -   **Saturation Handling**: Overflow checks are streamlined to avoid expensive `try-catch` blocks in hot paths, using `significant_trits()` checks to predict potential overflows.
 
-These optimizations are benchmarked regularly (see `docs/benchmarks.md`) and ensure that high-precision arithmetic remains performant even as precision scales.
+These optimizations are benchmarked regularly (see `../reference/benchmarks.md`) and ensure that high-precision arithmetic remains performant even as precision scales.
 
 ## 2. Tensor Backend Strategy
 
@@ -25,7 +25,7 @@ Our tensor strategy aims to balance performance with strict determinism.
 
 -   **Portable Scalar Parity**: We maintain a portable scalar backend that guarantees bit-exact results across all architectures. This serves as the "golden reference" for verification.
 -   **Optimized Backends**: We are developing optimized backends (e.g., AVX-512, NEON, potential GPU/TPU paths) that *must* produce results mathematically identical to the scalar reference.
--   **T729Tensor**: The current implementation (`include/t81/tensor`) provides a comprehensive API for dense tensors, supporting broadcasting, slicing, and reduction operations. Future work involves further optimizing these operations for specific hardware targets without compromising determinism.
+-   **T729Tensor**: The current implementation (`../../include/t81/tensor`) provides a comprehensive API for dense tensors, supporting broadcasting, slicing, and reduction operations. Future work involves further optimizing these operations for specific hardware targets without compromising determinism.
 
 ## 3. CanonFS Scalability
 

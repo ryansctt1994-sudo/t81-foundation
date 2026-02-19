@@ -79,7 +79,7 @@ python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
 
 我们通过在语言/编译器和执行运行时之间建立严格的架构边界来强制执行这一点，该边界由明确的契约约束。
 
-[**查看架构边界图**](ARCHITECTURE.md#3-concurrent-workstream-view) | [**查看运行时合约**](contracts/runtime-contract.json)
+[**查看架构边界图**](docs/explanation/ARCHITECTURE.md#3-concurrent-workstream-view) | [**查看运行时合约**](contracts/runtime-contract.json)
 
 ---
 
@@ -89,15 +89,15 @@ python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
 
 | :--- | :--- | :--- |
 
-| **[STATUS.md](STATUS.md)** | *当前* 的真实情况 | 运行状态 |
+| **[STATUS.md](docs/reference/STATUS.md)** | *当前* 的真实情况 | 运行状态 |
 
-| **[ROADMAP.md](ROADMAP.md)** | 未来规划 | 战略 |
+| **[ROADMAP.md](docs/roadmaps-plans/ROADMAP.md)** | 未来规划 | 战略 |
 
-| **[VERSIONING.md](VERSIONING.md)** | 兼容性规则 | 规范 |
+| **[VERSIONING.md](docs/reference/VERSIONING.md)** | 兼容性规则 | 规范 |
 
 | **[spec/](spec/)** | 行为定义 | 规范 |
 
-| **[docs/EVIDENCE.md](docs/EVIDENCE.md)** | 声明证明 | 验证 |
+| **[docs/EVIDENCE.md](docs/policies/EVIDENCE.md)** | 声明证明 | 验证 |
 
 ---
 
@@ -225,21 +225,21 @@ T81 使用显式运行时边界契约：
 
 - 标记：[`contracts/runtime-contract.json`](contracts/runtime-contract.json)
 
-- 边界策略：[`docs/runtime-semantics-boundary.md`](docs/runtime-semantics-boundary.md)
+- 边界策略：[`docs/explanation/runtime-semantics-boundary.md`](docs/explanation/runtime-semantics-boundary.md)
 
 ## 延伸阅读
 
-- [`ARCHITECTURE.md`](ARCHITECTURE.md)
+- [`ARCHITECTURE.md`](docs/explanation/ARCHITECTURE.md)
 
-- [`docs/system-integration.md`](docs/system-integration.md)
+- [`docs/system-integration.md`](docs/how-to/system-integration.md)
 
-- [`ANALYSIS.md`](ANALYSIS.md)
+- [`ANALYSIS.md`](docs/explanation/ANALYSIS.md)
 
-- [`CHANGELOG.md`](CHANGELOG.md)
+- [`CHANGELOG.md`](docs/reference/CHANGELOG.md)
 
-- [`docs/research-guide.md`](docs/research-guide.md)
+- [`docs/research-guide.md`](docs/how-to/research-guide.md)
 
-- [`docs/ai-quickstart.md`](docs/ai-quickstart.md)
+- [`docs/ai-quickstart.md`](docs/tutorials/ai-quickstart.md)
 
 ## 许可证
 

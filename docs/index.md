@@ -13,16 +13,16 @@ ______________________________________________________________________
 
 If you are new to the project, start here. These documents provide the high-level overview and practical steps needed to get started with the C++ codebase.
 
-- **[C++ Quickstart Guide](./cpp-quickstart.md)**
+- **[C++ Quickstart Guide](tutorials/cpp-quickstart.md)**
   - A hands-on guide to cloning, building, and running the core tests and demos. The fastest way to get the code working.
 
-- **[System Status Report](./system-status.md)**
+- **[System Status Report](reference/system-status.md)**
   - A dashboard of the current implementation status of each major component, measured against its formal specification.
 
-- **[Architecture Overview](../ARCHITECTURE.md)**
+- **[Architecture Overview](explanation/ARCHITECTURE.md)**
   - A high-level description of the system's structure, libraries, and data flow, from T81Lang source code to VM execution.
 
-- **[Researcher's Guide](./research-guide.md)**
+- **[Researcher's Guide](how-to/research-guide.md)**
   - An in-depth exploration of the mathematical foundations of balanced ternary and the five cognitive tiers of execution.
 
 ______________________________________________________________________
@@ -34,14 +34,14 @@ These documents are the "constitution" of the T81 Foundation. They define the no
 - **[Master Specification Index](../spec/index.md)**
   - The root index that links to all formal specification documents (TISC ISA, VM, T81Lang, Data Types, etc.).
 
-- **[Design Principles](../DESIGN.md)**
+- **[Design Principles](explanation/DESIGN.md)**
   - The core design philosophy, including balanced ternary, spec-first development, and deterministic semantics.
-- **[Runtime Semantics Boundary](./runtime-semantics-boundary.md)**
+- **[Runtime Semantics Boundary](explanation/runtime-semantics-boundary.md)**
   - Defines ownership boundaries between normative semantics in this repo and executable compatibility in `t81-vm`.
-- **[Terminology Alignment Notes](./terminology-alignment.md)**
+- **[Terminology Alignment Notes](policies/terminology-alignment.md)**
   - Canonical term map aligned with `duotronic-whitepaper` and `t81-docs`.
 
-- **[Tensor Library Guide](./tensor-guide.md)**
+- **[Tensor Library Guide](how-to/tensor-guide.md)**
   - An in-depth guide to the concepts and API of the T81 tensor library.
 
 ______________________________________________________________________
@@ -64,10 +64,10 @@ For contributors looking to modify the codebase, these resources provide detaile
   - A runnable sample that exercises primitive and structural data types inside `examples/data_types.t81`, plus dedicated high-rank tensor and graph demos for exploring multidimensional indexing behaviors.
 - **[Demo Gallery](./guides/demo-gallery.md)**
   - A quick menu of the match/data-type demos, the `scripts/run-demos.sh` automation, and the IR inspector utility.
-- **[Benchmark Report](./benchmarks.md)**
+- **[Benchmark Report](reference/benchmarks.md)**
   - Auto-generated archive of T81/binary throughput/latency comparisons produced by `./build/t81 benchmark`.
-- **Benchmark Highlights (README)**(`README.md#benchmark-highlights`)
--  - Summary badges and table excerpted from the latest `docs/benchmarks.md` results so visitors see at-a-glance which families currently lead.
+- **Benchmark Highlights (README)**(`../README.md#benchmark-highlights`)
+-  - Summary badges and table excerpted from the latest `docs/reference/benchmarks.md` results so visitors see at-a-glance which families currently lead.
 
 - **[Guide: VM Opcodes](./guides/vm-opcodes.md)**
   - The process for extending the virtual machine with new instructions.
@@ -86,5 +86,5 @@ ______________________________________________________________________
 - **[CONTRIBUTING.md](../CONTRIBUTING.md)**
   - The rules and guidelines for contributing code, including the RFC process for proposing changes.
 
-- **[ROADMAP.md](../ROADMAP.md)**
+- **[ROADMAP.md](roadmaps-plans/ROADMAP.md)**
   - The high-level plan and priorities for the project's development.

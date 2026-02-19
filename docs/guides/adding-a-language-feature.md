@@ -168,7 +168,7 @@ This guide provides a step-by-step walkthrough for adding a new feature to the T
 
 **Companion Documents:**
 - **Specification:** [`spec/t81lang-spec.md`](../../spec/t81lang-spec.md)
-- **Architecture:** [`ARCHITECTURE.md`](../../ARCHITECTURE.md)
+- **Architecture:** [`ARCHITECTURE.md`](../../docs/explanation/ARCHITECTURE.md)
 - **Key Source Files:**
     - `include/t81/frontend/lexer.hpp`, `parser.hpp`, `ir_generator.hpp`
     - `src/frontend/lexer.cpp`, `parser.cpp`, `ir_generator.cpp`

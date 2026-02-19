@@ -12,5 +12,5 @@ Directory documentation for `legacy/hanoivm/src/visualization`.
 
 ## See Also
 - Root `README.md`
-- `ARCHITECTURE.md`
+- `../../../../docs/explanation/ARCHITECTURE.md`
 - Relevant docs under `docs/`

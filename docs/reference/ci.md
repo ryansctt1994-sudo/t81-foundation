@@ -40,42 +40,42 @@ ______________________________________________________________________
    ```
    - Regenerates `build/api/html`; open `build/api/html/index.html` to inspect generated pages.
 6. **Optional helpers**
-   - `./build/t81 benchmark` to refresh `docs/benchmarks.md`.
+   - `./build/t81 benchmark` to refresh `docs/reference/benchmarks.md`.
    - `cmake --build build --target t81` to recompile the CLI after changes.
    - `./build/t81 repro-hash` to run the T81Lang fixture reproducibility gate and print the current aggregate hash.
-   - `python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --fixtures-dir tests/fixtures/t81lang_determinism --workdir build/t81lang-repro --hash-out build/t81lang-repro/hash.txt` to run T81Lang compile reproducibility gates locally.
-   - `python3 scripts/ci/generate_repro_dashboard.py ...` to synthesize the reproducibility ledger report (see `docs/guides/repro-ledger.md`).
-   - `python3 scripts/ci/audit_workflow_actions.py --markdown-out docs/audits/2026-02-workflow-action-audit.md` to snapshot workflow action pinning posture and migration candidates.
-   - `python3 scripts/ci/audit_workflow_permissions.py --markdown-out docs/audits/2026-02-workflow-permissions-audit.md` to snapshot workflow permissions posture and least-privilege drift.
-   - `python3 scripts/ci/audit_workflow_actions.py --max-tagged 0 --max-unknown 0` to enforce CI pinning policy (no tag/unclassified `uses:` references).
-   - `python3 scripts/ci/audit_workflow_permissions.py --max-missing 0` to enforce explicit permissions on all workflows.
-   - `python3 scripts/ci/check_legacy_core_numeric_includes.py` to enforce the compatibility-shim policy (no new includes of `t81/core/{bigint,fraction}.hpp` outside allowlisted files).
-   - `python3 scripts/ci/check_legacy_core_numeric_type_usage.py` to enforce the compatibility-shim policy (no new `core::BigInt` / `core::Fraction` type usage outside allowlisted files).
-   - `python3 scripts/ci/check_legacy_v1_numeric_includes.py` to enforce consolidation policy (no new includes of migration-only `t81/core/{T81BigInt,T81Fraction}.hpp` outside allowlisted files).
-   - `python3 scripts/ci/check_core_numeric_wrapper_thinness.py` to enforce thin-wrapper discipline in `src/core/{bigint,fraction}.cpp` (no arithmetic implementation tokens in compatibility adapter files).
-   - `python3 scripts/ci/check_v1_canonical_numeric_alias_usage.py` to enforce alias-based migration style in `tests/cpp/v1*_*.cpp` (use `t81::v1::CanonicalBigInt` / `t81::v1::CanonicalFraction`, avoid direct `t81::T81BigInt` / `t81::T81Fraction` there).
-   - `./scripts/ci/run_workflow_audits.sh` or `make audit-governance` to run the governance audit bundle (workflow pinning, workflow permissions, and legacy numeric compatibility policy checks) in strict mode with one command.
+   - `python3 ../../scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --fixtures-dir ../../tests/fixtures/t81lang_determinism --workdir build/t81lang-repro --hash-out build/t81lang-repro/hash.txt` to run T81Lang compile reproducibility gates locally.
+   - `python3 ../../scripts/ci/generate_repro_dashboard.py ...` to synthesize the reproducibility ledger report (see `../guides/repro-ledger.md`).
+   - `python3 ../../scripts/ci/audit_workflow_actions.py --markdown-out ../audits/2026-02-workflow-action-audit.md` to snapshot workflow action pinning posture and migration candidates.
+   - `python3 ../../scripts/ci/audit_workflow_permissions.py --markdown-out ../audits/2026-02-workflow-permissions-audit.md` to snapshot workflow permissions posture and least-privilege drift.
+   - `python3 ../../scripts/ci/audit_workflow_actions.py --max-tagged 0 --max-unknown 0` to enforce CI pinning policy (no tag/unclassified `uses:` references).
+   - `python3 ../../scripts/ci/audit_workflow_permissions.py --max-missing 0` to enforce explicit permissions on all workflows.
+   - `python3 ../../scripts/ci/check_legacy_core_numeric_includes.py` to enforce the compatibility-shim policy (no new includes of `t81/core/{bigint,fraction}.hpp` outside allowlisted files).
+   - `python3 ../../scripts/ci/check_legacy_core_numeric_type_usage.py` to enforce the compatibility-shim policy (no new `core::BigInt` / `core::Fraction` type usage outside allowlisted files).
+   - `python3 ../../scripts/ci/check_legacy_v1_numeric_includes.py` to enforce consolidation policy (no new includes of migration-only `t81/core/{T81BigInt,T81Fraction}.hpp` outside allowlisted files).
+   - `python3 ../../scripts/ci/check_core_numeric_wrapper_thinness.py` to enforce thin-wrapper discipline in `../../src/core/{bigint,fraction}.cpp` (no arithmetic implementation tokens in compatibility adapter files).
+   - `python3 ../../scripts/ci/check_v1_canonical_numeric_alias_usage.py` to enforce alias-based migration style in `../../tests/cpp/v1*_*.cpp` (use `t81::v1::CanonicalBigInt` / `t81::v1::CanonicalFraction`, avoid direct `t81::T81BigInt` / `t81::T81Fraction` there).
+   - `../../scripts/ci/run_workflow_audits.sh` or `make audit-governance` to run the governance audit bundle (workflow pinning, workflow permissions, and legacy numeric compatibility policy checks) in strict mode with one command.
    - `make cmake-ritual` to run the single-threaded local build/test ritual end-to-end.
 
 ## 2. GitHub Workflows
 
 | Workflow | Triggers | Key steps |
 | --- | --- | --- |
-| `.github/workflows/ci.yml` | pushes/PRs on `main` | validates docs/spec structure (including ARCHITECTURE target-table sync and legacy numeric include policy), configures CMake, builds `t81` and Google Benchmark, runs `ctest`, runs a C++ standard compatibility matrix (`-DT81_USE_CXX23=ON/OFF`) on linux clang, runs T3_K and T81Lang reproducibility gates on linux clang (`x86_64` + `arm64`), and compares cross-arch gate hashes. |
-| `.github/workflows/codeql.yml` | nightly + pull requests | runs CodeQL analysis for C/C++ on incoming changes. |
-| `.github/workflows/bench.yml` | manually via `workflow_dispatch` | builds benchmark runner and pipeline, publishes `docs/benchmarks.md` updates. |
-| `.github/workflows/repro-ledger.yml` | weekly + `workflow_dispatch` | runs build/test + T3_K reproducibility gate + Axion trace capture + benchmark snapshot and publishes `reproducibility-ledger` dashboard artifacts. |
-| `.github/workflows/runtime-contract.yml` | pushes/PRs + nightly + `workflow_dispatch` | validates `contracts/runtime-contract.json` against `t81-vm` contract/tag/pin and requires explicit approval for marker drift. |
-| `.github/workflows/t81lang-repro-hash-refresh.yml` | `workflow_dispatch` | regenerates `tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt` and opens an automated PR. |
-| `.github/workflows/release.yml` | tag pushes (`vX.Y.Z`) | production build, docs PDF generation, exposure of release assets (see `docs/release.md`). |
-| `.github/workflows/static.yml` | pushes + `workflow_dispatch` | builds and publishes the docs search index (Node/Lunr/Cheerio) via an automated PR flow. |
+| `../../.github/workflows/ci.yml` | pushes/PRs on `main` | validates docs/spec structure (including ARCHITECTURE target-table sync and legacy numeric include policy), configures CMake, builds `t81` and Google Benchmark, runs `ctest`, runs a C++ standard compatibility matrix (`-DT81_USE_CXX23=ON/OFF`) on linux clang, runs T3_K and T81Lang reproducibility gates on linux clang (`x86_64` + `arm64`), and compares cross-arch gate hashes. |
+| `../../.github/workflows/codeql.yml` | nightly + pull requests | runs CodeQL analysis for C/C++ on incoming changes. |
+| `../../.github/workflows/bench.yml` | manually via `workflow_dispatch` | builds benchmark runner and pipeline, publishes `benchmarks.md` updates. |
+| `../../.github/workflows/repro-ledger.yml` | weekly + `workflow_dispatch` | runs build/test + T3_K reproducibility gate + Axion trace capture + benchmark snapshot and publishes `reproducibility-ledger` dashboard artifacts. |
+| `../../.github/workflows/runtime-contract.yml` | pushes/PRs + nightly + `workflow_dispatch` | validates `../../contracts/runtime-contract.json` against `t81-vm` contract/tag/pin and requires explicit approval for marker drift. |
+| `../../.github/workflows/t81lang-repro-hash-refresh.yml` | `workflow_dispatch` | regenerates `../../tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt` and opens an automated PR. |
+| `../../.github/workflows/release.yml` | tag pushes (`vX.Y.Z`) | production build, docs PDF generation, exposure of release assets (see `../roadmaps-plans/RELEASING.md`). |
+| `../../.github/workflows/static.yml` | pushes + `workflow_dispatch` | builds and publishes the docs search index (Node/Lunr/Cheerio) via an automated PR flow. |
 
 ## 3. Troubleshooting CI Failures
 
 - **Build errors:** rerun `cmake --build build --verbose` and inspect the compiler output for missing includes or changed flags.  
 - **Test failures:** run the failing binary from `build/tests/cpp/...` to see stdout/stderr.  
 - **CodeQL / static issues:** check GitHub comments for file references; run `codeql` locally if needed (install via GitHub CLI).  
-- **Docs mismatch:** ensure `build/api/html` and `docs/benchmarks.md` match the current `build` artifacts before pushing.
+- **Docs mismatch:** ensure `../../build/api/html` and `benchmarks.md` match the current `build` artifacts before pushing.
 
 ## 4. Questions for Maintainers
 

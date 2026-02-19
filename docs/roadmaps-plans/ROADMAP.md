@@ -1,6 +1,6 @@
 # Project Roadmap
 
-> **Source of Truth:** This document defines the **strategic forward-looking milestones** for the project. For current operational status, see [STATUS.md](STATUS.md). For past changes, see [CHANGELOG.md](CHANGELOG.md).
+> **Source of Truth:** This document defines the **strategic forward-looking milestones** for the project. For current operational status, see [../reference/STATUS.md](../reference/STATUS.md). For past changes, see [../reference/CHANGELOG.md](../reference/CHANGELOG.md).
 
 **Last Updated:** February 10, 2026
 
@@ -43,4 +43,4 @@ A release candidate is valid only when:
 ## 4. Living Backlogs
 
 - Near-term actionable work: `TASKS.md`
-- Implementation/spec conformance notes: `ANALYSIS.md`
+- Implementation/spec conformance notes: `../explanation/ANALYSIS.md`

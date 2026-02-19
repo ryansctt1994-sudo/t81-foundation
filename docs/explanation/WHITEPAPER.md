@@ -83,19 +83,19 @@ Binary representations remain supported and dominant for many workloads. Ternary
 
 T81 is organized as a vertical, explicitly governed stack:
 
-1. **Core Numerics** (`include/t81/core`, `src/`)  
+1. **Core Numerics** (`../../include/t81/core`, `../../src/`)
    Deterministic numeric primitives, canonical formatting, and serialization.
 
-2. **Frontend (T81Lang)** (`include/t81/frontend`, `src/frontend`)  
+2. **Frontend (T81Lang)** (`../../include/t81/frontend`, `../../src/frontend`)
    Lexer, parser, semantic analysis, and IR generation with deterministic lowering rules.
 
-3. **TISC + Virtual Machine** (`include/t81/tisc`, `src/tisc`, `src/vm`)  
+3. **TISC + Virtual Machine** (`../../include/t81/tisc`, `../../src/tisc`, `../../src/vm`)
    Canonical program format and deterministic execution model.
 
-4. **Axion Governance + CanonFS** (`src/axion`, `src/canonfs`, `include/t81/canonfs`)  
+4. **Axion Governance + CanonFS** (`../../src/axion`, `../../src/canonfs`, `../../include/t81/canonfs`)
    Policy enforcement, trace visibility, and canonical persistence surfaces.
 
-5. **CLI and Tooling** (`src/cli`, `scripts/ci`, `docs/guides`)  
+5. **CLI and Tooling** (`../../src/cli`, `../../scripts/ci`, `../guides`)
    Compile/run/debug workflows and reproducibility enforcement.
 
 Each layer exposes explicit boundaries and contracts; no layer assumes implicit behavior from the next.
@@ -125,8 +125,8 @@ Mechanisms include:
 **Threats addressed directly:**
 
 * **Environmental drift** — Toolchain, host, and library variations are mitigated via strict reproducible builds and CI gates.
-* **Silent semantic drift** — Opaque lowering stages are verified against canonical hashes (`tests/fixtures/t81lang_determinism/`).
-* **Input validation** — Package initialization now strictly sanitizes names to prevent S-expression injection vulnerabilities (fixed in `src/cli/driver.cpp`, PR #225).
+* **Silent semantic drift** — Opaque lowering stages are verified against canonical hashes (`../../tests/fixtures/t81lang_determinism/`).
+* **Input validation** — Package initialization now strictly sanitizes names to prevent S-expression injection vulnerabilities (fixed in `../../src/cli/driver.cpp`, PR #225).
 * **Crypto correctness** — SHA3-512 implementation verified against test vectors with Chi step logic corrected (PR #224).
 * **Reproducibility stability** — AST/IR hash updated and clang-format violations eliminated in security paths (PR #226 + CI enforcement).
 
@@ -161,7 +161,7 @@ As of the date of this document:
 
 Representative gates include:
 
-* **Reproducibility Gates:** `scripts/ci/t81lang_repro_gate.py` ensures AST and IR structures match canonical hashes (updated Feb 19 via PR #226).
+* **Reproducibility Gates:** `../../scripts/ci/t81lang_repro_gate.py` ensures AST and IR structures match canonical hashes (updated Feb 19 via PR #226).
 * **Format & Linting:** Strict `clang-format-18` and static analysis enforcement (violations fixed and CI-hardened Feb 19).
 * **Runtime Contract Sync:** `.github/workflows/runtime-contract.yml` monitors drift between specification and runtime.
 * **Security Checks:** Automated dependency auditing and permission checks for workflows.
@@ -207,7 +207,7 @@ All performance claims are accompanied by benchmark artifacts and commit-pinned 
 
 ### 9.1 Benchmark Snapshot
 
-Source: `docs/benchmarks.md`  
+Source: `../reference/benchmarks.md`
 
 * Last updated: `2026-02-17 16:05:09 UTC`  
 * Snapshot commit: `92d6280`
@@ -253,7 +253,7 @@ These limitations are tracked and intentionally visible.
 | Deterministic compile/runtime is operational | CI workflows, repro gates, hash checks, PR #226    | Strong   | Continuously enforced          |
 | Runtime boundary is governed                 | Contracts + sync workflows                         | Strong   | Drift detection active         |
 | Security hardening active                    | PR #225 (package init), PR #224 (SHA3), clang-format enforcement | Strong   | Today’s patches verified       |
-| Performance is workload-dependent            | `docs/benchmarks.md`                               | Strong   | Both wins and losses shown     |
+| Performance is workload-dependent            | `../reference/benchmarks.md`                               | Strong   | Both wins and losses shown     |
 | Universal production readiness               | N/A                                                | Weak     | Not claimed                    |
 
 ---

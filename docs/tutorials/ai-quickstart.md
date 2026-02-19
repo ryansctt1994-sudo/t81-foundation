@@ -10,24 +10,24 @@ ______________________________________________________________________
 
 Before making any edits, load and skim the following files:
 
-1. `AGENTS.md`\
+1. `../../AGENTS.md`\
    – Canonical rules for agents, expectations, and constraints.
 
-2. `ARCHITECTURE.md`\
+2. `../explanation/ARCHITECTURE.md`\
    – High-level overview of the T81 stack, layers, and directories.
 
-3. `spec/index.md`\
+3. `../../spec/index.md`\
    – Entrypoint into the formal specification documents.
 
-4. `docs/cpp-quickstart.md`\
+4. `cpp-quickstart.md`\
    – Practical guide for building, running tests, and using the C++ API.
 
 If the task relates to a specific subsystem:
 
-- VM / execution: `spec/t81vm-spec.md`, `spec/tisc-spec.md`
-- Language / compiler: `spec/t81lang-spec.md`
-- Data types: `spec/t81-data-types.md`
-- Axion / cognitive tiers: `spec/axion-kernel.md`, `spec/cognitive-tiers.md`
+- VM / execution: `../../spec/t81vm-spec.md`, `../../spec/tisc-spec.md`
+- Language / compiler: `../../spec/t81lang-spec.md`
+- Data types: `../../spec/t81-data-types.md`
+- Axion / cognitive tiers: `../../spec/axion-kernel.md`, `../../spec/cognitive-tiers.md`
 
 ______________________________________________________________________
 
@@ -82,31 +82,31 @@ Use this as a quick navigation reference:
 
 - Core specs (normative):
 
-  - `spec/` – formal specification for T81, VM, language, Axion, and cognitive tiers.
-  - `spec/rfcs/` – proposals and accepted changes to the spec.
+  - `../../spec/` – formal specification for T81, VM, language, Axion, and cognitive tiers.
+  - `../../spec/rfcs/` – proposals and accepted changes to the spec.
 
 - Code:
 
-  - `include/t81/` – public C++ API headers (primary interface).
-  - `src/` – C++ implementations and C API bridge.
-  - `tests/cpp/` – C++ tests.
+  - `../../include/t81/` – public C++ API headers (primary interface).
+  - `../../src/` – C++ implementations and C API bridge.
+  - `../../tests/cpp/` – C++ tests.
 
 - Docs and site:
 
-  - `docs/` – documentation for users and contributors.
-  - `docs/search/` – search index tooling.
+  - `../` – documentation for users and contributors.
+  - `../search/` – search index tooling.
 
 - Legacy reference:
 
-  - `legacy/hanoivm/` – historical CWEB implementation, used as reference for migration.
+  - `../../legacy/hanoivm/` – historical CWEB implementation, used as reference for migration.
 
 - AI guidance:
 
-  - `AGENTS.md` – main agent instructions.
-  - `ARCHITECTURE.md` – architectural overview.
-  - `DESIGN.md` – design principles and invariants.
-  - `TASKS.md` – suggested tasks for humans and agents.
-  - `CLAUDE.md`, `.github/copilot-instructions.md`, `.cursorrules` – tool-specific adapters.
+  - `../../AGENTS.md` – main agent instructions.
+  - `../explanation/ARCHITECTURE.md` – architectural overview.
+  - `../explanation/DESIGN.md` – design principles and invariants.
+  - `../roadmaps-plans/TASKS.md` – suggested tasks for humans and agents.
+  - `../../CLAUDE.md`, `../../.github/copilot-instructions.md`, `../../.cursorrules` – tool-specific adapters.
 
 ______________________________________________________________________
 
@@ -134,8 +134,8 @@ Good targets for automated assistance:
 
 4. Tooling and developer experience
 
-   - Improve `docs/cpp-quickstart.md`, `docs/developer-guide.md`, or similar guides.
-   - Enhance search, indexing, or sidebar generation scripts in `docs/search/` and `scripts/`.
+   - Improve `cpp-quickstart.md`, `onboarding.md`, or similar guides.
+   - Enhance search, indexing, or sidebar generation scripts in `../search/` and `../../scripts/`.
 
 When in doubt, prefer tasks that improve clarity, test coverage, or maintainability over introducing new features.
 
@@ -147,7 +147,7 @@ These rules are intended for all agents and tools (Copilot, Claude, Cursor, etc.
 
 1. Spec-first
 
-   - Treat files in `spec/` as the source of truth.
+   - Treat files in `../../spec/` as the source of truth.
    - Do not introduce behavior that contradicts the spec.
    - If a change requires new semantics, it should be driven by a spec update or RFC.
 
@@ -167,7 +167,7 @@ These rules are intended for all agents and tools (Copilot, Claude, Cursor, etc.
 
    - Changes to Axion or cognitive tier semantics are sensitive.
    - Do not weaken safety or alignment constraints.
-   - Always cross-check with `spec/axion-kernel.md` and `spec/cognitive-tiers.md`.
+   - Always cross-check with `../../spec/axion-kernel.md` and `../../spec/cognitive-tiers.md`.
 
 5. Scope of changes
 
@@ -178,9 +178,9 @@ These rules are intended for all agents and tools (Copilot, Claude, Cursor, etc.
 
    - When changing behavior, update:
 
-     - The relevant spec section in `spec/`.
-     - The implementation in `include/t81/` and `src/`.
-     - The tests in `tests/cpp/`.
+     - The relevant spec section in `../../spec/`.
+     - The implementation in `../../include/t81/` and `../../src/`.
+     - The tests in `../../tests/cpp/`.
 
    - Keep docs and code synchronized.
 
@@ -196,12 +196,12 @@ A typical AI-assisted change should follow this loop:
 
      - Specs, implementation, tests, or docs.
 
-   - Find the relevant spec documents via `spec/index.md`.
+   - Find the relevant spec documents via `../../spec/index.md`.
 
 2. Read before writing
 
-   - Load `AGENTS.md`, `ARCHITECTURE.md`, and the specific `spec/*.md` that governs the behavior.
-   - For C++ changes, also read the relevant headers in `include/t81/`.
+   - Load `../../AGENTS.md`, `../explanation/ARCHITECTURE.md`, and the specific `../../spec/*.md` that governs the behavior.
+   - For C++ changes, also read the relevant headers in `../../include/t81/`.
 
 3. Plan
 
@@ -291,7 +291,7 @@ graph LR
   VM --> Trace["Axion log + `VERDICT_*`"]
   Weights --> VM
   CLI -->|benchmark| Bench["Benchmark runner"]
-  Bench --> Docs["`docs/benchmarks.md`"]
+  Bench --> Docs["`docs/reference/benchmarks.md`"]
   Trace --> Docs
   Docs --> Research["Research artifacts & publications"]
 ```

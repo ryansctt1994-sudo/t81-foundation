@@ -1,6 +1,6 @@
 # T81 Foundation – Current Status
 
-> **Source of Truth:** This document defines the **current operational state** of the project (what is true today). For future plans, see [ROADMAP.md](ROADMAP.md). For version history, see [CHANGELOG.md](CHANGELOG.md).
+> **Source of Truth:** This document defines the **current operational state** of the project (what is true today). For future plans, see [../roadmaps-plans/ROADMAP.md](../roadmaps-plans/ROADMAP.md). For version history, see [CHANGELOG.md](CHANGELOG.md).
 
 **Last Updated:** February 10, 2026
 **Status:** Active development (Stable Core)
@@ -58,7 +58,7 @@ ctest --test-dir build --output-on-failure -j1
 
 ## 5. Source-of-Truth Links
 
-- Architecture: `ARCHITECTURE.md`
-- Conformance analysis: `ANALYSIS.md`
-- Near-term tasks: `TASKS.md`
-- CI/gates: `docs/ci.md`
+- Architecture: `../explanation/ARCHITECTURE.md`
+- Conformance analysis: `../explanation/ANALYSIS.md`
+- Near-term tasks: `../roadmaps-plans/TASKS.md`
+- CI/gates: `ci.md`

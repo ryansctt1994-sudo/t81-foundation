@@ -35,7 +35,7 @@ ______________________________________________________________________
 - **Purpose:** exact balanced-ternary arithmetic, tensors, containers, and the binary-to-ternary helpers.  
 - **Key headers:** `T81Int.hpp`, `T81Float.hpp`, `T81Tensor.hpp`, `T81Matrix.hpp`, `T81List.hpp`, `T81Set.hpp`, `T81Map.hpp`, `T81Result.hpp`, `T81Maybe.hpp`.  
 - **Thread Safety:** these headers are *not* thread-safe by default; clients should synchronize around shared mutable containers or use `t81::support::expected` (which is copy-on-write safe) when sharing results across threads.  
-- **Error Handling:** arithmetic functions either return `t81::support::expected`/`T81Result` wrappers or emit controlled Axion traps for overflow/entropy violations. Rare unrecoverable faults throw `std::domain_error`/`std::runtime_error` (documented in `DESIGN.md`). Prefer the `noexcept` helpers in `include/t81/detail/assert.hpp` for invariants.
+- **Error Handling:** arithmetic functions either return `t81::support::expected`/`T81Result` wrappers or emit controlled Axion traps for overflow/entropy violations. Rare unrecoverable faults throw `std::domain_error`/`std::runtime_error` (documented in `../explanation/DESIGN.md`). Prefer the `noexcept` helpers in `include/t81/detail/assert.hpp` for invariants.
 
 ## 3. Frontend (`include/t81/frontend`)
 
@@ -72,4 +72,4 @@ ______________________________________________________________________
 
 - Annotate each header with a brief Doxygen summary (existing files already have `namespace t81 { ... }` and `///` comments; keep them updated when adding APIs).  
 - When exposing new APIs, add tests under `tests/cpp/` and a short entry in `docs/guides/public-api-overview.md`.  
-- Nothing in `include/t81/` should introduce raw `new`/`delete`, global mutable state, or hidden nondeterminism; refer to `AGENTS.md`/`DESIGN.md` when in doubt.
+- Nothing in `include/t81/` should introduce raw `new`/`delete`, global mutable state, or hidden nondeterminism; refer to `../../AGENTS.md`/`../explanation/DESIGN.md` when in doubt.

@@ -74,7 +74,7 @@ python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
 Мы обеспечиваем это посредством строгой архитектурной границы между языком/компилятором и средой выполнения, регулируемой явными контрактами.
 
 
-[**Просмотр диаграммы архитектурных границ**](ARCHITECTURE.md#3-concurrent-workstream-view) | [**Просмотр контракта среды выполнения**](contracts/runtime-contract.json)
+[**Просмотр диаграммы архитектурных границ**](docs/explanation/ARCHITECTURE.md#3-concurrent-workstream-view) | [**Просмотр контракта среды выполнения**](contracts/runtime-contract.json)
 
 ---
 
@@ -84,15 +84,15 @@ python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
 
 | :--- | :--- | :--- |
 
-| **[STATUS.md](STATUS.md)** | Что верно *сегодня* | Операционная истина |
+| **[STATUS.md](docs/reference/STATUS.md)** | Что верно *сегодня* | Операционная истина |
 
-| **[ROADMAP.md](ROADMAP.md)** | Перспективный план | Стратегический |
+| **[ROADMAP.md](docs/roadmaps-plans/ROADMAP.md)** | Перспективный план | Стратегический |
 
-| **[VERSIONING.md](VERSIONING.md)** | Правила совместимости | Нормативные |
+| **[VERSIONING.md](docs/reference/VERSIONING.md)** | Правила совместимости | Нормативные |
 
 | **[spec/](spec/)** | Определение поведения | Нормативные |
 
-| **[docs/EVIDENCE.md](docs/EVIDENCE.md)** | Подтверждение утверждений | Верификация |
+| **[docs/EVIDENCE.md](docs/policies/EVIDENCE.md)** | Подтверждение утверждений | Верификация |
 
 ---
 
@@ -181,15 +181,15 @@ t81 help
 ## Границы среды выполнения
 T81 использует явный контракт границ среды выполнения:
 - Маркер: [`contracts/runtime-contract.json`](contracts/runtime-contract.json)
-- Политика границ: [`docs/runtime-semantics-boundary.md`](docs/runtime-semantics-boundary.md)
+- Политика границ: [`docs/explanation/runtime-semantics-boundary.md`](docs/explanation/runtime-semantics-boundary.md)
 
 ## Дополнительно Чтение
-- [`ARCHITECTURE.md`](ARCHITECTURE.md)
-- [`docs/system-integration.md`](docs/system-integration.md)
-- [`ANALYSIS.md`](ANALYSIS.md)
-- [`CHANGELOG.md`](CHANGELOG.md)
-- [`docs/research-guide.md`](docs/research-guide.md)
-- [`docs/ai-quickstart.md`](docs/ai-quickstart.md)
+- [`ARCHITECTURE.md`](docs/explanation/ARCHITECTURE.md)
+- [`docs/system-integration.md`](docs/how-to/system-integration.md)
+- [`ANALYSIS.md`](docs/explanation/ANALYSIS.md)
+- [`CHANGELOG.md`](docs/reference/CHANGELOG.md)
+- [`docs/research-guide.md`](docs/how-to/research-guide.md)
+- [`docs/ai-quickstart.md`](docs/tutorials/ai-quickstart.md)
 
 ## Лицензия
 Этот репозиторий распространяется под лицензией MIT (см. [`LICENSE`](LICENSE)).

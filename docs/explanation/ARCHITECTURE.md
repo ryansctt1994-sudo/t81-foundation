@@ -8,21 +8,21 @@ ______________________________________________________________________
 
 ## 1. Guiding Principles
 
-- **Spec semantics are authoritative:** `/spec` defines normative behavior. If implementation diverges, resolve in favor of spec semantics.
-- **Determinism first:** all compiler/runtime paths must preserve reproducible outputs and auditable traces, adhering to the Strict Determinism Profile (`spec/determinism-profile.md`).
+- **Spec semantics are authoritative:** `../../spec` defines normative behavior. If implementation diverges, resolve in favor of spec semantics.
+- **Determinism first:** all compiler/runtime paths must preserve reproducible outputs and auditable traces, adhering to the Strict Determinism Profile (`../../spec/determinism-profile.md`).
 - **Layered composition via CMake:** components are separated by responsibility and linked through explicit target dependencies.
 - **Optimization without semantic drift:** interpreter, trace-JIT, SIMD, and tooling must preserve canonical behavior.
 
 Applied examples:
 - Determinism: cross-arch CI gates compare T81Lang and T3_K artifact hashes for stable replay guarantees.
 - Layering: `t81_cli_driver` depends on frontend/TISC/VM facades rather than re-implementing runtime behavior.
-- Spec authority: behavior changes route through `spec/` and RFC flow before becoming implementation contracts.
+- Spec authority: behavior changes route through `../../spec/` and RFC flow before becoming implementation contracts.
 
 ______________________________________________________________________
 
 ## 2. Build Graph (Authoritative Targets)
 
-The authoritative build graph is `CMakeLists.txt`. It includes static libraries, interface libraries, executables, tests, optional Python bindings, and optional benchmarks.
+The authoritative build graph is `../../CMakeLists.txt`. It includes static libraries, interface libraries, executables, tests, optional Python bindings, and optional benchmarks.
 
 | Target | Kind | Responsibilities | Depends On |
 | --- | --- | --- | --- |
@@ -149,37 +149,37 @@ ______________________________________________________________________
 
 Architecture is enforced by automated gates, not just design intent:
 
-- **Build + full test ritual:** CMake + CTest matrix in `CMakeLists.txt`.
+- **Build + full test ritual:** CMake + CTest matrix in `../../CMakeLists.txt`.
 - **Extended fuzz/property/Axion checks:** optional but standard pre-release validation.
 - **Cross-arch reproducibility gates:** T3_K and T81Lang hash gates in CI.
 - **Repro ledger workflow:** scheduled artifact generation for reproducibility evidence.
 - **Runtime contract sync checks:** script-backed verification against runtime boundary pins.
 
 Operational sources:
-- `docs/ci.md`
-- `docs/system-integration.md`
-- `.github/workflows/ci.yml`
-- `.github/workflows/repro-ledger.yml`
-- `scripts/ci/t3k_repro_gate.py`
-- `scripts/ci/t81lang_repro_gate.py`
-- `scripts/ci/check_architecture_targets.py`
-- `scripts/ci/check_legacy_core_numeric_includes.py`
-- `scripts/ci/check_legacy_core_numeric_type_usage.py`
-- `scripts/ci/check_legacy_v1_numeric_includes.py`
-- `scripts/ci/check_core_numeric_wrapper_thinness.py`
-- `scripts/check-runtime-contract-sync.py`
+- `../reference/ci.md`
+- `../how-to/system-integration.md`
+- `../../.github/workflows/ci.yml`
+- `../../.github/workflows/repro-ledger.yml`
+- `../../scripts/ci/t3k_repro_gate.py`
+- `../../scripts/ci/t81lang_repro_gate.py`
+- `../../scripts/ci/check_architecture_targets.py`
+- `../../scripts/ci/check_legacy_core_numeric_includes.py`
+- `../../scripts/ci/check_legacy_core_numeric_type_usage.py`
+- `../../scripts/ci/check_legacy_v1_numeric_includes.py`
+- `../../scripts/ci/check_core_numeric_wrapper_thinness.py`
+- `../../scripts/check-runtime-contract-sync.py`
 
 | Gate / Tool | Purpose | Source |
 | --- | --- | --- |
-| Build + test ritual | Compile and run deterministic baseline suite | `CMakeLists.txt`, CTest |
-| T3_K reproducibility gate | Validate cross-run/cross-arch reproducibility of T3_K artifacts | `scripts/ci/t3k_repro_gate.py` |
-| T81Lang reproducibility gate | Validate deterministic compile/hash behavior | `scripts/ci/t81lang_repro_gate.py` |
-| Architecture target sync gate | Check `ARCHITECTURE.md` target table against `CMakeLists.txt` | `scripts/ci/check_architecture_targets.py` |
-| Legacy numeric include policy gate | Block new includes of compatibility-only `t81/core/{bigint,fraction}.hpp` | `scripts/ci/check_legacy_core_numeric_includes.py` |
-| Legacy numeric type-usage policy gate | Block new source-level use of compatibility-only `t81::core::{BigInt,Fraction}` | `scripts/ci/check_legacy_core_numeric_type_usage.py` |
-| Legacy v1 implementation include policy gate | Block new includes of migration-only `t81/core/{T81BigInt,T81Fraction}.hpp` | `scripts/ci/check_legacy_v1_numeric_includes.py` |
-| Core wrapper thinness policy gate | Keep `src/core/{bigint,fraction}.cpp` adapter-only and block arithmetic implementation tokens | `scripts/ci/check_core_numeric_wrapper_thinness.py` |
-| Runtime contract sync gate | Verify runtime boundary pin and policy coherence | `scripts/check-runtime-contract-sync.py` |
+| Build + test ritual | Compile and run deterministic baseline suite | `../../CMakeLists.txt`, CTest |
+| T3_K reproducibility gate | Validate cross-run/cross-arch reproducibility of T3_K artifacts | `../../scripts/ci/t3k_repro_gate.py` |
+| T81Lang reproducibility gate | Validate deterministic compile/hash behavior | `../../scripts/ci/t81lang_repro_gate.py` |
+| Architecture target sync gate | Check `ARCHITECTURE.md` target table against `../../CMakeLists.txt` | `../../scripts/ci/check_architecture_targets.py` |
+| Legacy numeric include policy gate | Block new includes of compatibility-only `t81/core/{bigint,fraction}.hpp` | `../../scripts/ci/check_legacy_core_numeric_includes.py` |
+| Legacy numeric type-usage policy gate | Block new source-level use of compatibility-only `t81::core::{BigInt,Fraction}` | `../../scripts/ci/check_legacy_core_numeric_type_usage.py` |
+| Legacy v1 implementation include policy gate | Block new includes of migration-only `t81/core/{T81BigInt,T81Fraction}.hpp` | `../../scripts/ci/check_legacy_v1_numeric_includes.py` |
+| Core wrapper thinness policy gate | Keep `../../src/core/{bigint,fraction}.cpp` adapter-only and block arithmetic implementation tokens | `../../scripts/ci/check_core_numeric_wrapper_thinness.py` |
+| Runtime contract sync gate | Verify runtime boundary pin and policy coherence | `../../scripts/check-runtime-contract-sync.py` |
 
 ______________________________________________________________________
 
@@ -189,8 +189,8 @@ T81 uses an explicit cross-repo runtime semantics boundary:
 
 - **`t81-foundation` owns:** normative semantics, language/ISA intent, architectural invariants.
 - **`t81-vm` owns:** executable runtime compatibility artifacts and VM host ABI contract.
-- **Pinned contract marker:** `contracts/runtime-contract.json`.
-- **Boundary policy document:** [`docs/runtime-semantics-boundary.md`](docs/runtime-semantics-boundary.md).
+- **pinned contract marker:** `../../contracts/runtime-contract.json`.
+- **Boundary policy document:** [`runtime-semantics-boundary.md`](runtime-semantics-boundary.md).
 
 This split keeps semantic governance stable while allowing runtime implementation to evolve under explicit compatibility contracts.
 
@@ -240,7 +240,7 @@ ______________________________________________________________________
 
 ## 10. Near-Term Architecture Work (Open)
 
-Architecture-level items are tracked in `TASKS.md`. Current active streams:
+Architecture-level items are tracked in `../roadmaps-plans/TASKS.md`. Current active streams:
 
 - **Deterministic trace-JIT MVP hardening:** side-effect-free numeric/tensor hot-path compilation with Axion boundary checks.
 - **BigInt performance path:** SIMD/Karatsuba-oriented multi-limb optimizations without changing canonical arithmetic semantics.
@@ -282,10 +282,10 @@ ______________________________________________________________________
 
 | Component | Directory | Primary Maintainers | Spec Authority |
 | :--- | :--- | :--- | :--- |
-| **T81Lang** | `src/frontend/`, `include/t81/frontend/` | @t81dev | `spec/lang/` |
-| **TISC** | `src/tisc/`, `include/t81/tisc/` | @t81dev | `spec/tisc/` |
-| **HanoiVM** | `src/vm/`, `include/t81/vm/` | @t81dev | `spec/vm/` |
-| **Axion** | `src/axion/`, `include/t81/axion/` | @t81dev | `spec/axion/` |
-| **CanonFS** | `src/canonfs/`, `include/t81/canonfs/` | @t81dev | `spec/canonfs/` |
-| **Numerics** | `src/core/`, `include/t81/core/` | @t81dev | `spec/numerics/` |
-| **CI/Scripts** | `.github/`, `scripts/` | @t81dev | `docs/ci.md` |
+| **T81Lang** | `../../src/frontend/`, `../../include/t81/frontend/` | @t81dev | `../../spec/lang/` |
+| **TISC** | `../../src/tisc/`, `../../include/t81/tisc/` | @t81dev | `../../spec/tisc/` |
+| **HanoiVM** | `../../src/vm/`, `../../include/t81/vm/` | @t81dev | `../../spec/vm/` |
+| **Axion** | `../../src/axion/`, `../../include/t81/axion/` | @t81dev | `../../spec/axion/` |
+| **CanonFS** | `../../src/canonfs/`, `../../include/t81/canonfs/` | @t81dev | `../../spec/canonfs/` |
+| **Numerics** | `../../src/core/`, `../../include/t81/core/` | @t81dev | `../../spec/numerics/` |
+| **CI/Scripts** | `../../.github/`, `../../scripts/` | @t81dev | `../reference/ci.md` |

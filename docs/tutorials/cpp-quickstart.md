@@ -81,17 +81,17 @@ ______________________________________________________________________
 
 ## 4. Where to Go Next
 
-- **To understand the code's structure:** Read the [`ARCHITECTURE.md`](../ARCHITECTURE.md) to see how the different libraries (`t81_core`, `t81_frontend`, etc.) fit together in the deterministic ledger.
-- **To find a task to work on:** See the prioritized list of needed contributions in [`TASKS.md`](../TASKS.md).
-- **To understand the onboarding flow:** See [`docs/onboarding.md`](./onboarding.md).
+- **To understand the code's structure:** Read the [`../explanation/ARCHITECTURE.md`](../explanation/ARCHITECTURE.md) to see how the different libraries (`t81_core`, `t81_frontend`, etc.) fit together in the deterministic ledger.
+- **To find a task to work on:** See the prioritized list of needed contributions in [`TASKS.md`](../roadmaps-plans/TASKS.md).
+- **To understand the onboarding flow:** See [`onboarding.md`](onboarding.md).
 - **To explore the API:** Generate the Doxygen documentation by running `cmake --build build --target docs` and opening `build/api/html/index.html`.
 
 ______________________________________________________________________
 
 ## 5. Notes & Caveats
 
-- **Status evolves quickly:** prefer `docs/system-status.md` and `ANALYSIS.md` for current implementation parity against spec.
+- **Status evolves quickly:** prefer `../reference/system-status.md` and `../explanation/ANALYSIS.md` for current implementation parity against spec.
 - **Use the deterministic ritual:** run configure/build/test exactly as documented above before trusting local behavior.
 - **Compatibility lane:** C++23 is default; run the optional C++20 lane (`-DT81_USE_CXX23=OFF`) when validating cross-toolchain compatibility.
 
-For a detailed status of all components, see the [`System Status Report`](./system-status.md).
+For a detailed status of all components, see the [`System Status Report`](../reference/system-status.md).

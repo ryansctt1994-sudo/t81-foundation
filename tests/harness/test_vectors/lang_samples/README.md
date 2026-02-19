@@ -12,5 +12,5 @@ Directory documentation for `tests/harness/test_vectors/lang_samples`.
 
 ## See Also
 - Root `README.md`
-- `ARCHITECTURE.md`
+- `../../../../docs/explanation/ARCHITECTURE.md`
 - Relevant docs under `docs/`

@@ -502,7 +502,7 @@ jobs:
           name: ci-benchmarks-linux-x86_64
           path: |
             bench.json
-            docs/benchmarks.md
+            docs/reference/benchmarks.md
             .github/logs/benchmark.log
           if-no-files-found: warn
 
