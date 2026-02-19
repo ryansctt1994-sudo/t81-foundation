@@ -1,0 +1,50 @@
+// Example 2: Policy-Gated Large Model Inference
+// Focus: Tensors, Storage, and Cryptographic Integrity.
+// Goal: Execute a model operation only if the weights match a verified hash.
+
+fn main() -> i32 {
+    print("--- Policy-Gated Large Model Inference ---");
+
+    // Agent calls `Tensor::load("sha3:4158a421...")`.
+    // Axion intercepts this. If the hash is not in `allowed-tensor-hashes`, it Traps.
+    // Note: Since we don't have a real 4GB file, we use a placeholder hash.
+    // In a real run, this would require the file to exist in CanonFS.
+    // For this example to compile/run without crashing, we might mock it or assume the VM handles missing files gracefully (or fails).
+    // The `weights.load` intrinsic is used.
+
+    // A mock hash that might be in our policy.
+    // let tensor_hash = "sha3:4158a421be4b663b969a3028d72fa19a";
+
+    // Attempt to load. This returns a handle (i32).
+    // If the policy denies it, the VM terminates before this returns.
+    print("Requesting tensor load...");
+    // Must pass literal string for static policy verification
+    let weights_handle = std.tensor.load("sha3:4158a421be4b663b969a3028d72fa19a");
+
+    print("Tensor loaded. Handle ID: ");
+    print(weights_handle);
+
+    // Create a dummy input tensor
+    // T81Vector literal -> Tensor
+    let input_vec = [1.0, 0.0, 2.0];
+    let input_tensor = std.tensor.from_list(input_vec);
+
+    print("Input Tensor created.");
+
+    // Perform the gated multiplication.
+    // `TMATMUL` instruction.
+    // Axion checks memory quotas here.
+    // Since we loaded a "weights" handle (which might be empty/mock in this test environment),
+    // this operation depends on the VM implementation of matmul with handles.
+
+    // For the sake of a runnable example, we'll guard the matmul if handle is invalid (<=0).
+    // Note: Comparing Handle with Int (0) causes TypeFault in strict VM.
+    // And without the actual weights file, matmul would trap.
+    // So we simulate the logic here.
+
+    print("Inference would run here if 'model.safetensors' was loaded.");
+    // let result = std.tensor.matmul(input_tensor, weights_handle);
+    // print("Inference result computed.");
+
+    return 0;
+}

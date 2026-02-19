@@ -11,7 +11,7 @@
 | **Bug Reports** | [GitHub Issues](https://github.com/t81dev/t81-foundation/issues) (Use Template) |
 | **Feature Requests** | [GitHub Issues](https://github.com/t81dev/t81-foundation/issues) (Use Template) |
 | **General Questions** | [GitHub Discussions](https://github.com/t81dev/t81-foundation/discussions) (Q&A) |
-| **Security Issues** | See [SECURITY.md](../SECURITY.md) |
+| **Security Issues** | See [SECURITY.md](../../SECURITY.md) |
 
 ## 2. Before Asking
 

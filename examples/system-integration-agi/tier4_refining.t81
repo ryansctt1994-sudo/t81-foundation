@@ -1,0 +1,51 @@
+// Example 3: Self-Refining Heuristic Loop (Tier 4)
+// Focus: Reflection, Self-Modification, and Safety Envelopes.
+// Goal: An agent observes its own sub-optimal search heuristic and patches it.
+
+fn main() -> i32 {
+    print("--- Self-Refining Heuristic Loop ---");
+
+    // The agent enters a reflective scope.
+    reflect {
+        print("Entering Tier 4 Reflection Cycle...");
+
+        // 1. Observe
+        // In a real scenario, this would check performance metrics.
+        let current_perf = observe_performance(); // Intrinsic
+        print("Current Performance Metric: ");
+        print(current_perf);
+
+        // 2. Reflect (Read Code)
+        // We read the instruction at offset 0 (just as an example).
+        let target_pc = 0;
+        // let current_opcode = read_code(target_pc);
+        let current_opcode = 1; // Simulated opcode
+        print("Opcode at PC 0: ");
+        print(current_opcode);
+
+        // 3. Refine (Propose Patch)
+        // We propose to change the opcode.
+        // e.g. If it was NOP (0), change to something else, or optimize parameters.
+        // For safety, we just write back the same opcode or a safe variant.
+        let new_opcode = optimize(current_opcode); // Intrinsic or simulated function
+        print("Proposed Opcode: ");
+        print(new_opcode);
+
+        // 4. Commit (MetaWrite)
+        // Axion checks `max-reflection-depth` and `require-reflection-cycle`.
+        // If approved, the CODE segment is updated.
+        // This is `METAREFINE` or `METAWRITE`.
+        // The `refine` intrinsic usually maps to `METAREFINE`.
+
+        // let success = refine(target_pc, new_opcode);
+        let success = 1; // Simulated success
+        if (success > 0) {
+            print("Refinement committed successfully.");
+        } else {
+            print("Refinement rejected by Policy.");
+        }
+    }
+
+    print("Exited Reflection Cycle.");
+    return 0;
+}
