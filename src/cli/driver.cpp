@@ -230,6 +230,16 @@ bool load_weights_model_from_path(const fs::path& path,
   }
 }
 
+bool is_valid_package_name(const std::string& name) {
+  if (name.empty()) return false;
+  for (char c : name) {
+    if (!std::isalnum(static_cast<unsigned char>(c)) && c != '-' && c != '_') {
+      return false;
+    }
+  }
+  return true;
+}
+
 }  // namespace
 
 std::string sanitize_symbol(std::string_view input) {
@@ -1044,6 +1054,10 @@ int run_trace(const TraceArgs& args) {
 int init_package(const std::string& name) {
   if (name.empty()) {
     error("Package name cannot be empty");
+    return 1;
+  }
+  if (!is_valid_package_name(name)) {
+    error("Package name must contain only alphanumeric characters, underscores, and hyphens.");
     return 1;
   }
 
