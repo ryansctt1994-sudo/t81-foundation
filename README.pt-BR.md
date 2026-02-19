@@ -13,186 +13,230 @@
 
 ---
 
-**Determinístico, Pilha de tempo de execução governada para computação auditável.**
+T81: uma stack de computação determinística nativa em ternário, apresentando tipos de dados base-81, o conjunto de instruções TISC, T81VM, T81Lang, segurança/otimização Axion e camadas completas de cognição recursiva.
 
-T81 é um projeto de reforço de segurança pós-v1.0 que oferece um pipeline de compilação e execução totalmente determinístico (`T81Lang -> TISC -> HanoiVM`). Ele prioriza a auditabilidade, a aplicação de políticas (Axion) e a reprodutibilidade em detrimento da velocidade bruta do hardware.
+O T81 entrega uma execução bit-exact e auditável em domínios de aritmética intensiva, combinando tipos nativos ternários com governança estrita de tempo de execução — ideal para IA verificável, criptografia e computação científica.
 
-## ⚡ Avaliação em 30 segundos
+> **Nota sobre Determinismo de Ponto Flutuante:** > As funções transcendentais do `T81Float` (`sin`, `cos`, `tan`, `log`, `exp`, `sqrt`) são implementadas via um backend definido por software determinístico (`dmath`) e possuem garantia bit-exact entre plataformas.
+> A divisão `T81Float` e funções trigonométricas inversas/hiperbólicas (`asin`, `sinh`, etc.) podem depender do comportamento da plataforma hospedeira em modos não-estritos.
+> O determinismo estrito bit-exact é garantido para `T81Int`, `T81BigInt`, `T81Fraction` (canônico) e operações centrais de `T81Float`.
 
-Verifique você mesmo as afirmações em 4 etapas:
+## Sumário
 
-1. **Compile e execute Hello World**
+* [Início Rápido](https://www.google.com/search?q=%23in%C3%ADcio-r%C3%A1pido)
+* [Recursos](https://www.google.com/search?q=%23recursos)
+* [Por que Ternário?](https://www.google.com/search?q=%23por-que-tern%C3%A1rio)
+* [Arquitetura](https://www.google.com/search?q=%23arquitetura)
+* [Plataformas Suportadas](https://www.google.com/search?q=%23plataformas-suportadas)
+* [Exemplos de CLI](https://www.google.com/search?q=%23exemplos-de-cli)
+* [Mapa do Repositório](https://www.google.com/search?q=%23mapa-do-reposit%C3%B3rio)
+* [Mapa de Autoridade de Documentos](https://www.google.com/search?q=%23mapa-de-autoridade-de-documentos)
+* [Garantias de Compatibilidade](https://www.google.com/search?q=%23garantias-de-compatibilidade)
+* [Não-Objetivos](https://www.google.com/search?q=%23n%C3%A3o-objetivos)
+* [Limite do Runtime](https://www.google.com/search?q=%23limite-do-runtime)
+* [Leitura Adicional](https://www.google.com/search?q=%23leitura-adicional)
+* [Licença](https://www.google.com/search?q=%23licen%C3%A7a)
 
-```bash
+## Início Rápido
 
+Verifique as principais premissas em menos de 30 segundos:
+
+1. **Build e Execução do Hello World** ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --parallel
-
-./build/t81 compile examples/hello_world.t81 -o hello.tisc
-
+./build/t81 compile https://www.google.com/search?q=examples/hello_world.t81 -o hello.tisc
 ./build/t81 run hello.tisc
+```
+
 
 ```
 
-2. **Executar o Determinismo**
 
-```bash
+2. **Executar Gate de Determinismo** ```bash
+python3 https://www.google.com/search?q=scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
+```
 
-# Verificar o hash de reprodutibilidade entre arquiteturas
-python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
 
 ```
 
-3. **Executar uma Demonstração em VM**
 
-```bash
-
+3. **Executar uma Demo da VM** ```bash
 ./build/t81_demo
+```
+
 
 ```
 
-4. **Inspecionar um Artefato de Rastreamento**
 
-```bash
-
+4. **Inspecionar um Artefato de Trace** ```bash
 ./build/t81 trace show trace.txt
+```
+
 
 ```
 
----
 
-## 🚫 Objetivos Não Específicos
 
-Para economizar seu tempo, aqui está o que o T81 **NÃO**:
+## Recursos
 
-* **NÃO é um acelerador de hardware:** Não reivindicamos ganhos de velocidade ternários por hardware. Este é um ambiente de execução de software para correção determinística.
+| Recurso | Status | Descrição |
+| --- | --- | --- |
+| **Execução Determinística** | ✅ Estável | Reprodutibilidade bit-exact entre plataformas via pipeline T81Lang → TISC → T81VM. |
+| **Tipos de Dados Nativo-Ternários** | ✅ Estável | Tipos base-81 com aritmética ternária balanceada para computações eficientes. |
+| **Motor de Políticas Axion** | ✅ Estável | Execução de segurança em tempo de execução e políticas de otimização. |
+| **T81VM** | ✅ Estável | Máquina virtual de 81 registradores com interpretação determinística e trace-JIT. |
+| **TISC IR** | ✅ Estável | Representação intermediária do Ternary Instruction Set Computer. |
+| **Matemática Definida por Software** | ✅ Estável | Backend `dmath` para operações de ponto flutuante consistentes entre plataformas. |
+| **Compilação Trace-JIT** | 🚧 Experimental | Detecção de hotspots e JIT determinístico para ganhos de performance. |
+| **Tensores Distribuídos** | 🚧 Experimental | Suporte para operações de tensores em larga escala em ambientes distribuídos. |
+| **Ferramental de Modelos** | ✅ Estável | Importação de pesos, quantização e inspeção para integrações de ML (SafeTensors, GGUF). |
 
-* **NÃO é um substituto de propósito geral:** Nosso foco é em lógica auditável de alto risco, não em substituir C++ ou Python para tarefas gerais.
+## Por que Ternário?
 
-* **NÃO é "rápido e flexível":** Se uma otimização de desempenho quebrar o determinismo de rastreamento, nós a rejeitamos.
+O ternário balanceado (usando dígitos -1, 0, +1) e tipos de dados base-81 () otimizam cargas de trabalho intensivas em aritmética, como processamento de sinais, inferência de IA e criptografia. Ao contrário do binário, o ternário balanceado elimina bits de sinal separados, simplifica a adição/subtração sem propagação extensiva de carry e oferece eficiência energética potencial em hardware especializado.
 
----
+O T81 emula essas vantagens em software para ambientes determinísticos e auditáveis. Ele complementa sistemas binários em setups de base mista, proporcionando ganhos de densidade e energia em substratos numéricos (ex: motores quantizados, núcleos de tensores). O ternário não é um substituto universal, mas uma ferramenta direcionada para domínios onde o overhead é mínimo e os benefícios são claros.
 
-## ❓ Por que isso existe
+Para insights de hardware, veja as simulações SPICE recentes no repositório relacionado [ternary-memory-research](https://github.com/t81dev/ternary-memory-research), mostrando métricas reais de energia/atraso para portas ternárias no SKY130 PDK.
 
-Os ambientes de execução modernos trocam reprodutibilidade por velocidade. O T81 inverte isso: **Auditabilidade é a principal restrição.**
+## Arquitetura
 
-Impomos isso por meio de um limite arquitetônico estrito entre a Linguagem/Compilador e o Ambiente de Execução, regido por contratos explícitos.
+O T81 impõe uma separação estrita entre compilação e execução, governada por contratos explícitos de determinismo e segurança.
 
-[**Ver Diagrama de Limites Arquitetônicos**](docs/explanation/ARCHITECTURE.md#3-concurrent-workstream-view) | [**Visualizar Contrato de Tempo de Execução**](contracts/runtime-contract.json)
+```mermaid
+graph TD
+    subgraph "Toolchain de Linguagem"
+        A["Fonte T81Lang (.t81)"] --> B[Lexer]
+        B --> C[Parser]
+        C --> D[AST]
+        D --> E["Analisador Semântico"]
+        E --> F["Gerador de IR"]
+        F --> G["TISC IR"]
+        G --> H["Emissor Binário / IO"]
+        H --> I["Bytecode TISC"]
+    end
+    subgraph "Runtime"
+        I --> J["Intérprete T81VM"]
+        J --> K["Detecção de Trace Hotspot"]
+        K --> L["Trace JIT Determinístico"]
+        L --> M["Execução de Trace Compilado"]
+    end
+    subgraph "Segurança & Auditoria"
+        J --> N["Verificações de Política Axion"]
+        M --> N
+        N --> O["Eventos / Vereditos Axion"]
+    end
+    subgraph "Ferramental de Modelos & Tensores"
+        P["SafeTensors / GGUF / T81W"] --> Q["Ferramental de Pesos"]
+        Q --> R["Tensor Pools / Handles"]
+        R --> J
+    end
 
----
+```
 
-## 📚 Mapa de Autoridade do Documento
-
-| Documento | Propósito | Escopo da Autoridade |
-
-| :--- | :--- | :--- |
-
-| **[STATUS.md](docs/reference/STATUS.md)** | O que é verdade *hoje* | Verdade Operacional |
-
-| **[ROADMAP.md](docs/roadmaps-plans/ROADMAP.md)** | Plano futuro | Estratégico |
-
-| **[VERSIONING.md](docs/reference/VERSIONING.md)** | Regras de compatibilidade | Normativo |
-
-| **[spec/](spec/)** | Definição comportamental | Normativo |
-
-| **[docs/EVIDENCE.md](docs/policies/EVIDENCE.md)** | Prova de alegações | Verificação |
-
----
-
-## 🤝 Garantias de Compatibilidade
-
-* **Estável:** Sintaxe T81Lang, Formato Binário TISC, Semântica de Execução da HanoiVM.
-
-* **Experimental:** Compilação JIT, Operações de Tensor Distribuídas.
-
-* **SemVer:** Seguimos o Versionamento Semântico. Alterações que quebram a compatibilidade com componentes **Estáveis** incrementam a versão principal.
-
----
-
-## 🖥️ Plataformas Suportadas
+## Plataformas Suportadas
 
 | Plataforma | Compilador | Status |
+| --- | --- | --- |
+| Linux (x86_64) | Clang 18+, GCC 14+ | ✅ Gate de Determinismo |
+| Linux (ARM64) | Clang 18+ | ✅ Gate de Determinismo |
+| macOS (ARM64) | Apple Clang | ✅ Suportado |
 
-| :--- | :--- | :--- |
+## Exemplos de CLI
 
-| **Linux (x86_64)** | Clang 18+, GCC 14+ | ✅ Determinismo |
+A CLI `t81` fornece uma interface unificada para compilação, execução e diagnósticos.
 
-| **Linux (ARM64)** | Clang 18+ | ✅ Determinismo |
-
-| **macOS (ARM64)** | Apple Clang | ✅ Suportado |
-
----
-
-## Início Rápido (Completo)
-
-```bash
-git clone https://github.com/t81dev/t81-foundation.git
-cd t81-foundation
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --parallel
-ctest --test-dir build --output-on-failure
-```
-
-Modo seguro de thread única:
-```bash
-cmake --build build --parallel 1
-ctest --test-dir build --output-on-failure -j1
-```
-
-## Interface de linha de comando
-Fluxos de trabalho comuns:
-```bash
-# Compilar / executar
-t81 compile examples/hello_world.t81 -o build/hello.tisc
+* **Compilar & Executar** ```bash
+t81 compile https://www.google.com/search?q=examples/hello_world.t81 -o build/hello.tisc
 t81 run build/hello.tisc
+```
 
-# Inspecionar / depurar
+
+```
+
+
+* **Depurar & Inspecionar** ```bash
 t81 disasm build/hello.tisc
 t81 debug build/hello.tisc
+t81 check https://www.google.com/search?q=examples/hello_world.t81
+```
 
-# Diagnóstico / reprodutibilidade
-t81 check examples/hello_world.t81
-t81 repro-hash testes/fixtures/t81lang_determinism
 
-# Fluxos de trabalho de rastreamento
+```
+
+
+* **Trace & Reprodutibilidade** ```bash
 t81 trace show trace.txt
 t81 trace diff trace_a.txt trace_b.txt
 t81 trace replay build/hello.tisc trace.txt
+t81 repro-hash https://www.google.com/search?q=tests/fixtures/t81lang_determinism
 ```
 
-Ferramentas de modelo:
-```bash
+
+```
+
+
+* **Gerenciamento de Modelos** ```bash
 t81 weights import model.safetensors -o model.t81w
 t81 weights info model.t81w
 t81 weights quantize model.safetensors --to-gguf model.gguf
 ```
 
-Consulte a ajuda completa do comando:
-```bash
-t81 help
+
 ```
 
-## Mapa do repositório
-- [`include/t81/`](include/t81/): public API headers
-- [`src/`](src/): frontend, TISC, VM, Axion, CanonFS, implementação de CLI
-- [`tests/`](tests/): conformidade, determinismo, VM/e2e, fatias de propriedade
-- [`docs/`](docs/): guias, status, benchmarks, documentação de limites de tempo de execução
-- [`spec/`](spec/): semântica normativa e entradas de governança
-- [`examples/`](examples/): exemplos e demonstrações executáveis
 
-## Limite de Tempo de Execução
-O T81 usa um contrato de limite de tempo de execução explícito:
-- Marcador: [`contracts/runtime-contract.json`](contracts/runtime-contract.json)
-- Política de limite: [`docs/explanation/runtime-semantics-boundary.md`](docs/explanation/runtime-semantics-boundary.md)
+
+Uso completo: *`t81 help`*
+
+## Mapa do Repositório
+
+* [.github/](https://www.google.com/search?q=.github/) : Workflows, templates de issues.
+* [benchmarks/](https://www.google.com/search?q=benchmarks/) : Scripts de performance e dados.
+* [contracts/](https://www.google.com/search?q=contracts/) : Contratos de runtime (ex: [runtime-contract.json](https://www.google.com/search?q=contracts/runtime-contract.json)).
+* [docs/](https://www.google.com/search?q=docs/) : Hub de documentação com subpastas como explanation/, how-to/, policies/, reference/, roadmaps-plans/.
+* [examples/](https://www.google.com/search?q=examples/) : Amostras como hello_world.t81, tensor_demo.t81; subpastas system-integration/, tisc/.
+* [include/t81/](https://www.google.com/search?q=include/t81/) : Headers públicos.
+* [scripts/](https://www.google.com/search?q=scripts/) : Ferramentas de CI, gates de reprodutibilidade.
+* [spec/](https://www.google.com/search?q=spec/) : Especificações normativas (ex: [t81-data-types.md](https://www.google.com/search?q=spec/t81-data-types.md), [tisc-spec.md](https://www.google.com/search?q=spec/tisc-spec.md)).
+* [src/](https://www.google.com/search?q=src/) : Implementação core (subpastas: axion/, bigint/, canonfs/, cli/, frontend/, tisc/, vm/, etc.).
+* [tests/](https://www.google.com/search?q=tests/) : Suítes de testes (subpastas: ci/, cpp/, fixtures/, etc.).
+
+## Mapa de Autoridade de Documentos
+
+| Documento | Propósito | Escopo de Autoridade |
+| --- | --- | --- |
+| **[spec/constitution.md](https://www.google.com/search?q=spec/constitution.md)** | Princípios fundamentais | Normativo |
+| **[spec/determinism-profile.md](https://www.google.com/search?q=spec/determinism-profile.md)** | Garantias de determinismo | Normativo |
+| **[spec/index.md](https://www.google.com/search?q=spec/index.md)** | Índice de especificações core | Normativo |
+| **[docs/index.md](https://www.google.com/search?q=docs/index.md)** | Entrada da documentação | Informativo |
+| **[CONTRIBUTING.md](https://www.google.com/search?q=CONTRIBUTING.md)** | Diretrizes de contribuição | Operacional |
+
+## Garantias de Compatibilidade
+
+* **Estável:** Sintaxe T81Lang, formato TISC, semântica T81VM.
+* **Experimental:** Trace-JIT, tensores distribuídos.
+* **SemVer:** Versões major para mudanças que quebram compatibilidade em componentes estáveis.
+
+## Não-Objetivos
+
+🚫 O T81 **não** é:
+
+* Um acelerador ternário de hardware (foco em software para determinismo).
+* Uma linguagem de propósito geral para substituir C++ ou Python.
+* Performance-a-qualquer-custo (rejeita otimizações que quebrem o determinismo).
+
+## Limite do Runtime
+
+Definido em [contracts/runtime-contract.json](https://www.google.com/search?q=contracts/runtime-contract.json) e detalhado em especificações como [spec/t81vm-spec.md](https://www.google.com/search?q=spec/t81vm-spec.md).
 
 ## Leitura Adicional
-- [`ARCHITECTURE.md`](docs/explanation/ARCHITECTURE.md)
-- [`docs/system-integration.md`](docs/how-to/system-integration.md)
-- [`ANALYSIS.md`](docs/explanation/ANALYSIS.md)
-- [`CHANGELOG.md`](docs/reference/CHANGELOG.md)
-- [`docs/research-guide.md`](docs/how-to/research-guide.md)
-- [`docs/ai-quickstart.md`](docs/tutorials/ai-quickstart.md)
+
+* [docs/index.md](https://www.google.com/search?q=docs/index.md)
+* [spec/t81-overview.md](https://www.google.com/search?q=spec/t81-overview.md)
+* [CONTRIBUTING.md](https://www.google.com/search?q=CONTRIBUTING.md)
+* [SECURITY.md](https://www.google.com/search?q=SECURITY.md)
+* [CHANGELOG.md](https://www.google.com/search?q=CHANGELOG.md)
 
 ## Licença
-Este repositório está licenciado sob a licença MIT (consulte [`LICENSE`](LICENSE)).
+
+Licença MIT — veja [LICENSE](https://www.google.com/search?q=LICENSE).
