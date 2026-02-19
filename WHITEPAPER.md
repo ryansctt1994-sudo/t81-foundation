@@ -4,8 +4,8 @@
 
 ## Document Status
 
-* **Version:** 1.2 (CI/determinism hardening + security fixes)
-* **Status:** Working whitepaper – reflects current verified system behavior and recent CI/determinism hardening
+* **Version:** 1.2 (Feb 19 CI, security & determinism hardening)
+* **Status:** Working whitepaper – reflects current verified system behavior and today’s reproducibility/security fixes
 * **Scope:** `t81-foundation` repository and governed runtime boundary
 * **Date:** 2026-02-19
 
@@ -17,7 +17,7 @@ T81 Foundation is a deterministic, ternary-native computing stack designed to ma
 
 Unlike conventional systems that treat reproducibility as a best-effort property, T81 treats **determinism, traceability, and compatibility contracts as first-class engineering constraints**. Performance improvements from ternary-native kernels are treated as workload-local optimizations rather than universal claims. The central contribution of T81 is not raw throughput, but a reproducible execution discipline that survives host variation, toolchain drift, and opaque lowering stages.
 
-**Audience.**
+**Audience**  
 This document is intended for system architects, reviewers, and contributors evaluating the determinism, auditability, and verification posture of the T81 stack.
 
 ---
@@ -66,13 +66,13 @@ Ternary representation in T81 is not adopted for novelty or speculative advantag
 
 Key motivations:
 
-1. **Semantic Compression Without Implicit Heuristics**
+1. **Semantic Compression Without Implicit Heuristics**  
    Balanced ternary `{-1, 0, +1}` enables arithmetic and control primitives (negation, sparsity, gating) that would otherwise rely on implicit binary heuristics or floating-point behavior.
 
-2. **Deterministic Sparse Semantics**
+2. **Deterministic Sparse Semantics**  
    Zero-states are first-class values rather than emergent patterns, enabling explicit zero-skip and gating behavior that is observable and traceable at runtime.
 
-3. **Canonical Numeric Behavior**
+3. **Canonical Numeric Behavior**  
    Ternary-native kernels avoid several sources of floating-point nondeterminism (rounding modes, fused operations, platform-specific lowering) by design.
 
 Binary representations remain supported and dominant for many workloads. Ternary is introduced **selectively**, where it improves determinism or auditability under measurement.
@@ -83,24 +83,19 @@ Binary representations remain supported and dominant for many workloads. Ternary
 
 T81 is organized as a vertical, explicitly governed stack:
 
-1. **Core Numerics**
-   (`include/t81/core`, `src/`)
+1. **Core Numerics** (`include/t81/core`, `src/`)  
    Deterministic numeric primitives, canonical formatting, and serialization.
 
-2. **Frontend (T81Lang)**
-   (`include/t81/frontend`, `src/frontend`)
+2. **Frontend (T81Lang)** (`include/t81/frontend`, `src/frontend`)  
    Lexer, parser, semantic analysis, and IR generation with deterministic lowering rules.
 
-3. **TISC + Virtual Machine**
-   (`include/t81/tisc`, `src/tisc`, `src/vm`)
+3. **TISC + Virtual Machine** (`include/t81/tisc`, `src/tisc`, `src/vm`)  
    Canonical program format and deterministic execution model.
 
-4. **Axion Governance + CanonFS**
-   (`src/axion`, `src/canonfs`, `include/t81/canonfs`)
+4. **Axion Governance + CanonFS** (`src/axion`, `src/canonfs`, `include/t81/canonfs`)  
    Policy enforcement, trace visibility, and canonical persistence surfaces.
 
-5. **CLI and Tooling**
-   (`src/cli`, `scripts/ci`, `docs/guides`)
+5. **CLI and Tooling** (`src/cli`, `scripts/ci`, `docs/guides`)  
    Compile/run/debug workflows and reproducibility enforcement.
 
 Each layer exposes explicit boundaries and contracts; no layer assumes implicit behavior from the next.
@@ -125,15 +120,18 @@ Mechanisms include:
 * cross-architecture hash comparison,
 * explicit semantic/runtime contract synchronization.
 
-### 5.2 Security Posture & Recent Hardening
+### 5.2 Security Posture & Recent Hardening (Feb 19 2026)
 
 **Threats addressed directly:**
-* **Environmental drift:** Toolchain, host, and library variations are mitigated via strict reproducible builds and CI gates.
-* **Silent semantic drift:** Opaque lowering stages are verified against canonical hashes (`tests/fixtures/t81lang_determinism/`).
-* **Input validation:** Package initialization now strictly sanitizes names to prevent S-expression injection vulnerabilities (fixed in `src/cli/driver.cpp`).
-* **Crypto correctness:** SHA3-512 implementation verified against test vectors, correcting previous Chi step logic.
+
+* **Environmental drift** — Toolchain, host, and library variations are mitigated via strict reproducible builds and CI gates.
+* **Silent semantic drift** — Opaque lowering stages are verified against canonical hashes (`tests/fixtures/t81lang_determinism/`).
+* **Input validation** — Package initialization now strictly sanitizes names to prevent S-expression injection vulnerabilities (fixed in `src/cli/driver.cpp`, PR #225).
+* **Crypto correctness** — SHA3-512 implementation verified against test vectors with Chi step logic corrected (PR #224).
+* **Reproducibility stability** — AST/IR hash updated and clang-format violations eliminated in security paths (PR #226 + CI enforcement).
 
 **Threats explicitly out of scope:**
+
 * Malicious hosts or compilers.
 * Adversarial runtime tampering (though traces aid detection).
 * Trust bootstrapping (T81 assumes a trusted initial compile).
@@ -154,17 +152,17 @@ ctest --test-dir build --output-on-failure
 
 ### 6.2 Test Inventory Snapshot
 
-At the time of this document:
+As of the date of this document:
 
-* **Total tests:** 214
+* **Total tests:** 214  
   (`ctest --test-dir build -N`)
 
 ### 6.3 CI Enforcement Gates
 
 Representative gates include:
 
-* **Reproducibility Gates:** `scripts/ci/t81lang_repro_gate.py` ensures AST and IR structures match canonical hashes.
-* **Format & Linting:** Strict `clang-format-18` and static analysis enforcement preventing style drift.
+* **Reproducibility Gates:** `scripts/ci/t81lang_repro_gate.py` ensures AST and IR structures match canonical hashes (updated Feb 19 via PR #226).
+* **Format & Linting:** Strict `clang-format-18` and static analysis enforcement (violations fixed and CI-hardened Feb 19).
 * **Runtime Contract Sync:** `.github/workflows/runtime-contract.yml` monitors drift between specification and runtime.
 * **Security Checks:** Automated dependency auditing and permission checks for workflows.
 
@@ -176,11 +174,8 @@ These gates are normative; failure blocks merge.
 
 T81 distinguishes between **formal specification** and **engineering enforcement**:
 
-* **Formally specified:**
-  Language semantics, IR encoding rules, runtime instruction behavior, and contract schemas.
-
-* **Engineering-enforced:**
-  Compiler implementation, VM execution engine, CI workflows, and trace infrastructure.
+* **Formally specified:** Language semantics, IR encoding rules, runtime instruction behavior, and contract schemas.
+* **Engineering-enforced:** Compiler implementation, VM execution engine, CI workflows, and trace infrastructure.
 
 Formal methods are applied where tractable and valuable. Elsewhere, reproducibility gates and trace replay provide practical verification without overclaiming formal proof.
 
@@ -190,11 +185,8 @@ Formal methods are applied where tractable and valuable. Elsewhere, reproducibil
 
 Semantic ownership and runtime compatibility are separated:
 
-* **`t81-foundation`:**
-  Semantic source of truth and specification.
-
-* **`t81-vm`:**
-  Runtime compatibility artifacts and host ABI lanes.
+* **`t81-foundation`:** Semantic source of truth and specification.
+* **`t81-vm`:** Runtime compatibility artifacts and host ABI lanes.
 
 Drift detection is enforced via:
 
@@ -209,19 +201,15 @@ This separation prevents silent divergence while allowing independent hardening.
 
 Performance is treated as **workload-dependent** and subordinate to deterministic correctness.
 
-Current optimization focus includes:
-* BigInt hot paths,
-* Ternary tensor kernels,
-* CanonFS throughput (persistent vs in-memory),
-* Deterministic runtime hardening.
+Current optimization focus includes BigInt hot paths, ternary tensor kernels, CanonFS throughput, and deterministic runtime hardening.
 
 All performance claims are accompanied by benchmark artifacts and commit-pinned snapshots.
 
 ### 9.1 Benchmark Snapshot
 
-Source: `docs/benchmarks.md`
+Source: `docs/benchmarks.md`  
 
-* Last updated: `2026-02-17 16:05:09 UTC`
+* Last updated: `2026-02-17 16:05:09 UTC`  
 * Snapshot commit: `92d6280`
 
 | Benchmark        |           T81 |   T81 Native |        Binary |  Ratio | Interpretation            |
@@ -260,13 +248,13 @@ These limitations are tracked and intentionally visible.
 
 ## 12. Claims vs Evidence Matrix
 
-| Claim                                        | Evidence                                | Strength | Notes                      |
-| -------------------------------------------- | --------------------------------------- | -------- | -------------------------- |
-| Deterministic compile/runtime is operational | CI workflows, repro gates, hash checks  | Strong   | Continuously enforced      |
-| Runtime boundary is governed                 | Contracts + sync workflows              | Strong   | Drift detection active     |
-| Security hardening active                    | Package init sanitization, SHA3 fixes   | Strong   | Recent patches verified    |
-| Performance is workload-dependent            | `docs/benchmarks.md`                    | Strong   | Both wins and losses shown |
-| Universal production readiness               | N/A                                     | Weak     | Not claimed                |
+| Claim                                        | Evidence                                           | Strength | Notes                          |
+| -------------------------------------------- | -------------------------------------------------- | -------- | ------------------------------ |
+| Deterministic compile/runtime is operational | CI workflows, repro gates, hash checks, PR #226    | Strong   | Continuously enforced          |
+| Runtime boundary is governed                 | Contracts + sync workflows                         | Strong   | Drift detection active         |
+| Security hardening active                    | PR #225 (package init), PR #224 (SHA3), clang-format enforcement | Strong   | Today’s patches verified       |
+| Performance is workload-dependent            | `docs/benchmarks.md`                               | Strong   | Both wins and losses shown     |
+| Universal production readiness               | N/A                                                | Weak     | Not claimed                    |
 
 ---
 
