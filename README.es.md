@@ -1,5 +1,15 @@
 # T81 Foundation
 
+[![CI](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml/badge.svg)](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![C++ Standard](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://en.cppreference.com/w/cpp/23)
+
+[![English](https://img.shields.io/badge/Language-English-blue?style=flat-square)](README.md)
+[![简体中文](https://img.shields.io/badge/Language-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-red?style=flat-square)](README.zh-CN.md)
+[![Español](https://img.shields.io/badge/Language-Español-green?style=flat-square)](README.es.md)
+[![Русский](https://img.shields.io/badge/Language-Русский-brightgreen?style=flat-square)](README.ru.md)
+[![Português](https://img.shields.io/badge/Language-Português%20(Brasil)-blueviolet?style=flat-square)](README.pt-BR.md)
+
 T81: un stack de computación determinista y nativo en ternario que cuenta con tipos de datos en base-81, el conjunto de instrucciones TISC, T81VM, T81Lang, seguridad/optimización Axion y niveles completos de cognición recursiva.
 
 T81 ofrece una ejecución de bits exactos y auditable en dominios con alta carga aritmética, combinando tipos nativos ternarios con una gobernanza estricta en tiempo de ejecución — ideal para IA verificable, criptografía y computación científica.
