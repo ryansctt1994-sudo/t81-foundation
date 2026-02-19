@@ -1,4 +1,4 @@
-This file is an adapter; the canonical rules live in AGENTS.md and ARCHITECTURE.md
+This file is an adapter; the canonical rules live in AGENTS.md and docs/explanation/ARCHITECTURE.md
 
 # Cursor Rules for T81 Foundation
 
@@ -8,7 +8,7 @@ This file is an adapter; the canonical rules live in AGENTS.md and ARCHITECTURE.
 - Implementation is in modern C++ under include/t81/ and src/, with tests in tests/cpp/.
 
 # When starting work
-- First, read ARCHITECTURE.md, AGENTS.md, and spec/index.md to understand the overall structure.
+- First, read docs/explanation/ARCHITECTURE.md, AGENTS.md, and spec/index.md to understand the overall structure.
 - For any file you edit, try to locate its corresponding spec section in spec/ and read it.
 
 # General rules

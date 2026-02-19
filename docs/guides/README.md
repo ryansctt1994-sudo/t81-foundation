@@ -13,6 +13,6 @@ Task-oriented guides for using and operating T81 tooling.
 - Troubleshooting notes
 
 ## Related Docs
-- `docs/navigation.md`
-- `docs/ai-quickstart.md`
-- `ARCHITECTURE.md`
+- `../navigation.md`
+- `../tutorials/ai-quickstart.md`
+- `../explanation/ARCHITECTURE.md`

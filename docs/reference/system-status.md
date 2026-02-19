@@ -2,7 +2,7 @@
 
 **Last Updated:** February 10, 2026
 
-This document provides a high-level summary of the implementation status of each major component in the T81 Foundation stack. For a more detailed technical breakdown of spec conformance, see [`ANALYSIS.md`](../ANALYSIS.md) and [`docs/T81_REMEDIATION_PLAN.md`](../docs/T81_REMEDIATION_PLAN.md).
+This document provides a high-level summary of the implementation status of each major component in the T81 Foundation stack. For a more detailed technical breakdown of spec conformance, see [`ANALYSIS.md`](../explanation/ANALYSIS.md) and [`docs/T81_REMEDIATION_PLAN.md`](../roadmaps-plans/T81_REMEDIATION_PLAN.md).
 
 ______________________________________________________________________
 
@@ -13,27 +13,27 @@ This table inventories the key documentation, specification, and architectural a
 | File Path                               | Scope                           | Audience              | Status                |
 | --------------------------------------- | ------------------------------- | --------------------- | --------------------- |
 | `README.md`                             | Project Overview                | New Contributor       | **Current**           |
-| `DESIGN.md`                             | Core Principles                 | Core Maintainer       | **Current**           |
-| `ARCHITECTURE.md`                       | System Structure                | Core Maintainer       | **Current**           |
-| `ROADMAP.md`                            | Project Direction               | All                   | **Current**           |
-| `TASKS.md`                              | Development Tasks               | Contributor           | **Current**           |
+| `docs/explanation/DESIGN.md`            | Core Principles                 | Core Maintainer       | **Current**           |
+| `docs/explanation/ARCHITECTURE.md`      | System Structure                | Core Maintainer       | **Current**           |
+| `docs/roadmaps-plans/ROADMAP.md`        | Project Direction               | All                   | **Current**           |
+| `docs/roadmaps-plans/TASKS.md`          | Development Tasks               | Contributor           | **Current**           |
 | `CONTRIBUTING.md`                       | Contribution Guide              | New Contributor       | Current               |
 | `AGENTS.md`                             | AI Agent Guide                  | AI Agent              | Current               |
-| `ANALYSIS.md`                           | Spec vs. Reality                | Core Maintainer       | **Current**           |
+| `docs/explanation/ANALYSIS.md`          | Spec vs. Reality                | Core Maintainer       | **Current**           |
 | `docs/index.md`                         | Docs Site Entrypoint            | All                   | **Current**           |
-| `docs/system-status.md`                 | **(This file)**                 | Core Maintainer       | **Current**           |
-| `docs/cpp-quickstart.md`                | C++ Developer Guide             | New Contributor       | **Mostly Current**    |
-| `docs/onboarding.md`                    | Repo onboarding + first change  | New Contributor       | **Current**           |
-| `docs/release.md`                       | Release/versioning workflow     | Maintainer/Release Lead | **Current**         |
-| `docs/ai-quickstart.md`                 | AI Agent Guide                  | New Contributor       | **Current**           |
-| `docs/tensor-guide.md`                  | Tensor Library Guide            | User / Contributor    | **Current**           |
-| `docs/benchmarks.md`                    | Benchmark Suite                 | Core Maintainer       | **Current**           |
-| `docs/jit-research.md`                  | JIT Feasibility Study           | Researcher            | **Current**           |
-| `docs/hardware-roadmap.md`              | Hardware Vision                 | All                   | Historical            |
+| `docs/reference/system-status.md`       | **(This file)**                 | Core Maintainer       | **Current**           |
+| `docs/tutorials/cpp-quickstart.md`      | C++ Developer Guide             | New Contributor       | **Mostly Current**    |
+| `docs/tutorials/onboarding.md`          | Repo onboarding + first change  | New Contributor       | **Current**           |
+| `docs/roadmaps-plans/RELEASING.md`      | Release/versioning workflow     | Maintainer/Release Lead | **Current**         |
+| `docs/tutorials/ai-quickstart.md`       | AI Agent Guide                  | New Contributor       | **Current**           |
+| `docs/how-to/tensor-guide.md`           | Tensor Library Guide            | User / Contributor    | **Current**           |
+| `docs/reference/benchmarks.md`          | Benchmark Suite                 | Core Maintainer       | **Current**           |
+| `docs/research/jit-research.md`         | JIT Feasibility Study           | Researcher            | **Current**           |
+| `docs/roadmaps-plans/hardware-roadmap.md`| Hardware Vision                | All                   | Historical            |
 | `docs/guides/vm-opcodes.md`             | TISC Opcodes                    | Contributor           | **Current**           |
 | `docs/guides/adding-a-language-feature.md`| T81Lang Development           | Contributor           | **Current**           |
 | `docs/guides/public-api-overview.md`     | Public API entry notes          | Contributor           | **Current**           |
-| `docs/ci.md`                             | CI/test reproduction guide      | Contributor           | **Current**           |
+| `docs/reference/ci.md`                  | CI/test reproduction guide      | Contributor           | **Current**           |
 | `spec/index.md`                         | Specification Hub               | All                   | Current               |
 | `spec/t81-data-types.md`                | Core Numerics Spec              | Core Maintainer       | **Stable**            |
 | `spec/tisc-spec.md`                     | TISC ISA Spec                   | Core Maintainer       | **Stable**            |
@@ -45,7 +45,7 @@ ______________________________________________________________________
 
 ## 2. Core Numerics & Data Types
 
-- **Specification:** [`spec/t81-data-types.md`](../spec/t81-data-types.md)
+- **Specification:** [`spec/t81-data-types.md`](../../spec/t81-data-types.md)
 - **Status:** `Stable` (with noted limitations)
 - **Summary:** All 90 canonical types are implemented. Foundational numeric types, including the multi-limb `T81BigInt` and high-rank `T81Tensor`, conform to requirements for deterministic, balanced ternary arithmetic.
 - **Determinism Note:** `T81Float` transcendental functions (`sin`, `cos`, `tan`, `log`, `exp`, `sqrt`) now utilize the deterministic `dmath` (software fixed-point) backend. However, `operator/` and other functions in non-strict modes may still rely on host `double` precision. **Strict Mode** (`T81_STRICT_MODE`) enforces **Tier A** determinism by trapping on any host-dependent operation.
@@ -60,7 +60,7 @@ ______________________________________________________________________
 
 ## 3. TISC ISA & T81VM
 
-- **Specification:** [`spec/tisc-spec.md`](../spec/tisc-spec.md), [`spec/t81vm-spec.md`](../spec/t81vm-spec.md)
+- **Specification:** [`spec/tisc-spec.md`](../../spec/tisc-spec.md), [`spec/t81vm-spec.md`](../../spec/t81vm-spec.md)
 - **Status:** `Stable` (v1.1)
 - **Summary:** The VM fully supports the TISC instruction set and implements the deterministic memory model (CODE, STACK, HEAP, TENSOR, META). Fault handling is strict and Axion-visible, matching the spec-defined categories.
 - **Next Steps:** Expand hardware acceleration for complex numeric operations while maintaining determinism.
@@ -69,7 +69,7 @@ ______________________________________________________________________
 
 ## 4. T81Lang Frontend
 
-- **Specification:** [`spec/t81lang-spec.md`](../spec/t81lang-spec.md)
+- **Specification:** [`spec/t81lang-spec.md`](../../spec/t81lang-spec.md)
 - **Status:** `Stable` (v1.1)
 - **Summary:** The C++23 frontend includes a lexer, recursive descent parser, semantic analyzer, and IR generator producing valid TISC IR.
 - **Features:**
@@ -83,7 +83,7 @@ ______________________________________________________________________
 
 ## 5. Axion Kernel & CanonFS
 
-- **Specification:** [`spec/axion-kernel.md`](../spec/axion-kernel.md), [`spec/canonfs-spec.md`](../spec/canonfs-spec.md)
+- **Specification:** [`spec/axion-kernel.md`](../../spec/axion-kernel.md), [`spec/canonfs-spec.md`](../../spec/canonfs-spec.md)
 - **Status:** `Beta` (v0.4.1)
 - **Target:** v1.0 Release (Q4 2026)
 - **Summary:**
@@ -95,7 +95,7 @@ ______________________________________________________________________
 
 ## 6. JIT Compiler
 
-- **Specification:** [`docs/jit-research.md`](../docs/jit-research.md)
+- **Specification:** [`docs/research/jit-research.md`](../research/jit-research.md)
 - **Status:** `Experimental`
 - **Summary:** Research phase. Feasibility study for a deterministic Just-In-Time compiler targeting x86_64/ARM64.
 - **Next Steps:** Prototype backend implementation and determinism verification.
@@ -106,9 +106,9 @@ ______________________________________________________________________
 
 This section summarizes the state of the project's documentation following a comprehensive overhaul.
 
--   **Onboarding & High-Level Architecture:** A new contributor can now follow `README.md` → `docs/onboarding.md` → `docs/cpp-quickstart.md` → `ARCHITECTURE.md` and run `./build/t81` to see the pipeline work end to end.
--   **Project Status & Direction:** The `ROADMAP.md`, `TASKS.md`, `docs/system-status.md`, and new `docs/release.md` describe priorities, release flows, and the checks needed for new contributions.
--   **Core Subsystems:** Key functional components like the **Tensor Engine** (`docs/tensor-guide.md`) and the **VM/TISC** (`docs/guides/vm-opcodes.md`) now have dedicated, practical guides for C++ developers.
+-   **Onboarding & High-Level Architecture:** A new contributor can now follow `README.md` → `docs/tutorials/onboarding.md` → `docs/tutorials/cpp-quickstart.md` → `docs/explanation/ARCHITECTURE.md` and run `./build/t81` to see the pipeline work end to end.
+-   **Project Status & Direction:** The `docs/roadmaps-plans/ROADMAP.md`, `docs/roadmaps-plans/TASKS.md`, `docs/reference/system-status.md`, and new `docs/roadmaps-plans/RELEASING.md` describe priorities, release flows, and the checks needed for new contributions.
+-   **Core Subsystems:** Key functional components like the **Tensor Engine** (`docs/how-to/tensor-guide.md`) and the **VM/TISC** (`docs/guides/vm-opcodes.md`) now have dedicated, practical guides for C++ developers.
 
 ### Remaining Known Gaps
 

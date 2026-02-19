@@ -19,5 +19,5 @@ t81 benchmark
 ```
 
 ## Reporting
-- Benchmark outputs feed `docs/benchmarks.md` in the current workflow.
+- Benchmark outputs feed `docs/reference/benchmarks.md` in the current workflow.
 - Keep benchmark names stable when possible to preserve historical comparability.

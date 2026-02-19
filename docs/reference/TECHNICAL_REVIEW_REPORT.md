@@ -31,13 +31,13 @@
 - **Scope:** Ambitious but managed through modular architecture.
 
 ## 6. DOCUMENTATION AUDIT
-- **Completeness:** Exceptional. `docs/` contains normative specs (`spec/`), user guides (`docs/guides/`), architecture notes (`ARCHITECTURE.md`), and policies (`GOVERNANCE.md`).
+- **Completeness:** Exceptional. `docs/` contains normative specs (`../../spec/`), user guides (`../guides/`), architecture notes (`../explanation/ARCHITECTURE.md`), and policies (`../policies/GOVERNANCE.md`).
 - **Sync:** Documentation appears to be kept in sync with code (CI checks structure and links).
 - **Gaps:** `T81Symbolic` documentation is sparse compared to other modules.
 
 ## 7. COMMUNITY & MAINTENANCE
-- **Governance:** Clear `GOVERNANCE.md`, `CONTRIBUTING.md`, and `CODE_OF_CONDUCT.md`.
-- **Activity:** Recent updates to `AGENTS.md` and CI configurations indicate active maintenance.
+- **Governance:** Clear `../policies/GOVERNANCE.md`, `../../CONTRIBUTING.md`, and `../../CODE_OF_CONDUCT.md`.
+- **Activity:** Recent updates to `../../AGENTS.md` and CI configurations indicate active maintenance.
 - **License:** MIT License (permissive).
 
 ## 8. SPECIFIC FEATURE VERIFICATION

@@ -1057,9 +1057,9 @@ void GenerateMarkdownReport() {
                   << DisplayValue(notes_display) << "\n";
     }
 
-    std::ofstream md_file("docs/benchmarks.md");
+    std::ofstream md_file("docs/reference/benchmarks.md");
     if (!md_file.is_open()) {
-        std::cerr << "Error: Could not open docs/benchmarks.md for writing.\n";
+        std::cerr << "Error: Could not open docs/reference/benchmarks.md for writing.\n";
         return;
     }
 
@@ -1186,5 +1186,5 @@ void GenerateMarkdownReport() {
     md_file << "- T81 wins: " << t81_wins << ", Binary wins: " << binary_wins << ", Comparable: " << ties << ".\n";
 
     md_file.close();
-    std::cout << "Successfully wrote report to docs/benchmarks.md\n";
+    std::cout << "Successfully wrote report to docs/reference/benchmarks.md\n";
 }

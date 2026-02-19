@@ -22,7 +22,7 @@ The following table classifies each document.
 | **TRENARY - T81TISC.pdf** | Early ISA draft | **Superseded** | [`spec/tisc-spec.md`](../spec/tisc-spec.md) |
 | **TRYNARY - T81AxionAI.pdf** | Early Axion draft | **Superseded** | [`spec/axion-kernel.md`](../spec/axion-kernel.md) |
 | **TOPNARY - T81Ternary.pdf** | Early ecosystem overview | **Superseded** | [`spec/t81-overview.md`](../spec/t81-overview.md) |
-| **TYRNARY - T81Analysis.pdf** | Early analysis notes | **Superseded** | [`ANALYSIS.md`](../ANALYSIS.md) |
+| **TYRNARY - T81Analysis.pdf** | Early analysis notes | **Superseded** | [`ANALYSIS.md`](../docs/explanation/ANALYSIS.md) |
 | **PENTANARY - T729DataTypes.pdf** | Base-729 types | **Aspirational** | See `include/t81/core/T729Tensor.hpp` |
 | **QUATERNARY - T243DataTypes.pdf** | Base-243 types | **Aspirational** | See `include/t81/codec/base243.hpp` |
 | **HEXANARY - T2187DataTypes.pdf** | Base-2187 types | **Aspirational** | N/A |

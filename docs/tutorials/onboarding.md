@@ -26,10 +26,10 @@ ______________________________________________________________________
 | `tests/cpp/` | Regression proofs; every manifest change gets tests. |
 | `docs/` | Guides, portal narratives, and quickstarts (Doxygen output is generated under `build/api`). |
 | `spec/` | Normative constitution; updates require RFCs under `spec/rfcs/`. |
-| `benchmarks/` | Benchmark runners and report generation scripts that feed `docs/benchmarks.md`. |
+| `benchmarks/` | Benchmark runners and report generation scripts that feed `docs/reference/benchmarks.md`. |
 | `tools/`, `scripts/` | Utility helpers used in reproducibility workflows (Axion trace capture, policy generation). |
 
-Always refer to `ARCHITECTURE.md` and `DESIGN.md` before modifying cross-cutting subsystems.
+Always refer to `../explanation/ARCHITECTURE.md` and `../explanation/DESIGN.md` before modifying cross-cutting subsystems.
 
 ## 3. Build, Test, and Docs Workflow
 
@@ -72,7 +72,7 @@ t81 weights import <safetensors|gguf> [...]
 
 - Semantic errors reported by `t81 compile` now include a `file:line:column` snippet so you can locate the problem immediately.
 
-- Running `t81 compile`/`run` exercises the frontend→TISC→VM pipeline covered in `ARCHITECTURE.md`.
+- Running `t81 compile`/`run` exercises the frontend→TISC→VM pipeline covered in `../explanation/ARCHITECTURE.md`.
 - `t81 weights quantize … --to-gguf` produces GGUF models for `llama.cpp`.
 - Inspect CLI help with `./build/t81 --help`.
 
@@ -82,7 +82,7 @@ t81 weights import <safetensors|gguf> [...]
 2. **Reproduce:** Build `t81_tensor_matmul_test` and confirm failure with `ctest -R tensor_matmul`.
 3. **Code change:** Modify headers under `include/t81/core` or `src/core` keeping RAII/no-exceptions rules.
 4. **Add regression test:** Every semantics change needs a test addition under `tests/cpp/`.
-5. **Docs touch:** Update `docs/tensor-guide.md` or relevant doc to describe new behavior.
+5. **Docs touch:** Update `docs/how-to/tensor-guide.md` or relevant doc to describe new behavior.
 6. **Verify:** `cmake --build build --target t81_tensor_matmul_test` plus `ctest -R tensor_matmul` and rerun `cmake --build build --target docs`.
 
 ## 6. Troubleshooting Tips
@@ -94,9 +94,9 @@ t81 weights import <safetensors|gguf> [...]
 
 ## 7. Further Reading
 
-- Specs: `spec/t81lang-spec.md`, `spec/tisc-spec.md`, `spec/t81vm-spec.md`, `spec/t81-data-types.md`.
-- Architecture & design: `ARCHITECTURE.md`, `DESIGN.md`, `docs/system-status.md`.
-- Contribution process: `CONTRIBUTING.md`, `spec/rfcs/template.md`.
-- Onboarding support: Ask in repo issues or review `docs/guides/adding-a-language-feature.md`.
+- Specs: `../../spec/t81lang-spec.md`, `../../spec/tisc-spec.md`, `../../spec/t81vm-spec.md`, `../../spec/t81-data-types.md`.
+- Architecture & design: `../explanation/ARCHITECTURE.md`, `../explanation/DESIGN.md`, `../reference/system-status.md`.
+- Contribution process: `../../CONTRIBUTING.md`, `../../spec/rfcs/template.md`.
+- Onboarding support: Ask in repo issues or review `../guides/adding-a-language-feature.md`.
 
-Keeping this guide up-to-date is critical: each release should confirm the commands still work and the CLI workflow matches `README.md`.
+Keeping this guide up-to-date is critical: each release should confirm the commands still work and the CLI workflow matches `../../README.md`.

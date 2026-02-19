@@ -12,5 +12,5 @@ Directory documentation for `src/hanoi`.
 
 ## See Also
 - Root `README.md`
-- `ARCHITECTURE.md`
+- `../../docs/explanation/ARCHITECTURE.md`
 - Relevant docs under `docs/`

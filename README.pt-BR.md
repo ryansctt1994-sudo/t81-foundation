@@ -78,7 +78,7 @@ Os ambientes de execução modernos trocam reprodutibilidade por velocidade. O T
 
 Impomos isso por meio de um limite arquitetônico estrito entre a Linguagem/Compilador e o Ambiente de Execução, regido por contratos explícitos.
 
-[**Ver Diagrama de Limites Arquitetônicos**](ARCHITECTURE.md#3-concurrent-workstream-view) | [**Visualizar Contrato de Tempo de Execução**](contracts/runtime-contract.json)
+[**Ver Diagrama de Limites Arquitetônicos**](docs/explanation/ARCHITECTURE.md#3-concurrent-workstream-view) | [**Visualizar Contrato de Tempo de Execução**](contracts/runtime-contract.json)
 
 ---
 
@@ -88,15 +88,15 @@ Impomos isso por meio de um limite arquitetônico estrito entre a Linguagem/Comp
 
 | :--- | :--- | :--- |
 
-| **[STATUS.md](STATUS.md)** | O que é verdade *hoje* | Verdade Operacional |
+| **[STATUS.md](docs/reference/STATUS.md)** | O que é verdade *hoje* | Verdade Operacional |
 
-| **[ROADMAP.md](ROADMAP.md)** | Plano futuro | Estratégico |
+| **[ROADMAP.md](docs/roadmaps-plans/ROADMAP.md)** | Plano futuro | Estratégico |
 
-| **[VERSIONING.md](VERSIONING.md)** | Regras de compatibilidade | Normativo |
+| **[VERSIONING.md](docs/reference/VERSIONING.md)** | Regras de compatibilidade | Normativo |
 
 | **[spec/](spec/)** | Definição comportamental | Normativo |
 
-| **[docs/EVIDENCE.md](docs/EVIDENCE.md)** | Prova de alegações | Verificação |
+| **[docs/EVIDENCE.md](docs/policies/EVIDENCE.md)** | Prova de alegações | Verificação |
 
 ---
 
@@ -184,15 +184,15 @@ t81 help
 ## Limite de Tempo de Execução
 O T81 usa um contrato de limite de tempo de execução explícito:
 - Marcador: [`contracts/runtime-contract.json`](contracts/runtime-contract.json)
-- Política de limite: [`docs/runtime-semantics-boundary.md`](docs/runtime-semantics-boundary.md)
+- Política de limite: [`docs/explanation/runtime-semantics-boundary.md`](docs/explanation/runtime-semantics-boundary.md)
 
 ## Leitura Adicional
-- [`ARCHITECTURE.md`](ARCHITECTURE.md)
-- [`docs/system-integration.md`](docs/system-integration.md)
-- [`ANALYSIS.md`](ANALYSIS.md)
-- [`CHANGELOG.md`](CHANGELOG.md)
-- [`docs/research-guide.md`](docs/research-guide.md)
-- [`docs/ai-quickstart.md`](docs/ai-quickstart.md)
+- [`ARCHITECTURE.md`](docs/explanation/ARCHITECTURE.md)
+- [`docs/system-integration.md`](docs/how-to/system-integration.md)
+- [`ANALYSIS.md`](docs/explanation/ANALYSIS.md)
+- [`CHANGELOG.md`](docs/reference/CHANGELOG.md)
+- [`docs/research-guide.md`](docs/how-to/research-guide.md)
+- [`docs/ai-quickstart.md`](docs/tutorials/ai-quickstart.md)
 
 ## Licença
 Este repositório está licenciado sob a licença MIT (consulte [`LICENSE`](LICENSE)).

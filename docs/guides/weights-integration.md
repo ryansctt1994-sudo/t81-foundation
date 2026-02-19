@@ -68,13 +68,13 @@ The returned handle tags the register as a `ValueTag::WeightsTensorHandle` so do
 
 ## Run the `weights-load` demo
 
-The repository now includes `examples/weights_load_demo.t81`, a minimal program that calls `weights.load` for two tensor names and returns the handle. Compile it alongside your `.t81w` model to see the handles in action:
+The repository now includes `../../examples/weights_load_demo.t81`, a minimal program that calls `weights.load` for two tensor names and returns the handle. Compile it alongside your `.t81w` model to see the handles in action:
 
 ```bash
 t81 weights load my-model.gguf -o my-model.t81w
-t81 compile examples/weights_load_demo.t81 -o examples/weights_load_demo.tisc \
+t81 compile ../../examples/weights_load_demo.t81 -o ../../examples/weights_load_demo.tisc \
     --source-name weights_load_demo --weights-model my-model.t81w
-t81 run examples/weights_load_demo.tisc
+t81 run ../../examples/weights_load_demo.tisc
 ```
 
 Because the CLI driver attaches the annotated `ModelFile` to the emitted `tisc::Program`, the interpreter sees the tensor names and returns cached handles without copying the underlying `NativeTensor` data. The new tests and this demo both ensure repeated `weights.load("encoder.value_proj")` returns the same handle.
@@ -85,11 +85,11 @@ Because the CLI driver attaches the annotated `ModelFile` to the emitted `tisc::
 - `BinaryEmitter` interns the string literal into `Program::symbol_pool` and emits the `WeightsLoad` opcode.  
 - At runtime, `WeightsLoad` looks up the symbol index, calls `Interpreter::intern_weights_tensor`, and sets the destination register’s tag to `ValueTag::WeightsTensorHandle`.
 
-Reusing handles avoids duplicating large tensors in `State::tensors`. The new `tests/cpp/weights_load_test.cpp` verifies the handle is cached and that the lookup reads from the shared `ModelFile::native` map without copies.
+Reusing handles avoids duplicating large tensors in `State::tensors`. The new `../../tests/cpp/weights_load_test.cpp` verifies the handle is cached and that the lookup reads from the shared `ModelFile::native` map without copies.
 
 ## Keeping CLI diagnostics sharp
 
 - Compilation errors now include `file:line:column` and work the same for generated modules coming from `.t81w`.  
 - Before shipping a release, run the mandated checks (build + `ctest`) and exercise `./build/t81 compile path/to/invalid.t81` to ensure diagnostics report the expected activity and the new handle logic is covered.
 
-See `docs/benchmarks.md` and `docs/guides/vm-opcodes.md` for corresponding opcode details and runtime path information.
+See `../reference/benchmarks.md` and `vm-opcodes.md` for corresponding opcode details and runtime path information.

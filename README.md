@@ -66,7 +66,7 @@ Modern runtimes trade reproducibility for speed. T81 inverts this: **Auditabilit
 
 This is enforced via a strict architectural boundary between the Language/Compiler and the Execution Runtime, governed by explicit contracts.
 
-[**View Architectural Boundary Diagram**](ARCHITECTURE.md#3-concurrent-workstream-view) | [**View Runtime Contract**](contracts/runtime-contract.json)
+[**View Architectural Boundary Diagram**](docs/explanation/ARCHITECTURE.md#3-concurrent-workstream-view) | [**View Runtime Contract**](contracts/runtime-contract.json)
 
 ---
 
@@ -74,11 +74,11 @@ This is enforced via a strict architectural boundary between the Language/Compil
 
 | Document | Purpose | Authority Scope |
 | :--- | :--- | :--- |
-| **[STATUS.md](STATUS.md)** | What is true *today* | Operational Truth |
-| **[ROADMAP.md](ROADMAP.md)** | Forward plan | Strategic |
-| **[VERSIONING.md](VERSIONING.md)** | Compatibility rules | Normative |
+| **[STATUS.md](docs/reference/STATUS.md)** | What is true *today* | Operational Truth |
+| **[ROADMAP.md](docs/roadmaps-plans/ROADMAP.md)** | Forward plan | Strategic |
+| **[VERSIONING.md](docs/reference/VERSIONING.md)** | Compatibility rules | Normative |
 | **[spec/](spec/)** | Behavioral definition | Normative |
-| **[docs/EVIDENCE.md](docs/EVIDENCE.md)** | Proof of claims | Verification |
+| **[docs/EVIDENCE.md](docs/policies/EVIDENCE.md)** | Proof of claims | Verification |
 
 ---
 
@@ -160,15 +160,15 @@ t81 help
 ## Runtime Boundary
 T81 uses an explicit runtime boundary contract:
 - Marker: [`contracts/runtime-contract.json`](contracts/runtime-contract.json)
-- Boundary policy: [`docs/runtime-semantics-boundary.md`](docs/runtime-semantics-boundary.md)
+- Boundary policy: [`docs/explanation/runtime-semantics-boundary.md`](docs/explanation/runtime-semantics-boundary.md)
 
 ## Further Reading
-- [`ARCHITECTURE.md`](ARCHITECTURE.md)
-- [`docs/system-integration.md`](docs/system-integration.md)
-- [`ANALYSIS.md`](ANALYSIS.md)
-- [`CHANGELOG.md`](CHANGELOG.md)
-- [`docs/research-guide.md`](docs/research-guide.md)
-- [`docs/ai-quickstart.md`](docs/ai-quickstart.md)
+- [`ARCHITECTURE.md`](docs/explanation/ARCHITECTURE.md)
+- [`docs/system-integration.md`](docs/how-to/system-integration.md)
+- [`ANALYSIS.md`](docs/explanation/ANALYSIS.md)
+- [`CHANGELOG.md`](docs/reference/CHANGELOG.md)
+- [`docs/research-guide.md`](docs/how-to/research-guide.md)
+- [`docs/ai-quickstart.md`](docs/tutorials/ai-quickstart.md)
 
 ## License
 This repository is licensed under MIT (see [`LICENSE`](LICENSE)).
