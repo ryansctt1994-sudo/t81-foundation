@@ -27,6 +27,11 @@ EXAMPLES=(
     "world_model_sim"
     "categorical_governance"
     "full_stack_agent"
+    "distributed_sharding"
+    "evolutionary_tree"
+    "supply_chain"
+    "recursive_nas"
+    "zk_state_transition"
 )
 
 # Compile and Run each example
