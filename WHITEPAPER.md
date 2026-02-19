@@ -4,10 +4,10 @@
 
 ## Document Status
 
-* **Version:** 1.1 (architectural + governance revision)
-* **Status:** Working whitepaper; reflects current verified system behavior
+* **Version:** 1.2 (CI/determinism hardening + security fixes)
+* **Status:** Working whitepaper – reflects current verified system behavior and recent CI/determinism hardening
 * **Scope:** `t81-foundation` repository and governed runtime boundary
-* **Date:** 2026-02-11
+* **Date:** 2026-02-19
 
 ---
 
@@ -121,30 +121,24 @@ Mechanisms include:
 
 * canonical IR and binary emission,
 * deterministic VM instruction semantics,
-* reproducibility gates in CI,
+* reproducibility gates in CI (AST/IR hashes),
 * cross-architecture hash comparison,
 * explicit semantic/runtime contract synchronization.
 
-### 5.2 Threat Model and Scope
+### 5.2 Security Posture & Recent Hardening
 
 **Threats addressed directly:**
-
-* environmental drift (toolchain, host, library),
-* silent semantic drift during lowering,
-* opaque runtime behavior without traceability.
-
-**Threats partially mitigated but not eliminated:**
-
-* accidental misconfiguration,
-* unintended runtime divergence.
+* **Environmental drift:** Toolchain, host, and library variations are mitigated via strict reproducible builds and CI gates.
+* **Silent semantic drift:** Opaque lowering stages are verified against canonical hashes (`tests/fixtures/t81lang_determinism/`).
+* **Input validation:** Package initialization now strictly sanitizes names to prevent S-expression injection vulnerabilities (fixed in `src/cli/driver.cpp`).
+* **Crypto correctness:** SHA3-512 implementation verified against test vectors, correcting previous Chi step logic.
 
 **Threats explicitly out of scope:**
+* Malicious hosts or compilers.
+* Adversarial runtime tampering (though traces aid detection).
+* Trust bootstrapping (T81 assumes a trusted initial compile).
 
-* malicious hosts or compilers,
-* adversarial runtime tampering,
-* cryptographic integrity or trust bootstrapping.
-
-T81 does not claim adversarial security. Its guarantees apply to *cooperative but fallible environments* where reproducibility and auditability are required.
+T81 guarantees apply to *cooperative but fallible environments* where reproducibility and auditability are required.
 
 ---
 
@@ -153,7 +147,7 @@ T81 does not claim adversarial security. Its guarantees apply to *cooperative bu
 ### 6.1 Local Baseline Ritual
 
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
@@ -162,19 +156,19 @@ ctest --test-dir build --output-on-failure
 
 At the time of this document:
 
-* **Total tests:** 156
+* **Total tests:** 214
   (`ctest --test-dir build -N`)
 
 ### 6.3 CI Enforcement Gates
 
 Representative gates include:
 
-* T81Lang reproducibility gate: `scripts/ci/t81lang_repro_gate.py`
-* T3_K reproducibility gate: `scripts/ci/t3k_repro_gate.py`
-* Runtime contract sync: `.github/workflows/runtime-contract.yml`
-* Local reproduction guide: `docs/ci.md`
+* **Reproducibility Gates:** `scripts/ci/t81lang_repro_gate.py` ensures AST and IR structures match canonical hashes.
+* **Format & Linting:** Strict `clang-format-18` and static analysis enforcement preventing style drift.
+* **Runtime Contract Sync:** `.github/workflows/runtime-contract.yml` monitors drift between specification and runtime.
+* **Security Checks:** Automated dependency auditing and permission checks for workflows.
 
-These gates are treated as normative, not advisory.
+These gates are normative; failure blocks merge.
 
 ---
 
@@ -216,11 +210,10 @@ This separation prevents silent divergence while allowing independent hardening.
 Performance is treated as **workload-dependent** and subordinate to deterministic correctness.
 
 Current optimization focus includes:
-
 * BigInt hot paths,
-* ternary tensor kernels,
-* CanonFS throughput,
-* deterministic runtime hardening.
+* Ternary tensor kernels,
+* CanonFS throughput (persistent vs in-memory),
+* Deterministic runtime hardening.
 
 All performance claims are accompanied by benchmark artifacts and commit-pinned snapshots.
 
@@ -228,23 +221,27 @@ All performance claims are accompanied by benchmark artifacts and commit-pinned 
 
 Source: `docs/benchmarks.md`
 
-* Last updated: `2026-02-09 20:06:23 UTC`
-* Snapshot commit: `d3dc39b`
+* Last updated: `2026-02-17 16:05:09 UTC`
+* Snapshot commit: `92d6280`
 
 | Benchmark        |           T81 |   T81 Native |        Binary |  Ratio | Interpretation            |
 | ---------------- | ------------: | -----------: | ------------: | -----: | ------------------------- |
-| BM_NegationSpeed |  24.96 Gops/s | 40.93 Gops/s |   1.40 Gops/s | 29.18× | Strong ternary-native win |
-| BM_Llama_RMSNorm |   1.82 Gops/s |          n/a |  57.56 Mops/s | 31.63× | Workload-local win        |
-| BM_Llama_SiLU    |   1.23 Gops/s |          n/a | 169.45 Mops/s |  7.27× | Notable improvement       |
-| BM_Llama_Softmax | 899.52 Mops/s |          n/a | 127.57 Mops/s |  7.05× | Notable improvement       |
-| BM_Add_4096_bit  |  95.82 Kops/s |          n/a | 997.68 Mops/s |  0.00× | Binary dominates          |
-| BM_CanonFS_Write |    13.17 MB/s |          n/a |   467.79 MB/s |  0.03× | Known hotspot             |
+| BM_NegationSpeed |   1.74 Gops/s |  1.92 Gops/s |   4.80 Gops/s |  0.36× | Binary scalar win         |
+| BM_Llama_RMSNorm | 567.56 Mops/s |          n/a | 602.17 Mops/s |  0.94× | Near parity               |
+| BM_Llama_SiLU    | 322.14 Mops/s |          n/a | 329.33 Mops/s |  0.98× | Near parity               |
+| BM_Llama_Softmax | 186.09 Mops/s |          n/a | 181.44 Mops/s |  1.03× | T81 slight lead           |
+| BM_Llama_Block   |   6.94 Mops/s |          n/a | 486.97 Kops/s | 14.26× | **Major T81 advantage**   |
+| BM_CanonFS_Read_P|    27.70 GB/s |          n/a |    3.32 GB/s  |  8.35× | **Major T81 advantage**   |
+| BM_Add_4096_bit  |  79.76 Kops/s |          n/a |   5.79 Mops/s |  0.01× | Binary dominates (SIMD)   |
+| BM_Overflow_Check|   1.95 Gops/s |          n/a | 646.95 Mops/s |  3.01× | **T81 safety advantage**  |
+
+*Note: Ratios are T81/Binary. Values > 1.0 indicate T81 advantage.*
 
 ---
 
 ## 10. Known Limitations
 
-* Performance is uneven across workloads.
+* Performance is uneven across workloads (e.g., binary SIMD still dominates large integer add).
 * Several advanced features remain spec-driven and require further hardening.
 * Cross-repo contracts introduce process overhead by design.
 
@@ -254,10 +251,10 @@ These limitations are tracked and intentionally visible.
 
 ## 11. Roadmap (Near-Term)
 
-1. Expand reproducibility coverage across broader host and architecture matrices.
-2. Increase property-based and fuzz testing at compiler/runtime boundaries.
-3. Continue kernel optimization without weakening determinism guarantees.
-4. Tighten spec-to-implementation traceability across documentation and CI.
+1. **Broaden Reproducibility:** Expand coverage across more host/architecture matrices and tighten `t81lang` AST/IR determinism checks.
+2. **Deepen Verification:** Increase property-based testing and fuzzing at compiler/runtime boundaries.
+3. **Optimize Kernels:** Continue kernel optimization (especially tensor ops) without weakening determinism guarantees.
+4. **Governance UI:** Improve tooling for visualizing Axion policies and traces.
 
 ---
 
@@ -265,8 +262,9 @@ These limitations are tracked and intentionally visible.
 
 | Claim                                        | Evidence                                | Strength | Notes                      |
 | -------------------------------------------- | --------------------------------------- | -------- | -------------------------- |
-| Deterministic compile/runtime is operational | CI workflows, repro gates, `docs/ci.md` | Strong   | Continuously enforced      |
+| Deterministic compile/runtime is operational | CI workflows, repro gates, hash checks  | Strong   | Continuously enforced      |
 | Runtime boundary is governed                 | Contracts + sync workflows              | Strong   | Drift detection active     |
+| Security hardening active                    | Package init sanitization, SHA3 fixes   | Strong   | Recent patches verified    |
 | Performance is workload-dependent            | `docs/benchmarks.md`                    | Strong   | Both wins and losses shown |
 | Universal production readiness               | N/A                                     | Weak     | Not claimed                |
 
