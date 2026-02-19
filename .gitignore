@@ -25,6 +25,8 @@ install_manifest.txt
 CTestTestfile.cmake
 compile_commands.json   # ← many people WANT this tracked now (see note below)
 Testing/Temporary/
+docs/api/html/
+docs/api/*.js
 
 # Ninja
 *.ninja_deps
