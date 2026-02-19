@@ -1,258 +1,295 @@
-# T81 Foundation User Manual
+# T81 User Manual
 
-The T81 Foundation stack is a sovereign-grade, ternary-native computing environment designed for deterministic execution, auditable safety, and efficient arithmetic. This manual provides a comprehensive guide to installing, using, and mastering the T81 toolchain.
+This manual teaches you how to **install**, **build**, **use**, **debug**, and **extend** programs in the T81 ecosystem — a deterministic, ternary-native runtime stack.
+
+T81 prioritizes **bit-exact reproducibility**, **runtime governance** via Axion, and **auditable execution** over raw performance. It is especially suited for verifiable AI, cryptography, scientific computing, and high-stakes numerical workloads.
+
+**Key invariants you can rely on:**
+- Every execution produces the **identical trace** and output on supported platforms (x86_64 Linux, ARM64 Linux/macOS).
+- Floating-point transcendental functions are **bit-exact** via the `dmath` backend.
+- Axion policies **cannot be bypassed** — violations trigger explicit events/verdicts.
+
+For foundational concepts → see [spec/t81-overview.md](../spec/t81-overview.md)
+For normative specs → see [spec/index.md](../spec/index.md)
 
 ## Table of Contents
 
-- [Introduction](#introduction)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [CLI Reference](#cli-reference)
-  - [Core Commands](#core-commands)
-  - [Project Management](#project-management)
-  - [Advanced Tools](#advanced-tools)
-- [T81Lang Basics](#t81lang-basics)
-- [Advanced Features](#advanced-features)
-  - [Determinism & Reproducibility](#determinism--reproducibility)
-  - [Axion Policy Engine](#axion-policy-engine)
-  - [Weights & Tensors](#weights--tensors)
-- [Troubleshooting](#troubleshooting)
+1. [Installation & Building](#installation--building)
+2. [First Program — Hello, Balanced Ternary](#first-program--hello-balanced-ternary)
+3. [Core Workflow: Edit → Compile → Run → Trace](#core-workflow-edit--compile--run--trace)
+4. [Working with Data Types](#working-with-data-types)
+5. [Tensors & Model Weights](#tensors--model-weights)
+6. [Debugging & Inspection](#debugging--inspection)
+7. [Trace Analysis & Reproducibility](#trace-analysis--reproducibility)
+8. [Axion Policies & Safety](#axion-policies--safety)
+9. [Advanced Usage & Integration](#advanced-usage--integration)
+10. [Troubleshooting & FAQ](#troubleshooting--faq)
+11. [Next Steps & Resources](#next-steps--resources)
 
----
-
-## Introduction
-
-T81 is built on three core pillars:
-1.  **Ternary-Native Arithmetic**: Utilizing base-81 data types and balanced ternary logic for high-density, efficient computation.
-2.  **Strict Determinism**: Guarantees bit-exact reproducibility across different hardware architectures (x86_64, ARM64) and platforms.
-3.  **Axion Safety**: A runtime policy engine that enforces safety invariants and prevents unauthorized behavior.
-
-The stack includes the **T81Lang** high-level language, the **TISC** (Ternary Instruction Set Computer) intermediate representation, and the **T81VM** (Virtual Machine).
-
----
-
-## Installation
+## Installation & Building
 
 ### Prerequisites
-*   **C++ Compiler**: Clang 18+ or GCC 14+ (C++23 support required).
-*   **Build System**: CMake 3.16+ and Ninja (recommended) or Make.
-*   **Python**: Python 3.9+ (for scripts and reproducibility gates).
 
-### Building from Source
+- **CMake** ≥ 3.21
+- **Clang** 18+ or **GCC** 14+ (Clang strongly preferred for determinism)
+- **Python 3.10+** (for reproducibility gates & some scripts)
+- Linux (x86_64/ARM64) or macOS (ARM64)
 
-Clone the repository and build using CMake:
+### Clone & Build
 
 ```bash
 git clone https://github.com/t81dev/t81-foundation.git
 cd t81-foundation
 
-# Configure
+# Release build (recommended)
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
 
-# Build
+# Or Debug build (better for stepping / tracing)
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
 cmake --build build --parallel
 ```
 
-The primary executable will be located at `build/t81`. You can add this to your PATH or alias it:
-```bash
-alias t81=$(pwd)/build/t81
-```
-
----
-
-## Quick Start
-
-### 1. Initialize a Project
-Create a new T81 project with a standard directory structure:
+Run the determinism self-check immediately:
 
 ```bash
-t81 init my_project
-cd my_project
+python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --fixtures-dir tests/fixtures/t81lang_determinism --workdir build/repro_check --hash-out build/repro_hash.txt
 ```
 
-This creates a `main.t81` file and a `README.md`.
+Expected output: `T81Lang gates passed: fixtures=...` (identical hash across platforms).
 
-### 2. Run the Program
-Execute the program directly:
+Install the CLI globally (optional):
 
 ```bash
-t81 run main.t81
+sudo cmake --install build
+# or just use ./build/t81 directly
 ```
 
-### 3. Compile to Bytecode
-For distribution or repeated execution, compile the source to TISC bytecode:
+## First Program — Hello, Balanced Ternary
 
-```bash
-t81 compile main.t81 -o main.tisc
-t81 run main.tisc
-```
+Create `hello.t81`:
 
----
-
-## CLI Reference
-
-The `t81` command-line interface is the unified entry point for all tools.
-
-Global Options:
-*   `-v`, `--verbose`: Enable verbose diagnostic output.
-*   `-q`, `--quiet`: Suppress non-error output.
-*   `-h`, `--help`: Show help information.
-
-### Core Commands
-
-#### `compile`
-Compiles T81Lang source code to TISC bytecode.
-
-```bash
-t81 compile <source.t81> [-o <output.tisc>]
-```
-
-#### `run`
-Executes a T81Lang source file (by compiling it first) or a pre-compiled TISC bytecode file.
-
-```bash
-t81 run <file.t81|.tisc> [--policy <policy.apl>]
-```
-*   `--policy <policy.apl>`: Load and enforce an Axion safety policy during execution.
-
-#### `check` / `lint`
-Performs syntax and semantic analysis on a source file without generating code. Useful for quick validation.
-
-```bash
-t81 check <source.t81>
-```
-
-#### `repl`
-Starts an interactive Read-Eval-Print Loop session.
-
-```bash
-t81 repl
-```
-*   Type T81Lang code and press Enter (twice for multi-line) to execute.
-*   Commands: `:quit`, `:help`, `:load <file>`, `:history`, `:reset`, `:symbols`.
-
-#### `debug`
-Launches the interactive TISC debugger.
-
-```bash
-t81 debug <file.t81|.tisc>
-```
-
-#### `disasm`
-Disassembles a TISC bytecode file into a human-readable format.
-
-```bash
-t81 disasm <file.tisc>
-```
-
-### Project Management
-
-#### `init`
-Scaffolds a new T81 project directory.
-
-```bash
-t81 init <project_name>
-```
-
-#### `pkg`
-Manages T81 packages.
-
-*   `t81 pkg init [name]`: Initialize a `package.t81` manifest.
-*   `t81 pkg check`: Validate the current package manifest.
-
-### Advanced Tools
-
-#### `weights`
-Manages machine learning model weights and tensors.
-
-*   `import <file> [-o <out.t81w>] [--format <fmt>]`: Import weights from SafeTensors or GGUF formats into the native `.t81w` format.
-*   `info <model.t81w>`: Display metadata, sparsity, and checksums for a model file.
-*   `quantize <input> --to-gguf <output>`: Quantize weights (e.g., SafeTensors) to T3_K GGUF format for compatibility with other tools.
-
-#### `policy`
-Tools for the Axion Policy Engine.
-
-*   `compile <file.apl> [-o <out.axionb>]`: Compile an Axion Policy Language (APL) file to binary policy format.
-*   `run <file.apl|.axionb>`: Validate and load a policy to check for errors.
-
-#### `trace`
-Tools for analyzing execution traces (requires execution with tracing enabled).
-
-*   `show <trace.txt>`: Visualize a trace file with color coding.
-*   `diff <trace1.txt> <trace2.txt>`: Compare two traces to identify divergences.
-*   `replay <file.tisc> <trace.txt>`: Re-execute a program and verify it matches the recorded trace bit-for-bit.
-
-#### `repro-hash`
-Runs the deterministic reproduction gate, hashing the execution outputs of test fixtures to verify cross-platform consistency.
-
-```bash
-t81 repro-hash [fixtures_dir]
-```
-
-#### `benchmark`
-Runs the internal benchmark suite to measure performance.
-
-```bash
-t81 benchmark
-```
-
----
-
-## T81Lang Basics
-
-T81Lang is a statically-typed language designed for ternary computing.
-
-**Basic Syntax:**
 ```t81
-// Variables
-let x: i32 = 42;
-let y = 81; // Type inferred
-
-// Control Flow
-if x > 0 {
-    y = y + 1;
-} else {
-    y = y - 1;
-}
-
-loop {
-    if y > 100 { break; }
-    y = y + 1;
-}
-
-// Functions
-fn add(a: i32, b: i32) -> i32 {
-    return a + b;
+// hello.t81
+fn main() -> i32 {
+    let msg = "Hello, Balanced Ternary!";
+    print(msg);
+    return 0;
 }
 ```
 
-For a complete specification, refer to the [T81Lang Specification](../../spec/t81lang-spec.md).
+Compile & run:
 
----
+```bash
+./build/t81 compile hello.t81 -o hello.tisc
+./build/t81 run hello.tisc
+```
 
-## Advanced Features
+Output:
 
-### Determinism & Reproducibility
-T81 guarantees that the same code produces the exact same output on any supported platform.
-*   **Verification**: Use `t81 repro-hash` to generate a canonical hash of your environment's execution behavior.
-*   **Floating Point**: T81 implements strict software-defined floating-point arithmetic to avoid hardware-specific deviations.
+```
+Hello, Balanced Ternary!
+```
 
-### Axion Policy Engine
-Axion is a runtime kernel that monitors execution against defined safety policies. For details, see the [Axion Kernel Specification](../../spec/axion-kernel.md).
-*   **Policies**: Define constraints like maximum instruction count, memory limits, or restricted opcodes in `.apl` files.
-*   **Enforcement**: Pass a policy with `--policy` to `t81 run`. If the program violates the policy, the VM traps and execution halts.
+Try changing the string and re-running — the trace hash should remain identical on the same machine.
 
-### Weights & Tensors
-T81 supports native tensor operations optimized for ternary hardware simulation.
-*   **Format**: The `.t81w` format stores tensors with SHA3-512 checksums for integrity.
-*   **Integration**: Use `t81 weights import` to bring in models from common formats like SafeTensors.
+## Core Workflow: Edit → Compile → Run → Trace
 
----
+Typical edit-compile-debug loop:
 
-## Troubleshooting
+1. Edit `.t81` source (VS Code + C++ extension works well; syntax highlighting coming soon)
+2. Syntax & semantics check:
 
-*   **Build Failures**: Ensure you have a C++23 compliant compiler. If CMake fails, try clearing the `build/` directory and re-running configuration.
-*   **AVX2 Warnings**: On non-x86 platforms (like Apple Silicon), you may see warnings about AVX2 being disabled. This is normal and does not affect correctness, only specific SIMD optimizations.
-*   **Verification Failures**: If `repro-hash` fails, ensure your environment is not injecting external entropy (T81 is designed to be hermetic, but external file I/O can introduce variability).
+   ```bash
+   t81 check hello.t81
+   ```
 
-For more help, consult the [Architecture Guide](../explanation/ARCHITECTURE.md) or open an issue on GitHub.
+3. Compile to TISC bytecode:
+
+   ```bash
+   t81 compile hello.t81 -o hello.tisc
+   ```
+
+4. Run:
+
+   ```bash
+   t81 run hello.tisc
+   ```
+
+5. Inspect:
+
+   ```bash
+   t81 disasm hello.tisc
+   ```
+
+## Working with Data Types
+
+T81 provides ternary-native types with strict determinism.
+
+Common types (see [spec/t81-data-types.md](../spec/t81-data-types.md)):
+
+```t81
+let i   : i32          = 42;
+let bi  : T81BigInt    = 123456789t81;
+let f   : T81Float     = 3.14159t81;
+let frac: T81Fraction  = 22/7t81;
+let s   : T81String    = "Hello";
+```
+
+All arithmetic is **deterministic** and **bit-exact** (except noted non-strict modes in floats).
+
+Demo files to explore:
+
+- `examples/data_types.t81`
+- `examples/all_types_showcase.t81`
+- `examples/bigint_demo.t81`
+
+## Tensors & Model Weights
+
+T81 includes first-class tensor support and model import tooling.
+
+Basic tensor ops (currently via VM intrinsics or `T81Vector`):
+
+```t81
+let v: T81Vector[i32] = [1, 2, 3];
+print(v);
+```
+
+Import real model weights:
+
+```bash
+t81 weights import path/to/model.safetensors -o model.t81w
+t81 weights info model.t81w
+```
+
+Load in code (via handles):
+
+```t81
+// Weights are loaded into handles at runtime
+let w_handle = weights::load("layer1.weight");
+```
+
+See `examples/weights_load_demo.t81` and `examples/tensor_demo.t81`.
+
+## Debugging & Inspection
+
+- Disassemble bytecode:
+
+  ```bash
+  t81 disasm hello.tisc > hello.dis
+  ```
+
+- Step-by-step debug:
+
+  ```bash
+  t81 debug hello.tisc
+  ```
+
+  Inside the debugger:
+  - `s`: Step
+  - `c`: Continue
+  - `r`: Show registers
+  - `k`: Show stack
+  - `m <addr>`: Inspect memory
+  - `b <pc>`: Set breakpoint
+  - `q`: Quit
+
+- Check syntax/semantics without execution:
+
+  ```bash
+  t81 check examples/advanced_datatypes_showcase.t81
+  ```
+
+## Trace Analysis & Reproducibility
+
+T81 execution produces deterministic traces. While direct trace generation via CLI flag is a planned feature, traces are integral to the Axion policy engine and reproducibility gates.
+
+Visualize a trace artifact (e.g., from CI or `repro-hash` output):
+
+```bash
+t81 trace show trace.txt
+```
+
+Compare traces:
+
+```bash
+t81 trace diff trace_a.txt trace_b.txt
+```
+
+Replay for forensic analysis:
+
+```bash
+t81 trace replay hello.tisc trace.txt
+```
+
+Verify cross-build reproducibility of the compiler itself:
+
+```bash
+t81 repro-hash tests/fixtures/t81lang_determinism
+```
+
+## Axion Policies & Safety
+
+Axion enforces runtime contracts using S-expression based policies (APL).
+
+Define a policy (e.g., `policy.apl`):
+
+```lisp
+(policy
+  (tier 1)
+  (max-instructions 2000)
+  (max-stack 128)
+  (require-axion-event (reason "GC cycle reason=interval"))
+)
+```
+
+Compile the policy:
+
+```bash
+t81 policy compile policy.apl -o policy.axionb
+```
+
+Run with enforcement:
+
+```bash
+t81 run hello.tisc --policy policy.apl
+```
+
+Violations produce structured events/verdicts in the execution log and may halt the VM.
+
+## Advanced Usage & Integration
+
+- **C++ interop** — see `examples/demo.cpp`, `tensor_ops.cpp`
+- **System-level integration** — `examples/system-integration/`
+- **Research notebooks** — `notebooks/`
+- **Custom policies** — extend Axion kernel (advanced)
+
+See how-to guides in `docs/how-to/`.
+
+## Troubleshooting & FAQ
+
+**Q: Build fails on macOS?**
+A: Ensure Xcode command-line tools are installed; use Clang.
+
+**Q: Trace hashes differ?**
+A: Check compiler flags, use Release mode, verify determinism gate.
+
+**Q: Float results vary?**
+A: Use strict mode or avoid non-core transcendental calls.
+
+**Q: Where is syntax highlighting?**
+A: Planned; currently use C-like highlighting.
+
+Report issues → GitHub Issues.
+
+## Next Steps & Resources
+
+- Explore all examples → `examples/`
+- Read architecture → [docs/explanation/ARCHITECTURE.md](../explanation/ARCHITECTURE.md)
+- Deep dive specs → [spec/index.md](../spec/index.md)
+- AI/research quickstarts → `docs/tutorials/ai-quickstart.md`, `docs/how-to/research-guide.md`
+- Contribute → [CONTRIBUTING.md](../../CONTRIBUTING.md)
+
+Welcome to deterministic ternary computing.
+
+MIT License — © t81dev 2026
