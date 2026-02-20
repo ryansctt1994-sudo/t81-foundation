@@ -3424,6 +3424,76 @@ public:
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), 0, verdict);
         break;
       }
+      case t81::tisc::Opcode::TID: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (auto res = promote_to_tensor(insn.b); !res) {
+          trap = res.error();
+          break;
+        }
+        auto* tensor = tensor_ptr(state_.registers[insn.b]);
+        if (tensor == nullptr) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        // Deep copy
+        t81::T729Tensor copy(tensor->shape(), std::vector<float>(tensor->data()));
+        state_.registers[insn.a] = alloc_tensor(std::move(copy));
+        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TID (Identity/Copy)"};
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), state_.registers[insn.a],
+                           verdict);
+        break;
+      }
+      case t81::tisc::Opcode::NSend: {
+        if (!reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "NSend placeholder"};
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), 0, verdict);
+        // Placeholder: no actual network op yet
+        break;
+      }
+      case t81::tisc::Opcode::NRecv: {
+        if (!reg_ok(insn.a)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "NRecv placeholder"};
+        record_axion_event(insn.opcode, 0, 0, verdict);
+        // Placeholder: return dummy byte buffer (handled as generic handle or int for now)
+        // Since we don't have a BytesHandle yet in ValueTag explicitly used here, we return 0.
+        state_.registers[insn.a] = 0;
+        state_.register_tags[insn.a] = ValueTag::Int;
+        break;
+      }
+      case t81::tisc::Opcode::VWait: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        // Wait on promise handle in insn.b
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "VWait placeholder"};
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), 0, verdict);
+        // Placeholder: immediate return
+        state_.registers[insn.a] = 0;
+        state_.register_tags[insn.a] = ValueTag::Int;
+        break;
+      }
+      case t81::tisc::Opcode::VYield: {
+        if (!reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        // Yield result handle in insn.b
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "VYield placeholder"};
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), 0, verdict);
+        break;
+      }
       default:
         trap = Trap::DecodeFault;
         break;
