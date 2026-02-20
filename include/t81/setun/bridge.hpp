@@ -21,31 +21,11 @@ enum class BridgeError {
 };
 
 struct BridgeDiagnostic {
-  BridgeError error;
-  std::size_t line;
-  std::size_t column;
+  BridgeError error = BridgeError::EmptyInput;
+  std::size_t line = 0;
+  std::size_t column = 0;
   std::string message;
   std::string source_line;
-
-  // Default constructor
-  BridgeDiagnostic() : error(BridgeError::EmptyInput), line(0), column(0) {}
-
-  // Parameterized constructor
-  BridgeDiagnostic(BridgeError err, std::size_t line_no, std::size_t column_no, std::string msg,
-                   std::string source)
-      : error(err),
-        line(line_no),
-        column(column_no),
-        message(std::move(msg)),
-        source_line(std::move(source)) {}
-
-  // Explicitly default rule-of-five methods to ensure clarity for static analysis
-  // and guarantee proper initialization behavior.
-  BridgeDiagnostic(const BridgeDiagnostic&) = default;
-  BridgeDiagnostic(BridgeDiagnostic&&) = default;
-  BridgeDiagnostic& operator=(const BridgeDiagnostic&) = default;
-  BridgeDiagnostic& operator=(BridgeDiagnostic&&) = default;
-  ~BridgeDiagnostic() = default;
 };
 
 [[nodiscard]] std::string_view bridge_error_message(BridgeError error);
