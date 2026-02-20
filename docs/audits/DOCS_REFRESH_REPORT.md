@@ -1,53 +1,62 @@
-# Docs Refresh Audit Report
+# Documentation Refresh Audit Report
 
 **Date:** February 17, 2026
-**Agent:** T81 Docs Refresh Agent
-**Scope:** `docs/` directory synchronization with `src/`, `include/`, and `spec/`.
+**Auditor:** Jules (Technical Steward)
 
-## 1. Summary of Changes
+## 1. Executive Summary
 
-A comprehensive audit and update of the documentation was performed to align the "Docs Truth" with the "Implementation Truth". Key adjustments include:
+This report documents the stabilization of the T81 epistemic boundary. The goal is to align the Spec, Implementation, and Narrative realities. The system is in a "Stable Core, Emerging Cognitive" state.
 
-- **Status Normalization:** Explicitly categorized components as Stable (Core/VM/TISC/Axion), Beta (CanonFS/CLI), Experimental (JIT), or In Development (Cognitive Tiers).
-- **Cognitive Tiers:** Documented the new Cognitive Tier constructs (T243-T19683) in `language_reference.md`, `vm-opcodes.md`, and `ARCHITECTURE.md`, reflecting that headers and syntax are implemented while deep logic is in progress.
-- **Task Management:** Archived ~50 completed tasks in `TASKS.md` and populated the active sprint with Cognitive Tier and Performance objectives.
-- **Architecture & Build:** Updated `ARCHITECTURE.md` to include `t81_cog` in the build graph and workstream views.
-- **Verification Baseline:** Updated test counts (173/173) and CLI command lists to match reality.
+## 2. Determinism Confidence Assessment
 
-## 2. Status Truth Table
+**Status:** High (Verified)
+**Evidence:**
+- `t3k_repro_gate.py`: Enforces bit-exact T3_K quantization across x86_64 and arm64.
+- `t81lang_repro_gate.py`: Enforces bit-exact bytecode generation across multiple compile passes.
+- CI Job `t3k-cross-arch-bit-identity`: Fails if hashes differ between architectures.
 
-| Component | Spec Status | Implementation Status | Docs Status (Before) | Docs Status (After) |
-| :--- | :--- | :--- | :--- | :--- |
-| **T81Lang** | Stable v1.1 | Stable (C++23) | Stable | Stable v1.1 |
-| **HanoiVM** | Stable v1.1 | Stable | Stable | Stable v1.1 |
-| **Axion** | Stable v1.0 | Stable | Stable | Stable v1.0 |
-| **CanonFS** | Draft v0.4 | Beta (Functional) | Stable/Beta (Mixed) | Beta v0.9 |
-| **JIT** | Research | Experimental (Trace) | Experimental | Experimental |
-| **Cognitive** | Draft | Foundational Headers | Absent/Implied | In Development |
+**Caveats:**
+- `T81Float` transcendental functions (`sin`, `cos`, etc.) rely on host `double` and are explicitly marked as **Host-Dependent** in `ANALYSIS.md`.
 
-## 3. Top Inconsistencies Resolved
+## 3. CanonFS Enforcement Assessment
 
-1.  **Cognitive Tier Visibility:** The codebase contains significant work on Cognitive Tiers (`include/t81/cog/`), but documentation was silent or vague. Updated `language_reference.md` and `vm-opcodes.md` to expose `Symbol`, `Reflect`, `Recurse`, etc.
-2.  **CanonFS Maturity:** `ANALYSIS.md` claimed "Stable", while `STATUS.md` said "Beta". Unified to "Beta" to reflect ongoing optimization.
-3.  **Task Backlog:** `TASKS.md` was a fossilized list of completed items. Archived them and added current P0 objectives from `ROADMAP.md`.
-4.  **Test Counts:** Docs referenced outdated test counts (139). Updated to 173 to match current CI reality.
+**Status:** Beta (Verified)
+**Evidence:**
+- `src/canonfs/persistent_driver.cpp` implements `axion_allow` checks for read/write.
+- `vm.cpp` enforces `TLOADHASH` against `allowed-tensor-hashes` in the active policy.
 
-## 4. Unresolved Uncertainties / TODOs
+## 4. JIT Stability Assessment
 
-- **JIT Backend:** The JIT remains in a research/experimental phase. Documentation is minimal intentionally.
-- **Cognitive Logic:** While syntax and opcodes exist, the deep logic (e.g., Church-Rosser checks) is stubbed. Docs now reflect this "Foundational" status, but future updates must track logic completion.
-- **Float Determinism:** Full software-only float division is pending "Partial Polyfill" remediation.
+**Current State:** Experimental.
+**Finding:** The "JIT" is currently a threaded-code interpreter (`ThreadedJitTrace`), not a machine-code compiler.
+**Action:** Documentation updated to reflect this reality.
 
-## 5. Files Touched
+## 5. Benchmark Claim Assessment
 
-- `docs/reference/STATUS.md`
-- `docs/reference/language_reference.md`
-- `docs/reference/system-status.md`
-- `docs/explanation/ARCHITECTURE.md`
-- `docs/explanation/ANALYSIS.md`
-- `docs/guides/vm-opcodes.md`
-- `docs/guides/cli-user-manual.md`
-- `docs/guides/t81lang-determinism-gates.md`
-- `docs/roadmaps-plans/ROADMAP.md`
-- `docs/roadmaps-plans/TASKS.md`
-- `docs/roadmaps-plans/TASKS-t81-spec.md`
+**Status:** Honest / Automated
+**Observation:** `docs/reference/benchmarks.md` is auto-generated and includes hardware context (e.g., SIMD feature flags).
+**Optimization:** `performance-strategy.md` correctly claims AVX2/Karatsuba implementation for `T81BigInt`.
+
+## 6. Spec ↔ Implementation Divergences
+
+- **Tier 5 (Infinite):** Spec defines it, but implementation is a stub.
+- **JIT:** Narrative implied compilation; implementation is threading.
+- **CLI Toolkit:** C++ API docs lagged behind implementation (compile/run signatures).
+
+## 7. High-Risk Drift Zones
+
+1.  **JIT Terminology:** Calling the threaded interpreter a "JIT" risks user confusion regarding performance expectations.
+2.  **Cognitive Tier Maturity:** The gap between the "Symbolic" tier (partially implemented) and "Infinite" tier (stub) is masked by grouped "Cognitive Tier" status labels.
+3.  **Memory Model Enforcement:** The VM enforces segmentation via software checks (`check_mem`), not hardware memory protection keys or OS segmentation. This distinction is crucial for security modeling.
+
+## 8. Top 3 Areas to Harden First
+
+1.  **JIT Compiler:** Transition from threaded interpretation to true machine-code generation (even simple template JIT) to justify the name and realize performance gains.
+2.  **CanonFS Persistence:** Optimize `PersistentDriver` throughput; benchmarks show it significantly lags behind in-memory performance.
+3.  **Tier 1 Confluence:** Implement the `is_confluent` check in `SymbolicGraph` to make the Symbolic Tier semantically complete.
+
+______________________________________________________________________
+
+"If I inherited this system tomorrow, the three subsystems I would harden first are: JIT Compiler (to true machine code), CanonFS Persistent Driver (throughput), and Symbolic Tier Confluence Checks."
+
+"If I inherited this system tomorrow, It would be used it for: High-assurance deterministic compute workloads where auditability (Axion traces) supersedes raw performance."
