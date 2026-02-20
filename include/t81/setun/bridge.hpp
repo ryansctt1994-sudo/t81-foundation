@@ -40,10 +40,13 @@ struct BridgeDiagnostic {
         message(std::move(msg)),
         source_line(std::move(source)) {}
 
-  // Explicit copy/move constructors/assignments are removed to use compiler-generated defaults.
-  // This satisfies the rule of zero/five and ensures proper initialization via NSDMI if default
-  // constructed, or member-wise copy if copied. The previous manual implementations were correct
-  // but potentially confusing to static analysis or overly verbose.
+  // Explicitly default rule-of-five methods to ensure clarity for static analysis
+  // and guarantee proper initialization behavior.
+  BridgeDiagnostic(const BridgeDiagnostic&) = default;
+  BridgeDiagnostic(BridgeDiagnostic&&) = default;
+  BridgeDiagnostic& operator=(const BridgeDiagnostic&) = default;
+  BridgeDiagnostic& operator=(BridgeDiagnostic&&) = default;
+  ~BridgeDiagnostic() = default;
 };
 
 [[nodiscard]] std::string_view bridge_error_message(BridgeError error);
