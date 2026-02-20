@@ -1,11 +1,11 @@
+#include <iostream>
 #include <memory>
 #include <vector>
-#include <iostream>
 #include "test_runtime_check.hpp"
 
-#include "t81/vm/vm.hpp"
-#include "t81/tisc/program.hpp"
 #include "t81/cog/tier.hpp"
+#include "t81/tisc/program.hpp"
+#include "t81/vm/vm.hpp"
 
 using namespace t81;
 
@@ -32,29 +32,27 @@ int main() {
   // 10: Ret
   // 11: Ret
 
-  program.insns = {
-      {t81::tisc::Opcode::LoadImm, 1, 0},
-      {t81::tisc::Opcode::LoadImm, 2, 250},
-      {t81::tisc::Opcode::LoadImm, 3, 1},
-      {t81::tisc::Opcode::LoadImm, 4, 6},
-      {t81::tisc::Opcode::Call, 0, 4},
-      {t81::tisc::Opcode::Halt},
-      // Function starts at 6
-      {t81::tisc::Opcode::Less, 5, 1, 2},
-      {t81::tisc::Opcode::JumpIfZero, 11, 5},
-      {t81::tisc::Opcode::Add, 1, 1, 3},
-      {t81::tisc::Opcode::Call, 0, 4},
-      {t81::tisc::Opcode::Ret},
-      {t81::tisc::Opcode::Ret}
-  };
+  program.insns = {{t81::tisc::Opcode::LoadImm, 1, 0},
+                   {t81::tisc::Opcode::LoadImm, 2, 250},
+                   {t81::tisc::Opcode::LoadImm, 3, 1},
+                   {t81::tisc::Opcode::LoadImm, 4, 6},
+                   {t81::tisc::Opcode::Call, 0, 4},
+                   {t81::tisc::Opcode::Halt},
+                   // Function starts at 6
+                   {t81::tisc::Opcode::Less, 5, 1, 2},
+                   {t81::tisc::Opcode::JumpIfZero, 11, 5},
+                   {t81::tisc::Opcode::Add, 1, 1, 3},
+                   {t81::tisc::Opcode::Call, 0, 4},
+                   {t81::tisc::Opcode::Ret},
+                   {t81::tisc::Opcode::Ret}};
 
   vm->load_program(program);
 
   auto result = vm->run_to_halt(100000);
 
   if (!result.has_value()) {
-      std::cerr << "VM trapped: " << static_cast<int>(result.error()) << "\n";
-      return 1;
+    std::cerr << "VM trapped: " << static_cast<int>(result.error()) << "\n";
+    return 1;
   }
 
   const auto& state = vm->state();
@@ -64,9 +62,9 @@ int main() {
 
   // Check if we reached Tier 2
   if (state.tier_status.current != t81::cog::TierId::Tier2) {
-      std::cerr << "Expected Tier 2 (" << static_cast<int>(t81::cog::TierId::Tier2)
-                << "), got " << static_cast<int>(state.tier_status.current) << "\n";
-      return 1;
+    std::cerr << "Expected Tier 2 (" << static_cast<int>(t81::cog::TierId::Tier2) << "), got "
+              << static_cast<int>(state.tier_status.current) << "\n";
+    return 1;
   }
 
   return 0;

@@ -21,10 +21,10 @@ int main() {
   // Test 1: Fault injection at instruction count 1
   {
     std::vector<Insn> insns = {
-        Insn{Opcode::LoadImm, 1, 10}, // inst 0
-        Insn{Opcode::LoadImm, 2, 20}, // inst 1
-        Insn{Opcode::Add, 3, 1, 2},   // inst 2
-        Insn{Opcode::Halt}            // inst 3
+        Insn{Opcode::LoadImm, 1, 10},  // inst 0
+        Insn{Opcode::LoadImm, 2, 20},  // inst 1
+        Insn{Opcode::Add, 3, 1, 2},    // inst 2
+        Insn{Opcode::Halt}             // inst 3
     };
 
     auto vm = make_interpreter_vm();
@@ -32,7 +32,7 @@ int main() {
 
     // Inject fault at instruction count 1 (the second LoadImm)
     std::vector<FaultInjection> faults = {
-        {1, Trap::DivisionFault} // Arbitrary trap
+        {1, Trap::DivisionFault}  // Arbitrary trap
     };
     vm->set_fault_injections(faults);
 
@@ -52,17 +52,12 @@ int main() {
 
   // Test 2: Fault injection at instruction count 0
   {
-    std::vector<Insn> insns = {
-        Insn{Opcode::LoadImm, 1, 10},
-        Insn{Opcode::Halt}
-    };
+    std::vector<Insn> insns = {Insn{Opcode::LoadImm, 1, 10}, Insn{Opcode::Halt}};
 
     auto vm = make_interpreter_vm();
     vm->load_program(create_program(insns));
 
-    std::vector<FaultInjection> faults = {
-        {0, Trap::SecurityFault}
-    };
+    std::vector<FaultInjection> faults = {{0, Trap::SecurityFault}};
     vm->set_fault_injections(faults);
 
     auto res = vm->step();
@@ -73,20 +68,15 @@ int main() {
 
   // Test 3: Multiple faults
   {
-    std::vector<Insn> insns = {
-        Insn{Opcode::Nop}, // 0
-        Insn{Opcode::Nop}, // 1
-        Insn{Opcode::Nop}, // 2
-        Insn{Opcode::Halt}
-    };
+    std::vector<Insn> insns = {Insn{Opcode::Nop},  // 0
+                               Insn{Opcode::Nop},  // 1
+                               Insn{Opcode::Nop},  // 2
+                               Insn{Opcode::Halt}};
 
     auto vm = make_interpreter_vm();
     vm->load_program(create_program(insns));
 
-    std::vector<FaultInjection> faults = {
-        {0, Trap::TypeFault},
-        {2, Trap::StackFault}
-    };
+    std::vector<FaultInjection> faults = {{0, Trap::TypeFault}, {2, Trap::StackFault}};
     vm->set_fault_injections(faults);
 
     // Trap at 0
@@ -94,9 +84,9 @@ int main() {
     T81_TEST_CHECK(!res.has_value());
     T81_TEST_CHECK(res.error() == Trap::TypeFault);
 
-    // Since we know the VM implementation doesn't advance PC/instruction count on fault injection return,
-    // we can't easily test the second fault without resetting or manual intervention which is internal.
-    // So we just verify the first fault works.
+    // Since we know the VM implementation doesn't advance PC/instruction count on fault injection
+    // return, we can't easily test the second fault without resetting or manual intervention which
+    // is internal. So we just verify the first fault works.
   }
 
   return 0;

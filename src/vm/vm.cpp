@@ -21,8 +21,8 @@
 #include "t81/axion/reasons.hpp"
 #include "t81/canonfs/canon_driver.hpp"
 #include "t81/canonfs/canon_types.hpp"
-#include "t81/enum_meta.hpp"
 #include "t81/cog/promotion.hpp"
+#include "t81/enum_meta.hpp"
 #include "t81/vm/jit.hpp"
 #include "t81/vm/vm.hpp"
 
