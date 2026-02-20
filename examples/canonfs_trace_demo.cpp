@@ -23,7 +23,7 @@ int main() {
   data.push_back(std::byte{0xBE});
   data.push_back(std::byte{0xEF});
 
-  auto write_res = driver->write_object(t81::canonfs::ObjectType::Blob, data);
+  auto write_res = driver->write_object(t81::canonfs::ObjectType::RawBlock, data);
   if (!write_res.has_value()) {
     std::cerr << "Write failed!\n";
     return 1;

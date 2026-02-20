@@ -17,7 +17,7 @@ int main() {
   std::vector<std::byte> bytes(payload.size());
   std::memcpy(bytes.data(), payload.data(), payload.size());
 
-  [[maybe_unused]] auto obj = driver->write_object(t81::canonfs::ObjectType::Blob, bytes);
+  [[maybe_unused]] auto obj = driver->write_object(t81::canonfs::ObjectType::RawBlock, bytes);
   assert(obj.has_value());
 
   [[maybe_unused]] auto committed = kernel->commit_snapshot(forked.value());

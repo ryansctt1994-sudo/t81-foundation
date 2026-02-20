@@ -17,8 +17,8 @@ int main() {
   [[maybe_unused]] auto driver = make_in_memory_driver();
   const std::string payload = "hello-canonfs";
   [[maybe_unused]] auto ref_res = driver->write_object(
-      ObjectType::Blob, std::span<const std::byte>(
-                            reinterpret_cast<const std::byte*>(payload.data()), payload.size()));
+      ObjectType::RawBlock, std::span<const std::byte>(
+                                reinterpret_cast<const std::byte*>(payload.data()), payload.size()));
   if (!expect(ref_res.has_value(), "write_object failed")) return 1;
   [[maybe_unused]] auto ref = ref_res.value();
   [[maybe_unused]] auto read = driver->read_object_bytes(ref);
@@ -28,8 +28,8 @@ int main() {
 
   // Rewriting the same bytes should yield the same hash (content addressable)
   [[maybe_unused]] auto ref_res2 = driver->write_object(
-      ObjectType::Blob, std::span<const std::byte>(
-                            reinterpret_cast<const std::byte*>(payload.data()), payload.size()));
+      ObjectType::RawBlock, std::span<const std::byte>(
+                                reinterpret_cast<const std::byte*>(payload.data()), payload.size()));
   if (!expect(ref_res2.has_value(), "second write_object failed")) return 1;
   if (!expect(ref_res2.value().hash == ref.hash, "content-addressable hash mismatch")) return 1;
 

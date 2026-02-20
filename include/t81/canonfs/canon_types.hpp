@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <map>
+#include <optional>
 #include <string>
 #include <vector>
 #include "t81/core/base81.hpp"
@@ -16,10 +18,20 @@ struct CanonHash {
 
 // Canonical object kinds per spec/canonfs-spec.md.
 enum class ObjectType : std::uint8_t {
-  Blob = 0,
-  Directory = 1,
-  Capability = 2,
-  ParityShard = 3,
+  RawBlock = 0x00,
+  FileNode = 0x01,
+  Directory = 0x02,
+  Snapshot = 0x03,
+  CapabilityGrant = 0x04,
+  CapabilityRevoke = 0x05,
+  CompressedBlock = 0x10,
+  CanonParity = 0x11,
+  CanonIndex = 0x12,
+  CanonMeta = 0x13,
+  CanonSeal = 0x14,
+  CanonLink = 0x15,
+  CanonExec = 0x16,
+  CanonView = 0x20,
 };
 
 struct CanonRef {
@@ -33,16 +45,46 @@ struct CapabilityGrant {
     std::string pubkey;  // placeholder
   } subject;
   std::uint16_t perms{0};
+  CanonHash granted_by;
+  std::uint64_t expires_at{0};
+  CanonHash revocable_by;
+  // signature...
 };
 
 struct CanonLink {
-  std::string name;
-  CanonRef ref;
+  CanonRef target;
+  std::optional<std::string> display_hint;
 };
 
 struct CanonParityShard {
   CanonRef original;
   std::vector<std::byte> shard_data;
+};
+
+// Sparse inverted index tensor
+struct CanonIndex {
+  struct TermEntry {
+    CanonHash term_hash;
+    std::vector<CanonRef> refs;
+    std::vector<std::uint32_t> offsets;
+  };
+  std::vector<TermEntry> terms;
+};
+
+// Sparse metadata tensor
+struct CanonMeta {
+  struct MetaPair {
+    CanonHash key_hash;
+    CanonHash value_hash;
+  };
+  std::vector<MetaPair> pairs;
+};
+
+// Encrypted envelope
+struct CanonSeal {
+  std::array<std::byte, 24> nonce;  // 24 trytes? Spec says 24 trytes. Assuming byte mapping.
+  std::vector<std::byte> ciphertext;
+  std::array<std::byte, 16> tag;  // 16 trytes
 };
 
 // Optional permission bits (example; extend as needed)

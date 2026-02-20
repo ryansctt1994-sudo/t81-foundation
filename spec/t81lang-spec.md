@@ -116,7 +116,7 @@ block_expr    ::= block
 fn_call       ::= identifier "(" [ expr { "," expr } ] ")"
 
 literal       ::= integer | float | fraction | symbol | vector_literal
-vector_literal ::= "[" [ expr { "," expr } ] "]"
+vector_literal ::= "[" ( [ expr { "," expr } ] | expr ";" expr ) "]"
 
 paren_expr    ::= "(" expr ")"
 ```
@@ -128,11 +128,13 @@ No ambiguous operator precedence is allowed; all precedence rules are normative 
 
 - All elements in a vector literal MUST be of the same type, or be promotable to a common type according to the Numeric Widening rules.
 - The type of an empty vector literal (`[]`) is inferred from its context. If the context does not provide a type, the program is ill-formed.
+- The repeat syntax `[val; count]` requires `count` to be an integer type.
 
 ### Vector Literal Semantics
 
 - Vector literals are immutable.
 - Vector literals are value-type constructs. When passed to a function, they are passed by value (i.e., a copy is made).
+- `[val; count]` constructs a vector of length `count` where every element is initialized to `val`.
 
 Logical conjunction/disjunction use canonical ternary booleans: `0t81`
 represents false, any non-zero `T81Int` represents true, and the emitted code
@@ -796,7 +798,7 @@ literal ::= integer_literal
           | "false"
           | vector_literal
 
-vector_literal ::= "[" ( expression ( "," expression )* )? "]"
+vector_literal ::= "[" ( expression ( "," expression )* | expression ";" expression )? "]"
 
 constant_expression ::= integer_literal | identifier
 ```

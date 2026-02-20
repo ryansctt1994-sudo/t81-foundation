@@ -31,7 +31,7 @@ int main() {
     bytes[i] = static_cast<std::byte>(payload[i]);
   }
 
-  auto write_res = driver->write_object(ObjectType::Blob,
+  auto write_res = driver->write_object(ObjectType::RawBlock,
                                         std::span<const std::byte>(bytes.data(), bytes.size()));
   if (!write_res.has_value()) {
     std::cerr << "canonfs_axion_trace_test failure: write_object failed\n";
