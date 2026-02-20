@@ -37,6 +37,8 @@ struct Type {
     Matrix,
     Tensor,
     Graph,
+    Symbol,
+    InfiniteCanonicalForm,
     Option,
     Result,
     String,
@@ -130,6 +132,9 @@ public:
   std::any visit(const ReturnStmt& stmt) override;
   std::any visit(const BreakStmt& stmt) override;
   std::any visit(const ContinueStmt& stmt) override;
+  std::any visit(const RecurseStmt& stmt) override;
+  std::any visit(const DistributedStmt& stmt) override;
+  std::any visit(const InfiniteStmt& stmt) override;
   std::any visit(const FunctionStmt& stmt) override;
   std::any visit(const TypeDecl& stmt) override;
   std::any visit(const RecordDecl& stmt) override;
@@ -139,6 +144,8 @@ public:
   std::any visit(const FieldAccessExpr& expr) override;
   std::any visit(const RecordLiteralExpr& expr) override;
   std::any visit(const EnumLiteralExpr& expr) override;
+  std::any visit(const SymbolLiteralExpr& expr) override;
+  std::any visit(const InfiniteLiteralExpr& expr) override;
   std::any visit(const IndexExpr& expr) override;
   std::any visit(const AssignExpr& expr) override;
   std::any visit(const BinaryExpr& expr) override;

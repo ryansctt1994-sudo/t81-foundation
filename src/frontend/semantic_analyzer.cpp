@@ -877,6 +877,8 @@ Type SemanticAnalyzer::type_from_token(const Token& name) {
   if (name_str == "Matrix") return Type{Type::Kind::Matrix};
   if (name_str == "Tensor") return Type{Type::Kind::Tensor};
   if (name_str == "T81Bytes") return Type{Type::Kind::Bytes};
+  if (name_str == "Symbol") return Type{Type::Kind::Symbol};
+  if (name_str == "InfiniteCanonicalForm") return Type{Type::Kind::InfiniteCanonicalForm};
   return Type{Type::Kind::Custom, {}, name_str};
 }
 
@@ -1036,6 +1038,12 @@ std::string SemanticAnalyzer::type_to_string(const Type& type) const {
     }
     case Type::Kind::Graph:
       result = "Graph";
+      break;
+    case Type::Kind::Symbol:
+      result = "Symbol";
+      break;
+    case Type::Kind::InfiniteCanonicalForm:
+      result = "InfiniteCanonicalForm";
       break;
     case Type::Kind::String:
       result = "T81String";
@@ -1277,6 +1285,8 @@ Token SemanticAnalyzer::extract_token(const Expr& expr) const {
   if (auto* binary = dynamic_cast<const BinaryExpr*>(&expr)) return binary->op;
   if (auto* unary = dynamic_cast<const UnaryExpr*>(&expr)) return unary->op;
   if (auto* literal = dynamic_cast<const LiteralExpr*>(&expr)) return literal->value;
+  if (auto* sym = dynamic_cast<const SymbolLiteralExpr*>(&expr)) return sym->value;
+  if (auto* inf = dynamic_cast<const InfiniteLiteralExpr*>(&expr)) return inf->token;
   if (auto* variable = dynamic_cast<const VariableExpr*>(&expr)) return variable->name;
   if (auto* field = dynamic_cast<const FieldAccessExpr*>(&expr)) return field->field;
   if (auto* record = dynamic_cast<const RecordLiteralExpr*>(&expr)) return record->type_name;
@@ -1434,6 +1444,57 @@ std::any SemanticAnalyzer::visit(const ReflectStmt& stmt) {
     analyze(*s);
   }
   return {};
+}
+
+std::any SemanticAnalyzer::visit(const DistributedStmt& stmt) {
+  enter_scope();
+  for (const auto& s : stmt.body) {
+    analyze(*s);
+  }
+  exit_scope();
+  return {};
+}
+
+std::any SemanticAnalyzer::visit(const InfiniteStmt& stmt) {
+  enter_scope();
+  for (const auto& s : stmt.body) {
+    analyze(*s);
+  }
+  exit_scope();
+  return {};
+}
+
+std::any SemanticAnalyzer::visit(const RecurseStmt& stmt) {
+  SemanticSymbol* symbol = resolve_symbol(stmt.name);
+  if (!symbol) {
+    define_symbol(stmt.name, SymbolKind::Function, false);
+    symbol = resolve_symbol(stmt.name);
+  }
+
+  enter_scope();
+  // Recurse functions don't have explicit return type in syntax, so we infer or default.
+  // For now, allow Unknown or infer from body if we implemented inference.
+  _function_return_stack.push_back(symbol ? symbol->type : Type{Type::Kind::Unknown});
+
+  for (const auto& param : stmt.params) {
+    Type param_type = param.type ? analyze_type_expr(*param.type) : Type{Type::Kind::Unknown};
+    if (is_defined_in_current_scope(std::string(param.name.lexeme))) {
+      error(param.name, "Parameter '" + std::string(param.name.lexeme) + "' is already defined.");
+    } else {
+      define_symbol(param.name, SymbolKind::Variable, false);
+      if (auto* param_symbol = resolve_symbol(param.name)) {
+        param_symbol->type = param_type;
+      }
+    }
+  }
+
+  for (const auto& statement : stmt.body) {
+    analyze(*statement);
+  }
+
+  _function_return_stack.pop_back();
+  exit_scope();
+  return symbol ? symbol->type : Type{Type::Kind::Unknown};
 }
 
 std::any SemanticAnalyzer::visit(const LoopStmt& stmt) {
@@ -3831,6 +3892,15 @@ std::any SemanticAnalyzer::visit(const LiteralExpr& expr) {
     default:
       return Type{Type::Kind::Unknown};
   }
+}
+
+std::any SemanticAnalyzer::visit(const SymbolLiteralExpr& /*expr*/) { return Type{Type::Kind::Symbol}; }
+
+std::any SemanticAnalyzer::visit(const InfiniteLiteralExpr& expr) {
+  if (expr.seed) {
+    evaluate_expression(*expr.seed);
+  }
+  return Type{Type::Kind::InfiniteCanonicalForm};
 }
 
 std::any SemanticAnalyzer::visit(const UnaryExpr& expr) {

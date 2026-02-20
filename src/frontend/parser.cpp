@@ -53,6 +53,16 @@ std::string token_type_name(TokenType type) {
       return "'loop'";
     case TokenType::Reflect:
       return "'reflect'";
+    case TokenType::Recurse:
+      return "'recurse'";
+    case TokenType::Distributed:
+      return "'distributed'";
+    case TokenType::Infinite:
+      return "'infinite'";
+    case TokenType::Symbol:
+      return "symbol literal";
+    case TokenType::InfiniteLiteral:
+      return "infinite literal";
     case TokenType::Break:
       return "'break'";
     case TokenType::Continue:
@@ -353,7 +363,8 @@ void Parser::synchronize() {
 // --- Grammar Rules ---
 
 // Parses a declaration.
-// declaration -> fn_declaration | var_declaration | let_declaration | statement ;
+// declaration -> fn_declaration | var_declaration | let_declaration | recurse_declaration |
+// statement ;
 std::unique_ptr<Stmt> Parser::declaration() {
   try {
     auto struct_attrs = parse_structural_attributes();
@@ -366,6 +377,7 @@ std::unique_ptr<Stmt> Parser::declaration() {
       report_error(anchor, "Structural attributes may only decorate records or enums.");
     }
     if (match({TokenType::Fn})) return function("function");
+    if (match({TokenType::Recurse})) return recurse_declaration();
     if (function_attrs.has_value()) {
       const Token& anchor = function_attrs->anchor.value_or(peek());
       report_error(anchor, "Function attributes may only decorate functions.");
@@ -377,6 +389,34 @@ std::unique_ptr<Stmt> Parser::declaration() {
     synchronize();
     return nullptr;
   }
+}
+
+std::unique_ptr<Stmt> Parser::recurse_declaration() {
+  Token keyword = previous();
+  Token name = consume(TokenType::Identifier, "Expect recursive function name.");
+  consume(TokenType::LParen, "Expect '(' after name.");
+  std::vector<Parameter> parameters;
+  if (!check(TokenType::RParen)) {
+    do {
+      if (parameters.size() >= 255) {
+        report_error(peek(), "Cannot have more than 255 parameters.");
+      }
+      Token param_name = consume(TokenType::Identifier, "Expect parameter name.");
+      // Optional type annotation for recurse parameters? Spec example doesn't show types:
+      // recurse factorial(n)
+      // But T81 is strongly typed. Let's assume types are required or inferred.
+      // For now, allow optional type.
+      std::unique_ptr<TypeExpr> param_type = nullptr;
+      if (match({TokenType::Colon})) {
+        param_type = type();
+      }
+      parameters.push_back({param_name, std::move(param_type)});
+    } while (match({TokenType::Comma}));
+  }
+  consume(TokenType::RParen, "Expect ')' after parameters.");
+  consume(TokenType::LBrace, "Expect '{' before body.");
+  std::vector<std::unique_ptr<Stmt>> body = block();
+  return std::make_unique<RecurseStmt>(keyword, name, std::move(parameters), std::move(body));
 }
 
 // Parses a function declaration.
@@ -571,6 +611,18 @@ std::unique_ptr<Stmt> Parser::statement() {
     consume(TokenType::LBrace, "Expect '{' after 'reflect'.");
     std::vector<std::unique_ptr<Stmt>> body = block();
     return std::make_unique<ReflectStmt>(keyword, std::move(body));
+  }
+  if (match({TokenType::Distributed})) {
+    Token keyword = previous();
+    consume(TokenType::LBrace, "Expect '{' after 'distributed'.");
+    std::vector<std::unique_ptr<Stmt>> body = block();
+    return std::make_unique<DistributedStmt>(keyword, std::move(body));
+  }
+  if (match({TokenType::Infinite})) {
+    Token keyword = previous();
+    consume(TokenType::LBrace, "Expect '{' after 'infinite'.");
+    std::vector<std::unique_ptr<Stmt>> body = block();
+    return std::make_unique<InfiniteStmt>(keyword, std::move(body));
   }
   if (check(TokenType::At) || check(TokenType::Loop)) {
     return loop_statement();
@@ -828,9 +880,9 @@ std::unique_ptr<Stmt> Parser::expression_statement() {
 std::unique_ptr<Expr> Parser::expression() { return assignment(); }
 
 // Parses an assignment expression.
-// assignment -> IDENTIFIER "=" assignment | range ;
+// assignment -> IDENTIFIER "=" assignment | arrow ;
 std::unique_ptr<Expr> Parser::assignment() {
-  std::unique_ptr<Expr> expr = range();
+  std::unique_ptr<Expr> expr = arrow();
   if (match({TokenType::Equal})) {
     Token equals = previous();
     std::unique_ptr<Expr> value = assignment();
@@ -841,6 +893,18 @@ std::unique_ptr<Expr> Parser::assignment() {
     }
 
     report_error(equals, "Invalid assignment target");
+  }
+  return expr;
+}
+
+// Parses an arrow expression (used in recurse blocks).
+// arrow -> range ( "->" range )* ;
+std::unique_ptr<Expr> Parser::arrow() {
+  std::unique_ptr<Expr> expr = range();
+  while (match({TokenType::Arrow})) {
+    Token op = previous();
+    std::unique_ptr<Expr> right = range();
+    expr = std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
   }
   return expr;
 }
@@ -1007,6 +1071,14 @@ std::unique_ptr<Expr> Parser::primary() {
     } else {
       expr = std::make_unique<VariableExpr>(name);
     }
+  } else if (match({TokenType::Symbol})) {
+    expr = std::make_unique<SymbolLiteralExpr>(previous());
+  } else if (match({TokenType::InfiniteLiteral})) {
+    Token token = previous();
+    consume(TokenType::LBrace, "Expect '{' after '∞'.");
+    auto seed = expression();
+    consume(TokenType::RBrace, "Expect '}' after infinite literal seed.");
+    expr = std::make_unique<InfiniteLiteralExpr>(token, std::move(seed));
   } else if (is_type_start_token(peek())) {
     expr = type();
   } else {
@@ -1418,63 +1490,6 @@ bool Parser::try_parse_enum_literal(const Token& token, Token& enum_name,
   variant_name.lexeme = variant_part;
   variant_name.column = token.column + static_cast<int>(dot_pos + 1);
   return true;
-}
-
-// Helper function to convert Type to string representation
-std::string type_to_string(const Type& type) {
-  switch (type.kind) {
-    case Type::Kind::Void:
-      return "Void";
-    case Type::Kind::Bool:
-      return "Bool";
-    case Type::Kind::I2:
-      return "I2";
-    case Type::Kind::I8:
-      return "I8";
-    case Type::Kind::I16:
-      return "I16";
-    case Type::Kind::I32:
-      return "I32";
-    case Type::Kind::BigInt:
-      return "T81BigInt";
-    case Type::Kind::Float:
-      return "T81Float";
-    case Type::Kind::Fraction:
-      return "T81Fraction";
-    case Type::Kind::Fixed:
-      return "T81Fixed";
-    case Type::Kind::Complex:
-      return "T81Complex";
-    case Type::Kind::Qutrit:
-      return "T81Qutrit";
-    case Type::Kind::Uint:
-      return "T81Uint";
-    case Type::Kind::Vector:
-      return "Vector";
-    case Type::Kind::Matrix:
-      return "Matrix";
-    case Type::Kind::Tensor:
-      return "Tensor";
-    case Type::Kind::Graph:
-      return "Graph";
-    case Type::Kind::Option:
-      return "Option";
-    case Type::Kind::Result:
-      return "Result";
-    case Type::Kind::String:
-      return "T81String";
-    case Type::Kind::Bytes:
-      return "T81Bytes";
-    case Type::Kind::Constant:
-      return "const(" + type.custom_name + ")";
-    case Type::Kind::Custom:
-      return type.custom_name;
-    case Type::Kind::Unknown:
-      return "<unknown>";
-    case Type::Kind::Error:
-      return "<error>";
-  }
-  return "<error>";
 }
 
 std::unique_ptr<GenericTypeExpr> Parser::parse_generic_type(Token name) {
