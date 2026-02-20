@@ -1,7 +1,7 @@
 #include "t81/tisc/opcodes.hpp"
 #include "t81/tisc/program.hpp"
-#include "t81/vm/vm.hpp"
 #include "t81/vm/traps.hpp"
+#include "t81/vm/vm.hpp"
 
 #include <vector>
 #include "test_runtime_check.hpp"

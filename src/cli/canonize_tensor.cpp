@@ -98,8 +98,8 @@ int canonize_tensor(const std::string& input_file) {
   std::error_code ec;
   fs::create_directories(canon_root, ec);
   if (ec) {
-      std::cerr << "Failed to create directory " << canon_root << ": " << ec.message() << "\n";
-      return 1;
+    std::cerr << "Failed to create directory " << canon_root << ": " << ec.message() << "\n";
+    return 1;
   }
   auto driver = t81::canonfs::make_persistent_driver(canon_root);
 

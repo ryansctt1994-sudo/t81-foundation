@@ -13,7 +13,7 @@ struct SyscallContext {
   t81::hanoi::SnapshotRef snapshot;
   std::string caller;
   std::string syscall;
-  std::string payload; // Extended payload (e.g. hash for TLOADHASH)
+  std::string payload;  // Extended payload (e.g. hash for TLOADHASH)
   const Policy* policy{nullptr};
   std::vector<std::string_view> trace_reasons;
   std::size_t pc{0};

@@ -2,13 +2,9 @@
 
 namespace t81::cog::v3 {
 
-bool ContractionProof::is_valid() const {
-  return verified && (final_entropy <= initial_entropy);
-}
+bool ContractionProof::is_valid() const { return verified && (final_entropy <= initial_entropy); }
 
-bool Recursor::can_recurse() const {
-  return current_depth < max_depth;
-}
+bool Recursor::can_recurse() const { return current_depth < max_depth; }
 
 void Recursor::push_frame(const ContractionProof& proof) {
   if (proof.is_valid()) {
@@ -24,4 +20,4 @@ void Recursor::pop_frame() {
   }
 }
 
-} // namespace t81::cog::v3
+}  // namespace t81::cog::v3

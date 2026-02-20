@@ -101,7 +101,16 @@ struct Policy {
 
 namespace detail {
 struct PolicyToken {
-  enum class Kind { LParen, RParen, LBracket, RBracket, Integer, Symbol, String, End } kind{Kind::End};
+  enum class Kind {
+    LParen,
+    RParen,
+    LBracket,
+    RBracket,
+    Integer,
+    Symbol,
+    String,
+    End
+  } kind{Kind::End};
   std::string text;
   int64_t value{0};
 };
