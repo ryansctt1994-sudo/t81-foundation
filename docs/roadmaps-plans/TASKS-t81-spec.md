@@ -27,7 +27,7 @@
 - [ ] Promotion / demotion rules
   - [x] T81Cell ↔ T81BigInt (scalar → multi-limb, sign-extended) (Implemented via constructor and to_int<N>)
   - [x] T81BigInt ↔ T81Float / T81Fixed (with rounding modes per spec) (Implemented via to_float/from_float)
-  - [ ] Automatic promotion in expressions (T81 → T243 → T729 based on recursion depth)
+  - [x+] Automatic promotion in expressions (T81 → T243 → T729 based on recursion depth)
   - [ ] Demotion with lossy checks / Axion traps on overflow/underflow
 
 ## 3. T81Lang Syntax & Semantics (section 5–7)
@@ -40,7 +40,7 @@
   - [x] `Infinite` literals (`∞{...}`)
   - [x] `recurse`, `distributed`, `infinite`, `reflect` blocks
 - [ ] Recursion tiers & depth limits
-  - [ ] Tiered promotion enforcement (T81 → T243 → T729)
+  - [x+] Tiered promotion enforcement (T81 → T243 → T729)
   - [x] Configurable depth guards + Axion recursion traps (see `include/t81/axion/policy.hpp`, `src/vm/vm.cpp`)
 
 ## 4. HanoiVM / TISC Instruction Set (section 8–10)

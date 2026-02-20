@@ -22,6 +22,7 @@
 #include "t81/canonfs/canon_driver.hpp"
 #include "t81/canonfs/canon_types.hpp"
 #include "t81/enum_meta.hpp"
+#include "t81/cog/promotion.hpp"
 #include "t81/vm/jit.hpp"
 #include "t81/vm/vm.hpp"
 
@@ -2073,6 +2074,37 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
+        std::size_t next_depth = state_.call_depth + 1;
+        bool need_promotion = false;
+        // Tier 0 limit: 81
+        if (next_depth > 81 && state_.tier_status.current < t81::cog::TierId::Tier1) {
+          need_promotion = true;
+        }
+        // Tier 1 limit: 243
+        else if (next_depth > 243 && state_.tier_status.current < t81::cog::TierId::Tier2) {
+          need_promotion = true;
+        }
+
+        if (need_promotion) {
+          auto res = t81::cog::try_promote(state_.tier_status, *axion_engine_);
+          if (res) {
+            state_.tier_status = *res;
+            t81::axion::Verdict verdict;
+            verdict.kind = t81::axion::VerdictKind::Allow;
+            verdict.reason = "Cognitive Tier Promotion: " + state_.tier_status.label;
+            record_axion_event(insn.opcode, insn.b,
+                               static_cast<std::int64_t>(state_.tier_status.current), verdict);
+          } else {
+            // Promotion denied -> Recursion limit enforced
+            t81::axion::Verdict verdict;
+            verdict.kind = t81::axion::VerdictKind::Deny;
+            verdict.reason = "Cognitive Tier Promotion Denied (Recursion Limit)";
+            record_axion_event(insn.opcode, insn.b, static_cast<std::int64_t>(next_depth), verdict);
+            trap = Trap::SecurityFault;
+            break;
+          }
+        }
+
         if (state_.call_depth >= kHardRecursionCeiling) {
           ++state_.contradiction_events;
           t81::axion::Verdict recursion_verdict;
