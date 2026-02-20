@@ -339,6 +339,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_fault_test tests/cpp/vm_fault_test.cpp)
   target_link_libraries(t81_vm_fault_test PRIVATE t81_core)
 
+  add_executable(t81_vm_deterministic_fault_test tests/cpp/test_vm_deterministic_fault.cpp)
+  target_link_libraries(t81_vm_deterministic_fault_test PRIVATE t81_core)
+
   add_executable(t81_vm_new_opcodes_test tests/cpp/vm_new_opcodes_test.cpp)
   target_link_libraries(t81_vm_new_opcodes_test PRIVATE t81_core)
 
@@ -955,6 +958,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_vm_bounds_test
     t81_vm_tensor_test
     t81_vm_fault_test
+    t81_vm_deterministic_fault_test
     t81_vm_memory_test
     t81_axion_log_determinism_test
     t81_reflection_non_interference_test
