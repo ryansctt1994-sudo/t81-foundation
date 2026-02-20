@@ -62,7 +62,7 @@ ______________________________________________________________________
 
 - **Specification:** [`spec/tisc-spec.md`](../../spec/tisc-spec.md), [`spec/t81vm-spec.md`](../../spec/t81vm-spec.md)
 - **Status:** `Stable` (v1.1)
-- **Summary:** The VM fully supports the TISC instruction set and implements the deterministic memory model (CODE, STACK, HEAP, TENSOR, META). Fault handling is strict and Axion-visible, matching the spec-defined categories.
+- **Summary:** The VM fully supports the TISC instruction set, including recent additions for **Cognitive Tiers** (Symbolic, Reflective, Recursive, Distributed, Infinite). It implements the deterministic memory model (CODE, STACK, HEAP, TENSOR, META) and strict, Axion-visible fault handling.
 - **Next Steps:** Expand hardware acceleration for complex numeric operations while maintaining determinism.
 
 ______________________________________________________________________

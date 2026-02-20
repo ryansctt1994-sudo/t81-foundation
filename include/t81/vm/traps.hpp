@@ -13,6 +13,8 @@ enum class Trap {
   SecurityFault,
   ShapeFault,
   TrapInstruction,
+  Unimplemented,
+  AssertionFailed,
 };
 
 inline std::string to_string(Trap trap) {
@@ -35,6 +37,10 @@ inline std::string to_string(Trap trap) {
       return "ShapeFault";
     case Trap::TrapInstruction:
       return "TrapInstruction";
+    case Trap::Unimplemented:
+      return "Unimplemented";
+    case Trap::AssertionFailed:
+      return "AssertionFailed";
   }
   return "UnknownTrap";
 }

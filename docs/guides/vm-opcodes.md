@@ -208,8 +208,15 @@ The following TISC opcodes are defined in `opcodes.hpp` and implemented in the V
 | **Comparison Boolean** | `Less`, `LessEqual`, `Greater`, `GreaterEqual`, `Equal`, `NotEqual` |
 | **Tensor Operations** | `TVecAdd`, `TMatMul`, `TTenDot`, `ChkShape` |
 | **Option/Result Types** | `MakeOptionSome`, `MakeOptionNone`, `OptionIsSome`, `OptionUnwrap`, `MakeResultOk`, `MakeResultErr`, `ResultIsOk`, `ResultUnwrapOk`, `ResultUnwrapErr` |
-| **Axion Interface** | `AxRead`, `AxSet`, `AxVerify` |
+| **Axion Interface** | `AxRead`, `AxSet`, `AxVerify`, `AxCheck`, `AxSign`, `AxLineage`, `AxCanon`, `AxReport` |
 | **Allocator / Metadata** | `StackAlloc`, `StackFree`, `HeapAlloc`, `HeapFree`, `WeightsLoad` |
+| **Assertion / Debug** | `Assert`, `AxHalt` |
+| **Memory (Advanced)** | `Canon`, `MemZero`, `Copy` |
+| **Cognitive (Symbolic)** | `SymLoad`, `SymRewrite`, `SymConfluence`, `SymCanon`, `SymBind` |
+| **Cognitive (Reflective)** | `ReflCap`, `ReflJustify`, `ReflCheck`, `ReflTrace`, `ReflSeal` |
+| **Cognitive (Recursive)** | `Recurse`, `Contract`, `Entropy`, `Depth`, `Terminate` |
+| **Cognitive (Distributed)** | `Merge`, `Gossip`, `TickSync`, `Coherence`, `DistSeal` |
+| **Cognitive (Infinite)** | `InfSeed`, `InfExpand`, `InfCollapse`, `InfConverge`, `InfSignature` |
 
 ______________________________________________________________________
 
