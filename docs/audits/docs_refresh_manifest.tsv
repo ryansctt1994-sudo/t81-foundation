@@ -1,18 +1,9 @@
 path	status	change_type	confidence	notes
-docs/reference/STATUS.md	updated	content	high	Updated maturity levels and dates
-docs/reference/language_reference.md	updated	content	high	Added cognitive tier syntax and match expressions
-docs/reference/system-status.md	updated	content	high	Aligned with STATUS.md and updated table
-docs/reference/ci.md	unchanged	metadata	high	Verified content is accurate
-docs/explanation/ARCHITECTURE.md	updated	content	high	Added t81_cog to build graph and workstreams
-docs/explanation/ANALYSIS.md	updated	content	high	Updated test counts and cognitive tier status
-docs/explanation/DESIGN.md	unchanged	metadata	high	Verified content is accurate
-docs/guides/vm-opcodes.md	updated	content	high	Verified cognitive opcodes and updated date
-docs/guides/cli-user-manual.md	updated	content	high	Added lint alias and updated date
-docs/guides/t81lang-determinism-gates.md	updated	content	high	Updated date
-docs/roadmaps-plans/ROADMAP.md	updated	content	high	Added Cognitive Tier objectives
-docs/roadmaps-plans/TASKS.md	updated	content	high	Archived completed tasks, added current sprint
-docs/roadmaps-plans/TASKS-t81-spec.md	updated	content	high	Updated spec coverage for cognitive tiers
-docs/guides/match-patterns.md	unchanged	content	medium	Verified against parser logic
-docs/reference/benchmarks.md	unchanged	content	medium	Auto-generated, recent enough
-docs/audits/DOCS_REFRESH_REPORT.md	created	content	high	Audit report
-docs/audits/docs_refresh_manifest.tsv	created	metadata	high	This manifest
+docs/reference/STATUS.md	updated	major_update	high	Clarified Tier 5 stub and JIT threaded nature.
+docs/guides/cli-toolkit.md	updated	correction	high	Updated C++ API signatures to match driver.cpp.
+docs/explanation/ARCHITECTURE.md	accurate	none	high	Verified against CI gates and codebase.
+docs/explanation/ANALYSIS.md	accurate	none	high	Correctly identifies host-dependent float behavior.
+docs/reference/benchmarks.md	accurate	none	medium	Auto-generated file reflects run environment (ARM/NEON in example).
+docs/explanation/performance-strategy.md	accurate	none	high	Claims align with implemented code (AVX2/Karatsuba).
+docs/roadmaps-plans/ROADMAP.md	accurate	none	high	Correctly identifies Cognitive Tier logic as ongoing P0 work.
+docs/roadmaps-plans/TASKS.md	accurate	none	high	Tracks Infinite Tier stub as current sprint task.

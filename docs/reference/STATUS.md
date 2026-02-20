@@ -16,20 +16,32 @@
 
 | Component | Maturity | Spec Version | Test Coverage | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **T81Lang** | Stable | v1.1.0 | High | Full syntax and semantics implemented, including cognitive tiers (T243-T19683). |
+| **T81Lang** | Stable | v1.1.0 | High | Full syntax and semantics implemented. |
 | **TISC** | Stable | v1.1.0 | High | Binary serialization and opcode matrix complete. |
-| **HanoiVM** | Stable | v1.1.0 | High | Core execution loop, memory model, and cognitive tier stubs verified. |
+| **HanoiVM** | Stable | v1.1.0 | High | Core execution loop, memory model verified. |
 | **Axion** | Stable | v1.0.0 | High | Policy enforcement and event tracing active. |
 | **CanonFS** | Beta | v0.9.0 | Medium | Persistent/In-memory drivers implemented; performance optimization ongoing. |
 | **CLI** | Beta | - | Medium | `run`/`compile` stable; `debug`/`trace` improving. |
-| **JIT** | Experimental | - | Low | Trace recording implemented; native backend planned. |
+| **JIT** | Experimental | - | Low | **Threaded Interpreter** only (not machine code JIT). |
+| **Cognitive Tiers** | Mixed | v1.1.0 | Mixed | T1-T4 implemented. **T5 (Infinite) is a skeleton/stub.** |
 
 **Maturity Levels:**
 - **Stable:** Production-ready, API frozen, full test coverage.
 - **Beta:** Functionally complete, potential API changes, good coverage.
 - **Experimental:** Active research/prototyping, no stability guarantees.
+- **Stub:** Skeleton code exists but no functional logic.
 
-## 3. Supported Toolchains
+## 3. Cognitive Tier Status
+
+| Tier | Name | Status | Notes |
+| :--- | :--- | :--- | :--- |
+| T1 | Symbolic | Implemented | Graph rewriting, partial confluence check. |
+| T2 | Reflective | Implemented | Introspection, trace capture. |
+| T3 | Recursive | Implemented | Recursion depth proofs. |
+| T4 | Distributed | Implemented | Coherence vectors. |
+| T5 | Infinite | **Stub** | Skeleton only; `collapse()` returns dummy signature. |
+
+## 4. Supported Toolchains
 
 The following environments are explicitly supported and verified in CI:
 
@@ -41,7 +53,7 @@ The following environments are explicitly supported and verified in CI:
 | **macOS (x86_64)** | macOS 13 | GCC 14 | Supported |
 | **Windows (x86_64)** | Windows Server 2022 | MSVC (VS 2022) | Supported (Best Effort) |
 
-## 4. Validation Ritual
+## 5. Validation Ritual
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -56,7 +68,7 @@ cmake --build build --parallel 1
 ctest --test-dir build --output-on-failure -j1
 ```
 
-## 5. Source-of-Truth Links
+## 6. Source-of-Truth Links
 
 - Architecture: `../explanation/ARCHITECTURE.md`
 - Conformance analysis: `../explanation/ANALYSIS.md`
