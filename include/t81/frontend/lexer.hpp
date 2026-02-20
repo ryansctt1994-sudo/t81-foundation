@@ -72,8 +72,8 @@ enum class TokenType {
   Ternary,
   Base81Integer,
   Base81Float,
-  Symbol,          // :symbol
-  InfiniteLiteral, // ∞{...}
+  Symbol,           // :symbol
+  InfiniteLiteral,  // ∞{...}
 
   // Identifier
   Identifier,

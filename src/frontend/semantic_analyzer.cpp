@@ -3894,7 +3894,7 @@ std::any SemanticAnalyzer::visit(const LiteralExpr& expr) {
   }
 }
 
-std::any SemanticAnalyzer::visit(const SymbolLiteralExpr& expr) { return Type{Type::Kind::Symbol}; }
+std::any SemanticAnalyzer::visit(const SymbolLiteralExpr& /*expr*/) { return Type{Type::Kind::Symbol}; }
 
 std::any SemanticAnalyzer::visit(const InfiniteLiteralExpr& expr) {
   if (expr.seed) {

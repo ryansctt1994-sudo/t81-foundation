@@ -1071,14 +1071,14 @@ std::unique_ptr<Expr> Parser::primary() {
     } else {
       expr = std::make_unique<VariableExpr>(name);
     }
-} else if (match({TokenType::Symbol})) {
-  expr = std::make_unique<SymbolLiteralExpr>(previous());
-} else if (match({TokenType::InfiniteLiteral})) {
-  Token token = previous();
-  consume(TokenType::LBrace, "Expect '{' after '∞'.");
-  auto seed = expression();
-  consume(TokenType::RBrace, "Expect '}' after infinite literal seed.");
-  expr = std::make_unique<InfiniteLiteralExpr>(token, std::move(seed));
+  } else if (match({TokenType::Symbol})) {
+    expr = std::make_unique<SymbolLiteralExpr>(previous());
+  } else if (match({TokenType::InfiniteLiteral})) {
+    Token token = previous();
+    consume(TokenType::LBrace, "Expect '{' after '∞'.");
+    auto seed = expression();
+    consume(TokenType::RBrace, "Expect '}' after infinite literal seed.");
+    expr = std::make_unique<InfiniteLiteralExpr>(token, std::move(seed));
   } else if (is_type_start_token(peek())) {
     expr = type();
   } else {
