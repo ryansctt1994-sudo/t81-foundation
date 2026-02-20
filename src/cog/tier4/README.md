@@ -1,16 +1,22 @@
-# `src/cog/tier4`
+# `src/cog/tier4` (T6561)
 
 Directory documentation for `src/cog/tier4`.
 
 ## Purpose
-- Describe what this module/folder owns.
-- Point contributors to related code and docs.
+This module implements Tier 4 of the Cognitive Framework, corresponding to T6561 (Distributed Universal Cognition).
+
+## Key Components
+- `NodeState`: Maintains the local state and clock of a distributed cognitive node.
+- `CoherenceVector`: Ensures synchronization and coherence across the cognitive mesh.
+
+## Responsibilities
+- Manage distributed consensus and state merging.
+- Prevent divergence of cognitive states across the network.
 
 ## Expectations
-- Keep behavior deterministic and reproducible.
-- Update tests/docs when changing observable behavior.
+- All state changes must be propagated via coherence vectors.
+- Nodes must maintain a synchronized global tick.
 
 ## See Also
-- Root `README.md`
-- `../../../docs/explanation/ARCHITECTURE.md`
-- Relevant docs under `docs/`
+- `include/t81/cog/tier4/distributed.hpp`
+- `include/t81/cog/tier4/tier4_loop.hpp` (existing implementation)

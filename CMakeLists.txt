@@ -76,7 +76,12 @@ add_library(t81_core STATIC
   src/tools/weights.cpp
   src/tools/weights_t81w_emitter.cpp
   src/cog/promotion.cpp
+  src/cog/tier1/symbolic.cpp
+  src/cog/tier2/reflective.cpp
+  src/cog/tier3/recursive.cpp
   src/cog/tier4/tier4_loop.cpp
+  src/cog/tier4/distributed.cpp
+  src/cog/tier5/infinite.cpp
   src/codec/base243.cpp
   src/codec/base81.cpp
   src/codec/base81_balanced.cpp
@@ -640,6 +645,9 @@ if(T81_BUILD_TESTS)
 
   add_executable(t81_tier4_vm_test tests/cpp/tier4_vm_test.cpp)
   target_link_libraries(t81_tier4_vm_test PRIVATE t81_core)
+
+  add_executable(tiers_structure_test tests/cpp/tiers_structure_test.cpp)
+  target_link_libraries(tiers_structure_test PRIVATE t81_core)
 
   add_executable(t81_jit_test tests/cpp/jit_test.cpp)
   target_link_libraries(t81_jit_test PRIVATE t81_core)
