@@ -50,6 +50,10 @@ public:
     return intern_weights_tensor(name);
   }
 
+  void set_fault_injections(std::vector<FaultInjection> faults) override {
+    fault_injections_ = std::move(faults);
+  }
+
   const t81::weights::NativeTensor* weights_tensor(std::int64_t handle) const override {
     if (handle <= 0) return nullptr;
     std::size_t idx = static_cast<std::size_t>(handle - 1);
@@ -143,6 +147,12 @@ public:
   std::expected<void, Trap> step() override {
     if (state_.halted) {
       return {};
+    }
+
+    for (const auto& fault : fault_injections_) {
+      if (fault.instruction_count == instruction_count_) {
+        return std::expected<void, Trap>(t81::unexpect, fault.trap_kind);
+      }
     }
 
     // Check if we have a compiled trace for the current PC.
@@ -4034,6 +4044,7 @@ private:
   std::unordered_map<std::size_t, std::size_t> hot_spots_;
   std::unordered_map<std::size_t, std::unique_ptr<JitTrace>> compiled_traces_;
   static constexpr std::size_t kHotSpotThreshold = 50;
+  std::vector<FaultInjection> fault_injections_;
 };
 }  // namespace
 

@@ -45,8 +45,8 @@
 
 ## 4. HanoiVM / TISC Instruction Set (section 8–10)
 - [x] Segmented memory model (see `src/vm/vm.cpp`)
-- [ ] Deterministic fault injection points
-  - [ ] For testing Axion enforcement (overflow, illegal access, etc.)
+- [x] Deterministic fault injection points (see `IVirtualMachine::set_fault_injections`)
+  - [x] For testing Axion enforcement (overflow, illegal access, etc.)
 - [x] Axion trap hooks (overflow, illegal access, recursion guard) (see `include/t81/axion/api.hpp`)
 - [x] Bytecode format & decoder (see `src/vm/jit_compiler.cpp`)
 - [x] JIT compilation (Research/Experimental)
