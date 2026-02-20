@@ -10,13 +10,9 @@ SymbolicAtom SymbolicAtom::create(const std::string& label) {
   return atom;
 }
 
-bool SymbolicAtom::operator==(const SymbolicAtom& other) const {
-  return id == other.id;
-}
+bool SymbolicAtom::operator==(const SymbolicAtom& other) const { return id == other.id; }
 
-bool SymbolicAtom::operator<(const SymbolicAtom& other) const {
-  return id < other.id;
-}
+bool SymbolicAtom::operator<(const SymbolicAtom& other) const { return id < other.id; }
 
 bool SymbolicEdge::operator==(const SymbolicEdge& other) const {
   return from == other.from && to == other.to && label == other.label;

@@ -17,7 +17,6 @@
 #include "t81/tisc/program.hpp"
 #include "t81/vm/traps.hpp"
 #include "t81/weights.hpp"
-#include "t81/cog/tier1/symbolic.hpp"
 
 namespace t81::vm {
 
