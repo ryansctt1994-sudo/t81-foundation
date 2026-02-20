@@ -77,7 +77,6 @@ T log(T x) {
   T y = m - T::one();
 
   T sum = T::zero();
-  T term_num = y;  // y^1, y^2, ...
   T neg_y = -y;
 
   // log(1+y) = y - y^2/2 + y^3/3 ...

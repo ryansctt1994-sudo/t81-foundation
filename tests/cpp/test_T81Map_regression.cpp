@@ -14,7 +14,7 @@ struct CollidingKey {
 namespace std {
 template <>
 struct hash<CollidingKey> {
-  std::size_t operator()(const CollidingKey& k) const {
+  std::size_t operator()(const CollidingKey& /*k*/) const {
     // Force collision: always return 0 (or strictly multiple of bucket count)
     return 0;
   }
