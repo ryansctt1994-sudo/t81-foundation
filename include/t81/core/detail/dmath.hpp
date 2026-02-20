@@ -40,7 +40,7 @@ v1::T81Float<M, E> tan(const v1::T81Float<M, E>& x) {
   DFixed s = detail::sin(val);
   DFixed c = detail::cos(val);
 
-  if (c.is_zero()) return v1::T81Float<M, E>::inf(s.v.sign_trit() == Trit::P);
+  if (c.is_zero()) return v1::T81Float<M, E>::inf(s.v.sign_trit() == t81::Trit::P);
 
   DFixed res = s / c;  // Deterministic Fixed division
   return res.to_float<M, E>();
