@@ -22,148 +22,9 @@ title: TISC and VM Guide
 
 <!-- T81-TOC:END -->
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 This guide provides an overview of the TISC instruction set and the T81 Virtual Machine (VM) that executes it.
+
+**Last Updated:** February 17, 2026
 
 **Companion Documents:**
 - **Specification:** [`spec/tisc-spec.md`](../../spec/tisc-spec.md), [`spec/t81vm-spec.md`](../../spec/t81vm-spec.md)
@@ -206,7 +67,7 @@ The following TISC opcodes are defined in `opcodes.hpp` and implemented in the V
 | **Fraction Arithmetic** | `FracAdd`, `FracSub`, `FracMul`, `FracDiv` |
 | **Type Conversion** | `I2F`, `F2I`, `I2Frac`, `Frac2I` |
 | **Comparison Boolean** | `Less`, `LessEqual`, `Greater`, `GreaterEqual`, `Equal`, `NotEqual` |
-| **Tensor Operations** | `TVecAdd`, `TMatMul`, `TTenDot`, `ChkShape` |
+| **Tensor Operations** | `TVecAdd`, `TMatMul`, `TTenDot`, `ChkShape`, `TNorm`, `TLoadHash` |
 | **Option/Result Types** | `MakeOptionSome`, `MakeOptionNone`, `OptionIsSome`, `OptionUnwrap`, `MakeResultOk`, `MakeResultErr`, `ResultIsOk`, `ResultUnwrapOk`, `ResultUnwrapErr` |
 | **Axion Interface** | `AxRead`, `AxSet`, `AxVerify`, `AxCheck`, `AxSign`, `AxLineage`, `AxCanon`, `AxReport` |
 | **Allocator / Metadata** | `StackAlloc`, `StackFree`, `HeapAlloc`, `HeapFree`, `WeightsLoad` |
@@ -255,9 +116,7 @@ When the frontend lowers this loop, it emits `StackAlloc`/`StackFree` around any
 
 This policy text is emitted whenever `./build/t81 run` executes the TISC program, giving downstream consumers deterministic diagnostics (`file:line:column`) and exposing Axion's loop-tracking hooks. If the loop tries to grow the stack beyond the configured limit, the VM traps before Axion ever allows a `+∞` overflow; the Axion log entry and the policy text show the same metadata used by diagnostics, closing the trace from source to runtime. For a concrete CLI command/output pair you can copy into logs or release notes, see the **Axion CLI Trace Example** in the [demo gallery guide](./demo-gallery.md#axion-loop-trace).
 
-The comparison boolean opcodes produce canonical `0/1` results (always stored as `ValueTag::Int`) instead of relying solely on flag-setting `Cmp`. The frontend IR generator now tags relational expressions with a `ComparisonRelation` so the binary emitter can lower `Less`, `Equal`, etc., directly to these TISC opcodes, keeping the emitter/VM behavior deterministic and easier to trace through tools like `tools/ir_inspector`.
-
-The comparison boolean opcodes write canonical `0/1` values, so a simple relational expression such as:
+The comparison boolean opcodes produce canonical `0/1` values, so a simple relational expression such as:
 
 ```
 let cmp = 1 < 2;

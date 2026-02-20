@@ -1,0 +1,9 @@
+path	status	change_type	confidence	notes
+docs/reference/STATUS.md	updated	major_update	high	Clarified Tier 5 stub and JIT threaded nature.
+docs/guides/cli-toolkit.md	updated	correction	high	Updated C++ API signatures to match driver.cpp.
+docs/explanation/ARCHITECTURE.md	accurate	none	high	Verified against CI gates and codebase.
+docs/explanation/ANALYSIS.md	accurate	none	high	Correctly identifies host-dependent float behavior.
+docs/reference/benchmarks.md	accurate	none	medium	Auto-generated file reflects run environment (ARM/NEON in example).
+docs/explanation/performance-strategy.md	accurate	none	high	Claims align with implemented code (AVX2/Karatsuba).
+docs/roadmaps-plans/ROADMAP.md	accurate	none	high	Correctly identifies Cognitive Tier logic as ongoing P0 work.
+docs/roadmaps-plans/TASKS.md	accurate	none	high	Tracks Infinite Tier stub as current sprint task.
