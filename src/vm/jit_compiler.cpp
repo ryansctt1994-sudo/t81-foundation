@@ -842,6 +842,8 @@ void JitCompiler::record_instruction(const t81::tisc::Insn& insn) {
     case t81::tisc::Opcode::JumpIfNotZero:
     case t81::tisc::Opcode::JumpIfNegative:
     case t81::tisc::Opcode::JumpIfPositive:
+    case t81::tisc::Opcode::Call:
+    case t81::tisc::Opcode::Ret:
       trace_buffer_.push_back(insn);
       tracing_ = false;  // Always stop at branch.
       break;
