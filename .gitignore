@@ -60,7 +60,8 @@ pdf/*.aux pdf/*.log pdf/*.out pdf/*.toc
 .vscode/* !.vscode/settings.json !.vscode/launch.json !.vscode/tasks.json
 .idea/
 *~
-.DS_Store Thumbs.db
+.DS_Store 
+Thumbs.db
 
 # ── Legacy hanoivm ──────────────────────────────────────────
 legacy/hanoivm/**/*.{c,h,tex,dvi,pdf,log,aux,toc,idx,out}
