@@ -21,10 +21,17 @@ enum class BridgeError {
 };
 
 struct BridgeDiagnostic {
-  // Explicitly defined default constructor - no NSDMI reliance
-  BridgeDiagnostic()
-      : error(BridgeError::EmptyInput), line(0), column(0), message(), source_line() {}
+  // Use NSDMI for safe initialization
+  BridgeError error = BridgeError::EmptyInput;
+  std::size_t line = 0;
+  std::size_t column = 0;
+  std::string message;
+  std::string source_line;
 
+  // Default constructor
+  BridgeDiagnostic() = default;
+
+  // Parameterized constructor
   BridgeDiagnostic(BridgeError err, std::size_t line_no, std::size_t column_no, std::string msg,
                    std::string source)
       : error(err),
@@ -33,52 +40,10 @@ struct BridgeDiagnostic {
         message(std::move(msg)),
         source_line(std::move(source)) {}
 
-  // Explicit copy constructor
-  BridgeDiagnostic(const BridgeDiagnostic& other)
-      : error(other.error),
-        line(other.line),
-        column(other.column),
-        message(other.message),
-        source_line(other.source_line) {}
-
-  // Explicit copy assignment
-  BridgeDiagnostic& operator=(const BridgeDiagnostic& other) {
-    if (this != &other) {
-      error = other.error;
-      line = other.line;
-      column = other.column;
-      message = other.message;
-      source_line = other.source_line;
-    }
-    return *this;
-  }
-
-  // Explicit move constructor
-  BridgeDiagnostic(BridgeDiagnostic&& other) noexcept
-      : error(other.error),
-        line(other.line),
-        column(other.column),
-        message(std::move(other.message)),
-        source_line(std::move(other.source_line)) {}
-
-  // Explicit move assignment
-  BridgeDiagnostic& operator=(BridgeDiagnostic&& other) noexcept {
-    if (this != &other) {
-      error = other.error;
-      line = other.line;
-      column = other.column;
-      message = std::move(other.message);
-      source_line = std::move(other.source_line);
-    }
-    return *this;
-  }
-
-  // Member variables without NSDMI to force explicit init
-  BridgeError error;
-  std::size_t line;
-  std::size_t column;
-  std::string message;
-  std::string source_line;
+  // Explicit copy/move constructors/assignments are removed to use compiler-generated defaults.
+  // This satisfies the rule of zero/five and ensures proper initialization via NSDMI if default
+  // constructed, or member-wise copy if copied. The previous manual implementations were correct
+  // but potentially confusing to static analysis or overly verbose.
 };
 
 [[nodiscard]] std::string_view bridge_error_message(BridgeError error);

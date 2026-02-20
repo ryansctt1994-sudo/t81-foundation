@@ -34,7 +34,7 @@ std::vector<std::byte> serialize_tensor(const t81::weights::NativeTensor& tensor
   uint8_t rank = static_cast<uint8_t>(tensor.shape.size());
   buffer.push_back(static_cast<std::byte>(rank));
   for (int i = 0; i < 4; ++i) buffer.push_back(static_cast<std::byte>(0));  // reserved
-  for (int i = 0; i < 8; ++i) {                                              // shape
+  for (int i = 0; i < 8; ++i) {                                             // shape
     uint64_t dim = (i < rank) ? tensor.shape[i] : 0;
     for (int b = 0; b < 8; ++b) {
       buffer.push_back(static_cast<std::byte>((dim >> (b * 8)) & 0xFF));
@@ -51,8 +51,7 @@ std::vector<std::byte> serialize_tensor(const t81::weights::NativeTensor& tensor
 }
 
 int main() {
-  std::cout
-      << "--- T81 'Go Broad' Killer Demo: Llama-3.2-1B Deterministic Inference Block ---\n";
+  std::cout << "--- T81 'Go Broad' Killer Demo: Llama-3.2-1B Deterministic Inference Block ---\n";
 
   const int hidden_dim = 2048;  // Llama-3.2-1B dimensions
   const int num_heads = 32;
@@ -90,14 +89,10 @@ int main() {
   };
 
   std::vector<std::string> weight_names = {
-      "model.layers.0.input_layernorm.weight",
-      "model.layers.0.self_attn.q_proj.weight",
-      "model.layers.0.self_attn.k_proj.weight",
-      "model.layers.0.self_attn.v_proj.weight",
-      "model.layers.0.self_attn.o_proj.weight",
-      "model.layers.0.post_attention_layernorm.weight",
-      "model.layers.0.mlp.gate_proj.weight",
-      "model.layers.0.mlp.up_proj.weight",
+      "model.layers.0.input_layernorm.weight",  "model.layers.0.self_attn.q_proj.weight",
+      "model.layers.0.self_attn.k_proj.weight", "model.layers.0.self_attn.v_proj.weight",
+      "model.layers.0.self_attn.o_proj.weight", "model.layers.0.post_attention_layernorm.weight",
+      "model.layers.0.mlp.gate_proj.weight",    "model.layers.0.mlp.up_proj.weight",
       "model.layers.0.mlp.down_proj.weight"};
 
   create_dummy_tensor(weight_names[0], {static_cast<uint64_t>(hidden_dim)});
@@ -142,7 +137,7 @@ int main() {
 
   // Add hash to symbol pool
   weight_names.push_back(hash_str);
-  int hash_symbol_index = weight_names.size(); // 1-based index (last element)
+  int hash_symbol_index = weight_names.size();  // 1-based index (last element)
 
   program.symbol_pool = weight_names;
 
@@ -176,7 +171,9 @@ int main() {
 
   // Policy Gating
   program.axion_policy_text = "(policy (tier 1)"
-                              " (allowed-tensor-hashes [\"" + hash_str + "\"])"
+                              " (allowed-tensor-hashes [\"" +
+                              hash_str +
+                              "\"])"
                               " (require-axion-event (reason \"TLOADHASH success\"))"
                               ")";
 
