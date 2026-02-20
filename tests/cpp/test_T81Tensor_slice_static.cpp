@@ -20,10 +20,12 @@ int main() {
   assert(s1(0, 0).to_double() == 0.0);
   assert(s1(0, 1).to_double() == 1.0);
   assert(s1(0, 2).to_double() == 2.0);
+  (void)s1;
 
   // Slice second row
   auto s2 = slice<1, 2>(t);
   assert(s2(0, 0).to_double() == 3.0);
+  (void)s2;
 
   std::cout << "slice test passed" << std::endl;
   return 0;

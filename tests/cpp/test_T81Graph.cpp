@@ -24,6 +24,7 @@ void test_pagerank() {
   g.add_edge(2, 0);
   auto pr = pagerank(g, 10);
   assert(std::abs(pr(0).to_double() - 0.333) < 0.1);
+  (void)pr;
   std::cout << "test_pagerank PASSED\n";
 }
 
