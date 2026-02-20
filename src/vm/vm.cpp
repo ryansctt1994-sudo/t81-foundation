@@ -557,12 +557,11 @@ public:
       if (idx >= state_.symbolic_graphs.size()) return nullptr;
       return &state_.symbolic_graphs[idx];
     };
-    auto alloc_symbolic_graph = [this,
-                                 current_pc](t81::cog::v1::SymbolicGraph graph) -> std::int64_t {
+    auto alloc_symbolic_graph = [this, current_pc](t81::cog::v1::SymbolicGraph graph) -> std::int64_t {
       state_.symbolic_graphs.push_back(std::move(graph));
       auto idx = state_.symbolic_graphs.size();
-      log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Heap, idx, 1,
-                                "graph alloc");
+      log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Heap, idx,
+                                1, "graph alloc");
       return static_cast<std::int64_t>(idx);
     };
     auto intern_option = [this](bool has_value, ValueTag payload_tag,
@@ -3606,7 +3605,7 @@ public:
       }
       // Cognitive Tier Stubs
       case t81::tisc::Opcode::SymLoad: {
-        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+        if (!reg_ok(insn.a)) {
           trap = Trap::DecodeFault;
           break;
         }

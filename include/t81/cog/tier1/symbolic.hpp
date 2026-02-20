@@ -3,6 +3,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <optional>
 #include "t81/core/T81Symbol.hpp"
 
 namespace t81::cog::v1 {
