@@ -171,7 +171,12 @@ public:
   // Comparison
   // ------------------------------------------------------------------
 
-  [[nodiscard]] constexpr auto operator<=>(const T81Fraction&) const noexcept = default;
+  [[nodiscard]] constexpr std::strong_ordering operator<=>(const T81Fraction& o) const noexcept {
+    // Cross multiply: num_ * o.den_ <=> o.num_ * den_
+    // Since den_ > 0 always, we don't need to flip signs.
+    return (num_ * o.den_) <=> (o.num_ * den_);
+  }
+
   [[nodiscard]] constexpr bool operator==(const T81Fraction&) const noexcept = default;
 };
 
