@@ -51,6 +51,7 @@ T81Float<M, E> fma(T81Float<M, E> a, T81Float<M, E> b, T81Float<M, E> c) noexcep
 
 template <std::size_t M, std::size_t E>
 class T81Float {
+  friend class T81BigInt;
   static_assert(M >= 4, "T81Float: mantissa must be at least 4 trits");
   static_assert(E >= 4, "T81Float: exponent must be at least 4 trits");
   static_assert(M + E + 1 <= 2048, "T81Float: total trits must fit in T81Int");

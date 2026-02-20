@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include "t81/core/T81Float.hpp"
 #include "t81/core/T81Int.hpp"
 
 #include <algorithm>
@@ -228,8 +229,133 @@ public:
 
   template <std::size_t N>
   explicit T81BigInt(const T81Int<N>& x) {
-    const std::int64_t v = x.to_int64();  // may throw on overflow
-    assign_from_int64(v);
+    if constexpr (N <= 40) {
+      const std::int64_t v = x.to_int64();  // may throw on overflow
+      assign_from_int64(v);
+      return;
+    }
+
+    if (x.is_zero()) {
+      limbs_.emplace_back(0);
+      negative_ = false;
+      return;
+    }
+
+    // T81Int is signed balanced ternary.
+    bool is_neg = (x.sign_trit() == Trit::N);
+    negative_ = is_neg;
+
+    // Use absolute magnitude for limbs
+    T81Int<N> abs_x = is_neg ? -x : x;
+
+    limbs_.clear();
+    // Pack into 81-trit limbs
+    for (size_t i = 0; i < N; i += kLimbTrits) {
+      Limb l;
+      size_t count = std::min(N - i, kLimbTrits);
+      for (size_t j = 0; j < count; ++j) {
+        l[j] = abs_x[i + j];
+      }
+      limbs_.push_back(l);
+    }
+    normalize();
+  }
+
+  template <std::size_t M, std::size_t E>
+  T81Float<M, E> to_float() const {
+    using Float = T81Float<M, E>;
+    if (is_zero()) return Float::zero();
+
+    size_t num_limbs = limbs_.size();
+    size_t last_limb_trits = limbs_.back().significant_trits();
+    if (last_limb_trits == 0) return Float::zero();
+
+    size_t total_trits = (num_limbs - 1) * kLimbTrits + last_limb_trits;
+    size_t msb_index = total_trits - 1;
+
+    constexpr size_t Guard = 4;
+    T81Int<M + Guard> mant;
+
+    size_t S = 0;
+    if (total_trits > M + Guard) {
+      S = total_trits - (M + Guard);
+    }
+
+    for (size_t i = 0; i < M + Guard; ++i) {
+      size_t bit_idx = i + S;
+      if (bit_idx > msb_index) break;
+
+      size_t limb_idx = bit_idx / kLimbTrits;
+      size_t offset = bit_idx % kLimbTrits;
+      if (limb_idx < limbs_.size()) {
+        mant[i] = limbs_[limb_idx][offset];
+      }
+    }
+
+    // normalize expects exp such that val = mant * 3^(exp - (M-1))
+    // Our mant matches V >> S
+    // val ≈ mant * 3^S
+    // exp - M + 1 = S => exp = S + M - 1
+    return Float::normalize(negative_ ? Trit::N : Trit::P, static_cast<int64_t>(S + M - 1), mant);
+  }
+
+  template <std::size_t N>
+  T81Int<N> to_int() const {
+    if (is_zero()) return T81Int<N>();
+
+    // Check magnitude size
+    size_t sig_trits = 0;
+    if (!limbs_.empty()) {
+      size_t last = limbs_.back().significant_trits();
+      if (last > 0) sig_trits = (limbs_.size() - 1) * kLimbTrits + last;
+    }
+
+    if (sig_trits > N) {
+      throw std::overflow_error("T81BigInt::to_int: value too large for T81Int<N>");
+    }
+
+    T81Int<N> res;
+    // Copy trits
+    for (size_t i = 0; i < N; ++i) {
+      size_t limb_idx = i / kLimbTrits;
+      size_t offset = i % kLimbTrits;
+      Trit t = Trit::Z;
+      if (limb_idx < limbs_.size()) {
+        t = limbs_[limb_idx][offset];
+      }
+      res[i] = t;
+    }
+
+    return negative_ ? -res : res;
+  }
+
+  template <std::size_t M, std::size_t E>
+  static T81BigInt from_float(const T81Float<M, E>& f) {
+    if (f.is_zero()) return T81BigInt::zero();
+    if (f.is_nae()) throw std::domain_error("from_float: NaE");
+    if (f.is_inf()) throw std::domain_error("from_float: Inf");
+
+    T81Int<M> m = f.get_mantissa();
+    std::int64_t e = f.get_exp();
+
+    // Value = m * 3^(e - M + 1)
+    std::int64_t shift = e - static_cast<std::int64_t>(M) + 1;
+
+    // m is positive magnitude from Float (sign is separate)
+    T81BigInt bm(m);
+
+    if (shift >= 0) {
+      return (f.is_negative() ? -bm : bm) * T81BigInt::pow(T81BigInt(3), T81BigInt(shift));
+    } else {
+      T81BigInt den = T81BigInt::pow(T81BigInt(3), T81BigInt(-shift));
+      auto [q, r] = div_mod(bm, den);
+
+      // Round to nearest (half up)
+      if (T81BigInt(2) * r >= den) {
+        q = q + T81BigInt(1);
+      }
+      return f.is_negative() ? -q : q;
+    }
   }
 
   // Factory helpers

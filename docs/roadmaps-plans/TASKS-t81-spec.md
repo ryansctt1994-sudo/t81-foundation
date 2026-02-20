@@ -25,8 +25,8 @@
 - [x] T81Float / fixed-point variants (see `include/t81/core/T81Float.hpp`, `T81Fixed.hpp`)
 - [x] T81Fraction (Exact rational value) (see `include/t81/core/T81Fraction.hpp`)
 - [ ] Promotion / demotion rules
-  - [ ] T81Cell ↔ T81BigInt (scalar → multi-limb, sign-extended)
-  - [ ] T81BigInt ↔ T81Float / T81Fixed (with rounding modes per spec)
+  - [x] T81Cell ↔ T81BigInt (scalar → multi-limb, sign-extended) (Implemented via constructor and to_int<N>)
+  - [x] T81BigInt ↔ T81Float / T81Fixed (with rounding modes per spec) (Implemented via to_float/from_float)
   - [ ] Automatic promotion in expressions (T81 → T243 → T729 based on recursion depth)
   - [ ] Demotion with lossy checks / Axion traps on overflow/underflow
 
