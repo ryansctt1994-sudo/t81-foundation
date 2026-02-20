@@ -39,6 +39,9 @@ const std::unordered_map<std::string_view, TokenType> KEYWORDS = {
     {"while", TokenType::While},
     {"loop", TokenType::Loop},
     {"reflect", TokenType::Reflect},
+    {"recurse", TokenType::Recurse},
+    {"distributed", TokenType::Distributed},
+    {"infinite", TokenType::Infinite},
     {"record", TokenType::Record},
     {"enum", TokenType::Enum},
     {"break", TokenType::Break},
@@ -88,10 +91,21 @@ Token Lexer::next_token() {
 
   char c = advance();
 
+  // Handle multi-byte characters (specifically ∞)
+  if (static_cast<unsigned char>(c) == 0xE2) {
+    if (peek() == '\x88' && peek_next() == '\x9E') {
+      advance();  // Consume 0x88
+      advance();  // Consume 0x9E
+      return infinite_literal();
+    }
+  }
+
   if (is_alpha(c)) return identifier();
   if (is_digit(c)) return number();
 
   switch (c) {
+    case ':':
+      return symbol();
     case '(':
       return make_token(TokenType::LParen);
     case ')':
@@ -106,8 +120,6 @@ Token Lexer::next_token() {
       return make_token(TokenType::RBracket);
     case ',':
       return make_token(TokenType::Comma);
-    case ':':
-      return make_token(TokenType::Colon);
     case ';':
       return make_token(TokenType::Semicolon);
     case '@':
@@ -235,6 +247,16 @@ Token Lexer::identifier() {
   }
   return make_token(TokenType::Identifier);
 }
+
+Token Lexer::symbol() {
+  if (is_alpha(peek())) {
+    while (is_alpha(peek()) || is_digit(peek())) advance();
+    return make_token(TokenType::Symbol);
+  }
+  return make_token(TokenType::Colon);
+}
+
+Token Lexer::infinite_literal() { return make_token(TokenType::InfiniteLiteral); }
 
 void Lexer::skip_whitespace_and_comments() {
   for (;;) {

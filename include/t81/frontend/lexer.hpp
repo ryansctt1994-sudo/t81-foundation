@@ -35,6 +35,9 @@ enum class TokenType {
   While,
   Loop,
   Reflect,
+  Recurse,
+  Distributed,
+  Infinite,
   Break,
   Continue,
   Return,
@@ -69,6 +72,8 @@ enum class TokenType {
   Ternary,
   Base81Integer,
   Base81Float,
+  Symbol,          // :symbol
+  InfiniteLiteral, // ∞{...}
 
   // Identifier
   Identifier,
@@ -171,6 +176,8 @@ private:
   Token string();
   Token number();
   Token identifier();
+  Token symbol();
+  Token infinite_literal();
 
   void skip_whitespace_and_comments();
   bool match(char expected);

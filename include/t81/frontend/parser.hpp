@@ -35,6 +35,7 @@ private:
   // Grammar rule methods
   std::unique_ptr<Stmt> declaration();
   std::unique_ptr<Stmt> loop_statement();
+  std::unique_ptr<Stmt> recurse_declaration();
   std::unique_ptr<Stmt> function(const std::string& kind);
   std::unique_ptr<Stmt> type_declaration();
   std::unique_ptr<Stmt> record_declaration(
@@ -52,6 +53,7 @@ private:
   std::unique_ptr<Expr> block_expression();
   std::unique_ptr<Expr> if_expression();
   std::unique_ptr<Expr> assignment();
+  std::unique_ptr<Expr> arrow();
   std::unique_ptr<Expr> range();
   std::unique_ptr<Expr> equality();
   std::unique_ptr<Expr> comparison();

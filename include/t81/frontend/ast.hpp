@@ -31,6 +31,8 @@ struct VectorLiteralExpr;
 struct FieldAccessExpr;
 struct RecordLiteralExpr;
 struct EnumLiteralExpr;
+struct SymbolLiteralExpr;
+struct InfiniteLiteralExpr;
 struct IndexExpr;
 struct BlockExpr;
 struct IfExpr;
@@ -45,6 +47,9 @@ struct IfStmt;
 struct WhileStmt;
 struct ForStmt;
 struct ReflectStmt;
+struct RecurseStmt;
+struct DistributedStmt;
+struct InfiniteStmt;
 struct ReturnStmt;
 struct BreakStmt;
 struct ContinueStmt;
@@ -83,6 +88,8 @@ public:
   virtual std::any visit(const FieldAccessExpr& expr) = 0;
   virtual std::any visit(const RecordLiteralExpr& expr) = 0;
   virtual std::any visit(const EnumLiteralExpr& expr) = 0;
+  virtual std::any visit(const SymbolLiteralExpr& expr) = 0;
+  virtual std::any visit(const InfiniteLiteralExpr& expr) = 0;
   virtual std::any visit(const IndexExpr& expr) = 0;
   virtual std::any visit(const BlockExpr& expr) = 0;
   virtual std::any visit(const IfExpr& expr) = 0;
@@ -101,6 +108,9 @@ public:
   virtual std::any visit(const WhileStmt& stmt) = 0;
   virtual std::any visit(const ForStmt& stmt) = 0;
   virtual std::any visit(const ReflectStmt& stmt) = 0;
+  virtual std::any visit(const RecurseStmt& stmt) = 0;
+  virtual std::any visit(const DistributedStmt& stmt) = 0;
+  virtual std::any visit(const InfiniteStmt& stmt) = 0;
   virtual std::any visit(const LoopStmt& stmt) = 0;
   virtual std::any visit(const ReturnStmt& stmt) = 0;
   virtual std::any visit(const BreakStmt& stmt) = 0;
@@ -209,6 +219,24 @@ struct EnumLiteralExpr : Expr {
   const Token enum_name;
   const Token variant;
   const std::unique_ptr<Expr> payload;
+};
+
+struct SymbolLiteralExpr : Expr {
+  SymbolLiteralExpr(Token value) : value(value) {}
+
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+
+  const Token value;
+};
+
+struct InfiniteLiteralExpr : Expr {
+  InfiniteLiteralExpr(Token token, std::unique_ptr<Expr> seed)
+      : token(token), seed(std::move(seed)) {}
+
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+
+  const Token token;
+  const std::unique_ptr<Expr> seed;
 };
 
 struct IndexExpr : Expr {
@@ -443,6 +471,26 @@ struct ReflectStmt : Stmt {
   const std::vector<std::unique_ptr<Stmt>> body;
 };
 
+struct DistributedStmt : Stmt {
+  DistributedStmt(Token keyword, std::vector<std::unique_ptr<Stmt>> body)
+      : keyword(keyword), body(std::move(body)) {}
+
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+
+  const Token keyword;
+  const std::vector<std::unique_ptr<Stmt>> body;
+};
+
+struct InfiniteStmt : Stmt {
+  InfiniteStmt(Token keyword, std::vector<std::unique_ptr<Stmt>> body)
+      : keyword(keyword), body(std::move(body)) {}
+
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+
+  const Token keyword;
+  const std::vector<std::unique_ptr<Stmt>> body;
+};
+
 struct ReturnStmt : Stmt {
   ReturnStmt(Token keyword, std::unique_ptr<Expr> value)
       : keyword(keyword), value(std::move(value)) {}
@@ -468,6 +516,19 @@ struct ContinueStmt : Stmt {
 struct Parameter {
   Token name;
   std::unique_ptr<TypeExpr> type;
+};
+
+struct RecurseStmt : Stmt {
+  RecurseStmt(Token keyword, Token name, std::vector<Parameter> params,
+              std::vector<std::unique_ptr<Stmt>> body)
+      : keyword(keyword), name(name), params(std::move(params)), body(std::move(body)) {}
+
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+
+  const Token keyword;
+  const Token name;
+  const std::vector<Parameter> params;
+  const std::vector<std::unique_ptr<Stmt>> body;
 };
 
 struct FunctionStmt : Stmt {

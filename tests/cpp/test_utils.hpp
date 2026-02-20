@@ -106,6 +106,50 @@ public:
 
   std::any visit(const ContinueStmt& /*stmt*/) override { return std::string("(continue)"); }
 
+  std::any visit(const RecurseStmt& stmt) override {
+    [[maybe_unused]] std::stringstream ss;
+    ss << "(recurse " << stmt.name.lexeme;
+    ss << " (";
+    for (size_t i = 0; i < stmt.params.size(); ++i) {
+      ss << stmt.params[i].name.lexeme;
+      if (stmt.params[i].type) {
+        ss << ": " << print(*stmt.params[i].type);
+      }
+      if (i < stmt.params.size() - 1) {
+        ss << " ";
+      }
+    }
+    ss << " )";
+    ss << " ";
+    ss << "(block";
+    for (const auto& statement : stmt.body) {
+      ss << " " << print(*statement);
+    }
+    ss << ")";
+    ss << ")";
+    return ss.str();
+  }
+
+  std::any visit(const DistributedStmt& stmt) override {
+    [[maybe_unused]] std::stringstream ss;
+    ss << "(distributed (block";
+    for (const auto& s : stmt.body) {
+      ss << " " << print(*s);
+    }
+    ss << "))";
+    return ss.str();
+  }
+
+  std::any visit(const InfiniteStmt& stmt) override {
+    [[maybe_unused]] std::stringstream ss;
+    ss << "(infinite (block";
+    for (const auto& s : stmt.body) {
+      ss << " " << print(*s);
+    }
+    ss << "))";
+    return ss.str();
+  }
+
   std::any visit(const FunctionStmt& stmt) override {
     [[maybe_unused]] std::stringstream ss;
     ss << "(fn " << stmt.name.lexeme;
@@ -191,6 +235,15 @@ public:
   }
 
   std::any visit(const LiteralExpr& expr) override { return std::string(expr.value.lexeme); }
+
+  std::any visit(const SymbolLiteralExpr& expr) override { return std::string(expr.value.lexeme); }
+
+  std::any visit(const InfiniteLiteralExpr& expr) override {
+    if (expr.seed) {
+      return "(infinite_literal " + print(*expr.seed) + ")";
+    }
+    return std::string("(infinite_literal)");
+  }
 
   std::any visit(const VectorLiteralExpr& expr) override {
     [[maybe_unused]] std::stringstream ss;
@@ -358,10 +411,19 @@ inline void expect_semantic_success(const std::string& source, const char* label
   Lexer lexer(source);
   Parser parser(lexer);
   [[maybe_unused]] auto stmts = parser.parse();
+  if (parser.had_error()) {
+    std::cerr << "Parse error in '" << label << "'" << std::endl;
+  }
   assert(!parser.had_error() && label);
 
   SemanticAnalyzer analyzer(stmts);
   analyzer.analyze();
+  if (analyzer.had_error()) {
+    std::cerr << "Semantic error in '" << label << "'" << std::endl;
+    for (const auto& diag : analyzer.diagnostics()) {
+      std::cerr << diag.message << std::endl;
+    }
+  }
   assert(!analyzer.had_error() && label);
 }
 
