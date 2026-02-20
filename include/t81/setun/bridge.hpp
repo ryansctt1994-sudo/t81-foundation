@@ -37,41 +37,12 @@ struct BridgeDiagnostic {
 
   // Explicitly implement Rule of 5 to silence Clang Static Analyzer false positives
   // regarding uninitialized memory in implicit copy/move constructors.
-  BridgeDiagnostic(const BridgeDiagnostic& other)
-      : error(other.error),
-        line(other.line),
-        column(other.column),
-        message(other.message),
-        source_line(other.source_line) {}
-
-  BridgeDiagnostic(BridgeDiagnostic&& other) noexcept
-      : error(other.error),
-        line(other.line),
-        column(other.column),
-        message(std::move(other.message)),
-        source_line(std::move(other.source_line)) {}
-
-  BridgeDiagnostic& operator=(const BridgeDiagnostic& other) {
-    if (this != &other) {
-      error = other.error;
-      line = other.line;
-      column = other.column;
-      message = other.message;
-      source_line = other.source_line;
-    }
-    return *this;
-  }
-
-  BridgeDiagnostic& operator=(BridgeDiagnostic&& other) noexcept {
-    if (this != &other) {
-      error = other.error;
-      line = other.line;
-      column = other.column;
-      message = std::move(other.message);
-      source_line = std::move(other.source_line);
-    }
-    return *this;
-  }
+  // Update: Reverted to default implementation to resolve new false positives in Clang-Tidy 18.
+  BridgeDiagnostic(const BridgeDiagnostic&) = default;
+  BridgeDiagnostic(BridgeDiagnostic&&) noexcept = default;
+  BridgeDiagnostic& operator=(const BridgeDiagnostic&) = default;
+  BridgeDiagnostic& operator=(BridgeDiagnostic&&) noexcept = default;
+  ~BridgeDiagnostic() = default;
 };
 
 [[nodiscard]] std::string_view bridge_error_message(BridgeError error);
