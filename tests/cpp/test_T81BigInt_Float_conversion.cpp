@@ -1,6 +1,6 @@
 #include <cassert>
-#include <iostream>
 #include <cmath>
+#include <iostream>
 #include "t81/core/T81BigInt.hpp"
 #include "t81/core/T81Float.hpp"
 
@@ -98,58 +98,58 @@ void test_to_float_large() {
 }
 
 void test_large_int_constructor() {
-    std::cout << "Testing Large Int Constructor...\n";
-    // Construct BigInt from large T81Int
-    constexpr size_t N = 100;
-    T81Int<N> large_int;
-    large_int[99] = Trit::P; // 3^99
+  std::cout << "Testing Large Int Constructor...\n";
+  // Construct BigInt from large T81Int
+  constexpr size_t N = 100;
+  T81Int<N> large_int;
+  large_int[99] = Trit::P;  // 3^99
 
-    T81BigInt b(large_int);
-    T81BigInt expected = T81BigInt::pow(T81BigInt(3), T81BigInt(99));
+  T81BigInt b(large_int);
+  T81BigInt expected = T81BigInt::pow(T81BigInt(3), T81BigInt(99));
 
-    check(b == expected, "Large T81Int constructor failed");
+  check(b == expected, "Large T81Int constructor failed");
 }
 
 void test_to_int() {
-    std::cout << "Testing ToInt...\n";
+  std::cout << "Testing ToInt...\n";
 
-    // Test small T81Int constructor
-    T81Int<10> small_int(42);
-    T81BigInt b_small(small_int);
-    check(b_small == T81BigInt(42), "T81BigInt(T81Int<10>(42)) failed");
+  // Test small T81Int constructor
+  T81Int<10> small_int(42);
+  T81BigInt b_small(small_int);
+  check(b_small == T81BigInt(42), "T81BigInt(T81Int<10>(42)) failed");
 
-    T81BigInt b(10);
-    T81Int<18> i18 = b.to_int<18>();
-    check(i18.to_int64() == 10, "10 should convert to T81Int<18>(10)");
+  T81BigInt b(10);
+  T81Int<18> i18 = b.to_int<18>();
+  check(i18.to_int64() == 10, "10 should convert to T81Int<18>(10)");
 
-    T81BigInt bn10(-10);
-    T81Int<18> in18 = bn10.to_int<18>();
-    check(in18.to_int64() == -10, "-10 should convert to T81Int<18>(-10)");
+  T81BigInt bn10(-10);
+  T81Int<18> in18 = bn10.to_int<18>();
+  check(in18.to_int64() == -10, "-10 should convert to T81Int<18>(-10)");
 
-    // Test large int conversion
-    constexpr size_t N = 100;
-    T81BigInt bl = T81BigInt::pow(T81BigInt(3), T81BigInt(99));
-    T81Int<N> il = bl.to_int<N>();
-    check(il[99] == Trit::P, "3^99 should have P at index 99");
-    check(il[98] == Trit::Z, "3^99 should have Z at index 98");
+  // Test large int conversion
+  constexpr size_t N = 100;
+  T81BigInt bl = T81BigInt::pow(T81BigInt(3), T81BigInt(99));
+  T81Int<N> il = bl.to_int<N>();
+  check(il[99] == Trit::P, "3^99 should have P at index 99");
+  check(il[98] == Trit::Z, "3^99 should have Z at index 98");
 
-    // Test overflow
-    try {
-        bl.to_int<99>(); // Should fit? No, 3^99 needs 100 trits (0..99). T81Int<99> has 0..98.
-        check(false, "Should throw overflow error for 3^99 -> T81Int<99>");
-    } catch (const std::overflow_error&) {
-        // Expected
-    }
+  // Test overflow
+  try {
+    bl.to_int<99>();  // Should fit? No, 3^99 needs 100 trits (0..99). T81Int<99> has 0..98.
+    check(false, "Should throw overflow error for 3^99 -> T81Int<99>");
+  } catch (const std::overflow_error&) {
+    // Expected
+  }
 }
 
 int main() {
-    test_from_float_basic();
-    test_from_float_rounding();
-    test_to_float_basic();
-    test_to_float_large();
-    test_large_int_constructor();
-    test_to_int();
+  test_from_float_basic();
+  test_from_float_rounding();
+  test_to_float_basic();
+  test_to_float_large();
+  test_large_int_constructor();
+  test_to_int();
 
-    std::cout << "All T81BigInt-Float conversion tests PASSED!\n";
-    return 0;
+  std::cout << "All T81BigInt-Float conversion tests PASSED!\n";
+  return 0;
 }
