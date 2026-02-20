@@ -16,6 +16,7 @@
 #include "t81/tisc/program.hpp"
 #include "t81/vm/traps.hpp"
 #include "t81/weights.hpp"
+#include "t81/cog/tier1/symbolic.hpp"
 
 namespace t81::vm {
 
@@ -48,6 +49,7 @@ enum class ValueTag : std::uint8_t {
   AsyncThreadHandle,
   AsyncPromiseHandle,
   StringVectorHandle,
+  SymbolicGraphHandle,
 };
 
 struct Flags {
@@ -211,5 +213,8 @@ struct State {
   std::vector<ReflectionSnapshot> reflection_snapshots;
   std::size_t reflection_count{0};
   std::size_t meta_write_count{0};
+
+  // Tier 1 Symbolic
+  std::vector<t81::cog::v1::SymbolicGraph> symbolic_graphs;
 };
 }  // namespace t81::vm
