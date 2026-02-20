@@ -155,6 +155,7 @@ The `t81` CLI provides a unified interface for compilation, execution, and diagn
   t81 weights import model.safetensors -o model.t81w
   t81 weights info model.t81w
   t81 weights quantize model.safetensors --to-gguf model.gguf
+  t81 canonize-tensor model.t81w
   ```
 
 Full usage: *`t81 help`*

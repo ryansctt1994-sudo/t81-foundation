@@ -169,6 +169,21 @@ Load in code (via handles):
 let w_handle = weights::load("layer1.weight");
 ```
 
+### Canonizing Tensors
+
+For policy-gated inference (RFC-0025), tensors must be stored in the content-addressed `CanonFS` store.
+
+```bash
+t81 canonize-tensor model.t81w
+```
+
+This command:
+1.  Reads the `.t81w` (or `.safetensors`) file.
+2.  Serializes each tensor into the canonical `CanonObject` format.
+3.  Calculates the `sha3-256` hash.
+4.  Writes the object to `.t81_canonfs/objects/`.
+5.  Prints the hash (e.g., `sha3-256:4158a421...`) which can be used in Axion policies (`allowed-tensor-hashes`).
+
 See `examples/weights_load_demo.t81` and `examples/tensor_demo.t81`.
 
 ## Debugging & Inspection
