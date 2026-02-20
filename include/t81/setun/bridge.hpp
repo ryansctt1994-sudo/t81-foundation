@@ -21,19 +21,28 @@ enum class BridgeError {
 };
 
 struct BridgeDiagnostic {
-  BridgeError error;
-  std::size_t line;
-  std::size_t column;
-  std::string message;
-  std::string source_line;
+  BridgeError error = BridgeError::EmptyInput;
+  std::size_t line = 0;
+  std::size_t column = 0;
+  std::string message = "";
+  std::string source_line = "";
 
-  BridgeDiagnostic(BridgeError error, std::size_t line, std::size_t column, std::string message,
-                   std::string source_line)
-      : error(error),
-        line(line),
-        column(column),
-        message(std::move(message)),
-        source_line(std::move(source_line)) {}
+  BridgeDiagnostic(BridgeError err, std::size_t l, std::size_t col, std::string msg,
+                   std::string src_line)
+      : error(err),
+        line(l),
+        column(col),
+        message(std::move(msg)),
+        source_line(std::move(src_line)) {}
+
+  // Explicitly implement Rule of 5 to silence Clang Static Analyzer false positives
+  // regarding uninitialized memory in implicit copy/move constructors.
+  // Update: Reverted to default implementation to resolve new false positives in Clang-Tidy 18.
+  BridgeDiagnostic(const BridgeDiagnostic&) = default;
+  BridgeDiagnostic(BridgeDiagnostic&&) noexcept = default;
+  BridgeDiagnostic& operator=(const BridgeDiagnostic&) = default;
+  BridgeDiagnostic& operator=(BridgeDiagnostic&&) noexcept = default;
+  ~BridgeDiagnostic() = default;
 };
 
 [[nodiscard]] std::string_view bridge_error_message(BridgeError error);

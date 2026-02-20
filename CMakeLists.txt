@@ -339,6 +339,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_fault_test tests/cpp/vm_fault_test.cpp)
   target_link_libraries(t81_vm_fault_test PRIVATE t81_core)
 
+  add_executable(t81_vm_deterministic_fault_test tests/cpp/test_vm_deterministic_fault.cpp)
+  target_link_libraries(t81_vm_deterministic_fault_test PRIVATE t81_core)
+
   add_executable(t81_vm_new_opcodes_test tests/cpp/vm_new_opcodes_test.cpp)
   target_link_libraries(t81_vm_new_opcodes_test PRIVATE t81_core)
 
@@ -653,6 +656,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_tier4_test tests/cpp/tier4_test.cpp)
   target_link_libraries(t81_tier4_test PRIVATE t81_core)
 
+  add_executable(t81_tier5_test tests/cpp/tier5_test.cpp)
+  target_link_libraries(t81_tier5_test PRIVATE t81_core)
+
   add_executable(t81_tier4_vm_test tests/cpp/tier4_vm_test.cpp)
   target_link_libraries(t81_tier4_vm_test PRIVATE t81_core)
 
@@ -866,6 +872,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(t81_bigint_allocation_guardrail_test tests/cpp/bigint_allocation_guardrail_test.cpp)
   target_link_libraries(t81_bigint_allocation_guardrail_test PRIVATE t81_core)
 
+  add_executable(t81_vm_tier_promotion_test tests/cpp/vm_tier_promotion_test.cpp)
+  target_link_libraries(t81_vm_tier_promotion_test PRIVATE t81_core t81_tisc)
+
   enable_testing()
   set(T81_TEST_TARGETS
     t81_float_test
@@ -955,6 +964,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_vm_bounds_test
     t81_vm_tensor_test
     t81_vm_fault_test
+    t81_vm_deterministic_fault_test
     t81_vm_memory_test
     t81_axion_log_determinism_test
     t81_reflection_non_interference_test
@@ -1027,6 +1037,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     axion_instruction_counter_test
     canonfs_axion_trace_test
     t81_tier4_test
+    t81_tier5_test
     t81_tier4_vm_test
     t81_jit_test
     jit_trace_equivalence_test
@@ -1039,6 +1050,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     bigint_perf_guardrail_test
     t81_bigint_allocation_pathology_test
     t81_bigint_allocation_guardrail_test
+    t81_vm_tier_promotion_test
     test_T81Tensor_transpose
     performance_advancements_test
     t81_distributed_tensor_test
@@ -1304,3 +1316,9 @@ install(FILES
   "${CMAKE_CURRENT_BINARY_DIR}/T81ConfigVersion.cmake"
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/T81
 )
+
+if(T81_BUILD_TESTS)
+  add_executable(test_bigint_demotion tests/cpp/test_bigint_demotion.cpp)
+  target_link_libraries(test_bigint_demotion PRIVATE t81_core)
+  add_test(NAME test_bigint_demotion COMMAND test_bigint_demotion)
+endif()

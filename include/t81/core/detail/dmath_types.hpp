@@ -55,7 +55,7 @@ public:
 
   constexpr std::strong_ordering operator<=>(const Fixed& other) const = default;
 
-  constexpr bool is_negative() const { return v.sign_trit() == Trit::N; }
+  constexpr bool is_negative() const { return v.sign_trit() == t81::Trit::N; }
   constexpr bool is_zero() const { return v.is_zero(); }
 
   static constexpr Fixed zero() { return Fixed(Storage(0)); }
@@ -92,7 +92,7 @@ public:
     auto mant = f.mantissa();
     std::int64_t shift = exp - static_cast<std::int64_t>(M) + 1 + static_cast<std::int64_t>(F);
     Storage s(mant);
-    if (f.sign_trit() == Trit::N) s = -s;
+    if (f.sign_trit() == t81::Trit::N) s = -s;
     if (shift > 0)
       s <<= static_cast<size_t>(shift);
     else if (shift < 0)
@@ -105,14 +105,14 @@ public:
   v1::T81Float<M, E> to_float() const {
     if (v.is_zero()) return v1::T81Float<M, E>::zero();
     Storage abs_v = v;
-    Trit sign = Trit::P;
-    if (v.sign_trit() == Trit::N) {
-      sign = Trit::N;
+    t81::Trit sign = t81::Trit::P;
+    if (v.sign_trit() == t81::Trit::N) {
+      sign = t81::Trit::N;
       abs_v = -v;
     }
     size_t lead = 0;
     for (size_t i = N; i-- > 0;) {
-      if (abs_v[i] != Trit::Z) {
+      if (abs_v[i] != t81::Trit::Z) {
         lead = i;
         break;
       }

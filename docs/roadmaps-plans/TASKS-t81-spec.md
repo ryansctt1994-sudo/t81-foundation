@@ -27,8 +27,8 @@
 - [ ] Promotion / demotion rules
   - [x] T81Cell ↔ T81BigInt (scalar → multi-limb, sign-extended) (Implemented via constructor and to_int<N>)
   - [x] T81BigInt ↔ T81Float / T81Fixed (with rounding modes per spec) (Implemented via to_float/from_float)
-  - [ ] Automatic promotion in expressions (T81 → T243 → T729 based on recursion depth)
-  - [ ] Demotion with lossy checks / Axion traps on overflow/underflow
+  - [x+] Automatic promotion in expressions (T81 → T243 → T729 based on recursion depth)
+  - [x] Demotion with lossy checks / Axion traps on overflow/underflow
 
 ## 3. T81Lang Syntax & Semantics (section 5–7)
 - [x] Lexer / parser basics (see `include/t81/lang/parser.hpp`)
@@ -40,18 +40,19 @@
   - [x] `Infinite` literals (`∞{...}`)
   - [x] `recurse`, `distributed`, `infinite`, `reflect` blocks
 - [ ] Recursion tiers & depth limits
-  - [ ] Tiered promotion enforcement (T81 → T243 → T729)
+  - [x+] Tiered promotion enforcement (T81 → T243 → T729)
   - [x] Configurable depth guards + Axion recursion traps (see `include/t81/axion/policy.hpp`, `src/vm/vm.cpp`)
 
 ## 4. HanoiVM / TISC Instruction Set (section 8–10)
 - [x] Segmented memory model (see `src/vm/vm.cpp`)
-- [x] Deterministic fault injection points
+- [x] Deterministic fault injection points (see `IVirtualMachine::set_fault_injections`)
   - [x] For testing Axion enforcement (overflow, illegal access, etc.)
 - [x] Axion trap hooks (overflow, illegal access, recursion guard) (see `include/t81/axion/api.hpp`)
 - [x] Bytecode format & decoder (see `src/vm/jit_compiler.cpp`)
 - [x] JIT compilation (Research/Experimental)
 - [x] Cognitive Tier Opcodes (Registered)
   - [ ] Full Logic Implementation (Symbolic, Reflective, etc.)
+  - [x] Infinite Series Compression (Geometric Series, see `src/cog/tier5/infinite.cpp`)
 
 ## 5. CanonFS & Tensor Storage (section 11)
 - [x+] In-memory read/write throughput (see `src/canonfs/in_memory_driver.cpp`)

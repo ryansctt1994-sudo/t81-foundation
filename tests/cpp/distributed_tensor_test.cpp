@@ -18,6 +18,7 @@ int main() {
 
   auto sum = t1.reduce_sum();
   assert(sum == T81Int<81>(30));
+  (void)sum;
 
   // Test MatMul
   DistributedT81Tensor<T81Int<81>, 2, 2, 2> A(0, 1);

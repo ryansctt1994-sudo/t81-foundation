@@ -51,7 +51,7 @@ T log(T x) {
   auto& v = x.v;
   size_t lead = 0;
   for (size_t i = T::Storage::kNumTrits; i-- > 0;) {
-    if (v[i] != Trit::Z) {
+    if (v[i] != t81::Trit::Z) {
       lead = i;
       break;
     }
@@ -77,7 +77,6 @@ T log(T x) {
   T y = m - T::one();
 
   T sum = T::zero();
-  T term_num = y;  // y^1, y^2, ...
   T neg_y = -y;
 
   // log(1+y) = y - y^2/2 + y^3/3 ...
