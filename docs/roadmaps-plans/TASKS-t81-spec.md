@@ -32,14 +32,14 @@
 
 ## 3. T81Lang Syntax & Semantics (section 5–7)
 - [x] Lexer / parser basics (see `include/t81/lang/parser.hpp`)
-- [ ] Match expressions with canonical metadata
-  - [ ] Pattern matching on T81 values / structs
-  - [ ] Metadata attachment (e.g. provenance, uncertainty)
+- [x] Match expressions with canonical metadata
+  - [x] Pattern matching on T81 values / structs (see `src/frontend/parser.cpp`, `MatchExpr`)
+  - [x] Metadata attachment (via Policy MatchGuard, see `include/t81/axion/policy.hpp`)
 - [ ] Recursion tiers & depth limits
   - [ ] Tiered promotion enforcement (T81 → T243 → T729)
-  - [ ] Configurable depth guards + Axion recursion traps
-- [ ] Symbol literals (`:foo`)
-- [ ] Infinite literals (`∞{...}`)
+  - [x] Configurable depth guards + Axion recursion traps (see `include/t81/axion/policy.hpp`, `src/vm/vm.cpp`)
+- [x] Symbol literals (`:foo`) (see `src/frontend/parser.cpp`)
+- [x] Infinite literals (`∞{...}`) (see `src/frontend/parser.cpp`)
 
 ## 4. HanoiVM / TISC Instruction Set (section 8–10)
 - [x] Segmented memory model (see `src/vm/vm.cpp`)
@@ -53,12 +53,12 @@
 ## 5. CanonFS & Tensor Storage (section 11)
 - [x+] In-memory read/write throughput (see `src/canonfs/in_memory_driver.cpp`)
 - [x] Persistent backend (see `src/canonfs/persistent_driver.cpp`)
-- [ ] Hash-addressed blocks & verification
-  - [ ] Block hashing (full Merkle-style?)
-  - [ ] Integrity checks on read
+- [x] Hash-addressed blocks & verification
+  - [x] Block hashing (SHA3-256 verified in `TLoadHash`, see `src/vm/vm.cpp`)
+  - [x] Integrity checks on read (implicit via content addressing and header check)
 - [ ] .t81w / T3_K quantization import
   - [ ] Converter from GGUF / SafeTensors
-  - [ ] T3_K format parser & validation
+  - [x] T3_K format parser & validation (see `promote_to_tensor` in `src/vm/vm.cpp`)
 
 ## 6. Axion Kernel & Safety Invariants (section 12)
 - [x] Full enforcement in VM loop (VM hooks `axion::check`)
