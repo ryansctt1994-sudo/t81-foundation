@@ -27,13 +27,51 @@ struct BridgeDiagnostic {
   std::string message = "";
   std::string source_line = "";
 
-  BridgeDiagnostic(BridgeError error, std::size_t line, std::size_t column, std::string message,
-                   std::string source_line)
-      : error(error),
-        line(line),
-        column(column),
-        message(std::move(message)),
-        source_line(std::move(source_line)) {}
+  BridgeDiagnostic(BridgeError err, std::size_t l, std::size_t col, std::string msg,
+                   std::string src_line)
+      : error(err),
+        line(l),
+        column(col),
+        message(std::move(msg)),
+        source_line(std::move(src_line)) {}
+
+  // Explicitly implement Rule of 5 to silence Clang Static Analyzer false positives
+  // regarding uninitialized memory in implicit copy/move constructors.
+  BridgeDiagnostic(const BridgeDiagnostic& other)
+      : error(other.error),
+        line(other.line),
+        column(other.column),
+        message(other.message),
+        source_line(other.source_line) {}
+
+  BridgeDiagnostic(BridgeDiagnostic&& other) noexcept
+      : error(other.error),
+        line(other.line),
+        column(other.column),
+        message(std::move(other.message)),
+        source_line(std::move(other.source_line)) {}
+
+  BridgeDiagnostic& operator=(const BridgeDiagnostic& other) {
+    if (this != &other) {
+      error = other.error;
+      line = other.line;
+      column = other.column;
+      message = other.message;
+      source_line = other.source_line;
+    }
+    return *this;
+  }
+
+  BridgeDiagnostic& operator=(BridgeDiagnostic&& other) noexcept {
+    if (this != &other) {
+      error = other.error;
+      line = other.line;
+      column = other.column;
+      message = std::move(other.message);
+      source_line = std::move(other.source_line);
+    }
+    return *this;
+  }
 };
 
 [[nodiscard]] std::string_view bridge_error_message(BridgeError error);
