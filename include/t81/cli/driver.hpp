@@ -33,6 +33,7 @@ int repl(const std::shared_ptr<t81::weights::ModelFile>& weights_model = nullptr
          std::istream& input = std::cin);
 int init_project(const std::string& name);
 int init_package(const std::string& name);
+int canonize_tensor(const std::string& input_file);
 
 struct TraceArgs {
   std::string subcommand;

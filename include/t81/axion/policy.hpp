@@ -20,6 +20,7 @@ enum class PolicyTag : uint8_t {
   MaxRecursion = 0x05,
   MaxReflections = 0x0B,
   MaxMetaWrites = 0x0C,
+  AllowedTensorHashes = 0x0D,
   LoopHint = 0x06,
   MatchGuard = 0x07,
   SegmentEvent = 0x08,
@@ -82,6 +83,7 @@ struct Policy {
   std::optional<int64_t> max_recursion;
   std::optional<int64_t> max_reflections;
   std::optional<int64_t> max_meta_writes;
+  std::vector<std::string> allowed_tensor_hashes;
   std::vector<LoopHint> loops;
   std::vector<MatchGuardRequirement> match_guards;
   std::vector<SegmentEventRequirement> segment_requirements;
@@ -99,7 +101,7 @@ struct Policy {
 
 namespace detail {
 struct PolicyToken {
-  enum class Kind { LParen, RParen, Integer, Symbol, String, End } kind{Kind::End};
+  enum class Kind { LParen, RParen, LBracket, RBracket, Integer, Symbol, String, End } kind{Kind::End};
   std::string text;
   int64_t value{0};
 };
@@ -119,6 +121,14 @@ public:
     if (c == ')') {
       ++pos_;
       return PolicyToken{PolicyToken::Kind::RParen, {}};
+    }
+    if (c == '[') {
+      ++pos_;
+      return PolicyToken{PolicyToken::Kind::LBracket, {}};
+    }
+    if (c == ']') {
+      ++pos_;
+      return PolicyToken{PolicyToken::Kind::RBracket, {}};
     }
     if (std::isdigit(static_cast<unsigned char>(c)) || c == '-' || c == '+') {
       std::size_t start = pos_;
@@ -264,6 +274,28 @@ inline t81::expected<Policy, std::string> parse_policy(std::string_view text) {
         return make_error("max-stack requires integer");
       }
       policy.max_stack = val.value;
+      tok = lex.next();
+      if (tok.kind != detail::PolicyToken::Kind::RParen) {
+        return make_error("expected ')'");
+      }
+      continue;
+    }
+    if (key.text == "allowed-tensor-hashes") {
+      auto bracket = lex.next();
+      if (bracket.kind != detail::PolicyToken::Kind::LBracket) {
+        return make_error("allowed-tensor-hashes requires '['");
+      }
+      while (true) {
+        auto val = lex.next();
+        if (val.kind == detail::PolicyToken::Kind::RBracket) break;
+        if (val.kind == detail::PolicyToken::Kind::End) {
+          return make_error("unterminated allowed-tensor-hashes list");
+        }
+        if (val.kind != detail::PolicyToken::Kind::String) {
+          return make_error("allowed-tensor-hashes requires string literals");
+        }
+        policy.allowed_tensor_hashes.push_back(val.text);
+      }
       tok = lex.next();
       if (tok.kind != detail::PolicyToken::Kind::RParen) {
         return make_error("expected ')'");

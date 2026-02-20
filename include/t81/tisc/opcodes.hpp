@@ -128,6 +128,7 @@ enum class Opcode : std::uint8_t {
   StrSplit,
   StrJoin,
   MakeComplex,
+  TLoadHash,
 };
 
 [[nodiscard]] constexpr std::string_view opcode_name(Opcode opcode) {
@@ -374,13 +375,15 @@ enum class Opcode : std::uint8_t {
       return "StrJoin";
     case Opcode::MakeComplex:
       return "MakeComplex";
+    case Opcode::TLoadHash:
+      return "TLoadHash";
   }
   return "Unknown";
 }
 
-inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::MakeComplex) + 1> kAllOpcodes =
+inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::TLoadHash) + 1> kAllOpcodes =
     [] {
-      std::array<Opcode, static_cast<std::size_t>(Opcode::MakeComplex) + 1> values{};
+      std::array<Opcode, static_cast<std::size_t>(Opcode::TLoadHash) + 1> values{};
       for (std::size_t i = 0; i < values.size(); ++i) {
         values[i] = static_cast<Opcode>(i);
       }
@@ -388,6 +391,6 @@ inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::MakeComplex
     }();
 
 [[nodiscard]] constexpr bool is_valid_opcode(std::uint8_t raw_opcode) {
-  return raw_opcode <= static_cast<std::uint8_t>(Opcode::MakeComplex);
+  return raw_opcode <= static_cast<std::uint8_t>(Opcode::TLoadHash);
 }
 }  // namespace t81::tisc

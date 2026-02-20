@@ -1,10 +1,14 @@
 #include <chrono>
 #include <cmath>
 #include <cstring>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <span>
 #include <vector>
+
+#include "t81/canonfs/canon_driver.hpp"
+#include "t81/canonfs/canon_types.hpp"
 #include "t81/tisc/opcodes.hpp"
 #include "t81/tisc/program.hpp"
 #include "t81/vm/vm.hpp"
@@ -13,9 +17,42 @@
 using namespace t81;
 using namespace t81::tisc;
 using namespace t81::weights;
+namespace fs = std::filesystem;
+
+// Helper to serialize NativeTensor to CanonObject format (same as in CLI)
+std::vector<std::byte> serialize_tensor(const t81::weights::NativeTensor& tensor) {
+  std::vector<std::byte> buffer;
+  size_t estimated_size = 1 + 72 + tensor.data.size() * 8;
+  buffer.reserve(estimated_size);
+
+  // 1. Type ID
+  buffer.push_back(static_cast<std::byte>(0x20));
+
+  // 2. Header
+  buffer.push_back(static_cast<std::byte>(1));  // version
+  buffer.push_back(static_cast<std::byte>(static_cast<uint8_t>(tensor.format)));
+  uint8_t rank = static_cast<uint8_t>(tensor.shape.size());
+  buffer.push_back(static_cast<std::byte>(rank));
+  for (int i = 0; i < 4; ++i) buffer.push_back(static_cast<std::byte>(0));  // reserved
+  for (int i = 0; i < 8; ++i) {                                              // shape
+    uint64_t dim = (i < rank) ? tensor.shape[i] : 0;
+    for (int b = 0; b < 8; ++b) {
+      buffer.push_back(static_cast<std::byte>((dim >> (b * 8)) & 0xFF));
+    }
+  }
+
+  // 3. Data Payload
+  for (uint64_t val : tensor.data) {
+    for (int b = 0; b < 8; ++b) {
+      buffer.push_back(static_cast<std::byte>((val >> (b * 8)) & 0xFF));
+    }
+  }
+  return buffer;
+}
 
 int main() {
-  std::cout << "--- T81 'Go Broad' Killer Demo: Llama-3.2-1B Deterministic Inference Block ---\n";
+  std::cout
+      << "--- T81 'Go Broad' Killer Demo: Llama-3.2-1B Deterministic Inference Block ---\n";
 
   const int hidden_dim = 2048;  // Llama-3.2-1B dimensions
   const int num_heads = 32;
@@ -53,10 +90,14 @@ int main() {
   };
 
   std::vector<std::string> weight_names = {
-      "model.layers.0.input_layernorm.weight",  "model.layers.0.self_attn.q_proj.weight",
-      "model.layers.0.self_attn.k_proj.weight", "model.layers.0.self_attn.v_proj.weight",
-      "model.layers.0.self_attn.o_proj.weight", "model.layers.0.post_attention_layernorm.weight",
-      "model.layers.0.mlp.gate_proj.weight",    "model.layers.0.mlp.up_proj.weight",
+      "model.layers.0.input_layernorm.weight",
+      "model.layers.0.self_attn.q_proj.weight",
+      "model.layers.0.self_attn.k_proj.weight",
+      "model.layers.0.self_attn.v_proj.weight",
+      "model.layers.0.self_attn.o_proj.weight",
+      "model.layers.0.post_attention_layernorm.weight",
+      "model.layers.0.mlp.gate_proj.weight",
+      "model.layers.0.mlp.up_proj.weight",
       "model.layers.0.mlp.down_proj.weight"};
 
   create_dummy_tensor(weight_names[0], {static_cast<uint64_t>(hidden_dim)});
@@ -76,10 +117,33 @@ int main() {
   create_dummy_tensor(weight_names[8],
                       {static_cast<uint64_t>(hidden_dim), static_cast<uint64_t>(hidden_dim)});
 
+  // --- Canonize input_layernorm.weight for TLOADHASH demo ---
+  auto& tensor_to_hash = mock_weights["model.layers.0.input_layernorm.weight"];
+  auto canon_bytes = serialize_tensor(tensor_to_hash);
+
+  fs::path canon_root = fs::current_path() / ".t81_canonfs";
+  std::error_code ec;
+  fs::create_directories(canon_root, ec);
+  auto driver = t81::canonfs::make_persistent_driver(canon_root);
+  auto write_res = driver->write_object(t81::canonfs::ObjectType::CanonTensor, canon_bytes);
+  std::string hash_str;
+  if (write_res) {
+    hash_str = "sha3-256:" + write_res.value().hash.h.to_string();
+    std::cout << "Canonized input_layernorm.weight -> " << hash_str << "\n";
+  } else {
+    std::cerr << "Failed to canonize tensor!\n";
+    return 1;
+  }
+
   // 2. Build TISC program
   Program program;
   program.weights_model = std::make_shared<ModelFile>();
   program.weights_model->native = std::move(mock_weights);
+
+  // Add hash to symbol pool
+  weight_names.push_back(hash_str);
+  int hash_symbol_index = weight_names.size(); // 1-based index (last element)
+
   program.symbol_pool = weight_names;
 
   // Initial input tensor (Rank 1: HiddenDim)
@@ -99,17 +163,22 @@ int main() {
   insns.push_back({Opcode::LoadImm, reg_x, 1, 0, LiteralKind::TensorHandle});
 
   // Minimal deterministic pipeline:
-  // Load one weights tensor handle, then halt. This keeps the demo stable while
-  // still exercising weights symbol resolution and Axion logging.
-  insns.push_back({Opcode::WeightsLoad, reg_tmp1, 1});  // input_layernorm.weight
+  // Load one weights tensor handle via TLOADHASH, then halt.
+  // 1. Load the hash string handle into reg_tmp2
+  insns.push_back({Opcode::LoadImm, reg_tmp2, hash_symbol_index, 0, LiteralKind::SymbolHandle});
+  // 2. Load tensor using the hash in reg_tmp2
+  insns.push_back({Opcode::TLoadHash, reg_tmp1, reg_tmp2});
+
   insns.push_back({Opcode::Mov, reg_out, reg_tmp1});
 
   insns.push_back({Opcode::Halt});
   program.insns = std::move(insns);
 
+  // Policy Gating
   program.axion_policy_text = "(policy (tier 1)"
-                              " (require-axion-event (reason \"weights.load "
-                              "\\\"model.layers.0.input_layernorm.weight\\\"\")))";
+                              " (allowed-tensor-hashes [\"" + hash_str + "\"])"
+                              " (require-axion-event (reason \"TLOADHASH success\"))"
+                              ")";
 
   // 3. Run
   auto vm = vm::make_interpreter_vm();
@@ -119,11 +188,6 @@ int main() {
   auto result = vm->run_to_halt(2000);
   auto end = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> diff = end - start;
-
-  if (!result.has_value()) {
-    std::cerr << "Demo failed with trap: " << static_cast<int>(result.error()) << "\n";
-    return 1;
-  }
 
   // 4. Print Results
   std::cout << "\nInference time: " << diff.count() << " seconds\n";
@@ -137,8 +201,16 @@ int main() {
   }
   std::cout << "  ... total " << vm->state().axion_log.size() << " events.\n";
 
-  if (vm->state().register_tags[reg_out] == vm::ValueTag::WeightsTensorHandle) {
-    std::cout << "Resolved weights handle in reg_out: " << vm->state().registers[reg_out] << "\n";
+  if (!result.has_value()) {
+    std::cerr << "Demo failed with trap: " << static_cast<int>(result.error()) << "\n";
+    return 1;
+  }
+
+  if (vm->state().register_tags[reg_out] == vm::ValueTag::TensorHandle) {
+    // TLoadHash returns TensorHandle, not WeightsTensorHandle
+    std::cout << "Resolved tensor handle in reg_out: " << vm->state().registers[reg_out] << "\n";
+  } else {
+    std::cout << "reg_out tag: " << static_cast<int>(vm->state().register_tags[reg_out]) << "\n";
   }
 
   std::cout

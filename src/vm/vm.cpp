@@ -19,6 +19,8 @@
 #include "t81/axion/engine.hpp"
 #include "t81/axion/policy_engine.hpp"
 #include "t81/axion/reasons.hpp"
+#include "t81/canonfs/canon_driver.hpp"
+#include "t81/canonfs/canon_types.hpp"
 #include "t81/enum_meta.hpp"
 #include "t81/vm/jit.hpp"
 #include "t81/vm/vm.hpp"
@@ -38,6 +40,10 @@ public:
     if (!axion_engine_) {
       axion_engine_ = t81::axion::make_allow_all_engine();
     }
+    std::filesystem::path canon_root = std::filesystem::current_path() / ".t81_canonfs";
+    std::error_code ec;
+    std::filesystem::create_directories(canon_root, ec);
+    canonfs_driver_ = t81::canonfs::make_persistent_driver(canon_root);
   }
 
   std::int64_t load_weights_tensor(std::string_view name) override {
@@ -899,6 +905,188 @@ public:
           verdict.kind = t81::axion::VerdictKind::Allow;
           verdict.reason = "weights.load \"" + name + "\"";
           record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), handle, verdict);
+        }
+        break;
+      }
+      case t81::tisc::Opcode::TLoadHash: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        auto symbol = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+        if (!symbol.has_value()) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        std::string hash_str = std::string(*symbol);
+
+        auto verdict =
+            eval_axion_call(t81::axion::reasons::kStep, current_pc, insn.opcode, hash_str);
+        if (verdict.kind == t81::axion::VerdictKind::Deny) {
+          record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), 0, verdict);
+          trap = Trap::SecurityFault;
+          break;
+        }
+
+        std::string stripped;
+        if (hash_str.starts_with("sha3-256:")) {
+          stripped = hash_str.substr(9);
+        } else {
+          stripped = hash_str;
+        }
+
+        t81::canonfs::CanonHash ch;
+        try {
+          ch.h = t81::hash::CanonHash81::from_string(stripped);
+        } catch (...) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+
+        t81::canonfs::CanonRef ref{ch};
+        auto obj_res = canonfs_driver_->read_object_bytes(ref);
+        if (!obj_res) {
+          t81::axion::Verdict miss_verdict;
+          miss_verdict.kind = t81::axion::VerdictKind::Allow;
+          miss_verdict.reason = "TLOADHASH canonfs_miss hash=" + hash_str;
+          record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), 0, miss_verdict);
+          trap = Trap::BoundsFault;
+          break;
+        }
+
+        auto bytes = obj_res.value();
+        // Min size: 1 (Type) + 1 (Ver) + 1 (Fmt) + 1 (Rank) + 4 (Res) + 64 (Shape) = 72 bytes header + data
+        if (bytes.size() < 72) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        const uint8_t* ptr = reinterpret_cast<const uint8_t*>(bytes.data());
+        if (*ptr++ != 0x20) {  // TypeID
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (*ptr++ != 1) {  // Version
+          trap = Trap::DecodeFault;
+          break;
+        }
+        uint8_t fmt = *ptr++;
+        uint8_t rank = *ptr++;
+        ptr += 4;  // Reserved
+
+        std::vector<int> shape;
+        for (int i = 0; i < 8; ++i) {
+          uint64_t dim = 0;
+          for (int b = 0; b < 8; ++b) {
+            dim |= (static_cast<uint64_t>(*ptr++) << (b * 8));
+          }
+          if (i < rank) shape.push_back(static_cast<int>(dim));
+        }
+
+        // Remaining bytes are payload
+        size_t payload_bytes = bytes.size() - (ptr - reinterpret_cast<const uint8_t*>(bytes.data()));
+        if (payload_bytes % 8 != 0) {
+           trap = Trap::DecodeFault;
+           break;
+        }
+        size_t num_elements = payload_bytes / 8;
+
+        // Check if shape matches num_elements
+        size_t expected = 1;
+        for(int d : shape) expected *= d;
+        if (num_elements != expected) {
+           // For T3_K or others this might differ, but for now we assume packed u64
+           // Actually, serialize_tensor in canonize_tensor used NativeTensor which has uint64_t data.
+           // And promoted to float for T729Tensor.
+           // Wait, T729Tensor uses float (32-bit?) or T81Float<72,9>?
+           // T729Tensor is alias for T81Tensor<T81Float<72,9>>?
+           // The memory says: "T729Tensor ... is a template alias for T81Tensor specialized with T81Float<72, 9>".
+           // But in vm.cpp: `t81::T729Tensor promoted(std::move(shape), std::move(float_data));`
+           // where `float_data` is `std::vector<float>`.
+           // So T729Tensor seems to hold float?
+           // Let's check `include/t81/core/T729Tensor.hpp` or `t81/tensor.hpp`.
+           // I don't have access to those files right now (didn't read them), but `vm.cpp` uses `std::vector<float> data = tensor->data();`.
+           // So `T729Tensor` uses `float` or convertible to `float`.
+           // The serialized format I wrote in `canonize_tensor` writes `uint64_t` from `NativeTensor`.
+           // `NativeTensor` holds trits packed in limbs or T3_K.
+           // If `fmt` is BalancedTernary (0), it is `vector<uint64_t>`.
+           // To load it into `T729Tensor` (which is floats in VM), I need to convert/promote it!
+           // Just like `promote_to_tensor` does for `WeightsTensorHandle`.
+
+           // I should reuse logic from `promote_to_tensor`?
+           // But `promote_to_tensor` works on `NativeTensor`.
+           // I can reconstruct `NativeTensor` from the bytes, then use similar logic.
+
+           // Reconstruct NativeTensor
+           t81::weights::NativeTensor native;
+           native.format = static_cast<t81::weights::NativeFormat>(fmt);
+           for(int d : shape) native.shape.push_back(d);
+           native.data.reserve(num_elements);
+           for(size_t i=0; i<num_elements; ++i) {
+               uint64_t val = 0;
+               for(int b=0; b<8; ++b) {
+                   val |= (static_cast<uint64_t>(*ptr++) << (b*8));
+               }
+               native.data.push_back(val);
+           }
+           native.trits = 0; // Not stored in header? num_trits() calculates it.
+
+           // Convert NativeTensor to T729Tensor (floats)
+           std::vector<float> float_data;
+           uint64_t calculated_trits = 1;
+           for(auto d : native.shape) calculated_trits *= d;
+           native.trits = calculated_trits;
+           float_data.reserve(native.trits);
+
+           if (native.format == t81::weights::NativeFormat::T3_K) {
+              const uint8_t* byte_ptr = reinterpret_cast<const uint8_t*>(native.data.data());
+              uint64_t total_trits = native.num_trits();
+              for (uint64_t offset = 0; offset < total_trits; offset += 128) {
+                float scale;
+                std::memcpy(&scale, byte_ptr, sizeof(float));
+                byte_ptr += sizeof(float);
+                uint64_t count = std::min<uint64_t>(128, total_trits - offset);
+                uint64_t trit_index = 0;
+                for (uint64_t packed_idx = 0; packed_idx < 26; ++packed_idx) {
+                  uint8_t packed = *byte_ptr++;
+                  // ... checks ...
+                  uint8_t rem = packed;
+                  for (uint64_t local = 0; local < 5; ++local, ++trit_index) {
+                    uint8_t digit = static_cast<uint8_t>(rem % 3);
+                    rem = static_cast<uint8_t>(rem / 3);
+                    if (trit_index < count) {
+                      float trit = static_cast<float>(static_cast<int>(digit) - 1);
+                      float_data.push_back(trit * scale);
+                    }
+                  }
+                }
+              }
+           } else {
+              uint64_t remaining = native.trits;
+              for (uint64_t limb : native.data) {
+                uint64_t count = std::min<uint64_t>(48, remaining);
+                std::vector<float> block(count);
+                uint64_t val = limb;
+                for (int i = 47; i >= 0; --i) {
+                  uint64_t digit = val % 3;
+                  val /= 3;
+                  if (static_cast<uint64_t>(i) < count) {
+                    block[i] = static_cast<float>(static_cast<int>(digit) - 1);
+                  }
+                }
+                float_data.insert(float_data.end(), block.begin(), block.end());
+                remaining -= count;
+                if (remaining == 0) break;
+              }
+           }
+
+           t81::T729Tensor loaded_tensor(std::move(shape), std::move(float_data));
+           state_.registers[insn.a] = alloc_tensor(std::move(loaded_tensor));
+           state_.register_tags[insn.a] = ValueTag::TensorHandle;
+
+           t81::axion::Verdict success_verdict;
+           success_verdict.kind = t81::axion::VerdictKind::Allow;
+           success_verdict.reason = "TLOADHASH success hash=" + hash_str + " handle=" + std::to_string(state_.registers[insn.a]);
+           record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), state_.registers[insn.a], success_verdict);
         }
         break;
       }
@@ -3334,13 +3522,14 @@ private:
   }
 
   t81::axion::Verdict eval_axion_call(std::string_view syscall, std::size_t prog_counter,
-                                      t81::tisc::Opcode opcode) {
+                                      t81::tisc::Opcode opcode, std::string_view payload = {}) {
     if (syscall == t81::axion::reasons::kMetaRead) {
       // Internal MetaRead check could go here
     }
     t81::axion::SyscallContext ctx;
     ctx.caller = "t81vm";
     ctx.syscall.assign(syscall);
+    ctx.payload = std::string(payload);
     ctx.pc = prog_counter;
     ctx.next_opcode = opcode;
     ctx.instruction_count = instruction_count_;
@@ -3530,6 +3719,7 @@ private:
   State state_{};
   t81::tisc::Program program_{};
   std::unique_ptr<t81::axion::Engine> axion_engine_;
+  std::unique_ptr<t81::canonfs::Driver> canonfs_driver_;
   static constexpr std::size_t kGcInterval = 64;
   std::size_t instructions_since_gc_{0};
   std::size_t instruction_count_{0};

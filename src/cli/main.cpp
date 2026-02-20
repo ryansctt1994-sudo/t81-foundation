@@ -161,6 +161,7 @@ Commands:
   debug   <file.t81|.tisc>             Compile (if needed) and start debugger
   check   <file.t81>                   Syntax-check only
   repro-hash [fixtures_dir]            Run T81Lang determinism fixture hash gate
+  canonize-tensor <file>               Canonize tensor file to CanonFS store
   init    <project_name>               Scaffold a new T81 project
   pkg     <command> [args]             T81 package manager (init, check)
   lint    <file.t81>                   Alias for check; performs semantic analysis
@@ -325,7 +326,8 @@ Args parse_args(int argc, char* argv[]) {
       if (a.command == "benchmark") {
         a.benchmark_args.emplace_back(argv[i]);
       } else if (a.command == "weights" || a.command == "init" || a.command == "pkg" ||
-                 a.command == "repro-hash" || a.command == "policy" || a.command == "trace") {
+                 a.command == "repro-hash" || a.command == "policy" || a.command == "trace" ||
+                 a.command == "canonize-tensor") {
         a.command_args.emplace_back(argv[i]);
       } else {
         error("Unknown option: " + std::string(arg));
@@ -335,7 +337,8 @@ Args parse_args(int argc, char* argv[]) {
       if (a.command == "benchmark") {
         a.benchmark_args.emplace_back(argv[i]);
       } else if (a.command == "weights" || a.command == "init" || a.command == "pkg" ||
-                 a.command == "repro-hash" || a.command == "policy" || a.command == "trace") {
+                 a.command == "repro-hash" || a.command == "policy" || a.command == "trace" ||
+                 a.command == "canonize-tensor") {
         a.command_args.emplace_back(argv[i]);
       } else {
         if (!a.input.empty()) {
@@ -798,6 +801,13 @@ int main(int argc, char* argv[]) {
 
     } else if (args.command == "repro-hash") {
       return run_repro_hash(argv[0], args);
+
+    } else if (args.command == "canonize-tensor") {
+      if (args.command_args.empty()) {
+        error("canonize-tensor requires an input file");
+        return 1;
+      }
+      return t81::cli::canonize_tensor(args.command_args[0]);
 
     } else if (args.command == "init") {
       if (args.command_args.empty()) {

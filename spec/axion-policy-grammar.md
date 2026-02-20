@@ -17,6 +17,7 @@ APL is a declarative, S-expression based DSL used to define safety and alignment
                   | (max-instructions <integer>)
                   | (max-recursion <integer>)
                   | (max-stack <integer>)
+                  | (allowed-tensor-hashes [<string>*])
                   | <requirement>
                   | <hint>
 

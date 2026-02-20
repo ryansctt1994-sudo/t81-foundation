@@ -31,7 +31,7 @@ enum class ObjectType : std::uint8_t {
   CanonSeal = 0x14,
   CanonLink = 0x15,
   CanonExec = 0x16,
-  CanonView = 0x20,
+  CanonTensor = 0x20,  // Was CanonView
 };
 
 struct CanonRef {

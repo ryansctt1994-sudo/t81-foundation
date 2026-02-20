@@ -103,7 +103,7 @@ All objects begin with a one-byte **Type ID**, preventing type confusion attacks
 | 0x15 | CanonLink | Symbolic link with optional display hint (§6.2) |
 | 0x16 | CanonExec | Executable metadata + entrypoint |
 | 0x17–0x1F | Reserved | |
-| 0x20 | CanonView | (Reserved) Lazy materialized views |
+| 0x20 | CanonTensor | Canonical tensor object |
 
 Object identity is always:
 
@@ -278,6 +278,7 @@ ______________________________________________________________________
 | CanonIndex | [0x12][term_count u32]\[term_hash, CanonRef[], offsets[]\] |
 | CanonMeta | [0x13][pair_count u16][(key_hash value_hash)…] |
 | CanonSeal | [0x14][nonce 24 trytes][ciphertext][tag 16 trytes] |
+| CanonTensor | [0x20][ver][fmt][rank][res][shape][payload] |
 
 Integers must be little-endian.
 
@@ -342,7 +343,6 @@ ______________________________________________________________________
 
 Planned for post-1.0:
 
-- `0x20 CanonView` (lazy materialized views)
 - CanonSync (CRDT-based multi-writer convergence)
 - CanonNet (global parity-gossip fabric)
 - Quantum-resistant signatures (QR-Falcon / STARK-Poseidon-81)
