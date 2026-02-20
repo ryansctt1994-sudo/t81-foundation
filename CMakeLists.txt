@@ -739,6 +739,10 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(t81_float_test tests/cpp/test_T81Float.cpp)
   target_link_libraries(t81_float_test PRIVATE t81_core)
 
+  add_executable(t81_bigint_float_conversion_test tests/cpp/test_T81BigInt_Float_conversion.cpp)
+  target_link_libraries(t81_bigint_float_conversion_test PRIVATE t81_core)
+  add_test(NAME t81_bigint_float_conversion_test COMMAND t81_bigint_float_conversion_test)
+
   add_executable(t81_float_properties_test tests/cpp/float_properties_test.cpp)
   target_link_libraries(t81_float_properties_test PRIVATE t81_core)
 
