@@ -2,7 +2,7 @@
 
 > **Source of Truth:** This document defines the **current operational state** of the project (what is true today). For future plans, see [../roadmaps-plans/ROADMAP.md](../roadmaps-plans/ROADMAP.md). For version history, see [CHANGELOG.md](CHANGELOG.md).
 
-**Last Updated:** February 10, 2026
+**Last Updated:** February 17, 2026
 **Status:** Active development (Stable Core)
 
 ## 1. Snapshot
@@ -16,11 +16,11 @@
 
 | Component | Maturity | Spec Version | Test Coverage | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **T81Lang** | Stable | v1.1.0 | High | Full syntax and semantics implemented. |
+| **T81Lang** | Stable | v1.1.0 | High | Full syntax and semantics implemented, including cognitive tiers (T243-T19683). |
 | **TISC** | Stable | v1.1.0 | High | Binary serialization and opcode matrix complete. |
-| **HanoiVM** | Stable | v1.1.0 | High | Core execution loop and memory model verified. |
+| **HanoiVM** | Stable | v1.1.0 | High | Core execution loop, memory model, and cognitive tier stubs verified. |
 | **Axion** | Stable | v1.0.0 | High | Policy enforcement and event tracing active. |
-| **CanonFS** | Beta | v0.9.0 | Medium | Drivers implemented; performance optimization ongoing. |
+| **CanonFS** | Beta | v0.9.0 | Medium | Persistent/In-memory drivers implemented; performance optimization ongoing. |
 | **CLI** | Beta | - | Medium | `run`/`compile` stable; `debug`/`trace` improving. |
 | **JIT** | Experimental | - | Low | Trace recording implemented; native backend planned. |
 

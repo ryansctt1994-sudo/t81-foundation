@@ -1,56 +1,82 @@
-# 12 Things to Further the T81 Project
+# Active Development Tasks
 
-Based on the analysis of `advanced_datatypes_showcase.t81` and the current compiler state, here are 12 key tasks to improve the project:
+**Last Updated:** February 17, 2026
 
-1.  **Implement If-Expressions:** [Done] The parser currently treats `if` only as a statement. Support `if` as an expression (e.g., `let x = if cond { a } else { b };`) to match the example usage and modern language features.
-2.  **Implement Block Expressions:** [Done] Support code blocks `{ ... }` as expressions that return the value of their last statement. This is essential for `match` arms and functional-style programming.
-3.  **Enhance Tensor/Vector Indexing:** [Done] Fix the semantic analysis for `IndexExpr` when applied to `Tensor` and `Vector` types. Currently, it often fails with "Type does not support indexing" or parser errors on nested literals.
-4.  **Fix Generic Parameter Validation:** [Done] Relax the `SemanticAnalyzer` restriction that the first generic parameter must be a Type. Types like `T81Fixed[4, 4]` require integer expressions as parameters.
-5.  **Implement Enum Namespaces and Scope Injection:** [Done] Enum variants are injected into scope, and `Enum.Variant` resolution is supported for both constructor-style and constant variants.
-6.  **Fix Lexer Dot Consumption:** [Done] The Lexer consumes `.` in identifiers, treating `profile.active` as a single token. This prevents proper parsing of field access expressions. Ensure `.` is tokenized as a Dot operator when appropriate.
-7.  **Implement Assignments to Array Indices:** [Done] The parser currently rejects assignments like `arr[i] = val` because assignment targets are restricted to variables. Extend assignment logic to support `IndexExpr` and `FieldAccessExpr`.
-8.  **Resolve Type Aliases in Semantic Analysis:** [Done] `SimpleTypeExpr` resolves non-parameterized aliases so underlying type properties (including indexing behavior) are available during semantic checks.
-9.  **Implement `T81Fixed` and `T81Complex` Support:** [Done] Frontend semantic kinds, parsing, and constructor-call validation are wired (`T81Fixed[...] (x)`, `T81Complex[...] (re, im)`), IR lowers both constructors deterministically (`T81Fixed` via integer coercion, `T81Complex` via `MAKE_COMPLEX`), and VM/JIT now execute `MAKE_COMPLEX` with deterministic complex-handle runtime semantics.
-10. **Implement `T81Qutrit` and `T81Uint` Support:** [Done] These types are first-class in T81Lang semantic typing and IR lowering; unsigned rules enforce `-T81Uint` rejection and `T81Uint - x` promotion to `T81BigInt`, explicit conversion-call checks (`T81Uint(x)`, `T81Qutrit(x)`) validate sign/range, constrained-integer checks fold constant integer expressions (e.g. `1-2`, `1+1`) for deterministic compile-time range/sign diagnostics, and IR lowers `T81Uint(...)` / `T81Qutrit(...)` conversion calls.
-11. **Relax Vector Literal Typing:** [Done] `VectorLiteralExpr` now accepts non-numeric element types when element types are consistent.
-12. **Improve Error Recovery and Diagnostics:** [Done] Panic-mode recovery and contextual diagnostics are in place with regression coverage: parser `consume()` now fails-fast into synchronization with expected-vs-found token details; `match` parsing recovers on malformed/missing arm separators (including malformed payload-pattern parsing, missing `)` after bindings when `=>`/guard follows, and missing guard expressions after `if`); generic trailing-comma handling avoids expression-cascade noise; semantic token extraction preserves concrete locations for more expression forms; field/index assignment paths suppress follow-on diagnostics when the root target expression already failed; and diagnostics now consistently include concrete expression/type context for match-arm incompatibility, enum constructor arguments, non-record field access, contextual `Some`/`Ok`/`Err` constructor mismatches, logical-not operand mismatches, assignment type mismatches, unsupported indexing bases, non-integer indexing expressions, and non-bool conditions in `if`/`while`/`match` guards.
-13. **Implement `std.text.split` / `std.text.join`:** [Done] Deterministic split/join semantics now execute end-to-end, including empty-segment preservation and semantic rejection of empty literal separators.
-14. **Add String-Vector Runtime Support for T81Lang:** [Done] Deterministic runtime/IR representation for `Vector[T81String]` is implemented via dedicated VM handle/tag + lowering opcodes.
-15. **Add End-to-End split/join Test Matrix:** [Done] Conformance, IR lowering, e2e behavior, CLI diagnostics, and CLI fixture goldens now cover split/join.
-16. **Expose `std.symbol` Frontend Aliases:** [Done] `std.symbol.intern` and `std.symbol.to_string` are wired through semantic analysis/IR and covered by conformance, e2e, and CLI diagnostics.
-17. **Add `std.tensor` CLI Fixture Goldens:** [Done] Fixture-driven CLI coverage now validates deterministic observable behavior for `std.tensor.load` and runtime execution paths for `std.tensor.from_list` / `std.tensor.vec_add`.
-18. **Add `std.tensor.matmul` CLI Fixture Coverage:** [Done] The tensor fixture harness now injects deterministic in-memory rank-2 weights (`mat_a`, `mat_b`) and validates runtime `std.tensor.matmul` execution with golden output.
-19. **Expose `std.core.debug` Frontend Alias:** [Done] `std.core.debug` now canonicalizes to builtin `print`, with conformance, IR-lowering, and CLI check coverage.
-20. **Expose `std.core.unwrap_or` Frontend Alias:** [Done] `std.core.unwrap_or` now canonicalizes to deterministic Option lowering (`OPTION_IS_SOME` / `OPTION_UNWRAP`) with conformance, IR-lowering, and CLI check coverage.
-21. **Expose `std.core.assert` Frontend Alias:** [Done] `std.core.assert` now canonicalizes to deterministic trap-on-false lowering with conformance, IR-lowering, and CLI check coverage.
-22. **Expose `std.sys` / `std.async` / `std.agent` Frontend Aliases:** [Done] `std.sys.exit/time`, `std.async.yield/sleep`, and `std.agent.self_reflect` now canonicalize to deterministic builtin lowerings (`TRAP`, `0.0`, no-op, `META_REFLECT`) with conformance, IR-lowering, and CLI check coverage.
-23. **Align `std.sys` / `std.async` / `std.agent` Wrapper Modules:** [Done] `src/lang/std/{sys,async,agent}.t81` now forward directly to frontend aliases instead of stub logic, with conformance wrapper coverage.
-24. **Harden Unsupported `std.math` Alias Diagnostics:** [Done] unsupported transcendental aliases (`asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `exp`, `log`, `pow`, `sqrt`) now canonicalize to deterministic semantic diagnostics instead of generic unresolved-function failures, with conformance coverage.
-25. **Align `std.math` Wrapper Surface with Docs:** [Done] `src/lang/std/math.t81` now exposes wrapper functions for the full documented transcendental surface; unsupported operations still fail deterministically through frontend diagnostics, with CLI check coverage.
-26. **Implement First `std.math` Scalar Runtime Batch:** [Done] `std.math.sqrt`, `std.math.exp`, `std.math.log`, and `std.math.pow` now lower end-to-end (semantic + IR + opcode emission + VM execution) with conformance/IR/CLI coverage; remaining transcendental aliases stay deterministic-diagnostic only.
-27. **Implement Remaining `std.math` Transcendental Aliases:** [Done] `std.math.asin`, `std.math.acos`, `std.math.atan`, `std.math.sinh`, `std.math.cosh`, and `std.math.tanh` now lower end-to-end (semantic + IR + opcode emission + VM execution) with conformance/IR/CLI coverage.
-28. **Implement `std.math.clamp` Alias Lowering:** [Done] `std.math.clamp` now lowers with deterministic semantic/IR behavior (`min`/`max` clamping over float-compatible values) and conformance/CLI coverage.
-29. **Implement `std.collections` Vector Length MVP:** [Done] `std.collections.len` / `std.collections.is_empty` now lower end-to-end (semantic + IR + opcode emission + VM execution) for frontend `Vector[T]` values, including both tensor-backed and string-vector runtime representations, with conformance/IR/CLI coverage.
-30. **Implement `std.collections` Element/Mutation Aliases:** [Done] `std.collections.first` / `std.collections.last` / `std.collections.push` / `std.collections.pop` now lower end-to-end (semantic + IR + opcode emission + VM execution) for frontend `Vector[T]` values across tensor-backed and string-vector runtime representations, with deterministic empty-literal diagnostics for `first`/`last`/`pop` and fixture-driven CLI golden coverage.
-31. **Support Explicit Generic Call Type Arguments:** [Done] User-defined generic functions now accept explicit call-site type arguments (`fn id[T](x: T) -> T; id[i32](7)`), with deterministic semantic diagnostics for explicit-arity/type mismatches, plus parser/semantic/conformance coverage and CLI `check` regression coverage.
-32. **Support Partial Explicit Generic Call Arguments:** [Done] User-defined generic calls now allow prefix explicit type arguments with deterministic inference fallback for the remaining parameters (`fn first[T, U](a: T, b: U) -> T; first[i32](7, "tail")`), with conformance, semantic, and CLI-check regression coverage.
-33. **Harden Unresolved Generic Inference Diagnostics:** [Done] Calls that leave generic parameters unbound now fail deterministically with targeted diagnostics, including single-parameter (`'T'`) and multi-parameter (`'T', 'U'`) inference failures, with semantic/conformance/CLI-check regression coverage and explicit-generic IR lowering coverage.
-34. **Expose `std.sys.entropy` Frontend Alias:** [Done] `std.sys.entropy()` now canonicalizes to a deterministic integer alias (`0` for current VM contract) with semantic, IR-lowering, wrapper-module, conformance, and CLI-check regression coverage.
-35. **Expose `std.sys.proof` / `std.io.stream` / `std.io.net` Aliases:** [Done] Deterministic frontend aliases are wired (`LOADI` symbol literals in IR), wrapper-module forwarding is in place, and runtime now materializes typed handles with stable textual rendering, with conformance/IR/CLI-check coverage.
-36. **Expose `std.async.thread` / `std.async.promise` Aliases:** [Done] Deterministic frontend aliases are wired (`LOADI` symbol literals in IR), wrapper-module forwarding is in place, and runtime now materializes typed handles with stable textual rendering, with conformance/IR/CLI-check coverage.
-37. **Expose `std.collections` Roadmap Entry Aliases:** [Done] `std.collections.list/map/set/tree/graph` are now available as deterministic frontend/runtime constructor aliases with semantic diagnostics and IR/CLI coverage.
-38. **Upgrade `std.collections.list` to Real Vector Semantics:** [Done] `std.collections.list()` now returns a deterministic empty runtime-backed `Vector[T81String]` value (no longer a placeholder scalar handle), with semantic/IR/conformance/CLI regression coverage.
-39. **Upgrade `std.collections.map` to Real Vector Semantics:** [Done] `std.collections.map()` now returns a deterministic empty runtime-backed `Vector[T81String]` value (no longer a placeholder scalar handle), with semantic/IR/conformance/CLI regression coverage.
-40. **Upgrade `std.collections.set` to Real Vector Semantics:** [Done] `std.collections.set()` now returns a deterministic empty runtime-backed `Vector[T81String]` value (no longer a placeholder scalar handle), with semantic/IR/conformance/CLI regression coverage.
-41. **Upgrade `std.collections.tree` / `std.collections.graph` to Real Vector Semantics:** [Done] `std.collections.tree()` and `std.collections.graph()` now return deterministic empty runtime-backed `Vector[T81String]` values (no longer placeholder scalar handles), with semantic/IR/conformance/CLI regression coverage.
-42. **Add `std.sys` / `std.io` / `std.async` Runtime Fixture Goldens:** [Done] Fixture-driven CLI golden coverage now validates deterministic runtime output for typed-handle aliases (`proof`, `stream`, `net`, `thread`, `promise`) and baseline deterministic behavior for `time`, `entropy`, `yield`, and `sleep`.
-43. **Harden `std.collections` Map-Helper Diagnostics:** [Done] `std.collections.map_put/get/has/remove/size/keys` are now canonicalized as reserved stdlib aliases and fail with deterministic "not implemented yet" diagnostics (no unresolved-name ambiguity), with conformance + CLI-check regression coverage.
-44. **Implement `std.collections.map_size` / `std.collections.map_has`:** [Done] `map_size` and `map_has` now lower end-to-end (semantic + IR + VM execution) for staged flat-map `Vector[T81String]` encodings (`[k0, v0, ...]`, odd tails ignored), with conformance/CLI-check updates and fixture-driven CLI golden coverage.
-45. **Implement Remaining `std.collections` Map Helpers (`map_put/get/remove/keys`):** [Done] `map_put`, `map_get`, `map_remove`, and `map_keys` now lower end-to-end (semantic + IR + VM execution) for staged flat-map `Vector[T81String]` encodings with deterministic odd-tail handling, including wrapper exposure plus conformance/IR/CLI-check and fixture-driven CLI golden coverage.
-46. **Expose `std.sys.reflect` Alias:** [Done] `std.sys.reflect()` now canonicalizes to deterministic `META_REFLECT` frontend/runtime lowering (matching `std.agent.self_reflect` semantics), with wrapper exposure plus conformance/IR/CLI-check and std.runtime fixture coverage.
-47. **Implement `std.collections.set_size` / `std.collections.set_has`:** [Done] `set_size` and `set_has` now lower end-to-end (semantic + IR + VM execution) for staged `Vector[T81String]` set encodings, with wrapper exposure plus conformance/IR/CLI-check and fixture-driven CLI golden coverage.
-48. **Implement `std.collections.set_add` / `std.collections.set_remove`:** [Done] `set_add` and `set_remove` now lower end-to-end (semantic + IR + VM execution) for staged `Vector[T81String]` set encodings, including deterministic idempotent insert semantics (`set_add`) and stable-order all-match removal semantics (`set_remove`), with wrapper exposure plus conformance/IR/CLI-check and fixture-driven CLI golden coverage.
-49. **Materialize Typed Runtime Handles for `std.sys.proof` / `std.io.stream/net` / `std.async.thread/promise`:** [Done] VM/JIT `LoadImm` now map these std-token literals to dedicated deterministic runtime-handle tags (instead of generic symbol handles) while preserving stable textual rendering and string-op compatibility, with runtime fixture continuity and VM regression coverage.
-50. **Implement `std.collections.graph_edge_count` / `std.collections.graph_has_edge` / `std.collections.graph_add_edge`:** [Done] staged graph helpers now lower end-to-end (semantic + IR + VM execution) over flat edge-vector `Vector[T81String]` encodings (`[from0, to0, ...]`, odd tails ignored), including deterministic idempotent edge insertion semantics and fixture-driven CLI golden coverage.
-51. **Implement `std.collections.graph_remove_edge`:** [Done] staged edge-removal helper now lowers end-to-end (semantic + IR + VM execution) over flat edge-vector `Vector[T81String]` encodings (`[from0, to0, ...]`, odd tails ignored), removing all matching edges while preserving survivor order, with conformance/IR/CLI-check updates and fixture-driven CLI golden coverage.
-52. **Implement `std.collections.graph_neighbors`:** [Done] staged neighbor-projection helper now lowers end-to-end (semantic + IR + VM execution) over flat edge-vector `Vector[T81String]` encodings (`[from0, to0, ...]`, odd tails ignored), returning outgoing neighbors in deterministic encounter order with conformance/IR/CLI-check updates and fixture-driven CLI golden coverage.
+This document tracks immediate, actionable tasks for the T81 project.
+
+## 1. Current Sprint: Cognitive Tiers & Performance
+
+### Cognitive Tiers (T243–T19683)
+- [ ] **Symbolic (Tier 1):** Implement `SymbolicGraph::rewrite` and `is_confluent` logic (currently stubs).
+- [ ] **Reflective (Tier 2):** Connect `ReflectiveFrame` to Axion trace events for full introspection.
+- [ ] **Recursive (Tier 3):** Implement `Recursor` evaluation loop and depth proof verification.
+- [ ] **Distributed (Tier 4):** Implement `NodeState` synchronization and gossip protocol logic.
+- [ ] **Infinite (Tier 5):** Implement `InfiniteCanonicalForm` lazy expansion logic.
+
+### Core Runtime
+- [ ] **JIT:** Advance `src/jit` from experimental research to prototype backend.
+- [ ] **CanonFS:** Optimize `PersistentDriver` for high-throughput tensor I/O.
+- [ ] **Float:** Complete "Partial Polyfill" remediation for full float division determinism (software implementation).
+
+### Tooling
+- [ ] **CLI:** Add `t81 trace export` to export Axion logs to JSON/CSV.
+- [ ] **Debugger:** Enhance `t81 debug` with cognitive tier state inspection.
+
+______________________________________________________________________
+
+## 2. Recently Completed (Feb 2026)
+
+The following tasks have been verified as complete:
+
+1.  **Implement If-Expressions:** [Done]
+2.  **Implement Block Expressions:** [Done]
+3.  **Enhance Tensor/Vector Indexing:** [Done]
+4.  **Fix Generic Parameter Validation:** [Done]
+5.  **Implement Enum Namespaces and Scope Injection:** [Done]
+6.  **Fix Lexer Dot Consumption:** [Done]
+7.  **Implement Assignments to Array Indices:** [Done]
+8.  **Resolve Type Aliases in Semantic Analysis:** [Done]
+9.  **Implement `T81Fixed` and `T81Complex` Support:** [Done]
+10. **Implement `T81Qutrit` and `T81Uint` Support:** [Done]
+11. **Relax Vector Literal Typing:** [Done]
+12. **Improve Error Recovery and Diagnostics:** [Done]
+13. **Implement `std.text.split` / `std.text.join`:** [Done]
+14. **Add String-Vector Runtime Support for T81Lang:** [Done]
+15. **Add End-to-End split/join Test Matrix:** [Done]
+16. **Expose `std.symbol` Frontend Aliases:** [Done]
+17. **Add `std.tensor` CLI Fixture Goldens:** [Done]
+18. **Add `std.tensor.matmul` CLI Fixture Coverage:** [Done]
+19. **Expose `std.core.debug` Frontend Alias:** [Done]
+20. **Expose `std.core.unwrap_or` Frontend Alias:** [Done]
+21. **Expose `std.core.assert` Frontend Alias:** [Done]
+22. **Expose `std.sys` / `std.async` / `std.agent` Frontend Aliases:** [Done]
+23. **Align `std.sys` / `std.async` / `std.agent` Wrapper Modules:** [Done]
+24. **Harden Unsupported `std.math` Alias Diagnostics:** [Done]
+25. **Align `std.math` Wrapper Surface with Docs:** [Done]
+26. **Implement First `std.math` Scalar Runtime Batch:** [Done]
+27. **Implement Remaining `std.math` Transcendental Aliases:** [Done]
+28. **Implement `std.math.clamp` Alias Lowering:** [Done]
+29. **Implement `std.collections` Vector Length MVP:** [Done]
+30. **Implement `std.collections` Element/Mutation Aliases:** [Done]
+31. **Support Explicit Generic Call Type Arguments:** [Done]
+32. **Support Partial Explicit Generic Call Arguments:** [Done]
+33. **Harden Unresolved Generic Inference Diagnostics:** [Done]
+34. **Expose `std.sys.entropy` Frontend Alias:** [Done]
+35. **Expose `std.sys.proof` / `std.io.stream` / `std.io.net` Aliases:** [Done]
+36. **Expose `std.async.thread` / `std.async.promise` Aliases:** [Done]
+37. **Expose `std.collections` Roadmap Entry Aliases:** [Done]
+38. **Upgrade `std.collections.list` to Real Vector Semantics:** [Done]
+39. **Upgrade `std.collections.map` to Real Vector Semantics:** [Done]
+40. **Upgrade `std.collections.set` to Real Vector Semantics:** [Done]
+41. **Upgrade `std.collections.tree` / `std.collections.graph` to Real Vector Semantics:** [Done]
+42. **Add `std.sys` / `std.io` / `std.async` Runtime Fixture Goldens:** [Done]
+43. **Harden `std.collections` Map-Helper Diagnostics:** [Done]
+44. **Implement `std.collections.map_size` / `std.collections.map_has`:** [Done]
+45. **Implement Remaining `std.collections` Map Helpers:** [Done]
+46. **Expose `std.sys.reflect` Alias:** [Done]
+47. **Implement `std.collections.set_size` / `std.collections.set_has`:** [Done]
+48. **Implement `std.collections.set_add` / `std.collections.set_remove`:** [Done]
+49. **Materialize Typed Runtime Handles for `std.sys.proof`...:** [Done]
+50. **Implement `std.collections.graph_edge_count`...:** [Done]
+51. **Implement `std.collections.graph_remove_edge`:** [Done]
+52. **Implement `std.collections.graph_neighbors`:** [Done]

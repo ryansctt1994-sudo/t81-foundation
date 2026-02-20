@@ -2,6 +2,8 @@
 
 This document provides a reference for the T81 programming language (T81Lang), including syntax, types, and cognitive tier constructs.
 
+**Last Updated:** February 17, 2026
+
 ## Types
 
 ### Primitive Types
@@ -20,15 +22,38 @@ This document provides a reference for the T81 programming language (T81Lang), i
 
 | Type | Description | Example Literal |
 | :--- | :--- | :--- |
-| `InfiniteCanonicalForm` | Infinite Structure Seed | `∞{seed_expr}` |
+| `InfiniteCanonicalForm` | Infinite Structure Seed | `∞{seed_expr}` or `infinite{seed_expr}` |
 
 ## Statements & Blocks
+
+### Loop Annotations
+
+Loops can be annotated with `@bounded` to enforce termination properties or declare infinite intent (checked by Axion).
+
+```t81
+@bounded(infinite)
+loop {
+    // Infinite loop logic
+}
+
+@bounded(loop(condition))
+for x in items {
+    // ...
+}
+
+@bounded(100)
+while (x < 100) {
+    // ...
+}
+```
 
 ### Cognitive Tier Blocks
 
 T81Lang supports dedicated blocks for specific cognitive tiers:
 
 #### Reflective (T729)
+
+Captures trace metadata and justifies execution history.
 
 ```t81
 reflect {
@@ -38,7 +63,7 @@ reflect {
 
 #### Recursive (T2187)
 
-Recursive functions are defined using `recurse`:
+Recursive functions are defined using `recurse`. The body typically uses arrow syntax `pattern -> result` for base and recursive steps.
 
 ```t81
 recurse factorial(n) {
@@ -49,7 +74,7 @@ recurse factorial(n) {
 
 #### Distributed (T6561)
 
-Distributed logic uses the `distributed` block:
+Distributed logic uses the `distributed` block for consensus and coherence operations.
 
 ```t81
 distributed {
@@ -59,11 +84,24 @@ distributed {
 
 #### Infinite (T19683)
 
-Infinite-tier logic uses the `infinite` block:
+Infinite-tier logic uses the `infinite` block for manipulating `InfiniteCanonicalForm` structures.
 
 ```t81
 infinite {
     // Infinite logic
+}
+```
+
+### Pattern Matching
+
+Pattern matching is supported via the `match` expression.
+
+```t81
+match (value) {
+    0 => "zero",
+    1 => "one",
+    x if x > 10 => "large",
+    _ => "other"
 }
 ```
 

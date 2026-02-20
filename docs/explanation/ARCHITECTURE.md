@@ -2,7 +2,7 @@
 
 This document maps the current T81 codebase architecture: build graph, runtime flow, verification surfaces, and cross-repo runtime boundary contracts.
 
-**Status scope:** current `main` branch architecture as of February 10, 2026.
+**Status scope:** current `main` branch architecture as of February 17, 2026.
 
 ______________________________________________________________________
 
@@ -27,11 +27,12 @@ The authoritative build graph is `../../CMakeLists.txt`. It includes static libr
 | Target | Kind | Responsibilities | Depends On |
 | --- | --- | --- | --- |
 | `t81_core` | STATIC | Core numerics, VM runtime, JIT compiler, Axion engine, CanonFS, codecs, hashing/crypto, weights internals | (none) |
+| `t81_cog` | STATIC | Cognitive Tier definitions (T243-T19683), symbolic graphs, reflective frames | `t81_core` |
 | `t81_io` | STATIC | Tensor/model I/O helpers | `t81_core` |
 | `t81_c_api` | STATIC | C ABI surface for selected runtime/core functions | `t81_core` |
-| `t81_frontend` | STATIC | Lexer, parser, semantic analyzer (T81Lang frontend) | `t81_core` |
+| `t81_frontend` | STATIC | Lexer, parser, semantic analyzer (T81Lang frontend) | `t81_core`, `t81_cog` |
 | `t81_tisc` | STATIC | TISC IR/binary emitter, pretty printer, binary I/O, base81 TISC views | `t81_core` |
-| `t81_vm` | INTERFACE | VM public facade target for consumers/tests | `t81_core` |
+| `t81_vm` | INTERFACE | VM public facade target for consumers/tests | `t81_core`, `t81_cog` |
 | `t81_llvm` | INTERFACE | LLVM-facing facade target (placeholder/adapter layer) | `t81_core` |
 | `t81_cli_driver` | STATIC | CLI orchestration (compile/run/trace/repro/tools) | `t81_frontend`, `t81_tisc`, `t81_vm` |
 | `t81` | EXECUTABLE | Main CLI entry point | `t81_frontend`, `t81_tisc`, `t81_vm`, `t81_cli_driver` |
@@ -63,7 +64,8 @@ graph LR
         B1["T81Int / T81Float / T81BigInt"]
         B2["Tensor + CanonFS"]
         B3["Axion Safety Engine"]
-        B1 --> B2 --> B3
+        B4["Cognitive Tiers (Cog)"]
+        B1 --> B2 --> B3 --> B4
     end
 
     subgraph C["Model + Quantization Stream"]
@@ -242,6 +244,7 @@ ______________________________________________________________________
 
 Architecture-level items are tracked in `../roadmaps-plans/TASKS.md`. Current active streams:
 
+- **Cognitive Tier Logic:** Implementing graph rewriting (T243) and reflective trace capture (T729).
 - **Deterministic trace-JIT MVP hardening:** side-effect-free numeric/tensor hot-path compilation with Axion boundary checks.
 - **BigInt performance path:** SIMD/Karatsuba-oriented multi-limb optimizations without changing canonical arithmetic semantics.
 - **CanonFS scalability path:** higher-throughput persistence and retrieval while preserving deterministic traceability.
@@ -257,6 +260,7 @@ ______________________________________________________________________
 - HanoiVM / T81VM: deterministic virtual machine that executes TISC bytecode with 81 registers and Base-81 alignment.
 - TISC: Ternary instruction representation and binary format executed by HanoiVM. Supports 81 registers (R0-R80) including the Axion System Window.
 - **T3_K:** ternary quantization format/policy path used in model artifact workflows.
+- **Cognitive Tiers:** Higher-order logic constructs (Symbolic, Reflective, Recursive, Distributed, Infinite) integrated into the VM.
 
 ______________________________________________________________________
 
@@ -287,5 +291,6 @@ ______________________________________________________________________
 | **HanoiVM** | `../../src/vm/`, `../../include/t81/vm/` | @t81dev | `../../spec/vm/` |
 | **Axion** | `../../src/axion/`, `../../include/t81/axion/` | @t81dev | `../../spec/axion/` |
 | **CanonFS** | `../../src/canonfs/`, `../../include/t81/canonfs/` | @t81dev | `../../spec/canonfs/` |
+| **Cognitive** | `../../src/cog/`, `../../include/t81/cog/` | @t81dev | `../../spec/spec/t81-spec.md` |
 | **Numerics** | `../../src/core/`, `../../include/t81/core/` | @t81dev | `../../spec/numerics/` |
 | **CI/Scripts** | `../../.github/`, `../../scripts/` | @t81dev | `../reference/ci.md` |

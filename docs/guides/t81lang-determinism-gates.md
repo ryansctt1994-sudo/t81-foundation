@@ -3,6 +3,8 @@
 This guide defines the practical determinism checks used for T81Lang compile
 and runtime behavior.
 
+**Last Updated:** February 17, 2026
+
 ## Why these gates exist
 
 A deterministic language runtime requires both of these to hold:
