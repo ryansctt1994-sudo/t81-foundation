@@ -44,7 +44,7 @@ static void BM_CanonFS_WriteThroughput_InMemory(benchmark::State& state) {
     state.counters["work_per_iter"] = static_cast<double>(data_size);
 
     for (auto _ : state) {
-        auto res = driver->write_object(ObjectType::Blob, data);
+        auto res = driver->write_object(ObjectType::RawBlock, data);
         benchmark::DoNotOptimize(res);
     }
     state.SetBytesProcessed(state.iterations() * data_size);
@@ -81,7 +81,7 @@ static void BM_CanonFS_ReadThroughput_InMemory(benchmark::State& state) {
     std::vector<std::byte> data(data_size, std::byte{0x42});
     state.SetLabel(canonfs_work_label(data_size));
     state.counters["work_per_iter"] = static_cast<double>(data_size);
-    auto ref_res = driver->write_object(ObjectType::Blob, data);
+    auto ref_res = driver->write_object(ObjectType::RawBlock, data);
     auto ref = ref_res.value();
 
     for (auto _ : state) {
@@ -136,7 +136,7 @@ static void BM_CanonFS_WriteThroughput_Persistent(benchmark::State& state) {
 
     for (auto _ : state) {
         std::memcpy(data.data(), &counter, std::min(sizeof(counter), data_size));
-        auto res = driver->write_object(ObjectType::Blob, data);
+        auto res = driver->write_object(ObjectType::RawBlock, data);
         benchmark::DoNotOptimize(res);
         counter++;
     }
@@ -155,7 +155,7 @@ static void BM_CanonFS_ReadThroughput_Persistent(benchmark::State& state) {
     std::vector<std::byte> data(data_size, std::byte{0x42});
     state.SetLabel(canonfs_persistent_work_label(data_size, "persistent"));
     state.counters["work_per_iter"] = static_cast<double>(data_size);
-    auto ref_res = driver->write_object(ObjectType::Blob, data);
+    auto ref_res = driver->write_object(ObjectType::RawBlock, data);
     auto ref = ref_res.value();
 
     for (auto _ : state) {

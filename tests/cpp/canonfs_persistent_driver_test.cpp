@@ -38,7 +38,7 @@ int main() {
   const std::string payload = "persistent payload";
   [[maybe_unused]] auto write_bytes = make_bytes(payload);
   auto write_res = driver->write_object(
-      ObjectType::Blob, std::span<const std::byte>(write_bytes.data(), write_bytes.size()));
+      ObjectType::RawBlock, std::span<const std::byte>(write_bytes.data(), write_bytes.size()));
   if (!write_res.has_value()) return 1;
 
   [[maybe_unused]] auto read_res = driver->read_object_bytes(write_res.value());
