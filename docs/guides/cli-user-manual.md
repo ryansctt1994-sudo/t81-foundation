@@ -2,6 +2,8 @@
 
 This manual walks through every major `t81` command, flags, and workflow so developers, auditors, and Axion stewards can use the CLI as the canonical interface to the compiler, runtime, and policy tooling.
 
+**Last Updated:** February 17, 2026
+
 ## 1. Getting started
 
 1. **Build the toolchain**: After syncing the repo, ensure you have a release build:
@@ -56,6 +58,16 @@ t81 run <program>.tisc
 - Picks up the Axion policy embedded in the program.
 - Dumps per-opcode `AxionEvent` entries when `AXTRACE` instrumentation is enabled.
 - Use `AXTRACE=full` environment variable for verbose guard/segment logging (matching `scripts/capture-axion-trace.sh` output).
+
+### 2.3 `t81 check` / `t81 lint`
+
+Check syntax and semantics without generating bytecode.
+
+```bash
+t81 check <source>.t81
+# or alias
+t81 lint <source>.t81
+```
 
 ## 3. REPL & tracing
 
@@ -138,3 +150,11 @@ t81 pkg check
 ```
 
 - Validates the current `package.t81` manifest.
+
+### 9.3 `t81 repro-hash`
+
+Run the T81Lang determinism fixture hash gate.
+
+```bash
+t81 repro-hash [fixtures_dir]
+```

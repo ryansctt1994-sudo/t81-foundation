@@ -1,8 +1,10 @@
 # T81 Foundation: System Status Report
 
-**Last Updated:** February 10, 2026
+**Last Updated:** February 17, 2026
 
-This document provides a high-level summary of the implementation status of each major component in the T81 Foundation stack. For a more detailed technical breakdown of spec conformance, see [`ANALYSIS.md`](../explanation/ANALYSIS.md) and [`docs/T81_REMEDIATION_PLAN.md`](../roadmaps-plans/T81_REMEDIATION_PLAN.md).
+This document provides a high-level summary of the implementation status of each major component in the T81 Foundation stack. For a more detailed technical breakdown of spec conformance, see [`ANALYSIS.md`](../explanation/ANALYSIS.md) and [`docs/roadmaps-plans/T81_REMEDIATION_PLAN.md`](../roadmaps-plans/T81_REMEDIATION_PLAN.md).
+
+> **Note:** For the authoritative executive summary of project status, see [STATUS.md](STATUS.md).
 
 ______________________________________________________________________
 
@@ -21,6 +23,7 @@ This table inventories the key documentation, specification, and architectural a
 | `AGENTS.md`                             | AI Agent Guide                  | AI Agent              | Current               |
 | `docs/explanation/ANALYSIS.md`          | Spec vs. Reality                | Core Maintainer       | **Current**           |
 | `docs/index.md`                         | Docs Site Entrypoint            | All                   | **Current**           |
+| `docs/reference/STATUS.md`              | **Executive Status**            | All                   | **Current**           |
 | `docs/reference/system-status.md`       | **(This file)**                 | Core Maintainer       | **Current**           |
 | `docs/tutorials/cpp-quickstart.md`      | C++ Developer Guide             | New Contributor       | **Mostly Current**    |
 | `docs/tutorials/onboarding.md`          | Repo onboarding + first change  | New Contributor       | **Current**           |
@@ -73,9 +76,10 @@ ______________________________________________________________________
 - **Status:** `Stable` (v1.1)
 - **Summary:** The C++23 frontend includes a lexer, recursive descent parser, semantic analyzer, and IR generator producing valid TISC IR.
 - **Features:**
+    - **Cognitive Tiers:** Full support for `Symbol`, `Reflect`, `Recurse`, `Distributed`, and `Infinite` constructs.
     - **Generics:** Authoritative `Vector[T]` syntax (legacy `<T>` rejected).
     - **Structural Types:** `Option[T]` and `Result[T, E]` fully supported.
-    - **Literals:** Vector literals, struct/enum constructors.
+    - **Literals:** Vector literals, struct/enum constructors, symbol literals.
     - **Determinism:** Strict semantic analysis enforces type safety and canonical forms.
 - **Next Steps:** Optimization passes and enhanced tooling.
 

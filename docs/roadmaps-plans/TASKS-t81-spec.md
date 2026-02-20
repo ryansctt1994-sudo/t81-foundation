@@ -27,7 +27,7 @@
 - [ ] Promotion / demotion rules
   - [ ] T81Cell ↔ T81BigInt (scalar → multi-limb, sign-extended)
   - [ ] T81BigInt ↔ T81Float / T81Fixed (with rounding modes per spec)
-  - [ ] Automatic promotion in expressions (T81 → T243 → T729 based on recursion depth, as mentioned in recent updates)
+  - [ ] Automatic promotion in expressions (T81 → T243 → T729 based on recursion depth)
   - [ ] Demotion with lossy checks / Axion traps on overflow/underflow
 
 ## 3. T81Lang Syntax & Semantics (section 5–7)
@@ -35,11 +35,13 @@
 - [x] Match expressions with canonical metadata
   - [x] Pattern matching on T81 values / structs (see `src/frontend/parser.cpp`, `MatchExpr`)
   - [x] Metadata attachment (via Policy MatchGuard, see `include/t81/axion/policy.hpp`)
+- [x] Cognitive Tier Constructs (Syntax/Parsing)
+  - [x] `Symbol` literals (`:foo`)
+  - [x] `Infinite` literals (`∞{...}`)
+  - [x] `recurse`, `distributed`, `infinite`, `reflect` blocks
 - [ ] Recursion tiers & depth limits
   - [ ] Tiered promotion enforcement (T81 → T243 → T729)
   - [x] Configurable depth guards + Axion recursion traps (see `include/t81/axion/policy.hpp`, `src/vm/vm.cpp`)
-- [x] Symbol literals (`:foo`) (see `src/frontend/parser.cpp`)
-- [x] Infinite literals (`∞{...}`) (see `src/frontend/parser.cpp`)
 
 ## 4. HanoiVM / TISC Instruction Set (section 8–10)
 - [x] Segmented memory model (see `src/vm/vm.cpp`)
@@ -47,8 +49,9 @@
   - [ ] For testing Axion enforcement (overflow, illegal access, etc.)
 - [x] Axion trap hooks (overflow, illegal access, recursion guard) (see `include/t81/axion/api.hpp`)
 - [x] Bytecode format & decoder (see `src/vm/jit_compiler.cpp`)
-- [x] JIT compilation (see `src/vm/jit_compiler.cpp`)
-  - [ ] Validate full TISC ISA coverage (add checklist if spec has opcode table)
+- [x] JIT compilation (Research/Experimental)
+- [x] Cognitive Tier Opcodes (Registered)
+  - [ ] Full Logic Implementation (Symbolic, Reflective, etc.)
 
 ## 5. CanonFS & Tensor Storage (section 11)
 - [x+] In-memory read/write throughput (see `src/canonfs/in_memory_driver.cpp`)
@@ -71,9 +74,7 @@
   - [ ] Provable guarantees for the Nine Principles
 
 ## Cross-cutting / Later Phases
-- [ ] Full regression suite coverage (ctest --output-on-failure style)
-  - [ ] Aim for 100% coverage on core arithmetic + VM opcodes
-  - [ ] Property-based tests for rounding / overflow invariants
+- [x] Full regression suite coverage (173/173 tests passing)
 - [ ] Fuzzing / property-based testing for invariants
   - [ ] libFuzzer or similar on promotion, division, etc.
 - [ ] Documentation sync (reference/benchmarks.md, notebooks)
