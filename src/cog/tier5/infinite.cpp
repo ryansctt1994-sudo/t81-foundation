@@ -20,4 +20,4 @@ CollapseSignature CollapseSignature::generate(const InfiniteCanonicalForm& form)
   return signature;
 }
 
-} // namespace t81::cog::v5
+}  // namespace t81::cog::v5

@@ -18,4 +18,4 @@ struct CollapseSignature {
   static CollapseSignature generate(const InfiniteCanonicalForm& form);
 };
 
-} // namespace t81::cog::v5
+}  // namespace t81::cog::v5

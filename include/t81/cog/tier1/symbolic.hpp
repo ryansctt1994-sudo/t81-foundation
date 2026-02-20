@@ -26,4 +26,4 @@ struct SymbolicGraph {
   void add_edge(const T81Symbol& from, const T81Symbol& to);
 };
 
-} // namespace t81::cog::v1
+}  // namespace t81::cog::v1

@@ -22,4 +22,4 @@ struct Recursor {
   void pop_frame();
 };
 
-} // namespace t81::cog::v3
+}  // namespace t81::cog::v3

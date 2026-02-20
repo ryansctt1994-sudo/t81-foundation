@@ -17,4 +17,4 @@ struct ReflectiveFrame {
   void capture_state(const std::string& description);
 };
 
-} // namespace t81::cog::v2
+}  // namespace t81::cog::v2

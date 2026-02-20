@@ -6,8 +6,6 @@ bool CoherenceVector::is_coherent(const CoherenceVector& other) const {
   return global_tick == other.global_tick;
 }
 
-void NodeState::update_tick() {
-  vector.global_tick++;
-}
+void NodeState::update_tick() { vector.global_tick++; }
 
-} // namespace t81::cog::v4
+}  // namespace t81::cog::v4

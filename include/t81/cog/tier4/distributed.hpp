@@ -16,4 +16,4 @@ struct NodeState {
   void update_tick();
 };
 
-} // namespace t81::cog::v4
+}  // namespace t81::cog::v4
