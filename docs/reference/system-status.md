@@ -114,3 +114,17 @@ This section summarizes the state of the project's documentation following a com
 
 -   Performance and ecosystem adoption remain active focus areas after v1.0 feature completeness.
 -   Documentation must be kept synchronized with fast-moving benchmark and workflow changes.
+
+______________________________________________________________________
+
+## 8. Cognitive Tiers (T243–T19683)
+
+- **Specification:** [`spec/spec/t81-spec.md`](../../spec/spec/t81-spec.md)
+- **Status:** `In Development` (Foundational Headers Implemented)
+- **Summary:** The core headers and stubs for all five cognitive tiers have been implemented, establishing the C++ namespaces and basic data structures required for:
+    - **T243 (Symbolic):** `SymbolicAtom`, `SymbolicGraph`
+    - **T729 (Reflective):** `ReflectiveFrame`, `JustificationChain`
+    - **T2187 (Recursive):** `Recursor`, `ContractionProof`
+    - **T6561 (Distributed):** `NodeState`, `CoherenceVector`
+    - **T19683 (Infinite):** `InfiniteCanonicalForm`, `CollapseSignature`
+- **Next Steps:** Implement full logic for graph rewriting, reflective trace capture, and distributed synchronization.
