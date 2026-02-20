@@ -21,29 +21,11 @@ enum class BridgeError {
 };
 
 struct BridgeDiagnostic {
-  // Use NSDMI for safe initialization
   BridgeError error = BridgeError::EmptyInput;
   std::size_t line = 0;
   std::size_t column = 0;
   std::string message;
   std::string source_line;
-
-  // Default constructor
-  BridgeDiagnostic() = default;
-
-  // Parameterized constructor
-  BridgeDiagnostic(BridgeError err, std::size_t line_no, std::size_t column_no, std::string msg,
-                   std::string source)
-      : error(err),
-        line(line_no),
-        column(column_no),
-        message(std::move(msg)),
-        source_line(std::move(source)) {}
-
-  // Explicit copy/move constructors/assignments are removed to use compiler-generated defaults.
-  // This satisfies the rule of zero/five and ensures proper initialization via NSDMI if default
-  // constructed, or member-wise copy if copied. The previous manual implementations were correct
-  // but potentially confusing to static analysis or overly verbose.
 };
 
 [[nodiscard]] std::string_view bridge_error_message(BridgeError error);
