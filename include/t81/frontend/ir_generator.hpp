@@ -570,6 +570,22 @@ public:
     for (const auto& s : stmt.body) s->accept(*this);
     return {};
   }
+
+  std::any visit(const RecurseStmt& stmt) override {
+    for (const auto& s : stmt.body) s->accept(*this);
+    return {};
+  }
+
+  std::any visit(const DistributedStmt& stmt) override {
+    for (const auto& s : stmt.body) s->accept(*this);
+    return {};
+  }
+
+  std::any visit(const InfiniteStmt& stmt) override {
+    for (const auto& s : stmt.body) s->accept(*this);
+    return {};
+  }
+
   std::any visit(const LoopStmt& stmt) override {
     auto entry_label = new_label();
     auto exit_label = new_label();
@@ -4210,6 +4226,32 @@ public:
     } else {
       emit_simple(tisc::ir::Opcode::TRAP);
     }
+    record_result(&expr, dest);
+    return {};
+  }
+
+  std::any visit(const SymbolLiteralExpr& expr) override {
+    std::string contents = std::string(expr.value.lexeme);
+    if (!contents.empty() && contents[0] == ':') {
+      contents = contents.substr(1);
+    }
+    auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+    tisc::ir::Instruction instr;
+    instr.opcode = tisc::ir::Opcode::LOADI;
+    instr.operands = {dest.reg};
+    instr.literal_kind = tisc::LiteralKind::SymbolHandle;
+    instr.text_literal = std::move(contents);
+    instr.primitive = tisc::ir::PrimitiveKind::Integer;
+    emit(instr);
+    record_result(&expr, dest);
+    return {};
+  }
+
+  std::any visit(const InfiniteLiteralExpr& expr) override {
+    expr.seed->accept(*this);
+    auto seed_val = ensure_expr_result(expr.seed.get());
+    auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+    copy_to_dest(seed_val, dest);
     record_result(&expr, dest);
     return {};
   }

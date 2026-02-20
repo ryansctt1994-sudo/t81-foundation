@@ -1326,7 +1326,7 @@ bool Parser::parse_loop_annotation(LoopStmt::BoundKind& bound_kind,
   bound_value.reset();
   guard_expr.reset();
   Token arg;
-  if (match({TokenType::Identifier, TokenType::Loop})) {
+  if (match({TokenType::Identifier, TokenType::Loop, TokenType::Infinite})) {
     arg = previous();
     std::string_view lexeme{arg.lexeme};
     if (lexeme == "infinite") {
