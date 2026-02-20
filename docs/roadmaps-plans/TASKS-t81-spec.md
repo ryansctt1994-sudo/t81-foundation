@@ -52,6 +52,7 @@
 - [x] JIT compilation (Research/Experimental)
 - [x] Cognitive Tier Opcodes (Registered)
   - [ ] Full Logic Implementation (Symbolic, Reflective, etc.)
+  - [x] Infinite Series Compression (Geometric Series, see `src/cog/tier5/infinite.cpp`)
 
 ## 5. CanonFS & Tensor Storage (section 11)
 - [x+] In-memory read/write throughput (see `src/canonfs/in_memory_driver.cpp`)
