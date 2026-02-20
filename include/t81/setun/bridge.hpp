@@ -21,15 +21,14 @@ enum class BridgeError {
 };
 
 struct BridgeDiagnostic {
-  // Use NSDMI for safe initialization
-  BridgeError error = BridgeError::EmptyInput;
-  std::size_t line = 0;
-  std::size_t column = 0;
+  BridgeError error;
+  std::size_t line;
+  std::size_t column;
   std::string message;
   std::string source_line;
 
   // Default constructor
-  BridgeDiagnostic() = default;
+  BridgeDiagnostic() : error(BridgeError::EmptyInput), line(0), column(0) {}
 
   // Parameterized constructor
   BridgeDiagnostic(BridgeError err, std::size_t line_no, std::size_t column_no, std::string msg,
