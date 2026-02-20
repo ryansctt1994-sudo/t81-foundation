@@ -11,6 +11,7 @@
 #include "t81/axion/policy.hpp"
 #include "t81/axion/reasons.hpp"
 #include "t81/axion/verdict.hpp"
+#include "t81/cog/tier1/symbolic.hpp"
 #include "t81/fraction.hpp"
 #include "t81/tensor.hpp"
 #include "t81/tisc/program.hpp"
@@ -48,6 +49,7 @@ enum class ValueTag : std::uint8_t {
   AsyncThreadHandle,
   AsyncPromiseHandle,
   StringVectorHandle,
+  SymbolicGraphHandle,
 };
 
 struct Flags {
@@ -211,5 +213,8 @@ struct State {
   std::vector<ReflectionSnapshot> reflection_snapshots;
   std::size_t reflection_count{0};
   std::size_t meta_write_count{0};
+
+  // Tier 1 Symbolic
+  std::vector<t81::cog::v1::SymbolicGraph> symbolic_graphs;
 };
 }  // namespace t81::vm
