@@ -5,27 +5,27 @@
 #include "t81/core/T81Int.hpp"
 
 // Simple assertion helper
-#define ASSERT_THROWS(expr, ExType) \
-  try { \
-    expr; \
+#define ASSERT_THROWS(expr, ExType)                                         \
+  try {                                                                     \
+    expr;                                                                   \
     std::cerr << "FAIL: " << #expr << " did not throw " << #ExType << "\n"; \
-    return 1; \
-  } catch (const ExType&) { \
-    /* Expected */ \
-  } catch (...) { \
-    std::cerr << "FAIL: " << #expr << " threw wrong exception\n"; \
-    return 1; \
+    return 1;                                                               \
+  } catch (const ExType&) {                                                 \
+    /* Expected */                                                          \
+  } catch (...) {                                                           \
+    std::cerr << "FAIL: " << #expr << " threw wrong exception\n";           \
+    return 1;                                                               \
   }
 
-#define ASSERT_EQ(a, b) \
-  if (!((a) == (b))) { \
+#define ASSERT_EQ(a, b)                                  \
+  if (!((a) == (b))) {                                   \
     std::cerr << "FAIL: " << #a << " != " << #b << "\n"; \
-    return 1; \
+    return 1;                                            \
   }
 
 int main() {
-  using t81::v1::T81BigInt;
   using t81::T81Int;
+  using t81::v1::T81BigInt;
 
   // Test 1: T81BigInt::to_int<N> overflow
   {
@@ -61,14 +61,14 @@ int main() {
   // Test 3: T81BigInt::try_to_int<N>
   {
     std::cout << "Test 3: T81BigInt::try_to_int<10>...\n";
-    T81BigInt big(88573); // 11 trits
+    T81BigInt big(88573);  // 11 trits
     auto res = big.try_to_int<10>();
     if (res.has_value()) {
       std::cerr << "FAIL: try_to_int<10> should return nullopt for 11-trit value\n";
       return 1;
     }
 
-    T81BigInt small(100); // Fits in 10 trits
+    T81BigInt small(100);  // Fits in 10 trits
     auto res2 = small.try_to_int<10>();
     if (!res2.has_value()) {
       std::cerr << "FAIL: try_to_int<10> should return value for 100\n";
@@ -80,7 +80,7 @@ int main() {
   // Test 4: T81Int::try_to_int<K> (demotion)
   {
     std::cout << "Test 4: T81Int::try_to_int<K>...\n";
-    T81Int<10> val(100); // 100 = 1*81 + 19 = 1*81 + 2*9 + 1 (10201 base 3 balanced? no)
+    T81Int<10> val(100);  // 100 = 1*81 + 19 = 1*81 + 2*9 + 1 (10201 base 3 balanced? no)
     // 100 = 81 + 9 + 9 + 1 = 1*3^4 + 2*3^2 + 1.
     // Trits needed: 5. (3^4=81).
 
@@ -108,11 +108,11 @@ int main() {
 
     // Valid checked cast
     try {
-        auto v = val.checked_to_int<5>();
-        ASSERT_EQ(v.to_int64(), 100);
+      auto v = val.checked_to_int<5>();
+      ASSERT_EQ(v.to_int64(), 100);
     } catch (...) {
-        std::cerr << "FAIL: checked_to_int<5> threw unexpectedly\n";
-        return 1;
+      std::cerr << "FAIL: checked_to_int<5> threw unexpectedly\n";
+      return 1;
     }
   }
 
