@@ -11,12 +11,12 @@
 #include "t81/axion/policy.hpp"
 #include "t81/axion/reasons.hpp"
 #include "t81/axion/verdict.hpp"
+#include "t81/cog/tier1/symbolic.hpp"
 #include "t81/fraction.hpp"
 #include "t81/tensor.hpp"
 #include "t81/tisc/program.hpp"
 #include "t81/vm/traps.hpp"
 #include "t81/weights.hpp"
-#include "t81/cog/tier1/symbolic.hpp"
 
 namespace t81::vm {
 
