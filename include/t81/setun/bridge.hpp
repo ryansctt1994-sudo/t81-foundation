@@ -21,7 +21,7 @@ enum class BridgeError {
 };
 
 struct BridgeDiagnostic {
-  // Explicitly defaulted default constructor to ensure initialization
+  // Explicitly defined default constructor - no NSDMI reliance
   BridgeDiagnostic()
       : error(BridgeError::EmptyInput), line(0), column(0), message(), source_line() {}
 
@@ -33,7 +33,7 @@ struct BridgeDiagnostic {
         message(std::move(msg)),
         source_line(std::move(source)) {}
 
-  // Explicit copy constructor to satisfy static analysis
+  // Explicit copy constructor
   BridgeDiagnostic(const BridgeDiagnostic& other)
       : error(other.error),
         line(other.line),
@@ -41,15 +41,44 @@ struct BridgeDiagnostic {
         message(other.message),
         source_line(other.source_line) {}
 
-  BridgeDiagnostic& operator=(const BridgeDiagnostic&) = default;
-  BridgeDiagnostic(BridgeDiagnostic&&) noexcept = default;
-  BridgeDiagnostic& operator=(BridgeDiagnostic&&) noexcept = default;
+  // Explicit copy assignment
+  BridgeDiagnostic& operator=(const BridgeDiagnostic& other) {
+    if (this != &other) {
+      error = other.error;
+      line = other.line;
+      column = other.column;
+      message = other.message;
+      source_line = other.source_line;
+    }
+    return *this;
+  }
 
-  BridgeError error{BridgeError::EmptyInput};
-  std::size_t line{0};    // 1-based line index
-  std::size_t column{0};  // 1-based column index
-  std::string message{};
-  std::string source_line{};
+  // Explicit move constructor
+  BridgeDiagnostic(BridgeDiagnostic&& other) noexcept
+      : error(other.error),
+        line(other.line),
+        column(other.column),
+        message(std::move(other.message)),
+        source_line(std::move(other.source_line)) {}
+
+  // Explicit move assignment
+  BridgeDiagnostic& operator=(BridgeDiagnostic&& other) noexcept {
+    if (this != &other) {
+      error = other.error;
+      line = other.line;
+      column = other.column;
+      message = std::move(other.message);
+      source_line = std::move(other.source_line);
+    }
+    return *this;
+  }
+
+  // Member variables without NSDMI to force explicit init
+  BridgeError error;
+  std::size_t line;
+  std::size_t column;
+  std::string message;
+  std::string source_line;
 };
 
 [[nodiscard]] std::string_view bridge_error_message(BridgeError error);
