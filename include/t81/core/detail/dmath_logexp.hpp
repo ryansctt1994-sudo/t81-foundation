@@ -51,7 +51,7 @@ T log(T x) {
   auto& v = x.v;
   size_t lead = 0;
   for (size_t i = T::Storage::kNumTrits; i-- > 0;) {
-    if (v[i] != Trit::Z) {
+    if (v[i] != t81::Trit::Z) {
       lead = i;
       break;
     }
