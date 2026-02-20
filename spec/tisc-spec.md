@@ -676,6 +676,24 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
+### 5.13 Governed Memory Access
+
+Instructions that interact with content-addressed storage (CanonFS) under Axion governance.
+
+#### TLOADHASH
+
+- **Form**: `TLOADHASH RD, RS`
+- **Semantics**:
+  - `R[RS]` MUST contain a valid handle to a string symbol representing a `CanonHash`.
+  - The Axion kernel MUST verify the hash against the active policy's `allowed-tensor-hashes` list.
+  - If allowed, the VM retrieves the object from `CanonFS`, deserializes it into a canonical tensor, and stores the handle in `R[RD]`.
+- **Faults**:
+  - `DecodeFault`: Invalid `RS` handle or malformed object.
+  - `SecurityFault`: Hash not allowed by Axion policy.
+  - `BoundsFault`: Object not found in `CanonFS`.
+
+______________________________________________________________________
+
 ## 6. Fault Semantics
 
 All faults are **deterministic** and **Axion-visible**.

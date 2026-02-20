@@ -210,8 +210,32 @@ Verdict PolicyEngine::execute_bytecode(const SyscallContext& ctx) {
 
 Verdict PolicyEngine::evaluate(const SyscallContext& ctx) {
   if (!policy_) {
+    if (ctx.next_opcode == t81::tisc::Opcode::TLoadHash) {
+      return Verdict{VerdictKind::Deny, "TLOADHASH requires active policy"};
+    }
     return Verdict{VerdictKind::Allow, "Axion policy engine (no policy)"};
   }
+  if (ctx.next_opcode == t81::tisc::Opcode::TLoadHash) {
+    if (policy_->allowed_tensor_hashes.empty()) {
+      return Verdict{VerdictKind::Deny, "TLOADHASH denied (allowed-tensor-hashes empty)"};
+    }
+    if (!ctx.payload.empty()) {
+      bool found = false;
+      for (const auto& h : policy_->allowed_tensor_hashes) {
+        if (h == ctx.payload) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        std::ostringstream ss;
+        ss << "TLOADHASH policy_violation hash=" << ctx.payload;
+        return Verdict{VerdictKind::Deny, ss.str()};
+      }
+    }
+    // Allow logic continues below...
+  }
+
   if (!policy_->bytecode.empty()) {
     return execute_bytecode(ctx);
   }

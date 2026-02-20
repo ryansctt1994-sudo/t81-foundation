@@ -73,6 +73,14 @@ void Policy::serialize(std::ostream& os) const {
     write_u64(os, static_cast<uint64_t>(*max_meta_writes));
   }
 
+  if (!allowed_tensor_hashes.empty()) {
+    write_u8(os, static_cast<uint8_t>(PolicyTag::AllowedTensorHashes));
+    write_u32(os, static_cast<uint32_t>(allowed_tensor_hashes.size()));
+    for (const auto& hash : allowed_tensor_hashes) {
+      write_string(os, hash);
+    }
+  }
+
   for (const auto& loop : loops) {
     write_u8(os, static_cast<uint8_t>(PolicyTag::LoopHint));
     write_u32(os, static_cast<uint32_t>(loop.id));
@@ -244,6 +252,13 @@ t81::expected<Policy, std::string> Policy::deserialize(std::istream& is) {
       case PolicyTag::MaxMetaWrites:
         policy.max_meta_writes = static_cast<int64_t>(read_u64(is));
         break;
+      case PolicyTag::AllowedTensorHashes: {
+        uint32_t count = read_u32(is);
+        for (uint32_t i = 0; i < count; ++i) {
+          policy.allowed_tensor_hashes.push_back(read_string(is));
+        }
+        break;
+      }
       case PolicyTag::LoopHint: {
         LoopHint hint;
         hint.id = static_cast<int>(read_u32(is));
