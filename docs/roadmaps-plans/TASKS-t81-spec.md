@@ -16,7 +16,7 @@
 - [x+] Overflow / trap behavior (signed, unsigned modes) (see `axion::trap_overflow` in `T81Int.hpp`)
 - [x] Division (Knuth Algorithm D) (see `T81BigInt::div_mod`)
 - [ ] Modular inverse
-  - [ ] Basic extended Euclidean variant for T81BigInt
+  - [x] Basic extended Euclidean variant for T81BigInt
   - [ ] Constant-time / side-channel resistant if needed for crypto use cases
 
 ## 2. T81 Types & Cell Semantics (section 4)

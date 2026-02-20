@@ -21,6 +21,7 @@
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
 #if defined(__AVX2__)
@@ -1138,6 +1139,51 @@ public:
       b = (a + x / a) / two;
     }
     return a;
+  }
+
+  static std::tuple<T81BigInt, T81BigInt, T81BigInt> extended_gcd(T81BigInt a, T81BigInt b) {
+    T81BigInt old_r = a;
+    T81BigInt r = b;
+    T81BigInt old_s = one();
+    T81BigInt s = zero();
+    T81BigInt old_t = zero();
+    T81BigInt t = one();
+
+    while (!r.is_zero()) {
+      auto qr = div_mod(old_r, r);
+      T81BigInt q = qr.first;
+      T81BigInt rem = qr.second;
+
+      old_r = r;
+      r = rem;
+
+      T81BigInt tmp = old_s - q * s;
+      old_s = s;
+      s = tmp;
+
+      tmp = old_t - q * t;
+      old_t = t;
+      t = tmp;
+    }
+
+    return std::make_tuple(old_r, old_s, old_t);
+  }
+
+  static T81BigInt modular_inverse(const T81BigInt& a, const T81BigInt& m) {
+    if (m <= one()) {
+      throw std::domain_error("modular_inverse: modulus must be > 1");
+    }
+    auto [g, x, y] = extended_gcd(a, m);
+
+    if (!is_one(g.abs())) {
+      throw std::domain_error("modular_inverse: inverse does not exist");
+    }
+
+    T81BigInt res = x % m;
+    if (res.is_negative()) {
+      res = res + m;
+    }
+    return res;
   }
 
   std::string to_string() const { return to_decimal_string(); }

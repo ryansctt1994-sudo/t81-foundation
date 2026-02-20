@@ -273,6 +273,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_bigint_mod_test tests/cpp/test_T81BigInt_mod.cpp)
   target_link_libraries(t81_bigint_mod_test PRIVATE t81_core)
 
+  add_executable(t81_bigint_modular_inverse_test tests/cpp/test_T81BigInt_modular_inverse.cpp)
+  target_link_libraries(t81_bigint_modular_inverse_test PRIVATE t81_core)
+
   add_executable(t81_bigint_sqrt_test tests/cpp/test_T81BigInt_sqrt.cpp)
   target_link_libraries(t81_bigint_sqrt_test PRIVATE t81_core)
 
@@ -878,6 +881,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_bigint_division_edge_properties_test
     t81_bigint_division_semantics_test
     t81_bigint_gcd_divmod_property_test
+    t81_bigint_modular_inverse_test
     t81_fraction_properties_test
     t81_core_numeric_compat_test
     t81_core_bigint_compat_properties_test
