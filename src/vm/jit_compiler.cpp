@@ -837,8 +837,6 @@ void JitCompiler::record_instruction(const t81::tisc::Insn& insn) {
     case t81::tisc::Opcode::TRMSNorm:
       trace_buffer_.push_back(insn);
       break;
-    case t81::tisc::Opcode::Call:
-    case t81::tisc::Opcode::Ret:
     case t81::tisc::Opcode::Jump:
     case t81::tisc::Opcode::JumpIfZero:
     case t81::tisc::Opcode::JumpIfNotZero:
