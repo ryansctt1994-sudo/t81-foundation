@@ -7,10 +7,7 @@
 
 namespace t81::cog::v5 {
 
-enum class SeriesType {
-  Unknown,
-  Geometric
-};
+enum class SeriesType { Unknown, Geometric };
 
 struct InfiniteCanonicalForm {
   bool is_convergent = false;

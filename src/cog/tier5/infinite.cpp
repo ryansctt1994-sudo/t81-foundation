@@ -19,7 +19,8 @@ void InfiniteCanonicalForm::collapse() {
       // division by zero is impossible since r != 1
       sum = first_term / denom;
       is_convergent = true;
-      convergence_signature = "GEOMETRIC_SUM_" + std::to_string(sum.to_double()); // Placeholder for serialization
+      convergence_signature =
+          "GEOMETRIC_SUM_" + std::to_string(sum.to_double());  // Placeholder for serialization
     } else {
       is_convergent = false;
       convergence_signature = "DIVERGENT_GEOMETRIC";
