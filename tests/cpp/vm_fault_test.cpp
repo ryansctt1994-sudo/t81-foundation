@@ -15,6 +15,60 @@ t81::vm::Trap run_expected_trap(const std::vector<t81::tisc::Insn>& insns) {
   T81_TEST_CHECK(!result.has_value());
   return result.error();
 }
+
+void run_injected_fault_test() {
+  // Simple program: LoadImm, LoadImm, Add, Halt
+  std::vector<t81::tisc::Insn> insns;
+
+  t81::tisc::Insn i1; i1.opcode = t81::tisc::Opcode::LoadImm; i1.a = 1; i1.b = 10;
+  insns.push_back(i1);
+
+  t81::tisc::Insn i2; i2.opcode = t81::tisc::Opcode::LoadImm; i2.a = 2; i2.b = 20;
+  insns.push_back(i2);
+
+  t81::tisc::Insn i3; i3.opcode = t81::tisc::Opcode::Add; i3.a = 3; i3.b = 1; i3.c = 2;
+  insns.push_back(i3);
+
+  t81::tisc::Insn i4; i4.opcode = t81::tisc::Opcode::Halt;
+  insns.push_back(i4);
+
+  t81::tisc::Program program;
+  program.insns = insns;
+
+  // Test 1: Fault at instruction count 2 (should be Add, effectively)
+  // Instructions:
+  // 0: LoadImm (count becomes 1)
+  // 1: LoadImm (count becomes 2)
+  // 2: Add     (count becomes 3)
+  // 3: Halt
+
+  // Set injection at count 2. This should trigger BEFORE executing the instruction at index 2 (Add).
+  // Execution flow:
+  // Step 1: instruction_count=0. Exec LoadImm (idx 0). instruction_count becomes 1.
+  // Step 2: instruction_count=1. Exec LoadImm (idx 1). instruction_count becomes 2.
+  // Step 3: instruction_count=2. Fault check matches. Trigger fault. Add (idx 2) is NOT executed.
+
+  auto vm = t81::vm::make_interpreter_vm();
+  vm->load_program(program);
+
+  std::vector<t81::vm::FaultInjection> faults;
+  faults.push_back({2, t81::vm::Trap::SecurityFault});
+  vm->set_fault_injections(faults);
+
+  auto result = vm->run_to_halt();
+  T81_TEST_CHECK(!result.has_value());
+  T81_TEST_CHECK(result.error() == t81::vm::Trap::SecurityFault);
+
+  // Verify state
+  // R1 should be 10 (executed)
+  // R2 should be 20 (executed)
+  // R3 should be 0 (Add NOT executed)
+  const auto& state = vm->state();
+  T81_TEST_CHECK(state.registers[1] == 10);
+  T81_TEST_CHECK(state.registers[2] == 20);
+  T81_TEST_CHECK(state.registers[3] == 0);
+}
+
 }  // namespace
 
 int main() {
@@ -71,6 +125,8 @@ int main() {
   store_neg.c = 0;
   [[maybe_unused]] auto trap_store_neg = run_expected_trap({store_neg, halt});
   T81_TEST_CHECK(trap_store_neg == t81::vm::Trap::BoundsFault);
+
+  run_injected_fault_test();
 
   return 0;
 }

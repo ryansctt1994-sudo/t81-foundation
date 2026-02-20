@@ -145,6 +145,26 @@ public:
       return {};
     }
 
+    // Deterministic Fault Injection Check
+    for (auto it = state_.pending_faults.begin(); it != state_.pending_faults.end();) {
+      if (instruction_count_ == it->instruction_count) {
+        Trap t = it->trap;
+        // Log the fault injection as an Axion event
+        t81::axion::Verdict verdict;
+        verdict.kind = t81::axion::VerdictKind::Deny;
+        std::ostringstream reason;
+        reason << "FaultInjection instruction_count=" << instruction_count_
+               << " trap=" << to_string(t);
+        verdict.reason = reason.str();
+        record_axion_event(t81::tisc::Opcode::Trap, 0, 0, verdict);
+
+        state_.pending_faults.erase(it);
+        return std::expected<void, Trap>(t81::unexpect, t);
+      } else {
+        ++it;
+      }
+    }
+
     // Check if we have a compiled trace for the current PC.
     auto trace_it = compiled_traces_.find(state_.pc);
     if (trace_it != compiled_traces_.end()) {
@@ -3774,6 +3794,10 @@ public:
     reason_stream << "register mutation R" << idx << " value=" << val_data;
     verdict.reason = reason_stream.str();
     record_axion_event(t81::tisc::Opcode::Nop, idx, val_data, verdict);
+  }
+
+  void set_fault_injections(std::vector<FaultInjection> faults) override {
+    state_.pending_faults = std::move(faults);
   }
 
 private:

@@ -171,6 +171,15 @@ struct RefinementCommand {
   ValueTag tag;
 };
 
+/**
+ * @struct FaultInjection
+ * @brief Configuration for a deterministic fault injection point.
+ */
+struct FaultInjection {
+  std::size_t instruction_count;
+  Trap trap;
+};
+
 // Virtual machine register file per spec/t81vm-spec.md.
 struct State {
   std::array<std::int64_t, 243> registers{};  // R0..R242
@@ -216,5 +225,8 @@ struct State {
 
   // Tier 1 Symbolic
   std::vector<t81::cog::v1::SymbolicGraph> symbolic_graphs;
+
+  // Deterministic Fault Injection
+  std::vector<FaultInjection> pending_faults;
 };
 }  // namespace t81::vm
