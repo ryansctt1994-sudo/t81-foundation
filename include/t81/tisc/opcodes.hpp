@@ -5,7 +5,7 @@
 #include <string_view>
 
 namespace t81::tisc {
-// Opcode definitions per spec/tisc-spec.md. This is a subset placeholder.
+// Opcode definitions per spec/tisc-spec.md (Chapters 3 & 44).
 enum class Opcode : std::uint8_t {
   Nop = 0,
   Halt = 1,
@@ -134,6 +134,43 @@ enum class Opcode : std::uint8_t {
   NRecv,
   VWait,
   VYield,
+  // New Opcodes from Spec Chapter 44
+  TNorm,
+  Canon,
+  MemZero,
+  Copy,
+  AxHalt,
+  Assert,
+  SymLoad,
+  SymRewrite,
+  SymConfluence,
+  SymCanon,
+  SymBind,
+  ReflCap,
+  ReflJustify,
+  ReflCheck,
+  ReflTrace,
+  ReflSeal,
+  Recurse,
+  Contract,
+  Entropy,
+  Depth,
+  Terminate,
+  Merge,
+  Gossip,
+  TickSync,
+  Coherence,
+  DistSeal,
+  InfSeed,
+  InfExpand,
+  InfCollapse,
+  InfConverge,
+  InfSignature,
+  AxCheck,
+  AxSign,
+  AxLineage,
+  AxCanon,
+  AxReport,
 };
 
 [[nodiscard]] constexpr std::string_view opcode_name(Opcode opcode) {
@@ -392,13 +429,85 @@ enum class Opcode : std::uint8_t {
       return "VWait";
     case Opcode::VYield:
       return "VYield";
+    case Opcode::TNorm:
+      return "TNorm";
+    case Opcode::Canon:
+      return "Canon";
+    case Opcode::MemZero:
+      return "MemZero";
+    case Opcode::Copy:
+      return "Copy";
+    case Opcode::AxHalt:
+      return "AxHalt";
+    case Opcode::Assert:
+      return "Assert";
+    case Opcode::SymLoad:
+      return "SymLoad";
+    case Opcode::SymRewrite:
+      return "SymRewrite";
+    case Opcode::SymConfluence:
+      return "SymConfluence";
+    case Opcode::SymCanon:
+      return "SymCanon";
+    case Opcode::SymBind:
+      return "SymBind";
+    case Opcode::ReflCap:
+      return "ReflCap";
+    case Opcode::ReflJustify:
+      return "ReflJustify";
+    case Opcode::ReflCheck:
+      return "ReflCheck";
+    case Opcode::ReflTrace:
+      return "ReflTrace";
+    case Opcode::ReflSeal:
+      return "ReflSeal";
+    case Opcode::Recurse:
+      return "Recurse";
+    case Opcode::Contract:
+      return "Contract";
+    case Opcode::Entropy:
+      return "Entropy";
+    case Opcode::Depth:
+      return "Depth";
+    case Opcode::Terminate:
+      return "Terminate";
+    case Opcode::Merge:
+      return "Merge";
+    case Opcode::Gossip:
+      return "Gossip";
+    case Opcode::TickSync:
+      return "TickSync";
+    case Opcode::Coherence:
+      return "Coherence";
+    case Opcode::DistSeal:
+      return "DistSeal";
+    case Opcode::InfSeed:
+      return "InfSeed";
+    case Opcode::InfExpand:
+      return "InfExpand";
+    case Opcode::InfCollapse:
+      return "InfCollapse";
+    case Opcode::InfConverge:
+      return "InfConverge";
+    case Opcode::InfSignature:
+      return "InfSignature";
+    case Opcode::AxCheck:
+      return "AxCheck";
+    case Opcode::AxSign:
+      return "AxSign";
+    case Opcode::AxLineage:
+      return "AxLineage";
+    case Opcode::AxCanon:
+      return "AxCanon";
+    case Opcode::AxReport:
+      return "AxReport";
   }
   return "Unknown";
 }
 
-inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::VYield) + 1> kAllOpcodes =
+inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::AxReport) + 1> kAllOpcodes =
     [] {
-      std::array<Opcode, static_cast<std::size_t>(Opcode::VYield) + 1> values{};
+      std::array<Opcode, static_cast<std::size_t>(Opcode::AxReport) + 1> values{};
       for (std::size_t i = 0; i < values.size(); ++i) {
         values[i] = static_cast<Opcode>(i);
       }
@@ -406,6 +515,6 @@ inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::VYield) + 1
     }();
 
 [[nodiscard]] constexpr bool is_valid_opcode(std::uint8_t raw_opcode) {
-  return raw_opcode <= static_cast<std::uint8_t>(Opcode::VYield);
+  return raw_opcode <= static_cast<std::uint8_t>(Opcode::AxReport);
 }
 }  // namespace t81::tisc

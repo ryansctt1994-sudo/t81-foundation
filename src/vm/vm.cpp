@@ -3494,6 +3494,136 @@ public:
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), 0, verdict);
         break;
       }
+      case t81::tisc::Opcode::TNorm: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        int t = clamp_trit(state_.registers[insn.b]);
+        set_reg(insn.a, t, ValueTag::Int);
+        update_flags(t);
+        break;
+      }
+      case t81::tisc::Opcode::Canon: {
+        if (!reg_ok(insn.a)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        // Canonicalize memory/register (placeholder logic)
+        // In full implementation, this would enforce canonical representation
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "Canon"};
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.a),
+                           state_.registers[insn.a], verdict);
+        break;
+      }
+      case t81::tisc::Opcode::MemZero: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        std::size_t addr = static_cast<std::size_t>(state_.registers[insn.a]);
+        std::size_t size = static_cast<std::size_t>(state_.registers[insn.b]);
+        for (std::size_t i = 0; i < size; ++i) {
+          if (!mem_ok(static_cast<int>(addr + i))) {
+            trap = Trap::BoundsFault;
+            break;
+          }
+          state_.memory[addr + i] = 0;
+          state_.memory_tags[addr + i] = ValueTag::Int;
+        }
+        if (trap == Trap::None) {
+          log_memory_segment_access(insn.opcode, segment_for_address(addr), addr, size,
+                                    "MemZero");
+        }
+        break;
+      }
+      case t81::tisc::Opcode::Copy: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        std::size_t dst = static_cast<std::size_t>(state_.registers[insn.a]);
+        std::size_t src = static_cast<std::size_t>(state_.registers[insn.b]);
+        std::size_t size = static_cast<std::size_t>(state_.registers[insn.c]);
+        for (std::size_t i = 0; i < size; ++i) {
+          if (!mem_ok(static_cast<int>(src + i)) || !mem_ok(static_cast<int>(dst + i))) {
+            trap = Trap::BoundsFault;
+            break;
+          }
+          // Check for overlap if needed, but TISC spec says COPY is guaranteed non-overlapping usually,
+          // or we handle it safely.
+        }
+        if (trap == Trap::None) {
+          // Perform copy
+          for (std::size_t i = 0; i < size; ++i) {
+            state_.memory[dst + i] = state_.memory[src + i];
+            state_.memory_tags[dst + i] = state_.memory_tags[src + i];
+          }
+          log_memory_segment_access(insn.opcode, segment_for_address(dst), dst, size, "Copy");
+        }
+        break;
+      }
+      case t81::tisc::Opcode::AxHalt: {
+        t81::axion::Verdict verdict;
+        verdict.kind = t81::axion::VerdictKind::Deny;
+        verdict.reason = "AXHALT instruction";
+        record_axion_event(insn.opcode, 0, 0, verdict);
+        state_.halted = true;
+        break;
+      }
+      case t81::tisc::Opcode::Assert: {
+        if (!reg_ok(insn.a)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.registers[insn.a] == 0) {
+          t81::axion::Verdict verdict;
+          verdict.kind = t81::axion::VerdictKind::Deny;
+          verdict.reason = "ASSERT failed";
+          record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.a), 0, verdict);
+          trap = Trap::AssertionFailed;
+        }
+        break;
+      }
+      // Cognitive Tier Stubs
+      case t81::tisc::Opcode::SymLoad:
+      case t81::tisc::Opcode::SymRewrite:
+      case t81::tisc::Opcode::SymConfluence:
+      case t81::tisc::Opcode::SymCanon:
+      case t81::tisc::Opcode::SymBind:
+      case t81::tisc::Opcode::ReflCap:
+      case t81::tisc::Opcode::ReflJustify:
+      case t81::tisc::Opcode::ReflCheck:
+      case t81::tisc::Opcode::ReflTrace:
+      case t81::tisc::Opcode::ReflSeal:
+      case t81::tisc::Opcode::Recurse:
+      case t81::tisc::Opcode::Contract:
+      case t81::tisc::Opcode::Entropy:
+      case t81::tisc::Opcode::Depth:
+      case t81::tisc::Opcode::Terminate:
+      case t81::tisc::Opcode::Merge:
+      case t81::tisc::Opcode::Gossip:
+      case t81::tisc::Opcode::TickSync:
+      case t81::tisc::Opcode::Coherence:
+      case t81::tisc::Opcode::DistSeal:
+      case t81::tisc::Opcode::InfSeed:
+      case t81::tisc::Opcode::InfExpand:
+      case t81::tisc::Opcode::InfCollapse:
+      case t81::tisc::Opcode::InfConverge:
+      case t81::tisc::Opcode::InfSignature:
+      case t81::tisc::Opcode::AxCheck:
+      case t81::tisc::Opcode::AxSign:
+      case t81::tisc::Opcode::AxLineage:
+      case t81::tisc::Opcode::AxCanon:
+      case t81::tisc::Opcode::AxReport: {
+        // Generic handler for unimplemented/stubbed cognitive opcodes
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow,
+                                    "Cognitive Opcode Stub Execution"};
+        record_axion_event(insn.opcode, 0, 0, verdict);
+        // For now, treat as NOP but logged.
+        // In strict mode or future, this might be Unimplemented trap.
+        break;
+      }
       default:
         trap = Trap::DecodeFault;
         break;

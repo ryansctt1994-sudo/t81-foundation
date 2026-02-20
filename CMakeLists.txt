@@ -335,6 +335,10 @@ if(T81_BUILD_TESTS)
 
   add_executable(t81_vm_fault_test tests/cpp/vm_fault_test.cpp)
   target_link_libraries(t81_vm_fault_test PRIVATE t81_core)
+
+  add_executable(t81_vm_new_opcodes_test tests/cpp/vm_new_opcodes_test.cpp)
+  target_link_libraries(t81_vm_new_opcodes_test PRIVATE t81_core)
+
   add_executable(t81_vm_memory_test tests/cpp/vm_memory_test.cpp)
   target_link_libraries(t81_vm_memory_test PRIVATE t81_core)
 
