@@ -13,6 +13,7 @@
 #include "t81/axion/verdict.hpp"
 #include "t81/cog/tier.hpp"
 #include "t81/cog/tier1/symbolic.hpp"
+#include "t81/cog/tier2/reflective.hpp"
 #include "t81/fraction.hpp"
 #include "t81/tensor.hpp"
 #include "t81/tisc/program.hpp"
@@ -51,6 +52,7 @@ enum class ValueTag : std::uint8_t {
   AsyncPromiseHandle,
   StringVectorHandle,
   SymbolicGraphHandle,
+  Tier2FrameHandle,
 };
 
 struct Flags {
@@ -230,6 +232,9 @@ struct State {
 
   // Tier 1 Symbolic
   std::vector<t81::cog::v1::SymbolicGraph> symbolic_graphs;
+
+  // Tier 2 Reflective
+  std::vector<t81::cog::v2::ReflectiveFrame> tier2_frames;
 
   // Deterministic Fault Injection
   std::vector<FaultInjection> pending_faults;

@@ -13,8 +13,8 @@ struct ContractionProof {
 };
 
 struct Recursor {
-  int max_depth;
-  int current_depth;
+  int max_depth{81};
+  int current_depth{0};
   std::vector<ContractionProof> proofs;
 
   bool can_recurse() const;

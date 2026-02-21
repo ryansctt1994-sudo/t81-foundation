@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -12,9 +13,13 @@ struct JustificationChain {
 };
 
 struct ReflectiveFrame {
+  std::size_t pc{0};
+  std::vector<std::int64_t> registers;
+  std::string description;
   JustificationChain justification;
 
-  void capture_state(const std::string& description);
+  void capture_state(std::size_t pc, const std::vector<std::int64_t>& registers,
+                     const std::string& description);
 };
 
 }  // namespace t81::cog::v2

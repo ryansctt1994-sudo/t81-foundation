@@ -52,6 +52,9 @@
 - [x] JIT compilation (Research/Experimental)
 - [x] Cognitive Tier Opcodes (Registered)
   - [ ] Full Logic Implementation (Symbolic, Reflective, etc.)
+    - [x] ReflCap (Capture state)
+    - [x] ReflJustify (Append reasoning)
+    - [ ] ReflCheck, ReflTrace, ReflSeal
   - [x] Infinite Series Compression (Geometric Series, see `src/cog/tier5/infinite.cpp`)
 
 ## 5. CanonFS & Tensor Storage (section 11)
