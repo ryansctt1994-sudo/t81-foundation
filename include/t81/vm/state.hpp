@@ -189,7 +189,8 @@ struct State {
   std::vector<ValueTag> memory_tags;
   MemoryLayout layout{};
   std::size_t sp{0};
-  std::vector<t81::T729Tensor> tensors;
+  std::vector<std::optional<t81::T729Tensor>> tensors;
+  std::vector<std::size_t> free_tensor_indices;
   std::vector<double> floats;
   std::vector<t81::T81Fraction> fractions;
   std::vector<std::string> symbols;

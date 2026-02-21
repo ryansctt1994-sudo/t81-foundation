@@ -80,7 +80,12 @@ public:
     state_.fractions = program_.fraction_pool;
     state_.symbols = program_.symbol_pool;
     state_.string_vectors.clear();
-    state_.tensors = program_.tensor_pool;
+    state_.tensors.clear();
+    state_.tensors.reserve(program_.tensor_pool.size());
+    for (const auto& t : program_.tensor_pool) {
+      state_.tensors.push_back(t);
+    }
+    state_.free_tensor_indices.clear();
     state_.shapes = program_.shape_pool;
     state_.weights_model = program_.weights_model;
     state_.weights_tensor_refs.clear();
@@ -366,14 +371,23 @@ public:
       if (handle <= 0) return nullptr;
       std::size_t idx = static_cast<std::size_t>(handle - 1);
       if (idx >= state_.tensors.size()) return nullptr;
-      return &state_.tensors[idx];
+      if (!state_.tensors[idx].has_value()) return nullptr;
+      return &state_.tensors[idx].value();
     };
     auto alloc_tensor = [this, current_pc](t81::T729Tensor tensor) -> std::int64_t {
-      state_.tensors.push_back(std::move(tensor));
-      auto idx = state_.tensors.size();
-      log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Tensor, idx,
-                                1, t81::axion::reasons::kTensorAlloc);
-      return static_cast<std::int64_t>(idx);
+      std::size_t idx_handle;
+      if (!state_.free_tensor_indices.empty()) {
+        auto raw_idx = state_.free_tensor_indices.back();
+        state_.free_tensor_indices.pop_back();
+        state_.tensors[raw_idx] = std::move(tensor);
+        idx_handle = raw_idx + 1;
+      } else {
+        state_.tensors.push_back(std::move(tensor));
+        idx_handle = state_.tensors.size();
+      }
+      log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Tensor,
+                                idx_handle, 1, t81::axion::reasons::kTensorAlloc);
+      return static_cast<std::int64_t>(idx_handle);
     };
     auto promote_to_tensor = [&](int reg) -> std::expected<void, Trap> {
       if (reg < 0 || static_cast<std::size_t>(reg) >= state_.registers.size()) {
@@ -4030,6 +4044,104 @@ private:
     push_axion_event(event);
   }
 
+  void mark_and_sweep() {
+    // 1. Initialize mark bitmap
+    std::vector<bool> marked_tensors(state_.tensors.size(), false);
+    std::vector<bool> visited_options(state_.options.size(), false);
+    std::vector<bool> visited_results(state_.results.size(), false);
+    std::vector<bool> visited_enums(state_.enums.size(), false);
+
+    // Helper for marking
+    auto mark_tensor = [&](std::int64_t handle) {
+      if (handle <= 0) return;
+      std::size_t idx = static_cast<std::size_t>(handle - 1);
+      if (idx < marked_tensors.size()) {
+        marked_tensors[idx] = true;
+      }
+    };
+
+    // Recursive scan
+    std::function<void(ValueTag, std::int64_t)> scan_value = [&](ValueTag tag, std::int64_t val) {
+      switch (tag) {
+        case ValueTag::TensorHandle:
+          mark_tensor(val);
+          break;
+        case ValueTag::OptionHandle: {
+          if (val <= 0) return;
+          std::size_t idx = static_cast<std::size_t>(val - 1);
+          if (idx < state_.options.size() && !visited_options[idx]) {
+            visited_options[idx] = true;
+            scan_value(state_.options[idx].payload_tag, state_.options[idx].payload);
+          }
+          break;
+        }
+        case ValueTag::ResultHandle: {
+          if (val <= 0) return;
+          std::size_t idx = static_cast<std::size_t>(val - 1);
+          if (idx < state_.results.size() && !visited_results[idx]) {
+            visited_results[idx] = true;
+            scan_value(state_.results[idx].payload_tag, state_.results[idx].payload);
+          }
+          break;
+        }
+        case ValueTag::EnumHandle: {
+          if (val <= 0) return;
+          std::size_t idx = static_cast<std::size_t>(val - 1);
+          if (idx < state_.enums.size() && !visited_enums[idx]) {
+            visited_enums[idx] = true;
+            if (state_.enums[idx].has_payload) {
+              scan_value(state_.enums[idx].payload_tag, state_.enums[idx].payload);
+            }
+          }
+          break;
+        }
+        case ValueTag::ReflectionHandle:
+          // Reflections are roots, scanned below explicitly.
+          break;
+        default:
+          break;
+      }
+    };
+
+    // 2. Scan Roots
+
+    // Registers
+    for (size_t i = 0; i < state_.registers.size(); ++i) {
+      scan_value(state_.register_tags[i], state_.registers[i]);
+    }
+
+    // Memory (Stack + Heap segments)
+    for (size_t i = 0; i < state_.memory.size(); ++i) {
+      scan_value(state_.memory_tags[i], state_.memory[i]);
+    }
+
+    // Reflection Snapshots (Implicit Roots)
+    for (const auto& snap : state_.reflection_snapshots) {
+      for (size_t i = 0; i < snap.registers.size(); ++i) {
+        scan_value(snap.register_tags[i], snap.registers[i]);
+      }
+    }
+
+    // 3. Sweep
+    size_t freed_count = 0;
+    for (size_t i = 0; i < state_.tensors.size(); ++i) {
+      if (state_.tensors[i].has_value() && !marked_tensors[i]) {
+        state_.tensors[i] = std::nullopt;
+        state_.free_tensor_indices.push_back(i);
+        freed_count++;
+      }
+    }
+
+    if (freed_count > 0) {
+      t81::axion::Verdict verdict;
+      verdict.kind = t81::axion::VerdictKind::Allow;
+      std::ostringstream reason_stream;
+      reason_stream << "GC reclaimed tensors count=" << freed_count;
+      verdict.reason = reason_stream.str();
+      record_axion_event(t81::tisc::Opcode::Trap, 0, static_cast<int64_t>(freed_count), verdict);
+    }
+  }
+
   void run_gc_cycle_(const char* reason) {
     instructions_since_gc_ = 0;
     state_.gc_cycles++;
@@ -4041,6 +4153,8 @@ private:
     verdict.reason = reason_stream.str();
     record_axion_event(t81::tisc::Opcode::Trap, static_cast<std::int32_t>(state_.gc_cycles),
                        static_cast<std::int64_t>(state_.gc_cycles), verdict);
+
+    mark_and_sweep();
 
     log_heap_compaction(state_.heap_ptr, state_.heap_frames.size());
     log_heap_relocation(state_.heap_ptr, state_.layout.heap.start, state_.heap_frames.size());

@@ -80,7 +80,11 @@ Snapshot run_once(const Program& p) {
     std::cerr << "final tensor handle out of range: " << final_handle << "\n";
     return {};
   }
-  out.final_tensor = st.tensors[idx];
+  if (!st.tensors[idx].has_value()) {
+    std::cerr << "final tensor handle invalid (GC'd?): " << final_handle << "\n";
+    return {};
+  }
+  out.final_tensor = *st.tensors[idx];
   for (const auto& entry : st.axion_log) {
     out.reasons.push_back(entry.verdict.reason);
   }

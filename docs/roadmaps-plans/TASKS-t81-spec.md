@@ -66,9 +66,9 @@
 
 ## 6. Axion Kernel & Safety Invariants (section 12)
 - [x] Full enforcement in VM loop (VM hooks `axion::check`)
-- [ ] GC hooks for tensor lifetimes
-  - [ ] Reference counting / mark-sweep integration
-  - [ ] Tensor-specific lifetime rules
+- [x] GC hooks for tensor lifetimes
+  - [x+] Reference counting / mark-sweep integration (see `mark_and_sweep` in `src/vm/vm.cpp`)
+  - [x+] Tensor-specific lifetime rules (via `free_tensor_indices` reuse)
 - [ ] Ethics checks (Θ₁–Θ₉ implementation)
   - [ ] Θ enforcement points in VM / interpreter
   - [ ] Telemetry / logging for drift detection
