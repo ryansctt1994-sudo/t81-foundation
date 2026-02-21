@@ -33,8 +33,7 @@ template <std::size_t N>
 t81::T81Int<N> random_t81int(std::mt19937_64& rng) {
   // Safe range for T81Int<40> (approx +/- 6e18)
   // We use +/- 4e18 to be safe and cover a good range
-  std::uniform_int_distribution<int64_t> dist(-4000000000000000000LL,
-                                              4000000000000000000LL);
+  std::uniform_int_distribution<int64_t> dist(-4000000000000000000LL, 4000000000000000000LL);
   t81::T81Int<N> val(dist(rng));
   return val;
 }
@@ -43,8 +42,7 @@ int main() {
   std::mt19937_64 rng(54321);  // Different seed from fuzz_bigint_div
   int iterations = 10000;
 
-  std::cout << "Running property-based tests for " << iterations
-            << " iterations...\n";
+  std::cout << "Running property-based tests for " << iterations << " iterations...\n";
 
   for (int i = 0; i < iterations; ++i) {
     T81BigInt a = random_bigint(rng, 4);  // Up to ~240 bits

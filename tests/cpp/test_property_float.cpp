@@ -26,8 +26,7 @@ int main() {
   std::mt19937_64 rng(67890);
   int iterations = 10000;
 
-  std::cout << "Running float property tests for " << iterations
-            << " iterations...\n";
+  std::cout << "Running float property tests for " << iterations << " iterations...\n";
 
   for (int i = 0; i < iterations; ++i) {
     Float a = random_float(rng);
@@ -83,8 +82,7 @@ int main() {
         std::cerr << "FAILED: Float Multiplicative Identity\n"
                   << "a = " << a.to_double() << "\n"
                   << "a * 1 = " << prod.to_double() << "\n"
-                  << "a.exp=" << a.exponent()
-                  << " a.sig=" << a.mantissa().significant_trits()
+                  << "a.exp=" << a.exponent() << " a.sig=" << a.mantissa().significant_trits()
                   << " a.mant=" << a.mantissa().to_string() << "\n"
                   << "prod.exp=" << prod.exponent()
                   << " prod.sig=" << prod.mantissa().significant_trits()
