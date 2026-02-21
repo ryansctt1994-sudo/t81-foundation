@@ -228,6 +228,42 @@ public:
 
   explicit T81BigInt(std::int64_t v) { assign_from_int64(v); }
 
+private:
+  Trit lowest_trit_magnitude() const {
+    if (is_zero()) return Trit::Z;
+    return limbs_[0][0];
+  }
+
+  Trit lowest_trit() const {
+    if (is_zero()) return Trit::Z;
+    Trit t = limbs_[0][0];
+    if (negative_) return (t == Trit::P) ? Trit::N : ((t == Trit::N) ? Trit::P : Trit::Z);
+    return t;
+  }
+
+  // Divide magnitude by 3 (shift right 1 trit).
+  void div3_magnitude() {
+    if (is_zero()) return;
+
+    Trit carry = Trit::Z;
+    for (size_t i = limbs_.size(); i-- > 0;) {
+      Trit next_carry = limbs_[i][0];
+      limbs_[i] >>= 1;
+      if (carry != Trit::Z) {
+        limbs_[i][kLimbTrits - 1] = carry;
+      }
+      carry = next_carry;
+    }
+    normalize();
+  }
+
+  // Signed in-place division by 3.
+  // Value must be divisible by 3 for exact results.
+  void div3_inplace() {
+    div3_magnitude();
+  }
+
+public:
   template <std::size_t N>
   explicit T81BigInt(const T81Int<N>& x) {
     if constexpr (N <= 40) {
@@ -1319,6 +1355,91 @@ public:
     if (res.is_negative()) {
       res = res + m;
     }
+    return res;
+  }
+
+  /**
+   * @brief Computes modular inverse using Stein's algorithm (Ternary GCD).
+   *
+   * @warning This implementation is NOT constant-time and NOT side-channel resistant.
+   * It avoids full division steps (Knuth D) but still leaks information via execution path.
+   * For critical cryptographic operations requiring constant-time execution, further hardening is needed.
+   */
+  static T81BigInt modular_inverse_stein(const T81BigInt& a, const T81BigInt& m) {
+    if (m <= one()) throw std::domain_error("modular_inverse_stein: modulus must be > 1");
+
+    // Check if m is coprime to 3. If not, fallback to Euclidean.
+    T81BigInt m_abs = m.abs();
+    if (m_abs.lowest_trit_magnitude() == Trit::Z) {
+        return modular_inverse(a, m);
+    }
+
+    T81BigInt u = a.abs();
+    T81BigInt v = m_abs;
+    T81BigInt x1 = one();
+    T81BigInt x2 = zero();
+
+    // Helper to divide by 3 modulo m
+    auto div3_mod = [&](T81BigInt& val) {
+      Trit t = val.lowest_trit();
+      if (t != Trit::Z) {
+        Trit m_t = m_abs.lowest_trit_magnitude();
+        if (t == Trit::P) {
+          if (m_t == Trit::P) val -= m_abs;
+          else val += m_abs;
+        } else {
+          if (m_t == Trit::P) val += m_abs;
+          else val -= m_abs;
+        }
+      }
+      val.div3_inplace();
+    };
+
+    while (!u.is_zero() && !v.is_zero()) {
+      while (u.lowest_trit_magnitude() == Trit::Z) {
+        u.div3_magnitude();
+        div3_mod(x1);
+      }
+      while (v.lowest_trit_magnitude() == Trit::Z) {
+        v.div3_magnitude();
+        div3_mod(x2);
+      }
+
+      if (u >= v) {
+        Trit u_t = u.lowest_trit_magnitude();
+        Trit v_t = v.lowest_trit_magnitude();
+        if (u_t == v_t) {
+          u -= v;
+          x1 -= x2;
+        } else {
+          u += v;
+          x1 += x2;
+        }
+      } else {
+        Trit u_t = u.lowest_trit_magnitude();
+        Trit v_t = v.lowest_trit_magnitude();
+        if (v_t == u_t) {
+          v -= u;
+          x2 -= x1;
+        } else {
+          v += u;
+          x2 += x1;
+        }
+      }
+    }
+
+    T81BigInt g = u.is_zero() ? v : u;
+    T81BigInt res = u.is_zero() ? x2 : x1;
+
+    if (!is_one(g)) {
+      throw std::domain_error("modular_inverse_stein: inverse does not exist");
+    }
+
+    if (a.is_negative()) res = -res;
+
+    res = res % m_abs;
+    if (res.is_negative()) res += m_abs;
+
     return res;
   }
 
