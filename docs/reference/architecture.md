@@ -1,23 +1,18 @@
-%% Architecture Hash: f2cbf0cada7a9396dca43fc68e97ec624b46e4a21b63898226876405854749ca
-
 # T81 Canonical Architecture
 
 This document defines the authoritative architecture of the T81 system as implemented in the current codebase.
-
-<!-- BEGIN CANONICAL ARCHITECTURE -->
 
 ## 1. Execution Pipeline
 
 The execution pipeline transforms source code into TISC bytecode, which is then executed by the T81 VM under strict Axion policy supervision.
 
 ```mermaid
-graph LR
-    id1(Source) --> Lexer[Lexer]
+flowchart LR
+    Source[Source] --> Lexer[Lexer]
     Lexer --> Parser[Parser]
     Parser --> Semantic[Semantic Analyzer]
     Semantic --> IR[IR Generator]
     IR --> TISC[TISC Emitter]
-
     TISC --> VM[VM Interpreter]
 
     subgraph Runtime [src/vm]
@@ -40,9 +35,9 @@ graph LR
 The system strictly separates the deterministic core logic from the host-dependent surface and experimental features.
 
 ```mermaid
-graph TD
+flowchart TD
     subgraph Core [Deterministic Core]
-        Interpreter
+        Interpreter[Interpreter]
         JIT[ThreadedJitTrace]
         Axion[Axion Policy Engine]
         Mem[Memory Model]
@@ -79,12 +74,12 @@ graph TD
 The Cognitive Tier model defines the capabilities available to the runtime, escalating from basic symbolic manipulation to infinite series expansion, all supervised by Axion.
 
 ```mermaid
-graph TD
-    subgraph Tiers [Cognitive Tiers (src/cog)]
+flowchart TD
+    subgraph Tiers [Cognitive Tiers  src/cog ]
         T1[Tier 1: Symbolic]
         T2[Tier 2: Reflective]
         T3[Tier 3: Recursive]
-        T4[Tier 4: Distributed (Stub)]
+        T4[Tier 4: Distributed  Stub ]
         T5[Tier 5: Infinite]
     end
 
@@ -101,21 +96,27 @@ graph TD
     Interpreter --> T4
     Interpreter --> T5
 
-    T1 -.-> Axion
-    T2 -.-> Axion
-    T3 -.-> Limits
-    T3 -.-> Promotion
-    T5 -.-> Axion
+    T1 --> Axion
+    T2 --> Axion
+    T3 --> Limits
+    T3 --> Promotion
+    T5 --> Axion
 
     Axion --> Ethics
     Promotion --> Axion
 ```
 
-<!-- END CANONICAL ARCHITECTURE -->
-
 ## Coverage Notes
 
-*   **Tier 4 (Distributed)**: The implementation files exist (`src/cog/tier4/distributed.cpp`), but the opcodes (`Merge`, `Gossip`, etc.) are currently stubs in `src/vm/vm.cpp` that log events but perform no network operations.
-*   **JIT**: The "JIT" is implemented as a tracing interpreter (`ThreadedJitTrace`), not a machine-code emitting JIT. It resides entirely within the deterministic core.
-*   **Network I/O**: Network opcodes (`NSend`, `NRecv`) are placeholders returning dummy values or strictly logging events, ensuring no nondeterministic network interaction occurs in the current implementation.
-*   **Weights**: Supported formats are GGUF and SafeTensors (via conversion), and the native T81W format.
+- **Tier 4 (Distributed)**: The implementation files exist (`src/cog/tier4/distributed.cpp`), but the opcodes (`Merge`, `Gossip`, etc.) are currently stubs in `src/vm/vm.cpp` that log events but perform no network operations.
+- **JIT**: The "JIT" is implemented as a tracing interpreter (`ThreadedJitTrace`), not a machine-code emitting JIT. It resides entirely within the deterministic core.
+- **Network I/O**: Network opcodes (`NSend`, `NRecv`) are placeholders returning dummy values or strictly logging events, ensuring no nondeterministic network interaction occurs in the current implementation.
+- **Weights**: Supported formats are GGUF and SafeTensors (via conversion), and the native T81W format.
+```
+
+### Quick summary — why these changes usually fix GitHub rendering:
+
+- `flowchart` is more robust than legacy `graph`
+- Avoided very deep empty nesting (GitHub/Mermaid sometimes chokes on it)
+- Changed `.->` to `-->` in supervision links (dotted edges to subgraphs can be finicky)
+- Gave subgraphs content early so the parser doesn't get confused
