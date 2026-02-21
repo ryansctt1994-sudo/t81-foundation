@@ -4,6 +4,8 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include "t81/canonfs/canon_driver.hpp"
+#include "t81/canonfs/canon_types.hpp"
 #include "t81/core/T81BigInt.hpp"
 #include "t81/core/T81Float.hpp"
 #include "t81/core/T81Fraction.hpp"
@@ -17,8 +19,6 @@
 #include "t81/tisc/binary_emitter.hpp"
 #include "t81/tisc/program.hpp"
 #include "t81/vm/vm.hpp"
-#include "t81/canonfs/canon_driver.hpp"
-#include "t81/canonfs/canon_types.hpp"
 
 namespace py = pybind11;
 using namespace t81;
@@ -267,11 +267,10 @@ PYBIND11_MODULE(t81_python, m) {
                                    reinterpret_cast<const char*>(ref.hash.h.bytes.data()),
                                    ref.hash.h.bytes.size());
                              })
-      .def("__repr__",
-           [](const canonfs::CanonRef&) {
-             return "<CanonRef>";  // We could format hash bytes if we had a formatter easily
-                                   // available
-           });
+      .def("__repr__", [](const canonfs::CanonRef&) {
+        return "<CanonRef>";  // We could format hash bytes if we had a formatter easily
+                              // available
+      });
 
   py::class_<canonfs::Driver>(m, "CanonDriver")  // Abstract base
       .def("write_object",
@@ -280,8 +279,7 @@ PYBIND11_MODULE(t81_python, m) {
              std::span<const std::byte> sp(reinterpret_cast<const std::byte*>(s.data()), s.size());
              auto res = self.write_object(type, sp);
              if (!res)
-               throw std::runtime_error("CanonFS Write Error: " +
-                                        std::to_string((int)res.error()));
+               throw std::runtime_error("CanonFS Write Error: " + std::to_string((int)res.error()));
              return *res;
            })
       .def("read_object_bytes", [](canonfs::Driver& self, const canonfs::CanonRef& ref) {
