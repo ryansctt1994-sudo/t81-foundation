@@ -283,6 +283,9 @@ if(T81_BUILD_TESTS)
   add_executable(fuzz_bigint_div tests/cpp/fuzz_bigint_div.cpp)
   target_link_libraries(fuzz_bigint_div PRIVATE t81_core)
 
+  add_executable(fuzz_bigint_libfuzzer tests/cpp/fuzz_bigint_libfuzzer.cpp)
+  target_link_libraries(fuzz_bigint_libfuzzer PRIVATE t81_core)
+
   add_executable(t81_fraction_properties_test tests/cpp/fraction_properties_test.cpp)
   target_link_libraries(t81_fraction_properties_test PRIVATE t81_core)
 
@@ -899,6 +902,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_bigint_division_semantics_test
     t81_bigint_gcd_divmod_property_test
     t81_bigint_modular_inverse_test
+    fuzz_bigint_libfuzzer
     t81_fraction_properties_test
     t81_core_numeric_compat_test
     t81_core_bigint_compat_properties_test
