@@ -1,8 +1,3 @@
----
-layout: page
-title: Documentation Hub
----
-
 # T81 Foundation Documentation Hub
 
 Welcome to the central documentation hub for the T81 Foundation. This site provides the technical specifications, architectural diagrams, developer guides, and status reports needed to understand and contribute to the project.
