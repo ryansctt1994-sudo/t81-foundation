@@ -209,27 +209,132 @@ T81 **不是**：
 <details>
 <summary><strong>第一部分 — 基础</strong></summary>
 
-1. 引言（范围、定义、愿景）
-2. 核心原则与不变性（确定性、三进制逻辑、Axion 追踪、伦理强制）
+1. **[引言](https://www.google.com/search?q=book/01_Introduction.md)**
+* [1.1 范围与定义](https://www.google.com/search?q=book/01_Introduction.md%2311-scope-and-definition)
+* [1.2 系统架构](https://www.google.com/search?q=book/01_Introduction.md%2312-system-architecture)
+* [1.3 可验证计算使命](https://www.google.com/search?q=book/01_Introduction.md%2313-verifiable-compute-mission)
+
+
+2. **[核心原则与不变性](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md)**
+* [2.1 确定性不变性](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md%2321-the-determinism-invariant)
+* [2.1.1 确定性表面与攻击向量](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md%23211-determinism-surfaces-and-attack-vectors)
+* [2.2 三进制逻辑 (Base-3)](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md%2322-ternary-logic-base-3)
+* [2.3 可审计性与 Axion 追踪](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md%2323-auditability-and-the-axion-trace)
+* [2.4 九项原则 (伦理强制执行)](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md%2324-the-nine-principles-ethics-enforcement)
+
+
 
 </details>
 
 <details>
 <summary><strong>第二部分 — 确定性机器</strong></summary>
 
-3. T81VM 架构（形式化状态机、内存布局、TISC ISA、故障语义）
-4. 数据类型与规范化序列化（T81Float、dmath、张量布局）
-5. 安装与构建验证
-6. CLI 与 API 使用（C++/Python 嵌入）
+3. **[T81VM 架构](https://www.google.com/search?q=book/03_T81VM_Architecture.md)**
+* [3.1 形式化状态机](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2331-formal-state-machine)
+* [3.1.1 状态定义](https://www.google.com/search?q=book/03_T81VM_Architecture.md%23311-state-definition)
+* [3.2 内存布局](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2332-memory-layout)
+* [3.3 寄存器堆](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2333-register-file)
+* [3.4 TISC 指令集架构 (ISA)](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2334-tisc-instruction-set-architecture-isa)
+* [3.5 故障语义](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2335-fault-semantics)
+* [3.6 垃圾回收](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2336-garbage-collection)
+
+
+4. **[数据类型与规范序列化](https://www.google.com/search?q=book/04_Data_Types_and_Canonical_Serialization.md)**
+* [4.1 原生类型](https://www.google.com/search?q=book/04_Data_Types_and_Canonical_Serialization.md%2341-primitive-types)
+* [4.2 T81Float 与 dmath](https://www.google.com/search?q=book/04_Data_Types_and_Canonical_Serialization.md%2342-t81float-and-dmath)
+* [4.3 张量与规范化布局](https://www.google.com/search?q=book/04_Data_Types_and_Canonical_Serialization.md%2343-tensors-and-canonical-layouts)
+* [4.4 规范序列化规则](https://www.google.com/search?q=book/04_Data_Types_and_Canonical_Serialization.md%2344-canonical-serialization-rules)
+
+
+5. **[安装与构建验证](https://www.google.com/search?q=book/05_Installation_and_Build_Verification.md)**
+* [5.1 前置条件](https://www.google.com/search?q=book/05_Installation_and_Build_Verification.md%2351-prerequisites)
+* [5.2 从源码构建](https://www.google.com/search?q=book/05_Installation_and_Build_Verification.md%2352-building-from-source)
+* [5.3 验证构建](https://www.google.com/search?q=book/05_Installation_and_Build_Verification.md%2353-verifying-the-build)
+
+
+6. **[CLI 与 API 用法](https://www.google.com/search?q=book/06_CLI_and_API_Usage.md)**
+* [6.1 命令行界面](https://www.google.com/search?q=book/06_CLI_and_API_Usage.md%2361-the-t81-command-line-interface)
+* [6.2 嵌入 T81 (C++ API)](https://www.google.com/search?q=book/06_CLI_and_API_Usage.md%2362-embedding-t81-c-api)
+* [6.3 嵌入 T81 (Python API)](https://www.google.com/search?q=book/06_CLI_and_API_Usage.md%2363-embedding-t81-python-api)
+* [6.4 调试](https://www.google.com/search?q=book/06_CLI_and_API_Usage.md%2364-debugging)
+
+
 
 </details>
 
 <details>
 <summary><strong>第三部分 — 治理与验证</strong></summary>
 
-7. 验证与审计（形式化验证、属性测试、确定性网关）
-8. Axion 安全内核（策略模型、指令拦截、审计日志）
-9. 认知层与分布式计算（Trace-JIT、无限形式）
+7. **[验证与审计](https://www.google.com/search?q=book/07_Verification_and_Audit.md)**
+* [7.1 形式化验证方法论](https://www.google.com/search?q=book/07_Verification_and_Audit.md%2371-formal-verification-methodology)
+* [7.2 形式化审计矩阵](https://www.google.com/search?q=book/07_Verification_and_Audit.md%2372-the-formal-audit-matrix)
+* [7.3 基于属性的测试](https://www.google.com/search?q=book/07_Verification_and_Audit.md%2373-property-based-testing)
+* [7.4 确定性网关](https://www.google.com/search?q=book/07_Verification_and_Audit.md%2374-the-determinism-gate)
+
+
+8. **[Axion 安全内核](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md)**
+* [8.1 形式化定义](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md%2381-formal-definition)
+* [8.2 策略模型](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md%2382-the-policy-model)
+* [8.3 指令拦截](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md%2383-instruction-interception)
+* [8.4 审计日志 (追踪)](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md%2384-the-audit-log-trace)
+* [8.5 认知提升](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md%2385-cognitive-promotion)
+
+
+9. **[认知层与分布式计算](https://www.google.com/search?q=book/09_Cognitive_Tiers_and_Distributed_Compute.md)**
+* [9.1 认知层模型](https://www.google.com/search?q=book/09_Cognitive_Tiers_and_Distributed_Compute.md%2391-the-cognitive-tier-model)
+* [9.2 分布式计算 (第 4 层)](https://www.google.com/search?q=book/09_Cognitive_Tiers_and_Distributed_Compute.md%2392-distributed-compute-tier-4)
+* [9.3 基于追踪的 JIT 编译](https://www.google.com/search?q=book/09_Cognitive_Tiers_and_Distributed_Compute.md%2393-trace-based-jit-compilation)
+* [9.4 无限形式 (第 5 层)](https://www.google.com/search?q=book/09_Cognitive_Tiers_and_Distributed_Compute.md%2394-infinite-forms-tier-5)
+
+
+10. **[附录](https://www.google.com/search?q=book/10_Appendices.md)**
+* [10.1 尚未实现的功能](https://www.google.com/search?q=book/10_Appendices.md%23101-what-is-not-yet-implemented)
+* [10.2 威胁模型与确定性攻击表面](https://www.google.com/search?q=book/10_Appendices.md%23102-threat-model-and-determinism-attack-surface)
+* [10.3 术语表](https://www.google.com/search?q=book/10_Appendices.md%23103-glossary)
+
+
+
+</details>
+
+<details>
+<summary><strong>第四部分 — 形式化与结构硬化</strong></summary>
+
+11. **[TISC 与 T81VM 的形式化语义](https://www.google.com/search?q=book/11_Formal_Semantics.md)**
+* [TISC 的指称语义](https://www.google.com/search?q=book/11_Formal_Semantics.md%23denotational-semantics-of-tisc)
+* [代数转换函数 δ](https://www.google.com/search?q=book/11_Formal_Semantics.md%23algebraic-transition-function-%CE%B4)
+* [规范化重写系统](https://www.google.com/search?q=book/11_Formal_Semantics.md%23canonicalization-rewriting-system)
+* [确定性证明草图](https://www.google.com/search?q=book/11_Formal_Semantics.md%23determinism-proof-sketches)
+* [解释器与 Trace-JIT 的等效性](https://www.google.com/search?q=book/11_Formal_Semantics.md%23interpreter-vs-trace-jit-equivalence)
+
+
+12. **[对抗建模与确定性攻击](https://www.google.com/search?q=book/12_Adversarial_Modeling.md)**
+* [编译器级攻击](https://www.google.com/search?q=book/12_Adversarial_Modeling.md%23compiler-level-attacks)
+* [VM 与 GC 攻击向量](https://www.google.com/search?q=book/12_Adversarial_Modeling.md%23vm-and-gc-attack-vectors)
+* [CanonFS 与哈希攻击](https://www.google.com/search?q=book/12_Adversarial_Modeling.md%23canonfs-and-hash-attacks)
+* [分布式层级时间旅行攻击](https://www.google.com/search?q=book/12_Adversarial_Modeling.md%23distributed-tier-time-travel-attack)
+* [确定性破坏事后剖析模板](https://www.google.com/search?q=book/12_Adversarial_Modeling.md%23determinism-breach-postmortem-template)
+
+
+
+</details>
+
+<details>
+<summary><strong>第五部分 — 持续性与研究前沿</strong></summary>
+
+13. **[持续性与韧性](https://www.google.com/search?q=book/13_Continuity_Resilience.md)**
+* [无尘室重建协议](https://www.google.com/search?q=book/13_Continuity_Resilience.md%23cleanroom-reconstruction-protocol)
+* [单点故障](https://www.google.com/search?q=book/13_Continuity_Resilience.md%23single-points-of-failure)
+* [持续性宣言](https://www.google.com/search?q=book/13_Continuity_Resilience.md%23continuity-manifest)
+* [不可变形式化不变性](https://www.google.com/search?q=book/13_Continuity_Resilience.md%23immutable-formal-invariants)
+
+
+14. **[研究前沿](https://www.google.com/search?q=book/14_Research_Frontier.md)**
+* [三进制硬件加速](https://www.google.com/search?q=book/14_Research_Frontier.md%23ternary-hardware-acceleration)
+* [形式化验证路径](https://www.google.com/search?q=book/14_Research_Frontier.md%23formal-verification-paths)
+* [作为 Merkle 底层的 CanonFS](https://www.google.com/search?q=book/14_Research_Frontier.md%23canonfs-as-a-merkle-substrate)
+* [大规模确定性 AI 推理](https://www.google.com/search?q=book/14_Research_Frontier.md%23deterministic-ai-inference-at-scale)
+
+
 
 </details>
 
@@ -237,4 +342,4 @@ T81 **不是**：
 
 ## 许可证
 
-MIT 许可证 — 详见 [LICENSE](https://www.google.com/search?q=LICENSE)。
+MIT 许可证 — 详见 [LICENSE](https://www.google.com/search?q=LICENSE)
