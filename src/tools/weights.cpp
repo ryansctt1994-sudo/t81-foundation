@@ -257,24 +257,6 @@ ModelFile build_from_header(const JsonValue& root, const std::vector<uint8_t>& b
   return mf;
 }
 
-ModelFile load_gguf(const std::filesystem::path& path) {
-  std::ifstream f(path, std::ios::binary);
-  if (!f) throw std::runtime_error("cannot open GGUF file");
-  uint32_t header_len = 0;
-  f.read(reinterpret_cast<char*>(&header_len), sizeof(header_len));
-  std::string header(header_len, '\0');
-  f.read(header.data(), header_len);
-  JsonParser parser(header);
-  JsonValue root = parser.parse();
-  auto file_size = std::filesystem::file_size(path);
-  std::vector<uint8_t> buffer(file_size);
-  f.seekg(0);
-  f.read(reinterpret_cast<char*>(buffer.data()), file_size);
-  auto mf = build_from_header(root, buffer);
-  mf.format = "GGUF";
-  return mf;
-}
-
 ModelFile load_safetensors(const std::filesystem::path& path) {
   std::ifstream f(path, std::ios::binary);
   if (!f) throw std::runtime_error("cannot open SafeTensors file");
@@ -338,149 +320,6 @@ ModelFile load_safetensors(const std::filesystem::path& path) {
 
 NativeTensor import_bitnet_b158(std::span<const int8_t> src, const std::vector<uint64_t>& shape) {
   return pack_trits(src, shape);
-}
-
-void save_t81w(const NativeModel& model, const std::filesystem::path& path) {
-  std::vector<uint8_t> buffer;
-  auto append_bytes = [&](const void* data, size_t size) {
-    const auto* ptr = static_cast<const uint8_t*>(data);
-    buffer.insert(buffer.end(), ptr, ptr + size);
-  };
-  auto append_le64 = [&](uint64_t value) {
-    for (int i = 0; i < 8; ++i) {
-      buffer.push_back(static_cast<uint8_t>(value & 0xFF));
-      value >>= 8;
-    }
-  };
-
-  const std::string magic = "T81W1\n";
-  append_bytes(magic.data(), magic.size());
-  const size_t hash_pos = buffer.size();
-  buffer.insert(buffer.end(), 128, '0');
-  buffer.push_back('\n');
-  const size_t payload_start = buffer.size();
-
-  append_le64(model.size());
-  for (const auto& [name, tensor] : model) {
-    append_le64(name.size());
-    append_bytes(name.data(), name.size());
-    append_le64(tensor.shape.size());
-    for (uint64_t dim : tensor.shape) {
-      append_le64(dim);
-    }
-    const uint64_t trits = tensor.num_trits();
-    append_le64(trits);
-    const uint64_t limbs = (trits + 47) / 48;
-    for (uint64_t li = 0; li < limbs; ++li) {
-      uint64_t limb = li < tensor.data.size() ? tensor.data[li] : 0;
-      append_le64(limb);
-    }
-  }
-
-  auto payload =
-      std::span<const uint8_t>(buffer.data() + payload_start, buffer.size() - payload_start);
-  const std::string hash_hex = crypto::sha3_512_hex(payload);
-  std::copy(hash_hex.begin(), hash_hex.end(), buffer.begin() + hash_pos);
-
-  std::ofstream out(path, std::ios::binary);
-  if (!out) {
-    throw std::runtime_error("cannot write " + path.string());
-  }
-  out.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
-}
-
-ModelFile load_t81w(const std::filesystem::path& path) {
-  std::ifstream in(path, std::ios::binary);
-  if (!in) throw std::runtime_error("cannot open " + path.string());
-
-  std::string magic;
-  if (!std::getline(in, magic) || magic != "T81W1") {
-    throw std::runtime_error("invalid t81w file");
-  }
-  std::string checksum;
-  if (!std::getline(in, checksum) || checksum.size() != 128) {
-    throw std::runtime_error("t81w: missing or malformed checksum");
-  }
-
-  uint64_t header_end = static_cast<uint64_t>(in.tellg());
-  const uint64_t file_size = std::filesystem::file_size(path);
-  if (file_size < header_end) {
-    throw std::runtime_error("t81w: file truncated");
-  }
-
-  std::vector<uint8_t> payload(static_cast<size_t>(file_size - header_end));
-  in.read(reinterpret_cast<char*>(payload.data()), payload.size());
-
-  const std::string computed = crypto::sha3_512_hex(payload);
-  if (computed != checksum) {
-    throw std::runtime_error("t81w: checksum mismatch");
-  }
-
-  ModelFile mf;
-  mf.format = "T81W1 native balanced ternary";
-  mf.checksum = computed;
-  mf.file_size = file_size;
-
-  const uint8_t* cursor = payload.data();
-  const uint8_t* end = payload.data() + payload.size();
-
-  auto read_le64 = [&]() -> uint64_t {
-    if (cursor + 8 > end) throw std::runtime_error("t81w: truncated metadata");
-    uint64_t value = 0;
-    for (int i = 0; i < 8; ++i) {
-      value |= static_cast<uint64_t>(cursor[i]) << (8 * i);
-    }
-    cursor += 8;
-    return value;
-  };
-
-  auto read_bytes = [&](size_t count, std::string& out) {
-    if (cursor + count > end) throw std::runtime_error("t81w: truncated name");
-    out.assign(reinterpret_cast<const char*>(cursor), count);
-    cursor += count;
-  };
-
-  uint64_t num_tensors = read_le64();
-  uint64_t zero_trits = 0;
-  for (uint64_t ti = 0; ti < num_tensors; ++ti) {
-    uint64_t name_len = read_le64();
-    std::string name;
-    read_bytes(name_len, name);
-    uint64_t rank = read_le64();
-    std::vector<uint64_t> shape;
-    shape.reserve(rank);
-    for (uint64_t r = 0; r < rank; ++r) {
-      shape.push_back(read_le64());
-    }
-    uint64_t trits = read_le64();
-    uint64_t limbs = (trits + 47) / 48;
-
-    NativeTensor tensor;
-    tensor.shape = shape;
-    tensor.trits = trits;
-    tensor.data.resize(limbs);
-    for (uint64_t li = 0; li < limbs; ++li) {
-      tensor.data[li] = read_le64();
-    }
-
-    zero_trits += count_zero_trits(tensor);
-
-    TensorInfo info;
-    info.name = name;
-    info.shape = shape;
-    info.num_trits = trits;
-    mf.tensors.push_back(info);
-    mf.total_trits += trits;
-    mf.total_parameters += trits;
-    mf.native.emplace(name, std::move(tensor));
-  }
-
-  if (mf.total_trits > 0) {
-    mf.bits_per_trit = static_cast<double>(file_size * 8) / static_cast<double>(mf.total_trits);
-    mf.sparsity = static_cast<double>(zero_trits) / static_cast<double>(mf.total_trits);
-  }
-
-  return mf;
 }
 
 void print_info(const ModelFile& mf) {
@@ -875,7 +714,401 @@ struct TensorPlan {
   uint64_t data_size = 0;
 };
 
+uint32_t read_u32(const uint8_t* ptr) {
+  uint32_t v = 0;
+  for (int i = 0; i < 4; ++i) v |= static_cast<uint32_t>(ptr[i]) << (i * 8);
+  return v;
+}
+
+uint64_t read_u64(const uint8_t* ptr) {
+  uint64_t v = 0;
+  for (int i = 0; i < 8; ++i) v |= static_cast<uint64_t>(ptr[i]) << (i * 8);
+  return v;
+}
+
+std::string read_string(const uint8_t*& ptr, const uint8_t* end) {
+  if (ptr + 8 > end) throw std::runtime_error("GGUF: unexpected EOF reading string len");
+  uint64_t len = read_u64(ptr);
+  ptr += 8;
+  if (len > static_cast<uint64_t>(end - ptr)) throw std::runtime_error("GGUF: unexpected EOF reading string body");
+  std::string s(reinterpret_cast<const char*>(ptr), len);
+  ptr += len;
+  return s;
+}
+
 }  // namespace
+
+void save_t81w(const NativeModel& model, const std::filesystem::path& path) {
+  std::vector<uint8_t> buffer;
+  auto append_bytes = [&](const void* data, size_t size) {
+    const auto* ptr = static_cast<const uint8_t*>(data);
+    buffer.insert(buffer.end(), ptr, ptr + size);
+  };
+  auto append_le64 = [&](uint64_t value) {
+    for (int i = 0; i < 8; ++i) {
+      buffer.push_back(static_cast<uint8_t>(value & 0xFF));
+      value >>= 8;
+    }
+  };
+
+  // Bump to T81W2 to support formats
+  const std::string magic = "T81W2\n";
+  append_bytes(magic.data(), magic.size());
+  const size_t hash_pos = buffer.size();
+  buffer.insert(buffer.end(), 128, '0');
+  buffer.push_back('\n');
+  const size_t payload_start = buffer.size();
+
+  append_le64(model.size());
+  for (const auto& [name, tensor] : model) {
+    append_le64(name.size());
+    append_bytes(name.data(), name.size());
+    append_le64(tensor.shape.size());
+    for (uint64_t dim : tensor.shape) {
+      append_le64(dim);
+    }
+
+    // New fields in V2: Format (u8), Trits (u64), DataLen (u64), Data
+    buffer.push_back(static_cast<uint8_t>(tensor.format));
+    const uint64_t trits = tensor.num_trits();
+    append_le64(trits);
+
+    if (tensor.format == NativeFormat::T3_K) {
+        // T3_K data is stored as raw bytes packed in u64s
+        uint64_t blocks = (trits + 127) / 128;
+        uint64_t bytes_len = blocks * kT3KBlockBytes;
+        append_le64(bytes_len);
+        if (!tensor.data.empty()) {
+            append_bytes(tensor.data.data(), bytes_len);
+        } else {
+            // Should not happen for valid tensor
+             std::vector<uint8_t> zeros(bytes_len, 0);
+             append_bytes(zeros.data(), bytes_len);
+        }
+    } else {
+        // Balanced Ternary
+        uint64_t limbs = (trits + 47) / 48;
+        uint64_t bytes_len = limbs * 8;
+        append_le64(bytes_len);
+        for (uint64_t li = 0; li < limbs; ++li) {
+            uint64_t limb = li < tensor.data.size() ? tensor.data[li] : 0;
+            append_le64(limb);
+        }
+    }
+  }
+
+  auto payload =
+      std::span<const uint8_t>(buffer.data() + payload_start, buffer.size() - payload_start);
+  const std::string hash_hex = crypto::sha3_512_hex(payload);
+  std::copy(hash_hex.begin(), hash_hex.end(), buffer.begin() + hash_pos);
+
+  std::ofstream out(path, std::ios::binary);
+  if (!out) {
+    throw std::runtime_error("cannot write " + path.string());
+  }
+  out.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
+}
+
+ModelFile load_t81w(const std::filesystem::path& path) {
+  std::ifstream in(path, std::ios::binary);
+  if (!in) throw std::runtime_error("cannot open " + path.string());
+
+  std::string magic;
+  if (!std::getline(in, magic) || (magic != "T81W1" && magic != "T81W2")) {
+    throw std::runtime_error("invalid t81w file");
+  }
+  std::string checksum;
+  if (!std::getline(in, checksum) || checksum.size() != 128) {
+    throw std::runtime_error("t81w: missing or malformed checksum");
+  }
+
+  uint64_t header_end = static_cast<uint64_t>(in.tellg());
+  const uint64_t file_size = std::filesystem::file_size(path);
+  if (file_size < header_end) {
+    throw std::runtime_error("t81w: file truncated");
+  }
+
+  std::vector<uint8_t> payload(static_cast<size_t>(file_size - header_end));
+  in.read(reinterpret_cast<char*>(payload.data()), payload.size());
+
+  const std::string computed = crypto::sha3_512_hex(payload);
+  if (computed != checksum) {
+    throw std::runtime_error("t81w: checksum mismatch");
+  }
+
+  ModelFile mf;
+  mf.format = magic == "T81W2" ? "T81W2" : "T81W1 native balanced ternary";
+  mf.checksum = computed;
+  mf.file_size = file_size;
+
+  const uint8_t* cursor = payload.data();
+  const uint8_t* end = payload.data() + payload.size();
+
+  auto read_le64 = [&]() -> uint64_t {
+    if (cursor + 8 > end) throw std::runtime_error("t81w: truncated metadata");
+    uint64_t value = 0;
+    for (int i = 0; i < 8; ++i) {
+      value |= static_cast<uint64_t>(cursor[i]) << (8 * i);
+    }
+    cursor += 8;
+    return value;
+  };
+
+  auto read_bytes = [&](size_t count, std::string& out) {
+    if (cursor + count > end) throw std::runtime_error("t81w: truncated name");
+    out.assign(reinterpret_cast<const char*>(cursor), count);
+    cursor += count;
+  };
+
+  uint64_t num_tensors = read_le64();
+  uint64_t zero_trits = 0;
+  for (uint64_t ti = 0; ti < num_tensors; ++ti) {
+    uint64_t name_len = read_le64();
+    std::string name;
+    read_bytes(name_len, name);
+    uint64_t rank = read_le64();
+    std::vector<uint64_t> shape;
+    shape.reserve(rank);
+    for (uint64_t r = 0; r < rank; ++r) {
+      shape.push_back(read_le64());
+    }
+
+    NativeFormat fmt = NativeFormat::BalancedTernary;
+    if (magic == "T81W2") {
+        if (cursor >= end) throw std::runtime_error("t81w: truncated format");
+        fmt = static_cast<NativeFormat>(*cursor++);
+    }
+
+    uint64_t trits = read_le64();
+    uint64_t data_bytes = 0;
+
+    if (magic == "T81W2") {
+        data_bytes = read_le64();
+    } else {
+        uint64_t limbs = (trits + 47) / 48;
+        data_bytes = limbs * 8;
+    }
+
+    if (cursor + data_bytes > end) {
+        throw std::runtime_error("t81w: truncated tensor data");
+    }
+
+    NativeTensor tensor;
+    tensor.shape = shape;
+    tensor.trits = trits;
+    tensor.format = fmt;
+
+    size_t u64_count = (data_bytes + 7) / 8;
+    tensor.data.resize(u64_count);
+
+    if (fmt == NativeFormat::T3_K) {
+        std::memcpy(tensor.data.data(), cursor, data_bytes);
+        cursor += data_bytes;
+    } else {
+        // Balanced Ternary - read as LE64
+        size_t limbs = data_bytes / 8;
+        for (size_t i = 0; i < limbs; ++i) {
+            tensor.data[i] = read_le64();
+        }
+    }
+
+    if (fmt == NativeFormat::BalancedTernary) {
+        zero_trits += count_zero_trits(tensor);
+    }
+
+    TensorInfo info;
+    info.name = name;
+    info.shape = shape;
+    info.num_trits = trits;
+    mf.tensors.push_back(info);
+    mf.total_trits += trits;
+    mf.total_parameters += trits;
+    mf.native.emplace(name, std::move(tensor));
+  }
+
+  if (mf.total_trits > 0) {
+    mf.bits_per_trit = static_cast<double>(file_size * 8) / static_cast<double>(mf.total_trits);
+    mf.sparsity = static_cast<double>(zero_trits) / static_cast<double>(mf.total_trits);
+  }
+
+  return mf;
+}
+
+ModelFile load_gguf(const std::filesystem::path& path) {
+  std::ifstream f(path, std::ios::binary | std::ios::ate);
+  if (!f) throw std::runtime_error("cannot open GGUF file");
+  size_t file_size = f.tellg();
+  f.seekg(0, std::ios::beg);
+  std::vector<uint8_t> buffer(file_size);
+  if (!f.read(reinterpret_cast<char*>(buffer.data()), file_size)) {
+    throw std::runtime_error("failed to read GGUF file");
+  }
+
+  const uint8_t* ptr = buffer.data();
+  const uint8_t* end = buffer.data() + file_size;
+
+  if (ptr + 4 > end || std::memcmp(ptr, "GGUF", 4) != 0) {
+    throw std::runtime_error("invalid GGUF magic");
+  }
+  ptr += 4;
+
+  if (ptr + 4 > end) throw std::runtime_error("GGUF: truncated version");
+  uint32_t version = read_u32(ptr);
+  ptr += 4;
+  if (version != kGGUFVersion) {
+    throw std::runtime_error("unsupported GGUF version: " + std::to_string(version));
+  }
+
+  if (ptr + 16 > end) throw std::runtime_error("GGUF: truncated counts");
+  uint64_t tensor_count = read_u64(ptr);
+  ptr += 8;
+  uint64_t kv_count = read_u64(ptr);
+  ptr += 8;
+
+  ModelFile mf;
+  mf.format = "GGUF";
+  mf.file_size = file_size;
+
+  // Read KV pairs
+  for (uint64_t i = 0; i < kv_count; ++i) {
+    std::string key = read_string(ptr, end);
+    if (ptr + 4 > end) throw std::runtime_error("GGUF: truncated kv type");
+    uint32_t type = read_u32(ptr);
+    ptr += 4;
+
+    // std::cerr << "KV: " << key << " Type: " << type << "\n";
+
+    // We only care about specific metadata keys for now, but we must skip values correctly.
+    auto skip_value = [&](auto& self, uint32_t t) -> void {
+      switch (t) {
+        case kGGUFTypeUInt8: ptr += 1; break;
+        case 1: ptr += 1; break; // int8
+        case 2: ptr += 2; break; // uint16
+        case 3: ptr += 2; break; // int16
+        case kGGUFTypeUInt32: ptr += 4; break;
+        case 5: ptr += 4; break; // int32
+        case 6: ptr += 4; break; // float32
+        case 7: ptr += 1; break; // bool
+        case kGGUFTypeString: {
+          read_string(ptr, end);
+          break;
+        }
+        case kGGUFTypeArray: {
+          if (ptr + 12 > end) throw std::runtime_error("GGUF: truncated array");
+          uint32_t et = read_u32(ptr); ptr += 4;
+          uint64_t len = read_u64(ptr); ptr += 8;
+          for (uint64_t k = 0; k < len; ++k) self(self, et);
+          break;
+        }
+        case 10: ptr += 8; break; // uint64
+        case 11: ptr += 8; break; // int64
+        case 12: ptr += 8; break; // float64
+        default: throw std::runtime_error("unknown GGUF KV type " + std::to_string(t));
+      }
+      if (ptr > end) throw std::runtime_error("GGUF: unexpected EOF in kv value");
+    };
+
+    if (key == "t3_k.source_sha3" && type == kGGUFTypeArray) {
+        // Parse checksum
+        if (ptr + 12 > end) throw std::runtime_error("GGUF: truncated checksum array");
+        uint32_t et = read_u32(ptr); ptr += 4;
+        uint64_t len = read_u64(ptr); ptr += 8;
+        if (et == kGGUFTypeUInt8 && len == 64) {
+            std::string hex;
+            for(size_t k=0; k<64; ++k) {
+                char buf[3];
+                snprintf(buf, sizeof(buf), "%02x", ptr[k]);
+                hex += buf;
+            }
+            mf.checksum = hex;
+            ptr += 64;
+        } else {
+             // Just skip if not what we expect
+             for (uint64_t k = 0; k < len; ++k) skip_value(skip_value, et);
+        }
+    } else {
+        skip_value(skip_value, type);
+    }
+  }
+
+  struct GGUFTensorHeader {
+    std::string name;
+    std::vector<uint64_t> shape;
+    uint32_t type;
+    uint64_t offset;
+  };
+  std::vector<GGUFTensorHeader> headers;
+  headers.reserve(tensor_count);
+
+  for (uint64_t i = 0; i < tensor_count; ++i) {
+    std::string name = read_string(ptr, end);
+    if (ptr + 4 > end) throw std::runtime_error("GGUF: truncated tensor ndim");
+    uint32_t ndim = read_u32(ptr);
+    ptr += 4;
+
+    std::vector<uint64_t> shape;
+    for (uint32_t d = 0; d < ndim; ++d) {
+        if (ptr + 8 > end) throw std::runtime_error("GGUF: truncated tensor dims");
+        shape.push_back(read_u64(ptr));
+        ptr += 8;
+    }
+    if (ptr + 12 > end) throw std::runtime_error("GGUF: truncated tensor type/offset");
+    uint32_t type = read_u32(ptr);
+    ptr += 4;
+    uint64_t offset = read_u64(ptr);
+    ptr += 8;
+
+    GGUFTensorHeader h;
+    h.name = name;
+    h.shape = shape;
+    h.type = type;
+    h.offset = offset;
+    headers.push_back(std::move(h));
+  }
+
+  uint64_t header_end_offset = ptr - buffer.data();
+  uint64_t data_base_offset = align_up(header_end_offset, kGGUFAlignment);
+  const uint8_t* data_base = buffer.data() + data_base_offset;
+
+  for (const auto& h : headers) {
+    if (h.type != kGGMLTypeT3K) continue;
+
+    TensorInfo info;
+    info.name = h.name;
+    info.shape = h.shape;
+
+    // Calculate elements
+    uint64_t num_elements = 1;
+    for(auto d : h.shape) num_elements *= d;
+    info.num_trits = num_elements;
+
+    // Calculate data size
+    uint64_t num_blocks = (num_elements + 127) / 128;
+    uint64_t data_bytes = num_blocks * kT3KBlockBytes;
+
+    const uint8_t* tensor_data = data_base + h.offset;
+
+    if (tensor_data + data_bytes > end) {
+        throw std::runtime_error("GGUF: tensor data out of bounds");
+    }
+
+    NativeTensor native;
+    native.shape = h.shape;
+    native.trits = num_elements;
+    native.format = NativeFormat::T3_K;
+
+    size_t u64_count = (data_bytes + 7) / 8;
+    native.data.resize(u64_count);
+    std::memcpy(native.data.data(), tensor_data, data_bytes);
+
+    mf.native.emplace(h.name, std::move(native));
+    mf.tensors.push_back(info);
+    mf.total_trits += num_elements;
+    mf.total_parameters += num_elements;
+  }
+
+  return mf;
+}
 
 void quantize_safetensors_to_gguf(const std::filesystem::path& input,
                                   const std::filesystem::path& output) {
