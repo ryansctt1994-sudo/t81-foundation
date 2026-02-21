@@ -15,9 +15,9 @@
 - [x] Negation (free negation without borrow propagation) (see `operator-` in `T81Limb54`)
 - [x+] Overflow / trap behavior (signed, unsigned modes) (see `axion::trap_overflow` in `T81Int.hpp`)
 - [x] Division (Knuth Algorithm D) (see `T81BigInt::div_mod`)
-- [ ] Modular inverse
+- [x] Modular inverse
   - [x] Basic extended Euclidean variant for T81BigInt
-  - [ ] Constant-time / side-channel resistant if needed for crypto use cases
+  - [ ] Constant-time / side-channel resistant if needed for crypto use cases (Added `modular_inverse_stein` as division-free alternative, but not constant-time)
 
 ## 2. T81 Types & Cell Semantics (section 4)
 - [x] T81Cell (48-trit scalar) (Implemented as `T81Limb` in `include/t81/core/T81Limb.hpp`)
@@ -86,5 +86,5 @@
   - [ ] Add spec cross-references in code comments (@spec-ref: 4.2)
 - [x] Python bindings completeness
   - [x] Expose T81BigInt, VM, CanonFS
-- [ ] GGUF / SafeTensors → ternary conversion tools
+- [x] GGUF / SafeTensors → ternary conversion tools
   - [x] Basic importer script / CLI
