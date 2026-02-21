@@ -9,7 +9,8 @@
 
 namespace {
 
-std::unique_ptr<t81::vm::IVirtualMachine> run_program(const std::vector<t81::tisc::Insn>& insns, const std::vector<std::string>& symbols) {
+std::unique_ptr<t81::vm::IVirtualMachine> run_program(const std::vector<t81::tisc::Insn>& insns,
+                                                      const std::vector<std::string>& symbols) {
   t81::tisc::Program program;
   program.insns = insns;
   program.symbol_pool = symbols;
@@ -38,14 +39,14 @@ int main() {
     load_desc.literal_kind = LiteralKind::SymbolHandle;
 
     // ReflCap R2, R1
-    Insn capture{Opcode::ReflCap, 2, 1}; // dst=R2, src=R1
+    Insn capture{Opcode::ReflCap, 2, 1};  // dst=R2, src=R1
 
     // R3 = "Because it is true" (SymbolHandle)
     Insn load_just{Opcode::LoadImm, 3, 2};
     load_just.literal_kind = LiteralKind::SymbolHandle;
 
     // ReflJustify R2, R3
-    Insn justify{Opcode::ReflJustify, 2, 3}; // handle=R2, text=R3
+    Insn justify{Opcode::ReflJustify, 2, 3};  // handle=R2, text=R3
 
     Insn halt{Opcode::Halt};
 
