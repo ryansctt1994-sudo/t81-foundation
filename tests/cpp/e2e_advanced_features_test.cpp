@@ -42,7 +42,16 @@ int64_t run_e2e_test(const std::string& source) {
 
   [[maybe_unused]] auto vm = vm::make_interpreter_vm();
   vm->load_program(program);
-  vm->run_to_halt();
+  try {
+    auto res = vm->run_to_halt();
+    if (!res) {
+      std::cerr << "VM halted with trap: " << static_cast<int>(res.error()) << std::endl;
+      return -3;
+    }
+  } catch (const std::exception& e) {
+    std::cerr << "VM Exception: " << e.what() << std::endl;
+    return -4;
+  }
 
   // Return R2 as it holds the return value of main
   return vm->state().registers[2];
@@ -545,22 +554,74 @@ void test_std_symbol_pipeline() {
   }
 }
 
+void test_fraction_stdlib_pipeline() {
+  const std::string source = R"(
+        fn main() -> i32 {
+            let a: T81Fraction = std.math.fraction.from_int(1);
+            let b: T81Fraction = std.math.fraction.from_int(3);
+            let c: T81Fraction = std.math.fraction.div(a, b); // 1/3
+
+            let d: T81Fraction = std.math.fraction.from_float(0.5); // 1/2
+
+            let sum: T81Fraction = std.math.fraction.add(c, d); // 1/3 + 1/2 = 5/6
+
+            let f: T81Float = std.math.fraction.to_float(sum); // 0.8333...
+
+            // Check 5/6 approx 0.8333
+            let diff: T81Float = f - 0.833333333333333;
+            // abs(diff) < 1e-9
+            // T81Float comparison opcodes use CMP which works.
+
+            let one: i32 = std.math.fraction.to_int(a);
+            if (one != 1) return 1;
+
+            // Check conversion back to float
+            let half_f: T81Float = std.math.fraction.to_float(d);
+            if (half_f != 0.5) return 2;
+
+            return 0;
+        }
+    )";
+  [[maybe_unused]] int64_t result = run_e2e_test(source);
+  if (result != 0) {
+    std::cerr << "test_fraction_stdlib_pipeline failed: expected 0, got " << result << std::endl;
+    throw std::runtime_error("test_fraction_stdlib_pipeline failed");
+  }
+}
+
 int main() {
+  std::cout << "Running test_while_break..." << std::endl;
   test_while_break();
+  std::cout << "Running test_nested_loop_continue..." << std::endl;
   test_nested_loop_continue();
+  std::cout << "Running test_match_guards..." << std::endl;
   test_match_guards();
+  std::cout << "Running test_custom_enum_match..." << std::endl;
   test_custom_enum_match();
+  std::cout << "Running test_extended_numeric_types_pipeline..." << std::endl;
   test_extended_numeric_types_pipeline();
+  std::cout << "Running test_constructor_and_conversion_pipeline..." << std::endl;
   test_constructor_and_conversion_pipeline();
+  std::cout << "Running test_complex_constructor_pipeline..." << std::endl;
   test_complex_constructor_pipeline();
+  std::cout << "Running test_std_tensor_from_list_pipeline..." << std::endl;
   test_std_tensor_from_list_pipeline();
+  std::cout << "Running test_std_tensor_vec_add_pipeline..." << std::endl;
   test_std_tensor_vec_add_pipeline();
+  std::cout << "Running test_std_text_pipeline..." << std::endl;
   test_std_text_pipeline();
+  std::cout << "Running test_std_text_module_wrapper_pipeline..." << std::endl;
   test_std_text_module_wrapper_pipeline();
+  std::cout << "Running test_std_text_split_join_pipeline..." << std::endl;
   test_std_text_split_join_pipeline();
+  std::cout << "Running test_std_bytes_pipeline..." << std::endl;
   test_std_bytes_pipeline();
+  std::cout << "Running test_std_bytes_module_wrapper_pipeline..." << std::endl;
   test_std_bytes_module_wrapper_pipeline();
+  std::cout << "Running test_std_symbol_pipeline..." << std::endl;
   test_std_symbol_pipeline();
+  std::cout << "Running test_fraction_stdlib_pipeline..." << std::endl;
+  test_fraction_stdlib_pipeline();
   std::cout << "All advanced E2E tests passed!" << std::endl;
   return 0;
 }

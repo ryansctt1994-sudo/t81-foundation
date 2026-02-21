@@ -261,6 +261,30 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.math.clamp") {
     return "clamp";
   }
+  if (name == "std.math.fraction.add") {
+    return "frac_add";
+  }
+  if (name == "std.math.fraction.sub") {
+    return "frac_sub";
+  }
+  if (name == "std.math.fraction.mul") {
+    return "frac_mul";
+  }
+  if (name == "std.math.fraction.div") {
+    return "frac_div";
+  }
+  if (name == "std.math.fraction.from_int") {
+    return "frac_from_int";
+  }
+  if (name == "std.math.fraction.to_int") {
+    return "frac_to_int";
+  }
+  if (name == "std.math.fraction.from_float") {
+    return "frac_from_float";
+  }
+  if (name == "std.math.fraction.to_float") {
+    return "frac_to_float";
+  }
   if (name == "std.sys.exit") {
     return "sys_exit";
   }
@@ -2236,6 +2260,63 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
           !is_assignable(Type{Type::Kind::Float}, arg_types[1]) ||
           !is_assignable(Type{Type::Kind::Float}, arg_types[2])) {
         error(call_token, "clamp arguments must be convertible to T81Float.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Float};
+    }
+    if (func_name == "frac_add" || func_name == "frac_sub" || func_name == "frac_mul" ||
+        func_name == "frac_div") {
+      if (arg_types.size() != 2) {
+        error(call_token, func_name + " expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (!is_assignable(Type{Type::Kind::Fraction}, arg_types[0]) ||
+          !is_assignable(Type{Type::Kind::Fraction}, arg_types[1])) {
+        error(call_token, func_name + " arguments must be T81Fraction.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Fraction};
+    }
+    if (func_name == "frac_from_int") {
+      if (arg_types.size() != 1) {
+        error(call_token, "frac_from_int expects exactly one argument.");
+        return make_error_type();
+      }
+      if (!is_integer_type(arg_types[0])) {
+        error(call_token, "frac_from_int argument must be integer.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Fraction};
+    }
+    if (func_name == "frac_to_int") {
+      if (arg_types.size() != 1) {
+        error(call_token, "frac_to_int expects exactly one argument.");
+        return make_error_type();
+      }
+      if (!is_assignable(Type{Type::Kind::Fraction}, arg_types[0])) {
+        error(call_token, "frac_to_int argument must be T81Fraction.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
+    }
+    if (func_name == "frac_from_float") {
+      if (arg_types.size() != 1) {
+        error(call_token, "frac_from_float expects exactly one argument.");
+        return make_error_type();
+      }
+      if (!is_assignable(Type{Type::Kind::Float}, arg_types[0])) {
+        error(call_token, "frac_from_float argument must be T81Float.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Fraction};
+    }
+    if (func_name == "frac_to_float") {
+      if (arg_types.size() != 1) {
+        error(call_token, "frac_to_float expects exactly one argument.");
+        return make_error_type();
+      }
+      if (!is_assignable(Type{Type::Kind::Fraction}, arg_types[0])) {
+        error(call_token, "frac_to_float argument must be T81Fraction.");
         return make_error_type();
       }
       return Type{Type::Kind::Float};

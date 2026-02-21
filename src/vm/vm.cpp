@@ -34,6 +34,51 @@ constexpr std::size_t kDefaultTensorSpace = 256;
 constexpr std::size_t kDefaultMetaSpace = 256;
 constexpr std::size_t kHardRecursionCeiling = T81_HARD_RECURSION_CEILING;
 
+t81::T81Fraction fraction_from_double(double x) {
+  if (x == 0.0) {
+    return t81::T81Fraction{};
+  }
+
+  // Handle non-finite (NaN, Inf) or large values safely
+  if (!std::isfinite(x) || std::abs(x) >= 9e18) {
+    // Use intermediate float representation to convert large double/Inf/NaN to BigInt
+    using TempFloat = t81::T81Float<72, 9>;
+    auto f = TempFloat::from_double(x);
+    t81::T81BigInt big = t81::T81BigInt::from_float(f);
+    return t81::T81Fraction(std::move(big), t81::T81BigInt::one());
+  }
+
+  bool neg = x < 0.0;
+  x = std::fabs(x);
+
+  t81::T81BigInt integer(static_cast<std::int64_t>(x));
+  double frac = x - static_cast<double>(integer.to_int64());
+
+  t81::T81BigInt p0(1), q0(0);
+  t81::T81BigInt p1(integer), q1(1);
+
+  int iter = 0;
+  // Limit iterations to prevent extremely large fractions from non-terminating expansions
+  while (frac > 1e-15 && iter++ < 64) {
+    const double r = 1.0 / frac;
+    if (r > 9e18) break;  // Prevent overflow in int64 conversion
+    const std::int64_t a = static_cast<std::int64_t>(r);
+
+    t81::T81BigInt term_a(a);
+    t81::T81BigInt next_p = term_a * p1 + p0;
+    t81::T81BigInt next_q = term_a * q1 + q0;
+
+    p0 = p1;
+    q0 = q1;
+    p1 = next_p;
+    q1 = next_q;
+
+    frac = r - static_cast<double>(a);
+  }
+
+  return t81::T81Fraction(neg ? -p1 : p1, q1);
+}
+
 class Interpreter : public IVirtualMachine {
 public:
   explicit Interpreter(std::unique_ptr<t81::axion::Engine> engine)
@@ -915,6 +960,45 @@ public:
         }
         set_reg(insn.a, value, tag);
         update_flags(state_.registers[insn.a]);
+        break;
+      }
+      case t81::tisc::Opcode::F2Frac: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] != ValueTag::FloatHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* f = float_ptr(state_.registers[insn.b]);
+        if (!f) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        t81::T81Fraction result = fraction_from_double(*f);
+        state_.registers[insn.a] = alloc_fraction(std::move(result));
+        state_.register_tags[insn.a] = ValueTag::FractionHandle;
+        break;
+      }
+      case t81::tisc::Opcode::Frac2F: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] != ValueTag::FractionHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* frac = fraction_ptr(state_.registers[insn.b]);
+        if (!frac) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        double n = frac->num.to_float<72, 9>().to_double();
+        double d = frac->den.to_float<72, 9>().to_double();
+        state_.registers[insn.a] = alloc_float(n / d);
+        state_.register_tags[insn.a] = ValueTag::FloatHandle;
         break;
       }
       case t81::tisc::Opcode::Mov:
