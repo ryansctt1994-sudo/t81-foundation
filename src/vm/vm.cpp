@@ -3821,9 +3821,79 @@ public:
         record_axion_event(insn.opcode, 0, 0, verdict);
         break;
       }
-      case t81::tisc::Opcode::ReflCheck:
-      case t81::tisc::Opcode::ReflTrace:
-      case t81::tisc::Opcode::ReflSeal:
+      case t81::tisc::Opcode::ReflCheck: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] != ValueTag::Tier2FrameHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* frame = tier2_frame_ptr(state_.registers[insn.b]);
+        if (!frame) {
+          trap = Trap::BoundsFault;
+          break;
+        }
+        std::string criteria;
+        if (auto s = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+            s.has_value()) {
+          criteria = *s;
+        } else {
+          trap = Trap::TypeFault;
+          break;
+        }
+
+        bool result = frame->check(criteria);
+        set_reg(insn.a, result ? 1 : 0, ValueTag::Bool);
+        update_flags(state_.registers[insn.a]);
+
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "ReflCheck"};
+        record_axion_event(insn.opcode, 0, result, verdict);
+        break;
+      }
+      case t81::tisc::Opcode::ReflTrace: {
+        if (!reg_ok(insn.a)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.a] != ValueTag::Tier2FrameHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* frame = tier2_frame_ptr(state_.registers[insn.a]);
+        if (!frame) {
+          trap = Trap::BoundsFault;
+          break;
+        }
+        // Capture current registers
+        std::vector<int64_t> current_regs(state_.registers.begin(), state_.registers.end());
+        frame->trace(current_pc, current_regs);
+
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "ReflTrace"};
+        record_axion_event(insn.opcode, 0, 0, verdict);
+        break;
+      }
+      case t81::tisc::Opcode::ReflSeal: {
+        if (!reg_ok(insn.a)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.a] != ValueTag::Tier2FrameHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* frame = tier2_frame_ptr(state_.registers[insn.a]);
+        if (!frame) {
+          trap = Trap::BoundsFault;
+          break;
+        }
+        frame->seal();
+
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "ReflSeal"};
+        record_axion_event(insn.opcode, 0, static_cast<int64_t>(frame->hash), verdict);
+        break;
+      }
       case t81::tisc::Opcode::Recurse:
       case t81::tisc::Opcode::Contract:
       case t81::tisc::Opcode::Entropy:
