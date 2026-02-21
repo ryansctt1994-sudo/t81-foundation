@@ -15,6 +15,7 @@
 #include "t81/cog/tier1/symbolic.hpp"
 #include "t81/cog/tier2/reflective.hpp"
 #include "t81/cog/tier3/recursive.hpp"
+#include "t81/cog/tier4/distributed.hpp"
 #include "t81/cog/tier5/infinite.hpp"
 #include "t81/fraction.hpp"
 #include "t81/tensor.hpp"
@@ -241,6 +242,9 @@ struct State {
 
   // Tier 3 Recursive
   t81::cog::v3::Recursor tier3_recursor;
+
+  // Tier 4 Distributed
+  t81::cog::v4::NodeState tier4_state;
 
   // Tier 5 Infinite
   std::vector<std::optional<t81::cog::v5::InfiniteCanonicalForm>> infinite_forms;

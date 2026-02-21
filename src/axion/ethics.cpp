@@ -37,6 +37,7 @@ Verdict check_ethics(EthicsPrinciple p, const SyscallContext& ctx) {
       // Θ₄: Interpretability (and Contraction & Convergence).
       // Deep recursion obscures interpretability.
       // We flag high recursion depth as a potential risk.
+      // @spec-ref: spec/axion-kernel.md#3-recursion-controls
       if (ctx.recursion_depth > 243) {
         // Warning: High recursion depth impacts interpretability.
         return {VerdictKind::Warn, "Theta-4: High recursion depth (interpretability risk)"};
@@ -59,6 +60,7 @@ Verdict check_ethics(EthicsPrinciple p, const SyscallContext& ctx) {
       // Θ₇: Entropy Containment.
       // Hard enforcement of recursion and resource limits to prevent unbounded growth.
       // VM has kHardRecursionCeiling (729), but we reinforce it here as an ethical invariant.
+      // @spec-ref: spec/axion-kernel.md#3.4-catastrophic-recursion-detection
       if (ctx.recursion_depth >= T81_HARD_RECURSION_CEILING) {
         return {VerdictKind::Deny,
                 std::string(reasons::kRecursionCeiling) + " (Theta-7 Entropy Containment)"};
@@ -77,6 +79,7 @@ Verdict check_ethics(EthicsPrinciple p, const SyscallContext& ctx) {
       // All execution must be auditable.
       // If Axion logging is disabled (not possible in current VM), deny.
       // We ensure that Meta* ops are logged (which they are).
+      // @spec-ref: spec/axion-kernel.md#1.9-axion-api--policy-enforcement
       if (ctx.next_opcode == Op::MetaWrite && !ctx.policy) {
         // Writing to meta-memory (code/registers) without a policy is highly risky/opaque.
         return {VerdictKind::Warn, "Theta-9: MetaWrite without policy (transparency risk)"};
