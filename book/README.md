@@ -2,161 +2,69 @@
 
 ## Foreword
 
-This book is the formal technical record of the **T81 Foundation**.
+There are two ways to build systems.
 
-It is not a marketing document.
-It is not speculative futurism.
-It is not a high-level overview.
+One is to optimize for convenience — to move quickly, to approximate, to accept that the final bit may vary, that floating-point drift is tolerable, that compilers may reorder, that hardware will decide what “close enough” means.
 
-It is an architectural archive.
+The other is to insist that computation is not suggestion, but statement.
 
-The T81 project was built around a simple but uncompromising premise:
+T81 belongs to the second path.
 
-> Computation should be provable.
+At its core, this project is not about ternary arithmetic, virtual machines, or policy engines — though it contains all of these. It is about **integrity of execution**. It is about drawing a boundary around a computational process and saying: inside this boundary, behavior is not incidental.
 
-In conventional systems, results are accepted if they are “close enough.” Floating-point drift is tolerated. Compiler output is assumed trustworthy. Runtime behavior is observed indirectly. Determinism is an aspiration, not a guarantee.
+Determinism is often treated as a performance tradeoff or a debugging convenience. Here it is treated as a civilizational constraint. If two machines cannot agree on the outcome of the same program, then the computation was never truly defined — it was merely performed.
 
-T81 rejects that model.
+Balanced ternary, canonical serialization, software-defined math, trace logging, policy enforcement — these are not aesthetic choices. They are instruments in a single argument:
 
-The system is designed such that:
+> A computation should be reproducible, auditable, and structurally honest.
 
-* The compiler produces bit-exact bytecode.
-* The virtual machine transitions state deterministically.
-* Memory representations are canonical.
-* Execution traces can be replayed and verified.
-* Policies can formally constrain behavior.
-* Floating-point math can be defined in software when required.
-* Identical inputs produce identical outputs across architectures.
+Modern systems are layered with abstraction that hides state transitions behind optimizers, speculative execution, floating-point quirks, and implicit side effects. T81 attempts something different: to make every transition explicit, every representation canonical, every execution traceable.
 
-This book exists to document those claims precisely.
+It is an architectural experiment in constraint.
 
-Every major architectural element — from T81Lang through TISC, the T81VM, Axion, CanonFS, determinism gates, and cognitive tiers — is described with direct reference to normative specifications and implementation artifacts in the repository.
+The system does not assume benevolent hardware.
+It does not assume identical floating-point libraries.
+It does not assume compilers behave the same across architectures.
+It does not assume that execution without record is acceptable.
 
-Where something is implemented, it is documented.
-Where something is experimental, it is labeled.
-Where something is specified but incomplete, it is marked clearly.
+Instead, it encodes rules:
 
-The intent is permanence.
+* State transitions must be definable.
+* Data must have a single canonical form.
+* Resource consumption must be accountable.
+* Policies must be enforceable.
+* Behavior must be replayable.
 
-This volume is meant to serve as:
+The result is not the fastest machine.
+It is not the most flexible environment.
+It is not designed to replace general-purpose scripting ecosystems.
 
-* A technical reference for contributors
-* A verification guide for auditors
-* A reproducibility ledger for researchers
-* A continuity artifact for future maintainers
+It is designed to answer a narrower but more demanding question:
+
+**Can a software system be constructed such that its behavior is provably invariant across space and time?**
+
+This book exists to document that attempt.
+
+Not as mythology.
+Not as marketing.
+But as a ledger.
+
+Every subsystem described here — T81Lang, TISC, the T81VM, Axion, CanonFS, the determinism gates, the cognitive tiers — is part of a layered structure built around one invariant:
+
+> Identical inputs must produce identical outputs, under explicitly defined rules.
+
+Whether this architecture becomes widely adopted is secondary. What matters is that it has been made concrete, implemented, tested, and described with enough precision that it can be understood, verified, or challenged by others.
+
+This volume is therefore both technical and philosophical.
+
+It is technical because it describes a working system.
+It is philosophical because it asserts that reproducibility is not optional in certain domains.
 
 If the repository evolves, this book should evolve with it.
-If the project stops, this book should remain sufficient to understand what was built, how it worked, and what it intended to prove.
+If the project ceases, this document should remain sufficient to reconstruct what was attempted and why.
 
-The T81 system is not merely a programming language or a virtual machine.
+In the end, T81 is not a claim of perfection.
 
-It is an experiment in architectural integrity.
+It is a commitment to constraint.
 
----
-
-## Purpose of This Book
-
-The `/book` directory contains the authoritative manuscript describing:
-
-* Foundational principles
-* Determinism profile
-* Architecture and VM model
-* Instruction set semantics
-* Canonical data representations
-* Policy enforcement mechanisms
-* Toolchain reproducibility guarantees
-* Testing and CI verification surfaces
-* Experimental features and research directions
-
-All claims are intended to be traceable to:
-
-* `spec/` documents
-* `src/` implementation files
-* `tests/`
-* CI scripts
-* Benchmarks
-* Release artifacts
-
----
-
-## Structure
-
-The manuscript is organized into chapters:
-
-1. Introduction
-2. Background and Principles
-3. Architecture and Core Components
-4. Implementation Details
-5. Installation and Setup
-6. Usage and CLI Guide
-7. Testing and Benchmarks
-8. Documentation and Specifications
-9. Advanced Topics
-10. Appendices
-
-Each chapter concludes with verification notes mapping narrative to code.
-
----
-
-## Normative vs Descriptive Material
-
-This book distinguishes between:
-
-* **Normative Specification** — defined in `spec/`
-* **Implemented Behavior** — defined in `src/`
-* **Tested Guarantees** — defined in `tests/` and CI
-* **Experimental Research** — marked explicitly
-
-If discrepancies exist between prose and specification, the `spec/` directory is authoritative.
-
----
-
-## Version Alignment
-
-This book corresponds to:
-
-```
-t81-foundation
-Version: v1.0.0-SOVEREIGN
-```
-
-Future releases should update:
-
-* Version alignment
-* Determinism guarantees
-* Implementation coverage
-* Audit matrix
-
----
-
-## Audience
-
-This text is written for:
-
-* Systems engineers
-* Language designers
-* Deterministic computing researchers
-* Formal methods practitioners
-* AI safety and reproducibility researchers
-
-It assumes familiarity with:
-
-* Compiler architecture
-* Virtual machines
-* Memory models
-* Floating-point determinism issues
-* Content-addressed storage
-* Policy enforcement systems
-
----
-
-## Contribution
-
-Edits to this manuscript should follow the same determinism and rigor standards as code contributions.
-
-* Claims must be verifiable.
-* Architectural descriptions must match implementation.
-* Spec drift must be resolved, not ignored.
-* Experimental material must be labeled.
-
-The `/book` directory is not commentary — it is record.
+And constraint, when applied deliberately, is a form of clarity.
