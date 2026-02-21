@@ -51,7 +51,6 @@ public:
     return intern_weights_tensor(name);
   }
 
-
   const t81::weights::NativeTensor* weights_tensor(std::int64_t handle) const override {
     if (handle <= 0) return nullptr;
     std::size_t idx = static_cast<std::size_t>(handle - 1);
