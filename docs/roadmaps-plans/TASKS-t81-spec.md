@@ -85,7 +85,7 @@
   - [x+] Property-based invariants (Implemented test_property_invariants.cpp, test_property_float.cpp)
 - [ ] Documentation sync (reference/benchmarks.md, notebooks)
   - [ ] Update benchmarks.md with latest numbers
-  - [ ] Add spec cross-references in code comments (@spec-ref: 4.2)
+  - [x] Add spec cross-references in code comments (@spec-ref: 4.2)
 - [x] Python bindings completeness
   - [x] Expose T81BigInt, VM, CanonFS
 - [x] GGUF / SafeTensors → ternary conversion tools

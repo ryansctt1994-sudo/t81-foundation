@@ -37,6 +37,39 @@ void test_recursion_warning() {
   std::cout << "Recursion warning check passed: " << verdict.reason << "\n";
 }
 
+void test_transparent_execution() {
+  t81::axion::SyscallContext ctx;
+  ctx.caller = "test";
+  ctx.next_opcode = t81::tisc::Opcode::MetaWrite;
+  ctx.policy = nullptr;  // Ensure no policy
+
+  // Check Theta-9
+  auto verdict = t81::axion::check_ethics(t81::axion::EthicsPrinciple::TransparentExecution, ctx);
+  if (verdict.kind != t81::axion::VerdictKind::Warn) {
+    std::cerr << "Expected Warn for MetaWrite without policy, got " << (int)verdict.kind << "\n";
+    std::exit(1);
+  }
+  std::cout << "Transparent Execution check passed: " << verdict.reason << "\n";
+}
+
+void test_all_principles_coverage() {
+  t81::axion::SyscallContext ctx;
+  ctx.caller = "test";
+  ctx.next_opcode = t81::tisc::Opcode::Nop;
+  ctx.recursion_depth = 0;
+
+  for (int i = 1; i <= 9; ++i) {
+    auto p = static_cast<t81::axion::EthicsPrinciple>(i);
+    auto verdict = t81::axion::check_ethics(p, ctx);
+    // We expect Allow for most benign cases
+    if (verdict.kind == t81::axion::VerdictKind::Deny) {
+      std::cerr << "Unexpected Deny for benign context on Principle " << i << "\n";
+      std::exit(1);
+    }
+  }
+  std::cout << "All principles coverage check passed (basic allow).\n";
+}
+
 void test_policy_engine_integration() {
   auto engine = t81::axion::make_policy_engine(std::nullopt);
   t81::axion::SyscallContext ctx;
@@ -68,6 +101,8 @@ void test_policy_engine_integration_warning() {
 int main() {
   test_recursion_limit();
   test_recursion_warning();
+  test_transparent_execution();
+  test_all_principles_coverage();
   test_policy_engine_integration();
   test_policy_engine_integration_warning();
   return 0;
