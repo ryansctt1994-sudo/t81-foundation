@@ -113,10 +113,3 @@ flowchart TD
 - **Network I/O**: Network opcodes (`NSend`, `NRecv`) are placeholders returning dummy values or strictly logging events, ensuring no nondeterministic network interaction occurs in the current implementation.
 - **Weights**: Supported formats are GGUF and SafeTensors (via conversion), and the native T81W format.
 ```
-
-### Quick summary — why these changes usually fix GitHub rendering:
-
-- `flowchart` is more robust than legacy `graph`
-- Avoided very deep empty nesting (GitHub/Mermaid sometimes chokes on it)
-- Changed `.->` to `-->` in supervision links (dotted edges to subgraphs can be finicky)
-- Gave subgraphs content early so the parser doesn't get confused
