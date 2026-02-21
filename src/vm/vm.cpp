@@ -592,6 +592,12 @@ public:
       if (idx >= state_.symbolic_graphs.size()) return nullptr;
       return &state_.symbolic_graphs[idx];
     };
+    auto tier2_frame_ptr = [this](std::int64_t handle) -> t81::cog::v2::ReflectiveFrame* {
+      if (handle <= 0) return nullptr;
+      std::size_t idx = static_cast<std::size_t>(handle - 1);
+      if (idx >= state_.tier2_frames.size()) return nullptr;
+      return &state_.tier2_frames[idx];
+    };
     auto alloc_symbolic_graph = [this,
                                  current_pc](t81::cog::v1::SymbolicGraph graph) -> std::int64_t {
       state_.symbolic_graphs.push_back(std::move(graph));
@@ -706,6 +712,7 @@ public:
           return std::nullopt;
         case ValueTag::StringVectorHandle:
         case ValueTag::SymbolicGraphHandle:
+        case ValueTag::Tier2FrameHandle:
           if (lhs_val == rhs_val) return 0;
           return (lhs_val < rhs_val) ? -1 : 1;
         case ValueTag::TensorHandle:
@@ -791,6 +798,8 @@ public:
         }
         case ValueTag::SymbolicGraphHandle:
           return "<graph#" + std::to_string(val_data) + ">";
+        case ValueTag::Tier2FrameHandle:
+          return "<tier2_frame#" + std::to_string(val_data) + ">";
         case ValueTag::TensorHandle:
           return "<tensor#" + std::to_string(val_data) + ">";
         case ValueTag::ShapeHandle:
@@ -3762,8 +3771,56 @@ public:
         record_axion_event(insn.opcode, 0, 0, verdict);
         break;
       }
-      case t81::tisc::Opcode::ReflCap:
-      case t81::tisc::Opcode::ReflJustify:
+      case t81::tisc::Opcode::ReflCap: {
+        if (!reg_ok(insn.a)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        std::string description;
+        if (state_.register_tags[insn.b] == ValueTag::SymbolHandle) {
+          auto* sym = symbol_ptr(state_.registers[insn.b]);
+          if (sym) description = *sym;
+        }
+
+        t81::cog::v2::ReflectiveFrame frame;
+        // Make a copy of registers. std::array to std::vector.
+        std::vector<std::int64_t> regs(state_.registers.begin(), state_.registers.end());
+        frame.capture_state(current_pc, regs, description);
+
+        state_.tier2_frames.push_back(std::move(frame));
+        state_.registers[insn.a] = static_cast<std::int64_t>(state_.tier2_frames.size());
+        state_.register_tags[insn.a] = ValueTag::Tier2FrameHandle;
+
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "ReflCap: captured state"};
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(state_.tier2_frames.size()), 0,
+                           verdict);
+        break;
+      }
+      case t81::tisc::Opcode::ReflJustify: {
+        if (!reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.a] != ValueTag::Tier2FrameHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* frame = tier2_frame_ptr(state_.registers[insn.a]);
+        if (!frame) {
+          trap = Trap::BoundsFault;
+          break;
+        }
+        std::string text;
+        if (auto s = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+            s.has_value()) {
+          text = *s;
+        }
+        frame->justification.add_step(text);
+
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "ReflJustify: added step"};
+        record_axion_event(insn.opcode, 0, 0, verdict);
+        break;
+      }
       case t81::tisc::Opcode::ReflCheck:
       case t81::tisc::Opcode::ReflTrace:
       case t81::tisc::Opcode::ReflSeal:
