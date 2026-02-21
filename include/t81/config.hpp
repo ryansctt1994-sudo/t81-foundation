@@ -59,3 +59,6 @@
 #if !T81_USE_EXCEPTIONS
 #error "Current headers assume exceptions are enabled (T81_USE_EXCEPTIONS=1)."
 #endif
+
+// ---------- Limits ----------
+#define T81_HARD_RECURSION_CEILING 729

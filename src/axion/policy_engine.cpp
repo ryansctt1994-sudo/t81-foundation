@@ -1,6 +1,7 @@
 #include "t81/axion/policy_engine.hpp"
 
 #include <sstream>
+#include "t81/axion/ethics.hpp"
 #include "t81/tisc/opcodes.hpp"
 
 namespace t81::axion {
@@ -209,6 +210,29 @@ Verdict PolicyEngine::execute_bytecode(const SyscallContext& ctx) {
 }
 
 Verdict PolicyEngine::evaluate(const SyscallContext& ctx) {
+  Verdict warning = {VerdictKind::Allow, ""};
+
+  // 1. Immutable Ethics Check (Theta-1 - Theta-9)
+  // These principles take precedence over user policy.
+  for (int i = 1; i <= kEthicsPrincipleCount; ++i) {
+    auto principle = static_cast<EthicsPrinciple>(i);
+    Verdict v = check_ethics(principle, ctx);
+    if (v.kind == VerdictKind::Deny) {
+      return v;
+    }
+    if (v.kind == VerdictKind::Warn && warning.kind == VerdictKind::Allow) {
+      warning = v;
+    }
+  }
+
+  Verdict v = evaluate_internal(ctx);
+  if (v.kind == VerdictKind::Allow && warning.kind == VerdictKind::Warn) {
+    return warning;
+  }
+  return v;
+}
+
+Verdict PolicyEngine::evaluate_internal(const SyscallContext& ctx) {
   if (!policy_) {
     if (ctx.next_opcode == t81::tisc::Opcode::TLoadHash) {
       return Verdict{VerdictKind::Deny, "TLOADHASH requires active policy"};

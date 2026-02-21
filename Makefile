@@ -34,6 +34,7 @@ CORE_SRCS := \
   src/hanoi/in_memory_kernel.cpp \
   src/axion/axion_api.cpp \
   src/axion/engine.cpp \
+  src/axion/ethics.cpp \
   src/axion/policy_engine.cpp \
   src/axion/policy_serialization.cpp \
   src/tools/weights.cpp \
@@ -107,7 +108,8 @@ TESTS := \
 	build/t81_tensor_broadcast_test \
 	build/t81_entropy_test \
 	build/t81_c_api_bigint_test \
-	build/t81_tensor_unary_test
+	build/t81_tensor_unary_test \
+	build/t81_ethics_test
 
 tests: $(TESTS)
 
@@ -179,6 +181,10 @@ build/t81_entropy_test: tests/cpp/entropy_test.cpp $(CORE_SRCS)
 	@mkdir -p build
 	$(CXX) $(CXXFLAGS) $(INCLUDES) tests/cpp/entropy_test.cpp $(CORE_SRCS) -o $@
 
+build/t81_ethics_test: tests/cpp/test_ethics.cpp $(CORE_SRCS)
+	@mkdir -p build
+	$(CXX) $(CXXFLAGS) $(INCLUDES) tests/cpp/test_ethics.cpp $(CORE_SRCS) -o $@
+
 # C API object (C++)
 build/t81_c_api.o: src/c_api/t81_c_api.cpp $(CORE_SRCS)
 	@mkdir -p build
@@ -211,6 +217,7 @@ run-tests: tests
 	@./build/t81_tensor_broadcast_test || exit 1
 	@./build/t81_entropy_test || exit 1
 	@./build/t81_c_api_bigint_test || exit 1
+	@./build/t81_ethics_test || exit 1
 	@echo "All tests passed."
 
 # Convenience
