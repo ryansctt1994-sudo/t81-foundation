@@ -64,7 +64,7 @@
 - [x] Hash-addressed blocks & verification
   - [x] Block hashing (SHA3-256 verified in `TLoadHash`, see `src/vm/vm.cpp`)
   - [x] Integrity checks on read (implicit via content addressing and header check)
-- [ ] .t81w / T3_K quantization import
+- [x+] .t81w / T3_K quantization import
   - [x] Converter from GGUF / SafeTensors
   - [x] T3_K format parser & validation (see `promote_to_tensor` in `src/vm/vm.cpp`)
 
