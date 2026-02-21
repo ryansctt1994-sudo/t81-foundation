@@ -117,47 +117,24 @@ flowchart TD
         Packed[Packed Trits (5 per Byte)]
     end
 
-    subgraph Integers [Integer Domain]
-        BigInt[T81BigInt (Arbitrary)]
-        Int[T81Int (Fixed Width)]
-        Qutrit[T81Qutrit (Int<2>)]
-
-        Cell -- Construct --> BigInt
-        Packed -- Decode --> Int
-        Int -- Alias --> Qutrit
-    end
-
-    subgraph Rationals [Rational Domain]
+    subgraph Symbolic [Symbolic Algebra]
+        BigInt[T81BigInt]
         Fraction[T81Fraction]
 
+        Packed -- Decode --> BigInt
+        Cell -- Construct --> BigInt
         BigInt -- "Num / Den" --> Fraction
         BigInt -- Canonicalize --> BigInt
         Fraction -- Canonicalize --> Fraction
     end
 
-    subgraph Reals [Real Approximations]
-        Float[T81Float<M, E>]
-        Fixed[T81Fixed<I, F>]
-
-        Int -- Mantissa --> Float
-        Int -- Wrapper --> Fixed
-        Fraction -- Demote --> Float
-    end
-
-    subgraph Extensions [Algebraic Extensions]
-        Complex[T81Complex<M>]
-        Matrix[T81Matrix<R, C>]
-        Poly[T81Polynomial]
-
-        Float -- Real/Imag --> Complex
-        Float -- Element --> Matrix
-        Float -- Coeff --> Poly
-    end
-
-    subgraph Tensors [Tensor Domain]
-        Tensor[T729Tensor (Dynamic)]
+    subgraph Numeric [Numeric Computing]
+        Float[T81Float + dmath]
         Native[Native Float (Optimization)]
+        Tensor[Tensor (T729Tensor)]
 
+        BigInt -- Mantissa --> Float
+        Fraction -- Demote --> Float
         Float -- Element --> Tensor
         Native -- "Fast Path" --> Tensor
         Tensor -- "Matmul / Conv" --> Tensor
