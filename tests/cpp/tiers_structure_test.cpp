@@ -22,8 +22,8 @@ int main() {
   // Tier 2: Reflective
   {
     t81::cog::v2::ReflectiveFrame frame;
-    frame.capture_state("Initial State");
-    frame.capture_state("Reasoning step 1");
+    frame.capture_state(0, {}, "Initial State");
+    frame.capture_state(1, {}, "Reasoning step 1");
     assert(frame.justification.steps.size() == 2);
     std::cout << "Tier 2 (Reflective) test passed." << std::endl;
   }
