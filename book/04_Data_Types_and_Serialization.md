@@ -1,6 +1,8 @@
-# Chapter 4: Data Types and Canonical Serialization
+# Chapter 4: Data Types and Serialization
 
 ## 4.1 Primitive Types
+
+**Status: Implemented & Tested**
 
 The T81 architecture is built upon a foundation of balanced ternary primitives. These types are designed to be efficiently simulated on binary hardware while maintaining the mathematical properties of base-3 logic.
 
@@ -16,7 +18,11 @@ The T81 architecture is built upon a foundation of balanced ternary primitives. 
 *   **Range**: Symmetric around zero ($-\frac{3^N-1}{2} \dots +\frac{3^N-1}{2}$).
 *   **Normalization**: Leading zeros are strictly forbidden in the canonical serialized form. A zero value is represented by a single zero trit.
 
+> **Verification**: `tests/cpp/test_t81int.cpp` and `tests/cpp/test_property_invariants.cpp`.
+
 ## 4.2 T81Float and dmath
+
+**Status: Implemented (Core) / Partial (Extended)**
 
 Floating-point arithmetic is the primary source of non-determinism in cross-platform computing (due to IEEE-754 variances in FMA fusion, transcendental precision, etc.). T81 addresses this via `T81Float`.
 
@@ -27,13 +33,16 @@ A `T81Float` is a tuple $(m, e)$, representing the value $m \times 3^e$.
 *   **Invariant**: The mantissa $m$ must be normalized such that its most significant trit is non-zero, unless the value is exactly zero.
 
 ### 4.2.2 The dmath Backend
-For the **Strict Determinism Profile (Tier A)**, the VM employs `dmath`, a software-defined arithmetic library.
-*   **Operations**: `Add`, `Sub`, `Mul` are exact (subject to precision limits).
-*   **Transcendentals**: `Sin`, `Cos`, `Exp`, `Log` are computed using Taylor series expansions with fixed iteration counts and explicit rounding modes, guaranteeing bit-exact results on any architecture.
+To achieve **Strict Determinism**, the VM employs `dmath` (Deterministic Math), a software-defined arithmetic library.
+*   **Core Operations**: `Add`, `Sub`, `Mul` are exact and deterministic (implemented in `T81Float.hpp`).
+*   **Transcendentals**: `Sin`, `Cos`, `Tan`, `Exp`, `Log`, `Sqrt` are computed using `dmath` (Taylor series with fixed iteration counts), guaranteeing bit-exact results on any architecture.
+*   **Extended Functions**: `Asin`, `Acos`, `Sinh`, `Pow` currently rely on host `double` precision (unless `T81_DETERMINISTIC` is defined, in which case they may return `NaE` or use slow software emulation).
 
-> **Note**: In lower tiers (B/C), the VM may map `T81Float` to host `double` for performance, sacrificing strict cross-platform determinism.
+> **Verification**: `tests/cpp/test_T81Float.cpp` validates the correctness of special values and transcendentals. `include/t81/core/detail/dmath.hpp` contains the implementation.
 
 ## 4.3 Tensors and Canonical Layouts
+
+**Status: Implemented & Tested**
 
 Tensors (`T729Tensor`, `T81Tensor`) are the workhorses of the cognitive tiers.
 
@@ -54,11 +63,13 @@ The `.t81w` (T81 Weights) format is the standard container for persisting tensor
 
 **Quantization Formats**:
 *   **F32**: Standard IEEE-754 float (canonicalized).
-*   **T3_K**: 2-bit-per-trit packing with block-wise scaling. A block of 128 trits is stored as one `float32` scale factor followed by 32 packed bytes.
+*   **T3_K**: 2-bit-per-trit packing with block-wise scaling.
 
 > **Source**: `include/t81/weights.hpp` and `include/t81/tensor.hpp`.
 
 ## 4.4 Canonical Serialization Rules
+
+**Status: Implemented**
 
 To ensure consistent hashing (`CanonRef`), all data must be normalized before serialization.
 
@@ -74,12 +85,6 @@ To ensure consistent hashing (`CanonRef`), all data must be normalized before se
 4.  **Map/Dictionary**:
     *   Keys must be sorted lexicographically by their canonical binary representation.
 5.  **Graph**:
-    *   Nodes are re-indexed by topological sort order (or canonical hash order if cyclic) to ensure graph isomorphism yields identical byte streams.
+    *   Nodes are re-indexed by topological sort order to ensure graph isomorphism yields identical byte streams.
 
 > **Verification**: `tests/cpp/test_property_invariants.cpp` verifies these normalization properties via property-based testing.
-
-## 4.5 Verification Checklist
-
-*   [ ] **T81Float**: Is `dmath` used for transcendentals in Tier A builds?
-*   [ ] **Serialization**: Does `.t81w` format match version 2 spec?
-*   [ ] **Canonicalization**: Do `T81Int` and `T81Fraction` normalization tests pass?

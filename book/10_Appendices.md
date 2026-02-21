@@ -2,51 +2,37 @@
 
 ## 10.1 What Is Not Yet Implemented
 
-While the core T81VM, TISC, and Axion Kernel are stable, several advanced features described in the specification are currently in experimental or placeholder status.
+While the core T81 architecture is stable, several features remain in experimental or aspirational states as of February 2026.
 
-### 10.1.1 Network Stack (Tier 4)
-*   **Status**: Placeholder (Stubbed Opcodes).
-*   **Missing**: Real-world P2P networking, DHT implementation, cryptographic handshake.
-*   **Current Behavior**: `NSend`/`NRecv` log Axion events but do not transmit data.
+1.  **Fully Deterministic Transcendentals (Phase 2)**:
+    *   Currently, inverse trigonometric functions (`asin`, `acos`, `atan`) and hyperbolic functions (`sinh`, `cosh`, `tanh`) rely on the host's `libm` unless `T81_DETERMINISTIC` is set (which disables them or returns errors).
+    *   **Goal**: Implement `dmath` support for all transcendental functions.
 
-### 10.1.2 Distributed Consensus
-*   **Status**: Experimental.
-*   **Missing**: Byzantine Fault Tolerance (BFT) consensus algorithm.
-*   **Current Behavior**: Gossip protocol merges state using local logical clocks without global consensus verification.
+2.  **Advanced CanonFS Features**:
+    *   Currently, CanonFS supports basic content-addressable loading.
+    *   **Missing**: Distributed pinning, peer-to-peer replication, and garbage collection of unreferenced artifacts.
 
-### 10.1.3 Hardware Acceleration
-*   **Status**: Research.
-*   **Missing**: FPGA/ASIC offloading for ternary arithmetic.
-*   **Current Behavior**: Pure software emulation (`dmath`).
+3.  **Trace-JIT Maturity**:
+    *   The Trace-JIT (`src/vm/jit_compiler.cpp`) is functional but considered **Experimental**. It does not yet cover all opcodes and may fallback to the interpreter frequently.
 
-## 10.2 Threat Model and Determinism Attack Surface
+4.  **Full Tier 1 Symbolic Algebra**:
+    *   Basic symbolic graph support exists (`src/cog/tier1/symbolic.cpp`), but full algebraic rewriting and simplification (CAS capabilities) are not yet exposed via standard opcodes.
 
-The T81 security model assumes a **Hostile Host Environment**.
+5.  **Holotensor Types**:
+    *   Mentioned in early specs as a high-dimensional sparse tensor format. Currently, only dense `T729Tensor` and `T81Tensor` are implemented.
 
-### 10.2.1 Host Interference
-*   **Threat**: The OS scheduler preempts the VM thread non-deterministically.
-*   **Mitigation**: T81VM uses logical ticks (Lamport timestamps) for all time-based logic. Wall-clock time is inaccessible to TISC code.
+## 10.2 Error Codes
 
-### 10.2.2 Time-Based Attacks
-*   **Threat**: Observing execution time to infer secret data (Timing Side-Channel).
-*   **Mitigation**: The Axion Trace logs *logical* operations, not physical time. However, strict constant-time execution for all opcodes is **not yet guaranteed** on commodity hardware.
+| Code | Name | Description |
+| :--- | :--- | :--- |
+| `0x00` | `Ok` | Success. |
+| `0x01` | `SecurityFault` | Axion policy violation. |
+| `0x02` | `TypeFault` | Invalid operand type. |
+| `0x03` | `StackFault` | Stack overflow/underflow. |
+| `0x04` | `MathFault` | Division by zero or domain error. |
 
-### 10.2.3 RNG Contamination
-*   **Threat**: Injecting host entropy (`/dev/random`) into the VM.
-*   **Mitigation**: T81VM has no opcode to read host entropy. All randomness must be seeded via the input vector $I$.
+## 10.3 Useful Links
 
-### 10.2.4 Memory Layout Variance (ASLR)
-*   **Threat**: Pointers leaking address space layout.
-*   **Mitigation**: TISC code operates on logical handles and segment offsets. Physical addresses are never exposed to the guest program.
-
-## 10.3 Glossary
-
-*   **Axion**: The safety kernel and policy engine.
-*   **CanonFS**: The content-addressable filesystem.
-*   **dmath**: Deterministic software-defined math library.
-*   **Gossip**: The protocol for distributed state synchronization.
-*   **JIT**: Just-In-Time compilation (Trace-based).
-*   **Lamport Tick**: A logical clock counter.
-*   **TISC**: Ternary Instruction Set Computer.
-*   **Trit**: Base-3 digit.
-*   **Tryte**: Sequence of trits (usually 4).
+*   **Repository**: [github.com/t81dev/t81-foundation](https://github.com/t81dev/t81-foundation)
+*   **Specification**: `spec/` directory in the repo.
+*   **Issues**: GitHub Issues tracker.
