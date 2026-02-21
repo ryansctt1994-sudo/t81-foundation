@@ -110,9 +110,19 @@ TESTS := \
 	build/t81_c_api_bigint_test \
 	build/t81_tensor_unary_test \
 	build/t81_ethics_test \
-	build/t81_infinite_test
+	build/t81_infinite_test \
+	build/t81_property_invariants_test \
+	build/t81_property_float_test
 
 tests: $(TESTS)
+
+build/t81_property_invariants_test: tests/cpp/test_property_invariants.cpp $(CORE_SRCS)
+	@mkdir -p build
+	$(CXX) $(CXXFLAGS) $(INCLUDES) tests/cpp/test_property_invariants.cpp $(CORE_SRCS) -o $@
+
+build/t81_property_float_test: tests/cpp/test_property_float.cpp $(CORE_SRCS)
+	@mkdir -p build
+	$(CXX) $(CXXFLAGS) $(INCLUDES) tests/cpp/test_property_float.cpp $(CORE_SRCS) -o $@
 
 build/t81_bigint_test: tests/cpp/bigint_roundtrip.cpp $(CORE_SRCS)
 	@mkdir -p build
@@ -224,6 +234,8 @@ run-tests: tests
 	@./build/t81_c_api_bigint_test || exit 1
 	@./build/t81_ethics_test || exit 1
 	@./build/t81_infinite_test || exit 1
+	@./build/t81_property_invariants_test || exit 1
+	@./build/t81_property_float_test || exit 1
 	@echo "All tests passed."
 
 # Convenience
