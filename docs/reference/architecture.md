@@ -105,3 +105,97 @@ flowchart TD
     Axion --> Ethics
     Promotion --> Axion
 ```
+
+## 4. Data Types and Representation Map
+
+The canonical numeric and symbolic types form a hierarchy where higher-level abstractions are built upon precise lower-level primitives, ensuring bit-exact determinism across the stack.
+
+```mermaid
+flowchart TD
+    subgraph Primitives [Base Storage]
+        Cell[T81Cell / T81Limb]
+        Packed[Packed Trits (5 per Byte)]
+    end
+
+    subgraph Symbolic [Symbolic Algebra]
+        BigInt[T81BigInt]
+        Fraction[T81Fraction]
+
+        Packed -- Decode --> BigInt
+        Cell -- Construct --> BigInt
+        BigInt -- "Num / Den" --> Fraction
+        BigInt -- Canonicalize --> BigInt
+        Fraction -- Canonicalize --> Fraction
+    end
+
+    subgraph Numeric [Numeric Computing]
+        Float[T81Float + dmath]
+        Native[Native Float (Optimization)]
+        Tensor[Tensor (T729Tensor)]
+
+        BigInt -- Mantissa --> Float
+        Fraction -- Demote --> Float
+        Float -- Element --> Tensor
+        Native -- "Fast Path" --> Tensor
+        Tensor -- "Matmul / Conv" --> Tensor
+    end
+
+    Tensor -- Serialize / Hash --> Packed
+```
+
+## 5. TISC ISA → VM Execution Micro-Flow
+
+Each instruction execution step is strictly gated by the Axion Policy Engine, ensuring that every operation adheres to defined ethical and safety constraints before state mutation.
+
+```mermaid
+flowchart TD
+    Start((Start Step)) --> Fetch[Fetch Opcode]
+    Fetch --> Decode[Decode Operands]
+    Decode --> AxionPre{Axion Policy Check}
+
+    AxionPre -- Deny --> Trap[Trap / Halt]
+    AxionPre -- Allow / Warn --> Execute[Execute Instruction]
+
+    subgraph Execution [Execution Phase]
+        Execute --> ALU[ALU Operation]
+        Execute --> Mem[Memory Access]
+        Execute --> TensorOp[Tensor Kernel]
+        Execute --> CogOp[Cognitive Opcode]
+    end
+
+    Execution --> State[Update State]
+    State --> Trace[Emit Axion Event / Trace]
+    Trace --> Advance[Advance PC]
+    Advance --> Start
+```
+
+## 6. CanonFS + Weights + Tensor Ingress
+
+The model ingestion pipeline ensures that large tensors are securely imported, hashed, and verified before being loaded into the VM's managed tensor pool.
+
+```mermaid
+flowchart LR
+    subgraph Ingestion [Ingestion Tools]
+        Raw[GGUF / SafeTensors]
+        Quant[t81 weights quantize]
+        T3K[T3_K / .t81w]
+
+        Raw --> Quant
+        Quant --> T3K
+    end
+
+    subgraph Storage [CanonFS Storage]
+        T3K --> Import[t81 weights import]
+        Import --> Canon[CanonFS Blocks]
+        Canon --> Hash[Content Addressable Hash]
+    end
+
+    subgraph Runtime [VM Runtime]
+        Hash --> Load[TLoadHash Opcode]
+        Load --> Verify[Verify Hash & Integrity]
+        Verify --> Native[NativeTensor]
+        Native --> Promote[Promote to T729Tensor]
+        Promote --> Pool[VM Tensor Pool]
+        Pool --> Handle[Tensor Handle]
+    end
+```
