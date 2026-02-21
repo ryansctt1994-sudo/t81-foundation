@@ -35,11 +35,21 @@ public:
       if (handle <= 0) return nullptr;
       const auto idx = static_cast<std::size_t>(handle - 1);
       if (idx >= state.tensors.size()) return nullptr;
-      return &state.tensors[idx];
+      if (!state.tensors[idx].has_value()) return nullptr;
+      return &state.tensors[idx].value();
     };
     auto alloc_tensor = [&state](t81::T729Tensor tensor) -> std::int64_t {
-      state.tensors.push_back(std::move(tensor));
-      return static_cast<std::int64_t>(state.tensors.size());
+      std::size_t idx_handle;
+      if (!state.free_tensor_indices.empty()) {
+        auto raw_idx = state.free_tensor_indices.back();
+        state.free_tensor_indices.pop_back();
+        state.tensors[raw_idx] = std::move(tensor);
+        idx_handle = raw_idx + 1;
+      } else {
+        state.tensors.push_back(std::move(tensor));
+        idx_handle = state.tensors.size();
+      }
+      return static_cast<std::int64_t>(idx_handle);
     };
     auto intern_option = [&state](bool has_value, ValueTag payload_tag,
                                   std::int64_t payload) -> std::int64_t {

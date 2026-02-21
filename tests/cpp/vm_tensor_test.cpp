@@ -43,14 +43,16 @@ int main() {
   [[maybe_unused]] auto vecHandle = vm->state().registers[3];
   T81_TEST_CHECK(vecHandle == 5);  // 4th tensor inserted next index
   const auto& vecRes = mutable_state.tensors[static_cast<std::size_t>(vecHandle - 1)];
-  T81_TEST_CHECK(vecRes.shape()[0] == 3);
-  T81_TEST_CHECK(vecRes.data()[0] == 5.0f && vecRes.data()[2] == 9.0f);
+  T81_TEST_CHECK(vecRes.has_value());
+  T81_TEST_CHECK(vecRes.value().shape()[0] == 3);
+  T81_TEST_CHECK(vecRes.value().data()[0] == 5.0f && vecRes.value().data()[2] == 9.0f);
 
   // Matrix multiplication
   [[maybe_unused]] auto matHandle = vm->state().registers[4];
   const auto& matRes = mutable_state.tensors[static_cast<std::size_t>(matHandle - 1)];
-  T81_TEST_CHECK(matRes.shape()[0] == 2 && matRes.shape()[1] == 2);
-  T81_TEST_CHECK(static_cast<int>(matRes.data()[0]) == 19);  // 1*5 + 2*7
+  T81_TEST_CHECK(matRes.has_value());
+  T81_TEST_CHECK(matRes.value().shape()[0] == 2 && matRes.value().shape()[1] == 2);
+  T81_TEST_CHECK(static_cast<int>(matRes.value().data()[0]) == 19);  // 1*5 + 2*7
 
   // Conversion ops
   T81_TEST_CHECK(vm->state().registers[10] == 3);
