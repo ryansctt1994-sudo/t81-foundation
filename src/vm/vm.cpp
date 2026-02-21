@@ -602,6 +602,13 @@ public:
       if (idx >= state_.tier2_frames.size()) return nullptr;
       return &state_.tier2_frames[idx];
     };
+    auto infinite_form_ptr = [this](std::int64_t handle) -> t81::cog::v5::InfiniteCanonicalForm* {
+      if (handle <= 0) return nullptr;
+      std::size_t idx = static_cast<std::size_t>(handle - 1);
+      if (idx >= state_.infinite_forms.size()) return nullptr;
+      if (!state_.infinite_forms[idx].has_value()) return nullptr;
+      return &state_.infinite_forms[idx].value();
+    };
     auto alloc_symbolic_graph = [this,
                                  current_pc](t81::cog::v1::SymbolicGraph graph) -> std::int64_t {
       state_.symbolic_graphs.push_back(std::move(graph));
@@ -609,6 +616,22 @@ public:
       log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Heap, idx, 1,
                                 "graph alloc");
       return static_cast<std::int64_t>(idx);
+    };
+    auto alloc_infinite_form =
+        [this, current_pc](t81::cog::v5::InfiniteCanonicalForm form) -> std::int64_t {
+      std::size_t idx_handle;
+      if (!state_.free_infinite_indices.empty()) {
+        auto raw_idx = state_.free_infinite_indices.back();
+        state_.free_infinite_indices.pop_back();
+        state_.infinite_forms[raw_idx] = std::move(form);
+        idx_handle = raw_idx + 1;
+      } else {
+        state_.infinite_forms.push_back(std::move(form));
+        idx_handle = state_.infinite_forms.size();
+      }
+      log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Heap,
+                                idx_handle, 1, "InfAlloc");
+      return static_cast<std::int64_t>(idx_handle);
     };
     auto intern_option = [this](bool has_value, ValueTag payload_tag,
                                 std::int64_t payload) -> std::int64_t {
@@ -717,6 +740,7 @@ public:
         case ValueTag::StringVectorHandle:
         case ValueTag::SymbolicGraphHandle:
         case ValueTag::Tier2FrameHandle:
+        case ValueTag::InfiniteHandle:
           if (lhs_val == rhs_val) return 0;
           return (lhs_val < rhs_val) ? -1 : 1;
         case ValueTag::TensorHandle:
@@ -804,6 +828,8 @@ public:
           return "<graph#" + std::to_string(val_data) + ">";
         case ValueTag::Tier2FrameHandle:
           return "<tier2_frame#" + std::to_string(val_data) + ">";
+        case ValueTag::InfiniteHandle:
+          return "<infinite#" + std::to_string(val_data) + ">";
         case ValueTag::TensorHandle:
           return "<tensor#" + std::to_string(val_data) + ">";
         case ValueTag::ShapeHandle:
@@ -3969,16 +3995,137 @@ public:
                            static_cast<std::int64_t>(state_.tier3_recursor.current_depth), verdict);
         break;
       }
+      case t81::tisc::Opcode::InfSeed: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+
+        t81::T81Fraction start_val;
+        if (state_.register_tags[insn.b] == ValueTag::Int) {
+          start_val = t81::T81Fraction::from_int(state_.registers[insn.b]);
+        } else if (state_.register_tags[insn.b] == ValueTag::FractionHandle) {
+          auto* f = fraction_ptr(state_.registers[insn.b]);
+          if (f) start_val = *f;
+        } else {
+          trap = Trap::TypeFault;
+          break;
+        }
+
+        t81::cog::v5::InfiniteCanonicalForm form;
+        form.first_term = start_val;
+        form.type = t81::cog::v5::SeriesType::Geometric;
+
+        state_.registers[insn.a] = alloc_infinite_form(std::move(form));
+        state_.register_tags[insn.a] = ValueTag::InfiniteHandle;
+
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "InfSeed"};
+        record_axion_event(insn.opcode, 0, state_.registers[insn.a], verdict);
+        break;
+      }
+      case t81::tisc::Opcode::InfExpand: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.a] != ValueTag::InfiniteHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* form = infinite_form_ptr(state_.registers[insn.a]);
+        if (!form) {
+          trap = Trap::BoundsFault;
+          break;
+        }
+
+        t81::T81Fraction ratio_val;
+        if (state_.register_tags[insn.b] == ValueTag::Int) {
+          ratio_val = t81::T81Fraction::from_int(state_.registers[insn.b]);
+        } else if (state_.register_tags[insn.b] == ValueTag::FractionHandle) {
+          auto* f = fraction_ptr(state_.registers[insn.b]);
+          if (f) ratio_val = *f;
+        } else {
+          trap = Trap::TypeFault;
+          break;
+        }
+
+        form->ratio = ratio_val;
+
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "InfExpand"};
+        record_axion_event(insn.opcode, 0, state_.registers[insn.a], verdict);
+        break;
+      }
+      case t81::tisc::Opcode::InfCollapse: {
+        if (!reg_ok(insn.a)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.a] != ValueTag::InfiniteHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* form = infinite_form_ptr(state_.registers[insn.a]);
+        if (!form) {
+          trap = Trap::BoundsFault;
+          break;
+        }
+
+        form->collapse();
+
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "InfCollapse"};
+        record_axion_event(insn.opcode, 0, state_.registers[insn.a], verdict);
+        break;
+      }
+      case t81::tisc::Opcode::InfConverge: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] != ValueTag::InfiniteHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* form = infinite_form_ptr(state_.registers[insn.b]);
+        if (!form) {
+          trap = Trap::BoundsFault;
+          break;
+        }
+
+        set_reg(insn.a, form->is_convergent ? 1 : 0, ValueTag::Bool);
+        update_flags(state_.registers[insn.a]);
+
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "InfConverge"};
+        record_axion_event(insn.opcode, 0, form->is_convergent, verdict);
+        break;
+      }
+      case t81::tisc::Opcode::InfSignature: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        if (state_.register_tags[insn.b] != ValueTag::InfiniteHandle) {
+          trap = Trap::TypeFault;
+          break;
+        }
+        auto* form = infinite_form_ptr(state_.registers[insn.b]);
+        if (!form) {
+          trap = Trap::BoundsFault;
+          break;
+        }
+
+        auto sig = t81::cog::v5::CollapseSignature::generate(*form);
+        state_.registers[insn.a] = intern_symbol(sig.hash);
+        state_.register_tags[insn.a] = ValueTag::SymbolHandle;
+
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "InfSignature"};
+        record_axion_event(insn.opcode, 0, state_.registers[insn.a], verdict);
+        break;
+      }
       case t81::tisc::Opcode::Merge:
       case t81::tisc::Opcode::Gossip:
       case t81::tisc::Opcode::TickSync:
       case t81::tisc::Opcode::Coherence:
       case t81::tisc::Opcode::DistSeal:
-      case t81::tisc::Opcode::InfSeed:
-      case t81::tisc::Opcode::InfExpand:
-      case t81::tisc::Opcode::InfCollapse:
-      case t81::tisc::Opcode::InfConverge:
-      case t81::tisc::Opcode::InfSignature:
       case t81::tisc::Opcode::AxCheck:
       case t81::tisc::Opcode::AxSign:
       case t81::tisc::Opcode::AxLineage:
@@ -4252,6 +4399,7 @@ private:
   void mark_and_sweep() {
     // 1. Initialize mark bitmap
     std::vector<bool> marked_tensors(state_.tensors.size(), false);
+    std::vector<bool> marked_infinite_forms(state_.infinite_forms.size(), false);
     std::vector<bool> visited_options(state_.options.size(), false);
     std::vector<bool> visited_results(state_.results.size(), false);
     std::vector<bool> visited_enums(state_.enums.size(), false);
@@ -4262,6 +4410,14 @@ private:
       std::size_t idx = static_cast<std::size_t>(handle - 1);
       if (idx < marked_tensors.size()) {
         marked_tensors[idx] = true;
+      }
+    };
+
+    auto mark_infinite = [&](std::int64_t handle) {
+      if (handle <= 0) return;
+      std::size_t idx = static_cast<std::size_t>(handle - 1);
+      if (idx < marked_infinite_forms.size()) {
+        marked_infinite_forms[idx] = true;
       }
     };
 
@@ -4300,6 +4456,9 @@ private:
           }
           break;
         }
+        case ValueTag::InfiniteHandle:
+          mark_infinite(val);
+          break;
         case ValueTag::ReflectionHandle:
           // Reflections are roots, scanned below explicitly.
           break;
@@ -4337,13 +4496,24 @@ private:
       }
     }
 
-    if (freed_count > 0) {
+    size_t freed_infinite_count = 0;
+    for (size_t i = 0; i < state_.infinite_forms.size(); ++i) {
+      if (state_.infinite_forms[i].has_value() && !marked_infinite_forms[i]) {
+        state_.infinite_forms[i] = std::nullopt;
+        state_.free_infinite_indices.push_back(i);
+        freed_infinite_count++;
+      }
+    }
+
+    if (freed_count > 0 || freed_infinite_count > 0) {
       t81::axion::Verdict verdict;
       verdict.kind = t81::axion::VerdictKind::Allow;
       std::ostringstream reason_stream;
-      reason_stream << "GC reclaimed tensors count=" << freed_count;
+      reason_stream << "GC reclaimed tensors=" << freed_count
+                    << " infinite_forms=" << freed_infinite_count;
       verdict.reason = reason_stream.str();
-      record_axion_event(t81::tisc::Opcode::Trap, 0, static_cast<int64_t>(freed_count), verdict);
+      record_axion_event(t81::tisc::Opcode::Trap, 0,
+                         static_cast<int64_t>(freed_count + freed_infinite_count), verdict);
     }
   }
 
