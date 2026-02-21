@@ -631,54 +631,34 @@ private:
     // Target index is M-1 (MSB of M trits)
     const std::int64_t shift = static_cast<std::int64_t>(lead) - static_cast<std::int64_t>(M - 1);
 
-    // If shift > 0 (lead > M-1), we shift right (divide by 3^shift).
-    // This decreases value, so we must increase exponent.
+    // Adjust exponent
     exp += shift;
 
-    if (shift > 0) {
-      const size_type s = static_cast<size_type>(shift);
-      for (size_type i = 0; i < M + Guard; ++i) {
-        if (i + s < M + Guard) {
-          mant[i] = mant[i + s];
-        } else {
-          mant[i] = Trit::Z;
-        }
-      }
-    } else if (shift < 0) {
-      const size_type s = static_cast<size_type>(-shift);
-      for (size_type i = M + Guard; i-- > 0;) {
-        if (i >= s) {
-          mant[i] = mant[i - s];
-        } else {
-          mant[i] = Trit::Z;
-        }
-      }
-    }
-
-    // Guard + sticky rounding
-    bool round_up = false;
-    if constexpr (Guard >= 1) {
-      const Trit guard = mant[M];
-      bool sticky = false;
-      if constexpr (Guard > 1) {
-        for (size_type i = M + 1; i < M + Guard; ++i) {
-          if (mant[i] != Trit::Z) {
-            sticky = true;
-            break;
-          }
-        }
-      }
-      round_up = (guard == Trit::P) || (guard == Trit::Z && sticky);
-    }
+    // We copy the relevant trits to final_m.
+    // Ideally we'd do rounding here (balanced ternary truncation is effectively rounding to nearest,
+    // except for tie-breaking on .5).
+    // For now, we perform simple truncation (copying) to fix the immediate bug.
+    // Note: To support proper rounding of 0.5 cases, we'd need to inspect mant[lead - M] etc.
 
     T81Int<M> final_m;
-    for (size_type i = 0; i < M; ++i) final_m[i] = mant[i];
-    if (round_up) final_m = final_m + T81Int<M>(1);
-
-    // Overflow from rounding into an extra trit
-    if (leading_trit(final_m) == M - 1) {
-      final_m >>= 1;
-      ++exp;
+    if (shift >= 0) {
+      const size_type s = static_cast<size_type>(shift);
+      for (size_type i = 0; i < M; ++i) {
+         if (i + s < M + Guard) {
+             final_m[i] = mant[i + s];
+         } else {
+             final_m[i] = Trit::Z;
+         }
+      }
+    } else {
+      const size_type s = static_cast<size_type>(-shift);
+      for (size_type i = 0; i < M; ++i) {
+         if (i >= s && i - s < M + Guard) {
+             final_m[i] = mant[i - s];
+         } else {
+             final_m[i] = Trit::Z;
+         }
+      }
     }
 
     // Overflow/underflow handling
@@ -797,11 +777,16 @@ T81Float<M, E> T81Float<M, E>::from_double(double v) noexcept {
     }
   }
 
-  F out;
-  out.set_sign(!neg);
-  out.set_exp(exp_unb);
-  out.set_mantissa(mantissa);
-  return out;
+  // Use normalize to ensure canonical representation (MSB at M-1)
+  // We extend to Guard size to allow normalize to handle it
+  // But here we constructed mantissa to be within M trits (MSB at M-2 usually).
+  // So a simple normalize call should shift it left by 1 if needed.
+  using Wide = T81Int<M + 4>;
+  // Explicitly initialize to zero to ensure upper trits are clean (avoid garbage).
+  Wide w(0);
+  for (size_type i = 0; i < M; ++i) w[i] = mantissa[i];
+
+  return normalize<4>(!neg ? Trit::P : Trit::N, exp_unb, w);
 }
 
 template <std::size_t M, std::size_t E>
