@@ -5,10 +5,10 @@
 #include "t81/cog/tier5/infinite.hpp"
 #include "t81/fraction.hpp"
 
+using t81::T81BigInt;
+using t81::T81Fraction;
 using t81::cog::v5::InfiniteCanonicalForm;
 using t81::cog::v5::SeriesType;
-using t81::T81Fraction;
-using t81::T81BigInt;
 
 void test_geometric_convergent() {
   InfiniteCanonicalForm form;
