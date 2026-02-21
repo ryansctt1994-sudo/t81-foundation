@@ -15,9 +15,7 @@
 
 </div>
   
-T81 is a deterministic, ternary-native computing stack 🌐 featuring base-81 data types, the TISC instruction set, T81VM, T81Lang, Axion safety & optimization engine, and recursive cognition tiers.
-
-It delivers bit-exact, auditable execution ⚡ for arithmetic-heavy domains — perfect for verifiable AI, cryptography, and scientific computing.
+T81 is a deterministic, ternary-native computing stack 🌐 featuring base-81 data types, the TISC instruction set, T81VM, T81Lang, Axion safety & optimization engine, and recursive cognition tiers. It delivers bit-exact, auditable execution ⚡ for arithmetic-heavy domains — perfect for verifiable AI, cryptography, and scientific computing.
 
 > **Floating Point Determinism Note** ⚠️  
 > Transcendental functions (`sin`, `cos`, `tan`, `log`, `exp`, `sqrt`) use deterministic `dmath` backend — bit-exact across platforms.  
