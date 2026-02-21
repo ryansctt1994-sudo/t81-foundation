@@ -192,6 +192,8 @@ Defined in specs such as [spec/t81vm-spec.md](spec/t81vm-spec.md)
 - [CONTRIBUTING.md](CONTRIBUTING.md)  
 - [SECURITY.md](SECURITY.md)
 
+---
+
 ## 📘 Definitive Technical Monograph
 
 For a comprehensive, specification-grade description of the architecture — including formal semantics, determinism invariants, adversarial modeling, and long-term continuity design — see:
