@@ -71,6 +71,7 @@ add_library(t81_core STATIC
   src/hanoi/in_memory_kernel.cpp        # ← fixed path
   src/axion/axion_api.cpp
   src/axion/engine.cpp
+  src/axion/ethics.cpp
   src/axion/policy_engine.cpp
   src/axion/policy_serialization.cpp
   src/tools/weights.cpp
@@ -432,6 +433,9 @@ if(T81_BUILD_TESTS)
 
   add_executable(t81_entropy_test tests/cpp/entropy_test.cpp)
   target_link_libraries(t81_entropy_test PRIVATE t81_core)
+
+  add_executable(t81_ethics_test tests/cpp/test_ethics.cpp)
+  target_link_libraries(t81_ethics_test PRIVATE t81_core)
 
   add_executable(t81_expected_test tests/cpp/expected_test.cpp)
   target_link_libraries(t81_expected_test PRIVATE t81_core)
