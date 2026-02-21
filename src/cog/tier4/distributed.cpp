@@ -7,9 +7,7 @@ bool CoherenceVector::is_coherent(const CoherenceVector& other) const {
   return global_tick == other.global_tick;
 }
 
-void NodeState::update_tick() {
-  vector.global_tick++;
-}
+void NodeState::update_tick() { vector.global_tick++; }
 
 void NodeState::sync_tick(uint64_t remote_tick) {
   if (remote_tick > vector.global_tick) {

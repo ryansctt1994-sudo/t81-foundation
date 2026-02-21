@@ -1,9 +1,9 @@
+#include <cassert>
 #include <iostream>
 #include <vector>
-#include <cassert>
-#include "t81/vm/vm.hpp"
-#include "t81/tisc/program.hpp"
 #include "t81/tisc/opcodes.hpp"
+#include "t81/tisc/program.hpp"
+#include "t81/vm/vm.hpp"
 
 void test_gossip() {
   std::cout << "Testing Gossip..." << std::endl;
@@ -12,7 +12,7 @@ void test_gossip() {
   t81::tisc::Program prog;
   t81::tisc::Insn insn;
   insn.opcode = t81::tisc::Opcode::Gossip;
-  insn.b = 1; // R1
+  insn.b = 1;  // R1
   prog.insns.push_back(insn);
 
   // Halt
@@ -25,8 +25,8 @@ void test_gossip() {
 
   auto res = vm->run_to_halt(10);
   if (!res) {
-      std::cerr << "VM Error: " << (int)res.error() << std::endl;
-      exit(1);
+    std::cerr << "VM Error: " << (int)res.error() << std::endl;
+    exit(1);
   }
 
   const auto& state = vm->state();
@@ -44,7 +44,7 @@ void test_merge() {
   // Merge R1
   t81::tisc::Insn merge_insn;
   merge_insn.opcode = t81::tisc::Opcode::Merge;
-  merge_insn.a = 1; // R1
+  merge_insn.a = 1;  // R1
   prog.insns.push_back(merge_insn);
 
   // Halt
@@ -64,8 +64,8 @@ void test_merge() {
 
   auto res = vm->run_to_halt(10);
   if (!res) {
-      std::cerr << "VM Error: " << (int)res.error() << std::endl;
-      exit(1);
+    std::cerr << "VM Error: " << (int)res.error() << std::endl;
+    exit(1);
   }
 
   const auto& state = vm->state();
@@ -115,8 +115,8 @@ void test_sync() {
 
   auto res = vm->run_to_halt(10);
   if (!res) {
-      std::cerr << "VM Error: " << (int)res.error() << std::endl;
-      exit(1);
+    std::cerr << "VM Error: " << (int)res.error() << std::endl;
+    exit(1);
   }
 
   const auto& state = vm->state();

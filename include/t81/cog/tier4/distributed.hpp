@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cstdint>
-#include <vector>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace t81::cog::v4 {
 
@@ -15,7 +15,7 @@ struct CoherenceVector {
 
 struct NetworkMessage {
   int64_t payload{0};
-  int32_t tag{0}; // ValueTag
+  int32_t tag{0};  // ValueTag
   uint64_t tick{0};
   std::string sender;
 };
