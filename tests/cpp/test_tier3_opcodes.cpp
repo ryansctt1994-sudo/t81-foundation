@@ -65,31 +65,36 @@ int main() {
 
   // R1: Initial Depth = 0
   if (state.registers[1] != 0) {
-    std::cerr << "Test Failed: R1 (Initial Depth) should be 0, got " << state.registers[1] << std::endl;
+    std::cerr << "Test Failed: R1 (Initial Depth) should be 0, got " << state.registers[1]
+              << std::endl;
     failed = true;
   }
 
   // R2: Depth after 1st Recurse = 1
   if (state.registers[2] != 1) {
-    std::cerr << "Test Failed: R2 (Depth after 1st Recurse) should be 1, got " << state.registers[2] << std::endl;
+    std::cerr << "Test Failed: R2 (Depth after 1st Recurse) should be 1, got " << state.registers[2]
+              << std::endl;
     failed = true;
   }
 
   // R3: Depth after 2nd Recurse = 2
   if (state.registers[3] != 2) {
-    std::cerr << "Test Failed: R3 (Depth after 2nd Recurse) should be 2, got " << state.registers[3] << std::endl;
+    std::cerr << "Test Failed: R3 (Depth after 2nd Recurse) should be 2, got " << state.registers[3]
+              << std::endl;
     failed = true;
   }
 
   // R5: Depth after 1st Terminate = 1
   if (state.registers[5] != 1) {
-    std::cerr << "Test Failed: R5 (Depth after 1st Terminate) should be 1, got " << state.registers[5] << std::endl;
+    std::cerr << "Test Failed: R5 (Depth after 1st Terminate) should be 1, got " << state.registers[5]
+              << std::endl;
     failed = true;
   }
 
   // R6: Depth after 2nd Terminate = 0
   if (state.registers[6] != 0) {
-    std::cerr << "Test Failed: R6 (Depth after 2nd Terminate) should be 0, got " << state.registers[6] << std::endl;
+    std::cerr << "Test Failed: R6 (Depth after 2nd Terminate) should be 0, got " << state.registers[6]
+              << std::endl;
     failed = true;
   }
 
@@ -97,6 +102,8 @@ int main() {
     return 1;
   }
 
-  std::cout << "Test Passed: Tier 3 opcodes (Recurse, Contract, Entropy, Depth, Terminate) executed correctly." << std::endl;
+  std::cout
+      << "Test Passed: Tier 3 opcodes (Recurse, Contract, Entropy, Depth, Terminate) executed correctly."
+      << std::endl;
   return 0;
 }
