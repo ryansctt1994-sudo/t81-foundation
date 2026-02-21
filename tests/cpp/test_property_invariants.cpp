@@ -2,6 +2,7 @@
 #include <iostream>
 #include <random>
 #include <vector>
+
 #include "t81/bigint.hpp"
 #include "t81/core/T81Int.hpp"
 
@@ -32,16 +33,18 @@ template <std::size_t N>
 t81::T81Int<N> random_t81int(std::mt19937_64& rng) {
   // Safe range for T81Int<40> (approx +/- 6e18)
   // We use +/- 4e18 to be safe and cover a good range
-  std::uniform_int_distribution<int64_t> dist(-4000000000000000000LL, 4000000000000000000LL);
+  std::uniform_int_distribution<int64_t> dist(-4000000000000000000LL,
+                                              4000000000000000000LL);
   t81::T81Int<N> val(dist(rng));
   return val;
 }
 
 int main() {
-  std::mt19937_64 rng(54321); // Different seed from fuzz_bigint_div
+  std::mt19937_64 rng(54321);  // Different seed from fuzz_bigint_div
   int iterations = 10000;
 
-  std::cout << "Running property-based tests for " << iterations << " iterations...\n";
+  std::cout << "Running property-based tests for " << iterations
+            << " iterations...\n";
 
   for (int i = 0; i < iterations; ++i) {
     T81BigInt a = random_bigint(rng, 4);  // Up to ~240 bits
@@ -93,17 +96,20 @@ int main() {
 
     // 6. Identity Elements
     if (a + T81BigInt(0) != a) {
-      std::cerr << "FAILED: Additive Identity\n" << "a=" << a.to_string() << "\n";
+      std::cerr << "FAILED: Additive Identity\n"
+                << "a=" << a.to_string() << "\n";
       return 1;
     }
     if (a * T81BigInt(1) != a) {
-      std::cerr << "FAILED: Multiplicative Identity\n" << "a=" << a.to_string() << "\n";
+      std::cerr << "FAILED: Multiplicative Identity\n"
+                << "a=" << a.to_string() << "\n";
       return 1;
     }
 
     // 7. Additive Inverse
     if (a + (-a) != T81BigInt(0)) {
-      std::cerr << "FAILED: Additive Inverse\n" << "a=" << a.to_string() << "\n";
+      std::cerr << "FAILED: Additive Inverse\n"
+                << "a=" << a.to_string() << "\n";
       return 1;
     }
 
@@ -123,26 +129,26 @@ int main() {
 
       // 0 <= r < |b|
       if (r.is_negative()) {
-          std::cerr << "FAILED: Euclidean Division Remainder Negative\n"
-                    << "r=" << r.to_string() << "\n";
-          return 1;
+        std::cerr << "FAILED: Euclidean Division Remainder Negative\n"
+                  << "r=" << r.to_string() << "\n";
+        return 1;
       }
       if (r >= b.abs()) {
-          std::cerr << "FAILED: Euclidean Division Remainder Too Large\n"
-                    << "r=" << r.to_string() << "\n"
-                    << "|b|=" << b.abs().to_string() << "\n";
-          return 1;
+        std::cerr << "FAILED: Euclidean Division Remainder Too Large\n"
+                  << "r=" << r.to_string() << "\n"
+                  << "|b|=" << b.abs().to_string() << "\n";
+        return 1;
       }
     }
 
     // 9. T81Int <-> T81BigInt Roundtrip
     {
-      auto t81val = random_t81int<40>(rng); // 40 trits fits in int64
+      auto t81val = random_t81int<40>(rng);  // 40 trits fits in int64
       T81BigInt bigval(t81val);
       auto back = bigval.try_to_int<40>();
       if (!back || *back != t81val) {
-         std::cerr << "FAILED: T81Int <-> T81BigInt Roundtrip\n";
-         return 1;
+        std::cerr << "FAILED: T81Int <-> T81BigInt Roundtrip\n";
+        return 1;
       }
     }
   }
@@ -150,3 +156,4 @@ int main() {
   std::cout << "All property tests passed!\n";
   return 0;
 }
+// test
