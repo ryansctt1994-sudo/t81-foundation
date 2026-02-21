@@ -68,47 +68,50 @@ int main() {
   // Check Convergent Series
   // R11 should be 1 (true)
   if (state.registers[11] != 1) {
-    std::cerr << "Test Failed: R11 (Convergent check) should be 1, got " << state.registers[11] << "\n";
+    std::cerr << "Test Failed: R11 (Convergent check) should be 1, got " << state.registers[11]
+              << "\n";
     failed = true;
   }
 
   // R12 should be symbol "GEOMETRIC_SUM_2.000000"
   if (state.register_tags[12] == ValueTag::SymbolHandle) {
-      int64_t handle = state.registers[12];
-      if (handle > 0 && (size_t)(handle - 1) < state.symbols.size()) {
-          std::string sig = state.symbols[handle - 1];
-          std::cout << "Convergent Signature: " << sig << "\n";
-          if (sig.find("GEOMETRIC_SUM_2") == std::string::npos) {
-               std::cerr << "Test Failed: Signature expected GEOMETRIC_SUM_2..., got " << sig << "\n";
-               failed = true;
-          }
-      } else {
-          std::cerr << "Test Failed: Invalid symbol handle for R12\n";
-          failed = true;
+    int64_t handle = state.registers[12];
+    if (handle > 0 && (size_t)(handle - 1) < state.symbols.size()) {
+      std::string sig = state.symbols[handle - 1];
+      std::cout << "Convergent Signature: " << sig << "\n";
+      if (sig.find("GEOMETRIC_SUM_2") == std::string::npos) {
+        std::cerr << "Test Failed: Signature expected GEOMETRIC_SUM_2..., got " << sig << "\n";
+        failed = true;
       }
-  } else {
-      std::cerr << "Test Failed: R12 tag is not SymbolHandle\n";
+    } else {
+      std::cerr << "Test Failed: Invalid symbol handle for R12\n";
       failed = true;
+    }
+  } else {
+    std::cerr << "Test Failed: R12 tag is not SymbolHandle\n";
+    failed = true;
   }
 
   // Check Divergent Series
   // R21 should be 0 (false)
   if (state.registers[21] != 0) {
-    std::cerr << "Test Failed: R21 (Divergent check) should be 0, got " << state.registers[21] << "\n";
+    std::cerr << "Test Failed: R21 (Divergent check) should be 0, got " << state.registers[21]
+              << "\n";
     failed = true;
   }
 
-  // R22 should be symbol "DIVERGENT" (from hash assignment in infinite.cpp which assigns "DIVERGENT")
+  // R22 should be symbol "DIVERGENT" (from hash assignment in infinite.cpp which assigns
+  // "DIVERGENT")
   if (state.register_tags[22] == ValueTag::SymbolHandle) {
-      int64_t handle = state.registers[22];
-      if (handle > 0 && (size_t)(handle - 1) < state.symbols.size()) {
-          std::string sig = state.symbols[handle - 1];
-          std::cout << "Divergent Signature: " << sig << "\n";
-          if (sig != "DIVERGENT") {
-               std::cerr << "Test Failed: Signature expected DIVERGENT, got " << sig << "\n";
-               failed = true;
-          }
+    int64_t handle = state.registers[22];
+    if (handle > 0 && (size_t)(handle - 1) < state.symbols.size()) {
+      std::string sig = state.symbols[handle - 1];
+      std::cout << "Divergent Signature: " << sig << "\n";
+      if (sig != "DIVERGENT") {
+        std::cerr << "Test Failed: Signature expected DIVERGENT, got " << sig << "\n";
+        failed = true;
       }
+    }
   }
 
   if (failed) {

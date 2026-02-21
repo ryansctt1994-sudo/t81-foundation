@@ -35,19 +35,19 @@ void InfiniteCanonicalForm::collapse() {
         // Using 53 bits mantissa, 11 bits exponent (IEEE 754 double equivalent-ish)
         // Check for zero den just in case
         if (t81::T81BigInt::is_zero(sum.den)) {
-            is_convergent = false;
-            convergence_signature = "DIVERGENT_ZeroDenom";
+          is_convergent = false;
+          convergence_signature = "DIVERGENT_ZeroDenom";
         } else {
-            auto n = sum.num.to_float<53, 11>().to_double();
-            auto d = sum.den.to_float<53, 11>().to_double();
-            double s_val = (d == 0.0) ? 0.0 : (n / d);
+          auto n = sum.num.to_float<53, 11>().to_double();
+          auto d = sum.den.to_float<53, 11>().to_double();
+          double s_val = (d == 0.0) ? 0.0 : (n / d);
 
-            is_convergent = true;
-            convergence_signature = "GEOMETRIC_SUM_" + std::to_string(s_val);
+          is_convergent = true;
+          convergence_signature = "GEOMETRIC_SUM_" + std::to_string(s_val);
         }
       } catch (...) {
-         is_convergent = false;
-         convergence_signature = "DIVERGENT_Error";
+        is_convergent = false;
+        convergence_signature = "DIVERGENT_Error";
       }
 
     } else {
