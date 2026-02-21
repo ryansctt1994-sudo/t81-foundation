@@ -59,12 +59,12 @@ void test_modular_inverse_stein_large() {
   T81BigInt a_large(12345);
   // Ensure gcd is 1. If not, catch.
   try {
-      T81BigInt inv_large = T81BigInt::modular_inverse_stein(a_large, m_large);
-      T81BigInt prod_large = (a_large * inv_large) % m_large;
-      check(prod_large == T81BigInt(1), "inv large check");
+    T81BigInt inv_large = T81BigInt::modular_inverse_stein(a_large, m_large);
+    T81BigInt prod_large = (a_large * inv_large) % m_large;
+    check(prod_large == T81BigInt(1), "inv large check");
   } catch (const std::domain_error&) {
-      // gcd != 1, ignore
-      std::cout << "Skipped large check due to gcd != 1\n";
+    // gcd != 1, ignore
+    std::cout << "Skipped large check due to gcd != 1\n";
   }
 }
 

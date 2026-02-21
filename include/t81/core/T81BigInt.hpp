@@ -259,9 +259,7 @@ private:
 
   // Signed in-place division by 3.
   // Value must be divisible by 3 for exact results.
-  void div3_inplace() {
-    div3_magnitude();
-  }
+  void div3_inplace() { div3_magnitude(); }
 
 public:
   template <std::size_t N>
@@ -1363,7 +1361,8 @@ public:
    *
    * @warning This implementation is NOT constant-time and NOT side-channel resistant.
    * It avoids full division steps (Knuth D) but still leaks information via execution path.
-   * For critical cryptographic operations requiring constant-time execution, further hardening is needed.
+   * For critical cryptographic operations requiring constant-time execution, further hardening is
+   * needed.
    */
   static T81BigInt modular_inverse_stein(const T81BigInt& a, const T81BigInt& m) {
     if (m <= one()) throw std::domain_error("modular_inverse_stein: modulus must be > 1");
@@ -1371,7 +1370,7 @@ public:
     // Check if m is coprime to 3. If not, fallback to Euclidean.
     T81BigInt m_abs = m.abs();
     if (m_abs.lowest_trit_magnitude() == Trit::Z) {
-        return modular_inverse(a, m);
+      return modular_inverse(a, m);
     }
 
     T81BigInt u = a.abs();
@@ -1385,11 +1384,15 @@ public:
       if (t != Trit::Z) {
         Trit m_t = m_abs.lowest_trit_magnitude();
         if (t == Trit::P) {
-          if (m_t == Trit::P) val -= m_abs;
-          else val += m_abs;
+          if (m_t == Trit::P)
+            val -= m_abs;
+          else
+            val += m_abs;
         } else {
-          if (m_t == Trit::P) val += m_abs;
-          else val -= m_abs;
+          if (m_t == Trit::P)
+            val += m_abs;
+          else
+            val -= m_abs;
         }
       }
       val.div3_inplace();
