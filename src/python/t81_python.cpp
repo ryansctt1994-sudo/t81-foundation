@@ -4,6 +4,8 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include "t81/canonfs/canon_driver.hpp"
+#include "t81/canonfs/canon_types.hpp"
 #include "t81/core/T81BigInt.hpp"
 #include "t81/core/T81Float.hpp"
 #include "t81/core/T81Fraction.hpp"
@@ -236,5 +238,59 @@ PYBIND11_MODULE(t81_python, m) {
     if (!res) throw std::runtime_error("VM Trap during execution");
 
     return vm->state().registers[0];
+  });
+
+  // Bind CanonFS
+  py::enum_<canonfs::ObjectType>(m, "ObjectType")
+      .value("RawBlock", canonfs::ObjectType::RawBlock)
+      .value("FileNode", canonfs::ObjectType::FileNode)
+      .value("Directory", canonfs::ObjectType::Directory)
+      .value("Snapshot", canonfs::ObjectType::Snapshot)
+      .value("CapabilityGrant", canonfs::ObjectType::CapabilityGrant)
+      .value("CapabilityRevoke", canonfs::ObjectType::CapabilityRevoke)
+      .value("CompressedBlock", canonfs::ObjectType::CompressedBlock)
+      .value("CanonParity", canonfs::ObjectType::CanonParity)
+      .value("CanonIndex", canonfs::ObjectType::CanonIndex)
+      .value("CanonMeta", canonfs::ObjectType::CanonMeta)
+      .value("CanonSeal", canonfs::ObjectType::CanonSeal)
+      .value("CanonLink", canonfs::ObjectType::CanonLink)
+      .value("CanonExec", canonfs::ObjectType::CanonExec)
+      .value("CanonTensor", canonfs::ObjectType::CanonTensor)
+      .export_values();
+
+  py::class_<canonfs::CanonRef>(m, "CanonRef")
+      .def(py::init<>())
+      .def_property_readonly("hash_bytes",
+                             [](const canonfs::CanonRef& ref) {
+                               // CanonHash81 is 32 bytes (SHA3-256)
+                               return py::bytes(
+                                   reinterpret_cast<const char*>(ref.hash.h.bytes.data()),
+                                   ref.hash.h.bytes.size());
+                             })
+      .def("__repr__", [](const canonfs::CanonRef&) {
+        return "<CanonRef>";  // We could format hash bytes if we had a formatter easily
+                              // available
+      });
+
+  py::class_<canonfs::Driver>(m, "CanonDriver")  // Abstract base
+      .def("write_object",
+           [](canonfs::Driver& self, canonfs::ObjectType type, py::bytes data) {
+             std::string s = data;  // Copy from python bytes
+             std::span<const std::byte> sp(reinterpret_cast<const std::byte*>(s.data()), s.size());
+             auto res = self.write_object(type, sp);
+             if (!res)
+               throw std::runtime_error("CanonFS Write Error: " + std::to_string((int)res.error()));
+             return *res;
+           })
+      .def("read_object_bytes", [](canonfs::Driver& self, const canonfs::CanonRef& ref) {
+        auto res = self.read_object_bytes(ref);
+        if (!res)
+          throw std::runtime_error("CanonFS Read Error: " + std::to_string((int)res.error()));
+        return py::bytes(reinterpret_cast<const char*>(res->data()), res->size());
+      });
+
+  m.def("make_in_memory_driver", &canonfs::make_in_memory_driver);
+  m.def("make_persistent_driver", [](std::string path) {
+    return canonfs::make_persistent_driver(std::filesystem::path(path));
   });
 }

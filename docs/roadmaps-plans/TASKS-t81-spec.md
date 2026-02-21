@@ -84,7 +84,7 @@
 - [ ] Documentation sync (reference/benchmarks.md, notebooks)
   - [ ] Update benchmarks.md with latest numbers
   - [ ] Add spec cross-references in code comments (@spec-ref: 4.2)
-- [ ] Python bindings completeness
-  - [ ] Expose T81BigInt, VM, CanonFS
+- [x] Python bindings completeness
+  - [x] Expose T81BigInt, VM, CanonFS
 - [ ] GGUF / SafeTensors → ternary conversion tools
   - [x] Basic importer script / CLI
