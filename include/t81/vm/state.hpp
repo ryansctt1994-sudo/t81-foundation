@@ -14,6 +14,7 @@
 #include "t81/cog/tier.hpp"
 #include "t81/cog/tier1/symbolic.hpp"
 #include "t81/cog/tier2/reflective.hpp"
+#include "t81/cog/tier3/recursive.hpp"
 #include "t81/fraction.hpp"
 #include "t81/tensor.hpp"
 #include "t81/tisc/program.hpp"
@@ -235,6 +236,9 @@ struct State {
 
   // Tier 2 Reflective
   std::vector<t81::cog::v2::ReflectiveFrame> tier2_frames;
+
+  // Tier 3 Recursive
+  t81::cog::v3::Recursor tier3_recursor;
 
   // Deterministic Fault Injection
   std::vector<FaultInjection> pending_faults;

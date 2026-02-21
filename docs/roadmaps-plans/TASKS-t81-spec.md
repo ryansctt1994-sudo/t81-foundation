@@ -55,6 +55,7 @@
     - [x] ReflCap (Capture state)
     - [x] ReflJustify (Append reasoning)
     - [x] ReflCheck, ReflTrace, ReflSeal
+    - [x] Tier 3 Recursive Opcodes (Recurse, Contract, Entropy, Depth, Terminate)
   - [x] Infinite Series Compression (Geometric Series, see `src/cog/tier5/infinite.cpp`)
 
 ## 5. CanonFS & Tensor Storage (section 11)
