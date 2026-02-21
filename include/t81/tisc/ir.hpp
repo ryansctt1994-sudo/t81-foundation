@@ -140,6 +140,13 @@ enum class Opcode {
   TNEW,
   TSET,
 
+  // Tier 4
+  GOSSIP,
+  MERGE,
+  TICKSYNC,
+  COHERENCE,
+  DISTSEAL,
+
   // Pseudo-instructions
   LABEL
 };
