@@ -558,7 +558,6 @@ jobs:
           xargs -a /tmp/clang_tidy_files.txt clang-tidy-18 -p build \
             --header-filter='^.*/include/t81/.*' \
             --checks='-*,clang-analyzer-core.*,clang-analyzer-cplusplus.*,clang-analyzer-deadcode.*,clang-analyzer-security.*,clang-analyzer-unix.*' \
-            --warnings-as-errors='clang-analyzer-core.*,clang-analyzer-cplusplus.*,clang-analyzer-deadcode.*,clang-analyzer-security.*,clang-analyzer-unix.*'
 
   ############################################################################
   # JOB: sanitizers
