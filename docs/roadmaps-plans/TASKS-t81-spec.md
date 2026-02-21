@@ -61,7 +61,7 @@
   - [x] Block hashing (SHA3-256 verified in `TLoadHash`, see `src/vm/vm.cpp`)
   - [x] Integrity checks on read (implicit via content addressing and header check)
 - [ ] .t81w / T3_K quantization import
-  - [ ] Converter from GGUF / SafeTensors
+  - [x] Converter from GGUF / SafeTensors
   - [x] T3_K format parser & validation (see `promote_to_tensor` in `src/vm/vm.cpp`)
 
 ## 6. Axion Kernel & Safety Invariants (section 12)
@@ -84,4 +84,4 @@
 - [ ] Python bindings completeness
   - [ ] Expose T81BigInt, VM, CanonFS
 - [ ] GGUF / SafeTensors → ternary conversion tools
-  - [ ] Basic importer script / CLI
+  - [x] Basic importer script / CLI

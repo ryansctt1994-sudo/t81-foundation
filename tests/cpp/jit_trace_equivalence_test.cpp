@@ -345,8 +345,10 @@ bool test_jit_call_ret_trace_determinism() {
   }
   // Call/Ret are currently excluded from JIT to enforce recursion limits/promotion.
   // So we expect NO JIT trace for the loop starting with Call at pc=4.
-  // if (!expect(saw_enter_at_loop_pc, "call/ret trace missing jit enter at loop pc=4")) return false;
-  // if (!expect(saw_exit_kind, "call/ret trace missing jit exit kind annotation")) return false;
+  // if (!expect(saw_enter_at_loop_pc, "call/ret trace missing jit enter at loop pc=4")) return
+  // false;
+  // if (!expect(saw_exit_kind, "call/ret trace missing jit exit kind annotation")) return
+  // false;
 
   if (!expect(a.regs[3] == 128, "call/ret R3 expected 128")) return false;
   if (!expect(a.regs[10] == 2, "call/ret R10 expected 2")) return false;
