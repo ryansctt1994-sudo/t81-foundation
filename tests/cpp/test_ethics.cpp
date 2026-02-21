@@ -1,9 +1,10 @@
+#include <cassert>
+#include <iostream>
+
 #include "t81/axion/ethics.hpp"
 #include "t81/axion/policy_engine.hpp"
 #include "t81/config.hpp"
 #include "t81/tisc/opcodes.hpp"
-#include <cassert>
-#include <iostream>
 
 void test_recursion_limit() {
   t81::axion::SyscallContext ctx;
@@ -43,10 +44,11 @@ void test_policy_engine_integration() {
 
   auto verdict = engine->evaluate(ctx);
   if (verdict.kind != t81::axion::VerdictKind::Deny) {
-    std::cerr << "Expected Deny from PolicyEngine for recursion depth 800, got " << (int)verdict.kind << "\n";
+    std::cerr << "Expected Deny from PolicyEngine for recursion depth 800, got "
+              << (int)verdict.kind << "\n";
     std::exit(1);
   }
-   std::cout << "PolicyEngine integration (Deny) passed: " << verdict.reason << "\n";
+  std::cout << "PolicyEngine integration (Deny) passed: " << verdict.reason << "\n";
 }
 
 void test_policy_engine_integration_warning() {
@@ -56,10 +58,11 @@ void test_policy_engine_integration_warning() {
 
   auto verdict = engine->evaluate(ctx);
   if (verdict.kind != t81::axion::VerdictKind::Warn) {
-    std::cerr << "Expected Warn from PolicyEngine for recursion depth 250, got " << (int)verdict.kind << "\n";
+    std::cerr << "Expected Warn from PolicyEngine for recursion depth 250, got "
+              << (int)verdict.kind << "\n";
     std::exit(1);
   }
-   std::cout << "PolicyEngine integration (Warn) passed: " << verdict.reason << "\n";
+  std::cout << "PolicyEngine integration (Warn) passed: " << verdict.reason << "\n";
 }
 
 int main() {

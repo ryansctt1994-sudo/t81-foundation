@@ -1,6 +1,7 @@
-#include "t81/axion/ethics.hpp"
 #include <sstream>
 #include <string>
+
+#include "t81/axion/ethics.hpp"
 #include "t81/axion/reasons.hpp"
 #include "t81/config.hpp"
 #include "t81/tisc/opcodes.hpp"
