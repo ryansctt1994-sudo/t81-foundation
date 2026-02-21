@@ -73,8 +73,8 @@
   - [x+] Reference counting / mark-sweep integration (see `mark_and_sweep` in `src/vm/vm.cpp`)
   - [x+] Tensor-specific lifetime rules (via `free_tensor_indices` reuse)
 - [ ] Ethics checks (Θ₁–Θ₉ implementation)
-  - [ ] Θ enforcement points in VM / interpreter
-  - [ ] Telemetry / logging for drift detection
+  - [x] Θ enforcement points in VM / interpreter (see `src/axion/ethics.cpp`, `check_ethics`)
+  - [x] Telemetry / logging for drift detection (via Axion StructuredEvents)
   - [ ] Provable guarantees for the Nine Principles
 
 ## Cross-cutting / Later Phases

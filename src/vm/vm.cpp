@@ -32,7 +32,7 @@ constexpr std::size_t kDefaultStackSize = 256;
 constexpr std::size_t kDefaultHeapSize = 768;
 constexpr std::size_t kDefaultTensorSpace = 256;
 constexpr std::size_t kDefaultMetaSpace = 256;
-constexpr std::size_t kHardRecursionCeiling = 729;
+constexpr std::size_t kHardRecursionCeiling = T81_HARD_RECURSION_CEILING;
 
 class Interpreter : public IVirtualMachine {
 public:
@@ -276,6 +276,10 @@ public:
     auto verdict = eval_axion_call(t81::axion::reasons::kStep, current_pc, insn.opcode);
     if (verdict.kind == t81::axion::VerdictKind::Deny) {
       return std::expected<void, Trap>(t81::unexpect, Trap::SecurityFault);
+    }
+    if (verdict.kind == t81::axion::VerdictKind::Warn) {
+      // Log the warning event
+      record_axion_event(insn.opcode, 0, 0, verdict);
     }
 
     auto reg_ok = [this](int r) {
@@ -4167,7 +4171,15 @@ private:
     event.structured.reason = verdict.reason;
     event.structured.pc = state_.pc;
     event.structured.handle_id = val_data;  // often used for handles
-    event.structured.decision = (verdict.kind == t81::axion::VerdictKind::Allow) ? "allow" : "deny";
+    if (verdict.kind == t81::axion::VerdictKind::Allow) {
+      event.structured.decision = "allow";
+    } else if (verdict.kind == t81::axion::VerdictKind::Warn) {
+      event.structured.decision = "warn";
+    } else if (verdict.kind == t81::axion::VerdictKind::Defer) {
+      event.structured.decision = "defer";
+    } else {
+      event.structured.decision = "deny";
+    }
     push_axion_event(event);
   }
 

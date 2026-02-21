@@ -33,6 +33,7 @@ private:
                                  const Policy::AlignmentRequirement& req) const;
 
   Verdict execute_bytecode(const SyscallContext& ctx);
+  Verdict evaluate_internal(const SyscallContext& ctx);
 
   std::optional<Policy> policy_;
   struct InternalLoopReq {

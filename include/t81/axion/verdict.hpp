@@ -3,7 +3,7 @@
 #include <string>
 
 namespace t81::axion {
-enum class VerdictKind { Allow, Deny, Defer };
+enum class VerdictKind { Allow, Deny, Defer, Warn };
 
 struct Verdict {
   VerdictKind kind{VerdictKind::Defer};
