@@ -1,95 +1,94 @@
-# Chapter 5: Installation and Setup
-
-This chapter guides you through setting up the T81 development environment, building the project from source, and verifying the installation.
+# Chapter 5: Installation and Build Verification
 
 ## 5.1 Prerequisites
 
-Before you begin, ensure your system meets the following requirements:
+The T81 reference implementation is written in C++23. To build the Sovereign Compute stack, the following tools are required:
 
-*   **Operating System**: Linux (modern distribution like Ubuntu 22.04+ or Fedora) or macOS (12+).
-*   **C++ Compiler**: Must support C++20. Recommended: Clang 18+ or GCC 14+. Apple Clang on macOS.
-*   **CMake**: Version 3.16 or higher.
-*   **Python**: Version 3.8+ (for scripts and bindings).
-*   **Git**: For version control.
+| Component | Minimum Version | Reason |
+| :--- | :--- | :--- |
+| **Compiler** | GCC 14+ or Clang 18+ | C++23 features (`std::expected`, `std::print`) |
+| **CMake** | 3.25+ | Build configuration |
+| **Python** | 3.10+ | Testing and binding generation |
+| **Pybind11** | 2.10+ | Python bindings (`t81_python`) |
 
-### Optional Dependencies
-*   **Ninja**: Recommended for faster builds (`sudo apt install ninja-build`).
-*   **pybind11**: Required if you want to build Python bindings (usually fetched automatically or installed via pip).
+## 5.2 Building from Source
 
-## 5.2 Cloning the Repository
-
-Clone the official repository using Git:
+### 5.2.1 Standard Release Build
+This build profile optimizes for performance on the host architecture. It typically corresponds to **Tier C (Host-Tolerant)** determinism, using hardware floating-point instructions.
 
 ```bash
 git clone https://github.com/t81dev/t81-foundation.git
 cd t81-foundation
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel $(nproc)
 ```
 
-## 5.3 Building from Source
-
-T81 uses CMake. The standard build process is:
-
-1.  **Configure**: Create a build directory and configure the project.
-    ```bash
-    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-    ```
-    *   `-S .`: Source directory is current directory.
-    *   `-B build`: Build artifacts go into `build/`.
-    *   `-DCMAKE_BUILD_TYPE=Release`: Optimized build. Use `Debug` for development.
-
-2.  **Build**: Compile the code.
-    ```bash
-    cmake --build build --parallel
-    ```
-    *   `--parallel`: Uses all available CPU cores.
-
-## 5.4 Verification
-
-After a successful build, you should verify that the system is working correctly and deterministically.
-
-### 1. Run the "Hello World" Test
-Compile and run a simple T81Lang program:
+### 5.2.2 Debug / Audit Build
+For development and auditing, use the Debug profile with sanitizers enabled.
 
 ```bash
-./build/t81 compile examples/hello_world.t81 -o hello.tisc
-./build/t81 run hello.tisc
+cmake -S . -B build_debug \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DT81_ENABLE_SANITIZERS=ON \
+    -DT81_BUILD_TESTS=ON
+cmake --build build_debug
 ```
 
-You should see the output of the program (e.g., a calculation result).
+## 5.3 Verifying the Build
 
-### 2. Run the Determinism Gate
-This script ensures that your build of the compiler is deterministic (i.e., it produces identical bytecode on repeated runs).
+After compilation, it is mandatory to verify the correctness of the binary before using it for sovereign tasks.
 
-```bash
-python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
-```
-
-If this passes, your toolchain is sound.
-
-### 3. Run Unit Tests
-Execute the full test suite to verify all components:
+### 5.3.1 The Unit Test Suite
+The standard test suite covers VM opcodes, data type invariants, and serialization rules.
 
 ```bash
 cd build
 ctest --output-on-failure
 ```
 
-## 5.5 Quick Start Demos
+Key tests to watch:
+*   `t81_property_invariants_test`: Verifies mathematical properties of `T81Int` and `T81Fraction`.
+*   `t81_ethics_test`: Verifies Axion policy enforcement.
 
-The build includes several standalone demos.
+### 5.3.2 The Determinism Gate
+The `t81lang_repro_gate.py` script performs an end-to-end verification of the compiler and VM. It compiles a reference suite of T81Lang programs and compares the resulting TISC bytecode and execution traces against canonical artifacts.
 
-*   **VM Demo**: Runs a hardcoded TISC sequence directly in the VM.
-    ```bash
-    ./build/t81_demo
-    ```
+```bash
+# Run the gate
+python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
+```
 
-*   **Axion Demo**: Demonstrates the policy engine enforcing rules.
-    ```bash
-    ./build/axion_demo
-    ```
+**Failure Criteria**:
+*   Any bit-difference in `.tisc` output.
+*   Any divergence in the Axion execution trace.
 
-## 5.6 Troubleshooting
+### 5.3.3 Floating Point Profile Check
+To verify which floating-point backend is active (Hardware vs. Software/dmath), run the float property test:
 
-*   **"CMake Error: C++ compiler does not support C++20"**: Upgrade your compiler (Clang or GCC).
-*   **"pybind11 not found"**: Ensure you have internet access so CMake can fetch dependencies, or install `pybind11-dev`.
-*   **Linker errors**: If you are using a custom toolchain, ensure `libc++` or `libstdc++` are correctly linked.
+```bash
+./build/t81_property_float_test
+```
+If this test fails on transcendental functions, the build is not compliant with the **Strict Determinism Profile (Tier A)**.
+
+## 5.4 Python Bindings
+
+To install the Python bindings for embedding T81VM in a Python workflow:
+
+```bash
+pip install .
+```
+Or manually:
+```bash
+cmake -S . -B build -DT81_BUILD_PYTHON=ON
+cmake --build build --target t81_python
+```
+The module `t81` will be available in `build/lib`.
+
+## 5.5 Docker Environment
+
+For a guaranteed reference environment, use the official Docker image. This image is pinned to specific versions of Clang and libc to minimize environment noise.
+
+```bash
+docker build -t t81-sovereign .
+docker run -it t81-sovereign t81 check examples/hello_world.t81
+```

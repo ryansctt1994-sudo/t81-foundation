@@ -1,36 +1,52 @@
 # Chapter 10: Appendices
 
-## 10.1 Glossary
+## 10.1 What Is Not Yet Implemented
 
-*   **Axion**: The safety kernel and policy enforcement engine of T81.
-*   **Balanced Ternary**: A numeral system using digits -1, 0, +1.
-*   **CanonFS**: The Canonical File System; immutable and content-addressed.
-*   **CanonHash-81**: The standard hash function used for content addressing (currently based on BLAKE3 mapped to Base-81).
-*   **dmath**: The deterministic software math library.
-*   **T81Lang**: The high-level programming language for T81.
-*   **T81VM**: The Virtual Machine.
-*   **TISC**: Ternary Instruction Set Computer (bytecode).
-*   **Trit**: A ternary digit.
-*   **Tryte**: A sequence of trits (usually 4 or 5), the basic addressable unit.
+While the core T81VM, TISC, and Axion Kernel are stable, several advanced features described in the specification are currently in experimental or placeholder status.
 
-## 10.2 File Listing (Key Files)
+### 10.1.1 Network Stack (Tier 4)
+*   **Status**: Placeholder (Stubbed Opcodes).
+*   **Missing**: Real-world P2P networking, DHT implementation, cryptographic handshake.
+*   **Current Behavior**: `NSend`/`NRecv` log Axion events but do not transmit data.
 
-### Source
-*   `src/cli/main.cpp`: CLI Entry point.
-*   `src/vm/vm.cpp`: Virtual Machine logic.
-*   `src/axion/policy_engine.cpp`: Policy logic.
-*   `src/tools/weights.cpp`: Weight management tools.
+### 10.1.2 Distributed Consensus
+*   **Status**: Experimental.
+*   **Missing**: Byzantine Fault Tolerance (BFT) consensus algorithm.
+*   **Current Behavior**: Gossip protocol merges state using local logical clocks without global consensus verification.
 
-### Specifications
-*   `spec/t81-data-types.md`
-*   `spec/tisc-spec.md`
-*   `spec/t81vm-spec.md`
-*   `spec/axion-kernel.md`
-*   `spec/canonfs-spec.md`
-*   `spec/cognitive-tiers.md`
-*   `spec/determinism-profile.md`
-*   `spec/constitution.md`
+### 10.1.3 Hardware Acceleration
+*   **Status**: Research.
+*   **Missing**: FPGA/ASIC offloading for ternary arithmetic.
+*   **Current Behavior**: Pure software emulation (`dmath`).
 
-### Build & CI
-*   `CMakeLists.txt`: Build configuration.
-*   `scripts/ci/t81lang_repro_gate.py`: Determinism verification script.
+## 10.2 Threat Model and Determinism Attack Surface
+
+The T81 security model assumes a **Hostile Host Environment**.
+
+### 10.2.1 Host Interference
+*   **Threat**: The OS scheduler preempts the VM thread non-deterministically.
+*   **Mitigation**: T81VM uses logical ticks (Lamport timestamps) for all time-based logic. Wall-clock time is inaccessible to TISC code.
+
+### 10.2.2 Time-Based Attacks
+*   **Threat**: Observing execution time to infer secret data (Timing Side-Channel).
+*   **Mitigation**: The Axion Trace logs *logical* operations, not physical time. However, strict constant-time execution for all opcodes is **not yet guaranteed** on commodity hardware.
+
+### 10.2.3 RNG Contamination
+*   **Threat**: Injecting host entropy (`/dev/random`) into the VM.
+*   **Mitigation**: T81VM has no opcode to read host entropy. All randomness must be seeded via the input vector $I$.
+
+### 10.2.4 Memory Layout Variance (ASLR)
+*   **Threat**: Pointers leaking address space layout.
+*   **Mitigation**: TISC code operates on logical handles and segment offsets. Physical addresses are never exposed to the guest program.
+
+## 10.3 Glossary
+
+*   **Axion**: The safety kernel and policy engine.
+*   **CanonFS**: The content-addressable filesystem.
+*   **dmath**: Deterministic software-defined math library.
+*   **Gossip**: The protocol for distributed state synchronization.
+*   **JIT**: Just-In-Time compilation (Trace-based).
+*   **Lamport Tick**: A logical clock counter.
+*   **TISC**: Ternary Instruction Set Computer.
+*   **Trit**: Base-3 digit.
+*   **Tryte**: Sequence of trits (usually 4).

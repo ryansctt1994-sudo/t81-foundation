@@ -1,82 +1,84 @@
-# Chapter 2: Background and Principles
+# Chapter 2: Core Principles and Invariants
 
-The design of the T81 ecosystem is not arbitrary; it follows a strict set of philosophical and technical principles laid out in its foundational documents.
+## 2.1 The Determinism Invariant
 
-## 2.1 The Constitution of the T81 Civilization
+The central axiom of the T81 architecture is **Strict Determinism**. A T81 program is a pure function $f(S, I) \to S'$, where $S$ is the initial state and $I$ is the input. This function must yield bit-identical $S'$ on any compliant hardware platform.
 
-As defined in `spec/constitution.md`, the project is guided by four immutable principles:
+Achieving this requires eliminating all sources of non-determinism common in modern computing:
+*   **Hardware Floating Point**: Replaced by software-defined `T81Float` (`dmath`).
+*   **Memory Layout**: Logical addresses are decoupled from physical pointers.
+*   **Concurrency**: Thread scheduling is replaced by deterministic coroutines and logical ticks.
+*   **System Time**: Wall-clock time is replaced by Lamport timestamps (logical ticks).
 
-1.  **Truth shall be provable**
-    *   Computation is not just about getting an answer; it is about being able to *prove* that the answer is correct and was derived correctly.
-    *   This drives the requirement for the **Axion Trace System**, which provides a cryptographic log of execution.
+### 2.1.1 Determinism Surfaces and Attack Vectors
 
-2.  **Computation shall cost entropy**
-    *   Resources (CPU cycles, memory, stack depth) are finite.
-    *   The system must explicitly track and account for resource usage. This is why Axion enforces policies like `max-instructions` and `max-recursion`.
+The following table maps the "surfaces" where non-determinism can leak into the system and the specific mitigations T81 employs.
 
-3.  **Memory shall be persistent**
-    *   Data should not be ephemeral.
-    *   This principle underpins **CanonFS**, the content-addressed, immutable filesystem that stores data as canonical blocks identified by their hash.
+| Layer    | Determinism Risk             | Mitigation                | Evidence                |
+| -------- | ---------------------------- | ------------------------- | ----------------------- |
+| Compiler | Token ordering               | Canonical AST emission    | `t81lang_repro_gate.py` |
+| VM       | Memory address leakage       | No address observability  | Type restrictions       |
+| GC       | Non-deterministic collection | Allocation-count triggers | `vm.cpp`: `run_gc_cycle_` |
+| Float    | Host FPU drift (IEEE-754)    | `dmath` software float    | `T81Float.hpp`          |
+| JIT      | Optimization divergence      | Trace-based equivalence   | `jit_compiler.cpp`      |
 
-4.  **Discovery shall be automatic**
-    *   The system supports higher-order reasoning.
-    *   This informs the **Cognitive Tiers** model, which allows the system to recognize and categorize the complexity of the code it is executing.
+> **Verification**: The JIT compiler in `src/vm/jit_compiler.cpp` ensures that optimized traces exit (`GuardDeopt`) upon *any* state divergence from the interpreted baseline.
 
-## 2.2 The Strict Determinism Profile
+## 2.2 Ternary Logic (Base-3)
 
-Determinism is the "Tier A" requirement for T81. The specification `spec/determinism-profile.md` defines exactly what this entails.
+T81 is a **balanced ternary** system. The fundamental unit is the **trit**, with values $\{-1, 0, 1\}$ (often denoted as $-, 0, +$).
 
-### 2.2.1 Determinism Tiers
+### 2.2.1 Why Ternary?
+1.  **Symmetric Arithmetic**: Rounding is simply truncation towards the nearest integer, as $0.5$ is not a representable fraction in base-3 without infinite expansion. This simplifies the `dmath` library.
+2.  **Information Density**: The radix $3$ is closer to $e \approx 2.718$ than $2$ is, offering the theoretical optimum for integer radix economy ($\text{radix} \times \text{width}$).
+3.  **Signed Representation**: Negative numbers do not require a sign bit or Two's Complement. The leading trit indicates the sign naturally.
 
-| Tier | Name | Description | Host Dependency | Reproducibility |
-|---|---|---|---|---|
-| **A** | **Strict / Bit-Exact** | Pure integer/ternary logic, software-defined float math. | **None** | **Absolute** |
-| **B** | **Canonical Numeric** | Allowed host-optimized float arithmetic (IEEE-754). | Limited (FPU) | High |
-| **C** | **Host-Tolerant** | Default mode. Allows host `double`. | Yes | Functional |
-| **F** | **Unconstrained** | Debug/Legacy. Access to wall-clock, host RNG. | **High** | **None** |
+### 2.2.2 Implementation
+In the C++ codebase, trits are packed for efficiency but logically distinct.
+*   **Storage**: `T81Int` uses 2 bits per trit in packed form (see `include/t81/packing.hpp`).
+*   **Arithmetic**: Operations like `Add`, `Mul` are implemented in `src/vm/vm.cpp` using integer math that simulates balanced ternary carry chains.
 
-**Note**: All "Strict Mode" operations in T81 imply **Tier A**.
+## 2.3 Auditability and The Axion Trace
 
-### 2.2.2 VM-Safe Types (Tier A)
+Every state transition in T81 is auditable. The **Axion Kernel** produces a cryptographic log of execution called the **Trace**.
 
-To maintain Tier A compliance, the VM restricts available types:
+### 2.3.1 The Trace Structure
+A trace is a sequence of `AxionEvent` records:
+```cpp
+struct AxionEvent {
+    Opcode opcode;
+    int32_t tag;
+    int64_t value;
+    Verdict verdict;
+};
+```
+(See `src/axion/engine.hpp`)
 
-*   **Safe**: `Trit`, `T81Int`, `T81BigInt`, `T81Fraction`, `T81Option`, `List`, `String`.
-*   **Conditional**: `T81Float` is safe *only* if the software backend (`dmath`) is used for transcendental functions (`sin`, `exp`, etc.). Hardware FPU usage is forbidden.
-*   **Forbidden**: Raw pointers, Host Time, System Handles (file descriptors).
+This trace serves as a **Proof of Execution**. By replaying the trace against the initial state, an auditor can verify that:
+1.  The computation occurred as claimed.
+2.  No safety policies were violated.
+3.  The final result is correct.
 
-### 2.2.3 Forbidden Operations
+## 2.4 The Nine Principles (Ethics Enforcement)
 
-The following are strictly prohibited in Tier A code:
-1.  **Host Entropy**: Reading `/dev/random` or unseeded memory.
-2.  **Wall-Clock**: `std::chrono::now()` or `gettimeofday()`.
-3.  **Address Observability**: Using memory addresses as values (breaks ASLR determinism).
-4.  **Unsorted Iteration**: Iterating over hash maps in pointer order.
-5.  **Non-Canonical Serialization**: Emitting non-normalized data.
+T81 embeds an immutable ethics layer (The Nine Principles $\Theta_1 \dots \Theta_9$) directly into the VM's policy engine. These are not guidelines but **runtime constraints**.
 
-## 2.3 Ternary-Native Design
+For example:
+*   **$\Theta_7$ (Entropy Containment)**: Prevents infinite resource expansion without explicit `InfExpand` permission.
+*   **$\Theta_4$ (Interpretability)**: Mandates that opaque "black box" tensors cannot be emitted without accompanying metadata or symbolic graphs.
 
-T81 relies on **Balanced Ternary**, a numeral system using base 3 with digits $\{-1, 0, +1\}$.
+> **Implementation**: These checks are performed in `src/axion/ethics.cpp`. A violation results in a `VerdictKind::Deny` and immediate `Trap::SecurityFault`.
 
-### 2.3.1 Why Ternary?
+## 2.5 Verification Checklist
 
-1.  **Symmetry**: The values are centered around zero. Negation is simply inverting the sign of digits ($+ \to -$, $- \to +$, $0 \to 0$).
-2.  **Rounding**: Truncation in balanced ternary (dropping lower trits) is mathematically equivalent to rounding to the nearest integer. This eliminates the bias found in binary truncation (floor) and simplifies arithmetic hardware logic.
-3.  **Efficiency**:
-    *   **Radix Economy**: Base $e$ ($2.718...$) is theoretically the most efficient base for storage. Base 3 is the closest integer to $e$, offering better storage density than Base 2.
-    *   **Signed Arithmetic**: There is no need for a separate sign bit or Two's Complement complexity. The sign is inherent in the most significant non-zero trit.
+*   [ ] **Float Consistency**: Does `T81Float` produce identical bit-patterns for transcendental functions (`sin`, `exp`) on all platforms? (Run `tests/cpp/test_property_float.cpp`)
+*   [ ] **GC Determinism**: Does the Garbage Collector run at exact instruction counts (allocations), not wall time? (Check `kGcInterval` in `src/vm/vm.cpp`)
+*   [ ] **Trace Integrity**: Is the Axion log immutable during execution?
 
-### 2.3.2 Base-81 Encoding
+## 2.6 Formal Audit Matrix
 
-To interact efficiently with binary hardware, T81 groups trits into **Trytes**.
-*   **1 Tryte** = 4 Trits ($3^4 = 81$ values).
-*   Values range from $-40$ to $+40$.
-*   Characters are encoded using a customized Base-81 ASCII set, ensuring human-readable and URL-safe representations.
-
-## 2.4 Software-Defined Math (dmath)
-
-A critical component of T81's determinism is `dmath`. Standard C++ math functions (`std::sin`, `std::pow`) rely on the underlying hardware (x86 SSE/AVX, ARM NEON) and the OS's `libm`. These implementations often differ in the last few bits of precision (ULP - Units in Last Place).
-
-For T81, even a 1-bit difference is a failure. Therefore, T81 implements its own math library in software:
-*   **Algorithms**: CORDIC, Taylor Series, and Chebychev approximations with fixed iteration counts.
-*   **Consistency**: A `T81Float` calculation on a Raspberry Pi (ARM) yields the *exact* same bit pattern as on a high-end Xeon server (x86).
+| Principle | Spec Section | Implementation | Test Coverage |
+| :--- | :--- | :--- | :--- |
+| Strict Determinism | `spec/determinism-profile.md` | `src/vm/vm.cpp` | `tests/cpp/test_property_invariants.cpp` |
+| Ternary Logic | `spec/t81-data-types.md` | `include/t81/ternary.hpp` | `tests/cpp/test_tier3_opcodes.cpp` |
+| Auditability | `spec/axion-kernel.md` | `src/axion/engine.hpp` | `tests/cpp/test_ethics.cpp` |

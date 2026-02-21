@@ -1,105 +1,117 @@
-# Chapter 3: Architecture and Core Components
+# Chapter 3: T81VM Architecture
 
-The T81 architecture is designed as a strict pipeline: **Source (T81Lang) $\to$ IR (TISC) $\to$ Execution (T81VM) $\to$ Supervision (Axion)**.
+## 3.1 Formal State Machine
 
-## 3.1 T81Lang: The High-Level Language
+The T81 Virtual Machine (T81VM) is formally defined as a state transition system $M = (S, \delta)$, where $S$ is the set of valid states and $\delta: S \to S \cup \{\bot\}$ is the transition function.
 
-T81Lang is the primary interface for developers. It is a statically-typed, safety-first language that enforces the project's ternary and deterministic principles.
+### 3.1.1 State Definition
+The state $S$ is a tuple:
+$$S = (R, PC, SP, M_{stack}, M_{heap}, M_{tensor}, M_{meta}, \Phi, \Lambda)$$
 
-### 3.1.1 Core Features
-*   **Purity by Default**: Functions are assumed to be pure (no side effects) unless annotated with `@effect`. This allows for aggressive optimization and easier reasoning.
-*   **Ternary Primitives**: The language natively understands `T81Int` (arbitrary precision), `T81Float` (canonical float), and `T81Fraction` (rational).
-*   **Structural Types**:
-    *   `Option[T]`: Represents a value that may or may not exist (`Some(v)` / `None`). Null pointers do not exist.
-    *   `Result[T, E]`: Represents success or failure (`Ok(v)` / `Err(e)`). Exceptions do not exist; errors are values.
-*   **Pattern Matching**: `match` expressions allow for exhaustive handling of structural types and enums.
+Where:
+*   $R \in \text{Tryte}^{81}$: The register file (81 general-purpose registers).
+*   $PC \in \mathbb{N}$: The program counter (instruction pointer).
+*   $SP \in \mathbb{N}$: The stack pointer.
+*   $M_{stack}$: Stack memory segment (LIFO).
+*   $M_{heap}$: Heap memory segment (Dynamic).
+*   $M_{tensor}$: Tensor storage segment.
+*   $M_{meta}$: Meta-programming and reflection segment.
+*   $\Phi$: Status flags (Zero, Negative, Positive).
+*   $\Lambda$: The Axion audit log (append-only).
 
-### 3.1.2 Compilation
-The T81Lang compiler operates in stages:
-1.  **Lexing**: Converts source text into canonical tokens.
-2.  **Parsing**: Builds an Abstract Syntax Tree (AST).
-3.  **Semantic Analysis**: Checks types, scopes, and purity constraints.
-4.  **IR Generation**: Produces a ternary-native intermediate representation.
-5.  **TISC Emission**: Outputs the final bytecode.
+> **Implementation**: This state is concretely implemented in `src/vm/vm.cpp` as `struct State`.
 
-## 3.2 TISC: Ternary Instruction Set Computer
+### 3.1.2 Transition Function
+The transition function $\delta(S_t)$ produces $S_{t+1}$ by executing the instruction at $M_{code}[PC]$.
+$$ S_{t+1} = \text{Execute}(\text{Decode}(M_{code}[PC]), S_t) $$
 
-TISC is the target architecture for the compiler. It is an abstract machine designed for determinism.
+If the Axion Policy Engine denies the transition, the machine transitions to a fault state $\bot$ (Trap).
 
-### 3.2.1 Machine Model
-The TISC state is defined as `STATE = (R, PC, SP, FLAGS, MEM, META)`.
-*   **Registers (`R`)**: 81 general-purpose registers (`R0`–`R80`).
-    *   `R0`: Hardwired Zero.
-    *   `R1-R74`: General Purpose.
-    *   `R75-R80`: Privileged Axion System Window.
-*   **Program Counter (`PC`)**: Points to the next instruction.
-*   **Stack Pointer (`SP`)**: Points to the top of the current stack frame.
-*   **Flags**: Capture the result of comparisons (Negative, Zero, Positive).
+## 3.2 Memory Layout
 
-### 3.2.2 Instruction Encoding
-Instructions are fixed-width (81 trits).
-Format: `[ OPC | MODE | RD | RS1 | RS2 | IMM ]`
+The T81VM uses a segmented memory architecture to enforce strict isolation and type safety.
 
-### 3.2.3 Opcode Classes
-*   **Arithmetic**: `ADD`, `SUB`, `MUL`, `DIV`, `MOD`, `NEG`.
-*   **Floating Point**: `FADD`, `FSUB`, `FMUL`, `FDIV` (using handles to the Float Pool).
-*   **Logic**: `TNOT`, `TAND`, `TOR` (Ternary Min/Max/Neg).
-*   **Control Flow**: `JMP`, `JZ` (Jump Zero), `JN` (Jump Negative), `CALL`, `RET`.
-*   **Data Movement**: `MOV`, `LOAD`, `STORE`, `PUSH`, `POP`.
-*   **System**: `HALT`, `TRAP`, `AXREAD`, `AXSET` (Privileged).
+| Segment | Start Index | Role | Access Policy |
+| :--- | :--- | :--- | :--- |
+| **Code** | 0 | Immutable instructions | Execute-Only (via `Call`), Read-Only (via `MetaRead`) |
+| **Stack** | `layout.code.limit` | Function frames | RW (via `Push`/`Pop`) |
+| **Heap** | `layout.stack.limit` | Dynamic objects | RW (via Handles) |
+| **Tensor** | `layout.heap.limit` | High-dimensional data | RW (via Tensor Opcodes) |
+| **Meta** | `layout.tensor.limit` | Reflection data | Read-Only (except via `MetaRefine`) |
 
-## 3.3 T81VM: The Virtual Machine
+> **Source Truth**: Defined in `src/vm/vm.cpp`, `Interpreter` constructor layout initialization.
 
-The T81VM is the runtime environment.
+## 3.3 Register File
 
-### 3.3.1 Memory Segments
-Memory is strictly segmented to prevent corruption and ensure safety:
-1.  **CODE**: Read-only instructions.
-2.  **STACK**: Call frames and local variables.
-3.  **HEAP**: Dynamically allocated objects (managed by GC).
-4.  **TENSOR**: Dedicated high-performance storage for large numerical arrays.
-5.  **META**: Axion metadata and execution traces.
+The VM exposes 81 registers (`R0`–`R80`).
 
-### 3.3.2 Execution Modes
-*   **Interpreter**: The reference implementation. Fetches instructions one by one, decodes them, and executes the logic defined in `spec/tisc-spec.md`.
-*   **Trace-JIT (Experimental)**: Detects "hot" loops or paths and compiles them to native machine code. Crucially, the JIT must preserve *exact* behavioral equivalence to the interpreter, including all side effects and fault conditions.
+*   **R0**: Always Zero (Immutable).
+*   **R1–R74**: General Purpose.
+*   **R75**: Global Tick (Lamport Timestamp).
+*   **R76**: Lineage Root Hash.
+*   **R77**: Entropy Signature.
+*   **R78**: Active Constitutional Mask (Axion).
+*   **R79**: Recursion Depth.
+*   **R80**: Axion Seal (Halt Status).
 
-### 3.3.3 Garbage Collection
-The VM uses a **Mark-and-Sweep** collector.
-*   **Roots**: Registers and Stack.
-*   **Determinism**: The GC must trigger deterministically (e.g., based on allocation count, not wall-clock time) so that memory addresses and heap layouts remain identical across runs.
+> **Verification**: See `sync_system_registers()` in `src/vm/vm.cpp`.
 
-## 3.4 Axion Policy Engine
+## 3.4 TISC Instruction Set Architecture (ISA)
 
-Axion is the "conscience" of the machine. It enforces the "Constitution" at runtime.
+TISC instructions are fixed-width (81 trits logically, packed into 128-bit or larger structs in C++).
 
-### 3.4.1 Responsibilities
-*   **Safety**: Preventing buffer overflows, stack overflows, and illegal memory access.
-*   **Resource Limits**: Enforcing quotas on instructions executed (`max-instructions`) and recursion depth (`max-recursion`).
-*   **Ethics**: Enforcing high-level policies (e.g., "Do not execute code from untrusted sources" or "Do not perform I/O without a capability").
+### 3.4.1 Arithmetic Core
+*   `Add`, `Sub`, `Mul`, `Div`, `Mod`: Standard integer arithmetic.
+*   `Inc`, `Dec`: Increment/Decrement.
+*   `Neg`: Negate.
 
-### 3.4.2 Trace System
-Axion records a log of significant events:
-*   Memory writes (canonicalized).
-*   Control flow changes (calls/jumps).
-*   Faults and traps.
-*   Privileged instruction execution.
+### 3.4.2 Control Flow
+*   `Jump`, `JumpIfZero`, `JumpIfNegative`, `JumpIfPositive`.
+*   `Call`, `Ret`: Function invocation (pushes `PC` to stack).
+*   `Halt`: Stop execution.
 
-This trace is the "proof of execution".
+### 3.4.3 Memory Access
+*   `Load`, `Store`: Register-Memory transfer.
+*   `Push`, `Pop`: Stack manipulation.
+*   `StackAlloc`, `StackFree`: Frame management.
+*   `HeapAlloc`, `HeapFree`: Dynamic memory management.
 
-## 3.5 Data Types and Canonicalization
+### 3.4.4 Tensor Operations (Tier 1+)
+*   `TNew`, `TSet`, `TGet`: Tensor creation and element access.
+*   `TAdd`, `TMul`, `TMatMul`: Vectorized arithmetic.
+*   `TRMSNorm`, `TRoPE`, `TSoftmax`: Neural network primitives.
 
-T81 mandates **Canonical Forms** for all data types. A value must have exactly one binary representation.
+> **Note**: Tensors are opaque handles in the register file (`ValueTag::TensorHandle`). Operations are kernels executed by the host.
 
-*   **T81Int**: Base-81 integers. No leading zeros allowed (except for the value 0).
-*   **T81Fraction**: Rational numbers. Must be stored in lowest terms (GCD reduced). Denominator must be positive.
-*   **T81Float**: Base-81 floating point. Mantissa and exponent must be normalized.
-*   **T81Tensor**: N-dimensional arrays. Shapes are immutable.
+### 3.4.5 Axion & Meta Operations
+*   `AxRead`, `AxSet`: Policy state access.
+*   `MetaRead`, `MetaWrite`: Introspection (Tier 2).
+*   `ReflCap`, `ReflTrace`: Execution trace capture.
 
-## 3.6 Model Tooling
+## 3.5 Fault Semantics
 
-To support AI workloads, T81 includes a robust set of tools (`src/tools/weights.cpp`) for handling neural network weights.
+The VM defines precise trap conditions (`Trap` enum in `vm.hpp`):
 
-*   **Import**: Supports industry-standard formats like `SafeTensors` and `GGUF`.
-*   **T81W Format**: The native T81 weights format (`.t81w`). It supports both raw balanced ternary data and quantized formats (`T3_K`).
-*   **Quantization**: The `T3_K` format is optimized for ternary storage, compressing weights into blocks with scaling factors.
+1.  **DecodeFault**: Invalid opcode or operand.
+2.  **StackFault**: Stack overflow or underflow.
+3.  **BoundsFault**: Access outside segment limits.
+4.  **TypeFault**: Operation on incompatible types (e.g., adding a Tensor to an Int).
+5.  **SecurityFault**: Axion Policy denial (e.g., recursion limit).
+6.  **DivisionFault**: Division by zero.
+
+Upon a fault, the VM halts immediately, and the `AxionEvent` log records the specific violation with a `Deny` verdict.
+
+## 3.6 Garbage Collection
+
+T81 uses a deterministic **Mark-and-Sweep** collector.
+*   **Trigger**: Deterministic instruction count interval (`kGcInterval = 64` instructions).
+*   **Roots**: Registers, Stack, and Reflection Snapshots.
+*   **Compaction**: The heap is compacted to ensure address stability for subsequent allocations is based on allocation order, not memory fragmentation.
+
+> **Source**: `run_gc_cycle_` in `src/vm/vm.cpp`.
+
+## 3.7 Verification Checklist
+
+*   [ ] **Transition Function**: Does `step()` implement all opcodes in `vm.cpp`?
+*   [ ] **Memory Segmentation**: Are `BoundsFault` traps correctly triggered for out-of-segment access?
+*   [ ] **Register File**: Are system registers (R75-R80) updated correctly in `sync_system_registers`?
