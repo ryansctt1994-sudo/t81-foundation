@@ -51,12 +51,12 @@
 - [x] Bytecode format & decoder (see `src/vm/jit_compiler.cpp`)
 - [x] JIT compilation (Research/Experimental)
 - [x] Cognitive Tier Opcodes (Registered)
-  - [ ] Full Logic Implementation (Symbolic, Reflective, etc.)
+  - [x] Full Logic Implementation (Symbolic, Reflective, etc.)
     - [x] ReflCap (Capture state)
     - [x] ReflJustify (Append reasoning)
     - [x] ReflCheck, ReflTrace, ReflSeal
     - [x] Tier 3 Recursive Opcodes (Recurse, Contract, Entropy, Depth, Terminate)
-  - [x] Infinite Series Compression (Geometric Series, see `src/cog/tier5/infinite.cpp`)
+  - [x+] Infinite Series Compression (Geometric Series, see `src/cog/tier5/infinite.cpp`, `src/vm/vm.cpp`)
 
 ## 5. CanonFS & Tensor Storage (section 11)
 - [x+] In-memory read/write throughput (see `src/canonfs/in_memory_driver.cpp`)
