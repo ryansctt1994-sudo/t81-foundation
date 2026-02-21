@@ -105,11 +105,3 @@ flowchart TD
     Axion --> Ethics
     Promotion --> Axion
 ```
-
-## Coverage Notes
-
-- **Tier 4 (Distributed)**: The implementation files exist (`src/cog/tier4/distributed.cpp`), but the opcodes (`Merge`, `Gossip`, etc.) are currently stubs in `src/vm/vm.cpp` that log events but perform no network operations.
-- **JIT**: The "JIT" is implemented as a tracing interpreter (`ThreadedJitTrace`), not a machine-code emitting JIT. It resides entirely within the deterministic core.
-- **Network I/O**: Network opcodes (`NSend`, `NRecv`) are placeholders returning dummy values or strictly logging events, ensuring no nondeterministic network interaction occurs in the current implementation.
-- **Weights**: Supported formats are GGUF and SafeTensors (via conversion), and the native T81W format.
-```
