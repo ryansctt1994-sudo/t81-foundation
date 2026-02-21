@@ -188,6 +188,30 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.math.clamp") {
     return "clamp";
   }
+  if (name == "std.math.fraction.add") {
+    return "frac_add";
+  }
+  if (name == "std.math.fraction.sub") {
+    return "frac_sub";
+  }
+  if (name == "std.math.fraction.mul") {
+    return "frac_mul";
+  }
+  if (name == "std.math.fraction.div") {
+    return "frac_div";
+  }
+  if (name == "std.math.fraction.from_int") {
+    return "frac_from_int";
+  }
+  if (name == "std.math.fraction.to_int") {
+    return "frac_to_int";
+  }
+  if (name == "std.math.fraction.from_float") {
+    return "frac_from_float";
+  }
+  if (name == "std.math.fraction.to_float") {
+    return "frac_to_float";
+  }
   if (name == "std.sys.exit") {
     return "sys_exit";
   }
@@ -1281,6 +1305,92 @@ public:
         emit_jump_if_zero(end_label, gt_max);
         copy_to_dest(max_f, dest);
         emit_label(end_label);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "frac_add" || func_name == "frac_sub" || func_name == "frac_mul" ||
+          func_name == "frac_div") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("Fraction arithmetic expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto lhs = ensure_expr_result(expr.arguments[0].get());
+        auto rhs = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Fraction);
+        tisc::ir::Instruction instr;
+        if (func_name == "frac_add")
+          instr.opcode = tisc::ir::Opcode::FRACADD;
+        else if (func_name == "frac_sub")
+          instr.opcode = tisc::ir::Opcode::FRACSUB;
+        else if (func_name == "frac_mul")
+          instr.opcode = tisc::ir::Opcode::FRACMUL;
+        else
+          instr.opcode = tisc::ir::Opcode::FRACDIV;
+        instr.operands = {dest.reg, lhs.reg, rhs.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Fraction;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "frac_from_int") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("frac_from_int expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        auto int_val = ensure_integer(val);
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Fraction);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::I2FRAC;
+        instr.operands = {dest.reg, int_val.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Fraction;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "frac_to_int") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("frac_to_int expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::FRAC2I;
+        instr.operands = {dest.reg, val.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "frac_from_float") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("frac_from_float expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Fraction);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::F2FRAC;
+        instr.operands = {dest.reg, val.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Fraction;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "frac_to_float") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("frac_to_float expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Float);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::FRAC2F;
+        instr.operands = {dest.reg, val.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Float;
+        emit(instr);
         record_result(&expr, dest);
         return {};
       }

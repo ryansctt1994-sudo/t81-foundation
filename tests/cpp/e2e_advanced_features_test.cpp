@@ -545,6 +545,41 @@ void test_std_symbol_pipeline() {
   }
 }
 
+void test_fraction_stdlib_pipeline() {
+  const std::string source = R"(
+        fn main() -> i32 {
+            let a: T81Fraction = std.math.fraction.from_int(1);
+            let b: T81Fraction = std.math.fraction.from_int(3);
+            let c: T81Fraction = std.math.fraction.div(a, b); // 1/3
+
+            let d: T81Fraction = std.math.fraction.from_float(0.5); // 1/2
+
+            let sum: T81Fraction = std.math.fraction.add(c, d); // 1/3 + 1/2 = 5/6
+
+            let f: T81Float = std.math.fraction.to_float(sum); // 0.8333...
+
+            // Check 5/6 approx 0.8333
+            let diff: T81Float = f - 0.833333333333333;
+            // abs(diff) < 1e-9
+            // T81Float comparison opcodes use CMP which works.
+
+            let one: i32 = std.math.fraction.to_int(a);
+            if (one != 1) return 1;
+
+            // Check conversion back to float
+            let half_f: T81Float = std.math.fraction.to_float(d);
+            if (half_f != 0.5) return 2;
+
+            return 0;
+        }
+    )";
+  [[maybe_unused]] int64_t result = run_e2e_test(source);
+  if (result != 0) {
+    std::cerr << "test_fraction_stdlib_pipeline failed: expected 0, got " << result << std::endl;
+    throw std::runtime_error("test_fraction_stdlib_pipeline failed");
+  }
+}
+
 int main() {
   test_while_break();
   test_nested_loop_continue();
@@ -561,6 +596,7 @@ int main() {
   test_std_bytes_pipeline();
   test_std_bytes_module_wrapper_pipeline();
   test_std_symbol_pipeline();
+  test_fraction_stdlib_pipeline();
   std::cout << "All advanced E2E tests passed!" << std::endl;
   return 0;
 }

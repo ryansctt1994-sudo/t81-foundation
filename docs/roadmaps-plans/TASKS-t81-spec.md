@@ -23,7 +23,7 @@
 - [x] T81Cell (48-trit scalar) (Implemented as `T81Limb` in `include/t81/core/T81Limb.hpp`)
 - [x++] T81BigInt (arbitrary precision) (see `include/t81/core/T81BigInt.hpp`, supports Karatsuba)
 - [x] T81Float / fixed-point variants (see `include/t81/core/T81Float.hpp`, `T81Fixed.hpp`)
-- [x] T81Fraction (Exact rational value) (see `include/t81/core/T81Fraction.hpp`)
+- [x] T81Fraction (Exact rational value) (see `include/t81/core/T81Fraction.hpp`, exposed via `std.math.fraction` in VM/IR)
 - [ ] Promotion / demotion rules
   - [x] T81Cell ↔ T81BigInt (scalar → multi-limb, sign-extended) (Implemented via constructor and to_int<N>)
   - [x] T81BigInt ↔ T81Float / T81Fixed (with rounding modes per spec) (Implemented via to_float/from_float)

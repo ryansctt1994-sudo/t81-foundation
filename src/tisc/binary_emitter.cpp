@@ -187,6 +187,10 @@ Opcode map_opcode(const ir::Instruction& instr) {
       return Opcode::I2Frac;
     case O::FRAC2I:
       return Opcode::Frac2I;
+    case O::F2FRAC:
+      return Opcode::F2Frac;
+    case O::FRAC2F:
+      return Opcode::Frac2F;
     case O::MAKE_OPTION_SOME:
       return Opcode::MakeOptionSome;
     case O::MAKE_OPTION_NONE:
