@@ -81,7 +81,7 @@
 ## Cross-cutting / Later Phases
 - [x] Full regression suite coverage (173/173 tests passing)
 - [x] Fuzzing / property-based testing for invariants
-  - [ ] libFuzzer or similar on promotion, division, etc.
+  - [x] libFuzzer or similar on promotion, division, etc. (Implemented `tests/cpp/fuzz_bigint_libfuzzer.cpp`)
   - [x+] Property-based invariants (Implemented test_property_invariants.cpp, test_property_float.cpp)
 - [ ] Documentation sync (reference/benchmarks.md, notebooks)
   - [ ] Update benchmarks.md with latest numbers
