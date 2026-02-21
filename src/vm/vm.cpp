@@ -51,9 +51,6 @@ public:
     return intern_weights_tensor(name);
   }
 
-  void set_fault_injections(std::vector<FaultInjection> faults) override {
-    fault_injections_ = std::move(faults);
-  }
 
   const t81::weights::NativeTensor* weights_tensor(std::int64_t handle) const override {
     if (handle <= 0) return nullptr;
@@ -4094,7 +4091,6 @@ private:
   std::unordered_map<std::size_t, std::size_t> hot_spots_;
   std::unordered_map<std::size_t, std::unique_ptr<JitTrace>> compiled_traces_;
   static constexpr std::size_t kHotSpotThreshold = 50;
-  std::vector<FaultInjection> fault_injections_;
 };
 }  // namespace
 
