@@ -4061,48 +4061,47 @@ private:
     };
 
     // Recursive scan
-    std::function<void(ValueTag, std::int64_t)> scan_value =
-        [&](ValueTag tag, std::int64_t val) {
-          switch (tag) {
-            case ValueTag::TensorHandle:
-              mark_tensor(val);
-              break;
-            case ValueTag::OptionHandle: {
-              if (val <= 0) return;
-              std::size_t idx = static_cast<std::size_t>(val - 1);
-              if (idx < state_.options.size() && !visited_options[idx]) {
-                visited_options[idx] = true;
-                scan_value(state_.options[idx].payload_tag, state_.options[idx].payload);
-              }
-              break;
-            }
-            case ValueTag::ResultHandle: {
-              if (val <= 0) return;
-              std::size_t idx = static_cast<std::size_t>(val - 1);
-              if (idx < state_.results.size() && !visited_results[idx]) {
-                visited_results[idx] = true;
-                scan_value(state_.results[idx].payload_tag, state_.results[idx].payload);
-              }
-              break;
-            }
-            case ValueTag::EnumHandle: {
-              if (val <= 0) return;
-              std::size_t idx = static_cast<std::size_t>(val - 1);
-              if (idx < state_.enums.size() && !visited_enums[idx]) {
-                visited_enums[idx] = true;
-                if (state_.enums[idx].has_payload) {
-                  scan_value(state_.enums[idx].payload_tag, state_.enums[idx].payload);
-                }
-              }
-              break;
-            }
-            case ValueTag::ReflectionHandle:
-              // Reflections are roots, scanned below explicitly.
-              break;
-            default:
-              break;
+    std::function<void(ValueTag, std::int64_t)> scan_value = [&](ValueTag tag, std::int64_t val) {
+      switch (tag) {
+        case ValueTag::TensorHandle:
+          mark_tensor(val);
+          break;
+        case ValueTag::OptionHandle: {
+          if (val <= 0) return;
+          std::size_t idx = static_cast<std::size_t>(val - 1);
+          if (idx < state_.options.size() && !visited_options[idx]) {
+            visited_options[idx] = true;
+            scan_value(state_.options[idx].payload_tag, state_.options[idx].payload);
           }
-        };
+          break;
+        }
+        case ValueTag::ResultHandle: {
+          if (val <= 0) return;
+          std::size_t idx = static_cast<std::size_t>(val - 1);
+          if (idx < state_.results.size() && !visited_results[idx]) {
+            visited_results[idx] = true;
+            scan_value(state_.results[idx].payload_tag, state_.results[idx].payload);
+          }
+          break;
+        }
+        case ValueTag::EnumHandle: {
+          if (val <= 0) return;
+          std::size_t idx = static_cast<std::size_t>(val - 1);
+          if (idx < state_.enums.size() && !visited_enums[idx]) {
+            visited_enums[idx] = true;
+            if (state_.enums[idx].has_payload) {
+              scan_value(state_.enums[idx].payload_tag, state_.enums[idx].payload);
+            }
+          }
+          break;
+        }
+        case ValueTag::ReflectionHandle:
+          // Reflections are roots, scanned below explicitly.
+          break;
+        default:
+          break;
+      }
+    };
 
     // 2. Scan Roots
 
