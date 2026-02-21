@@ -218,6 +218,21 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.agent.self_reflect") {
     return "agent_self_reflect";
   }
+  if (name == "std.distributed.gossip") {
+    return "dist_gossip";
+  }
+  if (name == "std.distributed.merge") {
+    return "dist_merge";
+  }
+  if (name == "std.distributed.sync") {
+    return "dist_sync";
+  }
+  if (name == "std.distributed.coherence") {
+    return "dist_coherence";
+  }
+  if (name == "std.distributed.seal") {
+    return "dist_seal";
+  }
   if (name == "std.tensor.load") {
     return "weights.load";
   }
@@ -1384,6 +1399,67 @@ public:
         instr.opcode = tisc::ir::Opcode::META_REFLECT;
         instr.operands = {dest.reg};
         emit(instr);
+        return {};
+      }
+
+      if (func_name == "dist_gossip") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("dist_gossip expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto value = ensure_expr_result(expr.arguments[0].get());
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::GOSSIP;
+        instr.operands = {tisc::ir::Register{0}, value.reg};
+        emit(instr);
+        return {};
+      }
+      if (func_name == "dist_merge") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("dist_merge expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::MERGE;
+        instr.operands = {dest.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "dist_sync") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("dist_sync expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::TICKSYNC;
+        instr.operands = {val.reg};
+        emit(instr);
+        return {};
+      }
+      if (func_name == "dist_coherence") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("dist_coherence expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::COHERENCE;
+        instr.operands = {dest.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "dist_seal") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("dist_seal expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::DISTSEAL;
+        instr.operands = {dest.reg};
+        emit(instr);
+        record_result(&expr, dest);
         return {};
       }
 

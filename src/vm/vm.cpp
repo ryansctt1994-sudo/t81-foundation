@@ -4121,11 +4121,81 @@ public:
         record_axion_event(insn.opcode, 0, state_.registers[insn.a], verdict);
         break;
       }
-      case t81::tisc::Opcode::Merge:
-      case t81::tisc::Opcode::Gossip:
-      case t81::tisc::Opcode::TickSync:
-      case t81::tisc::Opcode::Coherence:
-      case t81::tisc::Opcode::DistSeal:
+      case t81::tisc::Opcode::Gossip: {
+        if (!reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        std::int64_t val = state_.registers[insn.b];
+        std::int32_t tag = static_cast<std::int32_t>(state_.register_tags[insn.b]);
+        state_.tier4_state.gossip(val, tag, instruction_count_);
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "Gossip: broadcast state"};
+        record_axion_event(insn.opcode, tag, val, verdict);
+        break;
+      }
+      case t81::tisc::Opcode::Merge: {
+        if (!reg_ok(insn.a)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        auto msg = state_.tier4_state.merge();
+        std::int64_t handle = 0;
+        if (msg) {
+          handle = intern_option(true, static_cast<ValueTag>(msg->tag), msg->payload);
+        } else {
+          handle = intern_option(false, ValueTag::Int, 0);
+        }
+        set_reg(insn.a, handle, ValueTag::OptionHandle);
+        update_flags(handle);
+
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "Merge: process inbox"};
+        record_axion_event(insn.opcode, msg ? 1 : 0, handle, verdict);
+        break;
+      }
+      case t81::tisc::Opcode::TickSync: {
+        if (!reg_ok(insn.a)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        // Operand A contains remote tick
+        uint64_t remote = static_cast<uint64_t>(state_.registers[insn.a]);
+        state_.tier4_state.sync_tick(remote);
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TickSync"};
+        record_axion_event(insn.opcode, 0,
+                           static_cast<int64_t>(state_.tier4_state.vector.global_tick), verdict);
+        break;
+      }
+      case t81::tisc::Opcode::Coherence: {
+        if (!reg_ok(insn.a)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        // Returns coherence status (e.g., drift from global tick)
+        int64_t drift = static_cast<int64_t>(state_.tier4_state.vector.global_tick) -
+                        static_cast<int64_t>(instruction_count_);
+        set_reg(insn.a, drift, ValueTag::Int);
+        update_flags(drift);
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "Coherence check"};
+        record_axion_event(insn.opcode, 0, drift, verdict);
+        break;
+      }
+      case t81::tisc::Opcode::DistSeal: {
+        if (!reg_ok(insn.a)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        // "Seal" the distributed state (e.g. generate a hash of outbox/inbox state)
+        // For simulation, we just sum up outbox payloads
+        int64_t seal = 0;
+        for (const auto& m : state_.tier4_state.outbox) {
+          seal ^= m.payload;
+        }
+        set_reg(insn.a, seal, ValueTag::Int);
+        update_flags(seal);
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "DistSeal"};
+        record_axion_event(insn.opcode, 0, seal, verdict);
+        break;
+      }
       case t81::tisc::Opcode::AxCheck:
       case t81::tisc::Opcode::AxSign:
       case t81::tisc::Opcode::AxLineage:
