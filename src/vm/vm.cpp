@@ -39,9 +39,9 @@ t81::T81Fraction fraction_from_double(double x) {
     return t81::T81Fraction{};
   }
 
-  // Handle large values that don't fit in int64_t to avoid undefined behavior
-  if (std::abs(x) >= 9e18) {
-    // Use intermediate float representation to convert large double to BigInt
+  // Handle non-finite (NaN, Inf) or large values safely
+  if (!std::isfinite(x) || std::abs(x) >= 9e18) {
+    // Use intermediate float representation to convert large double/Inf/NaN to BigInt
     using TempFloat = t81::T81Float<72, 9>;
     auto f = TempFloat::from_double(x);
     t81::T81BigInt big = t81::T81BigInt::from_float(f);
