@@ -845,6 +845,12 @@ void JitCompiler::record_instruction(const t81::tisc::Insn& insn) {
       trace_buffer_.push_back(insn);
       tracing_ = false;  // Always stop at branch.
       break;
+    case t81::tisc::Opcode::Call:
+    case t81::tisc::Opcode::Ret:
+      // Exclude Call/Ret from JIT to force interpreter fallback
+      // for recursion checks and promotion logic.
+      tracing_ = false;
+      break;
     default:
       // Stop tracing on unsupported opcodes.
       tracing_ = false;
