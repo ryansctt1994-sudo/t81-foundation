@@ -84,7 +84,7 @@
   - [x] libFuzzer or similar on promotion, division, etc. (Implemented `tests/cpp/fuzz_bigint_libfuzzer.cpp`)
   - [x+] Property-based invariants (Implemented test_property_invariants.cpp, test_property_float.cpp)
 - [ ] Documentation sync (reference/benchmarks.md, notebooks)
-  - [x] Update benchmarks.md with latest numbers
+  - [ ] Update benchmarks.md with latest numbers
   - [x] Add spec cross-references in code comments (@spec-ref: 4.2)
 - [x] Python bindings completeness
   - [x] Expose T81BigInt, VM, CanonFS
