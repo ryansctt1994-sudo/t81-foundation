@@ -575,9 +575,10 @@ void test_fraction_stdlib_pipeline() {
             let one: i32 = std.math.fraction.to_int(a);
             if (one != 1) return 1;
 
-            // Check conversion back to float - just verify it works without comparing exact value
+            // Check conversion back to float
             let half_f: T81Float = std.math.fraction.to_float(d);
-            // Note: Skip exact float comparison due to precision, return 0 if we got here
+            if (half_f != 0.5) return 2;
+
             return 0;
         }
     )";
