@@ -109,13 +109,13 @@ And constraint, when applied deliberately, is a form of clarity.
 
 3. **[T81VM Architecture](./03_Architecture.md)**
 
-   * [3.1 Formal State Machine](./03_Architecture.md#31-overview)
-   * [3.1.1 State Definition](./03_Architecture.md#31-overview)
-   * [3.2 Memory Layout](./03_Architecture.md#33-memory-model)
-   * [3.3 Register File](./03_Architecture.md#33-memory-model)
-   * [3.4 TISC Instruction Set Architecture](./03_Architecture.md#34-the-instruction-set-tisc)
-   * [3.5 Fault Semantics](./03_Architecture.md#32-the-runtime-boundary)
-   * [3.6 Garbage Collection](./03_Architecture.md#33-memory-model)
+   * [3.1 Formal State Machine](./03_Architecture.md#31-formal-state-machine)
+   * [3.1.1 State Definition](./03_Architecture.md#311-state-definition)
+   * [3.2 Memory Layout](./03_Architecture.md#32-memory-layout)
+   * [3.3 Register File](./03_Architecture.md#33-register-file)
+   * [3.4 TISC Instruction Set Architecture](./03_Architecture.md#34-tisc-instruction-set-architecture-isa)
+   * [3.5 Fault Semantics](./03_Architecture.md#35-fault-semantics)
+   * [3.6 Garbage Collection](./03_Architecture.md#36-garbage-collection)
 
 4. **[Data Types and Canonical Serialization](./04_Data_Types_and_Serialization.md)**
 
@@ -127,15 +127,15 @@ And constraint, when applied deliberately, is a form of clarity.
 5. **[Installation and Build Verification](./05_Installation.md)**
 
    * [5.1 Prerequisites](./05_Installation.md#51-prerequisites)
-   * [5.2 Building from Source](./05_Installation.md#52-build-procedure)
+   * [5.2 Building from Source](./05_Installation.md#52-building-from-source)
    * [5.3 Verifying the Build](./05_Installation.md#53-verifying-the-build)
 
 6. **[CLI and API Usage](./06_Usage.md)**
 
-   * [6.1 Command Line Interface](./06_Usage.md#61-the-unified-cli)
-   * [6.2 Embedding T81 (C++ API)](./06_Usage.md#61-the-unified-cli)
-   * [6.3 Embedding T81 (Python API)](./06_Usage.md#61-the-unified-cli)
-   * [6.4 Debugging](./06_Usage.md#612-debugging-and-inspection)
+   * [6.1 Command Line Interface](./06_Usage.md#61-the-t81-command-line-interface)
+   * [6.2 Embedding T81 (C++ API)](./06_Usage.md#62-embedding-t81-c-api)
+   * [6.3 Embedding T81 (Python API)](./06_Usage.md#63-embedding-t81-python-api)
+   * [6.4 Debugging](./06_Usage.md#64-debugging)
 
 </details>
 

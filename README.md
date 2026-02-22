@@ -234,13 +234,13 @@ For a comprehensive, specification-grade description of the architecture — inc
 
 3. **[T81VM Architecture](book/03_Architecture.md)**
 
-   * [3.1 Formal State Machine](book/03_Architecture.md#31-overview)
-   * [3.1.1 State Definition](book/03_Architecture.md#31-overview)
-   * [3.2 Memory Layout](book/03_Architecture.md#33-memory-model)
-   * [3.3 Register File](book/03_Architecture.md#33-memory-model)
-   * [3.4 TISC Instruction Set Architecture](book/03_Architecture.md#34-the-instruction-set-tisc)
-   * [3.5 Fault Semantics](book/03_Architecture.md#32-the-runtime-boundary)
-   * [3.6 Garbage Collection](book/03_Architecture.md#33-memory-model)
+   * [3.1 Formal State Machine](book/03_Architecture.md#31-formal-state-machine)
+   * [3.1.1 State Definition](book/03_Architecture.md#311-state-definition)
+   * [3.2 Memory Layout](book/03_Architecture.md#32-memory-layout)
+   * [3.3 Register File](book/03_Architecture.md#33-register-file)
+   * [3.4 TISC Instruction Set Architecture](book/03_Architecture.md#34-tisc-instruction-set-architecture-isa)
+   * [3.5 Fault Semantics](book/03_Architecture.md#35-fault-semantics)
+   * [3.6 Garbage Collection](book/03_Architecture.md#36-garbage-collection)
 
 4. **[Data Types and Canonical Serialization](book/04_Data_Types_and_Serialization.md)**
 
@@ -252,15 +252,15 @@ For a comprehensive, specification-grade description of the architecture — inc
 5. **[Installation and Build Verification](book/05_Installation.md)**
 
    * [5.1 Prerequisites](book/05_Installation.md#51-prerequisites)
-   * [5.2 Building from Source](book/05_Installation.md#52-build-procedure)
+   * [5.2 Building from Source](book/05_Installation.md#52-building-from-source)
    * [5.3 Verifying the Build](book/05_Installation.md#53-verifying-the-build)
 
 6. **[CLI and API Usage](book/06_Usage.md)**
 
-   * [6.1 Command Line Interface](book/06_Usage.md#61-the-unified-cli)
-   * [6.2 Embedding T81 (C++ API)](book/06_Usage.md#61-the-unified-cli)
-   * [6.3 Embedding T81 (Python API)](book/06_Usage.md#61-the-unified-cli)
-   * [6.4 Debugging](book/06_Usage.md#612-debugging-and-inspection)
+   * [6.1 Command Line Interface](book/06_Usage.md#61-the-t81-command-line-interface)
+   * [6.2 Embedding T81 (C++ API)](book/06_Usage.md#62-embedding-t81-c-api)
+   * [6.3 Embedding T81 (Python API)](book/06_Usage.md#63-embedding-t81-python-api)
+   * [6.4 Debugging](book/06_Usage.md#64-debugging)
 
 </details>
 
