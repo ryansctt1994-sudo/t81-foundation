@@ -203,11 +203,11 @@ int main() {
     return 1;
   }
 
-  if (vm->state().register_tags[reg_out] == vm::ValueTag::TensorHandle) {
+  if (vm->state().contexts[0].register_tags[reg_out] == vm::ValueTag::TensorHandle) {
     // TLoadHash returns TensorHandle, not WeightsTensorHandle
-    std::cout << "Resolved tensor handle in reg_out: " << vm->state().registers[reg_out] << "\n";
+    std::cout << "Resolved tensor handle in reg_out: " << vm->state().contexts[0].registers[reg_out] << "\n";
   } else {
-    std::cout << "reg_out tag: " << static_cast<int>(vm->state().register_tags[reg_out]) << "\n";
+    std::cout << "reg_out tag: " << static_cast<int>(vm->state().contexts[0].register_tags[reg_out]) << "\n";
   }
 
   std::cout

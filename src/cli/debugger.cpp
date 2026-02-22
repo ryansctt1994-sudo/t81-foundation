@@ -54,8 +54,8 @@ void Debugger::run() {
             error("Execution trapped: " + std::string(t81::vm::to_string(res.error())));
             break;
           }
-          if (breakpoints_.count(vm_->state().pc)) {
-            info("Breakpoint hit at PC=" + std::to_string(vm_->state().pc));
+          if (breakpoints_.count(vm_->state().contexts[0].pc)) {
+            info("Breakpoint hit at PC=" + std::to_string(vm_->state().contexts[0].pc));
             break;
           }
           bool stop = false;
@@ -163,18 +163,18 @@ void Debugger::print_registers() {
   std::cout << "Registers:\n";
   // Print common registers
   for (int i = 0; i < 9; ++i) {
-    std::cout << "  R" << std::setw(2) << std::left << i << ": " << state.registers[i] << "\n";
+    std::cout << "  R" << std::setw(2) << std::left << i << ": " << state.contexts[0].registers[i] << "\n";
   }
   // Print non-zero others
   for (int i = 9; i < 243; ++i) {
-    if (state.registers[i] != 0) {
-      std::cout << "  R" << i << ": " << state.registers[i] << "\n";
+    if (state.contexts[0].registers[i] != 0) {
+      std::cout << "  R" << i << ": " << state.contexts[0].registers[i] << "\n";
     }
   }
-  std::cout << "  PC: " << state.pc << "\n";
-  std::cout << "  SP: " << state.sp << "\n";
-  std::cout << "  Flags: " << (state.flags.zero ? "Z" : "") << (state.flags.negative ? "N" : "")
-            << (state.flags.positive ? "P" : "") << "\n";
+  std::cout << "  PC: " << state.contexts[0].pc << "\n";
+  std::cout << "  SP: " << state.contexts[0].sp << "\n";
+  std::cout << "  Flags: " << (state.contexts[0].flags.zero ? "Z" : "") << (state.contexts[0].flags.negative ? "N" : "")
+            << (state.contexts[0].flags.positive ? "P" : "") << "\n";
 }
 
 void Debugger::print_stack() {
@@ -182,12 +182,12 @@ void Debugger::print_stack() {
   std::cout << "Stack (top 10):\n";
   std::size_t count = 0;
 
-  if (state.sp == 0) {
+  if (state.contexts[0].sp == 0) {
     std::cout << "  <empty>\n";
     return;
   }
 
-  for (std::size_t i = state.sp; i > 0 && count < 10; --i, ++count) {
+  for (std::size_t i = state.contexts[0].sp; i > 0 && count < 10; --i, ++count) {
     std::size_t addr = i - 1;
     if (addr < state.memory.size()) {
       std::cout << "  [" << addr << "]: " << state.memory[addr] << "\n";
@@ -199,27 +199,27 @@ void Debugger::print_current_instruction() {
   const auto& state = vm_->state();
   if (state.halted) return;
 
-  if (state.pc < program_.insns.size()) {
-    const auto& insn = program_.insns[state.pc];
-    std::cout << "[" << std::setw(4) << state.pc << "] " << t81::tisc::opcode_name(insn.opcode);
+  if (state.contexts[0].pc < program_.insns.size()) {
+    const auto& insn = program_.insns[state.contexts[0].pc];
+    std::cout << "[" << std::setw(4) << state.contexts[0].pc << "] " << t81::tisc::opcode_name(insn.opcode);
     std::cout << " " << insn.a << ", " << insn.b << ", " << insn.c;
     if (insn.literal_kind != t81::tisc::LiteralKind::Int) {
       std::cout << " (lit=" << static_cast<int>(insn.literal_kind) << ")";
     }
     std::cout << "\n";
   } else {
-    std::cout << "[" << std::setw(4) << state.pc << "] <invalid PC>\n";
+    std::cout << "[" << std::setw(4) << state.contexts[0].pc << "] <invalid PC>\n";
   }
 }
 
 void Debugger::print_list() {
   const auto& state = vm_->state();
-  std::size_t start = (state.pc >= 5) ? state.pc - 5 : 0;
-  std::size_t end = std::min(state.pc + 6, program_.insns.size());
+  std::size_t start = (state.contexts[0].pc >= 5) ? state.contexts[0].pc - 5 : 0;
+  std::size_t end = std::min(state.contexts[0].pc + 6, program_.insns.size());
 
   for (std::size_t i = start; i < end; ++i) {
     const auto& insn = program_.insns[i];
-    if (i == state.pc)
+    if (i == state.contexts[0].pc)
       std::cout << "-> ";
     else
       std::cout << "   ";

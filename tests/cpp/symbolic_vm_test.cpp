@@ -76,17 +76,17 @@ void test_symbolic_rewrite() {
   }
 
   const auto& state = vm->state();
-  if (state.registers[1] <= 0) {
+  if (state.contexts[0].registers[1] <= 0) {
     std::cerr << "Invalid handle in R1" << std::endl;
     exit(1);
   }
-  if (state.register_tags[1] != ValueTag::SymbolicGraphHandle) {
-    std::cerr << "Invalid tag in R1: " << (int)state.register_tags[1] << std::endl;
+  if (state.contexts[0].register_tags[1] != ValueTag::SymbolicGraphHandle) {
+    std::cerr << "Invalid tag in R1: " << (int)state.contexts[0].register_tags[1] << std::endl;
     exit(1);
   }
 
   // Verify graph content
-  const auto& graph = state.symbolic_graphs[state.registers[1] - 1];
+  const auto& graph = state.symbolic_graphs[state.contexts[0].registers[1] - 1];
   if (graph.nodes.size() != 1) {
     std::cerr << "Graph node count mismatch: " << graph.nodes.size() << std::endl;
     exit(1);

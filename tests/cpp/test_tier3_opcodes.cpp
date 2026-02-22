@@ -64,36 +64,36 @@ int main() {
   bool failed = false;
 
   // R1: Initial Depth = 0
-  if (state.registers[1] != 0) {
-    std::cerr << "Test Failed: R1 (Initial Depth) should be 0, got " << state.registers[1] << "\n";
+  if (state.contexts[0].registers[1] != 0) {
+    std::cerr << "Test Failed: R1 (Initial Depth) should be 0, got " << state.contexts[0].registers[1] << "\n";
     failed = true;
   }
 
   // R2: Depth after 1st Recurse = 1
-  if (state.registers[2] != 1) {
-    std::cerr << "Test Failed: R2 (Depth after 1st Recurse) should be 1, got " << state.registers[2]
+  if (state.contexts[0].registers[2] != 1) {
+    std::cerr << "Test Failed: R2 (Depth after 1st Recurse) should be 1, got " << state.contexts[0].registers[2]
               << "\n";
     failed = true;
   }
 
   // R3: Depth after 2nd Recurse = 2
-  if (state.registers[3] != 2) {
-    std::cerr << "Test Failed: R3 (Depth after 2nd Recurse) should be 2, got " << state.registers[3]
+  if (state.contexts[0].registers[3] != 2) {
+    std::cerr << "Test Failed: R3 (Depth after 2nd Recurse) should be 2, got " << state.contexts[0].registers[3]
               << "\n";
     failed = true;
   }
 
   // R5: Depth after 1st Terminate = 1
-  if (state.registers[5] != 1) {
+  if (state.contexts[0].registers[5] != 1) {
     std::cerr << "Test Failed: R5 (Depth after 1st Terminate) should be 1, got "
-              << state.registers[5] << "\n";
+              << state.contexts[0].registers[5] << "\n";
     failed = true;
   }
 
   // R6: Depth after 2nd Terminate = 0
-  if (state.registers[6] != 0) {
+  if (state.contexts[0].registers[6] != 0) {
     std::cerr << "Test Failed: R6 (Depth after 2nd Terminate) should be 0, got "
-              << state.registers[6] << "\n";
+              << state.contexts[0].registers[6] << "\n";
     failed = true;
   }
 

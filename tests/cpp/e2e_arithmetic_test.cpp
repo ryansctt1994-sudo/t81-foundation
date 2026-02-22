@@ -24,7 +24,7 @@ void test_addition() {
   vm->load_program(program);
   vm->run_to_halt();
 
-  T81_TEST_CHECK(vm->state().registers[1] == 42 &&
+  T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 42 &&
                  "VM register R1 has incorrect value after addition");
 
   std::cout << "E2ETest test_addition passed!" << std::endl;
@@ -48,7 +48,7 @@ void test_subtraction() {
   vm->load_program(program);
   vm->run_to_halt();
 
-  T81_TEST_CHECK(vm->state().registers[1] == 42 &&
+  T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 42 &&
                  "VM register R1 has incorrect value after subtraction");
 
   std::cout << "E2ETest test_subtraction passed!" << std::endl;
@@ -72,7 +72,7 @@ void test_multiplication() {
   vm->load_program(program);
   vm->run_to_halt();
 
-  T81_TEST_CHECK(vm->state().registers[1] == 42 &&
+  T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 42 &&
                  "VM register R1 has incorrect value after multiplication");
 
   std::cout << "E2ETest test_multiplication passed!" << std::endl;
@@ -96,7 +96,7 @@ void test_division() {
   vm->load_program(program);
   vm->run_to_halt();
 
-  T81_TEST_CHECK(vm->state().registers[1] == 42 &&
+  T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 42 &&
                  "VM register R1 has incorrect value after division");
 
   std::cout << "E2ETest test_division passed!" << std::endl;

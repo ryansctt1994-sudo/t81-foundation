@@ -53,14 +53,14 @@ bool run_and_capture(const Program& program, Snapshot* out) {
   const auto& st = vm->state();
 
   for (std::size_t i = 0; i < out->regs.size(); ++i) {
-    out->regs[i] = st.registers[i];
-    out->reg_tags[i] = st.register_tags[i];
+    out->regs[i] = st.contexts[0].registers[i];
+    out->reg_tags[i] = st.contexts[0].register_tags[i];
   }
-  out->flags = st.flags;
-  out->pc = st.pc;
+  out->flags = st.contexts[0].flags;
+  out->pc = st.contexts[0].pc;
   out->halted = st.halted;
   out->gc_cycles = st.gc_cycles;
-  out->call_depth = st.call_depth;
+  out->call_depth = st.contexts[0].call_depth;
   out->printed = st.printed_output;
   out->trace = st.trace;
   out->axion_log = st.axion_log;

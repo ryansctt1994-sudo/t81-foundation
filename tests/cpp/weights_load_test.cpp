@@ -34,8 +34,8 @@ int main() {
   [[maybe_unused]] auto result = vm->run_to_halt();
   assert(result.has_value());
 
-  [[maybe_unused]] auto handle0 = vm->state().registers[2];
-  [[maybe_unused]] auto handle1 = vm->state().registers[1];
+  [[maybe_unused]] auto handle0 = vm->state().contexts[0].registers[2];
+  [[maybe_unused]] auto handle1 = vm->state().contexts[0].registers[1];
   assert(handle0 > 0);
   assert(handle0 == handle1);
   assert(vm->state().weights_tensor_refs.size() == 1);

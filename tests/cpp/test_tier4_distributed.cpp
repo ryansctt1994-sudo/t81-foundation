@@ -70,10 +70,10 @@ void test_merge() {
 
   const auto& state = vm->state();
   // R1 should be an OptionHandle
-  assert(state.register_tags[1] == t81::vm::ValueTag::OptionHandle);
+  assert(state.contexts[0].register_tags[1] == t81::vm::ValueTag::OptionHandle);
 
   // Verify content of option
-  int64_t handle = state.registers[1];
+  int64_t handle = state.contexts[0].registers[1];
   assert(handle > 0);
   const auto& opt = state.options[handle - 1];
   assert(opt.has_value);

@@ -34,11 +34,11 @@ void test_let_statement_e2e() {
   vm->run_to_halt();
 
   for (int i = 0; i < 5; ++i) {
-    std::cout << "R" << i << " = " << vm->state().registers[i] << "\n";
+    std::cout << "R" << i << " = " << vm->state().contexts[0].registers[i] << "\n";
   }
 
   // Per TISC calling convention, the return value is in R0.
-  T81_TEST_CHECK(vm->state().registers[1] == 42 && "VM register R1 has incorrect value");
+  T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 42 && "VM register R1 has incorrect value");
 
   std::cout << "E2ETest test_let_statement_e2e passed!" << std::endl;
 }

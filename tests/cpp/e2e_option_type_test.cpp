@@ -41,7 +41,7 @@ void test_option_type_e2e() {
   vm->load_program(program);
   vm->run_to_halt();
 
-  T81_TEST_CHECK(vm->state().registers[2] == 42 && "VM register R2 has incorrect value");
+  T81_TEST_CHECK(vm->state().contexts[0].registers[2] == 42 && "VM register R2 has incorrect value");
 
   std::cout << "E2ETest test_option_type_e2e passed!" << std::endl;
 }

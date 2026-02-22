@@ -27,7 +27,7 @@ t81::vm::Trap run_expected_trap(const std::vector<t81::tisc::Insn>& insns) {
   vm->load_program(program);
   [[maybe_unused]] auto result = vm->run_to_halt();
   if (result.has_value()) {
-    std::cerr << "Expected trap but got success! pc=" << vm->state().pc
+    std::cerr << "Expected trap but got success! pc=" << vm->state().contexts[0].pc
               << " halted=" << vm->state().halted << std::endl;
     T81_TEST_CHECK(false);
   }
@@ -72,10 +72,10 @@ int main() {
 
   {
     [[maybe_unused]] auto vm = run_program({stack_alloc, stack_free0, halt});
-    T81_TEST_CHECK(vm->state().stack_frames.empty());
-    T81_TEST_CHECK(vm->state().sp == vm->state().layout.stack.limit);
+    T81_TEST_CHECK(vm->state().contexts[0].stack_frames.empty());
+    T81_TEST_CHECK(vm->state().contexts[0].sp == vm->state().layout.stack.limit);
     // registers[1] (R1) should contain the address of the allocated (and then freed) frame.
-    T81_TEST_CHECK(vm->state().registers[1] >=
+    T81_TEST_CHECK(vm->state().contexts[0].registers[1] >=
                    static_cast<std::int64_t>(vm->state().layout.code.limit));
     const auto& log = vm->state().axion_log;
     [[maybe_unused]] bool saw_alloc = false;
@@ -98,8 +98,8 @@ int main() {
   {
     [[maybe_unused]] auto vm =
         run_program({stack_alloc, stack_alloc2, stack_free, stack_free0, halt});
-    T81_TEST_CHECK(vm->state().stack_frames.empty());
-    T81_TEST_CHECK(vm->state().sp == vm->state().layout.stack.limit);
+    T81_TEST_CHECK(vm->state().contexts[0].stack_frames.empty());
+    T81_TEST_CHECK(vm->state().contexts[0].sp == vm->state().layout.stack.limit);
   }
 
   {
