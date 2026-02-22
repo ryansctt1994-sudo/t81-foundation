@@ -1,64 +1,125 @@
-# Capítulo 6: Uso y CLI
+# Capítulo 6: Uso de CLI y API
 
-## 6.1 La CLI Unificada
+## 6.1 La Interfaz de Línea de Comandos T81
 
-**Estado: Implementado y Probado**
+**Estado: Implementado**
 
-El ejecutable `t81` proporciona una interfaz unificada para todas las operaciones.
+El binario `t81` es el punto de entrada principal para la interacción con el runtime. Sigue el patrón estándar de `subcommand` (subcomando).
 
-### 6.1.1 Comandos Básicos
+### 6.1.1 Compilación (`compile`)
+Compila código fuente T81 (`.t81`) en bytecode TISC (`.tisc`).
 
-*   **`compile`**: Compila código fuente T81Lang (`.t81`) a bytecode TISC (`.tisc`).
-    ```bash
-    t81 compile examples/hello_world.t81 -o hello.tisc
-    ```
+```bash
+t81 compile main.t81 -o main.tisc
+```
 
-*   **`run`**: Ejecuta bytecode TISC en la VM.
-    ```bash
-    t81 run hello.tisc
-    ```
+**Opciones**:
+*   `-o, --output <file>`: Ruta del bytecode de salida.
+*   `--policy <file>`: Adjuntar una política Axion al bytecode (embebida).
 
-*   **`check`**: Realiza análisis sintáctico y semántico sin generar código.
-    ```bash
-    t81 check examples/hello_world.t81
-    ```
+### 6.1.2 Ejecución (`run`)
+Ejecuta un archivo de bytecode TISC o un archivo fuente (JIT-compile-and-go).
 
-### 6.1.2 Depuración e Inspección
+```bash
+# Ejecutar bytecode
+t81 run main.tisc
 
-*   **`disasm`**: Desensambla bytecode TISC en mnemónicos legibles.
-    ```bash
-    t81 disasm hello.tisc
-    ```
+# Ejecutar fuente directamente
+t81 run main.t81
+```
 
-*   **`debug`**: Lanza el depurador interactivo (paso a paso, inspeccionar registros).
-    ```bash
-    t81 debug hello.tisc
-    ```
+**Opciones**:
+*   `--policy <file>`: Imponer un archivo de política Axion específico durante la ejecución.
+*   `--weights <file>`: Adjuntar un modelo de tensor (`.t81w`, `.safetensors`, `.gguf`) al contexto.
 
-*   **`trace`**: Gestiona las trazas de auditoría Axion.
-    ```bash
-    t81 trace show trace.txt
-    t81 trace diff trace_a.txt trace_b.txt
-    t81 trace replay hello.tisc trace.txt
-    ```
+### 6.1.3 Análisis de Traza (`trace`)
+El conjunto de subcomandos `trace` gestiona los registros de auditoría Axion.
 
-### 6.1.3 Gestión de Modelos
+*   `t81 trace show <trace_file>`: Volcado legible por humanos de una traza.
+*   `t81 trace diff <trace_a> <trace_b>`: Comparar dos trazas por divergencia.
+*   `t81 trace replay <program.tisc> <trace_file>`: Reejecutar un programa y verificar que produce exactamente la misma traza que el archivo.
 
-*   **`weights`**: Herramientas para importar y cuantizar pesos de redes neuronales.
-    ```bash
-    t81 weights import model.safetensors -o model.t81w
-    t81 weights info model.t81w
-    t81 weights quantize model.safetensors --to-gguf model.gguf
-    ```
+### 6.1.4 Modo Interactivo (`repl`)
+Lanza el bucle de Lectura-Evaluación-Impresión (REPL).
 
-*   **`canonize-tensor`**: Verifica y normaliza un archivo de tensor.
-    ```bash
-    t81 canonize-tensor model.t81w
-    ```
+```bash
+t81 repl
+```
+Comandos dentro de REPL:
+*   `:load <file>`: Cargar un script.
+*   `:model <path>`: Cargar un archivo de pesos dinámicamente.
+*   `:trace`: Mostrar la traza de la última ejecución.
 
-*   **`repro-hash`**: Calcula el hash canónico de un directorio para verificación.
-    ```bash
-    t81 repro-hash tests/fixtures/t81lang_determinism
-    ```
+## 6.2 Embebiendo T81 (API C++)
 
-> **Verificación**: Ejecuta `build/t81 --help` para ver el uso actual exacto.
+**Estado: Estable**
+
+Para embeber T81 en una aplicación host (ej. un motor de juegos o un nodo distribuido), usa `t81::vm::IVirtualMachine`.
+
+```cpp
+#include <t81/vm/vm.hpp>
+#include <t81/tisc/program.hpp>
+
+int main() {
+    // 1. Crear VM
+    auto vm = t81::vm::make_interpreter_vm();
+
+    // 2. Cargar Programa
+    auto prog = t81::tisc::load_program("main.tisc");
+    vm->load_program(prog);
+
+    // 3. Configurar Política
+    // (Opcional: Adjuntar hooks personalizados de Axion)
+
+    // 4. Ejecutar
+    auto result = vm->run_to_halt();
+    if (!result) {
+        std::cerr << "Atrapado: " << result.error().reason << "\n";
+    }
+}
+```
+
+## 6.3 Embebiendo T81 (API Python)
+
+**Estado: Implementado**
+
+Los bindings de Python permiten controlar la T81VM desde Python, principalmente para pruebas y orquestación.
+
+```python
+import t81
+
+# Crear VM
+vm = t81.VirtualMachine()
+
+# Cargar Código
+vm.load_source("""
+let x = 10;
+let y = 20;
+x + y;
+""")
+
+# Ejecutar
+result = vm.run()
+print(f"Resultado: {result}")
+```
+
+## 6.4 Depuración
+
+**Estado: Implementado**
+
+El comando `t81 debug` lanza un depurador estilo GDB para TISC.
+
+*   `step` / `s`: Paso de una instrucción.
+*   `next` / `n`: Paso sobre llamada.
+*   `reg`: Volcar registros.
+*   `stack`: Volcar pila.
+*   `trace`: Mostrar historial de traza reciente.
+
+```bash
+t81 debug main.tisc
+(t81-gdb) break 10
+(t81-gdb) run
+Breakpoint en PC=10
+(t81-gdb) reg r1
+r1 = 42 (Int)
+```

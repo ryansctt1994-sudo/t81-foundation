@@ -251,14 +251,7 @@ public:
    */
   [[nodiscard]] T81Float acos() const noexcept {
 #if defined(T81_DETERMINISTIC)
-    // In strict deterministic mode, we must not call host math.
-    // Fail compilation or return NaE?
-    // Since we don't have a dmath::acos yet, we can't support it.
-    // Ideally we static_assert, but that breaks existing code.
-    // We will return NaE or implement a poor man's version if needed?
-    // For now, allow it but warn via comments.
-    // Ideally we should implement dmath::acos/asin/atan soon.
-    return nae();  // Placeholder to enforce determinism if flag is set.
+    return core::detail::acos(*this);
 #else
     if (is_nae()) return *this;
     double x = to_double();
@@ -270,11 +263,11 @@ public:
 
   /**
    * @brief Arc sine of the value.
-   * @warning NON-DETERMINISTIC: Relies on host platform math.
+   * @warning NON-DETERMINISTIC: Relies on host platform math unless T81_DETERMINISTIC is defined.
    */
   [[nodiscard]] T81Float asin() const noexcept {
 #if defined(T81_DETERMINISTIC)
-    return nae();
+    return core::detail::asin(*this);
 #else
     if (is_nae()) return *this;
     double x = to_double();
@@ -285,11 +278,11 @@ public:
 
   /**
    * @brief Arc tangent of the value.
-   * @warning NON-DETERMINISTIC: Relies on host platform math.
+   * @warning NON-DETERMINISTIC: Relies on host platform math unless T81_DETERMINISTIC is defined.
    */
   [[nodiscard]] T81Float atan() const noexcept {
 #if defined(T81_DETERMINISTIC)
-    return nae();
+    return core::detail::atan(*this);
 #else
     if (is_nae()) return *this;
     return from_double(std::atan(to_double()));
@@ -298,11 +291,11 @@ public:
 
   /**
    * @brief Hyperbolic sine.
-   * @warning NON-DETERMINISTIC: Relies on host platform math.
+   * @warning NON-DETERMINISTIC: Relies on host platform math unless T81_DETERMINISTIC is defined.
    */
   [[nodiscard]] T81Float sinh() const noexcept {
 #if defined(T81_DETERMINISTIC)
-    return nae();
+    return core::detail::sinh(*this);
 #else
     if (is_nae()) return *this;
     return from_double(std::sinh(to_double()));
@@ -311,11 +304,11 @@ public:
 
   /**
    * @brief Hyperbolic cosine.
-   * @warning NON-DETERMINISTIC: Relies on host platform math.
+   * @warning NON-DETERMINISTIC: Relies on host platform math unless T81_DETERMINISTIC is defined.
    */
   [[nodiscard]] T81Float cosh() const noexcept {
 #if defined(T81_DETERMINISTIC)
-    return nae();
+    return core::detail::cosh(*this);
 #else
     if (is_nae()) return *this;
     return from_double(std::cosh(to_double()));
@@ -324,11 +317,11 @@ public:
 
   /**
    * @brief Hyperbolic tangent.
-   * @warning NON-DETERMINISTIC: Relies on host platform math.
+   * @warning NON-DETERMINISTIC: Relies on host platform math unless T81_DETERMINISTIC is defined.
    */
   [[nodiscard]] T81Float tanh() const noexcept {
 #if defined(T81_DETERMINISTIC)
-    return nae();
+    return core::detail::tanh(*this);
 #else
     if (is_nae()) return *this;
     return from_double(std::tanh(to_double()));
@@ -337,16 +330,11 @@ public:
 
   /**
    * @brief Power function x^exponent.
-   * @warning NON-DETERMINISTIC: Relies on host platform math.
+   * @warning NON-DETERMINISTIC: Relies on host platform math unless T81_DETERMINISTIC is defined.
    */
   [[nodiscard]] T81Float pow(T81Float exponent) const noexcept {
 #if defined(T81_DETERMINISTIC)
-    // dmath::pow not yet implemented.
-    // We could do exp(exponent * log(x)) using dmath functions?
-    // Yes, that would be deterministic!
-    // Let's do that for Phase 1 to maximize coverage.
-    if (is_nae() || exponent.is_nae()) return nae();
-    return core::detail::exp(exponent * core::detail::log(*this));
+    return core::detail::pow(*this, exponent);
 #else
     if (is_nae() || exponent.is_nae()) return nae();
     return from_double(std::pow(to_double(), exponent.to_double()));

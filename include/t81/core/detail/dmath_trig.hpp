@@ -2,6 +2,7 @@
 
 #include <utility>
 #include "t81/core/detail/dmath_constants.hpp"
+#include "t81/core/detail/dmath_logexp.hpp"
 #include "t81/core/detail/dmath_types.hpp"
 
 namespace t81::core::detail {
@@ -71,6 +72,66 @@ T sin(T x) {
 template <typename T>
 T cos(T x) {
   return sin(x + constants::pi_2<T>());
+}
+
+template <typename T>
+T tan(T x) {
+  return sin(x) / cos(x);
+}
+
+template <typename T>
+T atan(T x) {
+  if (x.is_negative()) return -atan(-x);
+
+  if (x > T::one()) {
+    return constants::pi_2<T>() - atan(T::one() / x);
+  }
+
+  // 0 <= x <= 1
+  // Argument reduction: if x > sqrt(2)-1 (~0.414), use atan(x) = pi/4 + atan((x-1)/(1+x))
+  // sqrt(2) - 1 = 0.4142135623730950488
+  T limit = T::from_decimal(0, 4142135623730950488ULL, 19);
+
+  if (x > limit) {
+    T num = x - T::one();
+    T den = T::one() + x;
+    return constants::pi_4<T>() + atan(num / den);
+  }
+
+  // Series expansion for small x
+  T x2 = x * x;
+  T sum = x;
+  T x_pow = x;
+
+  // 15 terms is sufficient for |x| <= 0.414
+  for (int n = 1; n <= 15; ++n) {
+    x_pow = x_pow * x2;
+    T term = x_pow / T(2 * n + 1);
+    if (n % 2 == 1) {
+      sum = sum - term;
+    } else {
+      sum = sum + term;
+    }
+  }
+  return sum;
+}
+
+template <typename T>
+T asin(T x) {
+  if (x > T::one() || x < -T::one()) return T::zero();  // Domain error
+  if (x.is_zero()) return T::zero();
+  if (x == T::one()) return constants::pi_2<T>();
+  if (x == -T::one()) return -constants::pi_2<T>();
+
+  T x2 = x * x;
+  T omx2 = T::one() - x2;
+  T sq = sqrt(omx2);
+  return atan(x / sq);
+}
+
+template <typename T>
+T acos(T x) {
+  return constants::pi_2<T>() - asin(x);
 }
 
 }  // namespace t81::core::detail

@@ -135,7 +135,7 @@ int main() {
       t81::axion::SyscallContext ctx;
       ctx.caller = "axion_policy_runner";
       ctx.syscall = "step";
-      ctx.pc = vm->state().pc;
+      ctx.pc = vm->state().contexts[0].pc;
       ctx.next_opcode = t81::tisc::Opcode::Halt;
       ctx.trace_reasons.reserve(vm->state().axion_log.size());
       for (const auto& entry : vm->state().axion_log) {

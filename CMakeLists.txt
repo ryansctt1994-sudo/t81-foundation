@@ -770,6 +770,11 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(t81_float_test tests/cpp/test_T81Float.cpp)
   target_link_libraries(t81_float_test PRIVATE t81_core)
 
+  add_executable(t81_float_deterministic_test tests/cpp/test_T81Float.cpp)
+  target_compile_definitions(t81_float_deterministic_test PRIVATE T81_DETERMINISTIC)
+  target_link_libraries(t81_float_deterministic_test PRIVATE t81_core)
+  add_test(NAME t81_float_deterministic_test COMMAND t81_float_deterministic_test)
+
   add_executable(t81_bigint_float_conversion_test tests/cpp/test_T81BigInt_Float_conversion.cpp)
   target_link_libraries(t81_bigint_float_conversion_test PRIVATE t81_core)
   add_test(NAME t81_bigint_float_conversion_test COMMAND t81_bigint_float_conversion_test)
@@ -1301,6 +1306,10 @@ if(T81_BUILD_TESTS)
   add_executable(t81_symbolic_vm_test tests/cpp/symbolic_vm_test.cpp)
   target_link_libraries(t81_symbolic_vm_test PRIVATE t81_core t81_tisc t81_vm)
   add_test(NAME t81_symbolic_vm_test COMMAND t81_symbolic_vm_test)
+
+  add_executable(test_concurrency tests/cpp/test_concurrency.cpp)
+  target_link_libraries(test_concurrency PRIVATE t81_core t81_tisc t81_vm)
+  add_test(NAME test_concurrency COMMAND test_concurrency)
 endif()
 
 # =============================================================================

@@ -1,5 +1,3 @@
-# T81 Foundation — Canonical .gitignore (2026 edition)
-
 # ── Build artifacts ─────────────────────────────────────────
 build*/
 cmake-build-*/
@@ -15,19 +13,39 @@ CMakeCache.txt
 CMakeFiles/
 CTestTestfile.cmake
 Testing/
-compile_commands.json   # ← remove or negate if you want it tracked
-!compile_commands.json  # ← recommended for clangd/ccls
 
-*.o *.obj *.a *.lib *.so *.dylib *.dll *.exe *.pdb *.ilk *.exp
-*.gcda *.gcno *.gcov *.profraw *.profdata *.cov
+# Keep compile_commands.json tracked (clangd/ccls)
+!compile_commands.json
+
+# Object / binary outputs
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+*.pdb
+*.ilk
+*.exp
+
+*.gcda
+*.gcno
+*.gcov
+*.profraw
+*.profdata
+*.cov
+
+*.dSYM/
 
 # Repo-specific binaries & test outputs
-t81
-axion_*
-canonfs_*
-llama*
-ir_inspector
-tisc_base81
+/t81
+/axion_*
+/canonfs_*
+/llama*
+/ir_inspector
+/tisc_base81
 *_demo
 *_test
 *_trace_test
@@ -41,11 +59,20 @@ conan*
 
 # ── Python / Jupyter ────────────────────────────────────────
 __pycache__/
-*.py[cod] *.pyc *.pyo *.pyd
-*.egg-info/ dist/ build/ .egg
-.venv/ venv/ env/ .env
-.pytest_cache/ .coverage coverage.xml htmlcov/
-.mypy_cache/ .ruff_cache/ .dmypy.json
+*.py[cod]
+*.egg-info/
+.egg
+.venv/
+venv/
+env/
+.env
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
 .ipynb_checkpoints/
 notebooks/.ipynb_checkpoints/
 
@@ -54,13 +81,19 @@ docs/_site/
 docs/.docusaurus/
 docs/api/
 pdf/output/
-pdf/*.aux pdf/*.log pdf/*.out pdf/*.toc
+pdf/*.aux
+pdf/*.log
+pdf/*.out
+pdf/*.toc
 
 # ── Editors / OS junk ───────────────────────────────────────
-.vscode/* !.vscode/settings.json !.vscode/launch.json !.vscode/tasks.json
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
 .idea/
 *~
-.DS_Store 
+.DS_Store
 Thumbs.db
 
 # ── Legacy hanoivm ──────────────────────────────────────────
@@ -68,6 +101,8 @@ legacy/hanoivm/**/*.{c,h,tex,dvi,pdf,log,aux,toc,idx,out}
 legacy/hanoivm/**/target/
 
 # ── Bazel leftovers ─────────────────────────────────────────
-MODULE.bazel WORKSPACE WORKSPACE.bzlmod bazel-* .bazelrc
-
-# Deliberately tracked: source files, compile_commands.json (for IDEs), Cargo.lock in libs, etc.
+MODULE.bazel
+WORKSPACE
+WORKSPACE.bzlmod
+bazel-*
+.bazelrc

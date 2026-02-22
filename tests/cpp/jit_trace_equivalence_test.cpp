@@ -149,9 +149,9 @@ Snapshot run_program(const Program& program) {
 
   Snapshot snap;
   const State& st = vm->state();
-  snap.regs.assign(st.registers.begin(), st.registers.end());
-  snap.tags.assign(st.register_tags.begin(), st.register_tags.end());
-  snap.pc = st.pc;
+  snap.regs.assign(st.contexts[0].registers.begin(), st.contexts[0].registers.end());
+  snap.tags.assign(st.contexts[0].register_tags.begin(), st.contexts[0].register_tags.end());
+  snap.pc = st.contexts[0].pc;
   snap.halted = st.halted;
   snap.trace_reasons.reserve(st.axion_log.size());
   for (const auto& entry : st.axion_log) {

@@ -57,13 +57,13 @@ int main() {
 
   const auto& state = vm->state();
 
-  std::cout << "Final call depth: " << state.call_depth << "\n";
-  std::cout << "Final tier: " << static_cast<int>(state.tier_status.current) << "\n";
+  std::cout << "Final call depth: " << state.contexts[0].call_depth << "\n";
+  std::cout << "Final tier: " << static_cast<int>(state.contexts[0].tier_status.current) << "\n";
 
   // Check if we reached Tier 2
-  if (state.tier_status.current != t81::cog::TierId::Tier2) {
+  if (state.contexts[0].tier_status.current != t81::cog::TierId::Tier2) {
     std::cerr << "Expected Tier 2 (" << static_cast<int>(t81::cog::TierId::Tier2) << "), got "
-              << static_cast<int>(state.tier_status.current) << "\n";
+              << static_cast<int>(state.contexts[0].tier_status.current) << "\n";
     return 1;
   }
 

@@ -1,0 +1,164 @@
+name: Determinism Demo (trace hash parity)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "src/**"
+      - "include/**"
+      - "tests/**"
+      - "hello.tisc"
+      - ".github/workflows/determinism_demo.yml"
+
+jobs:
+  run-trace:
+    name: Run trace on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Build your t81 binary here (adjust to your build system)
+      - name: Configure
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: |
+          cmake --build build -j 2
+
+      - name: Run hello.tisc with trace and compute hash
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+
+          # Optional: record provenance (helps debugging)
+          uname -a | tee out/platform.txt
+          git rev-parse HEAD | tee out/commit.txt
+
+          # Produce trace output deterministically
+          # Adjust flags to whatever your tracer uses.
+          ./build/t81 run hello.tisc --trace > out/trace.txt
+
+          # Canonicalize line endings (avoid CRLF surprises)
+          # (On macOS runners output is usually LF already, but this is cheap insurance.)
+          perl -pi -e 's/\r\n/\n/g' out/trace.txt
+
+          # Compute hash (use openssl for portability across macOS/Linux)
+          openssl dgst -sha256 out/trace.txt | awk '{print $2}' > out/trace.sha256
+
+          echo "TRACE_SHA256=$(cat out/trace.sha256)" >> "$GITHUB_ENV"
+          echo "hash=${TRACE_SHA256}"
+
+      - name: Upload trace + hash
+        uses: actions/upload-artifact@v4
+        with:
+          name: trace-${{ matrix.os }}
+          path: out/
+          if-no-files-found: error
+
+  compare:
+    name: Compare trace hashes (cross-platform)
+    needs: [run-trace]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download ubuntu artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: trace-ubuntu-latest
+          path: a/ubuntu
+
+      - name: Download macos artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: trace-macos-latest
+          path: a/macos
+
+      - name: Fail if hashes differ
+        shell: bash
+        run: |
+          set -euo pipefail
+          U=$(cat a/ubuntu/trace.sha256)
+          M=$(cat a/macos/trace.sha256)
+
+          echo "ubuntu sha256: $U"
+          echo "macos  sha256: $M"
+
+          if [[ "$U" != "$M" ]]; then
+            echo "::error::Trace hashes differ across platforms."
+            echo "Diff (first 200 lines):"
+            diff -u <(sed -n '1,200p' a/ubuntu/trace.txt) <(sed -n '1,200p' a/macos/trace.txt) || true
+            exit 1
+          fi
+
+          echo "OK: hashes match."
+
+  demo-gif:
+    name: Generate asciinema GIF (optional)
+    needs: [compare]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install asciinema + agg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y asciinema
+
+          # Install agg (asciinema gif generator) from GitHub releases
+          mkdir -p $HOME/.local/bin
+          # Using version 1.4.3 for stability
+          curl -L https://github.com/asciinema/agg/releases/download/v1.4.3/agg-x86_64-unknown-linux-gnu -o $HOME/.local/bin/agg
+          chmod +x $HOME/.local/bin/agg
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      # Build again (or download a build artifact if you already build elsewhere)
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build -j 2
+
+      - name: Record deterministic cast (no live typing)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+
+          # Create a "scripted session": asciinema records the terminal output of this command.
+          # Use a stable TERM + size so the GIF doesn’t flicker.
+          export TERM=xterm-256color
+          export COLUMNS=100
+          export LINES=28
+
+          cat > out/demo_cmd.sh <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          uname -a
+          git rev-parse HEAD
+          echo
+          ./build/t81 run hello.tisc --trace | tee out/trace.txt
+          echo
+          echo -n "sha256: "
+          openssl dgst -sha256 out/trace.txt | awk '{print $2}'
+          SH
+          chmod +x out/demo_cmd.sh
+
+          # --idle-time-limit trims dead air
+          asciinema rec out/demo.cast --command "bash out/demo_cmd.sh" --idle-time-limit 1
+
+      - name: Convert cast to GIF
+        run: |
+          agg out/demo.cast out/demo.gif --cols 100 --rows 28 --font-size 14 --speed 1.0
+
+      - name: Upload demo GIF
+        uses: actions/upload-artifact@v4
+        with:
+          name: determinism-demo
+          path: out/demo.gif
+          if-no-files-found: error

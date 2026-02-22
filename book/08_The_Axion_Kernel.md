@@ -4,84 +4,121 @@
 
 **Status: Implemented & Tested**
 
-The **Axion Kernel** is the capability-based supervisor that governs the execution of the T81VM. It enforces a strict separation between *mechanism* (TISC opcodes) and *policy* (safety constraints).
+The **Axion Kernel** is the guardian of the T81 runtime. Unlike traditional operating systems where security is enforced at the system call boundary (User/Kernel mode switch), Axion enforces security at the **instruction level**.
 
-Formally, Axion is a function $\mathcal{A}: (S, I) \to \{ \text{Allow}, \text{Deny}, \text{Warn}, \text{Defer} \}$, where $S$ is the current VM state and $I$ is the proposed instruction.
+Formally, the Axion Kernel is a function $\alpha$ that maps the current machine state $S$ and the proposed operation $Op$ to a verdict $V$:
+$$
+\alpha: (S, Op) \to \{\text{Allow}, \text{Deny}, \text{Warn}, \text{Defer}\}
+$$
+
+This evaluation happens **before** the state transition $S \xrightarrow{Op} S'$ occurs. If $\alpha(S, Op) = \text{Deny}$, the transition is aborted, and the machine traps with a `SecurityFault`.
 
 ## 8.2 The Policy Model
 
 **Status: Implemented**
 
-Axion policies are declarative rulesets that define the permissible envelope of execution.
+Policies are declarative rulesets that define the constraints for a specific execution context. A policy does not say *what* to compute, but *how* it is allowed to compute.
 
-### 8.2.1 Policy Grammar
-A policy document consists of:
-1.  **Directives**: Global constraints (e.g., `max_stack_depth`, `max_cycles`).
-2.  **Syscalls**: Permission grants for specific operations (`io.net`, `fs.read`).
-3.  **Tier Limits**: Maximum allowed Cognitive Tier.
-4.  **Ethics**: Configuration for the Nine Principles ($\Theta_1 \dots \Theta_9$).
+### 8.2.1 Policy Language (S-Expressions)
+Axion policies are defined using a Lisp-like S-expression syntax, ensuring easy parsing and canonicalization.
 
-```yaml
-policy:
-  version: "1.0"
-  directives:
-    max_stack_depth: 1024
-    max_cycles: 1000000
-    allow_recursion: true
-  syscalls:
-    - allow: "io.print"
-    - deny: "fs.write"
-  tiers:
-    max_tier: 3
+**Example: A Strict Tier 1 Policy**
+```lisp
+(policy
+  (tier 1)                  ; Restrict to Symbolic Tier (No recursion, no reflection)
+  (max-instructions 10000)  ; Hard gas limit
+  (max-stack 256)           ; Stack depth limit
+  (max-tensors 0)           ; No tensor allocations allowed
+  (allowed-tensor-hashes []) ; No external weights allowed
+)
 ```
+
+**Example: A Tier 3 AI Inference Policy**
+```lisp
+(policy
+  (tier 3)
+  (max-recursion 1024)
+  (max-tensors 50)
+  (max-tensor-elements 1000000)
+  (allowed-tensor-hashes [
+    "canon:sha3:a7f..." ; Specific allowed model weights
+  ])
+)
+```
+
+### 8.2.2 Capabilities
+Capabilities are granular permissions granted to a process.
+*   **NetAccess**: Ability to use `IoNet` handles (Tier 4).
+*   **MetaWrite**: Ability to modify the Meta segment (Reflection).
+*   **InfExpand**: Ability to instantiate infinite forms (Tier 5).
 
 ## 8.3 Instruction Interception
 
-**Status: Implemented**
+**Status: Implemented & Tested**
 
-The T81VM invokes Axion before executing sensitive instructions. This interception mechanism is the primary enforcement point.
+The Axion Kernel is integrated directly into the VM's fetch-decode-execute loop.
 
-### 8.3.1 The Syscall Interface
-The VM calls `eval_axion_call` (`src/vm/vm.cpp`) with a context containing:
-*   `caller`: The executing module.
-*   `syscall`: The operation identifier (e.g., `kAxRead`, `kMetaWrite`).
-*   `payload`: Arguments or target addresses.
-*   `pc`: Current program counter.
+### 8.3.1 The Interceptor Hook
+In `src/vm/vm.cpp`, the main loop invokes the policy engine:
 
-### 8.3.2 Verdicts
-Axion returns a `Verdict` struct:
-*   **Allow**: The operation proceeds.
-*   **Deny**: The operation is blocked, and the VM traps with `SecurityFault`.
-*   **Warn**: The operation proceeds, but a warning is logged in the trace.
-*   **Defer**: The decision is deferred to a higher-tier logic.
+```cpp
+// Pseudocode of the Interpreter Loop
+while (!halted) {
+    Opcode op = fetch();
+
+    // 1. Axion Check
+    Verdict v = axion->evaluate(ctx);
+    if (v == Verdict::Deny) {
+        throw SecurityFault(v.reason);
+    }
+
+    // 2. Execution
+    execute(op);
+
+    // 3. Audit Logging
+    if (v == Verdict::Warn || policy.audit_all) {
+        trace.log(op, v, state_hash);
+    }
+}
+```
+
+### 8.3.2 Zero-Cost Abstractions?
+No. T81 explicitly rejects "Zero-Cost Abstractions" if they compromise safety. The Axion check imposes a performance overhead. This is a deliberate design choice: **Correctness > Performance**. However, for JIT-compiled traces, the policy checks are performed once during trace recording and baked into the optimized trace as guarded assertions, reducing runtime overhead significantly.
 
 ## 8.4 The Audit Log (Trace)
 
-**Status: Implemented**
+**Status: Implemented & Tested**
 
-Every significant Axion decision is recorded in the **Axion Trace**. This log is an append-only sequence of `AxionEvent` records.
+The **Trace** is the cryptographic proof of what happened. It is not just a debug log; it is a Merkle chain of events.
 
-> **Reference**: See `include/t81/axion/api.hpp` for the `AxionEvent` and `Verdict` definitions.
+### 8.4.1 Trace Structure
+Each entry in the log contains:
+1.  **Tick**: The logical clock time.
+2.  **Opcode**: The instruction executed.
+3.  **Verdict**: The Axion decision.
+4.  **StateHash**: A SHA3-256 hash of the relevant machine state *after* the operation.
+
+$$
+H_{t} = \text{Hash}(H_{t-1} || \text{Op}_t || \text{Verdict}_t || \text{StateDiff}_t)
+$$
+
+The final hash $H_n$ is the **Proof of Execution**. If two parties run the same code and get the same $H_n$, they are cryptographically guaranteed to have reached the exact same state via the exact same path.
 
 ## 8.5 Cognitive Promotion
 
 **Status: Implemented**
 
-Axion manages the escalation of privileges through **Cognitive Tiers**. When a program attempts to exceed its current tier's limits (e.g., recursion depth > 81), the VM checks the policy. If allowed, the tier is promoted; otherwise, it traps.
+A program starts at a specific Cognitive Tier (usually Tier 1). It may request **Promotion** to a higher tier to perform more complex operations.
 
-> **Verification**: See `Opcode::Call` handling in `src/vm/vm.cpp`.
+*   **Request**: The program executes a `Promote` opcode with a signed capability token.
+*   **Evaluation**: Axion validates the token against the policy.
+*   **Result**: If allowed, the VM's `tier_status` is updated, unlocking new opcodes (e.g., `Recurse` or `Gossip`).
 
-## 8.6 Capability Model
+**Tier Escalation Path**:
+1.  **Tier 1**: Safe, bounded, polynomial time.
+2.  **Tier 2**: Dynamic, reflective.
+3.  **Tier 3**: Recursive, exponential time potential (requires gas limits).
+4.  **Tier 4**: Non-local, network dependent (requires consensus limits).
+5.  **Tier 5**: Infinite (requires strict containment).
 
-**Status: Implemented**
-
-Axion implements an Object-Capability (OCap) model. Resources (files, network sockets) are represented as unforgeable handles.
-*   **Creation**: Only authorized syscalls can create handles.
-*   **Use**: Opcodes operate on handles, not raw addresses.
-*   **Revocation**: Handles can be revoked by the policy at any time.
-
-## 8.7 Verification Checklist
-
-*   [ ] **Interception**: Do all opcodes in `src/vm/vm.cpp` that touch memory/IO call `eval_axion_call`? (Verified by inspection)
-*   [ ] **Verdict**: Does `VerdictKind::Deny` always result in a `SecurityFault`? (Verified by `tests/cpp/vm_fault_test.cpp`)
-*   [ ] **Trace**: Is every Axion decision logged with a correct `tag` and `value`? (Verified by `tests/cpp/axion_log_determinism_test.cpp`)
+> **Verification**: `tests/cpp/test_ethics.cpp` verifies that attempts to use Tier 3 opcodes in a Tier 1 policy result in a `SecurityFault`.

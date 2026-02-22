@@ -36,7 +36,7 @@ int main() {
     Insn i4{Opcode::Halt};
 
     auto vm = run_program({i1, i2, i3, i4});
-    T81_TEST_CHECK(vm->state().registers[3] == 42);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[3] == 42);
     std::cout << "  MetaRead Registers: PASS\n";
 
     Insn i5{Opcode::LoadImm, 4, 81};
@@ -45,7 +45,7 @@ int main() {
     Insn i8{Opcode::Halt};
 
     vm = run_program({i5, i6, i7, i8});
-    T81_TEST_CHECK(vm->state().registers[6] == 81);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[6] == 81);
     std::cout << "  MetaWrite Registers: PASS\n";
   }
 
@@ -67,14 +67,14 @@ int main() {
 
     vm->step();  // PC 0
     vm->step();  // PC 1
-    T81_TEST_CHECK(vm->state().registers[1] == 20);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 20);
     vm->step();  // PC 2
     vm->step();  // PC 3
     vm->step();  // PC 4 (patch)
     vm->step();  // PC 5 (jump 1)
-    T81_TEST_CHECK(vm->state().pc == 1);
+    T81_TEST_CHECK(vm->state().contexts[0].pc == 1);
     vm->step();  // PC 1 (patched)
-    T81_TEST_CHECK(vm->state().registers[1] == 1010);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 1010);
 
     std::cout << "  Self-Patching (CODE segment): PASS\n";
   }
@@ -86,8 +86,8 @@ int main() {
     Insn halt{Opcode::Halt};
 
     auto vm = run_program({reflect, refine, halt});
-    T81_TEST_CHECK(vm->state().registers[1] != 0);
-    T81_TEST_CHECK(vm->state().registers[2] == 0);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[1] != 0);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[2] == 0);
     std::cout << "  MetaReflect/MetaRefine: PASS\n";
   }
 

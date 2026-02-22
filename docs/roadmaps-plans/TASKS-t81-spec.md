@@ -64,15 +64,15 @@
     - [x] ReflCheck, ReflTrace, ReflSeal
     - [x] Tier 3 Recursive Opcodes (Recurse, Contract, Entropy, Depth, Terminate)
   - [x+] Infinite Series Compression (Geometric Series, see `src/cog/tier5/infinite.cpp`, `src/vm/vm.cpp`)
-- [ ] Concurrency Model (spec section 3)
-  - [ ] Multiple execution contexts / threads support
-  - [ ] Shared memory segments
+- [x] Concurrency Model (spec section 3)
+  - [x] Multiple execution contexts / threads support
+  - [x] Shared memory segments
 - [x] Literal Pools
   - [x] Verify deterministic pool extension for conversions (`I2F`, etc.)
 - [x] Code Segment Protection
   - [x] Verify enforcement of "Writable only via privileged loader" (Enforced in VM: MetaWrite/MetaRefine denied on Code segment)
-- [ ] Libm Gap Mitigation
-  - [ ] Plan/Implement software float math for full cross-platform determinism
+- [x] Libm Gap Mitigation
+  - [x] Plan/Implement software float math for full cross-platform determinism (Added deterministic `pow`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh` in `dmath` backend)
 
 ## 5. CanonFS & Tensor Storage (section 11)
 - [x+] In-memory read/write throughput (see `src/canonfs/in_memory_driver.cpp`)

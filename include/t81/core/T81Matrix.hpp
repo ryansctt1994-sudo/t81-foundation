@@ -7,10 +7,12 @@
 #include <algorithm>
 #include <array>
 #include <bit>
+#include <cmath>
 #include <compare>
 #include <cstddef>
 #include <cstring>
 #include <span>
+#include <type_traits>
 #include <utility>
 #include "t81/core/T81Complex.hpp"
 #include "t81/core/T81Fixed.hpp"
@@ -49,6 +51,39 @@ private:
       return x;
     } else
       return x;
+  }
+
+  static constexpr bool is_effectively_zero(const Scalar& x) {
+    if constexpr (std::is_floating_point_v<Scalar>) {
+      // Standard float/double
+      return std::abs(x) < 1e-12;
+    } else if constexpr (requires {
+                           x.to_double();
+                           Scalar::kExponentTrits;
+                         }) {
+      // T81Float specific check: rely on double conversion + tolerance
+      if (std::is_constant_evaluated()) {
+        return x == Scalar(0);
+      }
+      return std::abs(x.to_double()) < 1e-12;
+    } else if constexpr (requires {
+                           x.real();
+                           x.imag();
+                         }) {
+      // T81Complex check: verify both components
+      if (std::is_constant_evaluated()) return x == Scalar(0);
+      auto re = x.real();
+      auto im = x.imag();
+      // Only apply fuzzy check if components support to_double()
+      if constexpr (requires { re.to_double(); }) {
+        return std::abs(re.to_double()) < 1e-12 && std::abs(im.to_double()) < 1e-12;
+      } else {
+        return x == Scalar(0);
+      }
+    } else {
+      // T81Fixed, T81Int, and others: exact zero check
+      return x == Scalar(0);
+    }
   }
 
 public:
@@ -138,7 +173,7 @@ public:
           det = -det;
         }
 
-        if (temp(i, i) == Scalar(0)) return Scalar(0);
+        if (is_effectively_zero(temp(i, i))) return Scalar(0);
 
         det = det * temp(i, i);
         Scalar div = temp(i, i);
@@ -199,7 +234,7 @@ public:
           if (get_magnitude(work(k, i)) > get_magnitude(work(pivot, i))) pivot = k;
         }
 
-        if (work(pivot, i) == Scalar(0)) return T81Matrix();  // Singular
+        if (is_effectively_zero(work(pivot, i))) return T81Matrix();  // Singular
 
         if (pivot != i) {
           for (size_t j = 0; j < Cols; ++j) {

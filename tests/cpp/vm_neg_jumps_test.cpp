@@ -16,9 +16,9 @@ int main() {
     vm->load_program(p);
     [[maybe_unused]] auto r = vm->run_to_halt();
     T81_TEST_CHECK(r.has_value());
-    T81_TEST_CHECK(vm->state().registers[2] == -42);
-    T81_TEST_CHECK(vm->state().flags.negative);
-    T81_TEST_CHECK(!vm->state().flags.zero);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[2] == -42);
+    T81_TEST_CHECK(vm->state().contexts[0].flags.negative);
+    T81_TEST_CHECK(!vm->state().contexts[0].flags.zero);
   }
 
   // Test JumpIfNegative opcode.
@@ -35,7 +35,7 @@ int main() {
     vm->load_program(p);
     [[maybe_unused]] auto r = vm->run_to_halt();
     T81_TEST_CHECK(r.has_value());
-    T81_TEST_CHECK(vm->state().registers[1] == 0);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 0);
   }
 
   // Test JumpIfPositive opcode.
@@ -52,7 +52,7 @@ int main() {
     vm->load_program(p);
     [[maybe_unused]] auto r = vm->run_to_halt();
     T81_TEST_CHECK(r.has_value());
-    T81_TEST_CHECK(vm->state().registers[1] == 0);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 0);
   }
 
   // Test JumpIfNegative fall-through.
@@ -69,7 +69,7 @@ int main() {
     vm->load_program(p);
     [[maybe_unused]] auto r = vm->run_to_halt();
     T81_TEST_CHECK(r.has_value());
-    T81_TEST_CHECK(vm->state().registers[1] == 99);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 99);
   }
 
   // Test JumpIfPositive fall-through.
@@ -86,7 +86,7 @@ int main() {
     vm->load_program(p);
     [[maybe_unused]] auto r = vm->run_to_halt();
     T81_TEST_CHECK(r.has_value());
-    T81_TEST_CHECK(vm->state().registers[1] == 99);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 99);
   }
 
   // Test chained Neg and JumpIfNegative.
@@ -102,7 +102,7 @@ int main() {
     vm->load_program(p);
     [[maybe_unused]] auto r = vm->run_to_halt();
     T81_TEST_CHECK(r.has_value());
-    T81_TEST_CHECK(vm->state().registers[1] == 0);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 0);
   }
 
   return 0;
