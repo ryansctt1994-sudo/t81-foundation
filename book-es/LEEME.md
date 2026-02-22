@@ -87,6 +87,7 @@ Y la restricción, cuando se aplica deliberadamente, es una forma de claridad.
 <summary><strong>Parte I — Fundamentos</strong></summary>
 
 1. **[Introducción](./01_Introduccion.md)**
+
    * [1.1 Alcance y Definición](./01_Introduccion.md#11-alcance-y-definición)
    * [1.2 Arquitectura del Sistema](./01_Introduccion.md#12-arquitectura-del-sistema)
    * [1.3 Misión de Cómputo Verificable](./01_Introduccion.md#13-misión-de-cómputo-verificable)
@@ -94,7 +95,9 @@ Y la restricción, cuando se aplica deliberadamente, es una forma de claridad.
    * [1.5 Lista de Verificación](./01_Introduccion.md#15-lista-de-verificación)
 
 2. **[Principios e Invariantes Centrales](./02_Principios.md)**
+
    * [2.1 El Invariante de Determinismo](./02_Principios.md#21-el-invariante-de-determinismo)
+   * [2.1.1 Superficies de Determinismo y Vectores de Ataque](./02_Principios.md#211-superficies-de-determinismo-y-vectores-de-ataque)
    * [2.2 Lógica Ternaria (Base-3)](./02_Principios.md#22-lógica-ternaria-base-3)
    * [2.3 Auditabilidad y la Traza Axion](./02_Principios.md#23-auditabilidad-y-la-traza-axion)
    * [2.4 Los Nueve Principios (Cumplimiento Ético)](./02_Principios.md#24-los-nueve-principios-cumplimiento-ético)
@@ -107,25 +110,33 @@ Y la restricción, cuando se aplica deliberadamente, es una forma de claridad.
 <summary><strong>Parte II — La Máquina Determinista</strong></summary>
 
 3. **[Arquitectura T81VM](./03_Arquitectura.md)**
+
    * [3.1 Visión General](./03_Arquitectura.md#31-visión-general)
    * [3.2 El Límite del Runtime](./03_Arquitectura.md#32-el-límite-del-runtime)
    * [3.3 Modelo de Memoria](./03_Arquitectura.md#33-modelo-de-memoria)
    * [3.4 El Conjunto de Instrucciones (TISC)](./03_Arquitectura.md#34-el-conjunto-de-instrucciones-tisc)
    * [3.5 Compilación JIT (Trace-JIT)](./03_Arquitectura.md#35-compilación-jit-trace-jit)
 
-4. **[Tipos de Datos y Serialización Canónica](./04_Tipos_de_Datos_y_Serializacion.md)**
+4. **[Tipos de Datos y Serialización](./04_Tipos_de_Datos_y_Serializacion.md)**
+
    * [4.1 Tipos Primitivos](./04_Tipos_de_Datos_y_Serializacion.md#41-tipos-primitivos)
    * [4.2 T81Float y dmath](./04_Tipos_de_Datos_y_Serializacion.md#42-t81float-y-dmath)
    * [4.3 Tensores y Diseños Canónicos](./04_Tipos_de_Datos_y_Serializacion.md#43-tensores-y-diseños-canónicos)
    * [4.4 Reglas de Serialización Canónica](./04_Tipos_de_Datos_y_Serializacion.md#44-reglas-de-serialización-canónica)
 
 5. **[Instalación y Verificación de Construcción](./05_Instalacion.md)**
+
    * [5.1 Requisitos Previos](./05_Instalacion.md#51-requisitos-previos)
-   * [5.2 Procedimiento de Construcción](./05_Instalacion.md#52-procedimiento-de-construcción)
-   * [5.3 Puerta de Determinismo](./05_Instalacion.md#53-puerta-de-determinismo)
+   * [5.2 Construcción desde la Fuente](./05_Instalacion.md#52-construcción-desde-la-fuente)
+   * [5.3 Verificando la Construcción](./05_Instalacion.md#53-verificando-la-construcción)
+   * [5.4 Solución de Problemas](./05_Instalacion.md#54-solución-de-problemas)
 
 6. **[Uso de CLI y API](./06_Uso.md)**
-   * [6.1 La CLI Unificada](./06_Uso.md#61-la-cli-unificada)
+
+   * [6.1 La Interfaz de Línea de Comandos T81](./06_Uso.md#61-la-interfaz-de-línea-de-comandos-t81)
+   * [6.2 Embebiendo T81 (API C++)](./06_Uso.md#62-embebiendo-t81-api-c)
+   * [6.3 Embebiendo T81 (API Python)](./06_Uso.md#63-embebiendo-t81-api-python)
+   * [6.4 Depuración](./06_Uso.md#64-depuración)
 
 </details>
 
@@ -133,29 +144,32 @@ Y la restricción, cuando se aplica deliberadamente, es una forma de claridad.
 <summary><strong>Parte III — Gobernanza y Verificación</strong></summary>
 
 7. **[Verificación y Auditoría](./07_Verificacion_y_Auditoria.md)**
-   * [7.1 El Stack de Verificación](./07_Verificacion_y_Auditoria.md#71-el-stack-de-verificación)
-   * [7.2 Puerta de Determinismo](./07_Verificacion_y_Auditoria.md#72-puerta-de-determinismo)
-   * [7.3 Verificación de Traza](./07_Verificacion_y_Auditoria.md#73-verificación-de-traza)
+
+   * [7.1 Metodología de Verificación Formal](./07_Verificacion_y_Auditoria.md#71-metodología-de-verificación-formal)
+   * [7.2 La Matriz de Auditoría Formal](./07_Verificacion_y_Auditoria.md#72-la-matriz-de-auditoría-formal)
+   * [7.3 Pruebas Basadas en Propiedades](./07_Verificacion_y_Auditoria.md#73-pruebas-basadas-en-propiedades)
+   * [7.4 La Puerta de Determinismo](./07_Verificacion_y_Auditoria.md#74-la-puerta-de-determinismo)
 
 8. **[El Kernel de Seguridad Axion](./08_El_Kernel_Axion.md)**
+
    * [8.1 Definición Formal](./08_El_Kernel_Axion.md#81-definición-formal)
    * [8.2 El Modelo de Políticas](./08_El_Kernel_Axion.md#82-el-modelo-de-políticas)
    * [8.3 Intercepción de Instrucciones](./08_El_Kernel_Axion.md#83-intercepción-de-instrucciones)
    * [8.4 El Registro de Auditoría (Traza)](./08_El_Kernel_Axion.md#84-el-registro-de-auditoría-traza)
    * [8.5 Promoción Cognitiva](./08_El_Kernel_Axion.md#85-promoción-cognitiva)
-   * [8.6 Modelo de Capacidades](./08_El_Kernel_Axion.md#86-modelo-de-capacidades)
-   * [8.7 Lista de Verificación](./08_El_Kernel_Axion.md#87-lista-de-verificación)
 
 9. **[Niveles Cognitivos y Cómputo Distribuido](./09_Niveles_Cognitivos_y_Computo_Distribuido.md)**
+
    * [9.1 El Modelo de Niveles Cognitivos](./09_Niveles_Cognitivos_y_Computo_Distribuido.md#91-el-modelo-de-niveles-cognitivos)
    * [9.2 Cómputo Distribuido (Nivel 4)](./09_Niveles_Cognitivos_y_Computo_Distribuido.md#92-cómputo-distribuido-nivel-4)
-   * [9.3 Formas Infinitas (Nivel 5)](./09_Niveles_Cognitivos_y_Computo_Distribuido.md#93-formas-infinitas-nivel-5)
-   * [9.4 Lista de Verificación](./09_Niveles_Cognitivos_y_Computo_Distribuido.md#94-lista-de-verificación)
+   * [9.3 Compilación JIT Basada en Trazas](./09_Niveles_Cognitivos_y_Computo_Distribuido.md#93-compilación-jit-basada-en-trazas)
+   * [9.4 Formas Infinitas (Nivel 5)](./09_Niveles_Cognitivos_y_Computo_Distribuido.md#94-formas-infinitas-nivel-5)
 
 10. **[Apéndices](./10_Apendices.md)**
-    * [10.1 Lo Que Aún No Está Implementado](./10_Apendices.md#101-lo-que-aún-no-está-implementado)
-    * [10.2 Códigos de Error](./10_Apendices.md#102-códigos-de-error)
-    * [10.3 Enlaces Útiles](./10_Apendices.md#103-enlaces-útiles)
+
+* [10.1 Lo Que Aún No Está Implementado](./10_Apendices.md#101-lo-que-aún-no-está-implementado)
+* [10.2 Glosario](./10_Apendices.md#102-glosario)
+* [10.3 Enlaces Útiles](./10_Apendices.md#103-enlaces-útiles)
 
 </details>
 
@@ -163,12 +177,21 @@ Y la restricción, cuando se aplica deliberadamente, es una forma de claridad.
 <summary><strong>Parte IV — Formalización y Endurecimiento Estructural</strong></summary>
 
 11. **[Semántica Formal de TISC y T81VM](./11_Semantica_Formal.md)**
-    * [11.1 Semántica Operacional](./11_Semantica_Formal.md#111-semántica-operacional)
-    * [11.2 Semántica de Memoria](./11_Semantica_Formal.md#112-semántica-de-memoria)
 
-12. **[Modelado Adversarial y Ataques al Determinismo](./12_Modelado_Adversarial.md)**
-    * [12.1 Modelo de Amenazas](./12_Modelado_Adversarial.md#121-modelo-de-amenazas)
-    * [12.2 Resiliencia a Canales Laterales](./12_Modelado_Adversarial.md#122-resiliencia-a-canales-laterales)
+* [11.1 Semántica Operacional](./11_Semantica_Formal.md#111-semántica-operacional)
+* [11.2 Función de Transición Algebraica](./11_Semantica_Formal.md#112-función-de-transición-algebraica)
+* [11.3 Sistema de Reescritura de Canonicalización](./11_Semantica_Formal.md#113-sistema-de-reescritura-de-canonicalización)
+* [11.4 Bocetos de Prueba de Determinismo](./11_Semantica_Formal.md#114-bocetos-de-prueba-de-determinismo)
+* [11.5 Equivalencia Intérprete vs Trace-JIT](./11_Semantica_Formal.md#115-equivalencia-intérprete-vs-trace-jit)
+
+12. **[Modelado Adversarial y Ataques de Determinismo](./12_Modelado_Adversarial.md)**
+
+* [12.1 Modelo de Amenazas](./12_Modelado_Adversarial.md#121-modelo-de-amenazas)
+* [12.2 Ataques a Nivel de Compilador](./12_Modelado_Adversarial.md#122-ataques-a-nivel-de-compilador)
+* [12.3 Vectores de Ataque de VM y GC](./12_Modelado_Adversarial.md#123-vectores-de-ataque-de-vm-y-gc)
+* [12.4 Ataques a CanonFS y Hash](./12_Modelado_Adversarial.md#124-ataques-a-canonfs-y-hash)
+* [12.5 Ataque de Viaje en el Tiempo de Nivel Distribuido](./12_Modelado_Adversarial.md#125-ataque-de-viaje-en-el-tiempo-de-nivel-distribuido)
+* [12.6 Plantilla Post-Mortem de Brecha de Determinismo](./12_Modelado_Adversarial.md#126-plantilla-post-mortem-de-brecha-de-determinismo)
 
 </details>
 
@@ -176,10 +199,17 @@ Y la restricción, cuando se aplica deliberadamente, es una forma de claridad.
 <summary><strong>Parte V — Continuidad y Horizonte de Investigación</strong></summary>
 
 13. **[Continuidad y Resiliencia](./13_Continuidad_Resiliencia.md)**
-    * [13.1 El Protocolo de Sala Limpia](./13_Continuidad_Resiliencia.md#131-el-protocolo-de-sala-limpia)
-    * [13.2 Archivo a Largo Plazo](./13_Continuidad_Resiliencia.md#132-archivo-a-largo-plazo)
+
+* [13.1 El Protocolo de Sala Limpia](./13_Continuidad_Resiliencia.md#131-el-protocolo-de-sala-limpia)
+* [13.2 Puntos Únicos de Fallo](./13_Continuidad_Resiliencia.md#132-puntos-únicos-de-fallo)
+* [13.3 Manifiesto de Continuidad](./13_Continuidad_Resiliencia.md#133-manifiesto-de-continuidad)
+* [13.4 Invariantes Formales Inmutables](./13_Continuidad_Resiliencia.md#134-invariantes-formales-inmutables)
 
 14. **[Frontera de Investigación](./14_Frontera_de_Investigacion.md)**
-    * [Historial de Versiones](./14_Frontera_de_Investigacion.md#historial-de-versiones)
+
+* [14.1 Aceleración de Hardware Ternario](./14_Frontera_de_Investigacion.md#141-aceleración-de-hardware-ternario)
+* [14.2 Rutas de Verificación Formal](./14_Frontera_de_Investigacion.md#142-rutas-de-verificación-formal)
+* [14.3 CanonFS como Sustrato Merkle](./14_Frontera_de_Investigacion.md#143-canonfs-como-sustrato-merkle)
+* [14.4 Inferencia de IA Determinista a Escala](./14_Frontera_de_Investigacion.md#144-inferencia-de-ia-determinista-a-escala)
 
 </details>

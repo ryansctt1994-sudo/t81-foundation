@@ -4,84 +4,121 @@
 
 **状态：已实现并测试**
 
-**Axion 内核** 是管理 T81VM 执行的基于能力的监督器。它强制执行 *机制*（TISC 操作码）与 *策略*（安全约束）之间的严格分离。
+**Axion 内核** 是 T81 运行时的守护者。与在系统调用边界（用户/内核模式切换）强制执行安全性的传统操作系统不同，Axion 在 **指令级别** 强制执行安全性。
 
-形式上，Axion 是一个函数 $\mathcal{A}: (S, I) \to \{ \text{Allow}, \text{Deny}, \text{Warn}, \text{Defer} \}$，其中 $S$ 是当前 VM 状态，$I$ 是拟执行的指令。
+形式上，Axion 内核是一个函数 $\alpha$，它将当前机器状态 $S$ 和建议的操作 $Op$ 映射到一个裁决 $V$：
+$$
+\alpha: (S, Op) \to \{\text{Allow}, \text{Deny}, \text{Warn}, \text{Defer}\}
+$$
+
+此评估发生在状态转换 $S \xrightarrow{Op} S'$ 发生 **之前**。如果 $\alpha(S, Op) = \text{Deny}$，转换被中止，机器陷入 `SecurityFault`。
 
 ## 8.2 策略模型
 
 **状态：已实现**
 
-Axion 策略是定义允许执行范围的声明性规则集。
+策略是声明性的规则集，定义了特定执行上下文的约束。策略不规定 *计算什么*，而是规定 *如何* 允许计算。
 
-### 8.2.1 策略语法
-一个策略文档包括：
-1.  **指令**：全局约束（例如，`max_stack_depth`, `max_cycles`）。
-2.  **系统调用**：特定操作的许可授予（`io.net`, `fs.read`）。
-3.  **层级限制**：最大允许的认知层级。
-4.  **伦理**：九项原则的配置 ($\Theta_1 \dots \Theta_9$)。
+### 8.2.1 策略语言 (S-表达式)
+Axion 策略使用类似 Lisp 的 S-表达式语法定义，确保易于解析和规范化。
 
-```yaml
-policy:
-  version: "1.0"
-  directives:
-    max_stack_depth: 1024
-    max_cycles: 1000000
-    allow_recursion: true
-  syscalls:
-    - allow: "io.print"
-    - deny: "fs.write"
-  tiers:
-    max_tier: 3
+**示例：严格的第 1 层策略**
+```lisp
+(policy
+  (tier 1)                  ; 限制为符号层（无递归，无反射）
+  (max-instructions 10000)  ; 硬 Gas 限制
+  (max-stack 256)           ; 栈深度限制
+  (max-tensors 0)           ; 不允许分配张量
+  (allowed-tensor-hashes []) ; 不允许外部权重
+)
 ```
+
+**示例：第 3 层 AI 推理策略**
+```lisp
+(policy
+  (tier 3)
+  (max-recursion 1024)
+  (max-tensors 50)
+  (max-tensor-elements 1000000)
+  (allowed-tensor-hashes [
+    "canon:sha3:a7f..." ; 特定的允许模型权重
+  ])
+)
+```
+
+### 8.2.2 能力 (Capabilities)
+能力是授予进程的细粒度权限。
+*   **NetAccess**：使用 `IoNet` 句柄的能力（第 4 层）。
+*   **MetaWrite**：修改元数据段的能力（反射）。
+*   **InfExpand**：实例化无限形式的能力（第 5 层）。
 
 ## 8.3 指令拦截
 
-**状态：已实现**
+**状态：已实现并测试**
 
-T81VM 在执行敏感指令之前调用 Axion。这种拦截机制是主要的强制执行点。
+Axion 内核直接集成到 VM 的取指-译码-执行循环中。
 
-### 8.3.1 系统调用接口
-VM 调用 `eval_axion_call` (`src/vm/vm.cpp`)，上下文包含：
-*   `caller`：执行模块。
-*   `syscall`：操作标识符（例如，`kAxRead`, `kMetaWrite`）。
-*   `payload`：参数或目标地址。
-*   `pc`：当前程序计数器。
+### 8.3.1 拦截器钩子
+在 `src/vm/vm.cpp` 中，主循环调用策略引擎：
 
-### 8.3.2 裁决
-Axion 返回一个 `Verdict` 结构体：
-*   **Allow**：操作继续进行。
-*   **Deny**：操作被阻止，VM 陷入 `SecurityFault`。
-*   **Warn**：操作继续进行，但警告被记录在追踪中。
-*   **Defer**：决定被推迟到更高层级的逻辑。
+```cpp
+// 解释器循环伪代码
+while (!halted) {
+    Opcode op = fetch();
+
+    // 1. Axion 检查
+    Verdict v = axion->evaluate(ctx);
+    if (v == Verdict::Deny) {
+        throw SecurityFault(v.reason);
+    }
+
+    // 2. 执行
+    execute(op);
+
+    // 3. 审计日志
+    if (v == Verdict::Warn || policy.audit_all) {
+        trace.log(op, v, state_hash);
+    }
+}
+```
+
+### 8.3.2 零成本抽象？
+不。如果零成本抽象损害安全性，T81 明确拒绝它们。Axion 检查会带来性能开销。这是一个故意的设计选择：**正确性 > 性能**。然而，对于 JIT 编译的追踪，策略检查在追踪记录期间执行一次，并作为受保护的断言烘焙到优化的追踪中，从而显着减少运行时开销。
 
 ## 8.4 审计日志 (追踪)
 
-**状态：已实现**
+**状态：已实现并测试**
 
-每个重要的 Axion 决定都记录在 **Axion 追踪** 中。该日志是 `AxionEvent` 记录的仅追加序列。
+**追踪 (Trace)** 是发生了什么的加密证明。它不仅仅是一个调试日志；它是事件的 Merkle 链。
 
-> **参考**：参见 `include/t81/axion/api.hpp` 获取 `AxionEvent` 和 `Verdict` 的定义。
+### 8.4.1 追踪结构
+日志中的每个条目包含：
+1.  **Tick**：逻辑时钟时间。
+2.  **Opcode**：执行的指令。
+3.  **Verdict**：Axion 的决定。
+4.  **StateHash**：操作 *之后* 相关机器状态的 SHA3-256 哈希。
+
+$$
+H_{t} = \text{Hash}(H_{t-1} || \text{Op}_t || \text{Verdict}_t || \text{StateDiff}_t)
+$$
+
+最终哈希 $H_n$ 是 **执行证明**。如果两方运行相同的代码并获得相同的 $H_n$，他们在密码学上保证通过完全相同的路径达到了完全相同的状态。
 
 ## 8.5 认知提升
 
 **状态：已实现**
 
-Axion 通过 **认知层 (Cognitive Tiers)** 管理特权的升级。当程序试图超出其当前层级的限制（例如，递归深度 > 81）时，VM 检查策略。如果允许，层级将被提升；否则，它将陷入陷阱。
+程序从特定的认知层（通常是第 1 层）开始。它可能会请求 **提升 (Promotion)** 到更高的层级以执行更复杂的操作。
 
-> **验证**：参见 `src/vm/vm.cpp` 中的 `Opcode::Call` 处理。
+*   **请求**：程序执行带有签名能力令牌的 `Promote` 操作码。
+*   **评估**：Axion 根据策略验证令牌。
+*   **结果**：如果允许，VM 的 `tier_status` 更新，解锁新的操作码（例如，`Recurse` 或 `Gossip`）。
 
-## 8.6 能力模型
+**层级升级路径**：
+1.  **第 1 层**：安全、有界、多项式时间。
+2.  **第 2 层**：动态、反射。
+3.  **第 3 层**：递归、指数时间潜力（需要 Gas 限制）。
+4.  **第 4 层**：非本地、网络依赖（需要共识限制）。
+5.  **第 5 层**：无限（需要严格遏制）。
 
-**状态：已实现**
-
-Axion 实现了对象能力 (OCap) 模型。资源（文件、网络套接字）被表示为不可伪造的句柄。
-*   **创建**：只有授权的系统调用可以创建句柄。
-*   **使用**：操作码对句柄进行操作，而不是原始地址。
-*   **撤销**：策略可以随时撤销句柄。
-
-## 8.7 验证清单
-
-*   [ ] **拦截**：`src/vm/vm.cpp` 中所有触及内存/IO 的操作码是否都调用了 `eval_axion_call`？（通过检查验证）
-*   [ ] **裁决**：`VerdictKind::Deny` 是否总是导致 `SecurityFault`？（由 `tests/cpp/vm_fault_test.cpp` 验证）
-*   [ ] **追踪**：每个 Axion 决定是否都记录了正确的 `tag` 和 `value`？（由 `tests/cpp/axion_log_determinism_test.cpp` 验证）
+> **验证**：`tests/cpp/test_ethics.cpp` 验证了在第 1 层策略中尝试使用第 3 层操作码会导致 `SecurityFault`。
