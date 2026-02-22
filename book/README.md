@@ -92,13 +92,13 @@ And constraint, when applied deliberately, is a form of clarity.
    * [1.2 System Architecture](./01_Introduction.md#12-system-architecture)
    * [1.3 Verifiable Compute Mission](./01_Introduction.md#13-verifiable-compute-mission)
 
-2. **[Core Principles and Invariants](./02_Core_Principles_and_Invariants.md)**
+2. **[Core Principles and Invariants](./02_Principles.md)**
 
-   * [2.1 The Determinism Invariant](./02_Core_Principles_and_Invariants.md#21-the-determinism-invariant)
-   * [2.1.1 Determinism Surfaces and Attack Vectors](./02_Core_Principles_and_Invariants.md#211-determinism-surfaces-and-attack-vectors)
-   * [2.2 Ternary Logic (Base-3)](./02_Core_Principles_and_Invariants.md#22-ternary-logic-base-3)
-   * [2.3 Auditability and the Axion Trace](./02_Core_Principles_and_Invariants.md#23-auditability-and-the-axion-trace)
-   * [2.4 The Nine Principles (Ethics Enforcement)](./02_Core_Principles_and_Invariants.md#24-the-nine-principles-ethics-enforcement)
+   * [2.1 The Determinism Invariant](./02_Principles.md#21-the-determinism-invariant)
+   * [2.1.1 Determinism Surfaces and Attack Vectors](./02_Principles.md#211-determinism-surfaces-and-attack-vectors)
+   * [2.2 Ternary Logic (Base-3)](./02_Principles.md#22-ternary-logic-base-3)
+   * [2.3 Auditability and the Axion Trace](./02_Principles.md#23-auditability-and-the-axion-trace)
+   * [2.4 The Nine Principles (Ethics Enforcement)](./02_Principles.md#24-the-nine-principles-ethics-enforcement)
 
 </details>
 
@@ -107,35 +107,35 @@ And constraint, when applied deliberately, is a form of clarity.
 <details>
 <summary><strong>Part II — The Deterministic Machine</strong></summary>
 
-3. **[T81VM Architecture](./03_T81VM_Architecture.md)**
+3. **[T81VM Architecture](./03_Architecture.md)**
 
-   * [3.1 Formal State Machine](./03_T81VM_Architecture.md#31-formal-state-machine)
-   * [3.1.1 State Definition](./03_T81VM_Architecture.md#311-state-definition)
-   * [3.2 Memory Layout](./03_T81VM_Architecture.md#32-memory-layout)
-   * [3.3 Register File](./03_T81VM_Architecture.md#33-register-file)
-   * [3.4 TISC Instruction Set Architecture](./03_T81VM_Architecture.md#34-tisc-instruction-set-architecture-isa)
-   * [3.5 Fault Semantics](./03_T81VM_Architecture.md#35-fault-semantics)
-   * [3.6 Garbage Collection](./03_T81VM_Architecture.md#36-garbage-collection)
+   * [3.1 Formal State Machine](./03_Architecture.md#31-overview)
+   * [3.1.1 State Definition](./03_Architecture.md#31-overview)
+   * [3.2 Memory Layout](./03_Architecture.md#33-memory-model)
+   * [3.3 Register File](./03_Architecture.md#33-memory-model)
+   * [3.4 TISC Instruction Set Architecture](./03_Architecture.md#34-the-instruction-set-tisc)
+   * [3.5 Fault Semantics](./03_Architecture.md#32-the-runtime-boundary)
+   * [3.6 Garbage Collection](./03_Architecture.md#33-memory-model)
 
-4. **[Data Types and Canonical Serialization](./04_Data_Types_and_Canonical_Serialization.md)**
+4. **[Data Types and Canonical Serialization](./04_Data_Types_and_Serialization.md)**
 
-   * [4.1 Primitive Types](./04_Data_Types_and_Canonical_Serialization.md#41-primitive-types)
-   * [4.2 T81Float and dmath](./04_Data_Types_and_Canonical_Serialization.md#42-t81float-and-dmath)
-   * [4.3 Tensors and Canonical Layouts](./04_Data_Types_and_Canonical_Serialization.md#43-tensors-and-canonical-layouts)
-   * [4.4 Canonical Serialization Rules](./04_Data_Types_and_Canonical_Serialization.md#44-canonical-serialization-rules)
+   * [4.1 Primitive Types](./04_Data_Types_and_Serialization.md#41-primitive-types)
+   * [4.2 T81Float and dmath](./04_Data_Types_and_Serialization.md#42-t81float-and-dmath)
+   * [4.3 Tensors and Canonical Layouts](./04_Data_Types_and_Serialization.md#43-tensors-and-canonical-layouts)
+   * [4.4 Canonical Serialization Rules](./04_Data_Types_and_Serialization.md#44-canonical-serialization-rules)
 
-5. **[Installation and Build Verification](./05_Installation_and_Build_Verification.md)**
+5. **[Installation and Build Verification](./05_Installation.md)**
 
-   * [5.1 Prerequisites](./05_Installation_and_Build_Verification.md#51-prerequisites)
-   * [5.2 Building from Source](./05_Installation_and_Build_Verification.md#52-building-from-source)
-   * [5.3 Verifying the Build](./05_Installation_and_Build_Verification.md#53-verifying-the-build)
+   * [5.1 Prerequisites](./05_Installation.md#51-prerequisites)
+   * [5.2 Building from Source](./05_Installation.md#52-build-procedure)
+   * [5.3 Verifying the Build](./05_Installation.md#53-verifying-the-build)
 
-6. **[CLI and API Usage](./06_CLI_and_API_Usage.md)**
+6. **[CLI and API Usage](./06_Usage.md)**
 
-   * [6.1 Command Line Interface](./06_CLI_and_API_Usage.md#61-the-t81-command-line-interface)
-   * [6.2 Embedding T81 (C++ API)](./06_CLI_and_API_Usage.md#62-embedding-t81-c-api)
-   * [6.3 Embedding T81 (Python API)](./06_CLI_and_API_Usage.md#63-embedding-t81-python-api)
-   * [6.4 Debugging](./06_CLI_and_API_Usage.md#64-debugging)
+   * [6.1 Command Line Interface](./06_Usage.md#61-the-unified-cli)
+   * [6.2 Embedding T81 (C++ API)](./06_Usage.md#61-the-unified-cli)
+   * [6.3 Embedding T81 (Python API)](./06_Usage.md#61-the-unified-cli)
+   * [6.4 Debugging](./06_Usage.md#612-debugging-and-inspection)
 
 </details>
 
@@ -146,74 +146,70 @@ And constraint, when applied deliberately, is a form of clarity.
 
 7. **[Verification and Audit](./07_Verification_and_Audit.md)**
 
-   * [7.1 Formal Verification Methodology](./07_Verification_and_Audit.md#71-formal-verification-methodology)
-   * [7.2 The Formal Audit Matrix](./07_Verification_and_Audit.md#72-the-formal-audit-matrix)
-   * [7.3 Property-Based Testing](./07_Verification_and_Audit.md#73-property-based-testing)
-   * [7.4 The Determinism Gate](./07_Verification_and_Audit.md#74-the-determinism-gate)
+   * [7.1 Formal Verification Methodology](./07_Verification_and_Audit.md#71-the-verification-stack)
+   * [7.2 The Formal Audit Matrix](./07_Verification_and_Audit.md#71-the-verification-stack)
+   * [7.3 Property-Based Testing](./07_Verification_and_Audit.md#71-the-verification-stack)
+   * [7.4 The Determinism Gate](./07_Verification_and_Audit.md#72-determinism-gate)
 
-8. **[The Axion Safety Kernel](./08_The_Axion_Safety_Kernel.md)**
+8. **[The Axion Safety Kernel](./08_The_Axion_Kernel.md)**
 
-   * [8.1 Formal Definition](./08_The_Axion_Safety_Kernel.md#81-formal-definition)
-   * [8.2 The Policy Model](./08_The_Axion_Safety_Kernel.md#82-the-policy-model)
-   * [8.3 Instruction Interception](./08_The_Axion_Safety_Kernel.md#83-instruction-interception)
-   * [8.4 The Audit Log (Trace)](./08_The_Axion_Safety_Kernel.md#84-the-audit-log-trace)
-   * [8.5 Cognitive Promotion](./08_The_Axion_Safety_Kernel.md#85-cognitive-promotion)
+   * [8.1 Formal Definition](./08_The_Axion_Kernel.md#81-formal-definition)
+   * [8.2 The Policy Model](./08_The_Axion_Kernel.md#82-the-policy-model)
+   * [8.3 Instruction Interception](./08_The_Axion_Kernel.md#83-instruction-interception)
+   * [8.4 The Audit Log (Trace)](./08_The_Axion_Kernel.md#84-the-audit-log-trace)
+   * [8.5 Cognitive Promotion](./08_The_Axion_Kernel.md#85-cognitive-promotion)
 
 9. **[Cognitive Tiers and Distributed Compute](./09_Cognitive_Tiers_and_Distributed_Compute.md)**
 
    * [9.1 The Cognitive Tier Model](./09_Cognitive_Tiers_and_Distributed_Compute.md#91-the-cognitive-tier-model)
    * [9.2 Distributed Compute (Tier 4)](./09_Cognitive_Tiers_and_Distributed_Compute.md#92-distributed-compute-tier-4)
-   * [9.3 Trace-Based JIT Compilation](./09_Cognitive_Tiers_and_Distributed_Compute.md#93-trace-based-jit-compilation)
-   * [9.4 Infinite Forms (Tier 5)](./09_Cognitive_Tiers_and_Distributed_Compute.md#94-infinite-forms-tier-5)
+   * [9.3 Trace-Based JIT Compilation](./09_Cognitive_Tiers_and_Distributed_Compute.md#92-distributed-compute-tier-4)
+   * [9.4 Infinite Forms (Tier 5)](./09_Cognitive_Tiers_and_Distributed_Compute.md#93-infinite-forms-tier-5)
 
 10. **[Appendices](./10_Appendices.md)**
 
 * [10.1 What Is Not Yet Implemented](./10_Appendices.md#101-what-is-not-yet-implemented)
-* [10.2 Threat Model and Determinism Attack Surface](./10_Appendices.md#102-threat-model-and-determinism-attack-surface)
-* [10.3 Glossary](./10_Appendices.md#103-glossary)
+* [10.2 Threat Model and Determinism Attack Surface](./10_Appendices.md#101-what-is-not-yet-implemented)
+* [10.3 Glossary](./10_Appendices.md#103-useful-links)
 
 </details>
-
----
 
 <details>
 <summary><strong>Part IV — Formalization and Structural Hardening</strong></summary>
 
 11. **[Formal Semantics of TISC and T81VM](./11_Formal_Semantics.md)**
 
-* [Denotational Semantics of TISC](./11_Formal_Semantics.md#denotational-semantics-of-tisc)
-* [Algebraic Transition Function δ](./11_Formal_Semantics.md#algebraic-transition-function-δ)
-* [Canonicalization Rewriting System](./11_Formal_Semantics.md#canonicalization-rewriting-system)
-* [Determinism Proof Sketches](./11_Formal_Semantics.md#determinism-proof-sketches)
-* [Interpreter vs Trace-JIT Equivalence](./11_Formal_Semantics.md#interpreter-vs-trace-jit-equivalence)
+* [Denotational Semantics of TISC](./11_Formal_Semantics.md#111-operational-semantics)
+* [Algebraic Transition Function δ](./11_Formal_Semantics.md#1111-the-transition-function)
+* [Canonicalization Rewriting System](./11_Formal_Semantics.md#111-operational-semantics)
+* [Determinism Proof Sketches](./11_Formal_Semantics.md#1111-the-transition-function)
+* [Interpreter vs Trace-JIT Equivalence](./11_Formal_Semantics.md#1111-the-transition-function)
 
 12. **[Adversarial Modeling and Determinism Attacks](./12_Adversarial_Modeling.md)**
 
-* [Compiler-Level Attacks](./12_Adversarial_Modeling.md#compiler-level-attacks)
-* [VM and GC Attack Vectors](./12_Adversarial_Modeling.md#vm-and-gc-attack-vectors)
-* [CanonFS and Hash Attacks](./12_Adversarial_Modeling.md#canonfs-and-hash-attacks)
-* [Distributed Tier Time-Travel Attack](./12_Adversarial_Modeling.md#distributed-tier-time-travel-attack)
-* [Determinism Breach Postmortem Template](./12_Adversarial_Modeling.md#determinism-breach-postmortem-template)
+* [Compiler-Level Attacks](./12_Adversarial_Modeling.md#121-threat-model)
+* [VM and GC Attack Vectors](./12_Adversarial_Modeling.md#121-threat-model)
+* [CanonFS and Hash Attacks](./12_Adversarial_Modeling.md#121-threat-model)
+* [Distributed Tier Time-Travel Attack](./12_Adversarial_Modeling.md#1212-time-travel-attacks)
+* [Determinism Breach Postmortem Template](./12_Adversarial_Modeling.md#121-threat-model)
 
 </details>
-
----
 
 <details>
 <summary><strong>Part V — Continuity and Research Horizon</strong></summary>
 
 13. **[Continuity and Resilience](./13_Continuity_Resilience.md)**
 
-* [Cleanroom Reconstruction Protocol](./13_Continuity_Resilience.md#cleanroom-reconstruction-protocol)
-* [Single Points of Failure](./13_Continuity_Resilience.md#single-points-of-failure)
-* [Continuity Manifest](./13_Continuity_Resilience.md#continuity-manifest)
-* [Immutable Formal Invariants](./13_Continuity_Resilience.md#immutable-formal-invariants)
+* [Cleanroom Reconstruction Protocol](./13_Continuity_Resilience.md#131-the-cleanroom-protocol)
+* [Single Points of Failure](./13_Continuity_Resilience.md#131-the-cleanroom-protocol)
+* [Continuity Manifest](./13_Continuity_Resilience.md#131-the-cleanroom-protocol)
+* [Immutable Formal Invariants](./13_Continuity_Resilience.md#132-long-term-archival)
 
 14. **[Research Frontier](./14_Research_Frontier.md)**
 
-* [Ternary Hardware Acceleration](./14_Research_Frontier.md#ternary-hardware-acceleration)
-* [Formal Verification Paths](./14_Research_Frontier.md#formal-verification-paths)
-* [CanonFS as a Merkle Substrate](./14_Research_Frontier.md#canonfs-as-a-merkle-substrate)
-* [Deterministic AI Inference at Scale](./14_Research_Frontier.md#deterministic-ai-inference-at-scale)
+* [Ternary Hardware Acceleration](./14_Research_Frontier.md)
+* [Formal Verification Paths](./14_Research_Frontier.md)
+* [CanonFS as a Merkle Substrate](./14_Research_Frontier.md)
+* [Deterministic AI Inference at Scale](./14_Research_Frontier.md)
 
 </details>
