@@ -423,7 +423,27 @@ public:
       if (!state_.tensors[idx].has_value()) return nullptr;
       return &state_.tensors[idx].value();
     };
-    auto alloc_tensor = [this, current_pc](t81::T729Tensor tensor) -> std::int64_t {
+    auto alloc_tensor =
+        [this, current_pc](t81::T729Tensor tensor) -> std::expected<std::int64_t, Trap> {
+      std::size_t num_elements = tensor.data().size();
+
+      if (state_.policy) {
+        if (state_.policy->max_tensors &&
+            state_.metrics.total_tensors + 1 > *state_.policy->max_tensors) {
+          t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny, "Max tensors limit exceeded"};
+          record_axion_event(program_.insns[current_pc].opcode, 0, 0, verdict);
+          return t81::unexpected(Trap::SecurityFault);
+        }
+        if (state_.policy->max_tensor_elements &&
+            state_.metrics.total_tensor_elements + num_elements >
+                *state_.policy->max_tensor_elements) {
+          t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
+                                      "Max tensor elements limit exceeded"};
+          record_axion_event(program_.insns[current_pc].opcode, 0, 0, verdict);
+          return t81::unexpected(Trap::SecurityFault);
+        }
+      }
+
       std::size_t idx_handle;
       if (!state_.free_tensor_indices.empty()) {
         auto raw_idx = state_.free_tensor_indices.back();
@@ -434,6 +454,10 @@ public:
         state_.tensors.push_back(std::move(tensor));
         idx_handle = state_.tensors.size();
       }
+
+      state_.metrics.total_tensors++;
+      state_.metrics.total_tensor_elements += num_elements;
+
       log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Tensor,
                                 idx_handle, 1, t81::axion::reasons::kTensorAlloc);
       return static_cast<std::int64_t>(idx_handle);
@@ -506,7 +530,11 @@ public:
         for (auto d : native->shape) shape.push_back(static_cast<int>(d));
 
         t81::T729Tensor promoted(std::move(shape), std::move(float_data));
-        state_.registers[reg] = alloc_tensor(std::move(promoted));
+        auto res = alloc_tensor(std::move(promoted));
+        if (!res) {
+          return std::expected<void, Trap>(t81::unexpect, res.error());
+        }
+        state_.registers[reg] = *res;
         state_.register_tags[reg] = ValueTag::TensorHandle;
       }
       return {};
@@ -654,16 +682,50 @@ public:
       if (!state_.infinite_forms[idx].has_value()) return nullptr;
       return &state_.infinite_forms[idx].value();
     };
-    auto alloc_symbolic_graph = [this,
-                                 current_pc](t81::cog::v1::SymbolicGraph graph) -> std::int64_t {
+    auto alloc_symbolic_graph =
+        [this, current_pc](
+            t81::cog::v1::SymbolicGraph graph) -> std::expected<std::int64_t, Trap> {
+      std::size_t num_nodes = graph.nodes.size();
+      if (state_.policy) {
+        if (state_.policy->max_symbolic_graphs && state_.metrics.total_symbolic_graphs + 1 >
+                                                      *state_.policy->max_symbolic_graphs) {
+          t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
+                                      "Max symbolic graphs limit exceeded"};
+          record_axion_event(program_.insns[current_pc].opcode, 0, 0, verdict);
+          return t81::unexpected(Trap::SecurityFault);
+        }
+        if (state_.policy->max_symbolic_nodes &&
+            state_.metrics.total_symbolic_nodes + num_nodes > *state_.policy->max_symbolic_nodes) {
+          t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
+                                      "Max symbolic nodes limit exceeded"};
+          record_axion_event(program_.insns[current_pc].opcode, 0, 0, verdict);
+          return t81::unexpected(Trap::SecurityFault);
+        }
+      }
+
       state_.symbolic_graphs.push_back(std::move(graph));
       auto idx = state_.symbolic_graphs.size();
+
+      state_.metrics.total_symbolic_graphs++;
+      state_.metrics.total_symbolic_nodes += num_nodes;
+
       log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Heap, idx, 1,
                                 "graph alloc");
       return static_cast<std::int64_t>(idx);
     };
     auto alloc_infinite_form =
-        [this, current_pc](t81::cog::v5::InfiniteCanonicalForm form) -> std::int64_t {
+        [this,
+         current_pc](t81::cog::v5::InfiniteCanonicalForm form) -> std::expected<std::int64_t, Trap> {
+      if (state_.policy) {
+        if (state_.policy->max_infinite_forms &&
+            state_.metrics.total_infinite_forms + 1 > *state_.policy->max_infinite_forms) {
+          t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
+                                      "Max infinite forms limit exceeded"};
+          record_axion_event(program_.insns[current_pc].opcode, 0, 0, verdict);
+          return t81::unexpected(Trap::SecurityFault);
+        }
+      }
+
       std::size_t idx_handle;
       if (!state_.free_infinite_indices.empty()) {
         auto raw_idx = state_.free_infinite_indices.back();
@@ -674,6 +736,9 @@ public:
         state_.infinite_forms.push_back(std::move(form));
         idx_handle = state_.infinite_forms.size();
       }
+
+      state_.metrics.total_infinite_forms++;
+
       log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Heap,
                                 idx_handle, 1, "InfAlloc");
       return static_cast<std::int64_t>(idx_handle);
@@ -1256,7 +1321,12 @@ public:
           }
 
           t81::T729Tensor loaded_tensor(std::move(shape), std::move(float_data));
-          state_.registers[insn.a] = alloc_tensor(std::move(loaded_tensor));
+          auto res = alloc_tensor(std::move(loaded_tensor));
+          if (!res) {
+            trap = res.error();
+            break;
+          }
+          state_.registers[insn.a] = *res;
           state_.register_tags[insn.a] = ValueTag::TensorHandle;
 
           t81::axion::Verdict success_verdict;
@@ -1284,7 +1354,12 @@ public:
         }
         std::vector<float> data = tensor->data();
         for (auto& val : data) val = std::exp(val);
-        state_.registers[insn.a] = alloc_tensor(T729Tensor(tensor->shape(), std::move(data)));
+        auto res = alloc_tensor(T729Tensor(tensor->shape(), std::move(data)));
+        if (!res) {
+          trap = res.error();
+          break;
+        }
+        state_.registers[insn.a] = *res;
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
@@ -1618,7 +1693,12 @@ public:
         }
         std::vector<float> data = tensor->data();
         for (auto& val : data) val = std::sqrt(val);
-        state_.registers[insn.a] = alloc_tensor(T729Tensor(tensor->shape(), std::move(data)));
+        auto res = alloc_tensor(T729Tensor(tensor->shape(), std::move(data)));
+        if (!res) {
+          trap = res.error();
+          break;
+        }
+        state_.registers[insn.a] = *res;
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
@@ -1639,7 +1719,12 @@ public:
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TSiLU kernel execution"};
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), state_.registers[insn.b],
                            verdict);
-        state_.registers[insn.a] = alloc_tensor(t81::ops::silu(*tensor));
+        auto res = alloc_tensor(t81::ops::silu(*tensor));
+        if (!res) {
+          trap = res.error();
+          break;
+        }
+        state_.registers[insn.a] = *res;
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
@@ -1660,7 +1745,12 @@ public:
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TSoftmax kernel execution"};
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), state_.registers[insn.b],
                            verdict);
-        state_.registers[insn.a] = alloc_tensor(t81::ops::softmax(*tensor));
+        auto res = alloc_tensor(t81::ops::softmax(*tensor));
+        if (!res) {
+          trap = res.error();
+          break;
+        }
+        state_.registers[insn.a] = *res;
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
@@ -1688,7 +1778,12 @@ public:
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TRMSNorm kernel execution"};
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), state_.registers[insn.b],
                            verdict);
-        state_.registers[insn.a] = alloc_tensor(t81::ops::rmsnorm(*tensor, *w));
+        auto res = alloc_tensor(t81::ops::rmsnorm(*tensor, *w));
+        if (!res) {
+          trap = res.error();
+          break;
+        }
+        state_.registers[insn.a] = *res;
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
@@ -1711,7 +1806,12 @@ public:
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), state_.registers[insn.b],
                            verdict);
         int pos = static_cast<int>(state_.registers[insn.c]);
-        state_.registers[insn.a] = alloc_tensor(t81::ops::rope(*tensor, pos));
+        auto res = alloc_tensor(t81::ops::rope(*tensor, pos));
+        if (!res) {
+          trap = res.error();
+          break;
+        }
+        state_.registers[insn.a] = *res;
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
@@ -2569,7 +2669,12 @@ public:
           }
           auto data = tensor->data();
           data.push_back(static_cast<float>(state_.registers[insn.c]));
-          state_.registers[insn.a] = alloc_tensor(T729Tensor({old_len + 1}, std::move(data)));
+          auto res = alloc_tensor(T729Tensor({old_len + 1}, std::move(data)));
+          if (!res) {
+            trap = res.error();
+            break;
+          }
+          state_.registers[insn.a] = *res;
           state_.register_tags[insn.a] = ValueTag::TensorHandle;
           update_flags(state_.registers[insn.a]);
           break;
@@ -2616,8 +2721,12 @@ public:
             break;
           }
           data.pop_back();
-          state_.registers[insn.a] =
-              alloc_tensor(T729Tensor({tensor->shape().front() - 1}, std::move(data)));
+          auto res = alloc_tensor(T729Tensor({tensor->shape().front() - 1}, std::move(data)));
+          if (!res) {
+            trap = res.error();
+            break;
+          }
+          state_.registers[insn.a] = *res;
           state_.register_tags[insn.a] = ValueTag::TensorHandle;
           update_flags(state_.registers[insn.a]);
           break;
@@ -3425,8 +3534,12 @@ public:
             data[i] = tensor_a->data()[i] * tensor_b->data()[i];
           }
         }
-        state_.registers[insn.a] =
-            alloc_tensor(t81::T729Tensor(tensor_a->shape(), std::move(data)));
+        auto res = alloc_tensor(t81::T729Tensor(tensor_a->shape(), std::move(data)));
+        if (!res) {
+          trap = res.error();
+          break;
+        }
+        state_.registers[insn.a] = *res;
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
@@ -3447,7 +3560,12 @@ public:
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TTranspose kernel execution"};
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), state_.registers[insn.b],
                            verdict);
-        state_.registers[insn.a] = alloc_tensor(tensor->transpose2d());
+        auto res = alloc_tensor(tensor->transpose2d());
+        if (!res) {
+          trap = res.error();
+          break;
+        }
+        state_.registers[insn.a] = *res;
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
@@ -3494,7 +3612,12 @@ public:
         record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), state_.registers[insn.b],
                            verdict);
         t81::T729Tensor result = t81::ops::matmul(*tensor_a, *tensor_b);
-        state_.registers[insn.a] = alloc_tensor(std::move(result));
+        auto res = alloc_tensor(std::move(result));
+        if (!res) {
+          trap = res.error();
+          break;
+        }
+        state_.registers[insn.a] = *res;
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
@@ -3532,7 +3655,12 @@ public:
         }
         try {
           auto result = t81::T729Tensor::contract_dot(*tensor_a, *tensor_b);
-          state_.registers[insn.a] = alloc_tensor(std::move(result));
+          auto res = alloc_tensor(std::move(result));
+          if (!res) {
+            trap = res.error();
+            break;
+          }
+          state_.registers[insn.a] = *res;
           state_.register_tags[insn.a] = ValueTag::TensorHandle;
         } catch (...) {
           trap = Trap::ShapeFault;
@@ -3596,7 +3724,12 @@ public:
 
         std::vector<int> shape = {static_cast<int>(size)};
         t81::T729Tensor t(shape);
-        state_.registers[insn.a] = alloc_tensor(std::move(t));
+        auto res = alloc_tensor(std::move(t));
+        if (!res) {
+          trap = res.error();
+          break;
+        }
+        state_.registers[insn.a] = *res;
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TNew"};
@@ -3665,7 +3798,12 @@ public:
         }
         // Deep copy
         t81::T729Tensor copy(tensor->shape(), std::vector<float>(tensor->data()));
-        state_.registers[insn.a] = alloc_tensor(std::move(copy));
+        auto res = alloc_tensor(std::move(copy));
+        if (!res) {
+          trap = res.error();
+          break;
+        }
+        state_.registers[insn.a] = *res;
         state_.register_tags[insn.a] = ValueTag::TensorHandle;
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TID (Identity/Copy)"};
@@ -3822,7 +3960,12 @@ public:
             graph.add_node(t81::cog::v1::SymbolicAtom::create(*sym));
           }
         }
-        state_.registers[insn.a] = alloc_symbolic_graph(std::move(graph));
+        auto res = alloc_symbolic_graph(std::move(graph));
+        if (!res) {
+          trap = res.error();
+          break;
+        }
+        state_.registers[insn.a] = *res;
         state_.register_tags[insn.a] = ValueTag::SymbolicGraphHandle;
         {
           t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "SymLoad"};
@@ -3853,7 +3996,14 @@ public:
           t81::cog::v1::RewriteRule rule;
           rule.match_node = t81::T81Symbol::intern(*match_str);
           rule.replace_node = t81::T81Symbol::intern(*replace_str);
+          std::size_t old_nodes = graph->nodes.size();
           graph->apply_rewrite(rule);
+          std::size_t new_nodes = graph->nodes.size();
+          if (new_nodes >= old_nodes) {
+            state_.metrics.total_symbolic_nodes += (new_nodes - old_nodes);
+          } else {
+            state_.metrics.total_symbolic_nodes -= (old_nodes - new_nodes);
+          }
         }
         {
           t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "SymRewrite"};
@@ -4116,7 +4266,12 @@ public:
         form.first_term = start_val;
         form.type = t81::cog::v5::SeriesType::Geometric;
 
-        state_.registers[insn.a] = alloc_infinite_form(std::move(form));
+        auto res = alloc_infinite_form(std::move(form));
+        if (!res) {
+          trap = res.error();
+          break;
+        }
+        state_.registers[insn.a] = *res;
         state_.register_tags[insn.a] = ValueTag::InfiniteHandle;
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "InfSeed"};
@@ -4660,6 +4815,8 @@ private:
     size_t freed_count = 0;
     for (size_t i = 0; i < state_.tensors.size(); ++i) {
       if (state_.tensors[i].has_value() && !marked_tensors[i]) {
+        state_.metrics.total_tensors--;
+        state_.metrics.total_tensor_elements -= state_.tensors[i]->data().size();
         state_.tensors[i] = std::nullopt;
         state_.free_tensor_indices.push_back(i);
         freed_count++;
@@ -4669,6 +4826,7 @@ private:
     size_t freed_infinite_count = 0;
     for (size_t i = 0; i < state_.infinite_forms.size(); ++i) {
       if (state_.infinite_forms[i].has_value() && !marked_infinite_forms[i]) {
+        state_.metrics.total_infinite_forms--;
         state_.infinite_forms[i] = std::nullopt;
         state_.free_infinite_indices.push_back(i);
         freed_infinite_count++;

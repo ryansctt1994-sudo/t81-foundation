@@ -440,6 +440,14 @@ if(T81_BUILD_TESTS)
   add_executable(t81_ethics_test tests/cpp/test_ethics.cpp)
   target_link_libraries(t81_ethics_test PRIVATE t81_core)
 
+  add_executable(test_resource_monitoring tests/cpp/test_resource_monitoring.cpp)
+  target_link_libraries(test_resource_monitoring PRIVATE t81_core t81_tisc t81_vm)
+  add_test(NAME test_resource_monitoring COMMAND test_resource_monitoring)
+
+  add_executable(test_tier3_opcodes tests/cpp/test_tier3_opcodes.cpp)
+  target_link_libraries(test_tier3_opcodes PRIVATE t81_core t81_tisc t81_vm)
+  add_test(NAME test_tier3_opcodes COMMAND test_tier3_opcodes)
+
   add_executable(t81_expected_test tests/cpp/expected_test.cpp)
   target_link_libraries(t81_expected_test PRIVATE t81_core)
 

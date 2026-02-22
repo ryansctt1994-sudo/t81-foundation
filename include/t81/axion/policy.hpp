@@ -83,6 +83,11 @@ struct Policy {
   std::optional<int64_t> max_recursion;
   std::optional<int64_t> max_reflections;
   std::optional<int64_t> max_meta_writes;
+  std::optional<int64_t> max_tensors;
+  std::optional<int64_t> max_tensor_elements;
+  std::optional<int64_t> max_symbolic_graphs;
+  std::optional<int64_t> max_symbolic_nodes;
+  std::optional<int64_t> max_infinite_forms;
   std::vector<std::string> allowed_tensor_hashes;
   std::vector<LoopHint> loops;
   std::vector<MatchGuardRequirement> match_guards;
@@ -247,6 +252,66 @@ inline t81::expected<Policy, std::string> parse_policy(std::string_view text) {
         return make_error("max-meta-writes requires integer");
       }
       policy.max_meta_writes = val.value;
+      tok = lex.next();
+      if (tok.kind != detail::PolicyToken::Kind::RParen) {
+        return make_error("expected ')'");
+      }
+      continue;
+    }
+    if (key.text == "max-tensors") {
+      auto val = lex.next();
+      if (val.kind != detail::PolicyToken::Kind::Integer) {
+        return make_error("max-tensors requires integer");
+      }
+      policy.max_tensors = val.value;
+      tok = lex.next();
+      if (tok.kind != detail::PolicyToken::Kind::RParen) {
+        return make_error("expected ')'");
+      }
+      continue;
+    }
+    if (key.text == "max-tensor-elements") {
+      auto val = lex.next();
+      if (val.kind != detail::PolicyToken::Kind::Integer) {
+        return make_error("max-tensor-elements requires integer");
+      }
+      policy.max_tensor_elements = val.value;
+      tok = lex.next();
+      if (tok.kind != detail::PolicyToken::Kind::RParen) {
+        return make_error("expected ')'");
+      }
+      continue;
+    }
+    if (key.text == "max-symbolic-graphs") {
+      auto val = lex.next();
+      if (val.kind != detail::PolicyToken::Kind::Integer) {
+        return make_error("max-symbolic-graphs requires integer");
+      }
+      policy.max_symbolic_graphs = val.value;
+      tok = lex.next();
+      if (tok.kind != detail::PolicyToken::Kind::RParen) {
+        return make_error("expected ')'");
+      }
+      continue;
+    }
+    if (key.text == "max-symbolic-nodes") {
+      auto val = lex.next();
+      if (val.kind != detail::PolicyToken::Kind::Integer) {
+        return make_error("max-symbolic-nodes requires integer");
+      }
+      policy.max_symbolic_nodes = val.value;
+      tok = lex.next();
+      if (tok.kind != detail::PolicyToken::Kind::RParen) {
+        return make_error("expected ')'");
+      }
+      continue;
+    }
+    if (key.text == "max-infinite-forms") {
+      auto val = lex.next();
+      if (val.kind != detail::PolicyToken::Kind::Integer) {
+        return make_error("max-infinite-forms requires integer");
+      }
+      policy.max_infinite_forms = val.value;
       tok = lex.next();
       if (tok.kind != detail::PolicyToken::Kind::RParen) {
         return make_error("expected ')'");
