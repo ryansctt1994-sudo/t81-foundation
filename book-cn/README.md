@@ -1,219 +1,216 @@
-# The T81 Foundation — Definitive Technical Monograph
+# T81 Foundation — 权威技术专著
 
-## Foreword
+## 前言
 
-There are two ways to build systems.
+构建系统有两种方式。
 
-One is to optimize for convenience — to move quickly, to approximate, to accept that the final bit may vary, that floating-point drift is tolerable, that compilers may reorder, that hardware will decide what “close enough” means.
+一种是优化便利性——为了快速行动，为了近似，接受最后一位可能变化，接受浮点漂移是可容忍的，接受编译器可能重新排序，接受硬件决定什么是“足够接近”。
 
-The other is to insist that computation is not suggestion, but statement.
+另一种是坚持计算不是建议，而是陈述。
 
-T81 belongs to the second path.
+T81 属于第二条路。
 
-At its core, this project is not about ternary arithmetic, virtual machines, or policy engines — though it contains all of these. It is about **integrity of execution**. It is about drawing a boundary around a computational process and saying: inside this boundary, behavior is not incidental.
+从核心上讲，这个项目不是关于三进制算术、虚拟机或策略引擎——尽管它包含所有这些。它是关于**执行的完整性**。它是关于在计算过程周围画一条边界，并说：在这个边界内，行为不是偶然的。
 
-Determinism is often treated as a performance tradeoff or a debugging convenience. Here it is treated as a civilizational constraint. If two machines cannot agree on the outcome of the same program, then the computation was never truly defined — it was merely performed.
+确定性通常被视为一种性能权衡或调试便利。在这里，它被视为一种文明约束。如果两台机器不能对同一程序的结果达成一致，那么计算就从未被真正定义——它只是被执行了。
 
-Balanced ternary, canonical serialization, software-defined math, trace logging, policy enforcement — these are not aesthetic choices. They are instruments in a single argument:
+平衡三进制、规范序列化、软件定义数学、追踪日志、策略强制——这些不是审美选择。它们是同一个论点中的工具：
 
-> A computation should be reproducible, auditable, and structurally honest.
+> 计算应该是可重现的、可审计的且结构诚实的。
 
-Modern systems are layered with abstraction that hides state transitions behind optimizers, speculative execution, floating-point quirks, and implicit side effects. T81 attempts something different: to make every transition explicit, every representation canonical, every execution traceable.
+现代系统层层叠叠的抽象，将状态转换隐藏在优化器、推测执行、浮点怪癖和隐式副作用背后。T81 尝试做一些不同的事情：使每一次转换都显式化，每一次表示都规范化，每一次执行都可追踪。
 
-It is an architectural experiment in constraint.
+这是一个关于约束的架构实验。
 
-The system does not assume benevolent hardware.
-It does not assume identical floating-point libraries.
-It does not assume compilers behave the same across architectures.
-It does not assume that execution without record is acceptable.
+该系统不假设仁慈的硬件。
+它不假设相同的浮点库。
+它不假设编译器在不同架构上的行为相同。
+它不假设没有记录的执行是可以接受的。
 
-Instead, it encodes rules:
+相反，它编码规则：
 
-* State transitions must be definable.
-* Data must have a single canonical form.
-* Resource consumption must be accountable.
-* Policies must be enforceable.
-* Behavior must be replayable.
+* 状态转换必须是可定义的。
+* 数据必须具有单一的规范形式。
+* 资源消耗必须是可问责的。
+* 策略必须是可强制执行的。
+* 行为必须是可重放的。
 
-The result is not the fastest machine.
-It is not the most flexible environment.
-It is not designed to replace general-purpose scripting ecosystems.
+结果不是最快的机器。
+它不是最灵活的环境。
+它不是为了取代通用的脚本生态系统而设计的。
 
-It is designed to answer a narrower but more demanding question:
+它是为了回答一个更狭窄但更苛刻的问题而设计的：
 
-**Can a software system be constructed such that its behavior is provably invariant across space and time?**
+**能否构建一个软件系统，使其行为在空间和时间上证明是不变的？**
 
-This book exists to document that attempt.
+这本书的存在是为了记录这一尝试。
 
-Not as mythology.
-Not as marketing.
-But as a ledger.
+不是作为神话。
+不是作为营销。
+而是作为一本账本。
 
-Every subsystem described here — T81Lang, TISC, the T81VM, Axion, CanonFS, the determinism gates, the cognitive tiers — is part of a layered structure built around one invariant:
+这里描述的每个子系统——T81Lang, TISC, T81VM, Axion, CanonFS, 确定性网关, 认知层——都是围绕一个不变性构建的分层结构的一部分：
 
-> Identical inputs must produce identical outputs, under explicitly defined rules.
+> 在明确定义的规则下，相同的输入必须产生相同的输出。
 
-Whether this architecture becomes widely adopted is secondary. What matters is that it has been made concrete, implemented, tested, and described with enough precision that it can be understood, verified, or challenged by others.
+这个架构是否被广泛采用是次要的。重要的是它已经变得具体、已实现、已测试，并以足够的精度进行了描述，以便其他人可以理解、验证或挑战它。
 
-This volume is therefore both technical and philosophical.
+因此，这一卷既是技术性的，也是哲学性的。
 
-It is technical because it describes a working system.
-It is philosophical because it asserts that reproducibility is not optional in certain domains.
+它是技术性的，因为它描述了一个工作系统。
+它是哲学性的，因为它断言在某些领域，可重现性不是可选项。
 
-If the repository evolves, this book should evolve with it.
-If the project ceases, this document should remain sufficient to reconstruct what was attempted and why.
+如果代码库演变，这本书也应该随之演变。
+如果项目停止，这份文档应足以重建尝试的内容和原因。
 
-In the end, T81 is not a claim of perfection.
+最后，T81 不是完美的宣言。
 
-It is a commitment to constraint.
+它是对约束的承诺。
 
-And constraint, when applied deliberately, is a form of clarity.
-
----
-
-## How to Read This Book
-
-* **New to T81?** → Start with Part I, then Part II.
-* **Implementer?** → Focus on Parts II and III.
-* **Auditor?** → Read Parts III and IV carefully.
-* **Researcher?** → Emphasize Parts IV and V.
-* **Long-term Maintainer?** → Parts IV and V are critical.
+而约束，当被刻意应用时，是一种清晰的形式。
 
 ---
 
-## Navigation
+## 如何阅读本书
+
+* **T81 新手？** → 从第一部分开始，然后是第二部分。
+* **实现者？** → 专注于第二和第三部分。
+* **审计员？** → 仔细阅读第三和第四部分。
+* **研究员？** → 重点阅读第四和第五部分。
+* **长期维护者？** → 第四和第五部分至关重要。
+
+---
+
+## 导航
 
 <details open>
-<summary><strong>Part I — Foundations</strong></summary>
+<summary><strong>第一部分 — 基础</strong></summary>
 
-1. **[Introduction](./01_Introduction.md)**
+1. **[简介](./01_简介.md)**
 
-   * [1.1 Scope and Definition](./01_Introduction.md#11-scope-and-definition)
-   * [1.2 System Architecture](./01_Introduction.md#12-system-architecture)
-   * [1.3 Verifiable Compute Mission](./01_Introduction.md#13-verifiable-compute-mission)
+   * [1.1 范围与定义](./01_简介.md#11-范围与定义)
+   * [1.2 系统架构](./01_简介.md#12-系统架构)
+   * [1.3 可验证计算使命](./01_简介.md#13-可验证计算使命)
 
-2. **[Core Principles and Invariants](./02_Core_Principles_and_Invariants.md)**
+2. **[核心原则与不变性](./02_原则.md)**
 
-   * [2.1 The Determinism Invariant](./02_Core_Principles_and_Invariants.md#21-the-determinism-invariant)
-   * [2.1.1 Determinism Surfaces and Attack Vectors](./02_Core_Principles_and_Invariants.md#211-determinism-surfaces-and-attack-vectors)
-   * [2.2 Ternary Logic (Base-3)](./02_Core_Principles_and_Invariants.md#22-ternary-logic-base-3)
-   * [2.3 Auditability and the Axion Trace](./02_Core_Principles_and_Invariants.md#23-auditability-and-the-axion-trace)
-   * [2.4 The Nine Principles (Ethics Enforcement)](./02_Core_Principles_and_Invariants.md#24-the-nine-principles-ethics-enforcement)
-
-</details>
-
----
-
-<details>
-<summary><strong>Part II — The Deterministic Machine</strong></summary>
-
-3. **[T81VM Architecture](./03_T81VM_Architecture.md)**
-
-   * [3.1 Formal State Machine](./03_T81VM_Architecture.md#31-formal-state-machine)
-   * [3.1.1 State Definition](./03_T81VM_Architecture.md#311-state-definition)
-   * [3.2 Memory Layout](./03_T81VM_Architecture.md#32-memory-layout)
-   * [3.3 Register File](./03_T81VM_Architecture.md#33-register-file)
-   * [3.4 TISC Instruction Set Architecture](./03_T81VM_Architecture.md#34-tisc-instruction-set-architecture-isa)
-   * [3.5 Fault Semantics](./03_T81VM_Architecture.md#35-fault-semantics)
-   * [3.6 Garbage Collection](./03_T81VM_Architecture.md#36-garbage-collection)
-
-4. **[Data Types and Canonical Serialization](./04_Data_Types_and_Canonical_Serialization.md)**
-
-   * [4.1 Primitive Types](./04_Data_Types_and_Canonical_Serialization.md#41-primitive-types)
-   * [4.2 T81Float and dmath](./04_Data_Types_and_Canonical_Serialization.md#42-t81float-and-dmath)
-   * [4.3 Tensors and Canonical Layouts](./04_Data_Types_and_Canonical_Serialization.md#43-tensors-and-canonical-layouts)
-   * [4.4 Canonical Serialization Rules](./04_Data_Types_and_Canonical_Serialization.md#44-canonical-serialization-rules)
-
-5. **[Installation and Build Verification](./05_Installation_and_Build_Verification.md)**
-
-   * [5.1 Prerequisites](./05_Installation_and_Build_Verification.md#51-prerequisites)
-   * [5.2 Building from Source](./05_Installation_and_Build_Verification.md#52-building-from-source)
-   * [5.3 Verifying the Build](./05_Installation_and_Build_Verification.md#53-verifying-the-build)
-
-6. **[CLI and API Usage](./06_CLI_and_API_Usage.md)**
-
-   * [6.1 Command Line Interface](./06_CLI_and_API_Usage.md#61-the-t81-command-line-interface)
-   * [6.2 Embedding T81 (C++ API)](./06_CLI_and_API_Usage.md#62-embedding-t81-c-api)
-   * [6.3 Embedding T81 (Python API)](./06_CLI_and_API_Usage.md#63-embedding-t81-python-api)
-   * [6.4 Debugging](./06_CLI_and_API_Usage.md#64-debugging)
+   * [2.1 确定性不变性](./02_原则.md#21-确定性不变性)
+   * [2.1.1 确定性表面与攻击向量](./02_原则.md#211-确定性表面与攻击向量)
+   * [2.2 三进制逻辑 (Base-3)](./02_原则.md#22-三进制逻辑-base-3)
+   * [2.3 可审计性与 Axion 追踪](./02_原则.md#23-可审计性与-axion-追踪)
+   * [2.4 九项原则 (伦理强制执行)](./02_原则.md#24-九项原则-伦理强制执行)
 
 </details>
 
 ---
 
 <details>
-<summary><strong>Part III — Governance and Verification</strong></summary>
+<summary><strong>第二部分 — 确定性机器</strong></summary>
 
-7. **[Verification and Audit](./07_Verification_and_Audit.md)**
+3. **[T81VM 架构](./03_架构.md)**
 
-   * [7.1 Formal Verification Methodology](./07_Verification_and_Audit.md#71-formal-verification-methodology)
-   * [7.2 The Formal Audit Matrix](./07_Verification_and_Audit.md#72-the-formal-audit-matrix)
-   * [7.3 Property-Based Testing](./07_Verification_and_Audit.md#73-property-based-testing)
-   * [7.4 The Determinism Gate](./07_Verification_and_Audit.md#74-the-determinism-gate)
+   * [3.1 形式化状态机](./03_架构.md#31-形式化状态机)
+   * [3.1.1 状态定义](./03_架构.md#311-状态定义)
+   * [3.2 内存布局](./03_架构.md#32-内存布局)
+   * [3.3 寄存器堆](./03_架构.md#33-寄存器堆)
+   * [3.4 TISC 指令集架构 (ISA)](./03_架构.md#34-指令集-tisc)
+   * [3.5 故障语义](./03_架构.md#35-故障语义)
+   * [3.6 垃圾回收](./03_架构.md#36-垃圾回收)
 
-8. **[The Axion Safety Kernel](./08_The_Axion_Safety_Kernel.md)**
+4. **[数据类型与规范序列化](./04_数据类型与序列化.md)**
 
-   * [8.1 Formal Definition](./08_The_Axion_Safety_Kernel.md#81-formal-definition)
-   * [8.2 The Policy Model](./08_The_Axion_Safety_Kernel.md#82-the-policy-model)
-   * [8.3 Instruction Interception](./08_The_Axion_Safety_Kernel.md#83-instruction-interception)
-   * [8.4 The Audit Log (Trace)](./08_The_Axion_Safety_Kernel.md#84-the-audit-log-trace)
-   * [8.5 Cognitive Promotion](./08_The_Axion_Safety_Kernel.md#85-cognitive-promotion)
+   * [4.1 原生类型](./04_数据类型与序列化.md#41-原生类型)
+   * [4.2 T81Float 和 dmath](./04_数据类型与序列化.md#42-t81float-和-dmath)
+   * [4.3 张量与规范布局](./04_数据类型与序列化.md#43-张量与规范布局)
+   * [4.4 规范序列化规则](./04_数据类型与序列化.md#44-规范序列化规则)
 
-9. **[Cognitive Tiers and Distributed Compute](./09_Cognitive_Tiers_and_Distributed_Compute.md)**
+5. **[安装与构建验证](./05_安装.md)**
 
-   * [9.1 The Cognitive Tier Model](./09_Cognitive_Tiers_and_Distributed_Compute.md#91-the-cognitive-tier-model)
-   * [9.2 Distributed Compute (Tier 4)](./09_Cognitive_Tiers_and_Distributed_Compute.md#92-distributed-compute-tier-4)
-   * [9.3 Trace-Based JIT Compilation](./09_Cognitive_Tiers_and_Distributed_Compute.md#93-trace-based-jit-compilation)
-   * [9.4 Infinite Forms (Tier 5)](./09_Cognitive_Tiers_and_Distributed_Compute.md#94-infinite-forms-tier-5)
+   * [5.1 前置条件](./05_安装.md#51-前置条件)
+   * [5.2 从源码构建](./05_安装.md#52-构建步骤)
+   * [5.3 验证构建](./05_安装.md#53-确定性网关)
 
-10. **[Appendices](./10_Appendices.md)**
+6. **[CLI 与 API 用法](./06_用法.md)**
 
-* [10.1 What Is Not Yet Implemented](./10_Appendices.md#101-what-is-not-yet-implemented)
-* [10.2 Threat Model and Determinism Attack Surface](./10_Appendices.md#102-threat-model-and-determinism-attack-surface)
-* [10.3 Glossary](./10_Appendices.md#103-glossary)
-
-</details>
-
----
-
-<details>
-<summary><strong>Part IV — Formalization and Structural Hardening</strong></summary>
-
-11. **[Formal Semantics of TISC and T81VM](./11_Formal_Semantics.md)**
-
-* [Denotational Semantics of TISC](./11_Formal_Semantics.md#denotational-semantics-of-tisc)
-* [Algebraic Transition Function δ](./11_Formal_Semantics.md#algebraic-transition-function-δ)
-* [Canonicalization Rewriting System](./11_Formal_Semantics.md#canonicalization-rewriting-system)
-* [Determinism Proof Sketches](./11_Formal_Semantics.md#determinism-proof-sketches)
-* [Interpreter vs Trace-JIT Equivalence](./11_Formal_Semantics.md#interpreter-vs-trace-jit-equivalence)
-
-12. **[Adversarial Modeling and Determinism Attacks](./12_Adversarial_Modeling.md)**
-
-* [Compiler-Level Attacks](./12_Adversarial_Modeling.md#compiler-level-attacks)
-* [VM and GC Attack Vectors](./12_Adversarial_Modeling.md#vm-and-gc-attack-vectors)
-* [CanonFS and Hash Attacks](./12_Adversarial_Modeling.md#canonfs-and-hash-attacks)
-* [Distributed Tier Time-Travel Attack](./12_Adversarial_Modeling.md#distributed-tier-time-travel-attack)
-* [Determinism Breach Postmortem Template](./12_Adversarial_Modeling.md#determinism-breach-postmortem-template)
+   * [6.1 命令行界面](./06_用法.md#61-统一-cli)
+   * [6.2 嵌入 T81 (C++ API)](./06_用法.md#62-嵌入-t81-c-api)
+   * [6.3 嵌入 T81 (Python API)](./06_用法.md#63-嵌入-t81-python-api)
+   * [6.4 调试](./06_用法.md#64-调试)
 
 </details>
 
 ---
 
 <details>
-<summary><strong>Part V — Continuity and Research Horizon</strong></summary>
+<summary><strong>第三部分 — 治理与验证</strong></summary>
 
-13. **[Continuity and Resilience](./13_Continuity_Resilience.md)**
+7. **[验证与审计](./07_验证与审计.md)**
 
-* [Cleanroom Reconstruction Protocol](./13_Continuity_Resilience.md#cleanroom-reconstruction-protocol)
-* [Single Points of Failure](./13_Continuity_Resilience.md#single-points-of-failure)
-* [Continuity Manifest](./13_Continuity_Resilience.md#continuity-manifest)
-* [Immutable Formal Invariants](./13_Continuity_Resilience.md#immutable-formal-invariants)
+   * [7.1 形式化验证方法论](./07_验证与审计.md#71-验证栈)
+   * [7.2 形式化审计矩阵](./07_验证与审计.md#72-确定性网关)
+   * [7.3 基于属性的测试](./07_验证与审计.md#73-追踪验证)
+   * [7.4 确定性网关](./07_验证与审计.md#74-确定性网关)
 
-14. **[Research Frontier](./14_Research_Frontier.md)**
+8. **[Axion 安全内核](./08_Axion内核.md)**
 
-* [Ternary Hardware Acceleration](./14_Research_Frontier.md#ternary-hardware-acceleration)
-* [Formal Verification Paths](./14_Research_Frontier.md#formal-verification-paths)
-* [CanonFS as a Merkle Substrate](./14_Research_Frontier.md#canonfs-as-a-merkle-substrate)
-* [Deterministic AI Inference at Scale](./14_Research_Frontier.md#deterministic-ai-inference-at-scale)
+   * [8.1 形式化定义](./08_Axion内核.md#81-形式化定义)
+   * [8.2 策略模型](./08_Axion内核.md#82-策略模型)
+   * [8.3 指令拦截](./08_Axion内核.md#83-指令拦截)
+   * [8.4 审计日志 (追踪)](./08_Axion内核.md#84-审计日志-追踪)
+   * [8.5 认知提升](./08_Axion内核.md#85-认知提升)
+
+9. **[认知层与分布式计算](./09_认知层与分布式计算.md)**
+
+   * [9.1 认知层模型](./09_认知层与分布式计算.md#91-认知层模型)
+   * [9.2 分布式计算 (第 4 层)](./09_认知层与分布式计算.md#92-分布式计算-第-4-层)
+   * [9.3 无限形式 (第 5 层)](./09_认知层与分布式计算.md#93-无限形式-第-5-层)
+   * [9.4 验证清单](./09_认知层与分布式计算.md#94-验证清单)
+
+10. **[附录](./10_附录.md)**
+
+* [10.1 尚未实现的功能](./10_附录.md#101-尚未实现的功能)
+* [10.2 错误代码](./10_附录.md#102-错误代码)
+* [10.3 有用链接](./10_附录.md#103-有用链接)
+
+</details>
+
+---
+
+<details>
+<summary><strong>第四部分 — 形式化与结构硬化</strong></summary>
+
+11. **[TISC 与 T81VM 的形式化语义](./11_形式化语义.md)**
+
+* [TISC 的指称语义](./11_形式化语义.md#111-操作语义)
+* [代数转换函数 δ](./11_形式化语义.md#1111-转换函数)
+* [规范化重写系统](./11_形式化语义.md#112-内存语义)
+* [确定性证明草图](./11_形式化语义.md#112-内存语义)
+* [解释器与 Trace-JIT 的等效性](./11_形式化语义.md#1111-转换函数)
+
+12. **[对抗建模与确定性攻击](./12_对抗建模.md)**
+
+* [编译器级攻击](./12_对抗建模.md#121-威胁模型)
+* [VM 与 GC 攻击向量](./12_对抗建模.md#1211-libm-gap-向量)
+* [CanonFS 与哈希攻击](./12_对抗建模.md#1212-时间旅行攻击)
+* [分布式层级时间旅行攻击](./12_对抗建模.md#1212-时间旅行攻击)
+* [确定性破坏事后剖析模板](./12_对抗建模.md#122-侧信道弹性)
+
+</details>
+
+---
+
+<details>
+<summary><strong>第五部分 — 持续性与研究前沿</strong></summary>
+
+13. **[持续性与韧性](./13_持续性与韧性.md)**
+
+* [无尘室重建协议](./13_持续性与韧性.md#131-无尘室协议)
+* [单点故障](./13_持续性与韧性.md#1311-最小引导)
+* [持续性宣言](./13_持续性与韧性.md#1312-验证)
+* [不可变形式化不变性](./13_持续性与韧性.md#132-长期归档)
+
+14. **[研究前沿](./14_研究前沿.md)**
+
+* [版本历史](./14_研究前沿.md)
 
 </details>
