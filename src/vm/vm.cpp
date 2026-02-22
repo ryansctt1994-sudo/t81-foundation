@@ -423,8 +423,8 @@ public:
       if (!state_.tensors[idx].has_value()) return nullptr;
       return &state_.tensors[idx].value();
     };
-    auto alloc_tensor = [this, current_pc](
-                            t81::T729Tensor tensor) -> std::expected<std::int64_t, Trap> {
+    auto alloc_tensor = [this,
+                         current_pc](t81::T729Tensor tensor) -> std::expected<std::int64_t, Trap> {
       std::size_t num_elements = tensor.data().size();
 
       if (state_.policy) {
@@ -682,9 +682,8 @@ public:
       if (!state_.infinite_forms[idx].has_value()) return nullptr;
       return &state_.infinite_forms[idx].value();
     };
-    auto alloc_symbolic_graph = [this, current_pc](
-                                    t81::cog::v1::SymbolicGraph graph)
-        -> std::expected<std::int64_t, Trap> {
+    auto alloc_symbolic_graph =
+        [this, current_pc](t81::cog::v1::SymbolicGraph graph) -> std::expected<std::int64_t, Trap> {
       std::size_t num_nodes = graph.nodes.size();
       if (state_.policy) {
         if (state_.policy->max_symbolic_graphs &&
@@ -713,9 +712,9 @@ public:
                                 "graph alloc");
       return static_cast<std::int64_t>(idx);
     };
-    auto alloc_infinite_form = [this, current_pc](
-                                   t81::cog::v5::InfiniteCanonicalForm form)
-        -> std::expected<std::int64_t, Trap> {
+    auto alloc_infinite_form =
+        [this, current_pc](
+            t81::cog::v5::InfiniteCanonicalForm form) -> std::expected<std::int64_t, Trap> {
       if (state_.policy) {
         if (state_.policy->max_infinite_forms &&
             state_.metrics.total_infinite_forms + 1 > *state_.policy->max_infinite_forms) {
