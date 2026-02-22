@@ -69,8 +69,8 @@
   - [ ] Shared memory segments
 - [ ] Literal Pools
   - [ ] Verify deterministic pool extension for conversions (`I2F`, etc.)
-- [ ] Code Segment Protection
-  - [ ] Verify enforcement of "Writable only via privileged loader"
+- [x] Code Segment Protection
+  - [x] Verify enforcement of "Writable only via privileged loader" (Enforced in VM: MetaWrite/MetaRefine denied on Code segment)
 - [ ] Libm Gap Mitigation
   - [ ] Plan/Implement software float math for full cross-platform determinism
 
