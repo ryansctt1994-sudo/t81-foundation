@@ -68,8 +68,8 @@ int main() {
   // Check Convergent Series
   // R11 should be 1 (true)
   if (state.contexts[0].registers[11] != 1) {
-    std::cerr << "Test Failed: R11 (Convergent check) should be 1, got " << state.contexts[0].registers[11]
-              << "\n";
+    std::cerr << "Test Failed: R11 (Convergent check) should be 1, got "
+              << state.contexts[0].registers[11] << "\n";
     failed = true;
   }
 
@@ -95,8 +95,8 @@ int main() {
   // Check Divergent Series
   // R21 should be 0 (false)
   if (state.contexts[0].registers[21] != 0) {
-    std::cerr << "Test Failed: R21 (Divergent check) should be 0, got " << state.contexts[0].registers[21]
-              << "\n";
+    std::cerr << "Test Failed: R21 (Divergent check) should be 0, got "
+              << state.contexts[0].registers[21] << "\n";
     failed = true;
   }
 

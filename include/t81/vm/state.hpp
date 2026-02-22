@@ -244,7 +244,7 @@ struct State {
   std::vector<ComplexValue> complexes;
   std::vector<TraceEntry> trace;
   std::vector<AxionEvent> axion_log;
-  bool halted{false}; // Global halt
+  bool halted{false};  // Global halt
   std::size_t gc_cycles{0};
   std::optional<t81::axion::Policy> policy;
   std::shared_ptr<t81::weights::ModelFile> weights_model;

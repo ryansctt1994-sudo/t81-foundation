@@ -310,13 +310,12 @@ public:
     }
 
     if (ctx.pc >= program_.insns.size()) {
-      auto verdict =
-          eval_axion_call(t81::axion::reasons::kStep, ctx.pc, t81::tisc::Opcode::Halt);
+      auto verdict = eval_axion_call(t81::axion::reasons::kStep, ctx.pc, t81::tisc::Opcode::Halt);
       if (verdict.kind == t81::axion::VerdictKind::Deny) {
         return std::expected<void, Trap>(t81::unexpect, Trap::SecurityFault);
       }
       ctx.halted = true;
-      state_.halted = true; // Single thread behavior
+      state_.halted = true;  // Single thread behavior
       return {};
     }
 
@@ -414,7 +413,8 @@ public:
       ctx.flags.negative = (v < 0);
       ctx.flags.positive = (v > 0);
     };
-    auto push_stack = [&ctx, this](std::int64_t val_data, ValueTag tag) -> std::optional<std::size_t> {
+    auto push_stack = [&ctx, this](std::int64_t val_data,
+                                   ValueTag tag) -> std::optional<std::size_t> {
       if (ctx.sp <= ctx.stack_limit) return std::nullopt;
 
       std::size_t new_sp = ctx.sp - 1;
@@ -430,7 +430,8 @@ public:
       state_.memory_tags[ctx.sp] = tag;
       return static_cast<std::size_t>(ctx.sp);
     };
-    auto pop_stack = [&ctx, this](std::int64_t& value, ValueTag& tag) -> std::optional<std::size_t> {
+    auto pop_stack = [&ctx, this](std::int64_t& value,
+                                  ValueTag& tag) -> std::optional<std::size_t> {
       if (ctx.sp >= ctx.stack_base) return std::nullopt;
       std::size_t addr = ctx.sp;
       value = state_.memory[addr];
@@ -1964,8 +1965,7 @@ public:
           trap = Trap::TypeFault;
           break;
         }
-        auto relation_opt =
-            compare_value(tag_b, ctx.registers[insn.b], ctx.registers[insn.c]);
+        auto relation_opt = compare_value(tag_b, ctx.registers[insn.b], ctx.registers[insn.c]);
         if (!relation_opt.has_value()) {
           trap = Trap::DecodeFault;
           break;
@@ -2010,8 +2010,7 @@ public:
           trap = Trap::TypeFault;
           break;
         }
-        auto relation_opt =
-            compare_value(tag_a, ctx.registers[insn.a], ctx.registers[insn.b]);
+        auto relation_opt = compare_value(tag_a, ctx.registers[insn.a], ctx.registers[insn.b]);
         if (!relation_opt.has_value()) {
           trap = Trap::DecodeFault;
           break;
@@ -4208,8 +4207,7 @@ public:
           verdict.kind = t81::axion::VerdictKind::Deny;
           verdict.reason = "Tier 3 recursion limit exceeded";
           record_axion_event(insn.opcode, 0,
-                             static_cast<std::int64_t>(ctx.tier3_recursor.current_depth),
-                             verdict);
+                             static_cast<std::int64_t>(ctx.tier3_recursor.current_depth), verdict);
           trap = Trap::SecurityFault;
           break;
         }
@@ -4615,12 +4613,12 @@ private:
     sys_ctx.instruction_count = instruction_count_;
 
     if (!state_.contexts.empty()) {
-        auto& tctx = state_.contexts[state_.current_context];
-        sys_ctx.recursion_depth = std::max(tctx.stack_frames.size(), tctx.call_depth);
-        sys_ctx.stack_usage = tctx.stack_base - tctx.sp;
+      auto& tctx = state_.contexts[state_.current_context];
+      sys_ctx.recursion_depth = std::max(tctx.stack_frames.size(), tctx.call_depth);
+      sys_ctx.stack_usage = tctx.stack_base - tctx.sp;
     } else {
-        sys_ctx.recursion_depth = 0;
-        sys_ctx.stack_usage = 0;
+      sys_ctx.recursion_depth = 0;
+      sys_ctx.stack_usage = 0;
     }
 
     sys_ctx.reflection_count = state_.reflection_count;
@@ -4752,9 +4750,9 @@ private:
     event.verdict = verdict;
     event.structured.reason = verdict.reason;
     if (!state_.contexts.empty()) {
-        event.structured.pc = state_.contexts[state_.current_context].pc;
+      event.structured.pc = state_.contexts[state_.current_context].pc;
     } else {
-        event.structured.pc = 0;
+      event.structured.pc = 0;
     }
     event.structured.handle_id = val_data;  // often used for handles
     if (verdict.kind == t81::axion::VerdictKind::Allow) {

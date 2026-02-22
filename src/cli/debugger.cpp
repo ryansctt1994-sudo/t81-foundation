@@ -163,7 +163,8 @@ void Debugger::print_registers() {
   std::cout << "Registers:\n";
   // Print common registers
   for (int i = 0; i < 9; ++i) {
-    std::cout << "  R" << std::setw(2) << std::left << i << ": " << state.contexts[0].registers[i] << "\n";
+    std::cout << "  R" << std::setw(2) << std::left << i << ": " << state.contexts[0].registers[i]
+              << "\n";
   }
   // Print non-zero others
   for (int i = 9; i < 243; ++i) {
@@ -173,7 +174,8 @@ void Debugger::print_registers() {
   }
   std::cout << "  PC: " << state.contexts[0].pc << "\n";
   std::cout << "  SP: " << state.contexts[0].sp << "\n";
-  std::cout << "  Flags: " << (state.contexts[0].flags.zero ? "Z" : "") << (state.contexts[0].flags.negative ? "N" : "")
+  std::cout << "  Flags: " << (state.contexts[0].flags.zero ? "Z" : "")
+            << (state.contexts[0].flags.negative ? "N" : "")
             << (state.contexts[0].flags.positive ? "P" : "") << "\n";
 }
 
@@ -201,7 +203,8 @@ void Debugger::print_current_instruction() {
 
   if (state.contexts[0].pc < program_.insns.size()) {
     const auto& insn = program_.insns[state.contexts[0].pc];
-    std::cout << "[" << std::setw(4) << state.contexts[0].pc << "] " << t81::tisc::opcode_name(insn.opcode);
+    std::cout << "[" << std::setw(4) << state.contexts[0].pc << "] "
+              << t81::tisc::opcode_name(insn.opcode);
     std::cout << " " << insn.a << ", " << insn.b << ", " << insn.c;
     if (insn.literal_kind != t81::tisc::LiteralKind::Int) {
       std::cout << " (lit=" << static_cast<int>(insn.literal_kind) << ")";

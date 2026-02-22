@@ -76,8 +76,8 @@ int main() {
     if (!res) break;
     steps++;
   }
-  std::cout << "  Failure detected: PC=" << vm->state().contexts[0].pc << " R0=" << vm->state().contexts[0].registers[0]
-            << " (Expected 100)" << std::endl;
+  std::cout << "  Failure detected: PC=" << vm->state().contexts[0].pc
+            << " R0=" << vm->state().contexts[0].registers[0] << " (Expected 100)" << std::endl;
 
   std::cout << "[Step 2] Tier 4 Fixer running (Reflect -> Diagnose -> Patch)..." << std::endl;
   while (vm->state().contexts[0].pc != 0 && steps < 200) {
@@ -94,7 +94,8 @@ int main() {
     steps++;
   }
 
-  std::cout << "  Final result: R0=" << vm->state().contexts[0].registers[0] << " (Success!)" << std::endl;
+  std::cout << "  Final result: R0=" << vm->state().contexts[0].registers[0] << " (Success!)"
+            << std::endl;
   assert(vm->state().contexts[0].registers[0] == 100);
   assert(vm->state().halted);
 

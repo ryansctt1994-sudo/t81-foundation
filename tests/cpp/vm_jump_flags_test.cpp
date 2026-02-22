@@ -30,10 +30,12 @@ int main() {
     [[maybe_unused]] auto r = vm->run_to_halt();
     if (!expect(r.has_value(), "zero-branch run unexpectedly trapped")) return 1;
     // r1 should remain zero because branch skipped pc2.
-    if (!expect(vm->state().contexts[0].registers[1] == 0, "zero-branch did not skip pc2")) return 1;
+    if (!expect(vm->state().contexts[0].registers[1] == 0, "zero-branch did not skip pc2"))
+      return 1;
     // zero flag should reflect last result (from LoadImm r2 = 0).
     if (!expect(vm->state().contexts[0].flags.zero, "zero flag not set")) return 1;
-    if (!expect(!vm->state().contexts[0].flags.negative, "negative flag unexpectedly set")) return 1;
+    if (!expect(!vm->state().contexts[0].flags.negative, "negative flag unexpectedly set"))
+      return 1;
   }
 
   // Invalid jump target should trap and be logged.
@@ -62,7 +64,8 @@ int main() {
     vm->load_program(p);
     [[maybe_unused]] auto r = vm->run_to_halt();
     if (!expect(r.has_value(), "nonzero-branch run unexpectedly trapped")) return 1;
-    if (!expect(vm->state().contexts[0].registers[1] == 0, "nonzero-branch did not skip pc2")) return 1;
+    if (!expect(vm->state().contexts[0].registers[1] == 0, "nonzero-branch did not skip pc2"))
+      return 1;
   }
 
   // Call/Ret stack handling and Trap instruction.
@@ -81,8 +84,10 @@ int main() {
     if (!expect(!r.has_value(), "Trap instruction did not fault")) return 1;
     if (!expect(r.error() == vm::Trap::TrapInstruction, "Trap instruction fault type mismatch"))
       return 1;
-    if (!expect(vm->state().contexts[0].registers[1] == 42, "call body register value mismatch")) return 1;
-    if (!expect(vm->state().contexts[0].registers[2] == 7, "post-return register value mismatch")) return 1;
+    if (!expect(vm->state().contexts[0].registers[1] == 42, "call body register value mismatch"))
+      return 1;
+    if (!expect(vm->state().contexts[0].registers[2] == 7, "post-return register value mismatch"))
+      return 1;
   }
 
   return 0;

@@ -38,7 +38,7 @@ int main() {
   auto& state = const_cast<State&>(vm->state());
   state.contexts.emplace_back();
   auto& ctx1 = state.contexts.back();
-  ctx1.pc = 3; // Start at instruction 3
+  ctx1.pc = 3;  // Start at instruction 3
   ctx1.register_tags.fill(ValueTag::Int);
 
   // Allocate stack for ctx1 (simple partition)
@@ -46,11 +46,11 @@ int main() {
   // We'll split it.
   auto& ctx0 = state.contexts[0];
   ctx0.stack_base = state.layout.stack.limit;
-  ctx0.stack_limit = state.layout.stack.limit - 128; // Top half
+  ctx0.stack_limit = state.layout.stack.limit - 128;  // Top half
   ctx0.sp = ctx0.stack_base;
 
   ctx1.stack_base = state.layout.stack.limit - 128;
-  ctx1.stack_limit = state.layout.stack.start; // Bottom half
+  ctx1.stack_limit = state.layout.stack.start;  // Bottom half
   ctx1.sp = ctx1.stack_base;
 
   // Run for a few steps
@@ -61,14 +61,14 @@ int main() {
   vm->step();
   T81_TEST_CHECK(state.contexts[0].registers[1] == 100);
   T81_TEST_CHECK(state.contexts[0].pc == 1);
-  T81_TEST_CHECK(state.current_context == 1); // Switched to 1
+  T81_TEST_CHECK(state.current_context == 1);  // Switched to 1
 
   // Step 2: Ctx1 executes PC=3 (LoadImm R1, 200) -> Next PC=4
   // Post-step: switch to Ctx0
   vm->step();
   T81_TEST_CHECK(state.contexts[1].registers[1] == 200);
   T81_TEST_CHECK(state.contexts[1].pc == 4);
-  T81_TEST_CHECK(state.current_context == 0); // Switched to 0
+  T81_TEST_CHECK(state.current_context == 0);  // Switched to 0
 
   // Step 3: Ctx0 executes PC=1 (Inc R1) -> R1=101, Next PC=2
   vm->step();

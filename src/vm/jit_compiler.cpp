@@ -299,10 +299,11 @@ public:
             break;
           }
           const auto& stack = state.layout.stack;
-          // Note: using global stack layout limits in JIT for simplicity, or should access ctx limits?
-          // For now, assuming stack structure fits.
-          // Wait, JIT needs to use ctx.sp and stack_limit.
-          if (ctx.sp <= ctx.stack_limit) { // Check underflow of free space (overflow of stack usage)
+          // Note: using global stack layout limits in JIT for simplicity, or should access ctx
+          // limits? For now, assuming stack structure fits. Wait, JIT needs to use ctx.sp and
+          // stack_limit.
+          if (ctx.sp <=
+              ctx.stack_limit) {  // Check underflow of free space (overflow of stack usage)
             stop_trace = true;
             guard_deopt = true;
             break;
@@ -313,10 +314,10 @@ public:
           // Original JIT check:
           // if (!stack.valid() || state.sp <= stack.start)
           // New check:
-          if (ctx.sp <= ctx.stack_limit) { // limit is the lower bound (start of segment)
-             stop_trace = true;
-             guard_deopt = true;
-             break;
+          if (ctx.sp <= ctx.stack_limit) {  // limit is the lower bound (start of segment)
+            stop_trace = true;
+            guard_deopt = true;
+            break;
           }
 
           std::size_t new_sp = ctx.sp - 1;
@@ -484,8 +485,8 @@ public:
             guard_deopt = true;
             break;
           }
-          ctx.registers[insn.a] = intern_enum(
-              static_cast<int>(insn.c), true, ctx.register_tags[insn.b], ctx.registers[insn.b]);
+          ctx.registers[insn.a] = intern_enum(static_cast<int>(insn.c), true,
+                                              ctx.register_tags[insn.b], ctx.registers[insn.b]);
           ctx.register_tags[insn.a] = ValueTag::EnumHandle;
           break;
         case t81::tisc::Opcode::EnumIsVariant: {
@@ -530,8 +531,7 @@ public:
             guard_deopt = true;
             break;
           }
-          ctx.registers[insn.a] =
-              intern_complex(ctx.registers[insn.b], ctx.registers[insn.c]);
+          ctx.registers[insn.a] = intern_complex(ctx.registers[insn.b], ctx.registers[insn.c]);
           ctx.register_tags[insn.a] = ValueTag::ComplexHandle;
           break;
         case t81::tisc::Opcode::TMatMul: {
@@ -736,8 +736,7 @@ public:
 
           ctx.sp = new_sp;
           // Interpreter pushes the post-call PC.
-          state.memory[ctx.sp] =
-              static_cast<std::int64_t>(ctx.pc + result.instructions_executed);
+          state.memory[ctx.sp] = static_cast<std::int64_t>(ctx.pc + result.instructions_executed);
           state.memory_tags[ctx.sp] = ValueTag::Int;
           ctx.call_depth += 1;
           ctx.pc = static_cast<std::size_t>(target);
