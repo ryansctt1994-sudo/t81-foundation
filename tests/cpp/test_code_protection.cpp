@@ -35,7 +35,8 @@ int main() {
       std::cout << "Protection SUCCESS: Trapped with SecurityFault as expected." << std::endl;
       return 0;
     } else {
-      std::cerr << "Protection FAILED: Trapped but with wrong error: " << t81::vm::to_string(result.error()) << std::endl;
+      std::cerr << "Protection FAILED: Trapped but with wrong error: "
+                << t81::vm::to_string(result.error()) << std::endl;
       return 1;
     }
   }
