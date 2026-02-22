@@ -76,14 +76,14 @@ int main() {
   const auto& state = vm->state();
 
   // Verify R6 is true (1)
-  if (state.registers[6] != 1) {
-    std::cerr << "Test Failed: R6 should be 1, got " << state.registers[6] << std::endl;
+  if (state.contexts[0].registers[6] != 1) {
+    std::cerr << "Test Failed: R6 should be 1, got " << state.contexts[0].registers[6] << std::endl;
     return 1;
   }
 
   // Verify R8 is false (0)
-  if (state.registers[8] != 0) {
-    std::cerr << "Test Failed: R8 should be 0, got " << state.registers[8] << std::endl;
+  if (state.contexts[0].registers[8] != 0) {
+    std::cerr << "Test Failed: R8 should be 0, got " << state.contexts[0].registers[8] << std::endl;
     return 1;
   }
 

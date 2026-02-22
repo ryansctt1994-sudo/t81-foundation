@@ -53,7 +53,7 @@ int main() {
     auto vm = run_program({load_desc, capture, load_just, justify, halt}, symbols);
 
     const auto& state = vm->state();
-    T81_TEST_CHECK(state.register_tags[2] == ValueTag::Tier2FrameHandle);
+    T81_TEST_CHECK(state.contexts[0].register_tags[2] == ValueTag::Tier2FrameHandle);
     T81_TEST_CHECK(state.tier2_frames.size() == 1);
 
     const auto& frame = state.tier2_frames[0];

@@ -20,11 +20,12 @@ int main() {
   std::cout << "Starting HanoiVM JIT Prototype test...\n";
 
   [[maybe_unused]] State state;
-  state.registers.fill(0);
-  state.register_tags.fill(ValueTag::Int);
+  state.contexts.emplace_back();
+  state.contexts[0].registers.fill(0);
+  state.contexts[0].register_tags.fill(ValueTag::Int);
 
-  state.registers[1] = 10;
-  state.registers[2] = 20;
+  state.contexts[0].registers[1] = 10;
+  state.contexts[0].registers[2] = 20;
 
   [[maybe_unused]] JitCompiler compiler;
   compiler.start_tracing(0);
@@ -50,13 +51,13 @@ int main() {
 
   [[maybe_unused]] auto exec = trace->execute(state);
 
-  std::cout << "R4: " << state.registers[4] << " (Expected 30)\n";
-  std::cout << "R3: " << state.registers[3] << " (Expected 300)\n";
+  std::cout << "R4: " << state.contexts[0].registers[4] << " (Expected 30)\n";
+  std::cout << "R3: " << state.contexts[0].registers[3] << " (Expected 300)\n";
 
-  if (!expect(state.registers[4] == 30, "R4 mismatch after Add")) {
+  if (!expect(state.contexts[0].registers[4] == 30, "R4 mismatch after Add")) {
     return 1;
   }
-  if (!expect(state.registers[3] == 300, "R3 mismatch after Mul")) {
+  if (!expect(state.contexts[0].registers[3] == 300, "R3 mismatch after Mul")) {
     return 1;
   }
 

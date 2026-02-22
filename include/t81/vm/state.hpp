@@ -195,15 +195,40 @@ struct ResourceMetrics {
   std::size_t total_infinite_forms{0};
 };
 
+struct ThreadContext {
+  std::array<std::int64_t, 243> registers{};  // R0..R242
+  std::array<ValueTag, 243> register_tags{};
+  Flags flags{};
+  std::size_t pc{0};
+  std::size_t sp{0};
+  std::vector<std::pair<std::int64_t, std::int64_t>> stack_frames;
+  std::size_t call_depth{0};
+  bool halted{false};
+  bool active{true};
+  std::size_t stack_base{0};
+  std::size_t stack_limit{0};
+
+  // Tier 2 Reflective
+  std::vector<t81::cog::v2::ReflectiveFrame> tier2_frames;
+
+  // Tier 3 Recursive
+  t81::cog::v3::Recursor tier3_recursor;
+
+  // Cognitive Tier Status (per thread)
+  t81::cog::TierStatus tier_status;
+};
+
 // Virtual machine register file per spec/t81vm-spec.md.
 struct State {
   ResourceMetrics metrics;
-  std::array<std::int64_t, 243> registers{};  // R0..R242
-  std::array<ValueTag, 243> register_tags{};
+
+  // Concurrency
+  std::vector<ThreadContext> contexts;
+  std::size_t current_context{0};
+
   std::vector<std::int64_t> memory;
   std::vector<ValueTag> memory_tags;
   MemoryLayout layout{};
-  std::size_t sp{0};
   std::vector<std::optional<t81::T729Tensor>> tensors;
   std::vector<std::size_t> free_tensor_indices;
   std::size_t total_tensor_elements{0};
@@ -219,16 +244,12 @@ struct State {
   std::vector<ComplexValue> complexes;
   std::vector<TraceEntry> trace;
   std::vector<AxionEvent> axion_log;
-  Flags flags{};
-  std::size_t pc{0};
-  bool halted{false};
+  bool halted{false};  // Global halt
   std::size_t gc_cycles{0};
   std::optional<t81::axion::Policy> policy;
   std::shared_ptr<t81::weights::ModelFile> weights_model;
   std::vector<const t81::weights::NativeTensor*> weights_tensor_refs;
   std::unordered_map<std::string, std::int64_t> weights_tensor_handles;
-  std::vector<std::pair<std::int64_t, std::int64_t>> stack_frames;
-  std::size_t call_depth{0};
   std::size_t contradiction_events{0};
   std::vector<std::pair<std::int64_t, std::int64_t>> heap_frames;
   std::size_t heap_ptr{0};
@@ -241,18 +262,9 @@ struct State {
   std::size_t reflection_count{0};
   std::size_t meta_write_count{0};
 
-  // Cognitive Tier Status
-  t81::cog::TierStatus tier_status;
-
   // Tier 1 Symbolic
   std::vector<t81::cog::v1::SymbolicGraph> symbolic_graphs;
   std::size_t total_symbolic_nodes{0};
-
-  // Tier 2 Reflective
-  std::vector<t81::cog::v2::ReflectiveFrame> tier2_frames;
-
-  // Tier 3 Recursive
-  t81::cog::v3::Recursor tier3_recursor;
 
   // Tier 4 Distributed
   t81::cog::v4::NodeState tier4_state;

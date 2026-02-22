@@ -39,7 +39,7 @@ int main() {
     // Step 0: LoadImm R1, 10
     auto res = vm->step();
     T81_TEST_CHECK(res.has_value());
-    T81_TEST_CHECK(vm->state().registers[1] == 10);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 10);
 
     // Step 1: Should trap
     res = vm->step();
@@ -47,7 +47,7 @@ int main() {
     T81_TEST_CHECK(res.error() == Trap::DivisionFault);
 
     // Ensure it didn't execute
-    T81_TEST_CHECK(vm->state().registers[2] == 0);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[2] == 0);
   }
 
   // Test 2: Fault injection at instruction count 0
@@ -63,7 +63,7 @@ int main() {
     auto res = vm->step();
     T81_TEST_CHECK(!res.has_value());
     T81_TEST_CHECK(res.error() == Trap::SecurityFault);
-    T81_TEST_CHECK(vm->state().registers[1] == 0);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 0);
   }
 
   // Test 3: Multiple faults

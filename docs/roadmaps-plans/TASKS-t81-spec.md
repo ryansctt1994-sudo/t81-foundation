@@ -64,9 +64,9 @@
     - [x] ReflCheck, ReflTrace, ReflSeal
     - [x] Tier 3 Recursive Opcodes (Recurse, Contract, Entropy, Depth, Terminate)
   - [x+] Infinite Series Compression (Geometric Series, see `src/cog/tier5/infinite.cpp`, `src/vm/vm.cpp`)
-- [ ] Concurrency Model (spec section 3)
-  - [ ] Multiple execution contexts / threads support
-  - [ ] Shared memory segments
+- [x] Concurrency Model (spec section 3)
+  - [x] Multiple execution contexts / threads support
+  - [x] Shared memory segments
 - [x] Literal Pools
   - [x] Verify deterministic pool extension for conversions (`I2F`, etc.)
 - [x] Code Segment Protection

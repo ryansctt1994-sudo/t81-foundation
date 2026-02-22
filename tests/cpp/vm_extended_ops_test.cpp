@@ -47,12 +47,12 @@ int main() {
     vm->load_program(p);
     [[maybe_unused]] auto r = vm->run_to_halt();
     T81_TEST_CHECK(r.has_value());
-    T81_TEST_CHECK(vm->state().registers[1] == 6);
-    T81_TEST_CHECK(vm->state().registers[2] == 4);
-    T81_TEST_CHECK(vm->state().registers[3] == 4);
-    T81_TEST_CHECK(vm->state().registers[4] == 6);
-    T81_TEST_CHECK(vm->state().registers[5] == 42);
-    T81_TEST_CHECK(vm->state().registers[6] == 0);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 6);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[2] == 4);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[3] == 4);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[4] == 6);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[5] == 42);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[6] == 0);
     T81_TEST_CHECK(vm->state().axion_log.size() >= 3);
     T81_TEST_CHECK(std::any_of(vm->state().axion_log.begin(), vm->state().axion_log.end(),
                                [](const auto& e) { return e.opcode == tisc::Opcode::AxRead; }));
@@ -98,8 +98,8 @@ int main() {
     vm->load_program(p);
     [[maybe_unused]] auto r = vm->run_to_halt();
     T81_TEST_CHECK(r.has_value());
-    T81_TEST_CHECK(vm->state().register_tags[3] == vm::ValueTag::StringVectorHandle);
-    T81_TEST_CHECK(vm->state().register_tags[4] == vm::ValueTag::SymbolHandle);
+    T81_TEST_CHECK(vm->state().contexts[0].register_tags[3] == vm::ValueTag::StringVectorHandle);
+    T81_TEST_CHECK(vm->state().contexts[0].register_tags[4] == vm::ValueTag::SymbolHandle);
 
     const auto& log = vm->state().axion_log;
     T81_TEST_CHECK(std::any_of(log.begin(), log.end(), [](const auto& e) {
@@ -129,12 +129,12 @@ int main() {
     vm->load_program(p);
     [[maybe_unused]] auto r = vm->run_to_halt();
     T81_TEST_CHECK(r.has_value());
-    T81_TEST_CHECK(vm->state().register_tags[1] == vm::ValueTag::ProofHandle);
-    T81_TEST_CHECK(vm->state().register_tags[2] == vm::ValueTag::IoStreamHandle);
-    T81_TEST_CHECK(vm->state().register_tags[3] == vm::ValueTag::IoNetHandle);
-    T81_TEST_CHECK(vm->state().register_tags[4] == vm::ValueTag::AsyncThreadHandle);
-    T81_TEST_CHECK(vm->state().register_tags[5] == vm::ValueTag::AsyncPromiseHandle);
-    T81_TEST_CHECK(vm->state().registers[6] ==
+    T81_TEST_CHECK(vm->state().contexts[0].register_tags[1] == vm::ValueTag::ProofHandle);
+    T81_TEST_CHECK(vm->state().contexts[0].register_tags[2] == vm::ValueTag::IoStreamHandle);
+    T81_TEST_CHECK(vm->state().contexts[0].register_tags[3] == vm::ValueTag::IoNetHandle);
+    T81_TEST_CHECK(vm->state().contexts[0].register_tags[4] == vm::ValueTag::AsyncThreadHandle);
+    T81_TEST_CHECK(vm->state().contexts[0].register_tags[5] == vm::ValueTag::AsyncPromiseHandle);
+    T81_TEST_CHECK(vm->state().contexts[0].registers[6] ==
                    static_cast<std::int64_t>(std::string("std.io.stream").size()));
   }
 

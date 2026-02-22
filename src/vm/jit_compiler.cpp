@@ -11,8 +11,11 @@ public:
   std::size_t size() const override { return insns_.size(); }
 
   ExecResult execute(State& state) override {
-    auto reg_ok = [&state](int r) {
-      return r >= 0 && static_cast<std::size_t>(r) < state.registers.size();
+    if (state.contexts.empty()) return {};
+    auto& ctx = state.contexts[state.current_context];
+
+    auto reg_ok = [&ctx](int r) {
+      return r >= 0 && static_cast<std::size_t>(r) < ctx.registers.size();
     };
     auto mem_ok = [&state](std::int64_t addr) {
       return addr >= 0 && static_cast<std::size_t>(addr) < state.memory.size();
@@ -101,8 +104,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = state.registers[insn.b] + state.registers[insn.c];
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = ctx.registers[insn.b] + ctx.registers[insn.c];
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         case t81::tisc::Opcode::Sub:
           if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
@@ -110,8 +113,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = state.registers[insn.b] - state.registers[insn.c];
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = ctx.registers[insn.b] - ctx.registers[insn.c];
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         case t81::tisc::Opcode::Mul:
           if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
@@ -119,8 +122,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = state.registers[insn.b] * state.registers[insn.c];
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = ctx.registers[insn.b] * ctx.registers[insn.c];
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         case t81::tisc::Opcode::Div:
           if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
@@ -128,13 +131,13 @@ public:
             guard_deopt = true;
             break;
           }
-          if (state.registers[insn.c] == 0) {
+          if (ctx.registers[insn.c] == 0) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = state.registers[insn.b] / state.registers[insn.c];
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = ctx.registers[insn.b] / ctx.registers[insn.c];
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         case t81::tisc::Opcode::Mod:
           if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
@@ -142,13 +145,13 @@ public:
             guard_deopt = true;
             break;
           }
-          if (state.registers[insn.c] == 0) {
+          if (ctx.registers[insn.c] == 0) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = state.registers[insn.b] % state.registers[insn.c];
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = ctx.registers[insn.b] % ctx.registers[insn.c];
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         case t81::tisc::Opcode::Inc:
           if (!reg_ok(insn.a)) {
@@ -156,8 +159,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a]++;
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a]++;
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         case t81::tisc::Opcode::Dec:
           if (!reg_ok(insn.a)) {
@@ -165,8 +168,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a]--;
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a]--;
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         case t81::tisc::Opcode::Mov:
           if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
@@ -174,8 +177,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = state.registers[insn.b];
-          state.register_tags[insn.a] = state.register_tags[insn.b];
+          ctx.registers[insn.a] = ctx.registers[insn.b];
+          ctx.register_tags[insn.a] = ctx.register_tags[insn.b];
           break;
         case t81::tisc::Opcode::Neg:
           if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
@@ -183,8 +186,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = -state.registers[insn.b];
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = -ctx.registers[insn.b];
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         case t81::tisc::Opcode::TNot: {
           if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
@@ -192,9 +195,9 @@ public:
             guard_deopt = true;
             break;
           }
-          int t = clamp_trit(state.registers[insn.b]);
-          state.registers[insn.a] = -t;
-          state.register_tags[insn.a] = ValueTag::Int;
+          int t = clamp_trit(ctx.registers[insn.b]);
+          ctx.registers[insn.a] = -t;
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         }
         case t81::tisc::Opcode::TAnd:
@@ -205,8 +208,8 @@ public:
             guard_deopt = true;
             break;
           }
-          int lhs = clamp_trit(state.registers[insn.b]);
-          int rhs = clamp_trit(state.registers[insn.c]);
+          int lhs = clamp_trit(ctx.registers[insn.b]);
+          int rhs = clamp_trit(ctx.registers[insn.c]);
           int out = 0;
           if (insn.opcode == t81::tisc::Opcode::TAnd) {
             out = (lhs < rhs) ? lhs : rhs;
@@ -217,8 +220,8 @@ public:
             if (out > 1) out = -1;
             if (out < -1) out = 1;
           }
-          state.registers[insn.a] = out;
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = out;
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         }
         case t81::tisc::Opcode::LoadImm:
@@ -227,47 +230,47 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = insn.b;
+          ctx.registers[insn.a] = insn.b;
           switch (insn.literal_kind) {
             case t81::tisc::LiteralKind::Int:
-              state.register_tags[insn.a] = ValueTag::Int;
+              ctx.register_tags[insn.a] = ValueTag::Int;
               break;
             case t81::tisc::LiteralKind::Bool:
-              state.register_tags[insn.a] = ValueTag::Bool;
+              ctx.register_tags[insn.a] = ValueTag::Bool;
               break;
             case t81::tisc::LiteralKind::FloatHandle:
-              state.register_tags[insn.a] = ValueTag::FloatHandle;
+              ctx.register_tags[insn.a] = ValueTag::FloatHandle;
               break;
             case t81::tisc::LiteralKind::FractionHandle:
-              state.register_tags[insn.a] = ValueTag::FractionHandle;
+              ctx.register_tags[insn.a] = ValueTag::FractionHandle;
               break;
             case t81::tisc::LiteralKind::SymbolHandle:
-              state.register_tags[insn.a] = ValueTag::SymbolHandle;
+              ctx.register_tags[insn.a] = ValueTag::SymbolHandle;
               if (insn.b > 0 && static_cast<std::size_t>(insn.b) <= state.symbols.size()) {
                 const auto& symbol = state.symbols[static_cast<std::size_t>(insn.b - 1)];
                 if (symbol == "std.sys.proof") {
-                  state.register_tags[insn.a] = ValueTag::ProofHandle;
-                  state.registers[insn.a] = 1;
+                  ctx.register_tags[insn.a] = ValueTag::ProofHandle;
+                  ctx.registers[insn.a] = 1;
                 } else if (symbol == "std.io.stream") {
-                  state.register_tags[insn.a] = ValueTag::IoStreamHandle;
-                  state.registers[insn.a] = 1;
+                  ctx.register_tags[insn.a] = ValueTag::IoStreamHandle;
+                  ctx.registers[insn.a] = 1;
                 } else if (symbol == "std.io.net") {
-                  state.register_tags[insn.a] = ValueTag::IoNetHandle;
-                  state.registers[insn.a] = 1;
+                  ctx.register_tags[insn.a] = ValueTag::IoNetHandle;
+                  ctx.registers[insn.a] = 1;
                 } else if (symbol == "std.async.thread") {
-                  state.register_tags[insn.a] = ValueTag::AsyncThreadHandle;
-                  state.registers[insn.a] = 1;
+                  ctx.register_tags[insn.a] = ValueTag::AsyncThreadHandle;
+                  ctx.registers[insn.a] = 1;
                 } else if (symbol == "std.async.promise") {
-                  state.register_tags[insn.a] = ValueTag::AsyncPromiseHandle;
-                  state.registers[insn.a] = 1;
+                  ctx.register_tags[insn.a] = ValueTag::AsyncPromiseHandle;
+                  ctx.registers[insn.a] = 1;
                 }
               }
               break;
             case t81::tisc::LiteralKind::TensorHandle:
-              state.register_tags[insn.a] = ValueTag::TensorHandle;
+              ctx.register_tags[insn.a] = ValueTag::TensorHandle;
               break;
             case t81::tisc::LiteralKind::ShapeHandle:
-              state.register_tags[insn.a] = ValueTag::ShapeHandle;
+              ctx.register_tags[insn.a] = ValueTag::ShapeHandle;
               break;
           }
           break;
@@ -277,8 +280,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = state.memory[static_cast<std::size_t>(insn.b)];
-          state.register_tags[insn.a] = state.memory_tags[static_cast<std::size_t>(insn.b)];
+          ctx.registers[insn.a] = state.memory[static_cast<std::size_t>(insn.b)];
+          ctx.register_tags[insn.a] = state.memory_tags[static_cast<std::size_t>(insn.b)];
           break;
         case t81::tisc::Opcode::Store:
           if (!reg_ok(insn.b) || !mem_ok(insn.a)) {
@@ -286,8 +289,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.memory[static_cast<std::size_t>(insn.a)] = state.registers[insn.b];
-          state.memory_tags[static_cast<std::size_t>(insn.a)] = state.register_tags[insn.b];
+          state.memory[static_cast<std::size_t>(insn.a)] = ctx.registers[insn.b];
+          state.memory_tags[static_cast<std::size_t>(insn.a)] = ctx.register_tags[insn.b];
           break;
         case t81::tisc::Opcode::Push: {
           if (!reg_ok(insn.a)) {
@@ -296,20 +299,34 @@ public:
             break;
           }
           const auto& stack = state.layout.stack;
-          if (!stack.valid() || state.sp <= stack.start) {
+          // Note: using global stack layout limits in JIT for simplicity, or should access ctx
+          // limits? For now, assuming stack structure fits. Wait, JIT needs to use ctx.sp and
+          // stack_limit.
+          if (ctx.sp <=
+              ctx.stack_limit) {  // Check underflow of free space (overflow of stack usage)
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          std::size_t new_sp = state.sp - 1;
-          if (!stack.contains(new_sp)) {
+          // Assuming single segment logic in JIT for now, or updating to match VM.
+          // ctx.sp grows down.
+
+          // Original JIT check:
+          // if (!stack.valid() || state.sp <= stack.start)
+          // New check:
+          if (ctx.sp <= ctx.stack_limit) {  // limit is the lower bound (start of segment)
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          state.sp = new_sp;
-          state.memory[state.sp] = state.registers[insn.a];
-          state.memory_tags[state.sp] = state.register_tags[insn.a];
+
+          std::size_t new_sp = ctx.sp - 1;
+          // Global bounds check against stack segment?
+          // ctx.stack_limit should be safe.
+
+          ctx.sp = new_sp;
+          state.memory[ctx.sp] = ctx.registers[insn.a];
+          state.memory_tags[ctx.sp] = ctx.register_tags[insn.a];
           break;
         }
         case t81::tisc::Opcode::Pop: {
@@ -318,15 +335,15 @@ public:
             guard_deopt = true;
             break;
           }
-          const auto& stack = state.layout.stack;
-          if (!stack.valid() || state.sp >= stack.limit) {
+          // Check against stack_base (upper bound)
+          if (ctx.sp >= ctx.stack_base) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = state.memory[state.sp];
-          state.register_tags[insn.a] = state.memory_tags[state.sp];
-          state.sp += 1;
+          ctx.registers[insn.a] = state.memory[ctx.sp];
+          ctx.register_tags[insn.a] = state.memory_tags[ctx.sp];
+          ctx.sp += 1;
           break;
         }
         case t81::tisc::Opcode::MakeOptionSome:
@@ -335,9 +352,9 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] =
-              intern_option(true, state.register_tags[insn.b], state.registers[insn.b]);
-          state.register_tags[insn.a] = ValueTag::OptionHandle;
+          ctx.registers[insn.a] =
+              intern_option(true, ctx.register_tags[insn.b], ctx.registers[insn.b]);
+          ctx.register_tags[insn.a] = ValueTag::OptionHandle;
           break;
         case t81::tisc::Opcode::MakeOptionNone:
           if (!reg_ok(insn.a)) {
@@ -345,8 +362,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = intern_option(false, ValueTag::Int, 0);
-          state.register_tags[insn.a] = ValueTag::OptionHandle;
+          ctx.registers[insn.a] = intern_option(false, ValueTag::Int, 0);
+          ctx.register_tags[insn.a] = ValueTag::OptionHandle;
           break;
         case t81::tisc::Opcode::MakeResultOk:
           if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
@@ -354,9 +371,9 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] =
-              intern_result(true, state.register_tags[insn.b], state.registers[insn.b]);
-          state.register_tags[insn.a] = ValueTag::ResultHandle;
+          ctx.registers[insn.a] =
+              intern_result(true, ctx.register_tags[insn.b], ctx.registers[insn.b]);
+          ctx.register_tags[insn.a] = ValueTag::ResultHandle;
           break;
         case t81::tisc::Opcode::MakeResultErr:
           if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
@@ -364,93 +381,93 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] =
-              intern_result(false, state.register_tags[insn.b], state.registers[insn.b]);
-          state.register_tags[insn.a] = ValueTag::ResultHandle;
+          ctx.registers[insn.a] =
+              intern_result(false, ctx.register_tags[insn.b], ctx.registers[insn.b]);
+          ctx.register_tags[insn.a] = ValueTag::ResultHandle;
           break;
         case t81::tisc::Opcode::OptionIsSome: {
           if (!reg_ok(insn.a) || !reg_ok(insn.b) ||
-              state.register_tags[insn.b] != ValueTag::OptionHandle) {
+              ctx.register_tags[insn.b] != ValueTag::OptionHandle) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          auto* opt = option_ptr(state.registers[insn.b]);
+          auto* opt = option_ptr(ctx.registers[insn.b]);
           if (!opt) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = opt->has_value ? 1 : 0;
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = opt->has_value ? 1 : 0;
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         }
         case t81::tisc::Opcode::OptionUnwrap: {
           if (!reg_ok(insn.a) || !reg_ok(insn.b) ||
-              state.register_tags[insn.b] != ValueTag::OptionHandle) {
+              ctx.register_tags[insn.b] != ValueTag::OptionHandle) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          auto* opt = option_ptr(state.registers[insn.b]);
+          auto* opt = option_ptr(ctx.registers[insn.b]);
           if (!opt || !opt->has_value) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = opt->payload;
-          state.register_tags[insn.a] = opt->payload_tag;
+          ctx.registers[insn.a] = opt->payload;
+          ctx.register_tags[insn.a] = opt->payload_tag;
           break;
         }
         case t81::tisc::Opcode::ResultIsOk: {
           if (!reg_ok(insn.a) || !reg_ok(insn.b) ||
-              state.register_tags[insn.b] != ValueTag::ResultHandle) {
+              ctx.register_tags[insn.b] != ValueTag::ResultHandle) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          auto* res = result_ptr(state.registers[insn.b]);
+          auto* res = result_ptr(ctx.registers[insn.b]);
           if (!res) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = res->is_ok ? 1 : 0;
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = res->is_ok ? 1 : 0;
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         }
         case t81::tisc::Opcode::ResultUnwrapOk: {
           if (!reg_ok(insn.a) || !reg_ok(insn.b) ||
-              state.register_tags[insn.b] != ValueTag::ResultHandle) {
+              ctx.register_tags[insn.b] != ValueTag::ResultHandle) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          auto* res = result_ptr(state.registers[insn.b]);
+          auto* res = result_ptr(ctx.registers[insn.b]);
           if (!res || !res->is_ok) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = res->payload;
-          state.register_tags[insn.a] = res->payload_tag;
+          ctx.registers[insn.a] = res->payload;
+          ctx.register_tags[insn.a] = res->payload_tag;
           break;
         }
         case t81::tisc::Opcode::ResultUnwrapErr: {
           if (!reg_ok(insn.a) || !reg_ok(insn.b) ||
-              state.register_tags[insn.b] != ValueTag::ResultHandle) {
+              ctx.register_tags[insn.b] != ValueTag::ResultHandle) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          auto* res = result_ptr(state.registers[insn.b]);
+          auto* res = result_ptr(ctx.registers[insn.b]);
           if (!res || res->is_ok) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = res->payload;
-          state.register_tags[insn.a] = res->payload_tag;
+          ctx.registers[insn.a] = res->payload;
+          ctx.register_tags[insn.a] = res->payload_tag;
           break;
         }
         case t81::tisc::Opcode::MakeEnumVariant:
@@ -459,8 +476,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = intern_enum(static_cast<int>(insn.b), false, ValueTag::Int, 0);
-          state.register_tags[insn.a] = ValueTag::EnumHandle;
+          ctx.registers[insn.a] = intern_enum(static_cast<int>(insn.b), false, ValueTag::Int, 0);
+          ctx.register_tags[insn.a] = ValueTag::EnumHandle;
           break;
         case t81::tisc::Opcode::MakeEnumVariantPayload:
           if (!reg_ok(insn.a) || !reg_ok(insn.b) || insn.c < 0) {
@@ -468,55 +485,54 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = intern_enum(
-              static_cast<int>(insn.c), true, state.register_tags[insn.b], state.registers[insn.b]);
-          state.register_tags[insn.a] = ValueTag::EnumHandle;
+          ctx.registers[insn.a] = intern_enum(static_cast<int>(insn.c), true,
+                                              ctx.register_tags[insn.b], ctx.registers[insn.b]);
+          ctx.register_tags[insn.a] = ValueTag::EnumHandle;
           break;
         case t81::tisc::Opcode::EnumIsVariant: {
           if (!reg_ok(insn.a) || !reg_ok(insn.b) ||
-              state.register_tags[insn.b] != ValueTag::EnumHandle) {
+              ctx.register_tags[insn.b] != ValueTag::EnumHandle) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          auto* val = enum_ptr(state.registers[insn.b]);
+          auto* val = enum_ptr(ctx.registers[insn.b]);
           if (!val) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = (val->variant_id == insn.c) ? 1 : 0;
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = (val->variant_id == insn.c) ? 1 : 0;
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         }
         case t81::tisc::Opcode::EnumUnwrapPayload: {
           if (!reg_ok(insn.a) || !reg_ok(insn.b) ||
-              state.register_tags[insn.b] != ValueTag::EnumHandle) {
+              ctx.register_tags[insn.b] != ValueTag::EnumHandle) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          auto* val = enum_ptr(state.registers[insn.b]);
+          auto* val = enum_ptr(ctx.registers[insn.b]);
           if (!val || !val->has_payload) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = val->payload;
-          state.register_tags[insn.a] = val->payload_tag;
+          ctx.registers[insn.a] = val->payload;
+          ctx.register_tags[insn.a] = val->payload_tag;
           break;
         }
         case t81::tisc::Opcode::MakeComplex:
           if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c) ||
-              state.register_tags[insn.b] != ValueTag::Int ||
-              state.register_tags[insn.c] != ValueTag::Int) {
+              ctx.register_tags[insn.b] != ValueTag::Int ||
+              ctx.register_tags[insn.c] != ValueTag::Int) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] =
-              intern_complex(state.registers[insn.b], state.registers[insn.c]);
-          state.register_tags[insn.a] = ValueTag::ComplexHandle;
+          ctx.registers[insn.a] = intern_complex(ctx.registers[insn.b], ctx.registers[insn.c]);
+          ctx.register_tags[insn.a] = ValueTag::ComplexHandle;
           break;
         case t81::tisc::Opcode::TMatMul: {
           if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
@@ -524,22 +540,22 @@ public:
             guard_deopt = true;
             break;
           }
-          if (state.register_tags[insn.b] != ValueTag::TensorHandle ||
-              state.register_tags[insn.c] != ValueTag::TensorHandle) {
+          if (ctx.register_tags[insn.b] != ValueTag::TensorHandle ||
+              ctx.register_tags[insn.c] != ValueTag::TensorHandle) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          auto ta = tensor_ptr(state.registers[insn.b]);
-          auto tb = tensor_ptr(state.registers[insn.c]);
+          auto ta = tensor_ptr(ctx.registers[insn.b]);
+          auto tb = tensor_ptr(ctx.registers[insn.c]);
           if (!ta || !tb || ta->rank() != 2 || tb->rank() != 2 ||
               ta->shape()[1] != tb->shape()[0]) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = alloc_tensor(t81::ops::matmul(*ta, *tb));
-          state.register_tags[insn.a] = ValueTag::TensorHandle;
+          ctx.registers[insn.a] = alloc_tensor(t81::ops::matmul(*ta, *tb));
+          ctx.register_tags[insn.a] = ValueTag::TensorHandle;
           break;
         }
         case t81::tisc::Opcode::TRMSNorm: {
@@ -548,21 +564,21 @@ public:
             guard_deopt = true;
             break;
           }
-          if (state.register_tags[insn.b] != ValueTag::TensorHandle ||
-              state.register_tags[insn.c] != ValueTag::TensorHandle) {
+          if (ctx.register_tags[insn.b] != ValueTag::TensorHandle ||
+              ctx.register_tags[insn.c] != ValueTag::TensorHandle) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          auto t = tensor_ptr(state.registers[insn.b]);
-          auto w = tensor_ptr(state.registers[insn.c]);
+          auto t = tensor_ptr(ctx.registers[insn.b]);
+          auto w = tensor_ptr(ctx.registers[insn.c]);
           if (!t || !w || t->rank() == 0 || w->rank() != 1 || w->shape()[0] != t->shape().back()) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = alloc_tensor(t81::ops::rmsnorm(*t, *w));
-          state.register_tags[insn.a] = ValueTag::TensorHandle;
+          ctx.registers[insn.a] = alloc_tensor(t81::ops::rmsnorm(*t, *w));
+          ctx.register_tags[insn.a] = ValueTag::TensorHandle;
           break;
         }
         case t81::tisc::Opcode::Less:
@@ -571,8 +587,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = (state.registers[insn.b] < state.registers[insn.c]) ? 1 : 0;
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = (ctx.registers[insn.b] < ctx.registers[insn.c]) ? 1 : 0;
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         case t81::tisc::Opcode::LessEqual:
           if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
@@ -580,8 +596,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = (state.registers[insn.b] <= state.registers[insn.c]) ? 1 : 0;
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = (ctx.registers[insn.b] <= ctx.registers[insn.c]) ? 1 : 0;
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         case t81::tisc::Opcode::Greater:
           if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
@@ -589,8 +605,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = (state.registers[insn.b] > state.registers[insn.c]) ? 1 : 0;
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = (ctx.registers[insn.b] > ctx.registers[insn.c]) ? 1 : 0;
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         case t81::tisc::Opcode::GreaterEqual:
           if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
@@ -598,8 +614,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = (state.registers[insn.b] >= state.registers[insn.c]) ? 1 : 0;
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = (ctx.registers[insn.b] >= ctx.registers[insn.c]) ? 1 : 0;
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         case t81::tisc::Opcode::Equal:
           if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
@@ -607,8 +623,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = (state.registers[insn.b] == state.registers[insn.c]) ? 1 : 0;
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = (ctx.registers[insn.b] == ctx.registers[insn.c]) ? 1 : 0;
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         case t81::tisc::Opcode::NotEqual:
           if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
@@ -616,8 +632,8 @@ public:
             guard_deopt = true;
             break;
           }
-          state.registers[insn.a] = (state.registers[insn.b] != state.registers[insn.c]) ? 1 : 0;
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = (ctx.registers[insn.b] != ctx.registers[insn.c]) ? 1 : 0;
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         case t81::tisc::Opcode::Cmp: {
           if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
@@ -625,17 +641,17 @@ public:
             guard_deopt = true;
             break;
           }
-          if (state.register_tags[insn.a] != ValueTag::Int ||
-              state.register_tags[insn.b] != ValueTag::Int) {
+          if (ctx.register_tags[insn.a] != ValueTag::Int ||
+              ctx.register_tags[insn.b] != ValueTag::Int) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          const auto lhs = state.registers[insn.a];
-          const auto rhs = state.registers[insn.b];
-          state.flags.zero = (lhs == rhs);
-          state.flags.negative = (lhs < rhs);
-          state.flags.positive = (lhs > rhs);
+          const auto lhs = ctx.registers[insn.a];
+          const auto rhs = ctx.registers[insn.b];
+          ctx.flags.zero = (lhs == rhs);
+          ctx.flags.negative = (lhs < rhs);
+          ctx.flags.positive = (lhs > rhs);
           break;
         }
         case t81::tisc::Opcode::SetF: {
@@ -645,17 +661,17 @@ public:
             break;
           }
           std::int64_t flag_value = 0;
-          if (state.flags.negative) {
+          if (ctx.flags.negative) {
             flag_value = -1;
-          } else if (!state.flags.zero) {
+          } else if (!ctx.flags.zero) {
             flag_value = 1;
           }
-          state.registers[insn.a] = flag_value;
-          state.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = flag_value;
+          ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         }
         case t81::tisc::Opcode::Jump:
-          state.pc = static_cast<size_t>(insn.a);
+          ctx.pc = static_cast<size_t>(insn.a);
           stop_trace = true;
           result.exit_kind = ExitKind::Branch;
           break;
@@ -665,8 +681,8 @@ public:
             guard_deopt = true;
             break;
           }
-          if (state.registers[insn.b] == 0) {
-            state.pc = static_cast<size_t>(insn.a);
+          if (ctx.registers[insn.b] == 0) {
+            ctx.pc = static_cast<size_t>(insn.a);
             stop_trace = true;
             result.exit_kind = ExitKind::Branch;
           }
@@ -677,22 +693,22 @@ public:
             guard_deopt = true;
             break;
           }
-          if (state.registers[insn.b] != 0) {
-            state.pc = static_cast<size_t>(insn.a);
+          if (ctx.registers[insn.b] != 0) {
+            ctx.pc = static_cast<size_t>(insn.a);
             stop_trace = true;
             result.exit_kind = ExitKind::Branch;
           }
           break;
         case t81::tisc::Opcode::JumpIfNegative:
-          if (state.flags.negative) {
-            state.pc = static_cast<size_t>(insn.a);
+          if (ctx.flags.negative) {
+            ctx.pc = static_cast<size_t>(insn.a);
             stop_trace = true;
             result.exit_kind = ExitKind::Branch;
           }
           break;
         case t81::tisc::Opcode::JumpIfPositive:
-          if (state.flags.positive) {
-            state.pc = static_cast<size_t>(insn.a);
+          if (ctx.flags.positive) {
+            ctx.pc = static_cast<size_t>(insn.a);
             stop_trace = true;
             result.exit_kind = ExitKind::Branch;
           }
@@ -703,54 +719,49 @@ public:
             guard_deopt = true;
             break;
           }
-          const auto target = state.registers[insn.b];
+          const auto target = ctx.registers[insn.b];
           if (!code_ok(target)) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          const auto& stack = state.layout.stack;
-          if (!stack.valid() || state.sp <= stack.start) {
+
+          if (ctx.sp <= ctx.stack_limit) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          std::size_t new_sp = state.sp - 1;
-          if (!stack.contains(new_sp)) {
-            stop_trace = true;
-            guard_deopt = true;
-            break;
-          }
-          state.sp = new_sp;
+          std::size_t new_sp = ctx.sp - 1;
+          // Global check? For now simplified.
+
+          ctx.sp = new_sp;
           // Interpreter pushes the post-call PC.
-          state.memory[state.sp] =
-              static_cast<std::int64_t>(state.pc + result.instructions_executed);
-          state.memory_tags[state.sp] = ValueTag::Int;
-          state.call_depth += 1;
-          state.pc = static_cast<std::size_t>(target);
+          state.memory[ctx.sp] = static_cast<std::int64_t>(ctx.pc + result.instructions_executed);
+          state.memory_tags[ctx.sp] = ValueTag::Int;
+          ctx.call_depth += 1;
+          ctx.pc = static_cast<std::size_t>(target);
           stop_trace = true;
           result.exit_kind = ExitKind::Branch;
           break;
         }
         case t81::tisc::Opcode::Ret: {
-          const auto& stack = state.layout.stack;
-          if (!stack.valid() || state.sp >= stack.limit) {
+          if (ctx.sp >= ctx.stack_base) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          const auto addr = state.memory[state.sp];
-          const auto tag = state.memory_tags[state.sp];
-          state.sp += 1;
+          const auto addr = state.memory[ctx.sp];
+          const auto tag = state.memory_tags[ctx.sp];
+          ctx.sp += 1;
           if (tag != ValueTag::Int || !code_ok(addr)) {
             stop_trace = true;
             guard_deopt = true;
             break;
           }
-          if (state.call_depth > 0) {
-            state.call_depth -= 1;
+          if (ctx.call_depth > 0) {
+            ctx.call_depth -= 1;
           }
-          state.pc = static_cast<std::size_t>(addr);
+          ctx.pc = static_cast<std::size_t>(addr);
           stop_trace = true;
           result.exit_kind = ExitKind::Branch;
           break;
@@ -768,22 +779,22 @@ public:
           insn.opcode != t81::tisc::Opcode::Store && insn.opcode != t81::tisc::Opcode::Push &&
           insn.opcode != t81::tisc::Opcode::Cmp && insn.opcode != t81::tisc::Opcode::TMatMul &&
           insn.opcode != t81::tisc::Opcode::TRMSNorm) {
-        state.flags.zero = (state.registers[insn.a] == 0);
-        state.flags.negative = (state.registers[insn.a] < 0);
-        state.flags.positive = (state.registers[insn.a] > 0);
+        ctx.flags.zero = (ctx.registers[insn.a] == 0);
+        ctx.flags.negative = (ctx.registers[insn.a] < 0);
+        ctx.flags.positive = (ctx.registers[insn.a] > 0);
       }
       if (stop_trace) {
         if (guard_deopt) {
           if (result.instructions_executed > 0) {
             // Resume interpreter at the first non-executed instruction.
-            state.pc += (result.instructions_executed - 1);
+            ctx.pc += (result.instructions_executed - 1);
           }
           result.exit_kind = ExitKind::GuardDeopt;
         }
         return result;
       }
     }
-    state.pc += result.instructions_executed;
+    ctx.pc += result.instructions_executed;
     result.exit_kind = ExitKind::Completed;
     return result;
   }

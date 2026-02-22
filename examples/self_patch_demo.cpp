@@ -71,16 +71,16 @@ int main() {
 
   std::cout << "[Step 1] Initial execution with bug..." << std::endl;
   int steps = 0;
-  while (vm->state().pc != 30 && steps < 100) {
+  while (vm->state().contexts[0].pc != 30 && steps < 100) {
     auto res = vm->step();
     if (!res) break;
     steps++;
   }
-  std::cout << "  Failure detected: PC=" << vm->state().pc << " R0=" << vm->state().registers[0]
-            << " (Expected 100)" << std::endl;
+  std::cout << "  Failure detected: PC=" << vm->state().contexts[0].pc
+            << " R0=" << vm->state().contexts[0].registers[0] << " (Expected 100)" << std::endl;
 
   std::cout << "[Step 2] Tier 4 Fixer running (Reflect -> Diagnose -> Patch)..." << std::endl;
-  while (vm->state().pc != 0 && steps < 200) {
+  while (vm->state().contexts[0].pc != 0 && steps < 200) {
     auto res = vm->step();
     if (!res) break;
     steps++;
@@ -94,8 +94,9 @@ int main() {
     steps++;
   }
 
-  std::cout << "  Final result: R0=" << vm->state().registers[0] << " (Success!)" << std::endl;
-  assert(vm->state().registers[0] == 100);
+  std::cout << "  Final result: R0=" << vm->state().contexts[0].registers[0] << " (Success!)"
+            << std::endl;
+  assert(vm->state().contexts[0].registers[0] == 100);
   assert(vm->state().halted);
 
   std::cout << "\nAxion Trace (Reflection events):" << std::endl;
