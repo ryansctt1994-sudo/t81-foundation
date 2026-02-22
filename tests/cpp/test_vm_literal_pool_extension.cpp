@@ -1,0 +1,115 @@
+#include <cassert>
+#include <cmath>
+#include <iostream>
+
+#include <t81/tisc/program.hpp>
+#include <t81/vm/state.hpp>
+#include <t81/vm/vm.hpp>
+
+using namespace t81::tisc;
+using namespace t81::vm;
+
+void test_i2f_deterministic_extension() {
+  std::cout << "Testing I2F deterministic pool extension..." << std::endl;
+
+  // Manually construct a program that performs I2F conversions
+  t81::tisc::Program program;
+
+  // Instructions:
+  // 1. Load Imm 42 into R1
+  // 2. I2F R1 -> R2 (should create a float in pool)
+  // 3. I2F R1 -> R3 (should create another float in pool, even if same value)
+  // 4. Load Imm 100 into R4
+  // 5. I2F R4 -> R5 (should create another float in pool)
+  // 6. Halt
+
+  program.insns.push_back({Opcode::LoadImm, 1, 42, 0, LiteralKind::Int});
+  program.insns.push_back({Opcode::I2F, 2, 1, 0, LiteralKind::Int});
+  program.insns.push_back({Opcode::I2F, 3, 1, 0, LiteralKind::Int});
+  program.insns.push_back({Opcode::LoadImm, 4, 100, 0, LiteralKind::Int});
+  program.insns.push_back({Opcode::I2F, 5, 4, 0, LiteralKind::Int});
+  program.insns.push_back({Opcode::Halt, 0, 0, 0, LiteralKind::Int});
+
+  auto vm = make_interpreter_vm();
+  vm->load_program(program);
+
+  // Initial state check
+  const auto& state = vm->state();
+  assert(state.floats.empty());
+
+  // Run step by step or run to halt
+  auto res = vm->run_to_halt();
+  assert(res.has_value());
+
+  // Check state after run
+  // We expect 3 floats in the pool: 42.0, 42.0, 100.0
+  assert(state.floats.size() == 3);
+
+  // Verify values
+  assert(std::fabs(state.floats[0] - 42.0) < 1e-9);
+  assert(std::fabs(state.floats[1] - 42.0) < 1e-9);
+  assert(std::fabs(state.floats[2] - 100.0) < 1e-9);
+
+  // Verify registers point to correct handles (1-based index)
+  assert(state.registers[2] == 1);  // handle to first float
+  assert(state.register_tags[2] == ValueTag::FloatHandle);
+
+  assert(state.registers[3] == 2);  // handle to second float
+  assert(state.register_tags[3] == ValueTag::FloatHandle);
+
+  assert(state.registers[5] == 3);  // handle to third float
+  assert(state.register_tags[5] == ValueTag::FloatHandle);
+
+  std::cout << "I2F deterministic pool extension passed." << std::endl;
+}
+
+void test_i2frac_deterministic_extension() {
+  std::cout << "Testing I2Frac deterministic pool extension..." << std::endl;
+
+  t81::tisc::Program program;
+
+  // Instructions:
+  // 1. Load Imm 3 into R1
+  // 2. I2Frac R1 -> R2 (3/1)
+  // 3. I2Frac R1 -> R3 (3/1)
+  // 4. Halt
+
+  program.insns.push_back({Opcode::LoadImm, 1, 3, 0, LiteralKind::Int});
+  program.insns.push_back({Opcode::I2Frac, 2, 1, 0, LiteralKind::Int});
+  program.insns.push_back({Opcode::I2Frac, 3, 1, 0, LiteralKind::Int});
+  program.insns.push_back({Opcode::Halt, 0, 0, 0, LiteralKind::Int});
+
+  auto vm = make_interpreter_vm();
+  vm->load_program(program);
+
+  const auto& state = vm->state();
+  assert(state.fractions.empty());
+
+  auto res = vm->run_to_halt();
+  assert(res.has_value());
+
+  // Expect 2 fractions
+  assert(state.fractions.size() == 2);
+
+  // Verify values
+  assert(state.fractions[0].num.to_int64() == 3);
+  assert(state.fractions[0].den.to_int64() == 1);
+
+  assert(state.fractions[1].num.to_int64() == 3);
+  assert(state.fractions[1].den.to_int64() == 1);
+
+  // Verify registers
+  assert(state.registers[2] == 1);
+  assert(state.register_tags[2] == ValueTag::FractionHandle);
+
+  assert(state.registers[3] == 2);
+  assert(state.register_tags[3] == ValueTag::FractionHandle);
+
+  std::cout << "I2Frac deterministic pool extension passed." << std::endl;
+}
+
+int main() {
+  test_i2f_deterministic_extension();
+  test_i2frac_deterministic_extension();
+  return 0;
+}
