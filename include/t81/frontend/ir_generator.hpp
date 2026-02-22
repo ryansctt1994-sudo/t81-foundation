@@ -188,6 +188,21 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.math.clamp") {
     return "clamp";
   }
+  if (name == "std.math.abs") {
+    return "abs";
+  }
+  if (name == "std.math.bigint.from_int") {
+    return "bigint_from_int";
+  }
+  if (name == "std.math.bigint.to_int") {
+    return "bigint_to_int";
+  }
+  if (name == "std.math.bigint.add") {
+    return "bigint_add";
+  }
+  if (name == "std.math.bigint.mul") {
+    return "bigint_mul";
+  }
   if (name == "std.math.fraction.add") {
     return "frac_add";
   }
@@ -268,6 +283,9 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   }
   if (name == "std.tensor.vec_add") {
     return "Tensor.vec_add";
+  }
+  if (name == "std.tensor.dot_product") {
+    return "tensor_dot";
   }
   if (name == "std.text.str_len") {
     return "str_len";
@@ -1305,6 +1323,153 @@ public:
         emit_jump_if_zero(end_label, gt_max);
         copy_to_dest(max_f, dest);
         emit_label(end_label);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "abs") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("abs expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(val.primitive);
+
+        if (val.primitive == tisc::ir::PrimitiveKind::Float) {
+          auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Float);
+          tisc::ir::Instruction load_zero;
+          load_zero.opcode = tisc::ir::Opcode::LOADI;
+          load_zero.operands = {zero.reg};
+          load_zero.literal_kind = tisc::LiteralKind::FloatHandle;
+          load_zero.text_literal = "0.0";
+          load_zero.primitive = tisc::ir::PrimitiveKind::Float;
+          emit(load_zero);
+
+          auto is_neg = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+          tisc::ir::Instruction cmp;
+          cmp.opcode = tisc::ir::Opcode::CMP;
+          cmp.operands = {is_neg.reg, val.reg, zero.reg};
+          cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
+          cmp.boolean_result = true;
+          cmp.relation = tisc::ir::ComparisonRelation::Less;
+          emit(cmp);
+
+          auto skip_neg = new_label();
+          copy_to_dest(val, dest);
+          emit_jump_if_zero(skip_neg, is_neg);
+
+          tisc::ir::Instruction neg_instr;
+          neg_instr.opcode = tisc::ir::Opcode::FSUB;
+          neg_instr.operands = {dest.reg, zero.reg, val.reg};
+          neg_instr.primitive = tisc::ir::PrimitiveKind::Float;
+          emit(neg_instr);
+
+          emit_label(skip_neg);
+        } else {
+          // Integer case
+          auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+          tisc::ir::Instruction load_zero;
+          load_zero.opcode = tisc::ir::Opcode::LOADI;
+          load_zero.operands = {zero.reg, tisc::ir::Immediate{0}};
+          emit(load_zero);
+
+          auto is_neg = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+          tisc::ir::Instruction cmp;
+          cmp.opcode = tisc::ir::Opcode::CMP;
+          cmp.operands = {is_neg.reg, val.reg, zero.reg};
+          cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
+          cmp.boolean_result = true;
+          cmp.relation = tisc::ir::ComparisonRelation::Less;
+          emit(cmp);
+
+          auto skip_neg = new_label();
+          copy_to_dest(val, dest);
+          emit_jump_if_zero(skip_neg, is_neg);
+
+          tisc::ir::Instruction neg_instr;
+          neg_instr.opcode = tisc::ir::Opcode::NEG;
+          neg_instr.operands = {dest.reg, val.reg};
+          emit(neg_instr);
+
+          emit_label(skip_neg);
+        }
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "bigint_from_int" || func_name == "bigint_to_int") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("BigInt conversion expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        copy_to_dest(val, dest);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "bigint_add") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("BigInt add expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto lhs = ensure_expr_result(expr.arguments[0].get());
+        auto rhs = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::ADD;
+        instr.operands = {dest.reg, lhs.reg, rhs.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "bigint_mul") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("BigInt mul expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto lhs = ensure_expr_result(expr.arguments[0].get());
+        auto rhs = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::MUL;
+        instr.operands = {dest.reg, lhs.reg, rhs.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "tensor_dot") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("tensor_dot expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto lhs = ensure_expr_result(expr.arguments[0].get());
+        auto rhs = ensure_expr_result(expr.arguments[1].get());
+
+        auto temp_tensor = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction dot_instr;
+        dot_instr.opcode = tisc::ir::Opcode::TTENDOT;
+        dot_instr.operands = {temp_tensor.reg, lhs.reg, rhs.reg};
+        emit(dot_instr);
+
+        auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction load_zero;
+        load_zero.opcode = tisc::ir::Opcode::LOADI;
+        load_zero.operands = {zero.reg, tisc::ir::Immediate{0}};
+        emit(load_zero);
+
+        auto float_res = allocate_typed_register(tisc::ir::PrimitiveKind::Float);
+        tisc::ir::Instruction get_instr;
+        get_instr.opcode = tisc::ir::Opcode::TGET;
+        get_instr.operands = {float_res.reg, temp_tensor.reg, zero.reg};
+        emit(get_instr);
+
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction conv;
+        conv.opcode = tisc::ir::Opcode::F2I;
+        conv.operands = {dest.reg, float_res.reg};
+        emit(conv);
         record_result(&expr, dest);
         return {};
       }

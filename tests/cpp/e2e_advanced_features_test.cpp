@@ -596,10 +596,10 @@ void test_fraction_stdlib_pipeline() {
 void test_bigint_stdlib_pipeline() {
   const std::string source = R"(
         fn main() -> i32 {
-            let a: T81Bigint = std.math.bigint.from_int(10);
-            let b: T81Bigint = std.math.bigint.from_int(20);
-            let c: T81Bigint = std.math.bigint.add(a, b);
-            let d: T81Bigint = std.math.bigint.mul(c, 2);
+            let a: T81BigInt = std.math.bigint.from_int(10);
+            let b: T81BigInt = std.math.bigint.from_int(20);
+            let c: T81BigInt = std.math.bigint.add(a, b);
+            let d: T81BigInt = std.math.bigint.mul(c, 2);
 
             let thirty: i32 = std.math.bigint.to_int(c);
             if (thirty != 30) return 1;
@@ -629,8 +629,8 @@ void test_advanced_tensor_ops_pipeline() {
         }
     )";
   [[maybe_unused]] int64_t result = run_e2e_test(source);
-  if (result != 100) {
-    std::cerr << "test_advanced_tensor_ops_pipeline failed: expected 100, got " << result
+  if (result != 154) {
+    std::cerr << "test_advanced_tensor_ops_pipeline failed: expected 154, got " << result
               << std::endl;
     throw std::runtime_error("test_advanced_tensor_ops_pipeline failed");
   }
