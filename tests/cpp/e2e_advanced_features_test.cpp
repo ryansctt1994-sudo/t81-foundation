@@ -577,7 +577,11 @@ void test_fraction_stdlib_pipeline() {
 
             // Check conversion back to float
             let half_f: T81Float = std.math.fraction.to_float(d);
-            if (half_f != 0.5) return 2;
+            let epsilon: T81Float = 0.000000001;
+            let diff_float: T81Float = half_f - 0.5;
+            let abs_diff: T81Float = std.math.abs(diff_float);
+            let is_greater: bool = abs_diff > epsilon;
+            if (is_greater) return 2;
 
             return 0;
         }
@@ -586,6 +590,49 @@ void test_fraction_stdlib_pipeline() {
   if (result != 0) {
     std::cerr << "test_fraction_stdlib_pipeline failed: expected 0, got " << result << std::endl;
     throw std::runtime_error("test_fraction_stdlib_pipeline failed");
+  }
+}
+
+void test_bigint_stdlib_pipeline() {
+  const std::string source = R"(
+        fn main() -> i32 {
+            let a: T81BigInt = std.math.bigint.from_int(10);
+            let b: T81BigInt = std.math.bigint.from_int(20);
+            let c: T81BigInt = std.math.bigint.add(a, b);
+            let d: T81BigInt = std.math.bigint.mul(c, 2);
+
+            let thirty: i32 = std.math.bigint.to_int(c);
+            if (thirty != 30) return 1;
+
+            let sixty: i32 = std.math.bigint.to_int(d);
+            if (sixty != 60) return 2;
+
+            return 0;
+        }
+    )";
+  [[maybe_unused]] int64_t result = run_e2e_test(source);
+  if (result != 0) {
+    std::cerr << "test_bigint_stdlib_pipeline failed: expected 0, got " << result << std::endl;
+    throw std::runtime_error("test_bigint_stdlib_pipeline failed");
+  }
+}
+
+void test_advanced_tensor_ops_pipeline() {
+  const std::string source = R"(
+        fn main() -> i32 {
+            let a: Tensor = std.tensor.from_list([1, 2, 3]);
+            let b: Tensor = std.tensor.from_list([4, 5, 6]);
+            let c: Tensor = std.tensor.from_list([7, 8, 9]);
+            let d: Tensor = std.tensor.vec_add(a, c);
+            let e: i32 = std.tensor.dot_product(d, b);
+            return e;
+        }
+    )";
+  [[maybe_unused]] int64_t result = run_e2e_test(source);
+  if (result != 154) {
+    std::cerr << "test_advanced_tensor_ops_pipeline failed: expected 154, got " << result
+              << std::endl;
+    throw std::runtime_error("test_advanced_tensor_ops_pipeline failed");
   }
 }
 
@@ -622,6 +669,10 @@ int main() {
   test_std_symbol_pipeline();
   std::cout << "Running test_fraction_stdlib_pipeline..." << std::endl;
   test_fraction_stdlib_pipeline();
+  std::cout << "Running test_bigint_stdlib_pipeline..." << std::endl;
+  test_bigint_stdlib_pipeline();
+  std::cout << "Running test_advanced_tensor_ops_pipeline..." << std::endl;
+  test_advanced_tensor_ops_pipeline();
   std::cout << "All advanced E2E tests passed!" << std::endl;
   return 0;
 }

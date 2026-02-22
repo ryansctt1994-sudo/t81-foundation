@@ -352,6 +352,10 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_memory_test tests/cpp/vm_memory_test.cpp)
   target_link_libraries(t81_vm_memory_test PRIVATE t81_core)
 
+  add_executable(t81_vm_resource_monitoring_test tests/cpp/test_resource_monitoring.cpp)
+  target_link_libraries(t81_vm_resource_monitoring_test PRIVATE t81_core)
+  add_test(NAME t81_vm_resource_monitoring_test COMMAND t81_vm_resource_monitoring_test)
+
   add_executable(t81_axion_log_determinism_test tests/cpp/axion_log_determinism_test.cpp)
   target_link_libraries(t81_axion_log_determinism_test PRIVATE t81_core)
 
@@ -440,6 +444,14 @@ if(T81_BUILD_TESTS)
   add_executable(t81_ethics_test tests/cpp/test_ethics.cpp)
   target_link_libraries(t81_ethics_test PRIVATE t81_core)
 
+  add_executable(test_resource_monitoring tests/cpp/test_resource_monitoring.cpp)
+  target_link_libraries(test_resource_monitoring PRIVATE t81_core t81_tisc t81_vm)
+  add_test(NAME test_resource_monitoring COMMAND test_resource_monitoring)
+
+  add_executable(test_tier3_opcodes tests/cpp/test_tier3_opcodes.cpp)
+  target_link_libraries(test_tier3_opcodes PRIVATE t81_core t81_tisc t81_vm)
+  add_test(NAME test_tier3_opcodes COMMAND test_tier3_opcodes)
+
   add_executable(t81_expected_test tests/cpp/expected_test.cpp)
   target_link_libraries(t81_expected_test PRIVATE t81_core)
 
@@ -508,6 +520,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_float_fraction_ops_test tests/cpp/vm_float_fraction_ops_test.cpp)
   target_link_libraries(t81_vm_float_fraction_ops_test PRIVATE t81_core)
 
+  add_executable(t81_vm_literal_pool_extension_test tests/cpp/test_vm_literal_pool_extension.cpp)
+  target_link_libraries(t81_vm_literal_pool_extension_test PRIVATE t81_core)
+
   add_executable(t81_vm_neg_jumps_test tests/cpp/vm_neg_jumps_test.cpp)
   target_link_libraries(t81_vm_neg_jumps_test PRIVATE t81_core)
 
@@ -540,6 +555,9 @@ if(T81_BUILD_TESTS)
 
   add_executable(t81_semantic_analyzer_option_result_test tests/cpp/semantic_analyzer_option_result_test.cpp)
   target_link_libraries(t81_semantic_analyzer_option_result_test PRIVATE t81_frontend)
+
+  add_executable(test_std_option_result tests/cpp/test_std_option_result.cpp)
+  target_link_libraries(test_std_option_result PRIVATE t81_frontend t81_tisc)
 
   add_executable(t81_semantic_analyzer_match_test tests/cpp/semantic_analyzer_match_test.cpp)
   target_link_libraries(t81_semantic_analyzer_match_test PRIVATE t81_frontend)
@@ -798,6 +816,10 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(t81_matrix_test tests/cpp/test_T81Matrix.cpp)
   target_link_libraries(t81_matrix_test PRIVATE t81_core)
 
+  add_executable(debug_matrix_crash tests/cpp/debug_matrix_crash.cpp)
+  target_link_libraries(debug_matrix_crash PRIVATE t81_core)
+  add_test(NAME debug_matrix_crash COMMAND debug_matrix_crash)
+
   add_executable(t81_maybe_test tests/cpp/test_T81Maybe.cpp)
   target_link_libraries(t81_maybe_test PRIVATE t81_core)
 
@@ -881,6 +903,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
 
   add_executable(t81_vm_tier_promotion_test tests/cpp/vm_tier_promotion_test.cpp)
   target_link_libraries(t81_vm_tier_promotion_test PRIVATE t81_core t81_tisc)
+
+  add_executable(t81_code_protection_test tests/cpp/test_code_protection.cpp)
+  target_link_libraries(t81_code_protection_test PRIVATE t81_core)
 
   enable_testing()
   set(T81_TEST_TARGETS
@@ -984,6 +1009,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     llama_kernels_test
     t81_vm_jump_flags_test
     t81_vm_float_fraction_ops_test
+    t81_vm_literal_pool_extension_test
     t81_vm_neg_jumps_test
     t81_vm_print_test
     t81_limb_bohemian_add_test
@@ -1004,6 +1030,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_frontend_parser_legacy_rejection_test
     t81_frontend_ir_generator_test
     t81_semantic_analyzer_option_result_test
+    test_std_option_result
     t81_semantic_analyzer_match_test
     t81_semantic_analyzer_generic_test
     t81_semantic_analyzer_indexing_test

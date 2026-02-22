@@ -137,6 +137,27 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.core.unwrap_or") {
     return "option_unwrap_or";
   }
+  if (name == "std.option.is_some") {
+    return "option_is_some";
+  }
+  if (name == "std.option.is_none") {
+    return "option_is_none";
+  }
+  if (name == "std.option.unwrap") {
+    return "option_unwrap";
+  }
+  if (name == "std.result.is_ok") {
+    return "result_is_ok";
+  }
+  if (name == "std.result.is_err") {
+    return "result_is_err";
+  }
+  if (name == "std.result.unwrap") {
+    return "result_unwrap";
+  }
+  if (name == "std.result.unwrap_err") {
+    return "result_unwrap_err";
+  }
   if (name == "std.io.println" || name == "std.io.print_int" || name == "std.io.print_float") {
     return "print";
   }
@@ -187,6 +208,21 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   }
   if (name == "std.math.clamp") {
     return "clamp";
+  }
+  if (name == "std.math.abs") {
+    return "abs";
+  }
+  if (name == "std.math.bigint.from_int") {
+    return "bigint_from_int";
+  }
+  if (name == "std.math.bigint.to_int") {
+    return "bigint_to_int";
+  }
+  if (name == "std.math.bigint.add") {
+    return "bigint_add";
+  }
+  if (name == "std.math.bigint.mul") {
+    return "bigint_mul";
   }
   if (name == "std.math.fraction.add") {
     return "frac_add";
@@ -268,6 +304,9 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   }
   if (name == "std.tensor.vec_add") {
     return "Tensor.vec_add";
+  }
+  if (name == "std.tensor.dot_product") {
+    return "tensor_dot";
   }
   if (name == "std.text.str_len") {
     return "str_len";
@@ -979,6 +1018,14 @@ public:
     auto found = lookup_variable(expr.name.lexeme);
     if (found.has_value()) {
       record_result(&expr, *found);
+      return {};
+    }
+    std::string name{expr.name.lexeme};
+    if (name == "None") {
+      auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+      emit_make_option_none(dest);
+      record_result(&expr, dest);
+      return {};
     }
     return {};
   }
@@ -1305,6 +1352,153 @@ public:
         emit_jump_if_zero(end_label, gt_max);
         copy_to_dest(max_f, dest);
         emit_label(end_label);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "abs") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("abs expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(val.primitive);
+
+        if (val.primitive == tisc::ir::PrimitiveKind::Float) {
+          auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Float);
+          tisc::ir::Instruction load_zero;
+          load_zero.opcode = tisc::ir::Opcode::LOADI;
+          load_zero.operands = {zero.reg};
+          load_zero.literal_kind = tisc::LiteralKind::FloatHandle;
+          load_zero.text_literal = "0.0";
+          load_zero.primitive = tisc::ir::PrimitiveKind::Float;
+          emit(load_zero);
+
+          auto is_neg = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+          tisc::ir::Instruction cmp;
+          cmp.opcode = tisc::ir::Opcode::CMP;
+          cmp.operands = {is_neg.reg, val.reg, zero.reg};
+          cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
+          cmp.boolean_result = true;
+          cmp.relation = tisc::ir::ComparisonRelation::Less;
+          emit(cmp);
+
+          auto skip_neg = new_label();
+          copy_to_dest(val, dest);
+          emit_jump_if_zero(skip_neg, is_neg);
+
+          tisc::ir::Instruction neg_instr;
+          neg_instr.opcode = tisc::ir::Opcode::FSUB;
+          neg_instr.operands = {dest.reg, zero.reg, val.reg};
+          neg_instr.primitive = tisc::ir::PrimitiveKind::Float;
+          emit(neg_instr);
+
+          emit_label(skip_neg);
+        } else {
+          // Integer case
+          auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+          tisc::ir::Instruction load_zero;
+          load_zero.opcode = tisc::ir::Opcode::LOADI;
+          load_zero.operands = {zero.reg, tisc::ir::Immediate{0}};
+          emit(load_zero);
+
+          auto is_neg = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+          tisc::ir::Instruction cmp;
+          cmp.opcode = tisc::ir::Opcode::CMP;
+          cmp.operands = {is_neg.reg, val.reg, zero.reg};
+          cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
+          cmp.boolean_result = true;
+          cmp.relation = tisc::ir::ComparisonRelation::Less;
+          emit(cmp);
+
+          auto skip_neg = new_label();
+          copy_to_dest(val, dest);
+          emit_jump_if_zero(skip_neg, is_neg);
+
+          tisc::ir::Instruction neg_instr;
+          neg_instr.opcode = tisc::ir::Opcode::NEG;
+          neg_instr.operands = {dest.reg, val.reg};
+          emit(neg_instr);
+
+          emit_label(skip_neg);
+        }
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "bigint_from_int" || func_name == "bigint_to_int") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("BigInt conversion expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        copy_to_dest(val, dest);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "bigint_add") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("BigInt add expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto lhs = ensure_expr_result(expr.arguments[0].get());
+        auto rhs = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::ADD;
+        instr.operands = {dest.reg, lhs.reg, rhs.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "bigint_mul") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("BigInt mul expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto lhs = ensure_expr_result(expr.arguments[0].get());
+        auto rhs = ensure_expr_result(expr.arguments[1].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::MUL;
+        instr.operands = {dest.reg, lhs.reg, rhs.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "tensor_dot") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("tensor_dot expects exactly two arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        auto lhs = ensure_expr_result(expr.arguments[0].get());
+        auto rhs = ensure_expr_result(expr.arguments[1].get());
+
+        auto temp_tensor = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction dot_instr;
+        dot_instr.opcode = tisc::ir::Opcode::TTENDOT;
+        dot_instr.operands = {temp_tensor.reg, lhs.reg, rhs.reg};
+        emit(dot_instr);
+
+        auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction load_zero;
+        load_zero.opcode = tisc::ir::Opcode::LOADI;
+        load_zero.operands = {zero.reg, tisc::ir::Immediate{0}};
+        emit(load_zero);
+
+        auto float_res = allocate_typed_register(tisc::ir::PrimitiveKind::Float);
+        tisc::ir::Instruction get_instr;
+        get_instr.opcode = tisc::ir::Opcode::TGET;
+        get_instr.operands = {float_res.reg, temp_tensor.reg, zero.reg};
+        emit(get_instr);
+
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction conv;
+        conv.opcode = tisc::ir::Opcode::F2I;
+        conv.operands = {dest.reg, float_res.reg};
+        emit(conv);
         record_result(&expr, dest);
         return {};
       }
@@ -1640,6 +1834,139 @@ public:
         emit_option_unwrap(payload, opt);
         copy_to_dest(payload, dest);
         emit_label(use_fallback);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "option_is_some") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("option_is_some expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        emit_option_is_some(dest, val);
+        // VM's OptionIsSome returns 1 or 0 (ValueTag::Int).
+        // Since we allocated a Boolean register, we accept the int result as bool representation.
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "option_is_none") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("option_is_none expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        auto is_some = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        emit_option_is_some(is_some, val);
+
+        auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction load_zero;
+        load_zero.opcode = tisc::ir::Opcode::LOADI;
+        load_zero.operands = {zero.reg, tisc::ir::Immediate{0}};
+        emit(load_zero);
+
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction cmp;
+        cmp.opcode = tisc::ir::Opcode::CMP;
+        cmp.operands = {dest.reg, is_some.reg, zero.reg};
+        cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
+        cmp.boolean_result = true;
+        cmp.relation = tisc::ir::ComparisonRelation::Equal;
+        emit(cmp);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "option_unwrap") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("option_unwrap expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+
+        tisc::ir::PrimitiveKind dest_kind = tisc::ir::PrimitiveKind::Unknown;
+        if (const auto* ty = typed_expr(&expr)) {
+          auto inferred = categorize_primitive(ty);
+          if (inferred != tisc::ir::PrimitiveKind::Unknown) {
+            dest_kind = inferred;
+          }
+        }
+        auto dest = allocate_typed_register(dest_kind);
+        emit_option_unwrap(dest, val);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "result_is_ok") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("result_is_ok expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        emit_result_is_ok(dest, val);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "result_is_err") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("result_is_err expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        auto is_ok = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        emit_result_is_ok(is_ok, val);
+
+        auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction load_zero;
+        load_zero.opcode = tisc::ir::Opcode::LOADI;
+        load_zero.operands = {zero.reg, tisc::ir::Immediate{0}};
+        emit(load_zero);
+
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction cmp;
+        cmp.opcode = tisc::ir::Opcode::CMP;
+        cmp.operands = {dest.reg, is_ok.reg, zero.reg};
+        cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
+        cmp.boolean_result = true;
+        cmp.relation = tisc::ir::ComparisonRelation::Equal;
+        emit(cmp);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "result_unwrap") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("result_unwrap expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+
+        tisc::ir::PrimitiveKind dest_kind = tisc::ir::PrimitiveKind::Unknown;
+        if (const auto* ty = typed_expr(&expr)) {
+          auto inferred = categorize_primitive(ty);
+          if (inferred != tisc::ir::PrimitiveKind::Unknown) {
+            dest_kind = inferred;
+          }
+        }
+        auto dest = allocate_typed_register(dest_kind);
+        emit_result_unwrap_ok(dest, val);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "result_unwrap_err") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("result_unwrap_err expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+
+        tisc::ir::PrimitiveKind dest_kind = tisc::ir::PrimitiveKind::Unknown;
+        if (const auto* ty = typed_expr(&expr)) {
+          auto inferred = categorize_primitive(ty);
+          if (inferred != tisc::ir::PrimitiveKind::Unknown) {
+            dest_kind = inferred;
+          }
+        }
+        auto dest = allocate_typed_register(dest_kind);
+        emit_result_unwrap_err(dest, val);
         record_result(&expr, dest);
         return {};
       }

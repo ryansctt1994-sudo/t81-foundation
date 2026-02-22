@@ -210,6 +210,27 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.core.unwrap_or") {
     return "option_unwrap_or";
   }
+  if (name == "std.option.is_some") {
+    return "option_is_some";
+  }
+  if (name == "std.option.is_none") {
+    return "option_is_none";
+  }
+  if (name == "std.option.unwrap") {
+    return "option_unwrap";
+  }
+  if (name == "std.result.is_ok") {
+    return "result_is_ok";
+  }
+  if (name == "std.result.is_err") {
+    return "result_is_err";
+  }
+  if (name == "std.result.unwrap") {
+    return "result_unwrap";
+  }
+  if (name == "std.result.unwrap_err") {
+    return "result_unwrap_err";
+  }
   if (name == "std.io.println" || name == "std.io.print_int" || name == "std.io.print_float") {
     return "print";
   }
@@ -260,6 +281,21 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   }
   if (name == "std.math.clamp") {
     return "clamp";
+  }
+  if (name == "std.math.abs") {
+    return "abs";
+  }
+  if (name == "std.math.bigint.from_int") {
+    return "bigint_from_int";
+  }
+  if (name == "std.math.bigint.to_int") {
+    return "bigint_to_int";
+  }
+  if (name == "std.math.bigint.add") {
+    return "bigint_add";
+  }
+  if (name == "std.math.bigint.mul") {
+    return "bigint_mul";
   }
   if (name == "std.math.fraction.add") {
     return "frac_add";
@@ -326,6 +362,9 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   }
   if (name == "std.tensor.vec_add") {
     return "Tensor.vec_add";
+  }
+  if (name == "std.tensor.dot_product") {
+    return "tensor_dot";
   }
   if (name == "std.text.str_len") {
     return "str_len";
@@ -2264,6 +2303,62 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       }
       return Type{Type::Kind::Float};
     }
+    if (func_name == "abs") {
+      if (arg_types.size() != 1) {
+        error(call_token, "abs expects exactly one argument.");
+        return make_error_type();
+      }
+      if (!is_numeric(arg_types[0])) {
+        error(call_token, "abs argument must be numeric.");
+        return make_error_type();
+      }
+      return arg_types[0];
+    }
+    if (func_name == "bigint_from_int") {
+      if (arg_types.size() != 1) {
+        error(call_token, "bigint.from_int expects exactly one argument.");
+        return make_error_type();
+      }
+      if (!is_integer_type(arg_types[0])) {
+        error(call_token, "bigint.from_int argument must be integer.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::BigInt};
+    }
+    if (func_name == "bigint_to_int") {
+      if (arg_types.size() != 1) {
+        error(call_token, "bigint.to_int expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::BigInt) {
+        error(call_token, "bigint.to_int argument must be T81BigInt.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
+    }
+    if (func_name == "bigint_add" || func_name == "bigint_mul") {
+      if (arg_types.size() != 2) {
+        error(call_token, func_name + " expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (!is_numeric(arg_types[0]) || !is_numeric(arg_types[1])) {
+        error(call_token, func_name + " arguments must be numeric.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::BigInt};
+    }
+    if (func_name == "tensor_dot") {
+      if (arg_types.size() != 2) {
+        error(call_token, "tensor.dot_product expects exactly two arguments.");
+        return make_error_type();
+      }
+      if ((arg_types[0].kind != Type::Kind::Tensor && arg_types[0].kind != Type::Kind::I32) ||
+          (arg_types[1].kind != Type::Kind::Tensor && arg_types[1].kind != Type::Kind::I32)) {
+        error(call_token, "tensor.dot_product arguments must be Tensor or tensor handles.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
+    }
     if (func_name == "frac_add" || func_name == "frac_sub" || func_name == "frac_mul" ||
         func_name == "frac_div") {
       if (arg_types.size() != 2) {
@@ -2440,6 +2535,61 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         payload = arg_types[1];
       }
       return payload;
+    }
+    if (func_name == "option_is_some" || func_name == "option_is_none") {
+      if (arg_types.size() != 1) {
+        error(call_token, func_name + " expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Option) {
+        error(call_token, func_name + " expects an Option[T] argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
+    }
+    if (func_name == "option_unwrap") {
+      if (arg_types.size() != 1) {
+        error(call_token, "std.option.unwrap expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Option) {
+        error(call_token, "std.option.unwrap expects an Option[T] argument.");
+        return make_error_type();
+      }
+      return arg_types[0].params.empty() ? Type{Type::Kind::Unknown} : arg_types[0].params[0];
+    }
+    if (func_name == "result_is_ok" || func_name == "result_is_err") {
+      if (arg_types.size() != 1) {
+        error(call_token, func_name + " expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Result) {
+        error(call_token, func_name + " expects a Result[T, E] argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
+    }
+    if (func_name == "result_unwrap") {
+      if (arg_types.size() != 1) {
+        error(call_token, "std.result.unwrap expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Result) {
+        error(call_token, "std.result.unwrap expects a Result[T, E] argument.");
+        return make_error_type();
+      }
+      return arg_types[0].params.size() >= 1 ? arg_types[0].params[0] : Type{Type::Kind::Unknown};
+    }
+    if (func_name == "result_unwrap_err") {
+      if (arg_types.size() != 1) {
+        error(call_token, "std.result.unwrap_err expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Result) {
+        error(call_token, "std.result.unwrap_err expects a Result[T, E] argument.");
+        return make_error_type();
+      }
+      return arg_types[0].params.size() >= 2 ? arg_types[0].params[1] : Type{Type::Kind::Unknown};
     }
     if (func_name == "str_len") {
       if (arg_types.size() != 1) {
