@@ -882,6 +882,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(t81_vm_tier_promotion_test tests/cpp/vm_tier_promotion_test.cpp)
   target_link_libraries(t81_vm_tier_promotion_test PRIVATE t81_core t81_tisc)
 
+  add_executable(t81_code_protection_test tests/cpp/test_code_protection.cpp)
+  target_link_libraries(t81_code_protection_test PRIVATE t81_core)
+
   enable_testing()
   set(T81_TEST_TARGETS
     t81_float_test

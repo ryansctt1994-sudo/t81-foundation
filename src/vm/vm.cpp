@@ -1384,8 +1384,13 @@ public:
             trap = Trap::BoundsFault;
             break;
           }
-          program_.insns[addr].opcode = static_cast<t81::tisc::Opcode>(val);
-          compiled_traces_.clear();
+          // Code segment is protected: Writable only via privileged loader
+          t81::axion::Verdict code_verdict;
+          code_verdict.kind = t81::axion::VerdictKind::Deny;
+          code_verdict.reason = "MetaWrite to Code segment denied (protected)";
+          record_axion_event(insn.opcode, static_cast<int32_t>(segment), addr, code_verdict);
+          trap = Trap::SecurityFault;
+          break;
         } else {
           std::size_t physical_addr = 0;
           bool ok = false;
@@ -1526,6 +1531,15 @@ public:
         for (const auto& cmd : commands) {
           switch (cmd.op) {
             case RefinementCommand::Op::WriteCode:
+              // Code segment is protected: Writable only via privileged loader
+              {
+                t81::axion::Verdict code_verdict;
+                code_verdict.kind = t81::axion::VerdictKind::Deny;
+                code_verdict.reason = "MetaRefine WriteCode denied (protected)";
+                record_axion_event(insn.opcode, insn.b, 0, code_verdict);
+              }
+              trap = Trap::SecurityFault;
+              break;
               if (future_meta_write_count >= kMaxMetaWritesPerEpoch) {
                 trap = Trap::SecurityFault;
                 break;
@@ -1564,6 +1578,8 @@ public:
         for (const auto& cmd : commands) {
           switch (cmd.op) {
             case RefinementCommand::Op::WriteCode:
+              // Unreachable if validation works, but kept for safety or reverted?
+              // Reverting to original logic for consistency if we ever allow it via policy
               program_.insns[cmd.target].opcode = static_cast<t81::tisc::Opcode>(cmd.value);
               state_.meta_write_count++;
               compiled_traces_.clear();  // Invalidate JIT cache
