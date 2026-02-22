@@ -34,10 +34,10 @@ int main() {
     assert(m.determinant().is_zero());
     Mat1 inv = m.inverse();
     if (is_zero_matrix(inv)) {
-        std::cout << "  [OK] 1x1 singular returns zero matrix\n";
+      std::cout << "  [OK] 1x1 singular returns zero matrix\n";
     } else {
-        std::cerr << "  [FAIL] 1x1 singular did NOT return zero matrix\n";
-        return 1;
+      std::cerr << "  [FAIL] 1x1 singular did NOT return zero matrix\n";
+      return 1;
     }
   }
 
@@ -48,16 +48,18 @@ int main() {
     Mat2 m{};
     // | 1 1 |
     // | 1 1 | -> det = 1*1 - 1*1 = 0
-    m(0, 0) = one; m(0, 1) = one;
-    m(1, 0) = one; m(1, 1) = one;
+    m(0, 0) = one;
+    m(0, 1) = one;
+    m(1, 0) = one;
+    m(1, 1) = one;
 
     assert(m.determinant().is_zero());
     Mat2 inv = m.inverse();
     if (is_zero_matrix(inv)) {
-        std::cout << "  [OK] 2x2 singular returns zero matrix\n";
+      std::cout << "  [OK] 2x2 singular returns zero matrix\n";
     } else {
-        std::cerr << "  [FAIL] 2x2 singular did NOT return zero matrix\n";
-        return 1;
+      std::cerr << "  [FAIL] 2x2 singular did NOT return zero matrix\n";
+      return 1;
     }
   }
 
@@ -67,17 +69,16 @@ int main() {
     using Mat3 = T81Matrix<Scalar, 3, 3>;
     Mat3 m{};
     // All ones -> det = 0
-    for(size_t i=0; i<3; ++i)
-        for(size_t j=0; j<3; ++j)
-            m(i, j) = one;
+    for (size_t i = 0; i < 3; ++i)
+      for (size_t j = 0; j < 3; ++j) m(i, j) = one;
 
     assert(m.determinant().is_zero());
     Mat3 inv = m.inverse();
     if (is_zero_matrix(inv)) {
-        std::cout << "  [OK] 3x3 singular returns zero matrix\n";
+      std::cout << "  [OK] 3x3 singular returns zero matrix\n";
     } else {
-        std::cerr << "  [FAIL] 3x3 singular did NOT return zero matrix\n";
-        return 1;
+      std::cerr << "  [FAIL] 3x3 singular did NOT return zero matrix\n";
+      return 1;
     }
   }
 
@@ -87,9 +88,8 @@ int main() {
     using Mat4 = T81Matrix<Scalar, 4, 4>;
     Mat4 m{};
     // All ones -> det = 0
-    for(size_t i=0; i<4; ++i)
-        for(size_t j=0; j<4; ++j)
-            m(i, j) = one;
+    for (size_t i = 0; i < 4; ++i)
+      for (size_t j = 0; j < 4; ++j) m(i, j) = one;
 
     // Note: for 4x4, the generic implementation uses Gaussian elimination.
     // Pivoting might be unstable if floats are used but here we use exact 1.0.
@@ -103,17 +103,17 @@ int main() {
     // Ideally det should be exactly zero.
     // If not, we might need is_close. But 1.0 - 1.0 should be 0.0.
     if (det.is_zero()) {
-         std::cout << "  [OK] 4x4 determinant is zero\n";
+      std::cout << "  [OK] 4x4 determinant is zero\n";
     } else {
-         std::cout << "  [WARN] 4x4 determinant is " << det.to_double() << " (expected 0)\n";
+      std::cout << "  [WARN] 4x4 determinant is " << det.to_double() << " (expected 0)\n";
     }
 
     Mat4 inv = m.inverse();
     if (is_zero_matrix(inv)) {
-        std::cout << "  [OK] 4x4 singular returns zero matrix\n";
+      std::cout << "  [OK] 4x4 singular returns zero matrix\n";
     } else {
-        std::cerr << "  [FAIL] 4x4 singular did NOT return zero matrix\n";
-        return 1;
+      std::cerr << "  [FAIL] 4x4 singular did NOT return zero matrix\n";
+      return 1;
     }
   }
 
