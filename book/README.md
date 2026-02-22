@@ -106,8 +106,6 @@ And constraint, when applied deliberately, is a form of clarity.
 
 </details>
 
----
-
 <details>
 <summary><strong>Part II — The Deterministic Machine</strong></summary>
 
@@ -141,8 +139,6 @@ And constraint, when applied deliberately, is a form of clarity.
    * [6.4 Debugging](./06_Usage.md#64-debugging)
 
 </details>
-
----
 
 <details>
 <summary><strong>Part III — Governance and Verification</strong></summary>
