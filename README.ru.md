@@ -27,20 +27,20 @@ T81 — это детерминированный стек вычислений 
 
 ## Содержание 📑
 
-* [Быстрый старт 🚀](https://www.google.com/search?q=%23%D0%B1%D1%8B%D1%81%D1%82%D1%80%D1%8B%D0%B9-%D1%81%D1%82%D0%B0%D1%80%D1%82-)
-* [Возможности 🌟](https://www.google.com/search?q=%23%D0%B2%D0%BE%D0%B7%D0%BC%D0%BE%D0%B6%D0%BD%D0%BE%D1%81%D1%82%D0%B8-)
-* [Почему троичная логика? 🧠](https://www.google.com/search?q=%23%D0%BF%D0%BE%D1%87%D0%B5%D0%BC%D1%83-%D1%82%D1%80%D0%BE%D0%B8%D1%87%D0%BD%D0%B0%D1%8F-%D0%BB%D0%BE%D0%B3%D0%B8%D0%BA%D0%B0-)
-* [Архитектура 🏗️](https://www.google.com/search?q=%23%D0%B0%D1%80%D1%85%D0%B8%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B0-%EF%B8%8F)
-* [Поддерживаемые платформы 🌍](https://www.google.com/search?q=%23%D0%BF%D0%BE%D0%B4%D0%B4%D0%B5%D1%80%D0%B6%D0%B8%D0%B2%D0%B0%D0%B5%D0%BC%D1%8B%D0%B5-%D0%BF%D0%BB%D0%B0%D1%82%D1%84%D0%BE%D1%80%D0%BC%D1%8B-)
-* [Примеры CLI 🔧](https://www.google.com/search?q=%23%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D1%8B-cli-)
-* [Карта репозитория 📂](https://www.google.com/search?q=%23%D0%BA%D0%B0%D1%80%D1%82%D0%B0-%D1%80%D0%B5%D0%BF%D0%BE%D0%B7%D0%B8%D1%82%D0%BE%D1%80%D0%B8%D1%8F-)
-* [Карта авторитетности документов 📜](https://www.google.com/search?q=%23%D0%BA%D0%B0%D1%80%D1%82%D0%B0-%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D1%82%D0%B5%D1%82%D0%BD%D0%BE%D1%81%D1%82%D0%B8-%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%BE%D0%B2-)
-* [Гарантии совместимости 🔄](https://www.google.com/search?q=%23%D0%B3%D0%B0%D1%80%D0%B0%D0%BD%D1%82%D0%B8%D0%B8-%D1%81%D0%BE%D0%B2%D0%BC%D0%B5%D1%81%D1%82%D0%B8%D0%BC%D0%BE%D1%81%D1%82%D0%B8-)
-* [Не-цели 🚫](https://www.google.com/search?q=%23%D0%BD%D0%B5-%D1%86%D0%B5%D0%BB%D0%B8-)
-* [Граница рантайма 🔐](https://www.google.com/search?q=%23%D0%B3%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0-%D1%80%D0%B0%D0%BD%D1%82%D0%B0%D0%B9%D0%BC%D0%B0-)
-* [Дополнительное чтение 📖](https://www.google.com/search?q=%23%D0%B4%D0%BE%D0%BF%D0%BE%D0%BB%D0%BD%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D0%BE%D0%B5-%D1%87%D1%82%D0%B5%D0%BD%D0%B8%D0%B5-)
-* [Техническая монография 📘](https://www.google.com/search?q=%23%D0%BE%D0%BF%D1%80%D0%B5%D0%B4%D0%B5%D0%BB%D1%8F%D1%8E%D1%89%D0%B0%D1%8F-%D1%82%D0%B5%D1%85%D0%BD%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B0%D1%8F-%D0%BC%D0%BE%D0%BD%D0%BE%D0%B3%D1%80%D0%B0%D1%84%D0%B8%D1%8F-)
-* [Лицензия 📜](https://www.google.com/search?q=%23%D0%BB%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F)
+* [Быстрый старт 🚀](#быстрый-старт-)
+* [Возможности 🌟](#возможности-)
+* [Почему троичная логика? 🧠](#почему-троичная-логика-)
+* [Архитектура 🏗️](#архитектура-️)
+* [Поддерживаемые платформы 🌍](#поддерживаемые-платформы-)
+* [Примеры CLI 🔧](#примеры-cli-)
+* [Карта репозитория 📂](#карта-репозитория-)
+* [Карта авторитетности документов 📜](#карта-авторитетности-документов-)
+* [Гарантии совместимости 🔄](#гарантии-совместимости-)
+* [Не-цели 🚫](#не-цели-)
+* [Граница рантайма 🔐](#граница-рантайма-)
+* [Дополнительное чтение 📖](#дополнительное-чтение-)
+* [Техническая монография 📘](#определяющая-техническая-монография)
+* [Лицензия 📜](#лицензия)
 
 ## Быстрый старт 🚀⚡
 
@@ -51,31 +51,22 @@ T81 — это детерминированный стек вычислений 
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --parallel
 ./build/t81 compile examples/hello_world.t81 -o hello.tisc
 ./build/t81 run hello.tisc
-
 ```
-
 
 2. **Запуск Determinism Gate** 🔄✅
 ```bash
 python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
-
 ```
-
 
 3. **Демонстрация VM** ▶️🔥
 ```bash
 ./build/t81_demo
-
 ```
-
 
 4. **Инспекция трассировки** 🔍📜
 ```bash
 ./build/t81 trace show trace.txt
-
 ```
-
-
 
 ## Возможности 🌟
 
@@ -127,7 +118,6 @@ graph TD
         Q --> R["Хендлы тензоров"]
         R --> J
     end
-
 ```
 
 ## Поддерживаемые платформы 🌍
@@ -155,7 +145,6 @@ t81 repro-hash tests/fixtures/t81lang_determinism
 # Инструментарий моделей 🤖
 t81 weights import model.safetensors -o model.t81w
 t81 weights quantize model.safetensors --to-gguf model.gguf
-
 ```
 
 Полная справка: `t81 --help` или `t81 help <subcommand>` 📖
@@ -181,7 +170,7 @@ t81 weights quantize model.safetensors --to-gguf model.gguf
 | spec/determinism-profile.md | Гарантии детерминизма | Нормативный ✅ |
 | spec/t81-data-types.md | Спецификация типов и сериализации | Нормативный 🧮 |
 | spec/tisc-spec.md | Система инструкций TISC | Нормативный 📡 |
-| https://www.google.com/search?q=docs/index.md | Точка входа в документацию | Информационный 📖 |
+| docs/index.md | Точка входа в документацию | Информационный 📖 |
 
 ## Гарантии совместимости 🔄
 
@@ -199,14 +188,14 @@ T81 — это **не**:
 
 ## Граница рантайма 🔐
 
-Определена в спецификациях, таких как [spec/t81vm-spec.md](https://www.google.com/search?q=spec/t81vm-spec.md)
+Определена в спецификациях, таких как [spec/t81vm-spec.md](spec/t81vm-spec.md)
 
 ## Дополнительное чтение 📖
 
-* [docs/index.md](https://www.google.com/search?q=docs/index.md)
-* [spec/index.md](https://www.google.com/search?q=spec/index.md)
-* [CONTRIBUTING.md](https://www.google.com/search?q=CONTRIBUTING.md)
-* [SECURITY.md](https://www.google.com/search?q=SECURITY.md)
+* [docs/index.md](docs/index.md)
+* [spec/index.md](spec/index.md)
+* [CONTRIBUTING.md](CONTRIBUTING.md)
+* [SECURITY.md](SECURITY.md)
 
 ---
 
@@ -214,7 +203,7 @@ T81 — это **не**:
 
 Для получения исчерпывающего описания архитектуры на уровне спецификации — включая формальную семантику, инварианты детерминизма, состязательное моделирование и проектирование долгосрочной непрерывности — см.:
 
-➡️ **[T81 Foundation — Определяющая техническая монография](https://www.google.com/search?q=book/README.md)**
+➡️ **[T81 Foundation — Определяющая техническая монография](book-ru/README.md)**
 
 **Пути чтения:**
 
@@ -227,129 +216,125 @@ T81 — это **не**:
 <details>
 <summary><strong>Часть I — Основы</strong></summary>
 
-1. **[Введение](https://www.google.com/search?q=book/01_Introduction.md)**
-* [1.1 Область применения и определение](https://www.google.com/search?q=book/01_Introduction.md%2311-scope-and-definition)
-* [1.2 Архитектура системы](https://www.google.com/search?q=book/01_Introduction.md%2312-system-architecture)
-* [1.3 Миссия верифицируемых вычислений](https://www.google.com/search?q=book/01_Introduction.md%2313-verifiable-compute-mission)
+1. **[Введение](book-ru/01_Введение.md)**
+* [1.1 Область применения и определение](book-ru/01_Введение.md#11-область-применения-и-определение)
+* [1.2 Архитектура системы](book-ru/01_Введение.md#12-архитектура-системы)
+* [1.3 Миссия верифицируемых вычислений](book-ru/01_Введение.md#13-миссия-верифицируемых-вычислений)
 
 
-2. **[Основные принципы и инварианты](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md)**
-* [2.1 Инвариант детерминизма](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md%2321-the-determinism-invariant)
-* [2.1.1 Поверхности детерминизма и векторы атак](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md%23211-determinism-surfaces-and-attack-vectors)
-* [2.2 Троичная логика (Основание-3)](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md%2322-ternary-logic-base-3)
-* [2.3 Аудируемость и трассировка Axion](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md%2323-auditability-and-the-axion-trace)
-* [2.4 Девять принципов (Этический контроль)](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md%2324-the-nine-principles-ethics-enforcement)
-
-
+2. **[Основные принципы и инварианты](book-ru/02_Принципы.md)**
+* [2.1 Инвариант детерминизма](book-ru/02_Принципы.md#21-инвариант-детерминизма)
+* [2.1.1 Поверхности детерминизма и векторы атак](book-ru/02_Принципы.md#211-поверхности-детерминизма-и-векторы-атак)
+* [2.2 Троичная логика (Основание-3)](book-ru/02_Принципы.md#22-троичная-логика-основание-3)
+* [2.3 Аудируемость и трассировка Axion](book-ru/02_Принципы.md#23-аудируемость-и-трассировка-axion)
+* [2.4 Девять принципов (Этический контроль)](book-ru/02_Принципы.md#24-девять-принципов-этический-контроль)
 
 </details>
 
 <details>
 <summary><strong>Часть II — Детерминированная машина</strong></summary>
 
-3. **[Архитектура T81VM](https://www.google.com/search?q=book/03_T81VM_Architecture.md)**
-* [3.1 Формальный конечный автомат](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2331-formal-state-machine)
-* [3.1.1 Определение состояния](https://www.google.com/search?q=book/03_T81VM_Architecture.md%23311-state-definition)
-* [3.2 Схема памяти](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2332-memory-layout)
-* [3.3 Регистровый файл](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2333-register-file)
-* [3.4 Архитектура набора инструкций TISC (ISA)](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2334-tisc-instruction-set-architecture-isa)
-* [3.5 Семантика сбоев](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2335-fault-semantics)
-* [3.6 Сборка мусора](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2336-garbage-collection)
+3. **[Архитектура T81VM](book-ru/03_Архитектура.md)**
+* [3.1 Формальный конечный автомат](book-ru/03_Архитектура.md#31-обзор)
+* [3.1.1 Определение состояния](book-ru/03_Архитектура.md#31-обзор)
+* [3.2 Схема памяти](book-ru/03_Архитектура.md#33-модель-памяти)
+* [3.3 Регистровый файл](book-ru/03_Архитектура.md#33-модель-памяти)
+* [3.4 Архитектура набора инструкций TISC (ISA)](book-ru/03_Архитектура.md#34-набор-инструкций-tisc)
+* [3.5 Семантика сбоев](book-ru/03_Архитектура.md#32-граница-рантайма)
+* [3.6 Сборка мусора](book-ru/03_Архитектура.md#33-модель-памяти)
 
 
-4. **[Типы данных и каноническая сериализация](https://www.google.com/search?q=book/04_Data_Types_and_Canonical_Serialization.md)**
-* [4.1 Примитивные типы](https://www.google.com/search?q=book/04_Data_Types_and_Canonical_Serialization.md%2341-primitive-types)
-* [4.2 T81Float и dmath](https://www.google.com/search?q=book/04_Data_Types_and_Canonical_Serialization.md%2342-t81float-and-dmath)
-* [4.3 Тензоры и канонические макеты](https://www.google.com/search?q=book/04_Data_Types_and_Canonical_Serialization.md%2343-tensors-and-canonical-layouts)
-* [4.4 Правила канонической сериализации](https://www.google.com/search?q=book/04_Data_Types_and_Canonical_Serialization.md%2344-canonical-serialization-rules)
+4. **[Типы данных и каноническая сериализация](book-ru/04_Типы_Данных_и_Сериализация.md)**
+* [4.1 Примитивные типы](book-ru/04_Типы_Данных_и_Сериализация.md#41-примитивные-типы)
+* [4.2 T81Float и dmath](book-ru/04_Типы_Данных_и_Сериализация.md#42-t81float-и-dmath)
+* [4.3 Тензоры и канонические макеты](book-ru/04_Типы_Данных_и_Сериализация.md#43-тензоры-и-канонические-макеты)
+* [4.4 Правила канонической сериализации](book-ru/04_Типы_Данных_и_Сериализация.md#44-правила-канонической-сериализации)
 
 
-5. **[Установка и верификация сборки](https://www.google.com/search?q=book/05_Installation_and_Build_Verification.md)**
-* [5.1 Системные требования](https://www.google.com/search?q=book/05_Installation_and_Build_Verification.md%2351-prerequisites)
-* [5.2 Сборка из исходного кода](https://www.google.com/search?q=book/05_Installation_and_Build_Verification.md%2352-building-from-source)
-* [5.3 Верификация сборки](https://www.google.com/search?q=book/05_Installation_and_Build_Verification.md%2353-verifying-the-build)
+5. **[Установка и верификация сборки](book-ru/05_Установка.md)**
+* [5.1 Системные требования](book-ru/05_Установка.md#51-требования)
+* [5.2 Сборка из исходного кода](book-ru/05_Установка.md#52-процедура-сборки)
+* [5.3 Верификация сборки](book-ru/05_Установка.md#53-верификация-сборки)
 
 
-6. **[Использование CLI и API](https://www.google.com/search?q=book/06_CLI_and_API_Usage.md)**
-* [6.1 Интерфейс командной строки](https://www.google.com/search?q=book/06_CLI_and_API_Usage.md%2361-the-t81-command-line-interface)
-* [6.2 Встраивание T81 (C++ API)](https://www.google.com/search?q=book/06_CLI_and_API_Usage.md%2362-embedding-t81-c-api)
-* [6.3 Встраивание T81 (Python API)](https://www.google.com/search?q=book/06_CLI_and_API_Usage.md%2363-embedding-t81-python-api)
-* [6.4 Отладка](https://www.google.com/search?q=book/06_CLI_and_API_Usage.md%2364-debugging)
-
-
+6. **[Использование CLI и API](book-ru/06_Использование.md)**
+* [6.1 Интерфейс командной строки](book-ru/06_Использование.md#61-единый-интерфейс-командной-строки-cli)
+* [6.2 Встраивание T81 (C++ API)](book-ru/06_Использование.md#61-единый-интерфейс-командной-строки-cli)
+* [6.3 Встраивание T81 (Python API)](book-ru/06_Использование.md#61-единый-интерфейс-командной-строки-cli)
+* [6.4 Отладка](book-ru/06_Использование.md#612-отладка-и-инспекция)
 
 </details>
 
 <details>
 <summary><strong>Часть III — Управление и верификация</strong></summary>
 
-7. **[Верификация и аудит](https://www.google.com/search?q=book/07_Verification_and_Audit.md)**
-* [7.1 Методология формальной верификации](https://www.google.com/search?q=book/07_Verification_and_Audit.md%2371-formal-verification-methodology)
-* [7.2 Формальная матрица аудита](https://www.google.com/search?q=book/07_Verification_and_Audit.md%2372-the-formal-audit-matrix)
-* [7.3 Тестирование на основе свойств](https://www.google.com/search?q=book/07_Verification_and_Audit.md%2373-property-based-testing)
-* [7.4 Гейт детерминизма (The Determinism Gate)](https://www.google.com/search?q=book/07_Verification_and_Audit.md%2374-the-determinism-gate)
+7. **[Верификация и аудит](book-ru/07_Верификация_и_Аудит.md)**
+* [7.1 Методология формальной верификации](book-ru/07_Верификация_и_Аудит.md#71-стек-верификации)
+* [7.2 Формальная матрица аудита](book-ru/07_Верификация_и_Аудит.md#71-стек-верификации)
+* [7.3 Тестирование на основе свойств](book-ru/07_Верификация_и_Аудит.md#71-стек-верификации)
+* [7.4 Гейт детерминизма](book-ru/07_Верификация_и_Аудит.md#72-гейт-детерминизма)
 
 
-8. **[Ядро безопасности Axion](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md)**
-* [8.1 Формальное определение](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md%2381-formal-definition)
-* [8.2 Модель политик](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md%2382-the-policy-model)
-* [8.3 Перехват инструкций](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md%2383-instruction-interception)
-* [8.4 Журнал аудита (Trace)](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md%2384-the-audit-log-trace)
-* [8.5 Когнитивное продвижение](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md%2385-cognitive-promotion)
+8. **[Ядро безопасности Axion](book-ru/08_Ядро_Axion.md)**
+* [8.1 Формальное определение](book-ru/08_Ядро_Axion.md#81-формальное-определение)
+* [8.2 Модель политик](book-ru/08_Ядро_Axion.md#82-модель-политик)
+* [8.3 Перехват инструкций](book-ru/08_Ядро_Axion.md#83-перехват-инструкций)
+* [8.4 Журнал аудита (Трасса)](book-ru/08_Ядро_Axion.md#84-журнал-аудита-трасса)
+* [8.5 Когнитивное продвижение](book-ru/08_Ядро_Axion.md#85-когнитивное-продвижение)
 
 
-9. **[Когнитивные уровни и распределенные вычисления](https://www.google.com/search?q=book/09_Cognitive_Tiers_and_Distributed_Compute.md)**
-* [9.1 Модель когнитивных уровней](https://www.google.com/search?q=book/09_Cognitive_Tiers_and_Distributed_Compute.md%2391-the-cognitive-tier-model)
-* [9.2 Распределенные вычисления (Уровень 4)](https://www.google.com/search?q=book/09_Cognitive_Tiers_and_Distributed_Compute.md%2392-distributed-compute-tier-4)
-* [9.3 Трассировочная JIT-компиляция](https://www.google.com/search?q=book/09_Cognitive_Tiers_and_Distributed_Compute.md%2393-trace-based-jit-compilation)
-* [9.4 Бесконечные формы (Уровень 5)](https://www.google.com/search?q=book/09_Cognitive_Tiers_and_Distributed_Compute.md%2394-infinite-forms-tier-5)
+9. **[Когнитивные уровни и распределенные вычисления](book-ru/09_Когнитивные_Уровни_и_Распределенные_Вычисления.md)**
+* [9.1 Модель когнитивных уровней](book-ru/09_Когнитивные_Уровни_и_Распределенные_Вычисления.md#91-модель-когнитивных-уровней)
+* [9.2 Распределенные вычисления (Уровень 4)](book-ru/09_Когнитивные_Уровни_и_Распределенные_Вычисления.md#92-распределенные-вычисления-уровень-4)
+* [9.3 Trace-Based JIT-компиляция](book-ru/09_Когнитивные_Уровни_и_Распределенные_Вычисления.md#92-распределенные-вычисления-уровень-4)
+* [9.4 Бесконечные формы (Уровень 5)](book-ru/09_Когнитивные_Уровни_и_Распределенные_Вычисления.md#93-бесконечные-формы-уровень-5)
 
 
-10. **[Приложения](https://www.google.com/search?q=book/10_Appendices.md)**
+10. **[Приложения](book-ru/10_Приложения.md)**
 
-* [10.1 Что еще не реализовано](https://www.google.com/search?q=book/10_Appendices.md%23101-what-is-not-yet-implemented)
-* [10.2 Модель угроз и поверхность атак на детерминизм](https://www.google.com/search?q=book/10_Appendices.md%23102-threat-model-and-determinism-attack-surface)
-* [10.3 Глоссарий](https://www.google.com/search?q=book/10_Appendices.md%23103-glossary)
+* [10.1 Что еще не реализовано](book-ru/10_Приложения.md#101-что-еще-не-реализовано)
+* [10.2 Модель угроз и поверхность атак на детерминизм](book-ru/10_Приложения.md#101-что-еще-не-реализовано)
+* [10.3 Глоссарий](book-ru/10_Приложения.md#103-полезные-ссылки)
 
 </details>
 
 <details>
 <summary><strong>Часть IV — Формализация и структурное укрепление</strong></summary>
 
-11. **[Формальная семантика TISC и T81VM](https://www.google.com/search?q=book/11_Formal_Semantics.md)**
+11. **[Формальная семантика TISC и T81VM](book-ru/11_Формальная_Семантика.md)**
 
-* [Денотационная семантика TISC](https://www.google.com/search?q=book/11_Formal_Semantics.md%23denotational-semantics-of-tisc)
-* [Алгебраическая функция перехода δ](https://www.google.com/search?q=book/11_Formal_Semantics.md%23algebraic-transition-function-%CE%B4)
-* [Система перезаписи канонизации](https://www.google.com/search?q=book/11_Formal_Semantics.md%23canonicalization-rewriting-system)
-* [Наброски доказательств детерминизма](https://www.google.com/search?q=book/11_Formal_Semantics.md%23determinism-proof-sketches)
-* [Эквивалентность интерпретатора и Trace-JIT](https://www.google.com/search?q=book/11_Formal_Semantics.md%23interpreter-vs-trace-jit-equivalence)
+* [Денотационная семантика TISC](book-ru/11_Формальная_Семантика.md#111-операционная-семантика)
+* [Алгебраическая функция перехода δ](book-ru/11_Формальная_Семантика.md#1111-функция-перехода)
+* [Система перезаписи канонизации](book-ru/11_Формальная_Семантика.md#111-операционная-семантика)
+* [Наброски доказательств детерминизма](book-ru/11_Формальная_Семантика.md#1111-функция-перехода)
+* [Эквивалентность интерпретатора и Trace-JIT](book-ru/11_Формальная_Семантика.md#1111-функция-перехода)
 
-12. **[Состязательное моделирование и атаки на детерминизм](https://www.google.com/search?q=book/12_Adversarial_Modeling.md)**
+12. **[Состязательное моделирование и атаки на детерминизм](book-ru/12_Состязательное_Моделирование.md)**
 
-* [Атаки на уровне компилятора](https://www.google.com/search?q=book/12_Adversarial_Modeling.md%23compiler-level-attacks)
-* [Векторы атак на VM и GC](https://www.google.com/search?q=book/12_Adversarial_Modeling.md%23vm-and-gc-attack-vectors)
-* [Атаки на CanonFS и хэширование](https://www.google.com/search?q=book/12_Adversarial_Modeling.md%23canonfs-and-hash-attacks)
-* [Атака «путешествие во времени» в распределенном уровне](https://www.google.com/search?q=book/12_Adversarial_Modeling.md%23distributed-tier-time-travel-attack)
-* [Шаблон постмортема нарушения детерминизма](https://www.google.com/search?q=book/12_Adversarial_Modeling.md%23determinism-breach-postmortem-template)
+* [Атаки на уровне компилятора](book-ru/12_Состязательное_Моделирование.md#121-модель-угроз)
+* [Векторы атак на VM и GC](book-ru/12_Состязательное_Моделирование.md#121-модель-угроз)
+* [Атаки на CanonFS и хэширование](book-ru/12_Состязательное_Моделирование.md#121-модель-угроз)
+* [Атака «путешествие во времени» в распределенном уровне](book-ru/12_Состязательное_Моделирование.md#1212-атаки-с-путешествием-во-времени)
+* [Шаблон постмортема нарушения детерминизма](book-ru/12_Состязательное_Моделирование.md#121-модель-угроз)
 
 </details>
 
 <details>
 <summary><strong>Часть V — Непрерывность и исследовательские горизонты</strong></summary>
 
-13. **[Непрерывность и устойчивость](https://www.google.com/search?q=book/13_Continuity_Resilience.md)**
+13. **[Непрерывность и устойчивость](book-ru/13_Непрерывность_и_Устойчивость.md)**
 
-* [Протокол реконструкции в «чистой комнате»](https://www.google.com/search?q=book/13_Continuity_Resilience.md%23cleanroom-reconstruction-protocol)
-* [Единые точки отказа](https://www.google.com/search?q=book/13_Continuity_Resilience.md%23single-points-of-failure)
-* [Манифест непрерывности](https://www.google.com/search?q=book/13_Continuity_Resilience.md%23continuity-manifest)
-* [Неизменяемые формальные инварианты](https://www.google.com/search?q=book/13_Continuity_Resilience.md%23immutable-formal-invariants)
+* [Протокол реконструкции в «чистой комнате»](book-ru/13_Непрерывность_и_Устойчивость.md#131-протокол-чистой-комнаты)
+* [Единые точки отказа](book-ru/13_Непрерывность_и_Устойчивость.md#131-протокол-чистой-комнаты)
+* [Манифест непрерывности](book-ru/13_Непрерывность_и_Устойчивость.md#131-протокол-чистой-комнаты)
+* [Неизменяемые формальные инварианты](book-ru/13_Непрерывность_и_Устойчивость.md#132-долгосрочное-архивирование)
 
-14. **[Исследовательский фронтир](https://www.google.com/search?q=book/14_Research_Frontier.md)**
+14. **[Исследовательский фронтир](book-ru/14_Исследовательский_Фронтир.md)**
 
-* [Троичное аппаратное ускорение](https://www.google.com/search?q=book/14_Research_Frontier.md%23ternary-hardware-acceleration)
-* [Пути формальной верификации](https://www.google.com/search?q=book/14_Research_Frontier.md%23formal-verification-paths)
-* [CanonFS как субстрат Меркла](https://www.google.com/search?q=book/14_Research_Frontier.md%23canonfs-as-a-merkle-substrate)
-* [Детерминированный инференс ИИ в масштабе](https://www.google.com/search?q=book/14_Research_Frontier.md%23deterministic-ai-inference-at-scale)
+* [Троичное аппаратное ускорение](book-ru/14_Исследовательский_Фронтир.md)
+* [Пути формальной верификации](book-ru/14_Исследовательский_Фронтир.md)
+* [CanonFS как субстрат Меркла](book-ru/14_Исследовательский_Фронтир.md)
+* [Детерминированный инференс ИИ в масштабе](book-ru/14_Исследовательский_Фронтир.md)
 
 </details>
 
@@ -357,4 +342,4 @@ T81 — это **не**:
 
 ## Лицензия
 
-Лицензия MIT — см. [LICENSE](https://www.google.com/search?q=LICENSE).
+Лицензия MIT — см. [LICENSE](LICENSE).
