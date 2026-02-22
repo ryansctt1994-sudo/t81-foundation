@@ -25,7 +25,7 @@ void test_if_statement_true() {
   vm->load_program(program);
   vm->run_to_halt();
 
-  T81_TEST_CHECK(vm->state().registers[1] == 1 &&
+  T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 1 &&
                  "VM register R1 has incorrect value for true branch");
 
   std::cout << "E2ETest test_if_statement_true passed!" << std::endl;
@@ -50,7 +50,7 @@ void test_if_statement_false() {
   vm->load_program(program);
   vm->run_to_halt();
 
-  T81_TEST_CHECK(vm->state().registers[1] == 0 &&
+  T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 0 &&
                  "VM register R1 has incorrect value for false branch");
 
   std::cout << "E2ETest test_if_statement_false passed!" << std::endl;
@@ -75,7 +75,7 @@ void test_if_else_statement() {
   vm->load_program(program);
   vm->run_to_halt();
 
-  T81_TEST_CHECK(vm->state().registers[1] == 123 &&
+  T81_TEST_CHECK(vm->state().contexts[0].registers[1] == 123 &&
                  "VM register R1 has incorrect value for else branch");
 
   std::cout << "E2ETest test_if_else_statement passed!" << std::endl;

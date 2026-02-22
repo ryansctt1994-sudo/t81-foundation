@@ -49,8 +49,8 @@ void run_tier4_test() {
   // Step through the program
   auto res = vm->run_to_halt(100);
   T81_TEST_CHECK(res.has_value());
-  T81_TEST_CHECK(state.registers[4] == 42);
-  T81_TEST_CHECK(state.registers[3] == 1);  // Success
+  T81_TEST_CHECK(state.contexts[0].registers[4] == 42);
+  T81_TEST_CHECK(state.contexts[0].registers[3] == 1);  // Success
   T81_TEST_CHECK(state.reflection_count == 1);
 
   std::cout << "Tier 4 E2E VM Test passed!\n";
@@ -73,7 +73,7 @@ void run_determinism_test() {
   State s1 = run_once();
   State s2 = run_once();
 
-  T81_TEST_CHECK(s1.registers[1] == s2.registers[1]);
+  T81_TEST_CHECK(s1.contexts[0].registers[1] == s2.contexts[0].registers[1]);
   T81_TEST_CHECK(s1.axion_log.size() == s2.axion_log.size());
   for (size_t i = 0; i < s1.axion_log.size(); ++i) {
     T81_TEST_CHECK(s1.axion_log[i].verdict.reason == s2.axion_log[i].verdict.reason);

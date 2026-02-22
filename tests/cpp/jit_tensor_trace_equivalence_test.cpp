@@ -68,9 +68,9 @@ Snapshot run_once(const Program& p) {
 
   Snapshot out;
   const auto& st = vm->state();
-  out.regs.assign(st.registers.begin(), st.registers.end());
-  out.tags.assign(st.register_tags.begin(), st.register_tags.end());
-  const auto final_handle = st.registers[6];
+  out.regs.assign(st.contexts[0].registers.begin(), st.contexts[0].registers.end());
+  out.tags.assign(st.contexts[0].register_tags.begin(), st.contexts[0].register_tags.end());
+  const auto final_handle = st.contexts[0].registers[6];
   if (final_handle <= 0) {
     std::cerr << "final tensor handle invalid: " << final_handle << "\n";
     return {};

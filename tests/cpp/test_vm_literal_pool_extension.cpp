@@ -51,14 +51,14 @@ void test_i2f_deterministic_extension() {
   assert(std::fabs(state.floats[2] - 100.0) < 1e-9);
 
   // Verify registers point to correct handles (1-based index)
-  assert(state.registers[2] == 1);  // handle to first float
-  assert(state.register_tags[2] == ValueTag::FloatHandle);
+  assert(state.contexts[0].registers[2] == 1);  // handle to first float
+  assert(state.contexts[0].register_tags[2] == ValueTag::FloatHandle);
 
-  assert(state.registers[3] == 2);  // handle to second float
-  assert(state.register_tags[3] == ValueTag::FloatHandle);
+  assert(state.contexts[0].registers[3] == 2);  // handle to second float
+  assert(state.contexts[0].register_tags[3] == ValueTag::FloatHandle);
 
-  assert(state.registers[5] == 3);  // handle to third float
-  assert(state.register_tags[5] == ValueTag::FloatHandle);
+  assert(state.contexts[0].registers[5] == 3);  // handle to third float
+  assert(state.contexts[0].register_tags[5] == ValueTag::FloatHandle);
 
   std::cout << "I2F deterministic pool extension passed." << std::endl;
 }
@@ -99,11 +99,11 @@ void test_i2frac_deterministic_extension() {
   assert(state.fractions[1].den.to_int64() == 1);
 
   // Verify registers
-  assert(state.registers[2] == 1);
-  assert(state.register_tags[2] == ValueTag::FractionHandle);
+  assert(state.contexts[0].registers[2] == 1);
+  assert(state.contexts[0].register_tags[2] == ValueTag::FractionHandle);
 
-  assert(state.registers[3] == 2);
-  assert(state.register_tags[3] == ValueTag::FractionHandle);
+  assert(state.contexts[0].registers[3] == 2);
+  assert(state.contexts[0].register_tags[3] == ValueTag::FractionHandle);
 
   std::cout << "I2Frac deterministic pool extension passed." << std::endl;
 }

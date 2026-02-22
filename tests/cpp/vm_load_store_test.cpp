@@ -17,7 +17,7 @@ int main() {
   [[maybe_unused]] auto res = vm->run_to_halt();
   T81_TEST_CHECK(res.has_value());
   T81_TEST_CHECK(vm->state().memory[5] == 7);
-  T81_TEST_CHECK(vm->state().registers[2] == 7);
+  T81_TEST_CHECK(vm->state().contexts[0].registers[2] == 7);
 
   // Invalid memory should trap
   [[maybe_unused]] tisc::Program bad;

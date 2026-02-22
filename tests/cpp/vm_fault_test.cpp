@@ -74,9 +74,9 @@ void run_injected_fault_test() {
   // R2 should be 20 (executed)
   // R3 should be 0 (Add NOT executed)
   const auto& state = vm->state();
-  T81_TEST_CHECK(state.registers[1] == 10);
-  T81_TEST_CHECK(state.registers[2] == 20);
-  T81_TEST_CHECK(state.registers[3] == 0);
+  T81_TEST_CHECK(state.contexts[0].registers[1] == 10);
+  T81_TEST_CHECK(state.contexts[0].registers[2] == 20);
+  T81_TEST_CHECK(state.contexts[0].registers[3] == 0);
 }
 
 }  // namespace

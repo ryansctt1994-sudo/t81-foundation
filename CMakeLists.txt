@@ -1306,6 +1306,10 @@ if(T81_BUILD_TESTS)
   add_executable(t81_symbolic_vm_test tests/cpp/symbolic_vm_test.cpp)
   target_link_libraries(t81_symbolic_vm_test PRIVATE t81_core t81_tisc t81_vm)
   add_test(NAME t81_symbolic_vm_test COMMAND t81_symbolic_vm_test)
+
+  add_executable(test_concurrency tests/cpp/test_concurrency.cpp)
+  target_link_libraries(test_concurrency PRIVATE t81_core t81_tisc t81_vm)
+  add_test(NAME test_concurrency COMMAND test_concurrency)
 endif()
 
 # =============================================================================

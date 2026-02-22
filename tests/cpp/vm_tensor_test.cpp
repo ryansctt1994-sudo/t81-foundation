@@ -31,16 +31,16 @@ int main() {
   mutable_state.tensors.push_back(vecB);  // handle 2
   mutable_state.tensors.push_back(matA);  // handle 3
   mutable_state.tensors.push_back(matB);  // handle 4
-  mutable_state.registers[1] = 1;
-  mutable_state.registers[2] = 2;
-  mutable_state.registers[5] = 3;
-  mutable_state.registers[6] = 4;
+  mutable_state.contexts[0].registers[1] = 1;
+  mutable_state.contexts[0].registers[2] = 2;
+  mutable_state.contexts[0].registers[5] = 3;
+  mutable_state.contexts[0].registers[6] = 4;
 
   [[maybe_unused]] auto result = vm->run_to_halt();
   T81_TEST_CHECK(result.has_value());
 
   // Vector addition
-  [[maybe_unused]] auto vecHandle = vm->state().registers[3];
+  [[maybe_unused]] auto vecHandle = vm->state().contexts[0].registers[3];
   T81_TEST_CHECK(vecHandle == 5);  // 4th tensor inserted next index
   const auto& vecRes = mutable_state.tensors[static_cast<std::size_t>(vecHandle - 1)];
   T81_TEST_CHECK(vecRes.has_value());
@@ -48,15 +48,15 @@ int main() {
   T81_TEST_CHECK(vecRes.value().data()[0] == 5.0f && vecRes.value().data()[2] == 9.0f);
 
   // Matrix multiplication
-  [[maybe_unused]] auto matHandle = vm->state().registers[4];
+  [[maybe_unused]] auto matHandle = vm->state().contexts[0].registers[4];
   const auto& matRes = mutable_state.tensors[static_cast<std::size_t>(matHandle - 1)];
   T81_TEST_CHECK(matRes.has_value());
   T81_TEST_CHECK(matRes.value().shape()[0] == 2 && matRes.value().shape()[1] == 2);
   T81_TEST_CHECK(static_cast<int>(matRes.value().data()[0]) == 19);  // 1*5 + 2*7
 
   // Conversion ops
-  T81_TEST_CHECK(vm->state().registers[10] == 3);
-  T81_TEST_CHECK(vm->state().registers[12] == 3);
+  T81_TEST_CHECK(vm->state().contexts[0].registers[10] == 3);
+  T81_TEST_CHECK(vm->state().contexts[0].registers[12] == 3);
 
   // Shape checks via literal handles.
   [[maybe_unused]] tisc::Program chk;
@@ -80,8 +80,8 @@ int main() {
   vm_chk->load_program(chk);
   [[maybe_unused]] auto res_chk = vm_chk->run_to_halt();
   T81_TEST_CHECK(res_chk.has_value());
-  T81_TEST_CHECK(vm_chk->state().registers[3] == 1);
-  T81_TEST_CHECK(vm_chk->state().registers[5] == 0);
+  T81_TEST_CHECK(vm_chk->state().contexts[0].registers[3] == 1);
+  T81_TEST_CHECK(vm_chk->state().contexts[0].registers[5] == 0);
 
   return 0;
 }

@@ -106,7 +106,12 @@ public:
   void load_program(const t81::tisc::Program& program) override {
     program_ = program;
     state_ = State{};
-    state_.register_tags.fill(ValueTag::Int);
+    state_.contexts.clear();
+    state_.contexts.emplace_back();
+    state_.current_context = 0;
+    auto& ctx = state_.contexts.back();
+    ctx.register_tags.fill(ValueTag::Int);
+
     auto& layout = state_.layout;
     layout.code.start = 0;
     layout.code.limit = program_.insns.size();
@@ -120,7 +125,11 @@ public:
     layout.meta.limit = layout.meta.start + kDefaultMetaSpace;
     state_.memory.resize(layout.total_size(), 0);
     state_.memory_tags.assign(state_.memory.size(), ValueTag::Int);
-    state_.sp = layout.stack.limit;
+
+    ctx.stack_base = layout.stack.limit;
+    ctx.stack_limit = layout.stack.start;
+    ctx.sp = ctx.stack_base;
+
     state_.floats = program_.float_pool;
     state_.fractions = program_.fraction_pool;
     state_.symbols = program_.symbol_pool;
@@ -135,8 +144,8 @@ public:
     state_.weights_model = program_.weights_model;
     state_.weights_tensor_refs.clear();
     state_.weights_tensor_handles.clear();
-    state_.stack_frames.clear();
-    state_.call_depth = 0;
+    ctx.stack_frames.clear();
+    ctx.call_depth = 0;
     state_.contradiction_events = 0;
     state_.heap_frames.clear();
     state_.heap_ptr = layout.heap.start;
@@ -195,6 +204,23 @@ public:
     if (state_.halted) {
       return {};
     }
+    if (state_.contexts.empty()) {
+      state_.halted = true;
+      return {};
+    }
+
+    // Round-Robin Scheduling: Find next active context
+    size_t checked_count = 0;
+    while (state_.contexts[state_.current_context].halted) {
+      state_.current_context = (state_.current_context + 1) % state_.contexts.size();
+      checked_count++;
+      if (checked_count >= state_.contexts.size()) {
+        state_.halted = true;
+        return {};
+      }
+    }
+
+    auto& ctx = state_.contexts[state_.current_context];
 
     // Deterministic Fault Injection Check
     for (auto it = state_.pending_faults.begin(); it != state_.pending_faults.end();) {
@@ -217,9 +243,9 @@ public:
     }
 
     // Check if we have a compiled trace for the current PC.
-    auto trace_it = compiled_traces_.find(state_.pc);
+    auto trace_it = compiled_traces_.find(ctx.pc);
     if (trace_it != compiled_traces_.end()) {
-      const std::size_t trace_pc = state_.pc;
+      const std::size_t trace_pc = ctx.pc;
       const auto first_opcode = trace_pc < program_.insns.size() ? program_.insns[trace_pc].opcode
                                                                  : t81::tisc::Opcode::Halt;
 
@@ -247,7 +273,7 @@ public:
         std::ostringstream reason;
         const bool deopt = exec_result.exit_kind == JitTrace::ExitKind::GuardDeopt;
         reason << (deopt ? t81::axion::reasons::kJitTraceDeopt : t81::axion::reasons::kJitTraceExit)
-               << " pc=" << state_.pc << " executed=" << exec_result.instructions_executed
+               << " pc=" << ctx.pc << " executed=" << exec_result.instructions_executed
                << " exit-kind=";
         switch (exec_result.exit_kind) {
           case JitTrace::ExitKind::Completed:
@@ -264,12 +290,12 @@ public:
       }
       record_axion_event(t81::tisc::Opcode::Nop,
                          static_cast<std::int32_t>(exec_result.instructions_executed),
-                         static_cast<std::int64_t>(state_.pc), exit_event);
+                         static_cast<std::int64_t>(ctx.pc), exit_event);
 
       const auto exit_reason = exec_result.exit_kind == JitTrace::ExitKind::GuardDeopt
                                    ? t81::axion::reasons::kJitTraceDeopt
                                    : t81::axion::reasons::kJitTraceExit;
-      auto exit = eval_axion_call(exit_reason, state_.pc, first_opcode);
+      auto exit = eval_axion_call(exit_reason, ctx.pc, first_opcode);
       if (exit.kind == t81::axion::VerdictKind::Deny) {
         return std::expected<void, Trap>(t81::unexpect, Trap::SecurityFault);
       }
@@ -283,19 +309,19 @@ public:
       compiled_traces_.erase(trace_pc);
     }
 
-    if (state_.pc >= program_.insns.size()) {
-      auto verdict =
-          eval_axion_call(t81::axion::reasons::kStep, state_.pc, t81::tisc::Opcode::Halt);
+    if (ctx.pc >= program_.insns.size()) {
+      auto verdict = eval_axion_call(t81::axion::reasons::kStep, ctx.pc, t81::tisc::Opcode::Halt);
       if (verdict.kind == t81::axion::VerdictKind::Deny) {
         return std::expected<void, Trap>(t81::unexpect, Trap::SecurityFault);
       }
-      state_.halted = true;
+      ctx.halted = true;
+      state_.halted = true;  // Single thread behavior
       return {};
     }
 
-    const std::size_t current_pc = state_.pc;
+    const std::size_t current_pc = ctx.pc;
     const auto& insn = program_.insns[current_pc];
-    state_.pc += 1;
+    ctx.pc += 1;
     instruction_count_++;
 
     // Hot-spot detection and JIT compilation.
@@ -327,8 +353,8 @@ public:
       record_axion_event(insn.opcode, 0, 0, verdict);
     }
 
-    auto reg_ok = [this](int r) {
-      return r >= 0 && static_cast<std::size_t>(r) < state_.registers.size();
+    auto reg_ok = [&ctx](int r) {
+      return r >= 0 && static_cast<std::size_t>(r) < ctx.registers.size();
     };
     auto mem_ok = [this](int addr, bool code = false) {
       if (addr < 0) return false;
@@ -372,48 +398,45 @@ public:
           return ValueTag::Int;
       }
     };
-    auto set_reg = [this](int reg, std::int64_t val_data, ValueTag tag) {
+    auto set_reg = [&ctx](int reg, std::int64_t val_data, ValueTag tag) {
       if (reg == 0 || (reg >= 75 && reg <= 80)) return;
-      state_.registers[reg] = val_data;
-      state_.register_tags[reg] = tag;
+      ctx.registers[reg] = val_data;
+      ctx.register_tags[reg] = tag;
     };
-    auto copy_reg = [this](int dst, int src) {
+    auto copy_reg = [&ctx](int dst, int src) {
       if (dst == 0 || (dst >= 75 && dst <= 80)) return;
-      state_.registers[dst] = state_.registers[src];
-      state_.register_tags[dst] = state_.register_tags[src];
+      ctx.registers[dst] = ctx.registers[src];
+      ctx.register_tags[dst] = ctx.register_tags[src];
     };
-    auto update_flags = [this](std::int64_t v) {
-      state_.flags.zero = (v == 0);
-      state_.flags.negative = (v < 0);
-      state_.flags.positive = (v > 0);
+    auto update_flags = [&ctx](std::int64_t v) {
+      ctx.flags.zero = (v == 0);
+      ctx.flags.negative = (v < 0);
+      ctx.flags.positive = (v > 0);
     };
-    auto push_stack = [this](std::int64_t val_data, ValueTag tag) -> std::optional<std::size_t> {
-      const auto& stack = state_.layout.stack;
-      if (!stack.valid()) return std::nullopt;
-      if (state_.sp <= stack.start) return std::nullopt;
+    auto push_stack = [&ctx, this](std::int64_t val_data,
+                                   ValueTag tag) -> std::optional<std::size_t> {
+      if (ctx.sp <= ctx.stack_limit) return std::nullopt;
 
-      std::size_t new_sp = state_.sp - 1;
-      if (!stack.contains(new_sp)) {
-        return std::nullopt;
-      }
+      std::size_t new_sp = ctx.sp - 1;
+
+      // Global/Policy Check
       if (state_.policy && state_.policy->max_stack &&
-          static_cast<std::int64_t>(stack.limit - new_sp) > *state_.policy->max_stack) {
+          static_cast<std::int64_t>(ctx.stack_base - new_sp) > *state_.policy->max_stack) {
         return std::nullopt;
       }
 
-      state_.sp = new_sp;
-      state_.memory[state_.sp] = val_data;
-      state_.memory_tags[state_.sp] = tag;
-      return static_cast<std::size_t>(state_.sp);
+      ctx.sp = new_sp;
+      state_.memory[ctx.sp] = val_data;
+      state_.memory_tags[ctx.sp] = tag;
+      return static_cast<std::size_t>(ctx.sp);
     };
-    auto pop_stack = [this](std::int64_t& value, ValueTag& tag) -> std::optional<std::size_t> {
-      const auto& stack = state_.layout.stack;
-      if (!stack.valid()) return std::nullopt;
-      if (state_.sp >= stack.limit) return std::nullopt;
-      std::size_t addr = state_.sp;
+    auto pop_stack = [&ctx, this](std::int64_t& value,
+                                  ValueTag& tag) -> std::optional<std::size_t> {
+      if (ctx.sp >= ctx.stack_base) return std::nullopt;
+      std::size_t addr = ctx.sp;
       value = state_.memory[addr];
       tag = state_.memory_tags[addr];
-      ++state_.sp;
+      ++ctx.sp;
       return addr;
     };
     auto tensor_ptr = [this](std::int64_t handle) -> t81::T729Tensor* {
@@ -464,11 +487,11 @@ public:
       return static_cast<std::int64_t>(idx_handle);
     };
     auto promote_to_tensor = [&](int reg) -> std::expected<void, Trap> {
-      if (reg < 0 || static_cast<std::size_t>(reg) >= state_.registers.size()) {
+      if (reg < 0 || static_cast<std::size_t>(reg) >= ctx.registers.size()) {
         return std::expected<void, Trap>(t81::unexpect, Trap::DecodeFault);
       }
-      if (state_.register_tags[reg] == ValueTag::WeightsTensorHandle) {
-        auto handle = state_.registers[reg];
+      if (ctx.register_tags[reg] == ValueTag::WeightsTensorHandle) {
+        auto handle = ctx.registers[reg];
         const auto* native = weights_tensor(handle);
         if (!native) return std::expected<void, Trap>(t81::unexpect, Trap::DecodeFault);
 
@@ -535,8 +558,8 @@ public:
         if (!result) {
           return std::expected<void, Trap>(t81::unexpect, result.error());
         }
-        state_.registers[reg] = *result;
-        state_.register_tags[reg] = ValueTag::TensorHandle;
+        ctx.registers[reg] = *result;
+        ctx.register_tags[reg] = ValueTag::TensorHandle;
       }
       return {};
     };
@@ -670,11 +693,11 @@ public:
       if (idx >= state_.symbolic_graphs.size()) return nullptr;
       return &state_.symbolic_graphs[idx];
     };
-    auto tier2_frame_ptr = [this](std::int64_t handle) -> t81::cog::v2::ReflectiveFrame* {
+    auto tier2_frame_ptr = [&ctx](std::int64_t handle) -> t81::cog::v2::ReflectiveFrame* {
       if (handle <= 0) return nullptr;
       std::size_t idx = static_cast<std::size_t>(handle - 1);
-      if (idx >= state_.tier2_frames.size()) return nullptr;
-      return &state_.tier2_frames[idx];
+      if (idx >= ctx.tier2_frames.size()) return nullptr;
+      return &ctx.tier2_frames[idx];
     };
     auto infinite_form_ptr = [this](std::int64_t handle) -> t81::cog::v5::InfiniteCanonicalForm* {
       if (handle <= 0) return nullptr;
@@ -1029,7 +1052,7 @@ public:
           }
         }
         set_reg(insn.a, value, tag);
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::F2Frac: {
@@ -1037,18 +1060,18 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::FloatHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::FloatHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* f = float_ptr(state_.registers[insn.b]);
+        auto* f = float_ptr(ctx.registers[insn.b]);
         if (!f) {
           trap = Trap::DecodeFault;
           break;
         }
         t81::T81Fraction result = fraction_from_double(*f);
-        state_.registers[insn.a] = alloc_fraction(std::move(result));
-        state_.register_tags[insn.a] = ValueTag::FractionHandle;
+        ctx.registers[insn.a] = alloc_fraction(std::move(result));
+        ctx.register_tags[insn.a] = ValueTag::FractionHandle;
         break;
       }
       case t81::tisc::Opcode::Frac2F: {
@@ -1056,19 +1079,19 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::FractionHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::FractionHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* frac = fraction_ptr(state_.registers[insn.b]);
+        auto* frac = fraction_ptr(ctx.registers[insn.b]);
         if (!frac) {
           trap = Trap::DecodeFault;
           break;
         }
         double n = frac->num.to_float<72, 9>().to_double();
         double d = frac->den.to_float<72, 9>().to_double();
-        state_.registers[insn.a] = alloc_float(n / d);
-        state_.register_tags[insn.a] = ValueTag::FloatHandle;
+        ctx.registers[insn.a] = alloc_float(n / d);
+        ctx.register_tags[insn.a] = ValueTag::FloatHandle;
         break;
       }
       case t81::tisc::Opcode::Mov:
@@ -1077,43 +1100,43 @@ public:
           break;
         }
         copy_reg(insn.a, insn.b);
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
         break;
       case t81::tisc::Opcode::Inc:
         if (!reg_ok(insn.a)) {
           trap = Trap::DecodeFault;
           break;
         }
-        state_.registers[insn.a] += 1;
-        state_.register_tags[insn.a] = ValueTag::Int;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] += 1;
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(ctx.registers[insn.a]);
         break;
       case t81::tisc::Opcode::Dec:
         if (!reg_ok(insn.a)) {
           trap = Trap::DecodeFault;
           break;
         }
-        state_.registers[insn.a] -= 1;
-        state_.register_tags[insn.a] = ValueTag::Int;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] -= 1;
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(ctx.registers[insn.a]);
         break;
       case t81::tisc::Opcode::Add:
         if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
           trap = Trap::DecodeFault;
           break;
         }
-        state_.registers[insn.a] = state_.registers[insn.b] + state_.registers[insn.c];
-        state_.register_tags[insn.a] = ValueTag::Int;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = ctx.registers[insn.b] + ctx.registers[insn.c];
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(ctx.registers[insn.a]);
         break;
       case t81::tisc::Opcode::Sub:
         if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
           trap = Trap::DecodeFault;
           break;
         }
-        state_.registers[insn.a] = state_.registers[insn.b] - state_.registers[insn.c];
-        state_.register_tags[insn.a] = ValueTag::Int;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = ctx.registers[insn.b] - ctx.registers[insn.c];
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(ctx.registers[insn.a]);
         break;
       case t81::tisc::Opcode::Load: {
         if (!reg_ok(insn.a)) {
@@ -1125,11 +1148,11 @@ public:
           break;
         }
         std::size_t addr = static_cast<std::size_t>(insn.b);
-        state_.registers[insn.a] = state_.memory[addr];
-        state_.register_tags[insn.a] = state_.memory_tags[addr];
+        ctx.registers[insn.a] = state_.memory[addr];
+        ctx.register_tags[insn.a] = state_.memory_tags[addr];
         log_memory_segment_access(insn.opcode, segment_for_address(addr), addr, 1,
                                   t81::axion::reasons::kMemLoad);
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::WeightsLoad: {
@@ -1143,8 +1166,8 @@ public:
         }
         const std::string& name = state_.symbols[static_cast<std::size_t>(insn.b - 1)];
         auto handle = intern_weights_tensor(name);
-        state_.registers[insn.a] = handle;
-        state_.register_tags[insn.a] = ValueTag::WeightsTensorHandle;
+        ctx.registers[insn.a] = handle;
+        ctx.register_tags[insn.a] = ValueTag::WeightsTensorHandle;
         {
           t81::axion::Verdict verdict;
           verdict.kind = t81::axion::VerdictKind::Allow;
@@ -1158,7 +1181,7 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto symbol = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+        auto symbol = symbol_like_text(ctx.register_tags[insn.b], ctx.registers[insn.b]);
         if (!symbol.has_value()) {
           trap = Trap::DecodeFault;
           break;
@@ -1331,14 +1354,14 @@ public:
             trap = res.error();
             break;
           }
-          state_.registers[insn.a] = *res;
-          state_.register_tags[insn.a] = ValueTag::TensorHandle;
+          ctx.registers[insn.a] = *res;
+          ctx.register_tags[insn.a] = ValueTag::TensorHandle;
 
           t81::axion::Verdict success_verdict;
           success_verdict.kind = t81::axion::VerdictKind::Allow;
           success_verdict.reason = "TLOADHASH success hash=" + hash_str +
-                                   " handle=" + std::to_string(state_.registers[insn.a]);
-          record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), state_.registers[insn.a],
+                                   " handle=" + std::to_string(ctx.registers[insn.a]);
+          record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), ctx.registers[insn.a],
                              success_verdict);
         }
         break;
@@ -1352,7 +1375,7 @@ public:
           trap = res.error();
           break;
         }
-        auto* tensor = tensor_ptr(state_.registers[insn.b]);
+        auto* tensor = tensor_ptr(ctx.registers[insn.b]);
         if (tensor == nullptr) {
           trap = Trap::DecodeFault;
           break;
@@ -1364,8 +1387,8 @@ public:
           trap = res_handle.error();
           break;
         }
-        state_.registers[insn.a] = *res_handle;
-        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+        ctx.registers[insn.a] = *res_handle;
+        ctx.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
       case t81::tisc::Opcode::MetaRead: {
@@ -1374,7 +1397,7 @@ public:
           break;
         }
         MemorySegmentKind segment = static_cast<MemorySegmentKind>(insn.b);
-        std::int64_t addr = state_.registers[insn.c];
+        std::int64_t addr = ctx.registers[insn.c];
         auto verdict = eval_axion_call(t81::axion::reasons::kMetaRead, current_pc, insn.opcode);
         if (verdict.kind == t81::axion::VerdictKind::Deny) {
           trap = Trap::SecurityFault;
@@ -1385,15 +1408,15 @@ public:
             trap = Trap::BoundsFault;
             break;
           }
-          state_.registers[insn.a] = state_.registers[addr];
-          state_.register_tags[insn.a] = state_.register_tags[addr];
+          ctx.registers[insn.a] = ctx.registers[addr];
+          ctx.register_tags[insn.a] = ctx.register_tags[addr];
         } else if (segment == MemorySegmentKind::Code) {
           if (addr < 0 || static_cast<size_t>(addr) >= program_.insns.size()) {
             trap = Trap::BoundsFault;
             break;
           }
-          state_.registers[insn.a] = static_cast<std::int64_t>(program_.insns[addr].opcode);
-          state_.register_tags[insn.a] = ValueTag::Int;
+          ctx.registers[insn.a] = static_cast<std::int64_t>(program_.insns[addr].opcode);
+          ctx.register_tags[insn.a] = ValueTag::Int;
         } else {
           std::size_t physical_addr = 0;
           bool ok = false;
@@ -1430,10 +1453,10 @@ public:
             trap = Trap::BoundsFault;
             break;
           }
-          state_.registers[insn.a] = state_.memory[physical_addr];
-          state_.register_tags[insn.a] = state_.memory_tags[physical_addr];
+          ctx.registers[insn.a] = state_.memory[physical_addr];
+          ctx.register_tags[insn.a] = state_.memory_tags[physical_addr];
         }
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
         apply_segment_reason(verdict, "MetaRead reflection", segment, static_cast<size_t>(addr));
         record_axion_event(insn.opcode, static_cast<int32_t>(segment), addr, verdict);
         break;
@@ -1444,9 +1467,9 @@ public:
           break;
         }
         MemorySegmentKind segment = static_cast<MemorySegmentKind>(insn.b);
-        std::int64_t addr = state_.registers[insn.c];
-        std::int64_t val = state_.registers[insn.a];
-        ValueTag tag = state_.register_tags[insn.a];
+        std::int64_t addr = ctx.registers[insn.c];
+        std::int64_t val = ctx.registers[insn.a];
+        ValueTag tag = ctx.register_tags[insn.a];
         auto verdict = eval_axion_call(t81::axion::reasons::kMetaWrite, current_pc, insn.opcode);
         if (verdict.kind == t81::axion::VerdictKind::Deny) {
           trap = Trap::SecurityFault;
@@ -1457,8 +1480,8 @@ public:
             trap = Trap::BoundsFault;
             break;
           }
-          state_.registers[addr] = val;
-          state_.register_tags[addr] = tag;
+          ctx.registers[addr] = val;
+          ctx.register_tags[addr] = tag;
         } else if (segment == MemorySegmentKind::Code) {
           if (addr < 0 || static_cast<size_t>(addr) >= program_.insns.size()) {
             trap = Trap::BoundsFault;
@@ -1532,9 +1555,9 @@ public:
 
         ReflectionSnapshot snapshot;
         snapshot.pc = current_pc;
-        snapshot.registers = state_.registers;
-        snapshot.register_tags = state_.register_tags;
-        snapshot.flags = state_.flags;
+        snapshot.registers = ctx.registers;
+        snapshot.register_tags = ctx.register_tags;
+        snapshot.flags = ctx.flags;
 
         // Capture recent trace (up to 81 entries)
         std::size_t trace_start = (state_.trace.size() > 81) ? (state_.trace.size() - 81) : 0;
@@ -1576,8 +1599,8 @@ public:
           break;
         }
 
-        std::int64_t cmd_addr = state_.registers[insn.b];
-        std::int64_t cmd_count = state_.registers[insn.c];
+        std::int64_t cmd_addr = ctx.registers[insn.b];
+        std::int64_t cmd_count = ctx.registers[insn.c];
 
         if (cmd_count < 0 || cmd_count > static_cast<int64_t>(kMaxMetaWritesPerEpoch)) {
           trap = Trap::BoundsFault;
@@ -1665,8 +1688,8 @@ public:
               compiled_traces_.clear();  // Invalidate JIT cache
               break;
             case RefinementCommand::Op::WriteReg:
-              state_.registers[cmd.target] = cmd.value;
-              state_.register_tags[cmd.target] = cmd.tag;
+              ctx.registers[cmd.target] = cmd.value;
+              ctx.register_tags[cmd.target] = cmd.tag;
               break;
             case RefinementCommand::Op::WriteMem:
               state_.memory[cmd.target] = cmd.value;
@@ -1691,7 +1714,7 @@ public:
           trap = res.error();
           break;
         }
-        auto* tensor = tensor_ptr(state_.registers[insn.b]);
+        auto* tensor = tensor_ptr(ctx.registers[insn.b]);
         if (tensor == nullptr) {
           trap = Trap::DecodeFault;
           break;
@@ -1703,8 +1726,8 @@ public:
           trap = res_handle.error();
           break;
         }
-        state_.registers[insn.a] = *res_handle;
-        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+        ctx.registers[insn.a] = *res_handle;
+        ctx.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
       case t81::tisc::Opcode::TSiLU: {
@@ -1716,21 +1739,21 @@ public:
           trap = res.error();
           break;
         }
-        auto* tensor = tensor_ptr(state_.registers[insn.b]);
+        auto* tensor = tensor_ptr(ctx.registers[insn.b]);
         if (tensor == nullptr) {
           trap = Trap::DecodeFault;
           break;
         }
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TSiLU kernel execution"};
-        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), state_.registers[insn.b],
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
         auto res_handle = alloc_tensor(t81::ops::silu(*tensor));
         if (!res_handle) {
           trap = res_handle.error();
           break;
         }
-        state_.registers[insn.a] = *res_handle;
-        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+        ctx.registers[insn.a] = *res_handle;
+        ctx.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
       case t81::tisc::Opcode::TSoftmax: {
@@ -1742,21 +1765,21 @@ public:
           trap = res.error();
           break;
         }
-        auto* tensor = tensor_ptr(state_.registers[insn.b]);
+        auto* tensor = tensor_ptr(ctx.registers[insn.b]);
         if (tensor == nullptr || tensor->rank() == 0) {
           trap = Trap::DecodeFault;
           break;
         }
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TSoftmax kernel execution"};
-        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), state_.registers[insn.b],
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
         auto res_handle = alloc_tensor(t81::ops::softmax(*tensor));
         if (!res_handle) {
           trap = res_handle.error();
           break;
         }
-        state_.registers[insn.a] = *res_handle;
-        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+        ctx.registers[insn.a] = *res_handle;
+        ctx.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
       case t81::tisc::Opcode::TRMSNorm: {
@@ -1772,8 +1795,8 @@ public:
           trap = res.error();
           break;
         }
-        auto* tensor = tensor_ptr(state_.registers[insn.b]);
-        auto* w = tensor_ptr(state_.registers[insn.c]);
+        auto* tensor = tensor_ptr(ctx.registers[insn.b]);
+        auto* w = tensor_ptr(ctx.registers[insn.c]);
         if (tensor == nullptr || w == nullptr || tensor->rank() == 0 || w->rank() != 1 ||
             w->shape()[0] != tensor->shape().back()) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, 0, "TRMSNorm shape mismatch");
@@ -1781,15 +1804,15 @@ public:
           break;
         }
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TRMSNorm kernel execution"};
-        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), state_.registers[insn.b],
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
         auto res_handle = alloc_tensor(t81::ops::rmsnorm(*tensor, *w));
         if (!res_handle) {
           trap = res_handle.error();
           break;
         }
-        state_.registers[insn.a] = *res_handle;
-        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+        ctx.registers[insn.a] = *res_handle;
+        ctx.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
       case t81::tisc::Opcode::TRoPE: {
@@ -1801,23 +1824,23 @@ public:
           trap = res.error();
           break;
         }
-        auto* tensor = tensor_ptr(state_.registers[insn.b]);
+        auto* tensor = tensor_ptr(ctx.registers[insn.b]);
         if (tensor == nullptr || tensor->rank() < 2) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, 0, "TRoPE shape mismatch");
           trap = Trap::ShapeFault;
           break;
         }
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TRoPE kernel execution"};
-        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), state_.registers[insn.b],
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
-        int pos = static_cast<int>(state_.registers[insn.c]);
+        int pos = static_cast<int>(ctx.registers[insn.c]);
         auto res_handle = alloc_tensor(t81::ops::rope(*tensor, pos));
         if (!res_handle) {
           trap = res_handle.error();
           break;
         }
-        state_.registers[insn.a] = *res_handle;
-        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+        ctx.registers[insn.a] = *res_handle;
+        ctx.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
       case t81::tisc::Opcode::Store: {
@@ -1830,8 +1853,8 @@ public:
           break;
         }
         std::size_t addr = static_cast<std::size_t>(insn.a);
-        state_.memory[addr] = state_.registers[insn.b];
-        state_.memory_tags[addr] = state_.register_tags[insn.b];
+        state_.memory[addr] = ctx.registers[insn.b];
+        state_.memory_tags[addr] = ctx.register_tags[insn.b];
         log_memory_segment_access(insn.opcode, segment_for_address(addr), addr, 1,
                                   t81::axion::reasons::kMemStore);
         break;
@@ -1841,9 +1864,9 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        state_.registers[insn.a] = state_.registers[insn.b] * state_.registers[insn.c];
-        state_.register_tags[insn.a] = ValueTag::Int;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = ctx.registers[insn.b] * ctx.registers[insn.c];
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(ctx.registers[insn.a]);
         break;
       case t81::tisc::Opcode::Div:
       case t81::tisc::Opcode::Mod: {
@@ -1851,19 +1874,19 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto divisor = state_.registers[insn.c];
+        auto divisor = ctx.registers[insn.c];
         if (divisor == 0) {
           trap = Trap::DivisionFault;
           break;
         }
-        auto lhs = state_.registers[insn.b];
+        auto lhs = ctx.registers[insn.b];
         if (insn.opcode == t81::tisc::Opcode::Div) {
-          state_.registers[insn.a] = lhs / divisor;
+          ctx.registers[insn.a] = lhs / divisor;
         } else {
-          state_.registers[insn.a] = lhs % divisor;
+          ctx.registers[insn.a] = lhs % divisor;
         }
-        state_.register_tags[insn.a] = ValueTag::Int;
-        update_flags(state_.registers[insn.a]);
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::Jump:
@@ -1871,19 +1894,19 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        state_.pc = static_cast<std::size_t>(insn.a);
+        ctx.pc = static_cast<std::size_t>(insn.a);
         break;
       case t81::tisc::Opcode::JumpIfZero:
         if (!reg_ok(insn.b)) {
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.registers[insn.b] == 0) {
+        if (ctx.registers[insn.b] == 0) {
           if (!check_mem(insn.opcode, insn.a, "jump if zero", true)) {
             trap = Trap::DecodeFault;
             break;
           }
-          state_.pc = static_cast<std::size_t>(insn.a);
+          ctx.pc = static_cast<std::size_t>(insn.a);
         }
         break;
       case t81::tisc::Opcode::JumpIfNotZero:
@@ -1891,12 +1914,12 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.registers[insn.b] != 0) {
+        if (ctx.registers[insn.b] != 0) {
           if (!check_mem(insn.opcode, insn.a, "jump if not zero", true)) {
             trap = Trap::DecodeFault;
             break;
           }
-          state_.pc = static_cast<std::size_t>(insn.a);
+          ctx.pc = static_cast<std::size_t>(insn.a);
         }
         break;
       case t81::tisc::Opcode::Neg:
@@ -1904,26 +1927,26 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        state_.registers[insn.a] = -state_.registers[insn.b];
-        state_.register_tags[insn.a] = ValueTag::Int;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = -ctx.registers[insn.b];
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(ctx.registers[insn.a]);
         break;
       case t81::tisc::Opcode::JumpIfNegative:
-        if (state_.flags.negative) {
+        if (ctx.flags.negative) {
           if (!check_mem(insn.opcode, insn.a, "jump if negative", true)) {
             trap = Trap::DecodeFault;
             break;
           }
-          state_.pc = static_cast<std::size_t>(insn.a);
+          ctx.pc = static_cast<std::size_t>(insn.a);
         }
         break;
       case t81::tisc::Opcode::JumpIfPositive:
-        if (state_.flags.positive) {
+        if (ctx.flags.positive) {
           if (!check_mem(insn.opcode, insn.a, "jump if positive", true)) {
             trap = Trap::DecodeFault;
             break;
           }
-          state_.pc = static_cast<std::size_t>(insn.a);
+          ctx.pc = static_cast<std::size_t>(insn.a);
         }
         break;
       case t81::tisc::Opcode::Less:
@@ -1936,14 +1959,13 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto tag_b = state_.register_tags[insn.b];
-        auto tag_c = state_.register_tags[insn.c];
+        auto tag_b = ctx.register_tags[insn.b];
+        auto tag_c = ctx.register_tags[insn.c];
         if (tag_b != tag_c) {
           trap = Trap::TypeFault;
           break;
         }
-        auto relation_opt =
-            compare_value(tag_b, state_.registers[insn.b], state_.registers[insn.c]);
+        auto relation_opt = compare_value(tag_b, ctx.registers[insn.b], ctx.registers[insn.c]);
         if (!relation_opt.has_value()) {
           trap = Trap::DecodeFault;
           break;
@@ -1972,9 +1994,9 @@ public:
           default:
             break;
         }
-        state_.registers[insn.a] = result ? 1 : 0;
-        state_.register_tags[insn.a] = ValueTag::Int;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = result ? 1 : 0;
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::Cmp: {
@@ -1982,22 +2004,21 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto tag_a = state_.register_tags[insn.a];
-        auto tag_b = state_.register_tags[insn.b];
+        auto tag_a = ctx.register_tags[insn.a];
+        auto tag_b = ctx.register_tags[insn.b];
         if (tag_a != tag_b) {
           trap = Trap::TypeFault;
           break;
         }
-        auto relation_opt =
-            compare_value(tag_a, state_.registers[insn.a], state_.registers[insn.b]);
+        auto relation_opt = compare_value(tag_a, ctx.registers[insn.a], ctx.registers[insn.b]);
         if (!relation_opt.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
         int relation = relation_opt.value();
-        state_.flags.zero = (relation == 0);
-        state_.flags.negative = (relation < 0);
-        state_.flags.positive = (relation > 0);
+        ctx.flags.zero = (relation == 0);
+        ctx.flags.negative = (relation < 0);
+        ctx.flags.positive = (relation > 0);
         break;
       }
       case t81::tisc::Opcode::SetF: {
@@ -2006,9 +2027,9 @@ public:
           break;
         }
         std::int64_t flag_value = 0;
-        if (state_.flags.negative) {
+        if (ctx.flags.negative) {
           flag_value = -1;
-        } else if (!state_.flags.zero) {
+        } else if (!ctx.flags.zero) {
           flag_value = 1;
         }
         set_reg(insn.a, flag_value, ValueTag::Int);
@@ -2020,9 +2041,9 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto addr_opt = push_stack(state_.registers[insn.a], state_.register_tags[insn.a]);
+        auto addr_opt = push_stack(ctx.registers[insn.a], ctx.register_tags[insn.a]);
         if (!addr_opt.has_value()) {
-          log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(state_.sp),
+          log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(ctx.sp),
                            "stack push");
           trap = Trap::StackFault;
           break;
@@ -2037,15 +2058,15 @@ public:
           break;
         }
         ValueTag tag = ValueTag::Int;
-        auto addr_opt = pop_stack(state_.registers[insn.a], tag);
+        auto addr_opt = pop_stack(ctx.registers[insn.a], tag);
         if (!addr_opt.has_value()) {
-          log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(state_.sp),
+          log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(ctx.sp),
                            "stack pop");
           trap = Trap::StackFault;
           break;
         }
-        state_.register_tags[insn.a] = tag;
-        update_flags(state_.registers[insn.a]);
+        ctx.register_tags[insn.a] = tag;
+        update_flags(ctx.registers[insn.a]);
         log_memory_segment_access(insn.opcode, MemorySegmentKind::Stack, *addr_opt, 1,
                                   t81::axion::reasons::kMemLoad);
         break;
@@ -2069,14 +2090,14 @@ public:
         if (size % 81 != 0) {
           size = ((size / 81) + 1) * 81;
         }
-        std::size_t available = state_.sp - stack.start;
+        std::size_t available = ctx.sp - stack.start;
         if (size > available) {
-          log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(state_.sp),
+          log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(ctx.sp),
                            "stack frame allocate");
           trap = Trap::StackFault;
           break;
         }
-        std::size_t new_sp = state_.sp - size;
+        std::size_t new_sp = ctx.sp - size;
         if (new_sp < stack.start) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(new_sp),
                            "stack frame allocate");
@@ -2091,8 +2112,8 @@ public:
           break;
         }
         std::int64_t addr = static_cast<std::int64_t>(new_sp);
-        state_.stack_frames.emplace_back(addr, static_cast<std::int64_t>(size));
-        state_.sp = new_sp;
+        ctx.stack_frames.emplace_back(addr, static_cast<std::int64_t>(size));
+        ctx.sp = new_sp;
         set_reg(insn.a, addr, ValueTag::Int);
         update_flags(addr);
         log_memory_segment_access(insn.opcode, MemorySegmentKind::Stack,
@@ -2120,28 +2141,28 @@ public:
           trap = Trap::StackFault;
           break;
         }
-        if (state_.stack_frames.empty()) {
-          log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(state_.sp),
+        if (ctx.stack_frames.empty()) {
+          log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(ctx.sp),
                            "stack frame free");
           trap = Trap::StackFault;
           break;
         }
-        std::int64_t ptr = state_.registers[insn.a];
+        std::int64_t ptr = ctx.registers[insn.a];
         if (!stack.contains(static_cast<std::size_t>(ptr))) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(ptr),
                            "stack frame free");
           trap = Trap::DecodeFault;
           break;
         }
-        auto [expected_addr, expected_size] = state_.stack_frames.back();
+        auto [expected_addr, expected_size] = ctx.stack_frames.back();
         if (expected_addr != ptr || expected_size != static_cast<std::int64_t>(size)) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(ptr),
                            "stack frame free");
           trap = Trap::StackFault;
           break;
         }
-        state_.stack_frames.pop_back();
-        state_.sp = static_cast<std::size_t>(ptr + size);
+        ctx.stack_frames.pop_back();
+        ctx.sp = static_cast<std::size_t>(ptr + size);
         log_memory_segment_access(insn.opcode, MemorySegmentKind::Stack,
                                   static_cast<std::size_t>(ptr), size,
                                   t81::axion::reasons::kStackFree);
@@ -2179,7 +2200,7 @@ public:
           trap = Trap::BoundsFault;
           break;
         }
-        if (state_.registers[insn.a] != 0) {
+        if (ctx.registers[insn.a] != 0) {
           trap = Trap::DecodeFault;
           break;
         }
@@ -2187,7 +2208,7 @@ public:
                                         static_cast<std::int64_t>(size));
         state_.heap_ptr = addr + size;
         set_reg(insn.a, static_cast<std::int64_t>(addr), ValueTag::Int);
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
         log_memory_segment_access(insn.opcode, MemorySegmentKind::Heap, addr, size,
                                   t81::axion::reasons::kHeapAlloc);
         break;
@@ -2218,7 +2239,7 @@ public:
         if (size % 81 != 0) {
           size = ((size / 81) + 1) * 81;
         }
-        std::int64_t ptr = state_.registers[insn.a];
+        std::int64_t ptr = ctx.registers[insn.a];
         if (!heap.contains(static_cast<std::size_t>(ptr))) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Heap, static_cast<int>(ptr),
                            "heap block free");
@@ -2245,10 +2266,10 @@ public:
           break;
         }
         {
-          int t = clamp_trit(state_.registers[insn.b]);
-          state_.registers[insn.a] = -t;
-          state_.register_tags[insn.a] = ValueTag::Int;
-          update_flags(state_.registers[insn.a]);
+          int t = clamp_trit(ctx.registers[insn.b]);
+          ctx.registers[insn.a] = -t;
+          ctx.register_tags[insn.a] = ValueTag::Int;
+          update_flags(ctx.registers[insn.a]);
         }
         break;
       case t81::tisc::Opcode::TAnd:
@@ -2259,8 +2280,8 @@ public:
           break;
         }
         {
-          int lhs = clamp_trit(state_.registers[insn.b]);
-          int rhs = clamp_trit(state_.registers[insn.c]);
+          int lhs = clamp_trit(ctx.registers[insn.b]);
+          int rhs = clamp_trit(ctx.registers[insn.c]);
           int result = 0;
           if (insn.opcode == t81::tisc::Opcode::TAnd) {
             result = (lhs < rhs) ? lhs : rhs;
@@ -2275,9 +2296,9 @@ public:
               result = 1;
             }
           }
-          state_.registers[insn.a] = result;
-          state_.register_tags[insn.a] = ValueTag::Int;
-          update_flags(state_.registers[insn.a]);
+          ctx.registers[insn.a] = result;
+          ctx.register_tags[insn.a] = ValueTag::Int;
+          update_flags(ctx.registers[insn.a]);
         }
         break;
       case t81::tisc::Opcode::AxRead: {
@@ -2294,10 +2315,10 @@ public:
           trap = Trap::SecurityFault;
           break;
         }
-        state_.registers[insn.a] = insn.b;
-        state_.register_tags[insn.a] = ValueTag::Int;
-        update_flags(state_.registers[insn.a]);
-        record_axion_event(insn.opcode, insn.b, state_.registers[insn.a], verdict);
+        ctx.registers[insn.a] = insn.b;
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(ctx.registers[insn.a]);
+        record_axion_event(insn.opcode, insn.b, ctx.registers[insn.a], verdict);
         break;
       }
       case t81::tisc::Opcode::AxSet: {
@@ -2305,12 +2326,12 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto value = state_.registers[insn.b];
+        auto value = ctx.registers[insn.b];
         auto verdict = eval_axion_call(t81::axion::reasons::kAxSet, current_pc, insn.opcode);
         std::size_t guard_addr = 0;
         MemorySegmentKind guard_kind = MemorySegmentKind::Unknown;
-        if (state_.registers[insn.a] >= 0) {
-          guard_addr = static_cast<std::size_t>(state_.registers[insn.a]);
+        if (ctx.registers[insn.a] >= 0) {
+          guard_addr = static_cast<std::size_t>(ctx.registers[insn.a]);
           guard_kind = segment_for_address(guard_addr);
         }
         apply_segment_reason(verdict, "AxSet guard", guard_kind, guard_addr);
@@ -2331,10 +2352,10 @@ public:
           trap = Trap::SecurityFault;
           break;
         }
-        state_.registers[insn.a] = (verdict.kind == t81::axion::VerdictKind::Defer) ? 1 : 0;
-        state_.register_tags[insn.a] = ValueTag::Int;
-        update_flags(state_.registers[insn.a]);
-        record_axion_event(insn.opcode, insn.b, state_.registers[insn.a], verdict);
+        ctx.registers[insn.a] = (verdict.kind == t81::axion::VerdictKind::Defer) ? 1 : 0;
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(ctx.registers[insn.a]);
+        record_axion_event(insn.opcode, insn.b, ctx.registers[insn.a], verdict);
         break;
       }
       case t81::tisc::Opcode::Call: {
@@ -2342,26 +2363,26 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        std::size_t next_depth = state_.call_depth + 1;
+        std::size_t next_depth = ctx.call_depth + 1;
         bool need_promotion = false;
         // Tier 0 limit: 81
-        if (next_depth > 81 && state_.tier_status.current < t81::cog::TierId::Tier1) {
+        if (next_depth > 81 && ctx.tier_status.current < t81::cog::TierId::Tier1) {
           need_promotion = true;
         }
         // Tier 1 limit: 243
-        else if (next_depth > 243 && state_.tier_status.current < t81::cog::TierId::Tier2) {
+        else if (next_depth > 243 && ctx.tier_status.current < t81::cog::TierId::Tier2) {
           need_promotion = true;
         }
 
         if (need_promotion) {
-          auto res = t81::cog::try_promote(state_.tier_status, *axion_engine_);
+          auto res = t81::cog::try_promote(ctx.tier_status, *axion_engine_);
           if (res) {
-            state_.tier_status = *res;
+            ctx.tier_status = *res;
             t81::axion::Verdict verdict;
             verdict.kind = t81::axion::VerdictKind::Allow;
-            verdict.reason = "Cognitive Tier Promotion: " + state_.tier_status.label;
+            verdict.reason = "Cognitive Tier Promotion: " + ctx.tier_status.label;
             record_axion_event(insn.opcode, insn.b,
-                               static_cast<std::int64_t>(state_.tier_status.current), verdict);
+                               static_cast<std::int64_t>(ctx.tier_status.current), verdict);
           } else {
             // Promotion denied -> Recursion limit enforced
             t81::axion::Verdict verdict;
@@ -2373,39 +2394,39 @@ public:
           }
         }
 
-        if (state_.call_depth >= kHardRecursionCeiling) {
+        if (ctx.call_depth >= kHardRecursionCeiling) {
           ++state_.contradiction_events;
           t81::axion::Verdict recursion_verdict;
           recursion_verdict.kind = t81::axion::VerdictKind::Deny;
           std::ostringstream reason;
-          reason << t81::axion::reasons::kRecursionCeiling << " depth=" << state_.call_depth
+          reason << t81::axion::reasons::kRecursionCeiling << " depth=" << ctx.call_depth
                  << " limit=" << kHardRecursionCeiling;
           recursion_verdict.reason = reason.str();
-          record_axion_event(insn.opcode, insn.b, static_cast<std::int64_t>(state_.call_depth),
+          record_axion_event(insn.opcode, insn.b, static_cast<std::int64_t>(ctx.call_depth),
                              recursion_verdict);
           trap = Trap::SecurityFault;
           break;
         }
-        auto target = state_.registers[insn.b];
+        auto target = ctx.registers[insn.b];
         if (!check_mem(insn.opcode, static_cast<int>(target), "call", true)) {
           trap = Trap::DecodeFault;
           break;
         }
-        if (!push_stack(static_cast<std::int64_t>(state_.pc), ValueTag::Int)) {
-          log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(state_.sp),
+        if (!push_stack(static_cast<std::int64_t>(ctx.pc), ValueTag::Int)) {
+          log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(ctx.sp),
                            "stack call");
           trap = Trap::StackFault;
           break;
         }
-        ++state_.call_depth;
-        state_.pc = static_cast<std::size_t>(target);
+        ++ctx.call_depth;
+        ctx.pc = static_cast<std::size_t>(target);
         break;
       }
       case t81::tisc::Opcode::Ret: {
         std::int64_t addr = 0;
         ValueTag tag = ValueTag::Int;
         if (!pop_stack(addr, tag)) {
-          log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(state_.sp),
+          log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(ctx.sp),
                            "stack return");
           trap = Trap::StackFault;
           break;
@@ -2418,8 +2439,8 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.call_depth > 0) {
-          --state_.call_depth;
+        if (ctx.call_depth > 0) {
+          --ctx.call_depth;
         } else {
           ++state_.contradiction_events;
           t81::axion::Verdict contradiction_verdict;
@@ -2428,7 +2449,7 @@ public:
               std::string(t81::axion::reasons::kContradictionDetected) + " return-without-call";
           record_axion_event(insn.opcode, insn.a, addr, contradiction_verdict);
         }
-        state_.pc = static_cast<std::size_t>(addr);
+        ctx.pc = static_cast<std::size_t>(addr);
         break;
       }
       case t81::tisc::Opcode::Trap:
@@ -2439,7 +2460,7 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto rendered = format_value(state_.register_tags[insn.a], state_.registers[insn.a], 0);
+        auto rendered = format_value(ctx.register_tags[insn.a], ctx.registers[insn.a], 0);
         if (!rendered.has_value()) {
           trap = Trap::TypeFault;
           break;
@@ -2452,14 +2473,14 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto symbol = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+        auto symbol = symbol_like_text(ctx.register_tags[insn.b], ctx.registers[insn.b]);
         if (!symbol.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
-        state_.registers[insn.a] = static_cast<std::int64_t>(symbol->size());
-        state_.register_tags[insn.a] = ValueTag::Int;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = static_cast<std::int64_t>(symbol->size());
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::StrEmpty: {
@@ -2467,14 +2488,14 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto symbol = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+        auto symbol = symbol_like_text(ctx.register_tags[insn.b], ctx.registers[insn.b]);
         if (!symbol.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
-        state_.registers[insn.a] = symbol->empty() ? 1 : 0;
-        state_.register_tags[insn.a] = ValueTag::Bool;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = symbol->empty() ? 1 : 0;
+        ctx.register_tags[insn.a] = ValueTag::Bool;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::VecLen: {
@@ -2483,15 +2504,15 @@ public:
           break;
         }
         std::int64_t length = 0;
-        if (state_.register_tags[insn.b] == ValueTag::StringVectorHandle) {
-          auto* values = string_vector_ptr(state_.registers[insn.b]);
+        if (ctx.register_tags[insn.b] == ValueTag::StringVectorHandle) {
+          auto* values = string_vector_ptr(ctx.registers[insn.b]);
           if (values == nullptr) {
             trap = Trap::DecodeFault;
             break;
           }
           length = static_cast<std::int64_t>(values->size());
-        } else if (state_.register_tags[insn.b] == ValueTag::TensorHandle) {
-          auto* tensor = tensor_ptr(state_.registers[insn.b]);
+        } else if (ctx.register_tags[insn.b] == ValueTag::TensorHandle) {
+          auto* tensor = tensor_ptr(ctx.registers[insn.b]);
           if (tensor == nullptr) {
             trap = Trap::DecodeFault;
             break;
@@ -2505,9 +2526,9 @@ public:
           trap = Trap::TypeFault;
           break;
         }
-        state_.registers[insn.a] = length;
-        state_.register_tags[insn.a] = ValueTag::Int;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = length;
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::VecEmpty: {
@@ -2516,15 +2537,15 @@ public:
           break;
         }
         bool is_empty = false;
-        if (state_.register_tags[insn.b] == ValueTag::StringVectorHandle) {
-          auto* values = string_vector_ptr(state_.registers[insn.b]);
+        if (ctx.register_tags[insn.b] == ValueTag::StringVectorHandle) {
+          auto* values = string_vector_ptr(ctx.registers[insn.b]);
           if (values == nullptr) {
             trap = Trap::DecodeFault;
             break;
           }
           is_empty = values->empty();
-        } else if (state_.register_tags[insn.b] == ValueTag::TensorHandle) {
-          auto* tensor = tensor_ptr(state_.registers[insn.b]);
+        } else if (ctx.register_tags[insn.b] == ValueTag::TensorHandle) {
+          auto* tensor = tensor_ptr(ctx.registers[insn.b]);
           if (tensor == nullptr) {
             trap = Trap::DecodeFault;
             break;
@@ -2538,9 +2559,9 @@ public:
           trap = Trap::TypeFault;
           break;
         }
-        state_.registers[insn.a] = is_empty ? 1 : 0;
-        state_.register_tags[insn.a] = ValueTag::Bool;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = is_empty ? 1 : 0;
+        ctx.register_tags[insn.a] = ValueTag::Bool;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::VecFirst: {
@@ -2548,8 +2569,8 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] == ValueTag::StringVectorHandle) {
-          auto* values = string_vector_ptr(state_.registers[insn.b]);
+        if (ctx.register_tags[insn.b] == ValueTag::StringVectorHandle) {
+          auto* values = string_vector_ptr(ctx.registers[insn.b]);
           if (values == nullptr) {
             trap = Trap::DecodeFault;
             break;
@@ -2558,13 +2579,13 @@ public:
             trap = Trap::TypeFault;
             break;
           }
-          state_.registers[insn.a] = intern_symbol(values->front());
-          state_.register_tags[insn.a] = ValueTag::SymbolHandle;
-          update_flags(state_.registers[insn.a]);
+          ctx.registers[insn.a] = intern_symbol(values->front());
+          ctx.register_tags[insn.a] = ValueTag::SymbolHandle;
+          update_flags(ctx.registers[insn.a]);
           break;
         }
-        if (state_.register_tags[insn.b] == ValueTag::TensorHandle) {
-          auto* tensor = tensor_ptr(state_.registers[insn.b]);
+        if (ctx.register_tags[insn.b] == ValueTag::TensorHandle) {
+          auto* tensor = tensor_ptr(ctx.registers[insn.b]);
           if (tensor == nullptr) {
             trap = Trap::DecodeFault;
             break;
@@ -2578,9 +2599,9 @@ public:
             trap = Trap::TypeFault;
             break;
           }
-          state_.registers[insn.a] = static_cast<std::int64_t>(data.front());
-          state_.register_tags[insn.a] = ValueTag::Int;
-          update_flags(state_.registers[insn.a]);
+          ctx.registers[insn.a] = static_cast<std::int64_t>(data.front());
+          ctx.register_tags[insn.a] = ValueTag::Int;
+          update_flags(ctx.registers[insn.a]);
           break;
         }
         trap = Trap::TypeFault;
@@ -2591,8 +2612,8 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] == ValueTag::StringVectorHandle) {
-          auto* values = string_vector_ptr(state_.registers[insn.b]);
+        if (ctx.register_tags[insn.b] == ValueTag::StringVectorHandle) {
+          auto* values = string_vector_ptr(ctx.registers[insn.b]);
           if (values == nullptr) {
             trap = Trap::DecodeFault;
             break;
@@ -2601,13 +2622,13 @@ public:
             trap = Trap::TypeFault;
             break;
           }
-          state_.registers[insn.a] = intern_symbol(values->back());
-          state_.register_tags[insn.a] = ValueTag::SymbolHandle;
-          update_flags(state_.registers[insn.a]);
+          ctx.registers[insn.a] = intern_symbol(values->back());
+          ctx.register_tags[insn.a] = ValueTag::SymbolHandle;
+          update_flags(ctx.registers[insn.a]);
           break;
         }
-        if (state_.register_tags[insn.b] == ValueTag::TensorHandle) {
-          auto* tensor = tensor_ptr(state_.registers[insn.b]);
+        if (ctx.register_tags[insn.b] == ValueTag::TensorHandle) {
+          auto* tensor = tensor_ptr(ctx.registers[insn.b]);
           if (tensor == nullptr) {
             trap = Trap::DecodeFault;
             break;
@@ -2621,9 +2642,9 @@ public:
             trap = Trap::TypeFault;
             break;
           }
-          state_.registers[insn.a] = static_cast<std::int64_t>(data.back());
-          state_.register_tags[insn.a] = ValueTag::Int;
-          update_flags(state_.registers[insn.a]);
+          ctx.registers[insn.a] = static_cast<std::int64_t>(data.back());
+          ctx.register_tags[insn.a] = ValueTag::Int;
+          update_flags(ctx.registers[insn.a]);
           break;
         }
         trap = Trap::TypeFault;
@@ -2634,13 +2655,13 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] == ValueTag::StringVectorHandle) {
-          if (state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
+        if (ctx.register_tags[insn.b] == ValueTag::StringVectorHandle) {
+          if (ctx.register_tags[insn.c] != ValueTag::SymbolHandle) {
             trap = Trap::TypeFault;
             break;
           }
-          auto* values = string_vector_ptr(state_.registers[insn.b]);
-          auto* value = symbol_ptr(state_.registers[insn.c]);
+          auto* values = string_vector_ptr(ctx.registers[insn.b]);
+          auto* value = symbol_ptr(ctx.registers[insn.c]);
           if (values == nullptr || value == nullptr) {
             trap = Trap::DecodeFault;
             break;
@@ -2648,17 +2669,17 @@ public:
           std::vector<std::string> pushed = *values;
           pushed.push_back(*value);
           state_.string_vectors.push_back(std::move(pushed));
-          state_.registers[insn.a] = static_cast<std::int64_t>(state_.string_vectors.size());
-          state_.register_tags[insn.a] = ValueTag::StringVectorHandle;
-          update_flags(state_.registers[insn.a]);
+          ctx.registers[insn.a] = static_cast<std::int64_t>(state_.string_vectors.size());
+          ctx.register_tags[insn.a] = ValueTag::StringVectorHandle;
+          update_flags(ctx.registers[insn.a]);
           break;
         }
-        if (state_.register_tags[insn.b] == ValueTag::TensorHandle) {
-          if (state_.register_tags[insn.c] != ValueTag::Int) {
+        if (ctx.register_tags[insn.b] == ValueTag::TensorHandle) {
+          if (ctx.register_tags[insn.c] != ValueTag::Int) {
             trap = Trap::TypeFault;
             break;
           }
-          auto* tensor = tensor_ptr(state_.registers[insn.b]);
+          auto* tensor = tensor_ptr(ctx.registers[insn.b]);
           if (tensor == nullptr) {
             trap = Trap::DecodeFault;
             break;
@@ -2673,15 +2694,15 @@ public:
             break;
           }
           auto data = tensor->data();
-          data.push_back(static_cast<float>(state_.registers[insn.c]));
+          data.push_back(static_cast<float>(ctx.registers[insn.c]));
           auto res_handle = alloc_tensor(T729Tensor({old_len + 1}, std::move(data)));
           if (!res_handle) {
             trap = res_handle.error();
             break;
           }
-          state_.registers[insn.a] = *res_handle;
-          state_.register_tags[insn.a] = ValueTag::TensorHandle;
-          update_flags(state_.registers[insn.a]);
+          ctx.registers[insn.a] = *res_handle;
+          ctx.register_tags[insn.a] = ValueTag::TensorHandle;
+          update_flags(ctx.registers[insn.a]);
           break;
         }
         trap = Trap::TypeFault;
@@ -2692,8 +2713,8 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] == ValueTag::StringVectorHandle) {
-          auto* values = string_vector_ptr(state_.registers[insn.b]);
+        if (ctx.register_tags[insn.b] == ValueTag::StringVectorHandle) {
+          auto* values = string_vector_ptr(ctx.registers[insn.b]);
           if (values == nullptr) {
             trap = Trap::DecodeFault;
             break;
@@ -2705,13 +2726,13 @@ public:
           std::vector<std::string> popped = *values;
           popped.pop_back();
           state_.string_vectors.push_back(std::move(popped));
-          state_.registers[insn.a] = static_cast<std::int64_t>(state_.string_vectors.size());
-          state_.register_tags[insn.a] = ValueTag::StringVectorHandle;
-          update_flags(state_.registers[insn.a]);
+          ctx.registers[insn.a] = static_cast<std::int64_t>(state_.string_vectors.size());
+          ctx.register_tags[insn.a] = ValueTag::StringVectorHandle;
+          update_flags(ctx.registers[insn.a]);
           break;
         }
-        if (state_.register_tags[insn.b] == ValueTag::TensorHandle) {
-          auto* tensor = tensor_ptr(state_.registers[insn.b]);
+        if (ctx.register_tags[insn.b] == ValueTag::TensorHandle) {
+          auto* tensor = tensor_ptr(ctx.registers[insn.b]);
           if (tensor == nullptr) {
             trap = Trap::DecodeFault;
             break;
@@ -2732,9 +2753,9 @@ public:
             trap = res_handle.error();
             break;
           }
-          state_.registers[insn.a] = *res_handle;
-          state_.register_tags[insn.a] = ValueTag::TensorHandle;
-          update_flags(state_.registers[insn.a]);
+          ctx.registers[insn.a] = *res_handle;
+          ctx.register_tags[insn.a] = ValueTag::TensorHandle;
+          update_flags(ctx.registers[insn.a]);
           break;
         }
         trap = Trap::TypeFault;
@@ -2745,17 +2766,17 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto lhs = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
-        auto rhs = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        auto lhs = symbol_like_text(ctx.register_tags[insn.b], ctx.registers[insn.b]);
+        auto rhs = symbol_like_text(ctx.register_tags[insn.c], ctx.registers[insn.c]);
         if (!lhs.has_value() || !rhs.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
         std::string combined(*lhs);
         combined += std::string(*rhs);
-        state_.registers[insn.a] = intern_symbol(std::move(combined));
-        state_.register_tags[insn.a] = ValueTag::SymbolHandle;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = intern_symbol(std::move(combined));
+        ctx.register_tags[insn.a] = ValueTag::SymbolHandle;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::StrStartsWith: {
@@ -2763,17 +2784,17 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto value = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
-        auto prefix = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        auto value = symbol_like_text(ctx.register_tags[insn.b], ctx.registers[insn.b]);
+        auto prefix = symbol_like_text(ctx.register_tags[insn.c], ctx.registers[insn.c]);
         if (!value.has_value() || !prefix.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
         const bool match =
             value->size() >= prefix->size() && value->compare(0, prefix->size(), *prefix) == 0;
-        state_.registers[insn.a] = match ? 1 : 0;
-        state_.register_tags[insn.a] = ValueTag::Bool;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = match ? 1 : 0;
+        ctx.register_tags[insn.a] = ValueTag::Bool;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::StrEndsWith: {
@@ -2781,8 +2802,8 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto value = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
-        auto suffix = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        auto value = symbol_like_text(ctx.register_tags[insn.b], ctx.registers[insn.b]);
+        auto suffix = symbol_like_text(ctx.register_tags[insn.c], ctx.registers[insn.c]);
         if (!value.has_value() || !suffix.has_value()) {
           trap = Trap::DecodeFault;
           break;
@@ -2790,9 +2811,9 @@ public:
         const bool match =
             value->size() >= suffix->size() &&
             value->compare(value->size() - suffix->size(), suffix->size(), *suffix) == 0;
-        state_.registers[insn.a] = match ? 1 : 0;
-        state_.register_tags[insn.a] = ValueTag::Bool;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = match ? 1 : 0;
+        ctx.register_tags[insn.a] = ValueTag::Bool;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::StrContains: {
@@ -2800,16 +2821,16 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto value = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
-        auto needle = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        auto value = symbol_like_text(ctx.register_tags[insn.b], ctx.registers[insn.b]);
+        auto needle = symbol_like_text(ctx.register_tags[insn.c], ctx.registers[insn.c]);
         if (!value.has_value() || !needle.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
         const bool contains = value->find(*needle) != std::string::npos;
-        state_.registers[insn.a] = contains ? 1 : 0;
-        state_.register_tags[insn.a] = ValueTag::Bool;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = contains ? 1 : 0;
+        ctx.register_tags[insn.a] = ValueTag::Bool;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::StrIndexOf: {
@@ -2817,16 +2838,16 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto value = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
-        auto needle = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        auto value = symbol_like_text(ctx.register_tags[insn.b], ctx.registers[insn.b]);
+        auto needle = symbol_like_text(ctx.register_tags[insn.c], ctx.registers[insn.c]);
         if (!value.has_value() || !needle.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
         const std::size_t pos = value->find(*needle);
-        state_.registers[insn.a] = pos == std::string::npos ? -1 : static_cast<std::int64_t>(pos);
-        state_.register_tags[insn.a] = ValueTag::Int;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = pos == std::string::npos ? -1 : static_cast<std::int64_t>(pos);
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::StrReplace: {
@@ -2834,16 +2855,16 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto source = symbol_like_text(state_.register_tags[insn.a], state_.registers[insn.a]);
-        auto needle = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
-        auto replacement = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        auto source = symbol_like_text(ctx.register_tags[insn.a], ctx.registers[insn.a]);
+        auto needle = symbol_like_text(ctx.register_tags[insn.b], ctx.registers[insn.b]);
+        auto replacement = symbol_like_text(ctx.register_tags[insn.c], ctx.registers[insn.c]);
         if (!source.has_value() || !needle.has_value() || !replacement.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
         if (needle->empty()) {
-          state_.register_tags[insn.a] = ValueTag::SymbolHandle;
-          update_flags(state_.registers[insn.a]);
+          ctx.register_tags[insn.a] = ValueTag::SymbolHandle;
+          update_flags(ctx.registers[insn.a]);
           break;
         }
 
@@ -2861,9 +2882,9 @@ public:
           search_from = pos + needle->size();
         }
 
-        state_.registers[insn.a] = intern_symbol(std::move(replaced));
-        state_.register_tags[insn.a] = ValueTag::SymbolHandle;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = intern_symbol(std::move(replaced));
+        ctx.register_tags[insn.a] = ValueTag::SymbolHandle;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::StrVecNew: {
@@ -2871,9 +2892,9 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        state_.registers[insn.a] = alloc_string_vector();
-        state_.register_tags[insn.a] = ValueTag::StringVectorHandle;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = alloc_string_vector();
+        ctx.register_tags[insn.a] = ValueTag::StringVectorHandle;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::StrVecPush: {
@@ -2881,18 +2902,18 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.a] != ValueTag::StringVectorHandle) {
+        if (ctx.register_tags[insn.a] != ValueTag::StringVectorHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* values = string_vector_mut(state_.registers[insn.a]);
-        auto value = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+        auto* values = string_vector_mut(ctx.registers[insn.a]);
+        auto value = symbol_like_text(ctx.register_tags[insn.b], ctx.registers[insn.b]);
         if (values == nullptr || !value.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
         values->push_back(std::string(*value));
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::StrSplit: {
@@ -2900,8 +2921,8 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto value = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
-        auto sep = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        auto value = symbol_like_text(ctx.register_tags[insn.b], ctx.registers[insn.b]);
+        auto sep = symbol_like_text(ctx.register_tags[insn.c], ctx.registers[insn.c]);
         if (!value.has_value() || !sep.has_value()) {
           trap = Trap::DecodeFault;
           break;
@@ -2922,8 +2943,8 @@ public:
           start = pos + sep->size();
         }
         state_.string_vectors.push_back(std::move(parts));
-        state_.registers[insn.a] = static_cast<std::int64_t>(state_.string_vectors.size());
-        state_.register_tags[insn.a] = ValueTag::StringVectorHandle;
+        ctx.registers[insn.a] = static_cast<std::int64_t>(state_.string_vectors.size());
+        ctx.register_tags[insn.a] = ValueTag::StringVectorHandle;
         {
           t81::axion::Verdict verdict;
           verdict.kind = t81::axion::VerdictKind::Allow;
@@ -2935,7 +2956,7 @@ public:
                              static_cast<std::int64_t>(state_.string_vectors.back().size()),
                              verdict);
         }
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::StrJoin: {
@@ -2943,12 +2964,12 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::StringVectorHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::StringVectorHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* parts = string_vector_ptr(state_.registers[insn.b]);
-        auto sep = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        auto* parts = string_vector_ptr(ctx.registers[insn.b]);
+        auto sep = symbol_like_text(ctx.register_tags[insn.c], ctx.registers[insn.c]);
         if (parts == nullptr || !sep.has_value()) {
           trap = Trap::DecodeFault;
           break;
@@ -2961,8 +2982,8 @@ public:
             joined += parts->at(i);
           }
         }
-        state_.registers[insn.a] = intern_symbol(std::move(joined));
-        state_.register_tags[insn.a] = ValueTag::SymbolHandle;
+        ctx.registers[insn.a] = intern_symbol(std::move(joined));
+        ctx.register_tags[insn.a] = ValueTag::SymbolHandle;
         {
           t81::axion::Verdict verdict;
           verdict.kind = t81::axion::VerdictKind::Allow;
@@ -2971,9 +2992,9 @@ public:
                  << " sep_len=" << sep->size();
           verdict.reason = reason.str();
           record_axion_event(insn.opcode, static_cast<std::int32_t>(parts->size()),
-                             state_.registers[insn.a], verdict);
+                             ctx.registers[insn.a], verdict);
         }
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::I2F: {
@@ -2981,9 +3002,9 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto value = static_cast<double>(state_.registers[insn.b]);
-        state_.registers[insn.a] = alloc_float(value);
-        state_.register_tags[insn.a] = ValueTag::FloatHandle;
+        auto value = static_cast<double>(ctx.registers[insn.b]);
+        ctx.registers[insn.a] = alloc_float(value);
+        ctx.register_tags[insn.a] = ValueTag::FloatHandle;
         break;
       }
       case t81::tisc::Opcode::F2I: {
@@ -2991,18 +3012,18 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::FloatHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::FloatHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* ptr_val = float_ptr(state_.registers[insn.b]);
+        auto* ptr_val = float_ptr(ctx.registers[insn.b]);
         if (!ptr_val) {
           trap = Trap::DecodeFault;
           break;
         }
-        state_.registers[insn.a] = static_cast<std::int64_t>(*ptr_val);
-        state_.register_tags[insn.a] = ValueTag::Int;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = static_cast<std::int64_t>(*ptr_val);
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::I2Frac: {
@@ -3010,9 +3031,9 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto frac = t81::T81Fraction::from_int(state_.registers[insn.b]);
-        state_.registers[insn.a] = alloc_fraction(std::move(frac));
-        state_.register_tags[insn.a] = ValueTag::FractionHandle;
+        auto frac = t81::T81Fraction::from_int(ctx.registers[insn.b]);
+        ctx.registers[insn.a] = alloc_fraction(std::move(frac));
+        ctx.register_tags[insn.a] = ValueTag::FractionHandle;
         break;
       }
       case t81::tisc::Opcode::Frac2I: {
@@ -3020,18 +3041,18 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::FractionHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::FractionHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* ptr_val = fraction_ptr(state_.registers[insn.b]);
+        auto* ptr_val = fraction_ptr(ctx.registers[insn.b]);
         if (!ptr_val || !t81::T81BigInt::is_one(ptr_val->den)) {
           trap = Trap::DecodeFault;
           break;
         }
-        state_.registers[insn.a] = ptr_val->num.to_int64();
-        state_.register_tags[insn.a] = ValueTag::Int;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = ptr_val->num.to_int64();
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::FAdd:
@@ -3042,13 +3063,13 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::FloatHandle ||
-            state_.register_tags[insn.c] != ValueTag::FloatHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::FloatHandle ||
+            ctx.register_tags[insn.c] != ValueTag::FloatHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* lhs = float_ptr(state_.registers[insn.b]);
-        auto* rhs = float_ptr(state_.registers[insn.c]);
+        auto* lhs = float_ptr(ctx.registers[insn.b]);
+        auto* rhs = float_ptr(ctx.registers[insn.c]);
         if (lhs == nullptr || rhs == nullptr) {
           trap = Trap::DecodeFault;
           break;
@@ -3077,9 +3098,9 @@ public:
         if (trap != Trap::None) {
           break;
         }
-        state_.registers[insn.a] = alloc_float(result);
-        state_.register_tags[insn.a] = ValueTag::FloatHandle;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = alloc_float(result);
+        ctx.register_tags[insn.a] = ValueTag::FloatHandle;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::FSin:
@@ -3100,16 +3121,16 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::FloatHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::FloatHandle) {
           trap = Trap::TypeFault;
           break;
         }
         if (insn.opcode == t81::tisc::Opcode::FPow &&
-            state_.register_tags[insn.c] != ValueTag::FloatHandle) {
+            ctx.register_tags[insn.c] != ValueTag::FloatHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* ptr_val = float_ptr(state_.registers[insn.b]);
+        auto* ptr_val = float_ptr(ctx.registers[insn.b]);
         if (!ptr_val) {
           trap = Trap::DecodeFault;
           break;
@@ -3140,15 +3161,15 @@ public:
         } else if (insn.opcode == t81::tisc::Opcode::FLog) {
           result = std::log(*ptr_val);
         } else {
-          auto* exponent = float_ptr(state_.registers[insn.c]);
+          auto* exponent = float_ptr(ctx.registers[insn.c]);
           if (!exponent) {
             trap = Trap::DecodeFault;
             break;
           }
           result = std::pow(*ptr_val, *exponent);
         }
-        state_.registers[insn.a] = alloc_float(result);
-        state_.register_tags[insn.a] = ValueTag::FloatHandle;
+        ctx.registers[insn.a] = alloc_float(result);
+        ctx.register_tags[insn.a] = ValueTag::FloatHandle;
         break;
       }
       case t81::tisc::Opcode::FracAdd:
@@ -3159,13 +3180,13 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::FractionHandle ||
-            state_.register_tags[insn.c] != ValueTag::FractionHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::FractionHandle ||
+            ctx.register_tags[insn.c] != ValueTag::FractionHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* lhs = fraction_ptr(state_.registers[insn.b]);
-        auto* rhs = fraction_ptr(state_.registers[insn.c]);
+        auto* lhs = fraction_ptr(ctx.registers[insn.b]);
+        auto* rhs = fraction_ptr(ctx.registers[insn.c]);
         if (lhs == nullptr || rhs == nullptr) {
           trap = Trap::DecodeFault;
           break;
@@ -3195,9 +3216,9 @@ public:
           if (trap != Trap::None) {
             break;
           }
-          state_.registers[insn.a] = alloc_fraction(std::move(result));
-          state_.register_tags[insn.a] = ValueTag::FractionHandle;
-          update_flags(state_.registers[insn.a]);
+          ctx.registers[insn.a] = alloc_fraction(std::move(result));
+          ctx.register_tags[insn.a] = ValueTag::FractionHandle;
+          update_flags(ctx.registers[insn.a]);
         } catch (...) {
           trap = Trap::DecodeFault;
         }
@@ -3208,16 +3229,16 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::TensorHandle ||
-            state_.register_tags[insn.c] != ValueTag::ShapeHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::TensorHandle ||
+            ctx.register_tags[insn.c] != ValueTag::ShapeHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* tensor = tensor_ptr(state_.registers[insn.b]);
-        const auto* expected = shape_ptr(state_.registers[insn.c]);
+        auto* tensor = tensor_ptr(ctx.registers[insn.b]);
+        const auto* expected = shape_ptr(ctx.registers[insn.c]);
         if (tensor == nullptr) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor,
-                           static_cast<int>(state_.registers[insn.b]), "tensor handle access");
+                           static_cast<int>(ctx.registers[insn.b]), "tensor handle access");
           trap = Trap::DecodeFault;
           break;
         }
@@ -3227,7 +3248,7 @@ public:
         }
         bool match = tensor->shape() == *expected;
         set_reg(insn.a, match ? 1 : 0, ValueTag::Int);
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::MakeOptionSome: {
@@ -3235,10 +3256,10 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto handle = intern_option(true, state_.register_tags[insn.b], state_.registers[insn.b]);
-        state_.registers[insn.a] = handle;
-        state_.register_tags[insn.a] = ValueTag::OptionHandle;
-        update_flags(state_.registers[insn.a]);
+        auto handle = intern_option(true, ctx.register_tags[insn.b], ctx.registers[insn.b]);
+        ctx.registers[insn.a] = handle;
+        ctx.register_tags[insn.a] = ValueTag::OptionHandle;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::MakeOptionNone: {
@@ -3247,9 +3268,9 @@ public:
           break;
         }
         auto handle = intern_option(false, ValueTag::Int, 0);
-        state_.registers[insn.a] = handle;
-        state_.register_tags[insn.a] = ValueTag::OptionHandle;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = handle;
+        ctx.register_tags[insn.a] = ValueTag::OptionHandle;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::MakeResultOk: {
@@ -3257,10 +3278,10 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto handle = intern_result(true, state_.register_tags[insn.b], state_.registers[insn.b]);
-        state_.registers[insn.a] = handle;
-        state_.register_tags[insn.a] = ValueTag::ResultHandle;
-        update_flags(state_.registers[insn.a]);
+        auto handle = intern_result(true, ctx.register_tags[insn.b], ctx.registers[insn.b]);
+        ctx.registers[insn.a] = handle;
+        ctx.register_tags[insn.a] = ValueTag::ResultHandle;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::MakeResultErr: {
@@ -3268,10 +3289,10 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto handle = intern_result(false, state_.register_tags[insn.b], state_.registers[insn.b]);
-        state_.registers[insn.a] = handle;
-        state_.register_tags[insn.a] = ValueTag::ResultHandle;
-        update_flags(state_.registers[insn.a]);
+        auto handle = intern_result(false, ctx.register_tags[insn.b], ctx.registers[insn.b]);
+        ctx.registers[insn.a] = handle;
+        ctx.register_tags[insn.a] = ValueTag::ResultHandle;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::MakeEnumVariant: {
@@ -3280,9 +3301,9 @@ public:
           break;
         }
         auto handle = intern_enum(static_cast<int>(insn.b), false, ValueTag::Int, 0);
-        state_.registers[insn.a] = handle;
-        state_.register_tags[insn.a] = ValueTag::EnumHandle;
-        update_flags(state_.registers[insn.a]);
+        ctx.registers[insn.a] = handle;
+        ctx.register_tags[insn.a] = ValueTag::EnumHandle;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::MakeEnumVariantPayload: {
@@ -3294,11 +3315,11 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto handle = intern_enum(static_cast<int>(insn.c), true, state_.register_tags[insn.b],
-                                  state_.registers[insn.b]);
-        state_.registers[insn.a] = handle;
-        state_.register_tags[insn.a] = ValueTag::EnumHandle;
-        update_flags(state_.registers[insn.a]);
+        auto handle = intern_enum(static_cast<int>(insn.c), true, ctx.register_tags[insn.b],
+                                  ctx.registers[insn.b]);
+        ctx.registers[insn.a] = handle;
+        ctx.register_tags[insn.a] = ValueTag::EnumHandle;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::MakeComplex: {
@@ -3306,15 +3327,15 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::Int ||
-            state_.register_tags[insn.c] != ValueTag::Int) {
+        if (ctx.register_tags[insn.b] != ValueTag::Int ||
+            ctx.register_tags[insn.c] != ValueTag::Int) {
           trap = Trap::TypeFault;
           break;
         }
-        auto handle = intern_complex(state_.registers[insn.b], state_.registers[insn.c]);
-        state_.registers[insn.a] = handle;
-        state_.register_tags[insn.a] = ValueTag::ComplexHandle;
-        update_flags(state_.registers[insn.a]);
+        auto handle = intern_complex(ctx.registers[insn.b], ctx.registers[insn.c]);
+        ctx.registers[insn.a] = handle;
+        ctx.register_tags[insn.a] = ValueTag::ComplexHandle;
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::OptionIsSome: {
@@ -3322,17 +3343,17 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::OptionHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::OptionHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* opt = option_ptr(state_.registers[insn.b]);
+        auto* opt = option_ptr(ctx.registers[insn.b]);
         if (opt == nullptr) {
           trap = Trap::DecodeFault;
           break;
         }
         set_reg(insn.a, opt->has_value ? 1 : 0, ValueTag::Int);
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::OptionUnwrap: {
@@ -3340,17 +3361,17 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::OptionHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::OptionHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* opt = option_ptr(state_.registers[insn.b]);
+        auto* opt = option_ptr(ctx.registers[insn.b]);
         if (opt == nullptr || !opt->has_value) {
           trap = Trap::DecodeFault;
           break;
         }
         set_reg(insn.a, opt->payload, opt->payload_tag);
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::ResultIsOk: {
@@ -3358,17 +3379,17 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::ResultHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::ResultHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* res = result_ptr(state_.registers[insn.b]);
+        auto* res = result_ptr(ctx.registers[insn.b]);
         if (res == nullptr) {
           trap = Trap::DecodeFault;
           break;
         }
         set_reg(insn.a, res->is_ok ? 1 : 0, ValueTag::Int);
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::ResultUnwrapOk: {
@@ -3376,17 +3397,17 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::ResultHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::ResultHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* res = result_ptr(state_.registers[insn.b]);
+        auto* res = result_ptr(ctx.registers[insn.b]);
         if (res == nullptr || !res->is_ok) {
           trap = Trap::DecodeFault;
           break;
         }
         set_reg(insn.a, res->payload, res->payload_tag);
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::ResultUnwrapErr: {
@@ -3394,17 +3415,17 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::ResultHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::ResultHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* res = result_ptr(state_.registers[insn.b]);
+        auto* res = result_ptr(ctx.registers[insn.b]);
         if (res == nullptr || res->is_ok) {
           trap = Trap::DecodeFault;
           break;
         }
         set_reg(insn.a, res->payload, res->payload_tag);
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
         break;
       }
       case t81::tisc::Opcode::EnumIsVariant: {
@@ -3412,18 +3433,18 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::EnumHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::EnumHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* val = enum_ptr(state_.registers[insn.b]);
+        auto* val = enum_ptr(ctx.registers[insn.b]);
         if (val == nullptr) {
           trap = Trap::DecodeFault;
           break;
         }
         bool matches = (val->variant_id == insn.c);
         set_reg(insn.a, matches ? 1 : 0, ValueTag::Int);
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
         {
           t81::axion::Verdict verdict;
           verdict.kind = t81::axion::VerdictKind::Allow;
@@ -3455,17 +3476,17 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::EnumHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::EnumHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* val = enum_ptr(state_.registers[insn.b]);
+        auto* val = enum_ptr(ctx.registers[insn.b]);
         if (val == nullptr || !val->has_payload) {
           trap = Trap::DecodeFault;
           break;
         }
         set_reg(insn.a, val->payload, val->payload_tag);
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
         {
           t81::axion::Verdict verdict;
           verdict.kind = t81::axion::VerdictKind::Allow;
@@ -3505,17 +3526,17 @@ public:
           trap = res.error();
           break;
         }
-        auto* tensor_a = tensor_ptr(state_.registers[insn.b]);
+        auto* tensor_a = tensor_ptr(ctx.registers[insn.b]);
         if (tensor_a == nullptr) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor,
-                           static_cast<int>(state_.registers[insn.b]), "tensor handle access");
+                           static_cast<int>(ctx.registers[insn.b]), "tensor handle access");
           trap = Trap::DecodeFault;
           break;
         }
-        auto* tensor_b = tensor_ptr(state_.registers[insn.c]);
+        auto* tensor_b = tensor_ptr(ctx.registers[insn.c]);
         if (tensor_b == nullptr) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor,
-                           static_cast<int>(state_.registers[insn.c]), "tensor handle access");
+                           static_cast<int>(ctx.registers[insn.c]), "tensor handle access");
           trap = Trap::DecodeFault;
           break;
         }
@@ -3527,7 +3548,7 @@ public:
                                     insn.opcode == t81::tisc::Opcode::TVecAdd
                                         ? "TVecAdd kernel execution"
                                         : "TVecMul kernel execution"};
-        record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), state_.registers[insn.b],
+        record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
 
         std::vector<float> data(tensor_a->data().size());
@@ -3545,8 +3566,8 @@ public:
           trap = res_handle.error();
           break;
         }
-        state_.registers[insn.a] = *res_handle;
-        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+        ctx.registers[insn.a] = *res_handle;
+        ctx.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
       case t81::tisc::Opcode::TTranspose: {
@@ -3558,21 +3579,21 @@ public:
           trap = res.error();
           break;
         }
-        auto* tensor = tensor_ptr(state_.registers[insn.b]);
+        auto* tensor = tensor_ptr(ctx.registers[insn.b]);
         if (tensor == nullptr || tensor->rank() != 2) {
           trap = Trap::ShapeFault;
           break;
         }
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TTranspose kernel execution"};
-        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), state_.registers[insn.b],
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
         auto res_handle = alloc_tensor(tensor->transpose2d());
         if (!res_handle) {
           trap = res_handle.error();
           break;
         }
-        state_.registers[insn.a] = *res_handle;
-        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+        ctx.registers[insn.a] = *res_handle;
+        ctx.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
       case t81::tisc::Opcode::TMatMul: {
@@ -3588,17 +3609,17 @@ public:
           trap = res.error();
           break;
         }
-        auto* tensor_a = tensor_ptr(state_.registers[insn.b]);
+        auto* tensor_a = tensor_ptr(ctx.registers[insn.b]);
         if (tensor_a == nullptr) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor,
-                           static_cast<int>(state_.registers[insn.b]), "tensor handle access");
+                           static_cast<int>(ctx.registers[insn.b]), "tensor handle access");
           trap = Trap::DecodeFault;
           break;
         }
-        auto* tensor_b = tensor_ptr(state_.registers[insn.c]);
+        auto* tensor_b = tensor_ptr(ctx.registers[insn.c]);
         if (tensor_b == nullptr) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor,
-                           static_cast<int>(state_.registers[insn.c]), "tensor handle access");
+                           static_cast<int>(ctx.registers[insn.c]), "tensor handle access");
           trap = Trap::DecodeFault;
           break;
         }
@@ -3615,7 +3636,7 @@ public:
           break;
         }
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TMatMul kernel execution"};
-        record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), state_.registers[insn.b],
+        record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
         t81::T729Tensor result = t81::ops::matmul(*tensor_a, *tensor_b);
         auto res_handle = alloc_tensor(std::move(result));
@@ -3623,8 +3644,8 @@ public:
           trap = res_handle.error();
           break;
         }
-        state_.registers[insn.a] = *res_handle;
-        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+        ctx.registers[insn.a] = *res_handle;
+        ctx.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
       case t81::tisc::Opcode::TTenDot: {
@@ -3640,22 +3661,22 @@ public:
           trap = res.error();
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::TensorHandle ||
-            state_.register_tags[insn.c] != ValueTag::TensorHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::TensorHandle ||
+            ctx.register_tags[insn.c] != ValueTag::TensorHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* tensor_a = tensor_ptr(state_.registers[insn.b]);
+        auto* tensor_a = tensor_ptr(ctx.registers[insn.b]);
         if (tensor_a == nullptr) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor,
-                           static_cast<int>(state_.registers[insn.b]), "tensor handle access");
+                           static_cast<int>(ctx.registers[insn.b]), "tensor handle access");
           trap = Trap::DecodeFault;
           break;
         }
-        auto* tensor_b = tensor_ptr(state_.registers[insn.c]);
+        auto* tensor_b = tensor_ptr(ctx.registers[insn.c]);
         if (tensor_b == nullptr) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor,
-                           static_cast<int>(state_.registers[insn.c]), "tensor handle access");
+                           static_cast<int>(ctx.registers[insn.c]), "tensor handle access");
           trap = Trap::DecodeFault;
           break;
         }
@@ -3666,8 +3687,8 @@ public:
             trap = res_handle.error();
             break;
           }
-          state_.registers[insn.a] = *res_handle;
-          state_.register_tags[insn.a] = ValueTag::TensorHandle;
+          ctx.registers[insn.a] = *res_handle;
+          ctx.register_tags[insn.a] = ValueTag::TensorHandle;
         } catch (...) {
           trap = Trap::ShapeFault;
         }
@@ -3683,19 +3704,19 @@ public:
           break;
         }
 
-        auto* tensor = tensor_ptr(state_.registers[insn.b]);
+        auto* tensor = tensor_ptr(ctx.registers[insn.b]);
         if (tensor == nullptr) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor,
-                           static_cast<int>(state_.registers[insn.b]), "tensor handle access");
+                           static_cast<int>(ctx.registers[insn.b]), "tensor handle access");
           trap = Trap::DecodeFault;
           break;
         }
 
-        if (state_.register_tags[insn.c] != ValueTag::Int) {
+        if (ctx.register_tags[insn.c] != ValueTag::Int) {
           trap = Trap::TypeFault;
           break;
         }
-        std::int64_t index = state_.registers[insn.c];
+        std::int64_t index = ctx.registers[insn.c];
         if (index < 0 || static_cast<std::size_t>(index) >= tensor->data().size()) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, static_cast<int>(index),
                            "tensor index out of bounds");
@@ -3705,11 +3726,11 @@ public:
 
         float val = tensor->data()[static_cast<std::size_t>(index)];
 
-        state_.registers[insn.a] = alloc_float(static_cast<double>(val));
-        state_.register_tags[insn.a] = ValueTag::FloatHandle;
+        ctx.registers[insn.a] = alloc_float(static_cast<double>(val));
+        ctx.register_tags[insn.a] = ValueTag::FloatHandle;
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TGet kernel execution"};
-        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), state_.registers[insn.b],
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
         break;
       }
@@ -3718,11 +3739,11 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::Int) {
+        if (ctx.register_tags[insn.b] != ValueTag::Int) {
           trap = Trap::TypeFault;
           break;
         }
-        std::int64_t size = state_.registers[insn.b];
+        std::int64_t size = ctx.registers[insn.b];
         if (size <= 0) {
           trap = Trap::BoundsFault;
           break;
@@ -3735,11 +3756,11 @@ public:
           trap = res_handle.error();
           break;
         }
-        state_.registers[insn.a] = *res_handle;
-        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+        ctx.registers[insn.a] = *res_handle;
+        ctx.register_tags[insn.a] = ValueTag::TensorHandle;
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TNew"};
-        record_axion_event(insn.opcode, static_cast<std::int32_t>(size), state_.registers[insn.a],
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(size), ctx.registers[insn.a],
                            verdict);
         break;
       }
@@ -3748,21 +3769,21 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.a] != ValueTag::TensorHandle) {
+        if (ctx.register_tags[insn.a] != ValueTag::TensorHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* tensor = tensor_ptr(state_.registers[insn.a]);
+        auto* tensor = tensor_ptr(ctx.registers[insn.a]);
         if (tensor == nullptr) {
           trap = Trap::DecodeFault;
           break;
         }
 
-        if (state_.register_tags[insn.b] != ValueTag::Int) {
+        if (ctx.register_tags[insn.b] != ValueTag::Int) {
           trap = Trap::TypeFault;
           break;
         }
-        std::int64_t idx = state_.registers[insn.b];
+        std::int64_t idx = ctx.registers[insn.b];
         if (idx < 0 || static_cast<size_t>(idx) >= tensor->data().size()) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, static_cast<int>(idx),
                            "TSet OOB");
@@ -3771,12 +3792,12 @@ public:
         }
 
         float val = 0.0F;
-        auto val_tag = state_.register_tags[insn.c];
+        auto val_tag = ctx.register_tags[insn.c];
         if (val_tag == ValueTag::FloatHandle) {
-          auto* ptr_val = float_ptr(state_.registers[insn.c]);
+          auto* ptr_val = float_ptr(ctx.registers[insn.c]);
           if (ptr_val) val = static_cast<float>(*ptr_val);
         } else if (val_tag == ValueTag::Int) {
-          val = static_cast<float>(state_.registers[insn.c]);
+          val = static_cast<float>(ctx.registers[insn.c]);
         } else {
           trap = Trap::TypeFault;
           break;
@@ -3797,7 +3818,7 @@ public:
           trap = res.error();
           break;
         }
-        auto* tensor = tensor_ptr(state_.registers[insn.b]);
+        auto* tensor = tensor_ptr(ctx.registers[insn.b]);
         if (tensor == nullptr) {
           trap = Trap::DecodeFault;
           break;
@@ -3809,11 +3830,11 @@ public:
           trap = res_handle.error();
           break;
         }
-        state_.registers[insn.a] = *res_handle;
-        state_.register_tags[insn.a] = ValueTag::TensorHandle;
+        ctx.registers[insn.a] = *res_handle;
+        ctx.register_tags[insn.a] = ValueTag::TensorHandle;
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TID (Identity/Copy)"};
-        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), state_.registers[insn.a],
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), ctx.registers[insn.a],
                            verdict);
         break;
       }
@@ -3836,8 +3857,8 @@ public:
         record_axion_event(insn.opcode, 0, 0, verdict);
         // Placeholder: return dummy byte buffer (handled as generic handle or int for now)
         // Since we don't have a BytesHandle yet in ValueTag explicitly used here, we return 0.
-        state_.registers[insn.a] = 0;
-        state_.register_tags[insn.a] = ValueTag::Int;
+        ctx.registers[insn.a] = 0;
+        ctx.register_tags[insn.a] = ValueTag::Int;
         break;
       }
       case t81::tisc::Opcode::VWait: {
@@ -3849,8 +3870,8 @@ public:
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "VWait placeholder"};
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), 0, verdict);
         // Placeholder: immediate return
-        state_.registers[insn.a] = 0;
-        state_.register_tags[insn.a] = ValueTag::Int;
+        ctx.registers[insn.a] = 0;
+        ctx.register_tags[insn.a] = ValueTag::Int;
         break;
       }
       case t81::tisc::Opcode::VYield: {
@@ -3868,7 +3889,7 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        int t = clamp_trit(state_.registers[insn.b]);
+        int t = clamp_trit(ctx.registers[insn.b]);
         set_reg(insn.a, t, ValueTag::Int);
         update_flags(t);
         break;
@@ -3881,7 +3902,7 @@ public:
         // Canonicalize memory/register (placeholder logic)
         // In full implementation, this would enforce canonical representation
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "Canon"};
-        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.a), state_.registers[insn.a],
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.a), ctx.registers[insn.a],
                            verdict);
         break;
       }
@@ -3890,8 +3911,8 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        std::size_t addr = static_cast<std::size_t>(state_.registers[insn.a]);
-        std::size_t size = static_cast<std::size_t>(state_.registers[insn.b]);
+        std::size_t addr = static_cast<std::size_t>(ctx.registers[insn.a]);
+        std::size_t size = static_cast<std::size_t>(ctx.registers[insn.b]);
         for (std::size_t i = 0; i < size; ++i) {
           if (!mem_ok(static_cast<int>(addr + i))) {
             trap = Trap::BoundsFault;
@@ -3910,9 +3931,9 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        std::size_t dst = static_cast<std::size_t>(state_.registers[insn.a]);
-        std::size_t src = static_cast<std::size_t>(state_.registers[insn.b]);
-        std::size_t size = static_cast<std::size_t>(state_.registers[insn.c]);
+        std::size_t dst = static_cast<std::size_t>(ctx.registers[insn.a]);
+        std::size_t src = static_cast<std::size_t>(ctx.registers[insn.b]);
+        std::size_t size = static_cast<std::size_t>(ctx.registers[insn.c]);
         for (std::size_t i = 0; i < size; ++i) {
           if (!mem_ok(static_cast<int>(src + i)) || !mem_ok(static_cast<int>(dst + i))) {
             trap = Trap::BoundsFault;
@@ -3944,7 +3965,7 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.registers[insn.a] == 0) {
+        if (ctx.registers[insn.a] == 0) {
           t81::axion::Verdict verdict;
           verdict.kind = t81::axion::VerdictKind::Deny;
           verdict.reason = "ASSERT failed";
@@ -3960,8 +3981,8 @@ public:
           break;
         }
         t81::cog::v1::SymbolicGraph graph;
-        if (state_.register_tags[insn.b] == ValueTag::SymbolHandle) {
-          auto* sym = symbol_ptr(state_.registers[insn.b]);
+        if (ctx.register_tags[insn.b] == ValueTag::SymbolHandle) {
+          auto* sym = symbol_ptr(ctx.registers[insn.b]);
           if (sym) {
             graph.add_node(t81::cog::v1::SymbolicAtom::create(*sym));
           }
@@ -3971,11 +3992,11 @@ public:
           trap = res_handle.error();
           break;
         }
-        state_.registers[insn.a] = *res_handle;
-        state_.register_tags[insn.a] = ValueTag::SymbolicGraphHandle;
+        ctx.registers[insn.a] = *res_handle;
+        ctx.register_tags[insn.a] = ValueTag::SymbolicGraphHandle;
         {
           t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "SymLoad"};
-          record_axion_event(insn.opcode, 0, state_.registers[insn.a], verdict);
+          record_axion_event(insn.opcode, 0, ctx.registers[insn.a], verdict);
         }
         break;
       }
@@ -3984,19 +4005,19 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.a] != ValueTag::SymbolicGraphHandle ||
-            state_.register_tags[insn.b] != ValueTag::SymbolHandle ||
-            state_.register_tags[insn.c] != ValueTag::SymbolHandle) {
+        if (ctx.register_tags[insn.a] != ValueTag::SymbolicGraphHandle ||
+            ctx.register_tags[insn.b] != ValueTag::SymbolHandle ||
+            ctx.register_tags[insn.c] != ValueTag::SymbolHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* graph = symbolic_graph_ptr(state_.registers[insn.a]);
+        auto* graph = symbolic_graph_ptr(ctx.registers[insn.a]);
         if (!graph) {
           trap = Trap::BoundsFault;
           break;
         }
-        auto* match_str = symbol_ptr(state_.registers[insn.b]);
-        auto* replace_str = symbol_ptr(state_.registers[insn.c]);
+        auto* match_str = symbol_ptr(ctx.registers[insn.b]);
+        auto* replace_str = symbol_ptr(ctx.registers[insn.c]);
 
         if (match_str && replace_str) {
           t81::cog::v1::RewriteRule rule;
@@ -4022,11 +4043,11 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::SymbolicGraphHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::SymbolicGraphHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* graph = symbolic_graph_ptr(state_.registers[insn.b]);
+        auto* graph = symbolic_graph_ptr(ctx.registers[insn.b]);
         bool conf = graph ? graph->is_confluent() : false;
         set_reg(insn.a, conf ? 1 : 0, ValueTag::Bool);
         {
@@ -4040,11 +4061,11 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.a] != ValueTag::SymbolicGraphHandle) {
+        if (ctx.register_tags[insn.a] != ValueTag::SymbolicGraphHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* graph = symbolic_graph_ptr(state_.registers[insn.a]);
+        auto* graph = symbolic_graph_ptr(ctx.registers[insn.a]);
         if (graph) graph->canonicalize();
         {
           t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "SymCanon"};
@@ -4063,22 +4084,22 @@ public:
           break;
         }
         std::string description;
-        if (state_.register_tags[insn.b] == ValueTag::SymbolHandle) {
-          auto* sym = symbol_ptr(state_.registers[insn.b]);
+        if (ctx.register_tags[insn.b] == ValueTag::SymbolHandle) {
+          auto* sym = symbol_ptr(ctx.registers[insn.b]);
           if (sym) description = *sym;
         }
 
         t81::cog::v2::ReflectiveFrame frame;
         // Make a copy of registers. std::array to std::vector.
-        std::vector<std::int64_t> regs(state_.registers.begin(), state_.registers.end());
+        std::vector<std::int64_t> regs(ctx.registers.begin(), ctx.registers.end());
         frame.capture_state(current_pc, regs, description);
 
-        state_.tier2_frames.push_back(std::move(frame));
-        state_.registers[insn.a] = static_cast<std::int64_t>(state_.tier2_frames.size());
-        state_.register_tags[insn.a] = ValueTag::Tier2FrameHandle;
+        ctx.tier2_frames.push_back(std::move(frame));
+        ctx.registers[insn.a] = static_cast<std::int64_t>(ctx.tier2_frames.size());
+        ctx.register_tags[insn.a] = ValueTag::Tier2FrameHandle;
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "ReflCap: captured state"};
-        record_axion_event(insn.opcode, static_cast<std::int32_t>(state_.tier2_frames.size()), 0,
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(ctx.tier2_frames.size()), 0,
                            verdict);
         break;
       }
@@ -4087,17 +4108,17 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.a] != ValueTag::Tier2FrameHandle) {
+        if (ctx.register_tags[insn.a] != ValueTag::Tier2FrameHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* frame = tier2_frame_ptr(state_.registers[insn.a]);
+        auto* frame = tier2_frame_ptr(ctx.registers[insn.a]);
         if (!frame) {
           trap = Trap::BoundsFault;
           break;
         }
         std::string text;
-        if (auto s = symbol_like_text(state_.register_tags[insn.b], state_.registers[insn.b]);
+        if (auto s = symbol_like_text(ctx.register_tags[insn.b], ctx.registers[insn.b]);
             s.has_value()) {
           text = *s;
         }
@@ -4112,17 +4133,17 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::Tier2FrameHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::Tier2FrameHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* frame = tier2_frame_ptr(state_.registers[insn.b]);
+        auto* frame = tier2_frame_ptr(ctx.registers[insn.b]);
         if (!frame) {
           trap = Trap::BoundsFault;
           break;
         }
         std::string criteria;
-        if (auto s = symbol_like_text(state_.register_tags[insn.c], state_.registers[insn.c]);
+        if (auto s = symbol_like_text(ctx.register_tags[insn.c], ctx.registers[insn.c]);
             s.has_value()) {
           criteria = *s;
         } else {
@@ -4132,7 +4153,7 @@ public:
 
         bool result = frame->check(criteria);
         set_reg(insn.a, result ? 1 : 0, ValueTag::Bool);
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "ReflCheck"};
         record_axion_event(insn.opcode, 0, result, verdict);
@@ -4143,17 +4164,17 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.a] != ValueTag::Tier2FrameHandle) {
+        if (ctx.register_tags[insn.a] != ValueTag::Tier2FrameHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* frame = tier2_frame_ptr(state_.registers[insn.a]);
+        auto* frame = tier2_frame_ptr(ctx.registers[insn.a]);
         if (!frame) {
           trap = Trap::BoundsFault;
           break;
         }
         // Capture current registers
-        std::vector<int64_t> current_regs(state_.registers.begin(), state_.registers.end());
+        std::vector<int64_t> current_regs(ctx.registers.begin(), ctx.registers.end());
         frame->trace(current_pc, current_regs);
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "ReflTrace"};
@@ -4165,11 +4186,11 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.a] != ValueTag::Tier2FrameHandle) {
+        if (ctx.register_tags[insn.a] != ValueTag::Tier2FrameHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* frame = tier2_frame_ptr(state_.registers[insn.a]);
+        auto* frame = tier2_frame_ptr(ctx.registers[insn.a]);
         if (!frame) {
           trap = Trap::BoundsFault;
           break;
@@ -4181,21 +4202,20 @@ public:
         break;
       }
       case t81::tisc::Opcode::Recurse: {
-        if (!state_.tier3_recursor.can_recurse()) {
+        if (!ctx.tier3_recursor.can_recurse()) {
           t81::axion::Verdict verdict;
           verdict.kind = t81::axion::VerdictKind::Deny;
           verdict.reason = "Tier 3 recursion limit exceeded";
           record_axion_event(insn.opcode, 0,
-                             static_cast<std::int64_t>(state_.tier3_recursor.current_depth),
-                             verdict);
+                             static_cast<std::int64_t>(ctx.tier3_recursor.current_depth), verdict);
           trap = Trap::SecurityFault;
           break;
         }
         // Push a dummy proof for now, as we don't have a proof object from registers yet.
-        state_.tier3_recursor.push_frame(t81::cog::v3::ContractionProof{true, 0.0, 0.0});
+        ctx.tier3_recursor.push_frame(t81::cog::v3::ContractionProof{true, 0.0, 0.0});
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "Recurse: depth increased"};
         record_axion_event(insn.opcode, 0,
-                           static_cast<std::int64_t>(state_.tier3_recursor.current_depth), verdict);
+                           static_cast<std::int64_t>(ctx.tier3_recursor.current_depth), verdict);
         break;
       }
       case t81::tisc::Opcode::Contract: {
@@ -4205,10 +4225,10 @@ public:
         }
         // Read entropy value (assumed integer or float handle?)
         double current_entropy = 0.0;
-        if (state_.register_tags[insn.b] == ValueTag::Int) {
-          current_entropy = static_cast<double>(state_.registers[insn.b]);
-        } else if (state_.register_tags[insn.b] == ValueTag::FloatHandle) {
-          auto* ptr = float_ptr(state_.registers[insn.b]);
+        if (ctx.register_tags[insn.b] == ValueTag::Int) {
+          current_entropy = static_cast<double>(ctx.registers[insn.b]);
+        } else if (ctx.register_tags[insn.b] == ValueTag::FloatHandle) {
+          auto* ptr = float_ptr(ctx.registers[insn.b]);
           if (ptr) current_entropy = *ptr;
         }
 
@@ -4228,8 +4248,8 @@ public:
           break;
         }
         // Calculate system entropy (stack usage + heap usage + depth)
-        std::int64_t entropy = (state_.layout.stack.limit - state_.sp) +
-                               (state_.heap_ptr - state_.layout.heap.start) + state_.call_depth;
+        std::int64_t entropy = (state_.layout.stack.limit - ctx.sp) +
+                               (state_.heap_ptr - state_.layout.heap.start) + ctx.call_depth;
         set_reg(insn.a, entropy, ValueTag::Int);
         update_flags(entropy);
         break;
@@ -4239,16 +4259,16 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        std::int64_t depth = static_cast<std::int64_t>(state_.tier3_recursor.current_depth);
+        std::int64_t depth = static_cast<std::int64_t>(ctx.tier3_recursor.current_depth);
         set_reg(insn.a, depth, ValueTag::Int);
         update_flags(depth);
         break;
       }
       case t81::tisc::Opcode::Terminate: {
-        state_.tier3_recursor.pop_frame();
+        ctx.tier3_recursor.pop_frame();
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "Terminate: depth decreased"};
         record_axion_event(insn.opcode, 0,
-                           static_cast<std::int64_t>(state_.tier3_recursor.current_depth), verdict);
+                           static_cast<std::int64_t>(ctx.tier3_recursor.current_depth), verdict);
         break;
       }
       case t81::tisc::Opcode::InfSeed: {
@@ -4258,10 +4278,10 @@ public:
         }
 
         t81::T81Fraction start_val;
-        if (state_.register_tags[insn.b] == ValueTag::Int) {
-          start_val = t81::T81Fraction::from_int(state_.registers[insn.b]);
-        } else if (state_.register_tags[insn.b] == ValueTag::FractionHandle) {
-          auto* f = fraction_ptr(state_.registers[insn.b]);
+        if (ctx.register_tags[insn.b] == ValueTag::Int) {
+          start_val = t81::T81Fraction::from_int(ctx.registers[insn.b]);
+        } else if (ctx.register_tags[insn.b] == ValueTag::FractionHandle) {
+          auto* f = fraction_ptr(ctx.registers[insn.b]);
           if (f) start_val = *f;
         } else {
           trap = Trap::TypeFault;
@@ -4277,11 +4297,11 @@ public:
           trap = res.error();
           break;
         }
-        state_.registers[insn.a] = *res;
-        state_.register_tags[insn.a] = ValueTag::InfiniteHandle;
+        ctx.registers[insn.a] = *res;
+        ctx.register_tags[insn.a] = ValueTag::InfiniteHandle;
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "InfSeed"};
-        record_axion_event(insn.opcode, 0, state_.registers[insn.a], verdict);
+        record_axion_event(insn.opcode, 0, ctx.registers[insn.a], verdict);
         break;
       }
       case t81::tisc::Opcode::InfExpand: {
@@ -4289,21 +4309,21 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.a] != ValueTag::InfiniteHandle) {
+        if (ctx.register_tags[insn.a] != ValueTag::InfiniteHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* form = infinite_form_ptr(state_.registers[insn.a]);
+        auto* form = infinite_form_ptr(ctx.registers[insn.a]);
         if (!form) {
           trap = Trap::BoundsFault;
           break;
         }
 
         t81::T81Fraction ratio_val;
-        if (state_.register_tags[insn.b] == ValueTag::Int) {
-          ratio_val = t81::T81Fraction::from_int(state_.registers[insn.b]);
-        } else if (state_.register_tags[insn.b] == ValueTag::FractionHandle) {
-          auto* f = fraction_ptr(state_.registers[insn.b]);
+        if (ctx.register_tags[insn.b] == ValueTag::Int) {
+          ratio_val = t81::T81Fraction::from_int(ctx.registers[insn.b]);
+        } else if (ctx.register_tags[insn.b] == ValueTag::FractionHandle) {
+          auto* f = fraction_ptr(ctx.registers[insn.b]);
           if (f) ratio_val = *f;
         } else {
           trap = Trap::TypeFault;
@@ -4313,7 +4333,7 @@ public:
         form->ratio = ratio_val;
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "InfExpand"};
-        record_axion_event(insn.opcode, 0, state_.registers[insn.a], verdict);
+        record_axion_event(insn.opcode, 0, ctx.registers[insn.a], verdict);
         break;
       }
       case t81::tisc::Opcode::InfCollapse: {
@@ -4321,11 +4341,11 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.a] != ValueTag::InfiniteHandle) {
+        if (ctx.register_tags[insn.a] != ValueTag::InfiniteHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* form = infinite_form_ptr(state_.registers[insn.a]);
+        auto* form = infinite_form_ptr(ctx.registers[insn.a]);
         if (!form) {
           trap = Trap::BoundsFault;
           break;
@@ -4334,7 +4354,7 @@ public:
         form->collapse();
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "InfCollapse"};
-        record_axion_event(insn.opcode, 0, state_.registers[insn.a], verdict);
+        record_axion_event(insn.opcode, 0, ctx.registers[insn.a], verdict);
         break;
       }
       case t81::tisc::Opcode::InfConverge: {
@@ -4342,18 +4362,18 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::InfiniteHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::InfiniteHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* form = infinite_form_ptr(state_.registers[insn.b]);
+        auto* form = infinite_form_ptr(ctx.registers[insn.b]);
         if (!form) {
           trap = Trap::BoundsFault;
           break;
         }
 
         set_reg(insn.a, form->is_convergent ? 1 : 0, ValueTag::Bool);
-        update_flags(state_.registers[insn.a]);
+        update_flags(ctx.registers[insn.a]);
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "InfConverge"};
         record_axion_event(insn.opcode, 0, form->is_convergent, verdict);
@@ -4364,22 +4384,22 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (state_.register_tags[insn.b] != ValueTag::InfiniteHandle) {
+        if (ctx.register_tags[insn.b] != ValueTag::InfiniteHandle) {
           trap = Trap::TypeFault;
           break;
         }
-        auto* form = infinite_form_ptr(state_.registers[insn.b]);
+        auto* form = infinite_form_ptr(ctx.registers[insn.b]);
         if (!form) {
           trap = Trap::BoundsFault;
           break;
         }
 
         auto sig = t81::cog::v5::CollapseSignature::generate(*form);
-        state_.registers[insn.a] = intern_symbol(sig.hash);
-        state_.register_tags[insn.a] = ValueTag::SymbolHandle;
+        ctx.registers[insn.a] = intern_symbol(sig.hash);
+        ctx.register_tags[insn.a] = ValueTag::SymbolHandle;
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "InfSignature"};
-        record_axion_event(insn.opcode, 0, state_.registers[insn.a], verdict);
+        record_axion_event(insn.opcode, 0, ctx.registers[insn.a], verdict);
         break;
       }
       case t81::tisc::Opcode::Gossip: {
@@ -4387,8 +4407,8 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        std::int64_t val = state_.registers[insn.b];
-        std::int32_t tag = static_cast<std::int32_t>(state_.register_tags[insn.b]);
+        std::int64_t val = ctx.registers[insn.b];
+        std::int32_t tag = static_cast<std::int32_t>(ctx.register_tags[insn.b]);
         state_.tier4_state.gossip(val, tag, instruction_count_);
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "Gossip: broadcast state"};
         record_axion_event(insn.opcode, tag, val, verdict);
@@ -4419,7 +4439,7 @@ public:
           break;
         }
         // Operand A contains remote tick
-        uint64_t remote = static_cast<uint64_t>(state_.registers[insn.a]);
+        uint64_t remote = static_cast<uint64_t>(ctx.registers[insn.a]);
         state_.tier4_state.sync_tick(remote);
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TickSync"};
         record_axion_event(insn.opcode, 0,
@@ -4484,6 +4504,10 @@ public:
     if (trap != Trap::None) {
       return t81::unexpected(trap);
     }
+
+    // Schedule next context for the next step
+    state_.current_context = (state_.current_context + 1) % state_.contexts.size();
+
     return {};
   }
 
@@ -4500,14 +4524,16 @@ public:
   const State& state() const override { return state_; }
 
   void set_register(int idx, std::int64_t val_data, ValueTag tag) override {
-    if (idx < 0 || static_cast<std::size_t>(idx) >= state_.registers.size()) {
+    if (state_.contexts.empty()) return;
+    auto& ctx = state_.contexts[state_.current_context];
+    if (idx < 0 || static_cast<std::size_t>(idx) >= ctx.registers.size()) {
       return;
     }
     if (idx == 0 || (idx >= 75 && idx <= 80)) {
       return;
     }
-    state_.registers[idx] = val_data;
-    state_.register_tags[idx] = tag;
+    ctx.registers[idx] = val_data;
+    ctx.register_tags[idx] = tag;
 
     t81::axion::Verdict verdict;
     verdict.kind = t81::axion::VerdictKind::Allow;
@@ -4523,33 +4549,35 @@ public:
 
 private:
   void sync_system_registers() {
-    state_.registers[0] = 0;
-    state_.register_tags[0] = ValueTag::Int;
+    if (state_.contexts.empty()) return;
+    auto& ctx = state_.contexts[state_.current_context];
+    ctx.registers[0] = 0;
+    ctx.register_tags[0] = ValueTag::Int;
 
     // R75: Global Tick
-    state_.registers[75] = static_cast<std::int64_t>(instruction_count_);
-    state_.register_tags[75] = ValueTag::Int;
+    ctx.registers[75] = static_cast<std::int64_t>(instruction_count_);
+    ctx.register_tags[75] = ValueTag::Int;
 
     // R76: Lineage Root Hash (Stub: using a fixed value for now)
-    state_.registers[76] = 0xDE7A81;
-    state_.register_tags[76] = ValueTag::Int;
+    ctx.registers[76] = 0xDE7A81;
+    ctx.register_tags[76] = ValueTag::Int;
 
     // R77: Current Entropy Signature (Stub)
-    state_.registers[77] = static_cast<std::int64_t>(state_.contradiction_events);
-    state_.register_tags[77] = ValueTag::Int;
+    ctx.registers[77] = static_cast<std::int64_t>(state_.contradiction_events);
+    ctx.register_tags[77] = ValueTag::Int;
 
     // R78: Active Constitutional Mask (Stub: Θ₁-Θ₉ enabled)
-    state_.registers[78] = 0x1FF;
-    state_.register_tags[78] = ValueTag::Int;
+    ctx.registers[78] = 0x1FF;
+    ctx.register_tags[78] = ValueTag::Int;
 
     // R79: Recursion Depth Counter
-    state_.registers[79] =
-        static_cast<std::int64_t>(std::max(state_.stack_frames.size(), state_.call_depth));
-    state_.register_tags[79] = ValueTag::Int;
+    ctx.registers[79] =
+        static_cast<std::int64_t>(std::max(ctx.stack_frames.size(), ctx.call_depth));
+    ctx.register_tags[79] = ValueTag::Int;
 
     // R80: Axion Seal / Capability Word
-    state_.registers[80] = state_.halted ? 0 : 1;
-    state_.register_tags[80] = ValueTag::Int;
+    ctx.registers[80] = state_.halted ? 0 : 1;
+    ctx.register_tags[80] = ValueTag::Int;
   }
 
   std::int64_t intern_weights_tensor(std::string_view name) {
@@ -4576,23 +4604,31 @@ private:
     if (syscall == t81::axion::reasons::kMetaRead) {
       // Internal MetaRead check could go here
     }
-    t81::axion::SyscallContext ctx;
-    ctx.caller = "t81vm";
-    ctx.syscall.assign(syscall);
-    ctx.payload = std::string(payload);
-    ctx.pc = prog_counter;
-    ctx.next_opcode = opcode;
-    ctx.instruction_count = instruction_count_;
-    ctx.recursion_depth = std::max(state_.stack_frames.size(), state_.call_depth);
-    ctx.stack_usage = state_.layout.stack.limit - state_.sp;
-    ctx.reflection_count = state_.reflection_count;
-    ctx.meta_write_count = state_.meta_write_count;
-    ctx.policy = state_.policy ? &*state_.policy : nullptr;
-    ctx.trace_reasons.reserve(state_.axion_log.size());
-    for (const auto& entry : state_.axion_log) {
-      ctx.trace_reasons.push_back(entry.verdict.reason);
+    t81::axion::SyscallContext sys_ctx;
+    sys_ctx.caller = "t81vm";
+    sys_ctx.syscall.assign(syscall);
+    sys_ctx.payload = std::string(payload);
+    sys_ctx.pc = prog_counter;
+    sys_ctx.next_opcode = opcode;
+    sys_ctx.instruction_count = instruction_count_;
+
+    if (!state_.contexts.empty()) {
+      auto& tctx = state_.contexts[state_.current_context];
+      sys_ctx.recursion_depth = std::max(tctx.stack_frames.size(), tctx.call_depth);
+      sys_ctx.stack_usage = tctx.stack_base - tctx.sp;
+    } else {
+      sys_ctx.recursion_depth = 0;
+      sys_ctx.stack_usage = 0;
     }
-    return axion_engine_->evaluate(ctx);
+
+    sys_ctx.reflection_count = state_.reflection_count;
+    sys_ctx.meta_write_count = state_.meta_write_count;
+    sys_ctx.policy = state_.policy ? &*state_.policy : nullptr;
+    sys_ctx.trace_reasons.reserve(state_.axion_log.size());
+    for (const auto& entry : state_.axion_log) {
+      sys_ctx.trace_reasons.push_back(entry.verdict.reason);
+    }
+    return axion_engine_->evaluate(sys_ctx);
   }
 
   const t81::tisc::EnumMetadata* enum_metadata_for(int enum_id) const {
@@ -4713,7 +4749,11 @@ private:
     event.value = val_data;
     event.verdict = verdict;
     event.structured.reason = verdict.reason;
-    event.structured.pc = state_.pc;
+    if (!state_.contexts.empty()) {
+      event.structured.pc = state_.contexts[state_.current_context].pc;
+    } else {
+      event.structured.pc = 0;
+    }
     event.structured.handle_id = val_data;  // often used for handles
     if (verdict.kind == t81::axion::VerdictKind::Allow) {
       event.structured.decision = "allow";
@@ -4800,9 +4840,11 @@ private:
 
     // 2. Scan Roots
 
-    // Registers
-    for (size_t i = 0; i < state_.registers.size(); ++i) {
-      scan_value(state_.register_tags[i], state_.registers[i]);
+    // Registers (for all contexts)
+    for (const auto& ctx : state_.contexts) {
+      for (size_t i = 0; i < ctx.registers.size(); ++i) {
+        scan_value(ctx.register_tags[i], ctx.registers[i]);
+      }
     }
 
     // Memory (Stack + Heap segments)
