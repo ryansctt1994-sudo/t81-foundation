@@ -94,8 +94,8 @@
   - [x] Telemetry / logging for drift detection (via Axion StructuredEvents)
   - [ ] Provable guarantees for the Nine Principles
 - [x] Tier 4/5 Constraint Enforcement
-  - [x] Symbolic complexity limits (Implemented via `max-symbolic-nodes` policy)
-  - [x] Graph/Tensor explosion risk monitoring (Implemented via `max-tensors` and `max-tensor-elements` policies)
+  - [x] Symbolic complexity limits (Implemented via `max-symbolic-nodes`, `max-symbolic-graphs` policies)
+  - [x] Graph/Tensor explosion risk monitoring (Implemented via `max-tensors`, `max-tensor-elements`, `max-infinite-forms` policies)
 
 ## 7. Algebraic Extensions & Data Structures
 - [x] T81Complex (Ternary complex numbers) (see `include/t81/core/T81Complex.hpp`)
@@ -104,6 +104,7 @@
 - [x] T81Matrix (Fixed-size matrix math) (see `include/t81/core/T81Matrix.hpp`)
   - [x] Basic arithmetic (+, -, *, scalar *)
   - [x] Determinant/Inverse (Generic implementation for N>=1)
+  - [x] Singular matrix safety verification (Verified in `tests/cpp/test_T81Matrix_singular.cpp`)
 - [x] T81Polynomial (Univariate polynomials) (see `include/t81/core/T81Polynomial.hpp`)
 - [x] T81Graph (Static graph, hardware-native) (see `include/t81/core/T81Graph.hpp`)
 - [ ] Holotensor Types (Future/Aspirational)
