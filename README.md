@@ -219,48 +219,48 @@ For a comprehensive, specification-grade description of the architecture — inc
    * [1.2 System Architecture](book/01_Introduction.md#12-system-architecture)
    * [1.3 Verifiable Compute Mission](book/01_Introduction.md#13-verifiable-compute-mission)
 
-2. **[Core Principles and Invariants](book/02_Core_Principles_and_Invariants.md)**
+2. **[Core Principles and Invariants](book/02_Principles.md)**
 
-   * [2.1 The Determinism Invariant](book/02_Core_Principles_and_Invariants.md#21-the-determinism-invariant)
-   * [2.1.1 Determinism Surfaces and Attack Vectors](book/02_Core_Principles_and_Invariants.md#211-determinism-surfaces-and-attack-vectors)
-   * [2.2 Ternary Logic (Base-3)](book/02_Core_Principles_and_Invariants.md#22-ternary-logic-base-3)
-   * [2.3 Auditability and the Axion Trace](book/02_Core_Principles_and_Invariants.md#23-auditability-and-the-axion-trace)
-   * [2.4 The Nine Principles (Ethics Enforcement)](book/02_Core_Principles_and_Invariants.md#24-the-nine-principles-ethics-enforcement)
+   * [2.1 The Determinism Invariant](book/02_Principles.md#21-the-determinism-invariant)
+   * [2.1.1 Determinism Surfaces and Attack Vectors](book/02_Principles.md#211-determinism-surfaces-and-attack-vectors)
+   * [2.2 Ternary Logic (Base-3)](book/02_Principles.md#22-ternary-logic-base-3)
+   * [2.3 Auditability and the Axion Trace](book/02_Principles.md#23-auditability-and-the-axion-trace)
+   * [2.4 The Nine Principles (Ethics Enforcement)](book/02_Principles.md#24-the-nine-principles-ethics-enforcement)
 
 </details>
 
 <details>
 <summary><strong>Part II — The Deterministic Machine</strong></summary>
 
-3. **[T81VM Architecture](book/03_T81VM_Architecture.md)**
+3. **[T81VM Architecture](book/03_Architecture.md)**
 
-   * [3.1 Formal State Machine](book/03_T81VM_Architecture.md#31-formal-state-machine)
-   * [3.1.1 State Definition](book/03_T81VM_Architecture.md#311-state-definition)
-   * [3.2 Memory Layout](book/03_T81VM_Architecture.md#32-memory-layout)
-   * [3.3 Register File](book/03_T81VM_Architecture.md#33-register-file)
-   * [3.4 TISC Instruction Set Architecture](book/03_T81VM_Architecture.md#34-tisc-instruction-set-architecture-isa)
-   * [3.5 Fault Semantics](book/03_T81VM_Architecture.md#35-fault-semantics)
-   * [3.6 Garbage Collection](book/03_T81VM_Architecture.md#36-garbage-collection)
+   * [3.1 Formal State Machine](book/03_Architecture.md#31-formal-state-machine)
+   * [3.1.1 State Definition](book/03_Architecture.md#311-state-definition)
+   * [3.2 Memory Layout](book/03_Architecture.md#32-memory-layout)
+   * [3.3 Register File](book/03_Architecture.md#33-register-file)
+   * [3.4 TISC Instruction Set Architecture](book/03_Architecture.md#34-tisc-instruction-set-architecture-isa)
+   * [3.5 Fault Semantics](book/03_Architecture.md#35-fault-semantics)
+   * [3.6 Garbage Collection](book/03_Architecture.md#36-garbage-collection)
 
-4. **[Data Types and Canonical Serialization](book/04_Data_Types_and_Canonical_Serialization.md)**
+4. **[Data Types and Canonical Serialization](book/04_Data_Types_and_Serialization.md)**
 
-   * [4.1 Primitive Types](book/04_Data_Types_and_Canonical_Serialization.md#41-primitive-types)
-   * [4.2 T81Float and dmath](book/04_Data_Types_and_Canonical_Serialization.md#42-t81float-and-dmath)
-   * [4.3 Tensors and Canonical Layouts](book/04_Data_Types_and_Canonical_Serialization.md#43-tensors-and-canonical-layouts)
-   * [4.4 Canonical Serialization Rules](book/04_Data_Types_and_Canonical_Serialization.md#44-canonical-serialization-rules)
+   * [4.1 Primitive Types](book/04_Data_Types_and_Serialization.md#41-primitive-types)
+   * [4.2 T81Float and dmath](book/04_Data_Types_and_Serialization.md#42-t81float-and-dmath)
+   * [4.3 Tensors and Canonical Layouts](book/04_Data_Types_and_Serialization.md#43-tensors-and-canonical-layouts)
+   * [4.4 Canonical Serialization Rules](book/04_Data_Types_and_Serialization.md#44-canonical-serialization-rules)
 
-5. **[Installation and Build Verification](book/05_Installation_and_Build_Verification.md)**
+5. **[Installation and Build Verification](book/05_Installation.md)**
 
-   * [5.1 Prerequisites](book/05_Installation_and_Build_Verification.md#51-prerequisites)
-   * [5.2 Building from Source](book/05_Installation_and_Build_Verification.md#52-building-from-source)
-   * [5.3 Verifying the Build](book/05_Installation_and_Build_Verification.md#53-verifying-the-build)
+   * [5.1 Prerequisites](book/05_Installation.md#51-prerequisites)
+   * [5.2 Building from Source](book/05_Installation.md#52-building-from-source)
+   * [5.3 Verifying the Build](book/05_Installation.md#53-verifying-the-build)
 
-6. **[CLI and API Usage](book/06_CLI_and_API_Usage.md)**
+6. **[CLI and API Usage](book/06_Usage.md)**
 
-   * [6.1 Command Line Interface](book/06_CLI_and_API_Usage.md#61-the-t81-command-line-interface)
-   * [6.2 Embedding T81 (C++ API)](book/06_CLI_and_API_Usage.md#62-embedding-t81-c-api)
-   * [6.3 Embedding T81 (Python API)](book/06_CLI_and_API_Usage.md#63-embedding-t81-python-api)
-   * [6.4 Debugging](book/06_CLI_and_API_Usage.md#64-debugging)
+   * [6.1 Command Line Interface](book/06_Usage.md#61-the-t81-command-line-interface)
+   * [6.2 Embedding T81 (C++ API)](book/06_Usage.md#62-embedding-t81-c-api)
+   * [6.3 Embedding T81 (Python API)](book/06_Usage.md#63-embedding-t81-python-api)
+   * [6.4 Debugging](book/06_Usage.md#64-debugging)
 
 </details>
 
@@ -274,13 +274,13 @@ For a comprehensive, specification-grade description of the architecture — inc
    * [7.3 Property-Based Testing](book/07_Verification_and_Audit.md#73-property-based-testing)
    * [7.4 The Determinism Gate](book/07_Verification_and_Audit.md#74-the-determinism-gate)
 
-8. **[The Axion Safety Kernel](book/08_The_Axion_Safety_Kernel.md)**
+8. **[The Axion Safety Kernel](book/08_The_Axion_Kernel.md)**
 
-   * [8.1 Formal Definition](book/08_The_Axion_Safety_Kernel.md#81-formal-definition)
-   * [8.2 The Policy Model](book/08_The_Axion_Safety_Kernel.md#82-the-policy-model)
-   * [8.3 Instruction Interception](book/08_The_Axion_Safety_Kernel.md#83-instruction-interception)
-   * [8.4 The Audit Log (Trace)](book/08_The_Axion_Safety_Kernel.md#84-the-audit-log-trace)
-   * [8.5 Cognitive Promotion](book/08_The_Axion_Safety_Kernel.md#85-cognitive-promotion)
+   * [8.1 Formal Definition](book/08_The_Axion_Kernel.md#81-formal-definition)
+   * [8.2 The Policy Model](book/08_The_Axion_Kernel.md#82-the-policy-model)
+   * [8.3 Instruction Interception](book/08_The_Axion_Kernel.md#83-instruction-interception)
+   * [8.4 The Audit Log (Trace)](book/08_The_Axion_Kernel.md#84-the-audit-log-trace)
+   * [8.5 Cognitive Promotion](book/08_The_Axion_Kernel.md#85-cognitive-promotion)
 
 9. **[Cognitive Tiers and Distributed Compute](book/09_Cognitive_Tiers_and_Distributed_Compute.md)**
 
