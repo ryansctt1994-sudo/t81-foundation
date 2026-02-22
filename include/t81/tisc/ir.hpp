@@ -138,6 +138,7 @@ enum class Opcode {
   META_REFINE,
   TMATMUL,
   TVECADD,
+  TTENDOT,
   TGET,
   TNEW,
   TSET,

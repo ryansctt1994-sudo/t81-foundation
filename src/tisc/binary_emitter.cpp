@@ -277,6 +277,8 @@ Opcode map_opcode(const ir::Instruction& instr) {
       return Opcode::TMatMul;
     case O::TVECADD:
       return Opcode::TVecAdd;
+    case O::TTENDOT:
+      return Opcode::TTenDot;
     case O::TGET:
       return Opcode::TGet;
     case O::TNEW:

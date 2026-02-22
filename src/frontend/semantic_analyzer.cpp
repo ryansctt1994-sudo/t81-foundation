@@ -261,6 +261,21 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.math.clamp") {
     return "clamp";
   }
+  if (name == "std.math.abs") {
+    return "abs";
+  }
+  if (name == "std.math.bigint.from_int") {
+    return "bigint_from_int";
+  }
+  if (name == "std.math.bigint.to_int") {
+    return "bigint_to_int";
+  }
+  if (name == "std.math.bigint.add") {
+    return "bigint_add";
+  }
+  if (name == "std.math.bigint.mul") {
+    return "bigint_mul";
+  }
   if (name == "std.math.fraction.add") {
     return "frac_add";
   }
@@ -326,6 +341,9 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   }
   if (name == "std.tensor.vec_add") {
     return "Tensor.vec_add";
+  }
+  if (name == "std.tensor.dot_product") {
+    return "tensor_dot";
   }
   if (name == "std.text.str_len") {
     return "str_len";
@@ -2263,6 +2281,62 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return make_error_type();
       }
       return Type{Type::Kind::Float};
+    }
+    if (func_name == "abs") {
+      if (arg_types.size() != 1) {
+        error(call_token, "abs expects exactly one argument.");
+        return make_error_type();
+      }
+      if (!is_numeric(arg_types[0])) {
+        error(call_token, "abs argument must be numeric.");
+        return make_error_type();
+      }
+      return arg_types[0];
+    }
+    if (func_name == "bigint_from_int") {
+      if (arg_types.size() != 1) {
+        error(call_token, "bigint.from_int expects exactly one argument.");
+        return make_error_type();
+      }
+      if (!is_integer_type(arg_types[0])) {
+        error(call_token, "bigint.from_int argument must be integer.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::BigInt};
+    }
+    if (func_name == "bigint_to_int") {
+      if (arg_types.size() != 1) {
+        error(call_token, "bigint.to_int expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::BigInt) {
+        error(call_token, "bigint.to_int argument must be T81BigInt.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
+    }
+    if (func_name == "bigint_add" || func_name == "bigint_mul") {
+      if (arg_types.size() != 2) {
+        error(call_token, func_name + " expects exactly two arguments.");
+        return make_error_type();
+      }
+      if (!is_numeric(arg_types[0]) || !is_numeric(arg_types[1])) {
+        error(call_token, func_name + " arguments must be numeric.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::BigInt};
+    }
+    if (func_name == "tensor_dot") {
+      if (arg_types.size() != 2) {
+        error(call_token, "tensor.dot_product expects exactly two arguments.");
+        return make_error_type();
+      }
+      if ((arg_types[0].kind != Type::Kind::Tensor && arg_types[0].kind != Type::Kind::I32) ||
+          (arg_types[1].kind != Type::Kind::Tensor && arg_types[1].kind != Type::Kind::I32)) {
+        error(call_token, "tensor.dot_product arguments must be Tensor or tensor handles.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::I32};
     }
     if (func_name == "frac_add" || func_name == "frac_sub" || func_name == "frac_mul" ||
         func_name == "frac_div") {
