@@ -71,7 +71,8 @@ int main() {
       }
 
       // Invariant 2: Theta-4 (Interpretability)
-      // Must Warn if recursion depth > T81_SOFT_RECURSION_LIMIT (soft limit) but < T81_HARD_RECURSION_CEILING
+      // Must Warn if recursion depth > T81_SOFT_RECURSION_LIMIT (soft limit)
+      // but < T81_HARD_RECURSION_CEILING
       if (p == EthicsPrinciple::Interpretability) {
         if (ctx.recursion_depth > T81_SOFT_RECURSION_LIMIT &&
             ctx.recursion_depth < T81_HARD_RECURSION_CEILING) {
