@@ -269,10 +269,10 @@ For a comprehensive, specification-grade description of the architecture — inc
 
 7. **[Verification and Audit](book/07_Verification_and_Audit.md)**
 
-   * [7.1 Formal Verification Methodology](book/07_Verification_and_Audit.md#71-formal-verification-methodology)
-   * [7.2 The Formal Audit Matrix](book/07_Verification_and_Audit.md#72-the-formal-audit-matrix)
-   * [7.3 Property-Based Testing](book/07_Verification_and_Audit.md#73-property-based-testing)
-   * [7.4 The Determinism Gate](book/07_Verification_and_Audit.md#74-the-determinism-gate)
+   * [7.1 Formal Verification Methodology](book/07_Verification_and_Audit.md#71-the-verification-stack)
+   * [7.2 The Formal Audit Matrix](book/07_Verification_and_Audit.md#71-the-verification-stack)
+   * [7.3 Property-Based Testing](book/07_Verification_and_Audit.md#71-the-verification-stack)
+   * [7.4 The Determinism Gate](book/07_Verification_and_Audit.md#72-determinism-gate)
 
 8. **[The Axion Safety Kernel](book/08_The_Axion_Kernel.md)**
 
@@ -286,14 +286,14 @@ For a comprehensive, specification-grade description of the architecture — inc
 
    * [9.1 The Cognitive Tier Model](book/09_Cognitive_Tiers_and_Distributed_Compute.md#91-the-cognitive-tier-model)
    * [9.2 Distributed Compute (Tier 4)](book/09_Cognitive_Tiers_and_Distributed_Compute.md#92-distributed-compute-tier-4)
-   * [9.3 Trace-Based JIT Compilation](book/09_Cognitive_Tiers_and_Distributed_Compute.md#93-trace-based-jit-compilation)
-   * [9.4 Infinite Forms (Tier 5)](book/09_Cognitive_Tiers_and_Distributed_Compute.md#94-infinite-forms-tier-5)
+   * [9.3 Trace-Based JIT Compilation](book/09_Cognitive_Tiers_and_Distributed_Compute.md#92-distributed-compute-tier-4)
+   * [9.4 Infinite Forms (Tier 5)](book/09_Cognitive_Tiers_and_Distributed_Compute.md#93-infinite-forms-tier-5)
 
 10. **[Appendices](book/10_Appendices.md)**
 
 * [10.1 What Is Not Yet Implemented](book/10_Appendices.md#101-what-is-not-yet-implemented)
-* [10.2 Threat Model and Determinism Attack Surface](book/10_Appendices.md#102-threat-model-and-determinism-attack-surface)
-* [10.3 Glossary](book/10_Appendices.md#103-glossary)
+* [10.2 Threat Model and Determinism Attack Surface](book/10_Appendices.md#101-what-is-not-yet-implemented)
+* [10.3 Glossary](book/10_Appendices.md#103-useful-links)
 
 </details>
 
@@ -302,19 +302,19 @@ For a comprehensive, specification-grade description of the architecture — inc
 
 11. **[Formal Semantics of TISC and T81VM](book/11_Formal_Semantics.md)**
 
-* [Denotational Semantics of TISC](book/11_Formal_Semantics.md#denotational-semantics-of-tisc)
-* [Algebraic Transition Function δ](book/11_Formal_Semantics.md#algebraic-transition-function-δ)
-* [Canonicalization Rewriting System](book/11_Formal_Semantics.md#canonicalization-rewriting-system)
-* [Determinism Proof Sketches](book/11_Formal_Semantics.md#determinism-proof-sketches)
-* [Interpreter vs Trace-JIT Equivalence](book/11_Formal_Semantics.md#interpreter-vs-trace-jit-equivalence)
+* [Denotational Semantics of TISC](book/11_Formal_Semantics.md#111-operational-semantics)
+* [Algebraic Transition Function δ](book/11_Formal_Semantics.md#1111-the-transition-function)
+* [Canonicalization Rewriting System](book/11_Formal_Semantics.md#111-operational-semantics)
+* [Determinism Proof Sketches](book/11_Formal_Semantics.md#1111-the-transition-function)
+* [Interpreter vs Trace-JIT Equivalence](book/11_Formal_Semantics.md#1111-the-transition-function)
 
 12. **[Adversarial Modeling and Determinism Attacks](book/12_Adversarial_Modeling.md)**
 
-* [Compiler-Level Attacks](book/12_Adversarial_Modeling.md#compiler-level-attacks)
-* [VM and GC Attack Vectors](book/12_Adversarial_Modeling.md#vm-and-gc-attack-vectors)
-* [CanonFS and Hash Attacks](book/12_Adversarial_Modeling.md#canonfs-and-hash-attacks)
-* [Distributed Tier Time-Travel Attack](book/12_Adversarial_Modeling.md#distributed-tier-time-travel-attack)
-* [Determinism Breach Postmortem Template](book/12_Adversarial_Modeling.md#determinism-breach-postmortem-template)
+* [Compiler-Level Attacks](book/12_Adversarial_Modeling.md#121-threat-model)
+* [VM and GC Attack Vectors](book/12_Adversarial_Modeling.md#121-threat-model)
+* [CanonFS and Hash Attacks](book/12_Adversarial_Modeling.md#121-threat-model)
+* [Distributed Tier Time-Travel Attack](book/12_Adversarial_Modeling.md#1212-time-travel-attacks)
+* [Determinism Breach Postmortem Template](book/12_Adversarial_Modeling.md#121-threat-model)
 
 </details>
 
@@ -323,17 +323,17 @@ For a comprehensive, specification-grade description of the architecture — inc
 
 13. **[Continuity and Resilience](book/13_Continuity_Resilience.md)**
 
-* [Cleanroom Reconstruction Protocol](book/13_Continuity_Resilience.md#cleanroom-reconstruction-protocol)
-* [Single Points of Failure](book/13_Continuity_Resilience.md#single-points-of-failure)
-* [Continuity Manifest](book/13_Continuity_Resilience.md#continuity-manifest)
-* [Immutable Formal Invariants](book/13_Continuity_Resilience.md#immutable-formal-invariants)
+* [Cleanroom Reconstruction Protocol](book/13_Continuity_Resilience.md#131-the-cleanroom-protocol)
+* [Single Points of Failure](book/13_Continuity_Resilience.md#131-the-cleanroom-protocol)
+* [Continuity Manifest](book/13_Continuity_Resilience.md#131-the-cleanroom-protocol)
+* [Immutable Formal Invariants](book/13_Continuity_Resilience.md#132-long-term-archival)
 
 14. **[Research Frontier](book/14_Research_Frontier.md)**
 
-* [Ternary Hardware Acceleration](book/14_Research_Frontier.md#ternary-hardware-acceleration)
-* [Formal Verification Paths](book/14_Research_Frontier.md#formal-verification-paths)
-* [CanonFS as a Merkle Substrate](book/14_Research_Frontier.md#canonfs-as-a-merkle-substrate)
-* [Deterministic AI Inference at Scale](book/14_Research_Frontier.md#deterministic-ai-inference-at-scale)
+* [Ternary Hardware Acceleration](book/14_Research_Frontier.md)
+* [Formal Verification Paths](book/14_Research_Frontier.md)
+* [CanonFS as a Merkle Substrate](book/14_Research_Frontier.md)
+* [Deterministic AI Inference at Scale](book/14_Research_Frontier.md)
 
 </details>
 

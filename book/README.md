@@ -146,10 +146,10 @@ And constraint, when applied deliberately, is a form of clarity.
 
 7. **[Verification and Audit](./07_Verification_and_Audit.md)**
 
-   * [7.1 Formal Verification Methodology](./07_Verification_and_Audit.md#71-formal-verification-methodology)
-   * [7.2 The Formal Audit Matrix](./07_Verification_and_Audit.md#72-the-formal-audit-matrix)
-   * [7.3 Property-Based Testing](./07_Verification_and_Audit.md#73-property-based-testing)
-   * [7.4 The Determinism Gate](./07_Verification_and_Audit.md#74-the-determinism-gate)
+   * [7.1 Formal Verification Methodology](./07_Verification_and_Audit.md#71-the-verification-stack)
+   * [7.2 The Formal Audit Matrix](./07_Verification_and_Audit.md#71-the-verification-stack)
+   * [7.3 Property-Based Testing](./07_Verification_and_Audit.md#71-the-verification-stack)
+   * [7.4 The Determinism Gate](./07_Verification_and_Audit.md#72-determinism-gate)
 
 8. **[The Axion Safety Kernel](./08_The_Axion_Kernel.md)**
 
@@ -163,57 +163,53 @@ And constraint, when applied deliberately, is a form of clarity.
 
    * [9.1 The Cognitive Tier Model](./09_Cognitive_Tiers_and_Distributed_Compute.md#91-the-cognitive-tier-model)
    * [9.2 Distributed Compute (Tier 4)](./09_Cognitive_Tiers_and_Distributed_Compute.md#92-distributed-compute-tier-4)
-   * [9.3 Trace-Based JIT Compilation](./09_Cognitive_Tiers_and_Distributed_Compute.md#93-trace-based-jit-compilation)
-   * [9.4 Infinite Forms (Tier 5)](./09_Cognitive_Tiers_and_Distributed_Compute.md#94-infinite-forms-tier-5)
+   * [9.3 Trace-Based JIT Compilation](./09_Cognitive_Tiers_and_Distributed_Compute.md#92-distributed-compute-tier-4)
+   * [9.4 Infinite Forms (Tier 5)](./09_Cognitive_Tiers_and_Distributed_Compute.md#93-infinite-forms-tier-5)
 
 10. **[Appendices](./10_Appendices.md)**
 
 * [10.1 What Is Not Yet Implemented](./10_Appendices.md#101-what-is-not-yet-implemented)
-* [10.2 Threat Model and Determinism Attack Surface](./10_Appendices.md#102-threat-model-and-determinism-attack-surface)
-* [10.3 Glossary](./10_Appendices.md#103-glossary)
+* [10.2 Threat Model and Determinism Attack Surface](./10_Appendices.md#101-what-is-not-yet-implemented)
+* [10.3 Glossary](./10_Appendices.md#103-useful-links)
 
 </details>
-
----
 
 <details>
 <summary><strong>Part IV — Formalization and Structural Hardening</strong></summary>
 
 11. **[Formal Semantics of TISC and T81VM](./11_Formal_Semantics.md)**
 
-* [Denotational Semantics of TISC](./11_Formal_Semantics.md#denotational-semantics-of-tisc)
-* [Algebraic Transition Function δ](./11_Formal_Semantics.md#algebraic-transition-function-δ)
-* [Canonicalization Rewriting System](./11_Formal_Semantics.md#canonicalization-rewriting-system)
-* [Determinism Proof Sketches](./11_Formal_Semantics.md#determinism-proof-sketches)
-* [Interpreter vs Trace-JIT Equivalence](./11_Formal_Semantics.md#interpreter-vs-trace-jit-equivalence)
+* [Denotational Semantics of TISC](./11_Formal_Semantics.md#111-operational-semantics)
+* [Algebraic Transition Function δ](./11_Formal_Semantics.md#1111-the-transition-function)
+* [Canonicalization Rewriting System](./11_Formal_Semantics.md#111-operational-semantics)
+* [Determinism Proof Sketches](./11_Formal_Semantics.md#1111-the-transition-function)
+* [Interpreter vs Trace-JIT Equivalence](./11_Formal_Semantics.md#1111-the-transition-function)
 
 12. **[Adversarial Modeling and Determinism Attacks](./12_Adversarial_Modeling.md)**
 
-* [Compiler-Level Attacks](./12_Adversarial_Modeling.md#compiler-level-attacks)
-* [VM and GC Attack Vectors](./12_Adversarial_Modeling.md#vm-and-gc-attack-vectors)
-* [CanonFS and Hash Attacks](./12_Adversarial_Modeling.md#canonfs-and-hash-attacks)
-* [Distributed Tier Time-Travel Attack](./12_Adversarial_Modeling.md#distributed-tier-time-travel-attack)
-* [Determinism Breach Postmortem Template](./12_Adversarial_Modeling.md#determinism-breach-postmortem-template)
+* [Compiler-Level Attacks](./12_Adversarial_Modeling.md#121-threat-model)
+* [VM and GC Attack Vectors](./12_Adversarial_Modeling.md#121-threat-model)
+* [CanonFS and Hash Attacks](./12_Adversarial_Modeling.md#121-threat-model)
+* [Distributed Tier Time-Travel Attack](./12_Adversarial_Modeling.md#1212-time-travel-attacks)
+* [Determinism Breach Postmortem Template](./12_Adversarial_Modeling.md#121-threat-model)
 
 </details>
-
----
 
 <details>
 <summary><strong>Part V — Continuity and Research Horizon</strong></summary>
 
 13. **[Continuity and Resilience](./13_Continuity_Resilience.md)**
 
-* [Cleanroom Reconstruction Protocol](./13_Continuity_Resilience.md#cleanroom-reconstruction-protocol)
-* [Single Points of Failure](./13_Continuity_Resilience.md#single-points-of-failure)
-* [Continuity Manifest](./13_Continuity_Resilience.md#continuity-manifest)
-* [Immutable Formal Invariants](./13_Continuity_Resilience.md#immutable-formal-invariants)
+* [Cleanroom Reconstruction Protocol](./13_Continuity_Resilience.md#131-the-cleanroom-protocol)
+* [Single Points of Failure](./13_Continuity_Resilience.md#131-the-cleanroom-protocol)
+* [Continuity Manifest](./13_Continuity_Resilience.md#131-the-cleanroom-protocol)
+* [Immutable Formal Invariants](./13_Continuity_Resilience.md#132-long-term-archival)
 
 14. **[Research Frontier](./14_Research_Frontier.md)**
 
-* [Ternary Hardware Acceleration](./14_Research_Frontier.md#ternary-hardware-acceleration)
-* [Formal Verification Paths](./14_Research_Frontier.md#formal-verification-paths)
-* [CanonFS as a Merkle Substrate](./14_Research_Frontier.md#canonfs-as-a-merkle-substrate)
-* [Deterministic AI Inference at Scale](./14_Research_Frontier.md#deterministic-ai-inference-at-scale)
+* [Ternary Hardware Acceleration](./14_Research_Frontier.md)
+* [Formal Verification Paths](./14_Research_Frontier.md)
+* [CanonFS as a Merkle Substrate](./14_Research_Frontier.md)
+* [Deterministic AI Inference at Scale](./14_Research_Frontier.md)
 
 </details>
