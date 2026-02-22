@@ -1,91 +1,64 @@
-# T81 Foundation 🔥
+# T81 Foundation
 
-<div align="center">
-  
-[![CI](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml/badge.svg)](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml)
-[![Determinism Gate](https://img.shields.io/badge/Determinism%20Gate-Passing-success)](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![C++ Standard](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://en.cppreference.com/w/cpp/23)
+<p align="center">
+  <strong>Deterministic ternary-native computing stack featuring base-81 data types, TISC instruction set, T81VM, T81Lang, Axion safety/optimization engine, and recursive cognition tiers — built for bit-exact, auditable, reproducible execution in AI, cryptography, and scientific computing.</strong>
+</p>
 
-[![English](https://img.shields.io/badge/Language-English-blue?style=flat-square)](README.md)
-[![简体中文](https://img.shields.io/badge/Language-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-red?style=flat-square)](README.zh-CN.md)
-[![Español](https://img.shields.io/badge/Language-Español-green?style=flat-square)](README.es.md)
-[![Русский](https://img.shields.io/badge/Language-%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9-brightgreen?style=flat-square)](README.ru.md)
-[![Português](https://img.shields.io/badge/Language-Portugu%C3%AAs%20(Brasil)-blueviolet?style=flat-square)](README.pt-BR.md)
+<p align="center">
+  <a href="https://github.com/t81dev/t81-foundation/stargazers"><img src="https://img.shields.io/github/stars/t81dev/t81-foundation?style=for-the-badge&logo=github&color=blue" alt="Stars"></a>
+  <a href="https://github.com/t81dev/t81-foundation/network/members"><img src="https://img.shields.io/github/forks/t81dev/t81-foundation?style=for-the-badge&logo=github&color=blue" alt="Forks"></a>
+  <a href="https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?branch=main&style=for-the-badge&logo=github" alt="CI Status"></a>
+  <a href="https://github.com/t81dev/t81-foundation/commits/main"><img src="https://img.shields.io/github/commit-activity/m/t81dev/t81-foundation?style=for-the-badge&logo=github&color=green" alt="Commit Activity"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License: MIT"></a>
+  <a href="https://en.cppreference.com/w/cpp/23"><img src="https://img.shields.io/badge/Language-C%2B%2B23-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white" alt="Language: C++23"></a>
+</p>
 
-</div>
-  
-T81 is a deterministic, ternary-native computing stack 🌐 featuring base-81 data types, the TISC instruction set, T81VM, T81Lang, Axion safety & optimization engine, and recursive cognition tiers. It delivers bit-exact, auditable execution ⚡ for arithmetic-heavy domains — perfect for verifiable AI, cryptography, and scientific computing.
+<p align="center">
+  <a href="README.md"><img src="https://img.shields.io/badge/Lang-English-blue?style=flat-square" alt="English"></a>
+  <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/Lang-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-red?style=flat-square" alt="简体中文"></a>
+  <a href="README.es.md"><img src="https://img.shields.io/badge/Lang-Espa%C3%B1ol-green?style=flat-square" alt="Español"></a>
+  <a href="README.ru.md"><img src="https://img.shields.io/badge/Lang-%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9-blueviolet?style=flat-square" alt="Русский"></a>
+  <a href="README.pt-BR.md"><img src="https://img.shields.io/badge/Lang-Portugu%C3%AAs-orange?style=flat-square" alt="Português"></a>
+</p>
 
-> **Floating Point Determinism Note** ⚠️  
-> Transcendental functions (`sin`, `cos`, `tan`, `log`, `exp`, `sqrt`) use deterministic `dmath` backend — bit-exact across platforms.  
-> Division and inverse/hyperbolic functions may fall back to host behavior in non-strict mode.  
-> Full strict determinism guaranteed for `T81Int`, `T81BigInt`, `T81Fraction`, and core `T81Float` arithmetic. ✅
+---
 
-## Table of Contents 📑
+T81 is a sovereign computing stack designed to eliminate floating-point non-determinism and enable fully auditable execution. By leveraging **balanced ternary logic** and **base-81 data types**, T81 guarantees **bit-exact reproducibility** across all supported architectures (x86/ARM, macOS/Linux). It features the **T81VM**, the **Axion safety engine**, and a recursive tier system for scaling from simple symbolic logic to distributed infinite forms.
 
-- [Quick Start 🚀](#quick-start)
-- [Features 🌟](#features)
-- [Why Ternary? 🧠](#why-ternary)
-- [Architecture 🏗️](#architecture)
-- [Supported Platforms 🌍](#supported-platforms)
-- [CLI Examples 🔧](#cli-examples)
-- [Repository Map 📂](#repository-map)
-- [Document Authority Map 📜](#document-authority-map)
-- [Compatibility Guarantees 🔄](#compatibility-guarantees)
-- [Non-Goals 🚫](#non-goals)
-- [Runtime Boundary 🔐](#runtime-boundary)
-- [Further Reading 📖](#further-reading)
-- [Definitive Technical Monograph 📘](#definitive-technical-monograph)
-- [License 📜](#license)
+> 💡 **Why it matters:** In AI safety, financial modeling, and cryptography, "mostly correct" isn't enough. T81 provides mathematical certainty that your code executes exactly the same way, everywhere, every time.
 
-## Quick Start 🚀⚡
+## Table of Contents
 
-Verify core claims in < 30 seconds:
+- [Features](#features)
+- [Architecture](#architecture)
+- [Quick Start](#quick-start)
+- [Supported Platforms](#supported-platforms)
+- [CLI Examples](#cli-examples)
+- [Screenshots & Demo](#screenshots--demo)
+- [Repository Map](#repository-map)
+- [Document Authority Map](#document-authority-map)
+- [Compatibility & Non-Goals](#compatibility--non-goals)
+- [Configuration & Axion](#configuration--axion)
+- [Contributing](#contributing)
+- [Changelog](#changelog)
+- [Acknowledgments](#acknowledgments)
+- [License](#license)
 
-1. **Build & Run Hello World** 🏃‍♂️  
-   ```bash
-   cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --parallel
-   ./build/t81 compile examples/hello_world.t81 -o hello.tisc
-   ./build/t81 run hello.tisc
-   ```
+## Features
 
-2. **Run Determinism Gate** 🔄✅  
-   ```bash
-   python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
-   ```
+| Feature | Status | Description |
+| :--- | :--- | :--- |
+| **Deterministic Execution** | ✨ Stable | Bit-exact results across x86/ARM/Apple Silicon via `dmath` & custom FP. |
+| **Ternary-Native Types** | ✨ Stable | Base-81 balanced ternary integers & floats (no sign bit, reduced carry). |
+| **T81VM & TISC** | ✨ Stable | 81-register VM with deterministic interpreter & Trace-JIT. |
+| **Axion Engine** | ✨ Stable | Runtime policy, safety, ethics, and optimization engine with audit traces. |
+| **Model Tooling** | ✨ Stable | Import/Inspect SafeTensors, GGUF, T81W; quantization support. |
+| **Reproducibility Gate** | ✨ Stable | CI-enforced `t81lang_repro_gate.py` ensures 100% determinism. |
+| **Cognitive Tiers** | 🚧 Beta | Recursive execution layers (Symbolic → Distributed → Infinite). |
+| **Trace-JIT** | 🚧 Experimental | Hotspot optimization preserving strict determinism. |
+| **Multilingual Docs** | 📚 Live | Full specs in English, Chinese, Spanish, Portuguese, Russian. |
 
-3. **Run VM Demo** ▶️🔥  
-   ```bash
-   ./build/t81_demo
-   ```
-
-4. **Inspect Trace** 🔍📜  
-   ```bash
-   ./build/t81 trace show trace.txt
-   ```
-
-## Features 🌟
-
-| Feature                       | Status            | Description                                                                           |
-|-------------------------------|-------------------|---------------------------------------------------------------------------------------|
-| ✅ Deterministic Execution     | Stable 🔥         | Bit-exact reproducibility across platforms                                            |
-| ✅ Ternary-Native Data Types   | Stable 🌐         | Base-81 with balanced ternary arithmetic                                              |
-| ✅ Axion Policy Engine         | Stable 🔐         | Runtime safety, optimization & ethics enforcement                                     |
-| ✅ T81VM                       | Stable ⚙️         | 81-register VM + deterministic interpreter & trace-JIT                               |
-| ✅ TISC IR                     | Stable 📡         | Ternary Instruction Set Computer intermediate representation                          |
-| ✅ Software-Defined Math       | Stable 🧮         | Cross-platform consistent floating-point (`dmath`)                                    |
-| 🚧 Trace-JIT Compilation       | Experimental ⚡    | Hotspot tracing & deterministic JIT                                                   |
-| 🚧 Distributed Tensors         | Experimental 🌍   | Large-scale distributed tensor support                                                |
-| ✅ Model Tooling               | Stable 🤖         | SafeTensors / GGUF / T81W import, quantize, inspect                                   |
-
-## Why Ternary? 🧠🧮
-
-Balanced ternary (-1, 0, +1) and base-81 eliminate sign bits, simplify addition/subtraction (reduced carry), and offer theoretical density/energy advantages — especially valuable in numerical workloads (AI inference, cryptography, signal processing).
-
-T81 brings these benefits to software while prioritizing determinism and auditability over raw speed. See related hardware experiments in [ternary-memory-research](https://github.com/t81dev/ternary-memory-research) for SKY130 PDK metrics. 🔬
-
-## Architecture 🏗️
+## Architecture
 
 ```mermaid
 graph TD
@@ -117,98 +90,88 @@ graph TD
     end
 ```
 
-## Supported Platforms 🌍
+## Quick Start
 
-| Platform                  | Compiler              | Status                  | Determinism Gate | Notes                              |
-|---------------------------|-----------------------|-------------------------|------------------|------------------------------------|
-| Linux x86_64              | Clang 18+, GCC 14+    | ✅ Passing 🔥            | ✅               | Full gate passing                  |
-| Linux ARM64               | Clang 18+             | ✅ Passing 🔥            | ✅               | Full gate passing                  |
-| macOS x86_64 (Intel)      | Apple Clang / GCC     | ✅ Passing              | ✅                | Works natively                     |
-| macOS ARM64 (Apple Silicon) | Apple Clang         | ✅ Passing              | ✅                | Active investigation (CMake/flags) |
+Go from zero to verifiable execution in under 60 seconds.
 
-## CLI Examples 🔧🔍
+### 1. Build
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+```
+
+### 2. Compile & Run Hello World
+```bash
+# Compile T81 source to TISC bytecode
+./build/t81 compile examples/hello_world.t81 -o hello.tisc
+
+# Run the bytecode
+./build/t81 run hello.tisc
+```
+
+### 3. Verify Determinism (The "Repro Gate")
+Prove that your build is bit-exact compliant:
+```bash
+python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
+# Output: ✅  All determinism checks passed.
+```
+
+## Supported Platforms
+
+All platforms below pass the **Determinism Gate** with identical output hashes.
+
+| Platform | Arch | Compiler | Status |
+| :--- | :--- | :--- | :--- |
+| **Linux** | x86_64 | Clang 18+, GCC 14+ | ✅ Verified |
+| **Linux** | ARM64 | Clang 18+ | ✅ Verified |
+| **macOS** | Intel | Apple Clang / GCC | ✅ Verified |
+| **macOS** | Apple Silicon | Apple Clang | ✅ Verified |
+
+## CLI Examples
+
+The `t81` CLI is your primary interface for development, debugging, and auditing.
 
 ```bash
-# Compile & run 🚀
-t81 compile examples/hello_world.t81 -o hello.tisc
-t81 run hello.tisc
+# 🛠️ Development
+t81 compile src.t81 -o out.tisc      # Compile
+t81 run out.tisc                     # Execute
+t81 disasm out.tisc                  # Disassemble bytecode
 
-# Debug & inspect 🕵️
-t81 disasm hello.tisc
-t81 debug hello.tisc
-t81 trace show trace.txt
-t81 repro-hash tests/fixtures/t81lang_determinism
+# 🐞 Debugging & Audit
+t81 debug out.tisc                   # Interactive debugger
+t81 trace show trace.txt             # Inspect execution trace
+t81 repro-hash tests/fixtures/       # Calculate determinism hash
 
-# Model tooling 🤖
+# 🤖 AI / Tensors
 t81 weights import model.safetensors -o model.t81w
 t81 weights quantize model.safetensors --to-gguf model.gguf
 ```
 
-Full help: `t81 --help` or `t81 help <subcommand>` 📖
+## Screenshots & Demo
 
-## Repository Map 📂
+*(Visual placeholder: Imagine a sleek terminal window showing a T81 trace log with exact hash matching)*
 
-- `.github/`          → Workflows & templates 🛠️
-- `benchmarks/`       → Performance measurements 📈
-- `docs/`             → How-to guides, explanations, references 📚
-- `examples/`         → Sample programs (.t81 files) 🎯
-- `include/t81/`      → Public headers 🧩
-- `scripts/`          → CI tools & reproducibility gates 🔄
-- `spec/`             → Normative specifications 📜
-- `src/`              → Core source (axion/, canonfs/, vm/, etc.) ⚙️
-- `tests/`            → Unit, property & integration tests 🧪
-- `tools/`            → Utility scripts & VSCode extension 🛠️
+To see the VM in action with a visual demo:
+```bash
+./build/t81_demo
+```
 
-## Document Authority Map 📜
+## Repository Map
 
-| Document                              | Purpose                        | Authority     |
-|---------------------------------------|--------------------------------|---------------|
-| spec/constitution.md                  | Foundational principles        | Normative 🔒  |
-| spec/determinism-profile.md           | Determinism guarantees         | Normative ✅   |
-| spec/t81-data-types.md                | Data type & serialization spec | Normative 🧮  |
-| spec/tisc-spec.md                     | TISC instruction set           | Normative 📡  |
-| docs/index.md                         | Documentation entry point      | Informational 📖 |
+Key directories in the codebase:
 
-## Compatibility Guarantees 🔄
+- **`src/`**: Core C++ source (VM, Axion, TISC, CanonFS).
+- **`include/t81/`**: Public headers.
+- **`book/`**: The Definitive Technical Monograph (Documentation).
+- **`scripts/ci/`**: Continuous Integration & Reproducibility Gates.
+- **`examples/`**: Sample `.t81` programs and C++ embedding examples.
+- **`tests/`**: Comprehensive unit and integration test suite.
+- **`spec/`**: Normative specifications (TISC, Data Types).
+- **`tools/`**: Utility scripts and VSCode extension helpers.
 
-- **Stable:** T81Lang syntax, TISC format, T81VM core semantics ✅
-- **Experimental:** Trace-JIT, distributed tensors 🚧
-- **SemVer:** Major version bumps for breaking changes in stable parts ⚖️
+## Document Authority Map
 
-## Non-Goals 🚫
-
-T81 is **not**:
-
-- a hardware ternary accelerator 🖥️
-- a general-purpose replacement for C++/Python/Rust 🛑
-- optimized for maximum throughput at the expense of determinism ⚡❌
-
-## Runtime Boundary 🔐
-
-Defined in specs such as [spec/t81vm-spec.md](spec/t81vm-spec.md)
-
-## Further Reading 📖
-
-- [docs/index.md](docs/index.md)  
-- [spec/index.md](spec/index.md)  
-- [CONTRIBUTING.md](CONTRIBUTING.md)  
-- [SECURITY.md](SECURITY.md)
-
----
-
-## 📘 Definitive Technical Monograph
-
-For a comprehensive, specification-grade description of the architecture — including formal semantics, determinism invariants, adversarial modeling, and long-term continuity design — see:
-
-➡️ **[The T81 Foundation — Definitive Technical Monograph](book/README.md)**
-
-**Reader paths:**
-
-* **New to T81?** → Start with Part I, then Part II.
-* **Implementer?** → Focus on Parts II and III.
-* **Auditor?** → Read Parts III and IV carefully.
-* **Researcher?** → Emphasize Parts IV and V.
-* **Long-term Maintainer?** → Parts IV and V are critical.
+The **Definitive Technical Monograph** is the single source of truth for T81. It is maintained in `book/` and translated into multiple languages.
 
 <details>
 <summary><strong>Part I — Foundations</strong></summary>
@@ -339,8 +302,44 @@ For a comprehensive, specification-grade description of the architecture — inc
 
 </details>
 
----
+> 📚 **Read the full monograph here:** [book/README.md](book/README.md)
+
+## Compatibility & Non-Goals
+
+### Guarantees
+- **TISC Bytecode:** Forward compatible within major versions.
+- **Determinism:** Absolute priority. Breaking determinism is treated as a critical security bug.
+
+### Non-Goals
+- **Raw Speed at all costs:** We will not sacrifice bit-exactness for hardware-specific fast-math optimizations.
+- **General Purpose Replacement:** T81 is specialized for verifiable compute, not to replace C++ or Python for general scripting.
+
+## Configuration & Axion
+
+The **Axion** engine enforces runtime policies. Configuration is handled via policy files or runtime flags.
+
+- **Safety:** Memory limits, recursion depth (Cognitive Tiers).
+- **Ethics:** Principles encoded as runtime constraints.
+- **Optimization:** Hotspot tracing and JIT thresholds.
+
+See `src/axion/` for implementation details or run `axion_policy_runner` examples.
+
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on:
+- Code style (Clang-Format).
+- Pull Request process.
+- Determinism verification requirements.
+
+## Changelog
+
+See [Releases](https://github.com/t81dev/t81-foundation/releases) for the full version history.
+- **v1.0.0-Sovereign**: First production-ready release. Stable VM, TISC, and Axion.
+
+## Acknowledgments
+
+Thanks to the open-source community, specifically the contributors to `LLVM`, `fmt`, and the early researchers in ternary computing logic.
 
 ## License
 
-MIT License — see [LICENSE](LICENSE).
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
