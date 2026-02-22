@@ -32,7 +32,7 @@ SyscallContext random_context(std::mt19937& rng) {
   ctx.next_opcode = random_opcode(rng);
 
   // Randomly assign policy
-  static Policy dummy_policy; // Keep it alive
+  static Policy dummy_policy;  // Keep it alive
   std::uniform_int_distribution<int> policy_dist(0, 1);
   if (policy_dist(rng)) {
     ctx.policy = &dummy_policy;
@@ -44,7 +44,7 @@ SyscallContext random_context(std::mt19937& rng) {
 }
 
 int main() {
-  std::mt19937 rng(42); // Fixed seed for reproducibility
+  std::mt19937 rng(42);  // Fixed seed for reproducibility
   const int iterations = DEFAULT_ITERATIONS;
 
   std::cout << "Running ethics invariant property tests for " << iterations << " iterations...\n";
@@ -73,17 +73,18 @@ int main() {
       // Invariant 2: Theta-4 (Interpretability)
       // Must Warn if recursion depth > T81_SOFT_RECURSION_LIMIT (soft limit) but < T81_HARD_RECURSION_CEILING
       if (p == EthicsPrinciple::Interpretability) {
-        if (ctx.recursion_depth > T81_SOFT_RECURSION_LIMIT && ctx.recursion_depth < T81_HARD_RECURSION_CEILING) {
-           // Note: Depending on implementation, it might be Warn or Deny if it hits other limits,
-           // but strictly speaking for Theta-4 it should warn about interpretability.
-           // However, if Theta-7 denies it later, that's fine.
-           // Here we are checking specific principle return.
-           if (verdict.kind != VerdictKind::Warn && verdict.kind != VerdictKind::Deny) {
-             std::cerr << "FAILED: Theta-4 Invariant (Interpretability Warning)\n"
-                       << "Depth: " << ctx.recursion_depth << "\n"
-                       << "Verdict: " << (int)verdict.kind << "\n";
-             return 1;
-           }
+        if (ctx.recursion_depth > T81_SOFT_RECURSION_LIMIT &&
+            ctx.recursion_depth < T81_HARD_RECURSION_CEILING) {
+          // Note: Depending on implementation, it might be Warn or Deny if it hits other limits,
+          // but strictly speaking for Theta-4 it should warn about interpretability.
+          // However, if Theta-7 denies it later, that's fine.
+          // Here we are checking specific principle return.
+          if (verdict.kind != VerdictKind::Warn && verdict.kind != VerdictKind::Deny) {
+            std::cerr << "FAILED: Theta-4 Invariant (Interpretability Warning)\n"
+                      << "Depth: " << ctx.recursion_depth << "\n"
+                      << "Verdict: " << (int)verdict.kind << "\n";
+            return 1;
+          }
         }
       }
 
@@ -102,11 +103,10 @@ int main() {
       // Invariant 4: No crashes or undefined behavior (implicit by running)
       // Invariant 5: Benign cases should pass (mostly)
       // If depth is low and opcode is safe, expect Allow
-      if (ctx.recursion_depth < T81_SOFT_RECURSION_LIMIT &&
-          ctx.next_opcode != Opcode::MetaWrite &&
+      if (ctx.recursion_depth < T81_SOFT_RECURSION_LIMIT && ctx.next_opcode != Opcode::MetaWrite &&
           p != EthicsPrinciple::NonHarm /* placeholders might allow */) {
-          // Generally should be allow, but let's just ensure it doesn't crash.
-          // We can't strictly assert Allow because future logic might add more checks.
+        // Generally should be allow, but let's just ensure it doesn't crash.
+        // We can't strictly assert Allow because future logic might add more checks.
       }
     }
   }
