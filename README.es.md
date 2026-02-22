@@ -211,7 +211,7 @@ Definido en especificaciones como [spec/t81vm-spec.md](https://www.google.com/se
 
 Para una descripción completa y de grado de especificación de la arquitectura — incluyendo semántica formal, invariantes de determinismo, modelado de adversarios y diseño de continuidad a largo plazo — consulte:
 
-➡️ **[The T81 Foundation — Monografía Técnica Definitiva](https://www.google.com/search?q=book/README.md)**
+➡️ **[The T81 Foundation — Monografía Técnica Definitiva](book-es/LEEME.md)**
 
 **Rutas para el lector:**
 
@@ -224,129 +224,101 @@ Para una descripción completa y de grado de especificación de la arquitectura 
 <details>
 <summary><strong>Parte I — Fundamentos</strong></summary>
 
-1. **[Introducción](https://www.google.com/search?q=book/01_Introduction.md)**
-* [1.1 Alcance y Definición](https://www.google.com/search?q=book/01_Introduction.md%2311-scope-and-definition)
-* [1.2 Arquitectura del Sistema](https://www.google.com/search?q=book/01_Introduction.md%2312-system-architecture)
-* [1.3 Misión de Cómputo Verificable](https://www.google.com/search?q=book/01_Introduction.md%2313-verifiable-compute-mission)
+1. **[Introducción](book-es/01_Introduccion.md)**
+   * [1.1 Alcance y Definición](book-es/01_Introduccion.md#11-alcance-y-definición)
+   * [1.2 Arquitectura del Sistema](book-es/01_Introduccion.md#12-arquitectura-del-sistema)
+   * [1.3 Misión de Cómputo Verificable](book-es/01_Introduccion.md#13-misión-de-cómputo-verificable)
+   * [1.4 Terminología](book-es/01_Introduccion.md#14-terminología)
+   * [1.5 Lista de Verificación](book-es/01_Introduccion.md#15-lista-de-verificación)
 
-
-2. **[Principios e Invariantes Centrales](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md)**
-* [2.1 El Invariante de Determinismo](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md%2321-the-determinism-invariant)
-* [2.1.1 Superficies de Determinismo y Vectores de Ataque](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md%23211-determinism-surfaces-and-attack-vectors)
-* [2.2 Lógica Ternaria (Base-3)](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md%2322-ternary-logic-base-3)
-* [2.3 Auditabilidad y la Traza Axion](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md%2323-auditability-and-the-axion-trace)
-* [2.4 Los Nueve Principios (Cumplimiento Ético)](https://www.google.com/search?q=book/02_Core_Principles_and_Invariants.md%2324-the-nine-principles-ethics-enforcement)
-
-
+2. **[Principios e Invariantes Centrales](book-es/02_Principios.md)**
+   * [2.1 El Invariante de Determinismo](book-es/02_Principios.md#21-el-invariante-de-determinismo)
+   * [2.2 Lógica Ternaria (Base-3)](book-es/02_Principios.md#22-lógica-ternaria-base-3)
+   * [2.3 Auditabilidad y la Traza Axion](book-es/02_Principios.md#23-auditabilidad-y-la-traza-axion)
+   * [2.4 Los Nueve Principios (Cumplimiento Ético)](book-es/02_Principios.md#24-los-nueve-principios-cumplimiento-ético)
+   * [2.5 Lista de Verificación](book-es/02_Principios.md#25-lista-de-verificación)
+   * [2.6 Matriz de Auditoría Formal](book-es/02_Principios.md#26-matriz-de-auditoría-formal)
 
 </details>
 
 <details>
 <summary><strong>Parte II — La Máquina Determinista</strong></summary>
 
-3. **[Arquitectura T81VM](https://www.google.com/search?q=book/03_T81VM_Architecture.md)**
-* [3.1 Máquina de Estados Formal](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2331-formal-state-machine)
-* [3.1.1 Definición de Estado](https://www.google.com/search?q=book/03_T81VM_Architecture.md%23311-state-definition)
-* [3.2 Diseño de Memoria](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2332-memory-layout)
-* [3.3 Archivo de Registros](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2333-register-file)
-* [3.4 Arquitectura del Conjunto de Instrucciones TISC](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2334-tisc-instruction-set-architecture-isa)
-* [3.5 Semántica de Fallos](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2335-fault-semantics)
-* [3.6 Recolección de Basura](https://www.google.com/search?q=book/03_T81VM_Architecture.md%2336-garbage-collection)
+3. **[Arquitectura T81VM](book-es/03_Arquitectura.md)**
+   * [3.1 Visión General](book-es/03_Arquitectura.md#31-visión-general)
+   * [3.2 El Límite del Runtime](book-es/03_Arquitectura.md#32-el-límite-del-runtime)
+   * [3.3 Modelo de Memoria](book-es/03_Arquitectura.md#33-modelo-de-memoria)
+   * [3.4 El Conjunto de Instrucciones (TISC)](book-es/03_Arquitectura.md#34-el-conjunto-de-instrucciones-tisc)
+   * [3.5 Compilación JIT (Trace-JIT)](book-es/03_Arquitectura.md#35-compilación-jit-trace-jit)
 
+4. **[Tipos de Datos y Serialización Canónica](book-es/04_Tipos_de_Datos_y_Serializacion.md)**
+   * [4.1 Tipos Primitivos](book-es/04_Tipos_de_Datos_y_Serializacion.md#41-tipos-primitivos)
+   * [4.2 T81Float y dmath](book-es/04_Tipos_de_Datos_y_Serializacion.md#42-t81float-y-dmath)
+   * [4.3 Tensores y Diseños Canónicos](book-es/04_Tipos_de_Datos_y_Serializacion.md#43-tensores-y-diseños-canónicos)
+   * [4.4 Reglas de Serialización Canónica](book-es/04_Tipos_de_Datos_y_Serializacion.md#44-reglas-de-serialización-canónica)
 
-4. **[Tipos de Datos y Serialización Canónica](https://www.google.com/search?q=book/04_Data_Types_and_Canonical_Serialization.md)**
-* [4.1 Tipos Primitivos](https://www.google.com/search?q=book/04_Data_Types_and_Canonical_Serialization.md%2341-primitive-types)
-* [4.2 T81Float y dmath](https://www.google.com/search?q=book/04_Data_Types_and_Canonical_Serialization.md%2342-t81float-and-dmath)
-* [4.3 Tensores y Diseños Canónicos](https://www.google.com/search?q=book/04_Data_Types_and_Canonical_Serialization.md%2343-tensors-and-canonical-layouts)
-* [4.4 Reglas de Serialización Canónica](https://www.google.com/search?q=book/04_Data_Types_and_Canonical_Serialization.md%2344-canonical-serialization-rules)
+5. **[Instalación y Verificación de Construcción](book-es/05_Instalacion.md)**
+   * [5.1 Requisitos Previos](book-es/05_Instalacion.md#51-requisitos-previos)
+   * [5.2 Procedimiento de Construcción](book-es/05_Instalacion.md#52-procedimiento-de-construcción)
+   * [5.3 Puerta de Determinismo](book-es/05_Instalacion.md#53-puerta-de-determinismo)
 
-
-5. **[Instalación y Verificación de Construcción](https://www.google.com/search?q=book/05_Installation_and_Build_Verification.md)**
-* [5.1 Requisitos Previos](https://www.google.com/search?q=book/05_Installation_and_Build_Verification.md%2351-prerequisites)
-* [5.2 Construcción desde el Código Fuente](https://www.google.com/search?q=book/05_Installation_and_Build_Verification.md%2352-building-from-source)
-* [5.3 Verificación de la Construcción](https://www.google.com/search?q=book/05_Installation_and_Build_Verification.md%2353-verifying-the-build)
-
-
-6. **[Uso de CLI y API](https://www.google.com/search?q=book/06_CLI_and_API_Usage.md)**
-* [6.1 Interfaz de Línea de Comandos](https://www.google.com/search?q=book/06_CLI_and_API_Usage.md%2361-the-t81-command-line-interface)
-* [6.2 Embeber T81 (API de C++)](https://www.google.com/search?q=book/06_CLI_and_API_Usage.md%2362-embedding-t81-c-api)
-* [6.3 Embeber T81 (API de Python)](https://www.google.com/search?q=book/06_CLI_and_API_Usage.md%2363-embedding-t81-python-api)
-* [6.4 Depuración](https://www.google.com/search?q=book/06_CLI_and_API_Usage.md%2364-debugging)
-
-
+6. **[Uso de CLI y API](book-es/06_Uso.md)**
+   * [6.1 La CLI Unificada](book-es/06_Uso.md#61-la-cli-unificada)
 
 </details>
 
 <details>
 <summary><strong>Parte III — Gobernanza y Verificación</strong></summary>
 
-7. **[Verificación y Auditoría](https://www.google.com/search?q=book/07_Verification_and_Audit.md)**
-* [7.1 Metodología de Verificación Formal](https://www.google.com/search?q=book/07_Verification_and_Audit.md%2371-formal-verification-methodology)
-* [7.2 La Matriz de Auditoría Formal](https://www.google.com/search?q=book/07_Verification_and_Audit.md%2372-the-formal-audit-matrix)
-* [7.3 Pruebas Basadas en Propiedades](https://www.google.com/search?q=book/07_Verification_and_Audit.md%2373-property-based-testing)
-* [7.4 La Puerta de Determinismo](https://www.google.com/search?q=book/07_Verification_and_Audit.md%2374-the-determinism-gate)
+7. **[Verificación y Auditoría](book-es/07_Verificacion_y_Auditoria.md)**
+   * [7.1 El Stack de Verificación](book-es/07_Verificacion_y_Auditoria.md#71-el-stack-de-verificación)
+   * [7.2 Puerta de Determinismo](book-es/07_Verificacion_y_Auditoria.md#72-puerta-de-determinismo)
+   * [7.3 Verificación de Traza](book-es/07_Verificacion_y_Auditoria.md#73-verificación-de-traza)
 
+8. **[El Kernel de Seguridad Axion](book-es/08_El_Kernel_Axion.md)**
+   * [8.1 Definición Formal](book-es/08_El_Kernel_Axion.md#81-definición-formal)
+   * [8.2 El Modelo de Políticas](book-es/08_El_Kernel_Axion.md#82-el-modelo-de-políticas)
+   * [8.3 Intercepción de Instrucciones](book-es/08_El_Kernel_Axion.md#83-intercepción-de-instrucciones)
+   * [8.4 El Registro de Auditoría (Traza)](book-es/08_El_Kernel_Axion.md#84-el-registro-de-auditoría-traza)
+   * [8.5 Promoción Cognitiva](book-es/08_El_Kernel_Axion.md#85-promoción-cognitiva)
+   * [8.6 Modelo de Capacidades](book-es/08_El_Kernel_Axion.md#86-modelo-de-capacidades)
+   * [8.7 Lista de Verificación](book-es/08_El_Kernel_Axion.md#87-lista-de-verificación)
 
-8. **[El Kernel de Seguridad Axion](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md)**
-* [8.1 Definición Formal](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md%2381-formal-definition)
-* [8.2 El Modelo de Políticas](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md%2382-the-policy-model)
-* [8.3 Intercepción de Instrucciones](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md%2383-instruction-interception)
-* [8.4 El Registro de Auditoría (Traza)](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md%2384-the-audit-log-trace)
-* [8.5 Promoción Cognitiva](https://www.google.com/search?q=book/08_The_Axion_Safety_Kernel.md%2385-cognitive-promotion)
+9. **[Niveles Cognitivos y Cómputo Distribuido](book-es/09_Niveles_Cognitivos_y_Computo_Distribuido.md)**
+   * [9.1 El Modelo de Niveles Cognitivos](book-es/09_Niveles_Cognitivos_y_Computo_Distribuido.md#91-el-modelo-de-niveles-cognitivos)
+   * [9.2 Cómputo Distribuido (Nivel 4)](book-es/09_Niveles_Cognitivos_y_Computo_Distribuido.md#92-cómputo-distribuido-nivel-4)
+   * [9.3 Formas Infinitas (Nivel 5)](book-es/09_Niveles_Cognitivos_y_Computo_Distribuido.md#93-formas-infinitas-nivel-5)
+   * [9.4 Lista de Verificación](book-es/09_Niveles_Cognitivos_y_Computo_Distribuido.md#94-lista-de-verificación)
 
-
-9. **[Niveles Cognitivos y Cómputo Distribuido](https://www.google.com/search?q=book/09_Cognitive_Tiers_and_Distributed_Compute.md)**
-* [9.1 El Modelo de Niveles Cognitivos](https://www.google.com/search?q=book/09_Cognitive_Tiers_and_Distributed_Compute.md%2391-the-cognitive-tier-model)
-* [9.2 Cómputo Distribuido (Nivel 4)](https://www.google.com/search?q=book/09_Cognitive_Tiers_and_Distributed_Compute.md%2392-distributed-compute-tier-4)
-* [9.3 Compilación JIT Basada en Trazas](https://www.google.com/search?q=book/09_Cognitive_Tiers_and_Distributed_Compute.md%2393-trace-based-jit-compilation)
-* [9.4 Formas Infinitas (Nivel 5)](https://www.google.com/search?q=book/09_Cognitive_Tiers_and_Distributed_Compute.md%2394-infinite-forms-tier-5)
-
-
-10. **[Apéndices](https://www.google.com/search?q=book/10_Appendices.md)**
-
-* [10.1 Lo que aún no está implementado](https://www.google.com/search?q=book/10_Appendices.md%23101-what-is-not-yet-implemented)
-* [10.2 Modelo de Amenazas y Superficie de Ataque al Determinismo](https://www.google.com/search?q=book/10_Appendices.md%23102-threat-model-and-determinism-attack-surface)
-* [10.3 Glosario](https://www.google.com/search?q=book/10_Appendices.md%23103-glossary)
+10. **[Apéndices](book-es/10_Apendices.md)**
+    * [10.1 Lo Que Aún No Está Implementado](book-es/10_Apendices.md#101-lo-que-aún-no-está-implementado)
+    * [10.2 Códigos de Error](book-es/10_Apendices.md#102-códigos-de-error)
+    * [10.3 Enlaces Útiles](book-es/10_Apendices.md#103-enlaces-útiles)
 
 </details>
 
 <details>
 <summary><strong>Parte IV — Formalización y Endurecimiento Estructural</strong></summary>
 
-11. **[Semántica Formal de TISC y T81VM](https://www.google.com/search?q=book/11_Formal_Semantics.md)**
+11. **[Semántica Formal de TISC y T81VM](book-es/11_Semantica_Formal.md)**
+    * [11.1 Semántica Operacional](book-es/11_Semantica_Formal.md#111-semántica-operacional)
+    * [11.2 Semántica de Memoria](book-es/11_Semantica_Formal.md#112-semántica-de-memoria)
 
-* [Semántica Denotacional de TISC](https://www.google.com/search?q=book/11_Formal_Semantics.md%23denotational-semantics-of-tisc)
-* [Función de Transición Algebraica δ](https://www.google.com/search?q=book/11_Formal_Semantics.md%23algebraic-transition-function-%CE%B4)
-* [Sistema de Reescritura de Canonicalización](https://www.google.com/search?q=book/11_Formal_Semantics.md%23canonicalization-rewriting-system)
-* [Esbozos de Pruebas de Determinismo](https://www.google.com/search?q=book/11_Formal_Semantics.md%23determinism-proof-sketches)
-* [Equivalencia entre Intérprete y Trace-JIT](https://www.google.com/search?q=book/11_Formal_Semantics.md%23interpreter-vs-trace-jit-equivalence)
-
-12. **[Modelado Adversarial y Ataques al Determinismo](https://www.google.com/search?q=book/12_Adversarial_Modeling.md)**
-
-* [Ataques a Nivel de Compilador](https://www.google.com/search?q=book/12_Adversarial_Modeling.md%23compiler-level-attacks)
-* [Vectores de Ataque en VM y GC](https://www.google.com/search?q=book/12_Adversarial_Modeling.md%23vm-and-gc-attack-vectors)
-* [Ataques a CanonFS y Hashes](https://www.google.com/search?q=book/12_Adversarial_Modeling.md%23canonfs-and-hash-attacks)
-* [Ataque de Viaje en el Tiempo en Niveles Distribuidos](https://www.google.com/search?q=book/12_Adversarial_Modeling.md%23distributed-tier-time-travel-attack)
-* [Plantilla de Postmortem por Incumplimiento de Determinismo](https://www.google.com/search?q=book/12_Adversarial_Modeling.md%23determinism-breach-postmortem-template)
+12. **[Modelado Adversarial y Ataques al Determinismo](book-es/12_Modelado_Adversarial.md)**
+    * [12.1 Modelo de Amenazas](book-es/12_Modelado_Adversarial.md#121-modelo-de-amenazas)
+    * [12.2 Resiliencia a Canales Laterales](book-es/12_Modelado_Adversarial.md#122-resiliencia-a-canales-laterales)
 
 </details>
 
 <details>
 <summary><strong>Parte V — Continuidad y Horizonte de Investigación</strong></summary>
 
-13. **[Continuidad y Resiliencia](https://www.google.com/search?q=book/13_Continuity_Resilience.md)**
+13. **[Continuidad y Resiliencia](book-es/13_Continuidad_Resiliencia.md)**
+    * [13.1 El Protocolo de Sala Limpia](book-es/13_Continuidad_Resiliencia.md#131-el-protocolo-de-sala-limpia)
+    * [13.2 Archivo a Largo Plazo](book-es/13_Continuidad_Resiliencia.md#132-archivo-a-largo-plazo)
 
-* [Protocolo de Reconstrucción en Sala Limpia](https://www.google.com/search?q=book/13_Continuity_Resilience.md%23cleanroom-reconstruction-protocol)
-* [Puntos Únicos de Fallo](https://www.google.com/search?q=book/13_Continuity_Resilience.md%23single-points-of-failure)
-* [Manifiesto de Continuidad](https://www.google.com/search?q=book/13_Continuity_Resilience.md%23continuity-manifest)
-* [Invariantes Formales Inmutables](https://www.google.com/search?q=book/13_Continuity_Resilience.md%23immutable-formal-invariants)
-
-14. **[Frontera de Investigación](https://www.google.com/search?q=book/14_Research_Frontier.md)**
-
-* [Aceleración de Hardware Ternario](https://www.google.com/search?q=book/14_Research_Frontier.md%23ternary-hardware-acceleration)
-* [Rutas de Verificación Formal](https://www.google.com/search?q=book/14_Research_Frontier.md%23formal-verification-paths)
-* [CanonFS como Sustrato Merkle](https://www.google.com/search?q=book/14_Research_Frontier.md%23canonfs-as-a-merkle-substrate)
-* [Inferencia de IA Determinista a Escala](https://www.google.com/search?q=book/14_Research_Frontier.md%23deterministic-ai-inference-at-scale)
+14. **[Frontera de Investigación](book-es/14_Frontera_de_Investigacion.md)**
+    * [Historial de Versiones](book-es/14_Frontera_de_Investigacion.md#historial-de-versiones)
 
 </details>
 
