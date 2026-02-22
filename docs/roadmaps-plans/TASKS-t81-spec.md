@@ -47,7 +47,7 @@
   - [x] Basic headers (see `include/t81/core/Option.hpp`, `Result.hpp`)
   - [ ] Full standard library integration
   - [ ] VM lowering to canonical handles (spec 2.5)
-- [ ] Verification of `Vector Literal` immutability
+- [x] Verification of `Vector Literal` immutability
 - [ ] Verification of legacy generic syntax (`<...>`) rejection
 
 ## 4. HanoiVM / TISC Instruction Set (section 8–10)
