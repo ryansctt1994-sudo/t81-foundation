@@ -198,16 +198,16 @@ v1::T81Float<M, E> pow(const v1::T81Float<M, E>& x, const v1::T81Float<M, E>& y)
   }
 
   if (x.is_zero()) {
-     if (y.is_zero()) return v1::T81Float<M, E>::from_double(1.0);
-     if (y.is_negative()) return v1::T81Float<M, E>::inf();
-     return v1::T81Float<M, E>::zero();
+    if (y.is_zero()) return v1::T81Float<M, E>::from_double(1.0);
+    if (y.is_negative()) return v1::T81Float<M, E>::inf();
+    return v1::T81Float<M, E>::zero();
   }
 
   if (x.is_negative()) {
-     // If y is integer, defined. Else NaE.
-     // Currently dmath::pow returns 0 for neg x.
-     // We return NaE here to be safe and consistent with current float behavior.
-     return v1::T81Float<M, E>::nae();
+    // If y is integer, defined. Else NaE.
+    // Currently dmath::pow returns 0 for neg x.
+    // We return NaE here to be safe and consistent with current float behavior.
+    return v1::T81Float<M, E>::nae();
   }
 
   DFixed vx = DFixed::from_float(x);

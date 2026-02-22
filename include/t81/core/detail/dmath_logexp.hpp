@@ -129,19 +129,20 @@ template <typename T>
 T pow(T x, T y) {
   if (x.is_zero()) {
     if (y.is_zero()) return T::one();  // 0^0 = 1
-    if (y.is_negative()) return T::zero(); // 0^-y -> inf (represented as max or handle in wrapper)
-                                           // actually wrapper handles inf. here we return 0?
-                                           // or just let log(0) handle it?
-                                           // log(0) returns 0 in current implementation?
-                                           // log implementation: "if (x.is_negative() || x.is_zero()) return T::zero();"
-                                           // So log(0) = 0. exp(y*0) = exp(0) = 1.
-                                           // So 0^y -> 1? That's wrong for y > 0.
+    if (y.is_negative())
+      return T::zero();  // 0^-y -> inf (represented as max or handle in wrapper)
+                         // actually wrapper handles inf. here we return 0?
+                         // or just let log(0) handle it?
+                         // log(0) returns 0 in current implementation?
+                         // log implementation: "if (x.is_negative() || x.is_zero()) return
+                         // T::zero();" So log(0) = 0. exp(y*0) = exp(0) = 1. So 0^y -> 1? That's
+                         // wrong for y > 0.
     return T::zero();
   }
 
   if (x.is_negative()) {
-     // For now return 0 (error) as we don't support complex results here yet
-     return T::zero();
+    // For now return 0 (error) as we don't support complex results here yet
+    return T::zero();
   }
 
   // x > 0
