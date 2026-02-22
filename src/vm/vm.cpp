@@ -457,7 +457,7 @@ public:
       }
 
       state_.metrics.total_tensors++;
-      state_.metrics.total_tensor_elements += num_elements;
+      state_.metrics.total_tensor_elements += tensor.data().size();
 
       log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Tensor,
                                 idx_handle, 1, t81::axion::reasons::kTensorAlloc);
@@ -686,13 +686,23 @@ public:
     auto alloc_symbolic_graph =
         [this, current_pc](t81::cog::v1::SymbolicGraph graph) -> std::expected<std::int64_t, Trap> {
       size_t nodes = graph.nodes.size();
-      if (state_.policy && state_.policy->max_symbolic_nodes) {
-        if (state_.total_symbolic_nodes + nodes >
-            static_cast<std::size_t>(*state_.policy->max_symbolic_nodes)) {
+      if (state_.policy) {
+        if (state_.policy->max_symbolic_graphs &&
+            state_.metrics.total_symbolic_graphs + 1 >
+                static_cast<std::size_t>(*state_.policy->max_symbolic_graphs)) {
           record_axion_event(
               program_.insns[current_pc].opcode, 0, 0,
-              {t81::axion::VerdictKind::Deny, "Policy: max-symbolic-nodes limit exceeded"});
+              {t81::axion::VerdictKind::Deny, "Policy: max-symbolic-graphs limit exceeded"});
           return t81::unexpected(Trap::SecurityFault);
+        }
+        if (state_.policy->max_symbolic_nodes) {
+          if (state_.total_symbolic_nodes + nodes >
+              static_cast<std::size_t>(*state_.policy->max_symbolic_nodes)) {
+            record_axion_event(
+                program_.insns[current_pc].opcode, 0, 0,
+                {t81::axion::VerdictKind::Deny, "Policy: max-symbolic-nodes limit exceeded"});
+            return t81::unexpected(Trap::SecurityFault);
+          }
         }
       }
       state_.total_symbolic_nodes += nodes;
@@ -701,7 +711,7 @@ public:
       auto idx = state_.symbolic_graphs.size();
 
       state_.metrics.total_symbolic_graphs++;
-      state_.metrics.total_symbolic_nodes += num_nodes;
+      state_.metrics.total_symbolic_nodes += nodes;
 
       log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Heap, idx, 1,
                                 "graph alloc");
@@ -712,7 +722,8 @@ public:
             t81::cog::v5::InfiniteCanonicalForm form) -> std::expected<std::int64_t, Trap> {
       if (state_.policy) {
         if (state_.policy->max_infinite_forms &&
-            state_.metrics.total_infinite_forms + 1 > *state_.policy->max_infinite_forms) {
+            state_.metrics.total_infinite_forms + 1 >
+                static_cast<std::size_t>(*state_.policy->max_infinite_forms)) {
           t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
                                       "Max infinite forms limit exceeded"};
           record_axion_event(program_.insns[current_pc].opcode, 0, 0, verdict);

@@ -159,17 +159,22 @@ public:
     requires(Rows == Cols)
   {
     T81Matrix res;
-    Scalar det = determinant();
     // Note: For integer types, division performs floor/truncation.
 
     if constexpr (Rows == 1) {
-      res(0, 0) = Scalar(1) / (*this)(0, 0);
+      Scalar val = (*this)(0, 0);
+      if (val == Scalar(0)) return T81Matrix();
+      res(0, 0) = Scalar(1) / val;
     } else if constexpr (Rows == 2) {
+      Scalar det = determinant();
+      if (det == Scalar(0)) return T81Matrix();
       res(0, 0) = (*this)(1, 1) / det;
       res(0, 1) = -(*this)(0, 1) / det;
       res(1, 0) = -(*this)(1, 0) / det;
       res(1, 1) = (*this)(0, 0) / det;
     } else if constexpr (Rows == 3) {
+      Scalar det = determinant();
+      if (det == Scalar(0)) return T81Matrix();
       // Transpose of cofactor matrix divided by det
       res(0, 0) = ((*this)(1, 1) * (*this)(2, 2) - (*this)(1, 2) * (*this)(2, 1)) / det;
       res(0, 1) = ((*this)(0, 2) * (*this)(2, 1) - (*this)(0, 1) * (*this)(2, 2)) / det;

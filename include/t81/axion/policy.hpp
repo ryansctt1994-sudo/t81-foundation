@@ -86,6 +86,8 @@ struct Policy {
   std::optional<int64_t> max_tensors;
   std::optional<int64_t> max_tensor_elements;
   std::optional<int64_t> max_symbolic_nodes;
+  std::optional<int64_t> max_symbolic_graphs;
+  std::optional<int64_t> max_infinite_forms;
   std::vector<std::string> allowed_tensor_hashes;
   std::vector<LoopHint> loops;
   std::vector<MatchGuardRequirement> match_guards;

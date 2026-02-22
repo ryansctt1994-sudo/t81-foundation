@@ -816,6 +816,9 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
   add_executable(t81_matrix_test tests/cpp/test_T81Matrix.cpp)
   target_link_libraries(t81_matrix_test PRIVATE t81_core)
 
+  add_executable(t81_matrix_singular_test tests/cpp/test_T81Matrix_singular.cpp)
+  target_link_libraries(t81_matrix_singular_test PRIVATE t81_core)
+
   add_executable(debug_matrix_crash tests/cpp/debug_matrix_crash.cpp)
   target_link_libraries(debug_matrix_crash PRIVATE t81_core)
   add_test(NAME debug_matrix_crash COMMAND debug_matrix_crash)
@@ -945,6 +948,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_set_test
     t81_vector_test
     t81_matrix_test
+    t81_matrix_singular_test
     t81_maybe_test
     t81_result_test
     t81_quaternion_test
