@@ -1,9 +1,10 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
+
 #include <t81/tisc/program.hpp>
-#include <t81/vm/vm.hpp>
 #include <t81/vm/state.hpp>
+#include <t81/vm/vm.hpp>
 
 using namespace t81::tisc;
 using namespace t81::vm;
@@ -50,13 +51,13 @@ void test_i2f_deterministic_extension() {
   assert(std::fabs(state.floats[2] - 100.0) < 1e-9);
 
   // Verify registers point to correct handles (1-based index)
-  assert(state.registers[2] == 1); // handle to first float
+  assert(state.registers[2] == 1);  // handle to first float
   assert(state.register_tags[2] == ValueTag::FloatHandle);
 
-  assert(state.registers[3] == 2); // handle to second float
+  assert(state.registers[3] == 2);  // handle to second float
   assert(state.register_tags[3] == ValueTag::FloatHandle);
 
-  assert(state.registers[5] == 3); // handle to third float
+  assert(state.registers[5] == 3);  // handle to third float
   assert(state.register_tags[5] == ValueTag::FloatHandle);
 
   std::cout << "I2F deterministic pool extension passed." << std::endl;
