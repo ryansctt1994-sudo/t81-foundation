@@ -210,6 +210,27 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.core.unwrap_or") {
     return "option_unwrap_or";
   }
+  if (name == "std.option.is_some") {
+    return "option_is_some";
+  }
+  if (name == "std.option.is_none") {
+    return "option_is_none";
+  }
+  if (name == "std.option.unwrap") {
+    return "option_unwrap";
+  }
+  if (name == "std.result.is_ok") {
+    return "result_is_ok";
+  }
+  if (name == "std.result.is_err") {
+    return "result_is_err";
+  }
+  if (name == "std.result.unwrap") {
+    return "result_unwrap";
+  }
+  if (name == "std.result.unwrap_err") {
+    return "result_unwrap_err";
+  }
   if (name == "std.io.println" || name == "std.io.print_int" || name == "std.io.print_float") {
     return "print";
   }
@@ -2514,6 +2535,61 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         payload = arg_types[1];
       }
       return payload;
+    }
+    if (func_name == "option_is_some" || func_name == "option_is_none") {
+      if (arg_types.size() != 1) {
+        error(call_token, func_name + " expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Option) {
+        error(call_token, func_name + " expects an Option[T] argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
+    }
+    if (func_name == "option_unwrap") {
+      if (arg_types.size() != 1) {
+        error(call_token, "std.option.unwrap expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Option) {
+        error(call_token, "std.option.unwrap expects an Option[T] argument.");
+        return make_error_type();
+      }
+      return arg_types[0].params.empty() ? Type{Type::Kind::Unknown} : arg_types[0].params[0];
+    }
+    if (func_name == "result_is_ok" || func_name == "result_is_err") {
+      if (arg_types.size() != 1) {
+        error(call_token, func_name + " expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Result) {
+        error(call_token, func_name + " expects a Result[T, E] argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
+    }
+    if (func_name == "result_unwrap") {
+      if (arg_types.size() != 1) {
+        error(call_token, "std.result.unwrap expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Result) {
+        error(call_token, "std.result.unwrap expects a Result[T, E] argument.");
+        return make_error_type();
+      }
+      return arg_types[0].params.size() >= 1 ? arg_types[0].params[0] : Type{Type::Kind::Unknown};
+    }
+    if (func_name == "result_unwrap_err") {
+      if (arg_types.size() != 1) {
+        error(call_token, "std.result.unwrap_err expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::Result) {
+        error(call_token, "std.result.unwrap_err expects a Result[T, E] argument.");
+        return make_error_type();
+      }
+      return arg_types[0].params.size() >= 2 ? arg_types[0].params[1] : Type{Type::Kind::Unknown};
     }
     if (func_name == "str_len") {
       if (arg_types.size() != 1) {

@@ -541,6 +541,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_semantic_analyzer_option_result_test tests/cpp/semantic_analyzer_option_result_test.cpp)
   target_link_libraries(t81_semantic_analyzer_option_result_test PRIVATE t81_frontend)
 
+  add_executable(test_std_option_result tests/cpp/test_std_option_result.cpp)
+  target_link_libraries(test_std_option_result PRIVATE t81_frontend t81_tisc)
+
   add_executable(t81_semantic_analyzer_match_test tests/cpp/semantic_analyzer_match_test.cpp)
   target_link_libraries(t81_semantic_analyzer_match_test PRIVATE t81_frontend)
 
@@ -1007,6 +1010,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_frontend_parser_legacy_rejection_test
     t81_frontend_ir_generator_test
     t81_semantic_analyzer_option_result_test
+    test_std_option_result
     t81_semantic_analyzer_match_test
     t81_semantic_analyzer_generic_test
     t81_semantic_analyzer_indexing_test

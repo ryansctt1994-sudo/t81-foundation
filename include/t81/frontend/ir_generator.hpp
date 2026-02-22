@@ -137,6 +137,27 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.core.unwrap_or") {
     return "option_unwrap_or";
   }
+  if (name == "std.option.is_some") {
+    return "option_is_some";
+  }
+  if (name == "std.option.is_none") {
+    return "option_is_none";
+  }
+  if (name == "std.option.unwrap") {
+    return "option_unwrap";
+  }
+  if (name == "std.result.is_ok") {
+    return "result_is_ok";
+  }
+  if (name == "std.result.is_err") {
+    return "result_is_err";
+  }
+  if (name == "std.result.unwrap") {
+    return "result_unwrap";
+  }
+  if (name == "std.result.unwrap_err") {
+    return "result_unwrap_err";
+  }
   if (name == "std.io.println" || name == "std.io.print_int" || name == "std.io.print_float") {
     return "print";
   }
@@ -997,6 +1018,14 @@ public:
     auto found = lookup_variable(expr.name.lexeme);
     if (found.has_value()) {
       record_result(&expr, *found);
+      return {};
+    }
+    std::string name{expr.name.lexeme};
+    if (name == "None") {
+      auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+      emit_make_option_none(dest);
+      record_result(&expr, dest);
+      return {};
     }
     return {};
   }
@@ -1805,6 +1834,139 @@ public:
         emit_option_unwrap(payload, opt);
         copy_to_dest(payload, dest);
         emit_label(use_fallback);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "option_is_some") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("option_is_some expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        emit_option_is_some(dest, val);
+        // VM's OptionIsSome returns 1 or 0 (ValueTag::Int).
+        // Since we allocated a Boolean register, we accept the int result as bool representation.
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "option_is_none") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("option_is_none expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        auto is_some = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        emit_option_is_some(is_some, val);
+
+        auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction load_zero;
+        load_zero.opcode = tisc::ir::Opcode::LOADI;
+        load_zero.operands = {zero.reg, tisc::ir::Immediate{0}};
+        emit(load_zero);
+
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction cmp;
+        cmp.opcode = tisc::ir::Opcode::CMP;
+        cmp.operands = {dest.reg, is_some.reg, zero.reg};
+        cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
+        cmp.boolean_result = true;
+        cmp.relation = tisc::ir::ComparisonRelation::Equal;
+        emit(cmp);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "option_unwrap") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("option_unwrap expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+
+        tisc::ir::PrimitiveKind dest_kind = tisc::ir::PrimitiveKind::Unknown;
+        if (const auto* ty = typed_expr(&expr)) {
+          auto inferred = categorize_primitive(ty);
+          if (inferred != tisc::ir::PrimitiveKind::Unknown) {
+            dest_kind = inferred;
+          }
+        }
+        auto dest = allocate_typed_register(dest_kind);
+        emit_option_unwrap(dest, val);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "result_is_ok") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("result_is_ok expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        emit_result_is_ok(dest, val);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "result_is_err") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("result_is_err expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+        auto is_ok = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        emit_result_is_ok(is_ok, val);
+
+        auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction load_zero;
+        load_zero.opcode = tisc::ir::Opcode::LOADI;
+        load_zero.operands = {zero.reg, tisc::ir::Immediate{0}};
+        emit(load_zero);
+
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction cmp;
+        cmp.opcode = tisc::ir::Opcode::CMP;
+        cmp.operands = {dest.reg, is_ok.reg, zero.reg};
+        cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
+        cmp.boolean_result = true;
+        cmp.relation = tisc::ir::ComparisonRelation::Equal;
+        emit(cmp);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "result_unwrap") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("result_unwrap expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+
+        tisc::ir::PrimitiveKind dest_kind = tisc::ir::PrimitiveKind::Unknown;
+        if (const auto* ty = typed_expr(&expr)) {
+          auto inferred = categorize_primitive(ty);
+          if (inferred != tisc::ir::PrimitiveKind::Unknown) {
+            dest_kind = inferred;
+          }
+        }
+        auto dest = allocate_typed_register(dest_kind);
+        emit_result_unwrap_ok(dest, val);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "result_unwrap_err") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error("result_unwrap_err expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto val = ensure_expr_result(expr.arguments[0].get());
+
+        tisc::ir::PrimitiveKind dest_kind = tisc::ir::PrimitiveKind::Unknown;
+        if (const auto* ty = typed_expr(&expr)) {
+          auto inferred = categorize_primitive(ty);
+          if (inferred != tisc::ir::PrimitiveKind::Unknown) {
+            dest_kind = inferred;
+          }
+        }
+        auto dest = allocate_typed_register(dest_kind);
+        emit_result_unwrap_err(dest, val);
         record_result(&expr, dest);
         return {};
       }
