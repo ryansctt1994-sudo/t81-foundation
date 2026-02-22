@@ -71,8 +71,8 @@
   - [x] Verify deterministic pool extension for conversions (`I2F`, etc.)
 - [x] Code Segment Protection
   - [x] Verify enforcement of "Writable only via privileged loader" (Enforced in VM: MetaWrite/MetaRefine denied on Code segment)
-- [ ] Libm Gap Mitigation
-  - [ ] Plan/Implement software float math for full cross-platform determinism
+- [x] Libm Gap Mitigation
+  - [x] Plan/Implement software float math for full cross-platform determinism (Added deterministic `pow`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh` in `dmath` backend)
 
 ## 5. CanonFS & Tensor Storage (section 11)
 - [x+] In-memory read/write throughput (see `src/canonfs/in_memory_driver.cpp`)
