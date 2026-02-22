@@ -2043,6 +2043,44 @@ static void test_var_is_mutable() {
   require_true(analyzes(source, "t81lang_var_mutable"), "t81lang_var_mutable");
 }
 
+static void test_vector_literal_is_immutable_lvalue() {
+  constexpr const char* source = R"(
+    fn main() -> i32 {
+      [1, 2, 3][0] = 5;
+      return 0;
+    }
+  )";
+  require_true(fails_semantic_with_message(source, "Cannot assign to immutable index expression",
+                                           "t81lang_vector_literal_assignment_rejected"),
+               "t81lang_vector_literal_assignment_rejected");
+}
+
+static void test_immutable_vector_variable_assignment_rejected() {
+  constexpr const char* source = R"(
+    fn main() -> i32 {
+      let v: Vector[i32] = [1, 2, 3];
+      v[0] = 5;
+      return 0;
+    }
+  )";
+  require_true(
+      fails_semantic_with_message(source, "Cannot assign to immutable index expression",
+                                  "t81lang_immutable_vector_variable_assignment_rejected"),
+      "t81lang_immutable_vector_variable_assignment_rejected");
+}
+
+static void test_mutable_vector_variable_assignment_accepted() {
+  constexpr const char* source = R"(
+    fn main() -> i32 {
+      var v: Vector[i32] = [1, 2, 3];
+      v[0] = 5;
+      return 0;
+    }
+  )";
+  require_true(analyzes(source, "t81lang_mutable_vector_variable_assignment_accepted"),
+               "t81lang_mutable_vector_variable_assignment_accepted");
+}
+
 int main() {
   test_baseline_supported_features();
   test_tier_annotation_supported_for_functions();
@@ -2070,6 +2108,9 @@ int main() {
   test_t81_numeric_type_separation_rejects_invalid_mix();
   test_let_is_immutable();
   test_var_is_mutable();
+  test_vector_literal_is_immutable_lvalue();
+  test_immutable_vector_variable_assignment_rejected();
+  test_mutable_vector_variable_assignment_accepted();
   std::cout << "t81lang conformance baseline tests passed!\n";
   return 0;
 }
