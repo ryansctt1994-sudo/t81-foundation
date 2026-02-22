@@ -187,8 +187,17 @@ struct FaultInjection {
   Trap trap;
 };
 
+struct ResourceMetrics {
+  std::size_t total_tensor_elements{0};
+  std::size_t total_tensors{0};
+  std::size_t total_symbolic_nodes{0};
+  std::size_t total_symbolic_graphs{0};
+  std::size_t total_infinite_forms{0};
+};
+
 // Virtual machine register file per spec/t81vm-spec.md.
 struct State {
+  ResourceMetrics metrics;
   std::array<std::int64_t, 243> registers{};  // R0..R242
   std::array<ValueTag, 243> register_tags{};
   std::vector<std::int64_t> memory;

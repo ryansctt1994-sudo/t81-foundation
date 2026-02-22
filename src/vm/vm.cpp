@@ -455,6 +455,10 @@ public:
         state_.tensors.push_back(std::move(tensor));
         idx_handle = state_.tensors.size();
       }
+
+      state_.metrics.total_tensors++;
+      state_.metrics.total_tensor_elements += num_elements;
+
       log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Tensor,
                                 idx_handle, 1, t81::axion::reasons::kTensorAlloc);
       return static_cast<std::int64_t>(idx_handle);
@@ -695,12 +699,27 @@ public:
 
       state_.symbolic_graphs.push_back(std::move(graph));
       auto idx = state_.symbolic_graphs.size();
+
+      state_.metrics.total_symbolic_graphs++;
+      state_.metrics.total_symbolic_nodes += num_nodes;
+
       log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Heap, idx, 1,
                                 "graph alloc");
       return static_cast<std::int64_t>(idx);
     };
     auto alloc_infinite_form =
-        [this, current_pc](t81::cog::v5::InfiniteCanonicalForm form) -> std::int64_t {
+        [this, current_pc](
+            t81::cog::v5::InfiniteCanonicalForm form) -> std::expected<std::int64_t, Trap> {
+      if (state_.policy) {
+        if (state_.policy->max_infinite_forms &&
+            state_.metrics.total_infinite_forms + 1 > *state_.policy->max_infinite_forms) {
+          t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
+                                      "Max infinite forms limit exceeded"};
+          record_axion_event(program_.insns[current_pc].opcode, 0, 0, verdict);
+          return t81::unexpected(Trap::SecurityFault);
+        }
+      }
+
       std::size_t idx_handle;
       if (!state_.free_infinite_indices.empty()) {
         auto raw_idx = state_.free_infinite_indices.back();
@@ -711,6 +730,9 @@ public:
         state_.infinite_forms.push_back(std::move(form));
         idx_handle = state_.infinite_forms.size();
       }
+
+      state_.metrics.total_infinite_forms++;
+
       log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Heap,
                                 idx_handle, 1, "InfAlloc");
       return static_cast<std::int64_t>(idx_handle);
@@ -3969,7 +3991,14 @@ public:
           t81::cog::v1::RewriteRule rule;
           rule.match_node = t81::T81Symbol::intern(*match_str);
           rule.replace_node = t81::T81Symbol::intern(*replace_str);
+          std::size_t old_nodes = graph->nodes.size();
           graph->apply_rewrite(rule);
+          std::size_t new_nodes = graph->nodes.size();
+          if (new_nodes >= old_nodes) {
+            state_.metrics.total_symbolic_nodes += (new_nodes - old_nodes);
+          } else {
+            state_.metrics.total_symbolic_nodes -= (old_nodes - new_nodes);
+          }
         }
         {
           t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "SymRewrite"};
@@ -4232,7 +4261,12 @@ public:
         form.first_term = start_val;
         form.type = t81::cog::v5::SeriesType::Geometric;
 
-        state_.registers[insn.a] = alloc_infinite_form(std::move(form));
+        auto res = alloc_infinite_form(std::move(form));
+        if (!res) {
+          trap = res.error();
+          break;
+        }
+        state_.registers[insn.a] = *res;
         state_.register_tags[insn.a] = ValueTag::InfiniteHandle;
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "InfSeed"};
@@ -4786,6 +4820,7 @@ private:
     size_t freed_infinite_count = 0;
     for (size_t i = 0; i < state_.infinite_forms.size(); ++i) {
       if (state_.infinite_forms[i].has_value() && !marked_infinite_forms[i]) {
+        state_.metrics.total_infinite_forms--;
         state_.infinite_forms[i] = std::nullopt;
         state_.free_infinite_indices.push_back(i);
         freed_infinite_count++;
