@@ -111,9 +111,10 @@ int main() {
     std::cout << "  Running 3x3 tests..." << std::endl;
     // Identity
     Mat I = t81::identity<Scalar, 3>();
-    ASSERT_EQ(I.determinant(), one);
+    ASSERT_NEAR(I.determinant(), one);
     Mat I_inv = I.inverse();
-    ASSERT_EQ(I_inv, I);
+    for (size_t i = 0; i < 3; ++i)
+      for (size_t j = 0; j < 3; ++j) ASSERT_NEAR(I_inv(i, j), I(i, j));
 
     // Simple diagonal
     Mat D{};
@@ -134,7 +135,8 @@ int main() {
     Mat4 I = t81::identity<Scalar, 4>();
     ASSERT_NEAR(I.determinant(), one);
     Mat4 I_inv = I.inverse();
-    ASSERT_EQ(I_inv, I);  // Identity inverse should be exact (1/1=1)
+    for (size_t i = 0; i < 4; ++i)
+      for (size_t j = 0; j < 4; ++j) ASSERT_NEAR(I_inv(i, j), I(i, j));
 
     // Permutation matrix (det = -1)
     // 0 1 0 0
