@@ -43,12 +43,12 @@
 - [x] Recursion tiers & depth limits
   - [x+] Tiered promotion enforcement (T81 → T243 → T729)
   - [x] Configurable depth guards + Axion recursion traps (see `include/t81/axion/policy.hpp`, `src/vm/vm.cpp`)
-- [?] Option[T] and Result[T, E] (First-class core types)
+- [x] Option[T] and Result[T, E] (First-class core types)
   - [x] Basic headers (see `include/t81/core/Option.hpp`, `Result.hpp`)
-  - [ ] Full standard library integration
-  - [ ] VM lowering to canonical handles (spec 2.5)
+  - [x] Full standard library integration (Added `std.option` and `std.result` modules)
+  - [x] VM lowering to canonical handles (spec 2.5) (Implemented via `OptionHandle`/`ResultHandle` and related opcodes)
 - [x] Verification of `Vector Literal` immutability
-- [ ] Verification of legacy generic syntax (`<...>`) rejection
+- [x] Verification of legacy generic syntax (`<...>`) rejection (Verified in `tests/cpp/frontend_parser_legacy_rejection_test.cpp`)
 
 ## 4. HanoiVM / TISC Instruction Set (section 8–10)
 - [x] Segmented memory model (see `src/vm/vm.cpp`)
@@ -103,7 +103,7 @@
 - [x] T81Qutrit (Native 3-state quantum type) (see `include/t81/core/T81Qutrit.hpp`)
 - [x] T81Matrix (Fixed-size matrix math) (see `include/t81/core/T81Matrix.hpp`)
   - [x] Basic arithmetic (+, -, *, scalar *)
-  - [x] Determinant/Inverse (Specialized for N=1,2,3; generic pending)
+  - [x] Determinant/Inverse (Generic implementation for N>=1)
 - [x] T81Polynomial (Univariate polynomials) (see `include/t81/core/T81Polynomial.hpp`)
 - [x] T81Graph (Static graph, hardware-native) (see `include/t81/core/T81Graph.hpp`)
 - [ ] Holotensor Types (Future/Aspirational)
