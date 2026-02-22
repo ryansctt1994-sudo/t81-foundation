@@ -45,7 +45,7 @@ T81 is a **balanced ternary** system. The fundamental unit is the **trit**, with
 
 ### 2.2.1 Why Ternary?
 1.  **Symmetric Arithmetic**: The value range is symmetric around zero. In binary (Two's Complement), the range is asymmetric (e.g., -128 to +127). In balanced ternary, an $N$-trit integer covers $-\frac{3^N-1}{2} \dots +\frac{3^N-1}{2}$.
-2.  **rounding Efficiency**: Rounding to the nearest integer is equivalent to truncation. $0.5$ is not exactly representable, avoiding the "0.5 rounding problem."
+2.  **Rounding Efficiency**: Rounding to the nearest integer is equivalent to truncation. $0.5$ is not exactly representable, avoiding the "0.5 rounding problem."
 3.  **Radix Economy**: The radix economy $E(r, N) = r \lfloor \log_r N \rfloor$ is minimized when $r = e \approx 2.718$. The integer $3$ is closer to $e$ than $2$ is, making ternary theoretically more efficient for information storage density.
 4.  **Signed Representation**: Negative numbers do not require a separate sign bit. The sign is carried by the most significant non-zero trit.
 
