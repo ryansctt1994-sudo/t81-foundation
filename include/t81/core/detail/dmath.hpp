@@ -157,9 +157,9 @@ v1::T81Float<M, E> atan(const v1::T81Float<M, E>& x) {
   if (x.is_nae()) return x;
   if (x.is_inf()) {
     // atan(inf) = pi/2, atan(-inf) = -pi/2
-    double pi2 = 1.57079632679489661923;
-    return x.is_negative() ? v1::T81Float<M, E>::from_double(-pi2)
-                           : v1::T81Float<M, E>::from_double(pi2);
+    DFixed pi2_fixed = constants::pi_2<DFixed>();
+    auto pi2 = pi2_fixed.to_float<M, E>();
+    return x.is_negative() ? -pi2 : pi2;
   }
   if (x.is_zero()) return x;
 

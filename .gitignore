@@ -22,7 +22,7 @@ compile_commands.json   # ← remove or negate if you want it tracked
 *.gcda *.gcno *.gcov *.profraw *.profdata *.cov
 
 # Repo-specific binaries & test outputs
-t81
+/t81
 axion_*
 canonfs_*
 llama*
