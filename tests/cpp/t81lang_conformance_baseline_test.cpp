@@ -2063,10 +2063,9 @@ static void test_immutable_vector_variable_assignment_rejected() {
       return 0;
     }
   )";
-  require_true(
-      fails_semantic_with_message(source, "Cannot assign to immutable index expression",
-                                  "t81lang_immutable_vector_variable_assignment_rejected"),
-      "t81lang_immutable_vector_variable_assignment_rejected");
+  require_true(fails_semantic_with_message(source, "Cannot assign to immutable index expression",
+                                           "t81lang_immutable_vector_variable_assignment_rejected"),
+               "t81lang_immutable_vector_variable_assignment_rejected");
 }
 
 static void test_mutable_vector_variable_assignment_accepted() {
