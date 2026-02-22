@@ -22,22 +22,28 @@ T81 is a deterministic, ternary-native computing stack 🌐 featuring base-81 da
 > Division and inverse/hyperbolic functions may fall back to host behavior in non-strict mode.  
 > Full strict determinism guaranteed for `T81Int`, `T81BigInt`, `T81Fraction`, and core `T81Float` arithmetic. ✅
 
-## Table of Contents 📑
+## 🚀 Latest Release — 1.0.0-Sovereign (February 22, 2026)
 
-- [Quick Start 🚀](#quick-start)
-- [Features 🌟](#features)
-- [Why Ternary? 🧠](#why-ternary)
-- [Architecture 🏗️](#architecture)
-- [Supported Platforms 🌍](#supported-platforms)
-- [CLI Examples 🔧](#cli-examples)
-- [Repository Map 📂](#repository-map)
-- [Document Authority Map 📜](#document-authority-map)
-- [Compatibility Guarantees 🔄](#compatibility-guarantees)
-- [Non-Goals 🚫](#non-goals)
-- [Runtime Boundary 🔐](#runtime-boundary)
-- [Further Reading 📖](#further-reading)
-- [Definitive Technical Monograph 📘](#definitive-technical-monograph)
-- [License 📜](#license)
+**All CI green • Code-segment protection • Full multilingual monograph • Nine Principles compiled into Axion**
+
+[→ View Release](https://github.com/t81dev/t81-foundation/releases/tag/1.0.0-Sovereign)
+
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Features](#features)
+- [Why Ternary?](#why-ternary)
+- [Architecture](#architecture)
+- [Supported Platforms](#supported-platforms)
+- [CLI Examples](#cli-examples)
+- [Repository Map](#repository-map)
+- [Document Authority Map](#document-authority-map)
+- [Compatibility Guarantees](#compatibility-guarantees)
+- [Non-Goals](#non-goals)
+- [Runtime Boundary](#runtime-boundary)
+- [Further Reading](#further-reading)
+- [Definitive Technical Monograph](#definitive-technical-monograph)
+- [License](#license)
 
 ## Quick Start 🚀⚡
 
@@ -340,6 +346,10 @@ For a comprehensive, specification-grade description of the architecture — inc
 </details>
 
 ---
+
+⭐ **Star the repo if you believe in sovereign, verifiable compute**  
+
+💬 [Discussions](https://github.com/t81dev/t81-foundation/discussions) • [Contributing](CONTRIBUTING.md) • [Report Security Issue](SECURITY.md)
 
 ## License
 
