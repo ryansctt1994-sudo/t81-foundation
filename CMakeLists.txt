@@ -352,6 +352,10 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_memory_test tests/cpp/vm_memory_test.cpp)
   target_link_libraries(t81_vm_memory_test PRIVATE t81_core)
 
+  add_executable(t81_vm_resource_monitoring_test tests/cpp/test_resource_monitoring.cpp)
+  target_link_libraries(t81_vm_resource_monitoring_test PRIVATE t81_core)
+  add_test(NAME t81_vm_resource_monitoring_test COMMAND t81_vm_resource_monitoring_test)
+
   add_executable(t81_axion_log_determinism_test tests/cpp/axion_log_determinism_test.cpp)
   target_link_libraries(t81_axion_log_determinism_test PRIVATE t81_core)
 

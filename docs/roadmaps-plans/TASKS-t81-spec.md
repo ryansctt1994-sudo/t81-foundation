@@ -93,9 +93,9 @@
   - [x] Θ enforcement points in VM / interpreter (see `src/axion/ethics.cpp`, `check_ethics`)
   - [x] Telemetry / logging for drift detection (via Axion StructuredEvents)
   - [ ] Provable guarantees for the Nine Principles
-- [ ] Tier 4/5 Constraint Enforcement
-  - [ ] Symbolic complexity limits
-  - [ ] Graph/Tensor explosion risk monitoring
+- [x] Tier 4/5 Constraint Enforcement
+  - [x] Symbolic complexity limits (Implemented via `max-symbolic-nodes` policy)
+  - [x] Graph/Tensor explosion risk monitoring (Implemented via `max-tensors` and `max-tensor-elements` policies)
 
 ## 7. Algebraic Extensions & Data Structures
 - [x] T81Complex (Ternary complex numbers) (see `include/t81/core/T81Complex.hpp`)

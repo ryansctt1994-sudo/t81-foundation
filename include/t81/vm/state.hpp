@@ -197,6 +197,7 @@ struct State {
   std::size_t sp{0};
   std::vector<std::optional<t81::T729Tensor>> tensors;
   std::vector<std::size_t> free_tensor_indices;
+  std::size_t total_tensor_elements{0};
   std::vector<double> floats;
   std::vector<t81::T81Fraction> fractions;
   std::vector<std::string> symbols;
@@ -236,6 +237,7 @@ struct State {
 
   // Tier 1 Symbolic
   std::vector<t81::cog::v1::SymbolicGraph> symbolic_graphs;
+  std::size_t total_symbolic_nodes{0};
 
   // Tier 2 Reflective
   std::vector<t81::cog::v2::ReflectiveFrame> tier2_frames;
