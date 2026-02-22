@@ -7,84 +7,97 @@
 The T81 architecture is built upon a foundation of balanced ternary primitives. These types are designed to be efficiently simulated on binary hardware while maintaining the mathematical properties of base-3 logic.
 
 ### 4.1.1 Trits and Trytes
-*   **Trit**: The fundamental atom of information, taking values $\{-1, 0, 1\}$.
-*   **Tryte**: A sequence of trits. The standard tryte width is 4 trits ($3^4 = 81$ values), often packed into a `uint8_t` for storage.
 
-> **Implementation**: `include/t81/ternary.hpp` defines the `Trit` enum and conversion logic.
+*   **Trit**: The fundamental atom of information, taking values $\{-1, 0, 1\}$.
+    *   Also denoted as $\{T, 0, 1\}$ or $\{-, 0, +\}$.
+    *   Information content: $\log_2 3 \approx 1.58$ bits.
+*   **Tryte**: A sequence of trits. The standard "Byte equivalent" is the 4-trit Tryte ($3^4 = 81$ values).
+*   **Word**: A standard T81 machine word is 27 trits ($3^{27} \approx 7.6 \times 10^{12}$), which fits comfortably within a 64-bit integer.
+
+**Packed Representation (T3_K)**:
+For efficient storage, trits are often packed using a 2-bit code:
+*   `00` $\to$ 0
+*   `01` $\to$ 1
+*   `10` $\to$ -1 (T)
+*   `11` $\to$ Unused / Padding
 
 ### 4.1.2 T81Int (Arbitrary Precision Integer)
-`T81Int` is a variable-width integer type using a packed balanced ternary representation.
-*   **Storage**: 2 bits per trit.
-*   **Range**: Symmetric around zero ($-\frac{3^N-1}{2} \dots +\frac{3^N-1}{2}$).
-*   **Normalization**: Leading zeros are strictly forbidden in the canonical serialized form. A zero value is represented by a single zero trit.
+`T81Int` is a variable-width integer type. Unlike binary integers which use Two's Complement for negative values, balanced ternary integers are symmetric.
 
-> **Verification**: `tests/cpp/test_t81int.cpp` and `tests/cpp/test_property_invariants.cpp`.
+*   **Range**: Symmetric interval $[-\frac{3^N-1}{2}, +\frac{3^N-1}{2}]$.
+*   **Normalization**: Leading zeros are strictly forbidden in the canonical serialized form. The only valid representation for Zero is a single `0` trit.
 
 ## 4.2 T81Float and dmath
 
-**Status: Implemented (Core) / Partial (Extended)**
+**Status: Implemented (Core)**
 
-Floating-point arithmetic is the primary source of non-determinism in cross-platform computing (due to IEEE-754 variances in FMA fusion, transcendental precision, etc.). T81 addresses this via `T81Float`.
+Floating-point arithmetic is the primary source of non-determinism in cross-platform computing. T81 replaces hardware IEEE-754 floats with a fully software-defined format: **`T81Float`**.
 
 ### 4.2.1 Canonical Definition
-A `T81Float` is a tuple $(m, e)$, representing the value $m \times 3^e$.
-*   $m$: Mantissa (T81Int).
-*   $e$: Exponent (T81Int).
-*   **Invariant**: The mantissa $m$ must be normalized such that its most significant trit is non-zero, unless the value is exactly zero.
+A `T81Float<M, E>` is a tuple $(s, m, e)$ representing the value:
+$$
+V = s \times m \times 3^{e - \text{bias}}
+$$
+where:
+*   $s \in \{-1, 1\}$ is the sign (stored as a trit).
+*   $m$ is the mantissa, an $M$-trit integer normalized such that the most significant trit is non-zero (unless $V=0$).
+*   $e$ is the exponent, an $E$-trit integer.
+*   $\text{bias} = \frac{3^E - 1}{2}$.
+
+**Special Values**:
+*   **Zero**: $e = 0, m = 0$.
+*   **Infinity**: $e = e_{\max}, m = 0$.
+*   **NaE (Not an Entity)**: $e = e_{\max}, m \neq 0$. (Equivalent to NaN).
 
 ### 4.2.2 The dmath Backend
-To achieve **Strict Determinism**, the VM employs `dmath` (Deterministic Math), a software-defined arithmetic library.
-*   **Core Operations**: `Add`, `Sub`, `Mul` are exact and deterministic (implemented in `T81Float.hpp`).
-*   **Transcendentals**: `Sin`, `Cos`, `Tan`, `Exp`, `Log`, `Sqrt` are computed using `dmath` (Taylor series with fixed iteration counts), guaranteeing bit-exact results on any architecture.
-*   **Extended Functions**: `Asin`, `Acos`, `Sinh`, `Pow` currently rely on host `double` precision (unless `T81_DETERMINISTIC` is defined, in which case they may return `NaE` or use slow software emulation).
-
-> **Verification**: `tests/cpp/test_T81Float.cpp` validates the correctness of special values and transcendentals. `include/t81/core/detail/dmath.hpp` contains the implementation.
+To guarantee bit-exact results across x86, ARM, and RISC-V, T81 implements **`dmath`** (Deterministic Math).
+*   **Arithmetic**: `Add`, `Sub`, `Mul`, `Div` are implemented using integer math on the mantissas, with precise rounding rules (ties-to-even) applied in software.
+*   **Transcendentals**: Functions like `sin`, `cos`, `exp`, `log` are computed using **Taylor Series expansions** with a fixed number of iterations and fixed constant precision. This eliminates reliance on the host OS's `libm`, which varies between glibc, musl, and MSVC.
 
 ## 4.3 Tensors and Canonical Layouts
 
 **Status: Implemented & Tested**
 
-Tensors (`T729Tensor`, `T81Tensor`) are the workhorses of the cognitive tiers.
+Tensors (`T81Tensor`) are the workhorses of the cognitive tiers. To support efficient execution and canonical hashing, they follow a strict layout.
 
 ### 4.3.1 Memory Layout
-Tensors are stored in **Row-Major** order.
+Tensors are stored in **Row-Major** order (C-style), not Column-Major (Fortran-style).
 *   **Shape**: A vector of dimensions $(d_0, d_1, \dots, d_n)$.
 *   **Stride**: Calculated as $s_i = \prod_{j=i+1}^n d_j$.
-*   **Alignment**: Tensor data is aligned to 64-byte boundaries in the `Tensor` memory segment.
+*   **Alignment**: Tensor data is aligned to 64-byte boundaries in the `Tensor` memory segment to facilitate SIMD loading (AVX-512 / NEON) where safe.
 
 ### 4.3.2 Serialization (.t81w)
-The `.t81w` (T81 Weights) format is the standard container for persisting tensor models. Version 2 (`T81W2`) supports quantization and canonical hashing.
+The `.t81w` (T81 Weights) format is the standard container for persisting tensor models. It is designed to be **mmap-friendly** and **canonical**.
 
-**Binary Structure**:
+**Binary Structure (Version 2)**:
 1.  **Magic Header**: `0x54383157` ("T81W").
 2.  **Version**: `0x02`.
-3.  **Table of Contents**: List of `(Hash, Offset, Length)` tuples.
-4.  **Blob Data**: Contiguous tensor data.
+3.  **Table of Contents**: A list of `(Hash, Offset, Length)` tuples, sorted by Hash.
+4.  **Blob Data**: Contiguous tensor data, padding to 64-byte alignment.
 
-**Quantization Formats**:
-*   **F32**: Standard IEEE-754 float (canonicalized).
-*   **T3_K**: 2-bit-per-trit packing with block-wise scaling.
-
-> **Source**: `include/t81/weights.hpp` and `include/t81/tensor.hpp`.
+### 4.3.3 Quantization (T3_K)
+T81 supports a native ternary quantization format called **T3_K**.
+*   **Block Size**: $K$ trits (typically 64 or 128).
+*   **Representation**: Each value is quantized to $\{-1, 0, 1\}$.
+*   **Scaling**: Each block has a scaling factor (T81Float) to approximate the original magnitude.
 
 ## 4.4 Canonical Serialization Rules
 
 **Status: Implemented**
 
-To ensure consistent hashing (`CanonRef`), all data must be normalized before serialization.
+To ensure consistent hashing (for `CanonRef`), all data must be normalized before serialization. The serializer enforces a **Bijective Mapping** between abstract values and byte sequences.
 
-1.  **BigInt**: Strip leading zeros. Zero is `[0]`.
-2.  **Fraction**:
-    *   Reduce to lowest terms: $\gcd(num, den) = 1$.
-    *   Denominator must be positive.
-    *   Zero is $0/1$.
-3.  **Float**:
-    *   Standardize mantissa/exponent.
-    *   NaN payloads are zeroed.
-    *   Negative zero is normalized to positive zero.
-4.  **Map/Dictionary**:
-    *   Keys must be sorted lexicographically by their canonical binary representation.
-5.  **Graph**:
-    *   Nodes are re-indexed by topological sort order to ensure graph isomorphism yields identical byte streams.
+1.  **Integers (T81Int)**:
+    *   Strip leading zeros.
+    *   Zero is encoded as a single byte `0x00` (assuming specific encoding).
+2.  **Floats (T81Float)**:
+    *   Must be normalized (max shift left).
+    *   Negative Zero is strictly forbidden; it must be converted to Positive Zero.
+    *   NaE payloads are zeroed out (no "signaling" vs "quiet" bit differentiation).
+3.  **Collections**:
+    *   **Maps/Dictionaries**: Keys must be sorted lexicographically by their canonical binary representation.
+    *   **Sets**: Elements must be sorted.
+4.  **Graphs**:
+    *   Nodes are re-indexed by a canonical topological sort. If the graph has cycles, a deterministic tie-breaking rule (based on edge weights) is applied.
 
-> **Verification**: `tests/cpp/test_property_invariants.cpp` verifies these normalization properties via property-based testing.
+> **Verification**: `tests/cpp/test_property_invariants.cpp` verifies these properties via property-based testing (fuzzing), ensuring that $Serialize(Deserialize(Serialize(X))) \equiv Serialize(X)$.

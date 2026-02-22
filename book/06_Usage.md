@@ -1,64 +1,125 @@
-# Chapter 6: Usage and CLI
+# Chapter 6: CLI and API Usage
 
-## 6.1 The Unified CLI
+## 6.1 The T81 Command Line Interface
 
-**Status: Implemented & Tested**
+**Status: Implemented**
 
-The `t81` executable provides a unified interface for all operations.
+The `t81` binary is the primary entry point for interaction with the runtime. It follows the standard `subcommand` pattern.
 
-### 6.1.1 Basic Commands
+### 6.1.1 Compilation (`compile`)
+Compiles T81 source code (`.t81`) into TISC bytecode (`.tisc`).
 
-*   **`compile`**: Compiles T81Lang source (`.t81`) to TISC bytecode (`.tisc`).
-    ```bash
-    t81 compile examples/hello_world.t81 -o hello.tisc
-    ```
+```bash
+t81 compile main.t81 -o main.tisc
+```
 
-*   **`run`**: Executes TISC bytecode on the VM.
-    ```bash
-    t81 run hello.tisc
-    ```
+**Options**:
+*   `-o, --output <file>`: Output bytecode path.
+*   `--policy <file>`: Attach an Axion policy to the bytecode (embedded).
 
-*   **`check`**: Performs syntax and semantic analysis without generating code.
-    ```bash
-    t81 check examples/hello_world.t81
-    ```
+### 6.1.2 Execution (`run`)
+Executes a TISC bytecode file or a source file (JIT-compile-and-go).
 
-### 6.1.2 Debugging and Inspection
+```bash
+# Run bytecode
+t81 run main.tisc
 
-*   **`disasm`**: Disassembles TISC bytecode into readable mnemonics.
-    ```bash
-    t81 disasm hello.tisc
-    ```
+# Run source directly
+t81 run main.t81
+```
 
-*   **`debug`**: Launches the interactive debugger (step, inspect registers).
-    ```bash
-    t81 debug hello.tisc
-    ```
+**Options**:
+*   `--policy <file>`: Enforce a specific Axion policy file during execution.
+*   `--weights <file>`: Attach a tensor model (`.t81w`, `.safetensors`, `.gguf`) to the context.
 
-*   **`trace`**: Manages Axion audit traces.
-    ```bash
-    t81 trace show trace.txt
-    t81 trace diff trace_a.txt trace_b.txt
-    t81 trace replay hello.tisc trace.txt
-    ```
+### 6.1.3 Trace Analysis (`trace`)
+The `trace` subcommand suite manages the Axion audit logs.
 
-### 6.1.3 Model Management
+*   `t81 trace show <trace_file>`: Human-readable dump of a trace.
+*   `t81 trace diff <trace_a> <trace_b>`: Compare two traces for divergence.
+*   `t81 trace replay <program.tisc> <trace_file>`: Re-execute a program and verify it produces the exact same trace as the file.
 
-*   **`weights`**: Tools for importing and quantizing neural network weights.
-    ```bash
-    t81 weights import model.safetensors -o model.t81w
-    t81 weights info model.t81w
-    t81 weights quantize model.safetensors --to-gguf model.gguf
-    ```
+### 6.1.4 Interactive Mode (`repl`)
+Launches the Read-Eval-Print Loop.
 
-*   **`canonize-tensor`**: Verifies and normalizes a tensor file.
-    ```bash
-    t81 canonize-tensor model.t81w
-    ```
+```bash
+t81 repl
+```
+Commands inside REPL:
+*   `:load <file>`: Load a script.
+*   `:model <path>`: Load a weights file dynamically.
+*   `:trace`: Show the trace of the last execution.
 
-*   **`repro-hash`**: Computes the canonical hash of a directory for verification.
-    ```bash
-    t81 repro-hash tests/fixtures/t81lang_determinism
-    ```
+## 6.2 Embedding T81 (C++ API)
 
-> **Verification**: Run `build/t81 --help` to see the exact current usage.
+**Status: Stable**
+
+To embed T81 into a host application (e.g., a game engine or a distributed node), use `t81::vm::IVirtualMachine`.
+
+```cpp
+#include <t81/vm/vm.hpp>
+#include <t81/tisc/program.hpp>
+
+int main() {
+    // 1. Create VM
+    auto vm = t81::vm::make_interpreter_vm();
+
+    // 2. Load Program
+    auto prog = t81::tisc::load_program("main.tisc");
+    vm->load_program(prog);
+
+    // 3. Configure Policy
+    // (Optional: Attach custom Axion hooks)
+
+    // 4. Run
+    auto result = vm->run_to_halt();
+    if (!result) {
+        std::cerr << "Trapped: " << result.error().reason << "\n";
+    }
+}
+```
+
+## 6.3 Embedding T81 (Python API)
+
+**Status: Implemented**
+
+The Python bindings allow driving the T81VM from Python, primarily for testing and orchestration.
+
+```python
+import t81
+
+# Create VM
+vm = t81.VirtualMachine()
+
+# Load Code
+vm.load_source("""
+let x = 10;
+let y = 20;
+x + y;
+""")
+
+# Execute
+result = vm.run()
+print(f"Result: {result}")
+```
+
+## 6.4 Debugging
+
+**Status: Implemented**
+
+The `t81 debug` command launches a GDB-style debugger for TISC.
+
+*   `step` / `s`: Step one instruction.
+*   `next` / `n`: Step over call.
+*   `reg`: Dump registers.
+*   `stack`: Dump stack.
+*   `trace`: Show recent trace history.
+
+```bash
+t81 debug main.tisc
+(t81-gdb) break 10
+(t81-gdb) run
+Breakpoint at PC=10
+(t81-gdb) reg r1
+r1 = 42 (Int)
+```
