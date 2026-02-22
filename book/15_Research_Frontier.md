@@ -1,6 +1,6 @@
-# Chapter 14: Research Frontier
+# Chapter 15: Research Frontier
 
-## 14.1 Ternary Hardware Acceleration
+## 15.1 Ternary Hardware Acceleration
 
 **Status: Research**
 
@@ -13,7 +13,7 @@ While T81 runs efficiently on binary hardware via emulation (`packed-trit` stora
 1.  **FPGA Emulation**: Port the TISC core to Verilog/VHDL targeting Xilinx Artix-7, implementing native ternary ALUs.
 2.  **ASIC Design**: Collaborate with open-source silicon projects (OpenROAD) to tape out a proof-of-concept ternary coprocessor.
 
-## 14.2 Formal Verification Paths
+## 15.2 Formal Verification Paths
 
 **Status: Research**
 
@@ -22,7 +22,7 @@ Currently, T81 relies on **Property-Based Testing** (QuickCheck style) and **Fuz
 *   **Certified Compilation**: Prove that the T81 Compiler preserves semantics from Source $\to$ AST $\to$ IR $\to$ Bytecode.
 *   **JIT Correctness**: Prove that the trace optimization passes (Constant Folding, Dead Code Elimination) are semantic-preserving transformations.
 
-## 14.3 CanonFS as a Merkle Substrate
+## 15.3 CanonFS as a Merkle Substrate
 
 **Status: Concept**
 
@@ -31,7 +31,7 @@ CanonFS currently handles static blobs (weights, code). Future research aims to 
 *   **Deduplication**: Automatically deduplicate layers across different neural networks.
 *   **Lazy Loading**: Stream tensor slices on-demand over the network, verified by Merkle proofs.
 
-## 14.4 Deterministic AI Inference at Scale
+## 15.4 Deterministic AI Inference at Scale
 
 **Status: Active Development**
 

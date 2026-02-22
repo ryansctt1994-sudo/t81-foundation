@@ -180,4 +180,4 @@ The following checklist defines the acceptance criteria for a compliant T81 impl
 
 *   **Open Questions**: The formal proof of equivalence between the JIT compiler's trace optimization and the interpreter's step function needs to be rigorized in Section 11.
 *   **Suggested Figures**: A sequence diagram showing the interaction between the Interpreter, Axion Policy Engine, and the Trace Logger during a single instruction cycle would be beneficial in Section 1.2.
-*   **Cross-References**: Ensure that the "Research Frontier" (Chapter 14) is updated to reflect recent progress on the Tier 5 Infinite Forms implementation.
+*   **Cross-References**: Ensure that the "Research Frontier" (Chapter 15) is updated to reflect recent progress on the Tier 5 Infinite Forms implementation.

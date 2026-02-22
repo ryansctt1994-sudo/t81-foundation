@@ -1,6 +1,6 @@
-# Chapter 12: Adversarial Modeling and Determinism Attacks
+# Chapter 13: Adversarial Modeling and Determinism Attacks
 
-## 12.1 Threat Model
+## 13.1 Threat Model
 
 **Status: Theoretical**
 
@@ -10,7 +10,7 @@ T81 assumes a hostile environment. The **Host** (OS, Hardware, Operator) is cons
 3.  **Deny Service**: Consume infinite resources.
 4.  **Leak Information**: Expose private data via side channels.
 
-## 12.2 Compiler-Level Attacks
+## 13.2 Compiler-Level Attacks
 
 **Attack Vector**: "Trojan Source" / Homoglyphs.
 **Description**: An attacker uses Unicode control characters (e.g., Right-to-Left Override) to make source code appear different to humans than to the compiler.
@@ -20,7 +20,7 @@ T81 assumes a hostile environment. The **Host** (OS, Hardware, Operator) is cons
 **Description**: A malicious compiler might reorder instructions in a way that preserves semantics on one architecture but not another (e.g., due to memory model differences).
 **Mitigation**: The T81 Compiler emits a **Canonical AST**. The IR generation phase is deterministic and platform-agnostic. The `t81lang_repro_gate` verifies that the compiler output is bit-identical across runs.
 
-## 12.3 VM and GC Attack Vectors
+## 13.3 VM and GC Attack Vectors
 
 **Attack Vector**: Rowhammer / Bit Flips.
 **Description**: Physical attacks on DRAM to flip bits in sensitive memory (e.g., changing a `Deny` verdict to `Allow`).
@@ -34,13 +34,13 @@ T81 assumes a hostile environment. The **Host** (OS, Hardware, Operator) is cons
 **Description**: Observing the time it takes to compute a function (e.g., modular exponentiation) to infer secret keys.
 **Mitigation**: `dmath` aims for constant-time implementations for cryptographic primitives, but general-purpose arithmetic is not guaranteed to be constant-time. T81 focuses on *functional* determinism, not *temporal* determinism (constant cycles).
 
-## 12.4 CanonFS and Hash Attacks
+## 13.4 CanonFS and Hash Attacks
 
 **Attack Vector**: Hash Collision / Preimage.
 **Description**: Finding two different inputs $A \neq B$ such that $Hash(A) = Hash(B)$.
 **Mitigation**: T81 uses **SHA3-256** (Keccak), which is resistant to length-extension attacks and collision attacks. The canonical serialization rules (sorting keys, normalizing floats) minimize the attack surface by reducing the input space of valid objects.
 
-## 12.5 Distributed Tier Time-Travel Attack
+## 13.5 Distributed Tier Time-Travel Attack
 
 **Attack Vector**: State Withholding / Replay.
 **Description**: In Tier 4, a node computes a state transition $S_t \to S_{t+1}$ but withholds it, releasing it later to invalidate other nodes' progress (a "selfish mining" equivalent).
@@ -49,7 +49,7 @@ T81 assumes a hostile environment. The **Host** (OS, Hardware, Operator) is cons
 2.  **Consensus Quorums**: A state is only finalized when signed by $2/3$ of the cognitive cluster.
 3.  **Trace Merging**: If branches diverge, the deterministic merge function resolves conflicts based on total computational work (trace length).
 
-## 12.6 Determinism Breach Postmortem Template
+## 13.6 Determinism Breach Postmortem Template
 
 **Status: Process**
 

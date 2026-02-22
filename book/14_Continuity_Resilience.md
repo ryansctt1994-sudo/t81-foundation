@@ -1,22 +1,22 @@
-# Chapter 13: Continuity and Resilience
+# Chapter 14: Continuity and Resilience
 
-## 13.1 The Cleanroom Protocol
+## 14.1 The Cleanroom Protocol
 
 **Status: Aspirational**
 
 The T81 project is designed with a **"Civilization-Scale"** mindset. The goal is that if all source code repositories (GitHub, GitLab, PyPI) were to vanish, the system could be reconstructed from this monograph and a standard C++ compiler specification.
 
-### 13.1.1 Reconstruction Steps
+### 14.1.1 Reconstruction Steps
 1.  **Retrieve**: Obtain a copy of the **Definitive Technical Monograph** (this book).
 2.  **Verify**: Confirm the cryptographic hashes of the core algorithms (SHA3-256, Balanced Ternary Arithmetic) against known mathematical constants.
 3.  **Implement**:
     *   Write a C++23 compliant compiler.
     *   Implement `T81Int` and `T81Float` according to the bit-layout specifications in Chapter 4.
     *   Implement the TISC VM instruction loop (Chapter 3).
-    *   Implement the Axion policy logic (Chapter 8).
+    *   Implement the Axion policy logic (Chapter 9).
 4.  **Validate**: Run the test suite (`tests/cpp/*.cpp`) included in the appendix or reconstructed from the descriptions.
 
-## 13.2 Single Points of Failure
+## 14.2 Single Points of Failure
 
 **Status: Mitigated**
 
@@ -26,7 +26,7 @@ T81 identifies and mitigates reliance on centralized infrastructure.
 *   **Build Tools**: CMake is the standard build system, but the project structure is simple enough for manual compilation or shell scripts.
 *   **Dependencies**: T81 has **zero required runtime dependencies** beyond the C++ standard library. It vendors critical components (like `asio` for networking) or implements them from scratch (like `dmath` for transcendentals).
 
-## 13.3 Continuity Manifest
+## 14.3 Continuity Manifest
 
 **Status: Documented**
 
@@ -38,7 +38,7 @@ The following artifacts constitute the "Continuity Kit" necessary to rebuild T81
 4.  **The Tests**: `tests/cpp/` (Validation logic).
 5.  **The Scripts**: `scripts/ci/` (Reproduction gates).
 
-## 13.4 Immutable Formal Invariants
+## 14.4 Immutable Formal Invariants
 
 **Status: Eternal**
 
