@@ -111,7 +111,7 @@ int main() {
     std::cout << "  Running 3x3 tests..." << std::endl;
     // Identity
     Mat I = t81::identity<Scalar, 3>();
-    ASSERT_NEAR(I.determinant(), one); // Changed from ASSERT_EQ
+    ASSERT_EQ(I.determinant(), one);
     Mat I_inv = I.inverse();
     ASSERT_EQ(I_inv, I);
 
