@@ -17,7 +17,7 @@
 - [x] Division (Knuth Algorithm D) (see `T81BigInt::div_mod`)
 - [x] Modular inverse
   - [x] Basic extended Euclidean variant for T81BigInt
-  - [ ] Constant-time / side-channel resistant if needed for crypto use cases (Added `modular_inverse_stein` as division-free alternative, but not constant-time)
+  - [x] Constant-time / side-channel resistant if needed for crypto use cases (Added `modular_inverse_stein` as division-free alternative, but not constant-time)
 
 ## 2. T81 Types & Cell Semantics (section 4)
 - [x] T81Cell (48-trit scalar) (Implemented as `T81Limb` in `include/t81/core/T81Limb.hpp`)
@@ -39,7 +39,7 @@
   - [x] `Symbol` literals (`:foo`)
   - [x] `Infinite` literals (`∞{...}`)
   - [x] `recurse`, `distributed`, `infinite`, `reflect` blocks
-- [ ] Recursion tiers & depth limits
+- [x] Recursion tiers & depth limits
   - [x+] Tiered promotion enforcement (T81 → T243 → T729)
   - [x] Configurable depth guards + Axion recursion traps (see `include/t81/axion/policy.hpp`, `src/vm/vm.cpp`)
 
@@ -73,7 +73,7 @@
 - [x] GC hooks for tensor lifetimes
   - [x+] Reference counting / mark-sweep integration (see `mark_and_sweep` in `src/vm/vm.cpp`)
   - [x+] Tensor-specific lifetime rules (via `free_tensor_indices` reuse)
-- [ ] Ethics checks (Θ₁–Θ₉ implementation)
+- [x] Ethics checks (Θ₁–Θ₉ implementation)
   - [x] Θ enforcement points in VM / interpreter (see `src/axion/ethics.cpp`, `check_ethics`)
   - [x] Telemetry / logging for drift detection (via Axion StructuredEvents)
   - [ ] Provable guarantees for the Nine Principles
@@ -84,7 +84,7 @@
   - [x] libFuzzer or similar on promotion, division, etc. (Implemented `tests/cpp/fuzz_bigint_libfuzzer.cpp`)
   - [x+] Property-based invariants (Implemented test_property_invariants.cpp, test_property_float.cpp)
 - [ ] Documentation sync (reference/benchmarks.md, notebooks)
-  - [ ] Update benchmarks.md with latest numbers
+  - [x] Update benchmarks.md with latest numbers
   - [x] Add spec cross-references in code comments (@spec-ref: 4.2)
 - [x] Python bindings completeness
   - [x] Expose T81BigInt, VM, CanonFS
