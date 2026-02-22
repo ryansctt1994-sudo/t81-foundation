@@ -7,7 +7,7 @@ on:
       - "src/**"
       - "include/**"
       - "tests/**"
-      - "hello.tisc"
+      - "examples/hello_world.t81"
       - ".github/workflows/determinism_demo.yml"
 
 jobs:
@@ -127,6 +127,9 @@ jobs:
 
       - name: Build
         run: cmake --build build -j 2
+
+      - name: Compile hello.tisc
+        run: ./build/t81 compile examples/hello_world.t81 -o hello.tisc
 
       - name: Record deterministic cast (no live typing)
         shell: bash
