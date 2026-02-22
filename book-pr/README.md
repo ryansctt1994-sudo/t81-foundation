@@ -1,219 +1,219 @@
-# The T81 Foundation — Definitive Technical Monograph
+# A Fundação T81 — Monografia Técnica Definitiva
 
-## Foreword
+## Prefácio
 
-There are two ways to build systems.
+Existem duas maneiras de construir sistemas.
 
-One is to optimize for convenience — to move quickly, to approximate, to accept that the final bit may vary, that floating-point drift is tolerable, that compilers may reorder, that hardware will decide what “close enough” means.
+Uma é otimizar pela conveniência — mover-se rapidamente, aproximar, aceitar que o bit final pode variar, que a deriva de ponto flutuante é tolerável, que compiladores podem reordenar, que o hardware decidirá o que significa "próximo o suficiente".
 
-The other is to insist that computation is not suggestion, but statement.
+A outra é insistir que a computação não é sugestão, mas declaração.
 
-T81 belongs to the second path.
+O T81 pertence ao segundo caminho.
 
-At its core, this project is not about ternary arithmetic, virtual machines, or policy engines — though it contains all of these. It is about **integrity of execution**. It is about drawing a boundary around a computational process and saying: inside this boundary, behavior is not incidental.
+Em seu núcleo, este projeto não é sobre aritmética ternária, máquinas virtuais ou motores de política — embora contenha todos esses. É sobre **integridade de execução**. É sobre desenhar um limite ao redor de um processo computacional e dizer: dentro deste limite, o comportamento não é incidental.
 
-Determinism is often treated as a performance tradeoff or a debugging convenience. Here it is treated as a civilizational constraint. If two machines cannot agree on the outcome of the same program, then the computation was never truly defined — it was merely performed.
+O determinismo é frequentemente tratado como uma troca de desempenho ou uma conveniência de depuração. Aqui é tratado como uma restrição civilizacional. Se duas máquinas não podem concordar sobre o resultado do mesmo programa, então a computação nunca foi verdadeiramente definida — ela foi apenas executada.
 
-Balanced ternary, canonical serialization, software-defined math, trace logging, policy enforcement — these are not aesthetic choices. They are instruments in a single argument:
+Ternário balanceado, serialização canônica, matemática definida por software, registro de rastreamento, aplicação de políticas — estas não são escolhas estéticas. Elas são instrumentos em um único argumento:
 
-> A computation should be reproducible, auditable, and structurally honest.
+> Uma computação deve ser reprodutível, auditável e estruturalmente honesta.
 
-Modern systems are layered with abstraction that hides state transitions behind optimizers, speculative execution, floating-point quirks, and implicit side effects. T81 attempts something different: to make every transition explicit, every representation canonical, every execution traceable.
+Sistemas modernos são construídos com camadas de abstração que escondem transições de estado atrás de otimizadores, execução especulativa, peculiaridades de ponto flutuante e efeitos colaterais implícitos. O T81 tenta algo diferente: tornar cada transição explícita, cada representação canônica, cada execução rastreável.
 
-It is an architectural experiment in constraint.
+É um experimento arquitetural em restrição.
 
-The system does not assume benevolent hardware.
-It does not assume identical floating-point libraries.
-It does not assume compilers behave the same across architectures.
-It does not assume that execution without record is acceptable.
+O sistema não assume hardware benevolente.
+Ele não assume bibliotecas de ponto flutuante idênticas.
+Ele não assume que compiladores se comportam da mesma forma entre arquiteturas.
+Ele não assume que a execução sem registro é aceitável.
 
-Instead, it encodes rules:
+Em vez disso, ele codifica regras:
 
-* State transitions must be definable.
-* Data must have a single canonical form.
-* Resource consumption must be accountable.
-* Policies must be enforceable.
-* Behavior must be replayable.
+* Transições de estado devem ser definíveis.
+* Dados devem ter uma única forma canônica.
+* O consumo de recursos deve ser contabilizável.
+* Políticas devem ser aplicáveis.
+* O comportamento deve ser reproduzível.
 
-The result is not the fastest machine.
-It is not the most flexible environment.
-It is not designed to replace general-purpose scripting ecosystems.
+O resultado não é a máquina mais rápida.
+Não é o ambiente mais flexível.
+Não é projetado para substituir ecossistemas de script de propósito geral.
 
-It is designed to answer a narrower but more demanding question:
+É projetado para responder a uma pergunta mais estreita, mas mais exigente:
 
-**Can a software system be constructed such that its behavior is provably invariant across space and time?**
+**Pode um sistema de software ser construído de tal forma que seu comportamento seja comprovadamente invariante através do espaço e do tempo?**
 
-This book exists to document that attempt.
+Este livro existe para documentar essa tentativa.
 
-Not as mythology.
-Not as marketing.
-But as a ledger.
+Não como mitologia.
+Não como marketing.
+Mas como um livro-razão.
 
-Every subsystem described here — T81Lang, TISC, the T81VM, Axion, CanonFS, the determinism gates, the cognitive tiers — is part of a layered structure built around one invariant:
+Cada subsistema descrito aqui — T81Lang, TISC, a T81VM, Axion, CanonFS, os portões de determinismo, os níveis cognitivos — é parte de uma estrutura em camadas construída em torno de um invariante:
 
-> Identical inputs must produce identical outputs, under explicitly defined rules.
+> Entradas idênticas devem produzir saídas idênticas, sob regras explicitamente definidas.
 
-Whether this architecture becomes widely adopted is secondary. What matters is that it has been made concrete, implemented, tested, and described with enough precision that it can be understood, verified, or challenged by others.
+Se esta arquitetura se tornará amplamente adotada é secundário. O que importa é que ela foi tornada concreta, implementada, testada e descrita com precisão suficiente para que possa ser compreendida, verificada ou desafiada por outros.
 
-This volume is therefore both technical and philosophical.
+Este volume é, portanto, tanto técnico quanto filosófico.
 
-It is technical because it describes a working system.
-It is philosophical because it asserts that reproducibility is not optional in certain domains.
+É técnico porque descreve um sistema em funcionamento.
+É filosófico porque afirma que a reprodutibilidade não é opcional em certos domínios.
 
-If the repository evolves, this book should evolve with it.
-If the project ceases, this document should remain sufficient to reconstruct what was attempted and why.
+Se o repositório evoluir, este livro deve evoluir com ele.
+Se o projeto cessar, este documento deve permanecer suficiente para reconstruir o que foi tentado e por quê.
 
-In the end, T81 is not a claim of perfection.
+No final, o T81 não é uma reivindicação de perfeição.
 
-It is a commitment to constraint.
+É um compromisso com a restrição.
 
-And constraint, when applied deliberately, is a form of clarity.
-
----
-
-## How to Read This Book
-
-* **New to T81?** → Start with Part I, then Part II.
-* **Implementer?** → Focus on Parts II and III.
-* **Auditor?** → Read Parts III and IV carefully.
-* **Researcher?** → Emphasize Parts IV and V.
-* **Long-term Maintainer?** → Parts IV and V are critical.
+E a restrição, quando aplicada deliberadamente, é uma forma de clareza.
 
 ---
 
-## Navigation
+## Como Ler Este Livro
+
+* **Novo no T81?** → Comece pela Parte I, depois Parte II.
+* **Implementador?** → Foque nas Partes II e III.
+* **Auditor?** → Leia as Partes III e IV cuidadosamente.
+* **Pesquisador?** → Dê ênfase às Partes IV e V.
+* **Mantenedor de longo prazo?** → As Partes IV e V são críticas.
+
+---
+
+## Navegação
 
 <details open>
-<summary><strong>Part I — Foundations</strong></summary>
+<summary><strong>Parte I — Fundamentos</strong></summary>
 
-1. **[Introduction](./01_Introduction.md)**
+1. **[Introdução](./01_Introducao.md)**
 
-   * [1.1 Scope and Definition](./01_Introduction.md#11-scope-and-definition)
-   * [1.2 System Architecture](./01_Introduction.md#12-system-architecture)
-   * [1.3 Verifiable Compute Mission](./01_Introduction.md#13-verifiable-compute-mission)
+   * [1.1 Escopo e Definição](./01_Introducao.md#11-escopo-e-definicao)
+   * [1.2 Arquitetura do Sistema](./01_Introducao.md#12-arquitetura-do-sistema)
+   * [1.3 Missão de Computação Verificável](./01_Introducao.md#13-missao-de-computacao-verificavel)
 
-2. **[Core Principles and Invariants](./02_Core_Principles_and_Invariants.md)**
+2. **[Princípios Centrais e Invariantes](./02_Principios.md)**
 
-   * [2.1 The Determinism Invariant](./02_Core_Principles_and_Invariants.md#21-the-determinism-invariant)
-   * [2.1.1 Determinism Surfaces and Attack Vectors](./02_Core_Principles_and_Invariants.md#211-determinism-surfaces-and-attack-vectors)
-   * [2.2 Ternary Logic (Base-3)](./02_Core_Principles_and_Invariants.md#22-ternary-logic-base-3)
-   * [2.3 Auditability and the Axion Trace](./02_Core_Principles_and_Invariants.md#23-auditability-and-the-axion-trace)
-   * [2.4 The Nine Principles (Ethics Enforcement)](./02_Core_Principles_and_Invariants.md#24-the-nine-principles-ethics-enforcement)
-
-</details>
-
----
-
-<details>
-<summary><strong>Part II — The Deterministic Machine</strong></summary>
-
-3. **[T81VM Architecture](./03_T81VM_Architecture.md)**
-
-   * [3.1 Formal State Machine](./03_T81VM_Architecture.md#31-formal-state-machine)
-   * [3.1.1 State Definition](./03_T81VM_Architecture.md#311-state-definition)
-   * [3.2 Memory Layout](./03_T81VM_Architecture.md#32-memory-layout)
-   * [3.3 Register File](./03_T81VM_Architecture.md#33-register-file)
-   * [3.4 TISC Instruction Set Architecture](./03_T81VM_Architecture.md#34-tisc-instruction-set-architecture-isa)
-   * [3.5 Fault Semantics](./03_T81VM_Architecture.md#35-fault-semantics)
-   * [3.6 Garbage Collection](./03_T81VM_Architecture.md#36-garbage-collection)
-
-4. **[Data Types and Canonical Serialization](./04_Data_Types_and_Canonical_Serialization.md)**
-
-   * [4.1 Primitive Types](./04_Data_Types_and_Canonical_Serialization.md#41-primitive-types)
-   * [4.2 T81Float and dmath](./04_Data_Types_and_Canonical_Serialization.md#42-t81float-and-dmath)
-   * [4.3 Tensors and Canonical Layouts](./04_Data_Types_and_Canonical_Serialization.md#43-tensors-and-canonical-layouts)
-   * [4.4 Canonical Serialization Rules](./04_Data_Types_and_Canonical_Serialization.md#44-canonical-serialization-rules)
-
-5. **[Installation and Build Verification](./05_Installation_and_Build_Verification.md)**
-
-   * [5.1 Prerequisites](./05_Installation_and_Build_Verification.md#51-prerequisites)
-   * [5.2 Building from Source](./05_Installation_and_Build_Verification.md#52-building-from-source)
-   * [5.3 Verifying the Build](./05_Installation_and_Build_Verification.md#53-verifying-the-build)
-
-6. **[CLI and API Usage](./06_CLI_and_API_Usage.md)**
-
-   * [6.1 Command Line Interface](./06_CLI_and_API_Usage.md#61-the-t81-command-line-interface)
-   * [6.2 Embedding T81 (C++ API)](./06_CLI_and_API_Usage.md#62-embedding-t81-c-api)
-   * [6.3 Embedding T81 (Python API)](./06_CLI_and_API_Usage.md#63-embedding-t81-python-api)
-   * [6.4 Debugging](./06_CLI_and_API_Usage.md#64-debugging)
+   * [2.1 O Invariante de Determinismo](./02_Principios.md#21-o-invariante-de-determinismo)
+   * [2.1.1 Superfícies de Determinismo e Vetores de Ataque](./02_Principios.md#211-superficies-de-determinismo-e-vetores-de-ataque)
+   * [2.2 Lógica Ternária (Base-3)](./02_Principios.md#22-logica-ternaria-base-3)
+   * [2.3 Auditabilidade e o Trace Axion](./02_Principios.md#23-auditabilidade-e-o-trace-axion)
+   * [2.4 Os Nove Princípios (Aplicação de Ética)](./02_Principios.md#24-os-nove-principios-aplicacao-de-etica)
 
 </details>
 
 ---
 
 <details>
-<summary><strong>Part III — Governance and Verification</strong></summary>
+<summary><strong>Parte II — A Máquina Determinística</strong></summary>
 
-7. **[Verification and Audit](./07_Verification_and_Audit.md)**
+3. **[Arquitetura T81VM](./03_Arquitetura.md)**
 
-   * [7.1 Formal Verification Methodology](./07_Verification_and_Audit.md#71-formal-verification-methodology)
-   * [7.2 The Formal Audit Matrix](./07_Verification_and_Audit.md#72-the-formal-audit-matrix)
-   * [7.3 Property-Based Testing](./07_Verification_and_Audit.md#73-property-based-testing)
-   * [7.4 The Determinism Gate](./07_Verification_and_Audit.md#74-the-determinism-gate)
+   * [3.1 Máquina de Estados Formal](./03_Arquitetura.md#31-maquina-de-estados-formal)
+   * [3.1.1 Definição de Estado](./03_Arquitetura.md#311-definicao-de-estado)
+   * [3.2 Layout de Memória](./03_Arquitetura.md#32-layout-de-memoria)
+   * [3.3 Arquivo de Registradores](./03_Arquitetura.md#33-arquivo-de-registradores)
+   * [3.4 Arquitetura do Conjunto de Instruções TISC (ISA)](./03_Arquitetura.md#34-arquitetura-do-conjunto-de-instrucoes-tisc-isa)
+   * [3.5 Semântica de Falhas](./03_Arquitetura.md#35-semantica-de-falhas)
+   * [3.6 Coleta de Lixo (Garbage Collection)](./03_Arquitetura.md#36-coleta-de-lixo-garbage-collection)
 
-8. **[The Axion Safety Kernel](./08_The_Axion_Safety_Kernel.md)**
+4. **[Tipos de Dados e Serialização Canônica](./04_Tipos_de_Dados_e_Serializacao.md)**
 
-   * [8.1 Formal Definition](./08_The_Axion_Safety_Kernel.md#81-formal-definition)
-   * [8.2 The Policy Model](./08_The_Axion_Safety_Kernel.md#82-the-policy-model)
-   * [8.3 Instruction Interception](./08_The_Axion_Safety_Kernel.md#83-instruction-interception)
-   * [8.4 The Audit Log (Trace)](./08_The_Axion_Safety_Kernel.md#84-the-audit-log-trace)
-   * [8.5 Cognitive Promotion](./08_The_Axion_Safety_Kernel.md#85-cognitive-promotion)
+   * [4.1 Tipos Primitivos](./04_Tipos_de_Dados_e_Serializacao.md#41-tipos-primitivos)
+   * [4.2 T81Float e dmath](./04_Tipos_de_Dados_e_Serializacao.md#42-t81float-e-dmath)
+   * [4.3 Tensores e Layouts Canônicos](./04_Tipos_de_Dados_e_Serializacao.md#43-tensores-e-layouts-canonicos)
+   * [4.4 Regras de Serialização Canônica](./04_Tipos_de_Dados_e_Serializacao.md#44-regras-de-serializacao-canonica)
 
-9. **[Cognitive Tiers and Distributed Compute](./09_Cognitive_Tiers_and_Distributed_Compute.md)**
+5. **[Instalação e Verificação de Build](./05_Instalacao.md)**
 
-   * [9.1 The Cognitive Tier Model](./09_Cognitive_Tiers_and_Distributed_Compute.md#91-the-cognitive-tier-model)
-   * [9.2 Distributed Compute (Tier 4)](./09_Cognitive_Tiers_and_Distributed_Compute.md#92-distributed-compute-tier-4)
-   * [9.3 Trace-Based JIT Compilation](./09_Cognitive_Tiers_and_Distributed_Compute.md#93-trace-based-jit-compilation)
-   * [9.4 Infinite Forms (Tier 5)](./09_Cognitive_Tiers_and_Distributed_Compute.md#94-infinite-forms-tier-5)
+   * [5.1 Pré-requisitos](./05_Instalacao.md#51-pre-requisitos)
+   * [5.2 Compilando a partir da Fonte](./05_Instalacao.md#52-compilando-a-partir-da-fonte)
+   * [5.3 Verificando o Build](./05_Instalacao.md#53-verificando-o-build)
 
-10. **[Appendices](./10_Appendices.md)**
+6. **[Uso de CLI e API](./06_Uso.md)**
 
-* [10.1 What Is Not Yet Implemented](./10_Appendices.md#101-what-is-not-yet-implemented)
-* [10.2 Threat Model and Determinism Attack Surface](./10_Appendices.md#102-threat-model-and-determinism-attack-surface)
-* [10.3 Glossary](./10_Appendices.md#103-glossary)
-
-</details>
-
----
-
-<details>
-<summary><strong>Part IV — Formalization and Structural Hardening</strong></summary>
-
-11. **[Formal Semantics of TISC and T81VM](./11_Formal_Semantics.md)**
-
-* [Denotational Semantics of TISC](./11_Formal_Semantics.md#denotational-semantics-of-tisc)
-* [Algebraic Transition Function δ](./11_Formal_Semantics.md#algebraic-transition-function-δ)
-* [Canonicalization Rewriting System](./11_Formal_Semantics.md#canonicalization-rewriting-system)
-* [Determinism Proof Sketches](./11_Formal_Semantics.md#determinism-proof-sketches)
-* [Interpreter vs Trace-JIT Equivalence](./11_Formal_Semantics.md#interpreter-vs-trace-jit-equivalence)
-
-12. **[Adversarial Modeling and Determinism Attacks](./12_Adversarial_Modeling.md)**
-
-* [Compiler-Level Attacks](./12_Adversarial_Modeling.md#compiler-level-attacks)
-* [VM and GC Attack Vectors](./12_Adversarial_Modeling.md#vm-and-gc-attack-vectors)
-* [CanonFS and Hash Attacks](./12_Adversarial_Modeling.md#canonfs-and-hash-attacks)
-* [Distributed Tier Time-Travel Attack](./12_Adversarial_Modeling.md#distributed-tier-time-travel-attack)
-* [Determinism Breach Postmortem Template](./12_Adversarial_Modeling.md#determinism-breach-postmortem-template)
+   * [6.1 Interface de Linha de Comando](./06_Uso.md#61-interface-de-linha-de-comando)
+   * [6.2 Embarcando T81 (API C++)](./06_Uso.md#62-embarcando-t81-api-c)
+   * [6.3 Embarcando T81 (API Python)](./06_Uso.md#63-embarcando-t81-api-python)
+   * [6.4 Depuração](./06_Uso.md#64-depuracao)
 
 </details>
 
 ---
 
 <details>
-<summary><strong>Part V — Continuity and Research Horizon</strong></summary>
+<summary><strong>Parte III — Governança e Verificação</strong></summary>
 
-13. **[Continuity and Resilience](./13_Continuity_Resilience.md)**
+7. **[Verificação e Auditoria](./07_Verificacao_e_Auditoria.md)**
 
-* [Cleanroom Reconstruction Protocol](./13_Continuity_Resilience.md#cleanroom-reconstruction-protocol)
-* [Single Points of Failure](./13_Continuity_Resilience.md#single-points-of-failure)
-* [Continuity Manifest](./13_Continuity_Resilience.md#continuity-manifest)
-* [Immutable Formal Invariants](./13_Continuity_Resilience.md#immutable-formal-invariants)
+   * [7.1 Metodologia de Verificação Formal](./07_Verificacao_e_Auditoria.md#71-metodologia-de-verificacao-formal)
+   * [7.2 A Matriz de Auditoria Formal](./07_Verificacao_e_Auditoria.md#72-a-matriz-de-auditoria-formal)
+   * [7.3 Testes Baseados em Propriedades](./07_Verificacao_e_Auditoria.md#73-testes-baseados-em-propriedades)
+   * [7.4 O Portão de Determinismo (Determinism Gate)](./07_Verificacao_e_Auditoria.md#74-o-portao-de-determinismo-determinism-gate)
 
-14. **[Research Frontier](./14_Research_Frontier.md)**
+8. **[O Kernel de Segurança Axion](./08_O_Kernel_Axion.md)**
 
-* [Ternary Hardware Acceleration](./14_Research_Frontier.md#ternary-hardware-acceleration)
-* [Formal Verification Paths](./14_Research_Frontier.md#formal-verification-paths)
-* [CanonFS as a Merkle Substrate](./14_Research_Frontier.md#canonfs-as-a-merkle-substrate)
-* [Deterministic AI Inference at Scale](./14_Research_Frontier.md#deterministic-ai-inference-at-scale)
+   * [8.1 Definição Formal](./08_O_Kernel_Axion.md#81-definicao-formal)
+   * [8.2 O Modelo de Política](./08_O_Kernel_Axion.md#82-o-modelo-de-politica)
+   * [8.3 Interceptação de Instruções](./08_O_Kernel_Axion.md#83-interceptacao-de-instrucoes)
+   * [8.4 O Log de Auditoria (Trace)](./08_O_Kernel_Axion.md#84-o-log-de-auditoria-trace)
+   * [8.5 Promoção Cognitiva](./08_O_Kernel_Axion.md#85-promocao-cognitiva)
+
+9. **[Níveis Cognitivos e Computação Distribuída](./09_Niveis_Cognitivos_e_Computacao_Distribuida.md)**
+
+   * [9.1 O Modelo de Nível Cognitivo](./09_Niveis_Cognitivos_e_Computacao_Distribuida.md#91-o-modelo-de-nivel-cognitivo)
+   * [9.2 Computação Distribuída (Nível 4)](./09_Niveis_Cognitivos_e_Computacao_Distribuida.md#92-computacao-distribuida-nivel-4)
+   * [9.3 Compilação JIT Baseada em Trace](./09_Niveis_Cognitivos_e_Computacao_Distribuida.md#93-compilacao-jit-baseada-em-trace)
+   * [9.4 Formas Infinitas (Nível 5)](./09_Niveis_Cognitivos_e_Computacao_Distribuida.md#94-formas-infinitas-nivel-5)
+
+10. **[Apêndices](./10_Apendices.md)**
+
+* [10.1 O Que Ainda Não Foi Implementado](./10_Apendices.md#101-o-que-ainda-nao-foi-implementado)
+* [10.2 Modelo de Ameaça e Superfície de Ataque ao Determinismo](./10_Apendices.md#102-modelo-de-ameaca-e-superficie-de-ataque-ao-determinismo)
+* [10.3 Glossário](./10_Apendices.md#103-glossario)
+
+</details>
+
+---
+
+<details>
+<summary><strong>Parte IV — Formalização e Endurecimento Estrutural</strong></summary>
+
+11. **[Semântica Formal de TISC e T81VM](./11_Semantica_Formal.md)**
+
+* [Semântica Denotacional de TISC](./11_Semantica_Formal.md#semantica-denotacional-de-tisc)
+* [Função de Transição Algébrica δ](./11_Semantica_Formal.md#funcao-de-transicao-algebrica-δ)
+* [Sistema de Reescrita de Canonicalização](./11_Semantica_Formal.md#sistema-de-reescrita-de-canonicalizacao)
+* [Esboços de Prova de Determinismo](./11_Semantica_Formal.md#esbocos-de-prova-de-determinismo)
+* [Equivalência entre Intérprete e Trace-JIT](./11_Semantica_Formal.md#equivalencia-entre-interprete-e-trace-jit)
+
+12. **[Modelagem Adversária e Ataques ao Determinismo](./12_Modelagem_Adversaria.md)**
+
+* [Ataques ao Nível do Compilador](./12_Modelagem_Adversaria.md#ataques-ao-nivel-do-compilador)
+* [Vetores de Ataque em VM e GC](./12_Modelagem_Adversaria.md#vetores-de-ataque-em-vm-e-gc)
+* [Ataques a CanonFS e Hash](./12_Modelagem_Adversaria.md#ataques-a-canonfs-e-hash)
+* [Ataque de Viagem no Tempo em Nível Distribuído](./12_Modelagem_Adversaria.md#ataque-de-viagem-no-tempo-em-nivel-distribuido)
+* [Template de Post-mortem de Violação de Determinismo](./12_Modelagem_Adversaria.md#template-de-post-mortem-de-violacao-de-determinismo)
+
+</details>
+
+---
+
+<details>
+<summary><strong>Parte V — Continuidade e Horizonte de Pesquisa</strong></summary>
+
+13. **[Continuidade e Resiliência](./13_Continuidade_e_Resiliencia.md)**
+
+* [Protocolo de Reconstrução em Ambiente Limpo (Cleanroom)](./13_Continuidade_e_Resiliencia.md#protocolo-de-reconstrucao-em-ambiente-limpo-cleanroom)
+* [Pontos Únicos de Falha](./13_Continuidade_e_Resiliencia.md#pontos-unicos-de-falha)
+* [Manifesto de Continuidade](./13_Continuidade_e_Resiliencia.md#manifesto-de-continuidade)
+* [Invariantes Formais Imutáveis](./13_Continuidade_e_Resiliencia.md#invariantes-formais-imutaveis)
+
+14. **[Fronteira de Pesquisa](./14_Fronteira_de_Pesquisa.md)**
+
+* [Aceleração de Hardware Ternário](./14_Fronteira_de_Pesquisa.md#aceleracao-de-hardware-ternario)
+* [Caminhos de Verificação Formal](./14_Fronteira_de_Pesquisa.md#caminhos-de-verificacao-formal)
+* [CanonFS como Substrato Merkle](./14_Fronteira_de_Pesquisa.md#canonfs-como-substrato-merkle)
+* [Inferência de IA Determinística em Escala](./14_Fronteira_de_Pesquisa.md#inferencia-de-ia-deterministica-em-escala)
 
 </details>
