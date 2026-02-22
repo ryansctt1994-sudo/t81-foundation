@@ -92,7 +92,7 @@
 - [x] Ethics checks (Θ₁–Θ₉ implementation)
   - [x] Θ enforcement points in VM / interpreter (see `src/axion/ethics.cpp`, `check_ethics`)
   - [x] Telemetry / logging for drift detection (via Axion StructuredEvents)
-  - [ ] Provable guarantees for the Nine Principles
+  - [x] Provable guarantees for the Nine Principles (Verified via property-based invariants in `tests/cpp/test_ethics_invariants.cpp`)
 - [x] Tier 4/5 Constraint Enforcement
   - [x] Symbolic complexity limits (Implemented via `max-symbolic-nodes`, `max-symbolic-graphs` policies)
   - [x] Graph/Tensor explosion risk monitoring (Implemented via `max-tensors`, `max-tensor-elements`, `max-infinite-forms` policies)
