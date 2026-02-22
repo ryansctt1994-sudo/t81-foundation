@@ -35,7 +35,8 @@ public:
   static constexpr size_t cols = Cols;
   static constexpr size_t size = Rows * Cols;
 
-  alignas(64) Scalar data[Rows * Cols];
+  // alignas(64) removed to avoid potential stack alignment issues on some platforms
+  Scalar data[Rows * Cols];
 
 private:
   static constexpr auto get_magnitude(const Scalar& x) {

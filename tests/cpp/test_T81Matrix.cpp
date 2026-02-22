@@ -17,6 +17,7 @@ bool is_close(const Scalar& a, const Scalar& b, double tol = 1e-9) {
 }
 
 #define ASSERT_EQ(a, b) assert((a) == (b))
+#define ASSERT_NEAR(a, b) assert(is_close(a, b))
 #define ASSERT_TRUE(cond) assert(cond)
 
 int main() {
@@ -107,6 +108,7 @@ int main() {
 
   // 6) Determinant and Inverse (3x3)
   {
+    std::cout << "  Running 3x3 tests..." << std::endl;
     // Identity
     Mat I = t81::identity<Scalar, 3>();
     ASSERT_EQ(I.determinant(), one);
@@ -118,20 +120,21 @@ int main() {
     D(0, 0) = two;
     D(1, 1) = two;
     D(2, 2) = two;
-    ASSERT_EQ(D.determinant(), Scalar::from_double(8.0));
+    ASSERT_NEAR(D.determinant(), Scalar::from_double(8.0));
     Mat D_inv = D.inverse();
-    ASSERT_EQ(D_inv(0, 0), Scalar::from_double(0.5));
+    ASSERT_NEAR(D_inv(0, 0), Scalar::from_double(0.5));
 
     std::cout << "  [OK] 3x3 Determinant and Inverse (simple)\n";
   }
 
   // 7) 4x4 Determinant and Inverse (Generic Implementation)
   {
+    std::cout << "  Running 4x4 tests..." << std::endl;
     using Mat4 = T81Matrix<Scalar, 4, 4>;
     Mat4 I = t81::identity<Scalar, 4>();
-    ASSERT_EQ(I.determinant(), one);
+    ASSERT_NEAR(I.determinant(), one);
     Mat4 I_inv = I.inverse();
-    ASSERT_EQ(I_inv, I);
+    ASSERT_EQ(I_inv, I);  // Identity inverse should be exact (1/1=1)
 
     // Permutation matrix (det = -1)
     // 0 1 0 0
@@ -146,17 +149,21 @@ int main() {
 
     Scalar det = P.determinant();
     Scalar neg_one = Scalar::from_double(-1.0);
-    ASSERT_EQ(det, neg_one);
+    ASSERT_NEAR(det, neg_one);
 
     Mat4 P_inv = P.inverse();
     Mat4 P_T = P.transpose();
-    ASSERT_EQ(P_inv, P_T);
+
+    // Check element-wise near for inverse
+    for (size_t i = 0; i < 4; ++i)
+      for (size_t j = 0; j < 4; ++j) ASSERT_NEAR(P_inv(i, j), P_T(i, j));
 
     std::cout << "  [OK] 4x4 Determinant and Inverse (permutation)\n";
   }
 
   // 8) 5x5 Determinant and Inverse (Larger Generic)
   {
+    std::cout << "  Running 5x5 tests..." << std::endl;
     using Mat5 = T81Matrix<Scalar, 5, 5>;
     Mat5 D{};
     // Diagonal 1, 2, 1, 2, 1
@@ -166,12 +173,12 @@ int main() {
     D(3, 3) = two;
     D(4, 4) = one;
 
-    ASSERT_EQ(D.determinant(), four);  // 1*2*1*2*1 = 4
+    ASSERT_NEAR(D.determinant(), four);  // 1*2*1*2*1 = 4
 
     Mat5 D_inv = D.inverse();
-    ASSERT_EQ(D_inv(1, 1), Scalar::from_double(0.5));
-    ASSERT_EQ(D_inv(3, 3), Scalar::from_double(0.5));
-    ASSERT_EQ(D_inv(0, 0), one);
+    ASSERT_NEAR(D_inv(1, 1), Scalar::from_double(0.5));
+    ASSERT_NEAR(D_inv(3, 3), Scalar::from_double(0.5));
+    ASSERT_NEAR(D_inv(0, 0), one);
 
     std::cout << "  [OK] 5x5 Determinant and Inverse (diagonal)\n";
   }

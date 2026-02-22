@@ -352,6 +352,10 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_memory_test tests/cpp/vm_memory_test.cpp)
   target_link_libraries(t81_vm_memory_test PRIVATE t81_core)
 
+  add_executable(t81_vm_resource_monitoring_test tests/cpp/test_resource_monitoring.cpp)
+  target_link_libraries(t81_vm_resource_monitoring_test PRIVATE t81_core)
+  add_test(NAME t81_vm_resource_monitoring_test COMMAND t81_vm_resource_monitoring_test)
+
   add_executable(t81_axion_log_determinism_test tests/cpp/axion_log_determinism_test.cpp)
   target_link_libraries(t81_axion_log_determinism_test PRIVATE t81_core)
 
@@ -803,6 +807,10 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
 
   add_executable(t81_matrix_test tests/cpp/test_T81Matrix.cpp)
   target_link_libraries(t81_matrix_test PRIVATE t81_core)
+
+  add_executable(debug_matrix_crash tests/cpp/debug_matrix_crash.cpp)
+  target_link_libraries(debug_matrix_crash PRIVATE t81_core)
+  add_test(NAME debug_matrix_crash COMMAND debug_matrix_crash)
 
   add_executable(t81_maybe_test tests/cpp/test_T81Maybe.cpp)
   target_link_libraries(t81_maybe_test PRIVATE t81_core)
