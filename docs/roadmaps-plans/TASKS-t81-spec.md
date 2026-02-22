@@ -24,6 +24,7 @@
 - [x++] T81BigInt (arbitrary precision) (see `include/t81/core/T81BigInt.hpp`, supports Karatsuba)
 - [x] T81Float / fixed-point variants (see `include/t81/core/T81Float.hpp`, `T81Fixed.hpp`)
 - [x] T81Fraction (Exact rational value) (see `include/t81/core/T81Fraction.hpp`, exposed via `std.math.fraction` in VM/IR)
+- [x] T81Prob (Native log-odds probability) (see `include/t81/core/T81Prob.hpp`, relies on libm for conversions/complex ops)
 - [x] Promotion / demotion rules
   - [x] T81Cell ↔ T81BigInt (scalar → multi-limb, sign-extended) (Implemented via constructor and to_int<N>)
   - [x] T81BigInt ↔ T81Float / T81Fixed (with rounding modes per spec) (Implemented via to_float/from_float)
@@ -42,6 +43,12 @@
 - [x] Recursion tiers & depth limits
   - [x+] Tiered promotion enforcement (T81 → T243 → T729)
   - [x] Configurable depth guards + Axion recursion traps (see `include/t81/axion/policy.hpp`, `src/vm/vm.cpp`)
+- [?] Option[T] and Result[T, E] (First-class core types)
+  - [x] Basic headers (see `include/t81/core/Option.hpp`, `Result.hpp`)
+  - [ ] Full standard library integration
+  - [ ] VM lowering to canonical handles (spec 2.5)
+- [ ] Verification of `Vector Literal` immutability
+- [ ] Verification of legacy generic syntax (`<...>`) rejection
 
 ## 4. HanoiVM / TISC Instruction Set (section 8–10)
 - [x] Segmented memory model (see `src/vm/vm.cpp`)
@@ -57,6 +64,15 @@
     - [x] ReflCheck, ReflTrace, ReflSeal
     - [x] Tier 3 Recursive Opcodes (Recurse, Contract, Entropy, Depth, Terminate)
   - [x+] Infinite Series Compression (Geometric Series, see `src/cog/tier5/infinite.cpp`, `src/vm/vm.cpp`)
+- [ ] Concurrency Model (spec section 3)
+  - [ ] Multiple execution contexts / threads support
+  - [ ] Shared memory segments
+- [ ] Literal Pools
+  - [ ] Verify deterministic pool extension for conversions (`I2F`, etc.)
+- [ ] Code Segment Protection
+  - [ ] Verify enforcement of "Writable only via privileged loader"
+- [ ] Libm Gap Mitigation
+  - [ ] Plan/Implement software float math for full cross-platform determinism
 
 ## 5. CanonFS & Tensor Storage (section 11)
 - [x+] In-memory read/write throughput (see `src/canonfs/in_memory_driver.cpp`)
@@ -77,6 +93,9 @@
   - [x] Θ enforcement points in VM / interpreter (see `src/axion/ethics.cpp`, `check_ethics`)
   - [x] Telemetry / logging for drift detection (via Axion StructuredEvents)
   - [ ] Provable guarantees for the Nine Principles
+- [ ] Tier 4/5 Constraint Enforcement
+  - [ ] Symbolic complexity limits
+  - [ ] Graph/Tensor explosion risk monitoring
 
 ## 7. Algebraic Extensions & Data Structures
 - [x] T81Complex (Ternary complex numbers) (see `include/t81/core/T81Complex.hpp`)
@@ -87,6 +106,7 @@
   - [x] Determinant/Inverse (Specialized for N=1,2,3; generic pending)
 - [x] T81Polynomial (Univariate polynomials) (see `include/t81/core/T81Polynomial.hpp`)
 - [x] T81Graph (Static graph, hardware-native) (see `include/t81/core/T81Graph.hpp`)
+- [ ] Holotensor Types (Future/Aspirational)
 
 ## Cross-cutting / Later Phases
 - [x] Full regression suite coverage (173/173 tests passing)
