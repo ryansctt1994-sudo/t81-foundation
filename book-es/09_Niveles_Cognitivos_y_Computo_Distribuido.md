@@ -4,52 +4,69 @@
 
 **Estado: Implementado**
 
-T81 organiza la complejidad computacional en una jerarquía de **Niveles Cognitivos**. Esto permite al Kernel Axion razonar sobre la *intención* y las *capacidades* de un programa antes de la ejecución.
+T81 organiza la capacidad computacional en **Niveles Cognitivos**. Esta taxonomía permite al sistema limitar el "peligro" o "costo" de una computación. Un programa debe solicitar explícitamente la promoción a niveles superiores para acceder a capacidades avanzadas.
 
-| Nivel | Nombre | Capacidades | Límite de Recursión |
-| :--- | :--- | :--- | :--- |
-| **0** | **Base** | Aritmética básica (`Add`, `Sub`), flujo lineal. | 0 |
-| **1** | **Simbólico** | Ops de tensores, bucles básicos. | 81 |
-| **2** | **Reflexivo** | `MetaRead`, `MetaReflect`. | 243 |
-| **3** | **Recursivo** | Automodificación, generación de pruebas. | 1024 (Política) |
-| **4** | **Distribuido** | Gossip, Fusión de Estados. | N/A |
-| **5** | **Infinito** | Series Geométricas, formas no terminantes. | N/A |
+| Nivel | Nombre | Capacidad | Restricción | Política Axion |
+| :--- | :--- | :--- | :--- | :--- |
+| **1** | **Simbólico** | Aritmética básica, bucles fijos. | Tiempo $O(N)$ o Polinomial. | Por defecto. Sin recursión. |
+| **2** | **Reflexivo** | Auto-inspección, despacho dinámico. | Puede inspeccionar su propia fuente. | Requiere `max-reflections`. |
+| **3** | **Recursivo** | Recursión general, generación de pruebas. | Turing Completo (Riesgo de parada). | Requiere `max-recursion`. |
+| **4** | **Distribuido** | Gossip, Consenso, Fusión de Estados. | Latencia de red, teorema CAP. | Requiere `NetAccess`. |
+| **5** | **Infinito** | Series geométricas, formas no terminantes. | No acotado. | Requiere `InfExpand`. |
 
-> **Implementación**: La lógica de niveles está modularizada en `src/cog/tier[1-5]/`.
+### 9.1.1 Mecanismo de Promoción
+Un proceso comienza en el Nivel 1. Para escalar:
+1.  **Solicitud**: Opcode `Promote` con un token de capacidad.
+2.  **Auditoría**: Axion valida la solicitud contra la política activa.
+3.  **Concesión**: Si tiene éxito, la VM desbloquea los opcodes correspondientes (ej. `Recurse`, `InfExpand`).
 
 ## 9.2 Cómputo Distribuido (Nivel 4)
 
-**Estado: Implementado y Probado**
+**Estado: Experimental**
 
-El **Nivel Distribuido** permite que múltiples instancias de T81VM operen como un enjambre coherente.
+El Nivel 4 extiende la T81VM a través de los límites de la red. Trata la red no como una abstracción de socket, sino como un sistema de **Memoria Compartida Distribuida** gobernado por consenso.
 
-### 9.2.1 Protocolo Gossip
-Los nodos intercambian actualizaciones de estado a través de un protocolo determinista de chismes (gossip) utilizando los opcodes `Gossip` y `Merge`.
-*   **Formato de Mensaje**: `(Etiqueta, Carga Útil, LamportTick, NodeID)`.
-*   **Estrategia de Fusión**: Fusión tipo CRDT basada en marcas de tiempo `TickSync`.
-*   **Determinismo**: Dada la misma secuencia de llegada de mensajes, el estado fusionado final es idéntico en todos los nodos.
+### 9.2.1 Fusión de Estados
+Cuando dos nodos computan sobre el mismo conjunto de datos, sus estados $S_A$ y $S_B$ pueden divergir. El Nivel 4 proporciona un mecanismo para fusionar estos estados de manera determinista utilizando **CRDTs (Tipos de Datos Replicados Libres de Conflictos)** o **Consenso tipo Paxos**.
 
-> **Referencia**: `src/cog/tier4/distributed.cpp` y `tests/cpp/test_tier4_distributed.cpp`.
+*   **Protocolo Gossip**: Los nodos intercambian resúmenes `StateHash`.
+*   **Convergencia**: Si $Hash(S_A) \neq Hash(S_B)$, los nodos intercambian la traza completa.
+*   **Resolución**: Dado que la ejecución es determinista, el nodo con la traza válida más larga (Prueba de Trabajo/Tiempo) se considera típicamente autorizado, o se aplica una función de fusión.
 
-### 9.2.2 Relojes Lógicos (TickSync)
-La VM mantiene un reloj lógico de Lamport (`R75`).
-*   **Tic Interno**: Incrementa en cada instrucción.
-*   **Sincronización**: Actualiza al recibir el mensaje: `Tick = max(LocalTick, RemoteTick) + 1`.
-*   **Coherencia**: El opcode `Coherence` devuelve la deriva entre los tics locales y globales.
+### 9.2.2 El Ataque de "Viaje en el Tiempo"
+En un sistema distribuido, un nodo malicioso podría retener una transición de estado y liberarla más tarde para invalidar el trabajo de otros. El Nivel 4 mitiga esto requiriendo **Marcas de Tiempo Lamport** en todas las transiciones de estado. Una transición $S_t \to S_{t+1}$ solo es válida si está firmada por un quórum de nodos o si la marca de tiempo es estrictamente monótona y verificada.
 
-## 9.3 Formas Infinitas (Nivel 5)
+## 9.3 Compilación JIT Basada en Trazas
 
-**Estado: Implementado y Probado**
+**Estado: Implementado (Local)**
 
-El Nivel 5 introduce estructuras de datos "Infinitas", como las series geométricas.
-*   **Representación**: Un generador finito `(a, r)` representa la serie $a + ar + ar^2 + \dots$.
-*   **Operaciones**: `InfExpand` calcula el $N$-ésimo término. `InfConverge` verifica si $|r| < 1$.
-*   **Firma**: `InfSignature` genera un hash único de la *función generadora*, no de los datos infinitos.
+Aunque es principalmente una optimización de rendimiento, el **Trace-JIT** es conceptualmente una "Promoción Cognitiva" del código.
 
-> **Referencia**: `src/cog/tier5/infinite.cpp` y `tests/cpp/test_infinite_opcodes.cpp`.
+1.  **Observación**: La VM observa la ejecución del código de Nivel 1/2.
+2.  **Hipótesis**: "Este bucle $L$ se ejecutará $N$ veces con tipos $T$."
+3.  **Síntesis**: El JIT compila una versión especializada y optimizada de $L$.
+4.  **Verificación**: El código optimizado incluye **Guardias** para asegurar que la hipótesis siga siendo verdadera.
 
-## 9.4 Lista de Verificación
+Este proceso refleja el acto cognitivo de "aprender": convertir el razonamiento explícito y lento (interpretación) en intuición implícita y rápida (código compilado).
 
-*   [ ] **Promoción**: ¿El intento de recursión > 81 sin permiso falla? (Verificado por `tests/cpp/axion_recursion_guardrails_test.cpp`)
-*   [ ] **TickSync**: ¿El reloj lógico incrementa exactamente una vez por instrucción? (Verificado por `tests/cpp/axion_instruction_counter_test.cpp`)
-*   [ ] **Nivel 5**: ¿`InfExpand` e `InfConverge` producen resultados correctos? (Verificado por `tests/cpp/tier5_test.cpp`)
+## 9.4 Formas Infinitas (Nivel 5)
+
+**Estado: Implementado (Geométrico)**
+
+El Nivel 5 trata con **Formas Infinitas**—computaciones que no terminan pero convergen a un valor. T81 proporciona soporte explícito para la continuación analítica y la suma de series.
+
+### 9.4.1 El Objeto Infinito
+Una `InfiniteCanonicalForm` es un manejador a una serie matemática, definida por:
+*   **Primer Término ($a$)**
+*   **Razón ($r$)** (para series Geométricas) o **Función Generadora** ($f(n)$).
+
+### 9.4.2 Colapso y Convergencia
+El opcode `InfCollapse` intenta resolver una forma infinita a un valor finito.
+Para una Serie Geométrica $\sum_{n=0}^{\infty} ar^n$:
+1.  **Comprobar Convergencia**: Si $|r| < 1$, la serie converge.
+2.  **Calcular Límite**: $S = \frac{a}{1-r}$.
+3.  **Resultado**: El objeto infinito se reemplaza por el `T81Fraction` finito $S$.
+
+Si la serie diverge ($|r| \ge 1$), `InfCollapse` devuelve una firma `Divergent`, permitiendo que el programa maneje la singularidad con elegancia en lugar de colgarse.
+
+> **Verificación**: `src/cog/tier5/infinite.cpp` implementa la prueba de convergencia y la lógica de suma.

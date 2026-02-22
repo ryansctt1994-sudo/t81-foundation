@@ -1,26 +1,67 @@
-# Capítulo 12: Modelagem Adversária
+# Capítulo 12: Modelagem Adversária e Ataques de Determinismo
 
 ## 12.1 Modelo de Ameaça
 
-**Status: Ativo**
+**Status: Teórico**
 
-O T81 assume um ambiente adversário onde o hardware hospedeiro, sistema operacional e pares de rede podem ser maliciosos ou defeituosos.
+O T81 assume um ambiente hostil. O **Hospedeiro** (SO, Hardware, Operador) é considerado um adversário que pode tentar:
+1.  **Introduzir Entropia**: Injetar aleatoriedade na execução determinística.
+2.  **Forjar Estados**: Alegar que uma computação atingiu o estado $S'$ quando na verdade atingiu $S$.
+3.  **Negar Serviço**: Consumir recursos infinitos.
+4.  **Vazar Informação**: Expor dados privados via canais laterais.
 
-### 12.1.1 O Vetor "Libm Gap"
-Um vetor de ataque sutil existe onde um nó malicioso explora diferenças na biblioteca matemática padrão do hospedeiro (`libm`).
-*   **Ataque**: O Nó A (x86) computa `sin(x)` ligeiramente diferente do Nó B (ARM).
-*   **Consequência**: Divergência de estado leva a um fork de consenso.
-*   **Mitigação**: O T81 impõe o uso de `dmath` para todas as funções transcendentais críticas, garantindo resultados bit-exact independentemente da implementação `libm` subjacente.
+## 12.2 Ataques de Nível de Compilador
 
-> **Verificação**: `tests/cpp/test_property_float.cpp` verifica a consistência multiplataforma das operações `T81Float`.
+**Vetor de Ataque**: "Fonte Cavalo de Troia" / Homóglifos.
+**Descrição**: Um invasor usa caracteres de controle Unicode (ex: Right-to-Left Override) para fazer o código-fonte parecer diferente para humanos do que para o compilador.
+**Mitigação**: O Lexer T81 impõe um subconjunto estrito de UTF-8. Caracteres de controle e não imprimíveis são rejeitados durante a tokenização.
 
-### 12.1.2 Ataques de Viagem no Tempo
-Em um sistema distribuído, um par malicioso pode injetar mensagens com carimbos de data/hora futuros para manipular o relógio lógico.
-*   **Mitigação**: O protocolo `TickSync` impõe atualizações de relógio monotônicas. Uma mensagem com um carimbo de data/hora muito no futuro pode ser rejeitada ou limitada por política.
-*   **Verificação**: `tests/cpp/tier4_vm_test.cpp` testa a lógica de sincronização de relógio.
+**Vetor de Ataque**: Reordenação de Tokens / Deriva de Otimização.
+**Descrição**: Um compilador malicioso pode reordenar instruções de uma maneira que preserve a semântica em uma arquitetura, mas não em outra (ex: devido a diferenças no modelo de memória).
+**Mitigação**: O Compilador T81 emite uma **AST Canônica**. A fase de geração de IR é determinística e agnóstica de plataforma. O `t81lang_repro_gate` verifica se a saída do compilador é idêntica bit-a-bit entre execuções.
 
-## 12.2 Resiliência a Canal Lateral
+## 12.3 Vetores de Ataque de VM e GC
 
-**Status: Aspiracional / Parcial**
+**Vetor de Ataque**: Rowhammer / Bit Flips.
+**Descrição**: Ataques físicos na DRAM para inverter bits em memória sensível (ex: mudando um veredito `Deny` para `Allow`).
+**Mitigação**: O T81 usa **Handles Opacos** e **Segmentação de Memória**. Estruturas críticas do kernel são armazenadas em páginas isoladas (onde possível) e validadas por checksums. No entanto, software não pode mitigar totalmente falhas de hardware sem memória ECC.
 
-Embora o T81 garanta determinismo lógico, ele atualmente não garante execução em tempo constante para todas as operações. Canais laterais de tempo podem existir na implementação atual de multiplicação `BigInt` e funções `dmath`.
+**Vetor de Ataque**: Não-determinismo do Coletor de Lixo.
+**Descrição**: Se o GC rodar com base no tempo do relógio de parede ou pressão de memória, traces de execução divergirão entre execuções.
+**Mitigação**: O GC do T81 é **determinístico**. Ele é acionado unicamente por contagens de alocação (`bytes_allocated > threshold`). Isso garante que pausas do GC aconteçam na mesma instrução exata em cada execução.
+
+**Vetor de Ataque**: Canais Laterais de Tempo.
+**Descrição**: Observar o tempo que leva para computar uma função (ex: exponenciação modular) para inferir chaves secretas.
+**Mitigação**: O `dmath` visa implementações de tempo constante para primitivas criptográficas, mas aritmética de propósito geral não é garantida como tempo constante. O T81 foca em determinismo *funcional*, não determinismo *temporal* (ciclos constantes).
+
+## 12.4 Ataques CanonFS e Hash
+
+**Vetor de Ataque**: Colisão de Hash / Pré-imagem.
+**Descrição**: Encontrar duas entradas diferentes $A \neq B$ tal que $Hash(A) = Hash(B)$.
+**Mitigação**: O T81 usa **SHA3-256** (Keccak), que é resistente a ataques de extensão de comprimento e ataques de colisão. As regras de serialização canônica (chaves ordenadas, floats normalizados) minimizam a superfície de ataque reduzindo o espaço de entrada de objetos válidos.
+
+## 12.5 Ataque de Viagem no Tempo de Nível Distribuído
+
+**Vetor de Ataque**: Retenção de Estado / Replay.
+**Descrição**: No Nível 4, um nó computa uma transição de estado $S_t \to S_{t+1}$ mas a retém, liberando-a mais tarde para invalidar o trabalho de outros nós (um equivalente de "mineração egoísta").
+**Mitigação**:
+1.  **Carimbos de Data/Hora Lamport**: Cada transição deve seguir causalmente a anterior.
+2.  **Quóruns de Consenso**: Um estado só é finalizado quando assinado por $2/3$ do cluster cognitivo.
+3.  **Fusão de Trace**: Se ramos divergirem, a função de fusão determinística resolve conflitos com base no trabalho computacional total (comprimento do trace).
+
+## 12.6 Modelo de Post-Mortem de Violação de Determinismo
+
+**Status: Processo**
+
+Se uma violação de determinismo for detectada (ou seja, `t81lang_repro_gate` falhar), o seguinte procedimento é invocado:
+
+1.  **Isolamento**: Identificar as entradas divergentes e o índice de instrução específico onde o trace $A$ difere do trace $B$.
+2.  **Reprodução**: Criar um caso de reprodução mínima (`repro.t81`).
+3.  **Análise**:
+    *   É um bug do compilador? (Verificar dump da AST)
+    *   É um bug da VM? (Verificar implementação `dmath`)
+    *   É um problema de biblioteca do hospedeiro? (Verificar ligação `libc`)
+4.  **Remediação**:
+    *   Corrigir `dmath` para substituir o fallback do hospedeiro.
+    *   Atualizar `t81lang_repro_gate` com o novo teste de regressão.
+5.  **Divulgação**: Publicar um "Aviso de Determinismo" (se sistemas de produção forem afetados).
