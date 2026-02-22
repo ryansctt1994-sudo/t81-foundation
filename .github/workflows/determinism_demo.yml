@@ -143,6 +143,9 @@ jobs:
           export COLUMNS=100
           export LINES=28
 
+          # Ensure compilation happens here too if not reusing workspace
+          ./build/t81 compile examples/hello_world.t81 -o hello.tisc
+
           cat > out/demo_cmd.sh <<'SH'
           #!/usr/bin/env bash
           set -euo pipefail

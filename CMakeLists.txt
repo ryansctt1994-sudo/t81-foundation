@@ -443,6 +443,11 @@ if(T81_BUILD_TESTS)
 
   add_executable(t81_ethics_test tests/cpp/test_ethics.cpp)
   target_link_libraries(t81_ethics_test PRIVATE t81_core)
+  add_test(NAME t81_ethics_test COMMAND t81_ethics_test)
+
+  add_executable(t81_ethics_invariants_test tests/cpp/test_ethics_invariants.cpp)
+  target_link_libraries(t81_ethics_invariants_test PRIVATE t81_core)
+  add_test(NAME t81_ethics_invariants_test COMMAND t81_ethics_invariants_test)
 
   add_executable(test_resource_monitoring tests/cpp/test_resource_monitoring.cpp)
   target_link_libraries(test_resource_monitoring PRIVATE t81_core t81_tisc t81_vm)
