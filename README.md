@@ -129,8 +129,8 @@ graph TD
 |---------------------------|-----------------------|-------------------------|------------------|------------------------------------|
 | Linux x86_64              | Clang 18+, GCC 14+    | ✅ Passing 🔥            | ✅               | Full gate passing                  |
 | Linux ARM64               | Clang 18+             | ✅ Passing 🔥            | ✅               | Full gate passing                  |
-| macOS x86_64 (Intel)      | Apple Clang / GCC     | ✅ Passing              | ✅                | Works natively                     |
-| macOS ARM64 (Apple Silicon) | Apple Clang         | ✅ Passing              | ✅                | Active investigation (CMake/flags) |
+| macOS x86_64 (Intel)      | Apple Clang / GCC     | ✅ Passing 🔥            | ✅                | Full gate passing                  |
+| macOS ARM64 (Apple Silicon) | Apple Clang         | ✅ Passing 🔥           | ✅                | Full gate passing                  |
 
 ## CLI Examples 🔧🔍
 
