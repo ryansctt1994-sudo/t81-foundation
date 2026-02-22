@@ -26,13 +26,12 @@ The authoritative build graph is `../../CMakeLists.txt`. It includes static libr
 
 | Target | Kind | Responsibilities | Depends On |
 | --- | --- | --- | --- |
-| `t81_core` | STATIC | Core numerics, VM runtime, JIT compiler, Axion engine, CanonFS, codecs, hashing/crypto, weights internals | (none) |
-| `t81_cog` | STATIC | Cognitive Tier definitions (T243-T19683), symbolic graphs, reflective frames | `t81_core` |
+| `t81_core` | STATIC | Core numerics, VM runtime, JIT compiler, Axion engine, CanonFS, codecs, hashing/crypto, weights internals, Cognitive Tiers | (none) |
 | `t81_io` | STATIC | Tensor/model I/O helpers | `t81_core` |
 | `t81_c_api` | STATIC | C ABI surface for selected runtime/core functions | `t81_core` |
-| `t81_frontend` | STATIC | Lexer, parser, semantic analyzer (T81Lang frontend) | `t81_core`, `t81_cog` |
+| `t81_frontend` | STATIC | Lexer, parser, semantic analyzer (T81Lang frontend) | `t81_core` |
 | `t81_tisc` | STATIC | TISC IR/binary emitter, pretty printer, binary I/O, base81 TISC views | `t81_core` |
-| `t81_vm` | INTERFACE | VM public facade target for consumers/tests | `t81_core`, `t81_cog` |
+| `t81_vm` | INTERFACE | VM public facade target for consumers/tests | `t81_core` |
 | `t81_llvm` | INTERFACE | LLVM-facing facade target (placeholder/adapter layer) | `t81_core` |
 | `t81_cli_driver` | STATIC | CLI orchestration (compile/run/trace/repro/tools) | `t81_frontend`, `t81_tisc`, `t81_vm` |
 | `t81` | EXECUTABLE | Main CLI entry point | `t81_frontend`, `t81_tisc`, `t81_vm`, `t81_cli_driver` |
