@@ -153,17 +153,18 @@ static void test_max_symbolic_nodes() {
   // Allow 1 node total
   program.axion_policy_text = "(policy (max-symbolic-nodes 1))";
 
-  program.symbol_pool.push_back("A"); // index 0? No, VM: index 0 is invalid handle. pool[0] corresponds to handle 1.
+  program.symbol_pool.push_back(
+      "A");  // index 0? No, VM: index 0 is invalid handle. pool[0] corresponds to handle 1.
   // intern_symbol: state_.symbols.push_back... return size.
   // Program::symbol_pool is copied to state_.symbols.
   // Handle 1 -> pool[0].
-  program.symbol_pool.push_back("B"); // handle 2 -> pool[1].
+  program.symbol_pool.push_back("B");  // handle 2 -> pool[1].
 
   // LoadImm R1, handle 1 ("A")
   tisc::Insn i1;
   i1.opcode = Opcode::LoadImm;
   i1.a = 1;
-  i1.b = 1; // handle 1
+  i1.b = 1;  // handle 1
   i1.literal_kind = tisc::LiteralKind::SymbolHandle;
   program.insns.push_back(i1);
 
@@ -178,7 +179,7 @@ static void test_max_symbolic_nodes() {
   tisc::Insn i3;
   i3.opcode = Opcode::LoadImm;
   i3.a = 3;
-  i3.b = 2; // handle 2
+  i3.b = 2;  // handle 2
   i3.literal_kind = tisc::LiteralKind::SymbolHandle;
   program.insns.push_back(i3);
 

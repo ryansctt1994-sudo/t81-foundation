@@ -423,8 +423,8 @@ public:
       if (!state_.tensors[idx].has_value()) return nullptr;
       return &state_.tensors[idx].value();
     };
-    auto alloc_tensor =
-        [this, current_pc](t81::T729Tensor tensor) -> std::expected<std::int64_t, Trap> {
+    auto alloc_tensor = [this,
+                         current_pc](t81::T729Tensor tensor) -> std::expected<std::int64_t, Trap> {
       if (state_.policy) {
         std::size_t active_tensors = state_.tensors.size() - state_.free_tensor_indices.size();
         if (state_.policy->max_tensors &&
@@ -679,8 +679,8 @@ public:
       if (!state_.infinite_forms[idx].has_value()) return nullptr;
       return &state_.infinite_forms[idx].value();
     };
-    auto alloc_symbolic_graph = [this, current_pc](t81::cog::v1::SymbolicGraph graph)
-        -> std::expected<std::int64_t, Trap> {
+    auto alloc_symbolic_graph =
+        [this, current_pc](t81::cog::v1::SymbolicGraph graph) -> std::expected<std::int64_t, Trap> {
       size_t nodes = graph.nodes.size();
       if (state_.policy && state_.policy->max_symbolic_nodes) {
         if (state_.total_symbolic_nodes + nodes >
@@ -3507,8 +3507,7 @@ public:
             data[i] = tensor_a->data()[i] * tensor_b->data()[i];
           }
         }
-        auto res_handle =
-            alloc_tensor(t81::T729Tensor(tensor_a->shape(), std::move(data)));
+        auto res_handle = alloc_tensor(t81::T729Tensor(tensor_a->shape(), std::move(data)));
         if (!res_handle) {
           trap = res_handle.error();
           break;
