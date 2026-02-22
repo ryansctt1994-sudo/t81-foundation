@@ -156,7 +156,7 @@ Usage: )" << prog
 
 Commands:
   compile <file.t81> [-o <file.tisc>]   Compile T81Lang → TISC bytecode
-  run     <file.t81|.tisc> [--policy <policy.apl>] Compile and execute
+  run     <file.t81|.tisc> [--policy <policy.apl>] [--trace] Compile and execute
   disasm  <file.tisc>                  Print human-readable TISC disassembly
   debug   <file.t81|.tisc>             Compile (if needed) and start debugger
   check   <file.t81>                   Syntax-check only
@@ -266,6 +266,7 @@ struct Args {
   std::vector<std::string> command_args;
   std::optional<fs::path> weights_model;
   std::optional<fs::path> policy;
+  bool trace = false;
 };
 
 Args parse_args(int argc, char* argv[]) {
@@ -319,6 +320,8 @@ Args parse_args(int argc, char* argv[]) {
         std::exit(1);
       }
       a.policy = fs::path(argv[i]);
+    } else if (arg == "--trace") {
+      a.trace = true;
     } else if (arg == "-h" || arg == "--help") {
       a.need_help = true;
     } else if (arg.starts_with('-')) {
@@ -761,9 +764,9 @@ int main(int argc, char* argv[]) {
         TempTiscFile temp(args.input.stem().string());
         int rc = t81::cli::compile(args.input, temp.path, {}, {}, weights_model_ptr);
         if (rc != 0) return rc;
-        return t81::cli::run_tisc(temp.path, args.policy);
+        return t81::cli::run_tisc(temp.path, args.policy, args.trace);
       } else if (ext == ".tisc") {
-        return t81::cli::run_tisc(args.input, args.policy);
+        return t81::cli::run_tisc(args.input, args.policy, args.trace);
       } else {
         error("run expects .t81 or .tisc file");
         return 1;
