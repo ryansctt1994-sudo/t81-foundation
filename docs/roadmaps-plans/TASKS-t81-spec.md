@@ -24,7 +24,7 @@
 - [x++] T81BigInt (arbitrary precision) (see `include/t81/core/T81BigInt.hpp`, supports Karatsuba)
 - [x] T81Float / fixed-point variants (see `include/t81/core/T81Float.hpp`, `T81Fixed.hpp`)
 - [x] T81Fraction (Exact rational value) (see `include/t81/core/T81Fraction.hpp`, exposed via `std.math.fraction` in VM/IR)
-- [ ] Promotion / demotion rules
+- [x] Promotion / demotion rules
   - [x] T81Cell ↔ T81BigInt (scalar → multi-limb, sign-extended) (Implemented via constructor and to_int<N>)
   - [x] T81BigInt ↔ T81Float / T81Fixed (with rounding modes per spec) (Implemented via to_float/from_float)
   - [x+] Automatic promotion in expressions (T81 → T243 → T729 based on recursion depth)
@@ -78,12 +78,22 @@
   - [x] Telemetry / logging for drift detection (via Axion StructuredEvents)
   - [ ] Provable guarantees for the Nine Principles
 
+## 7. Algebraic Extensions & Data Structures
+- [x] T81Complex (Ternary complex numbers) (see `include/t81/core/T81Complex.hpp`)
+- [x] T81Quaternion (Hypercomplex rotation) (see `include/t81/core/T81Quaternion.hpp`)
+- [x] T81Qutrit (Native 3-state quantum type) (see `include/t81/core/T81Qutrit.hpp`)
+- [x] T81Matrix (Fixed-size matrix math) (see `include/t81/core/T81Matrix.hpp`)
+  - [x] Basic arithmetic (+, -, *, scalar *)
+  - [x] Determinant/Inverse (Specialized for N=1,2,3; generic pending)
+- [x] T81Polynomial (Univariate polynomials) (see `include/t81/core/T81Polynomial.hpp`)
+- [x] T81Graph (Static graph, hardware-native) (see `include/t81/core/T81Graph.hpp`)
+
 ## Cross-cutting / Later Phases
 - [x] Full regression suite coverage (173/173 tests passing)
 - [x] Fuzzing / property-based testing for invariants
   - [x] libFuzzer or similar on promotion, division, etc. (Implemented `tests/cpp/fuzz_bigint_libfuzzer.cpp`)
   - [x+] Property-based invariants (Implemented test_property_invariants.cpp, test_property_float.cpp)
-- [ ] Documentation sync (reference/benchmarks.md, notebooks)
+- [x] Documentation sync (reference/benchmarks.md, notebooks)
   - [x] Update benchmarks.md with latest numbers
   - [x] Add spec cross-references in code comments (@spec-ref: 4.2)
 - [x] Python bindings completeness

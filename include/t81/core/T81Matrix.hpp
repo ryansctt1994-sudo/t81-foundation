@@ -4,12 +4,14 @@
  */
 #pragma once
 
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <compare>
 #include <cstddef>
 #include <cstring>
 #include <span>
+#include <utility>
 #include "t81/core/T81Complex.hpp"
 #include "t81/core/T81Fixed.hpp"
 #include "t81/core/T81Float.hpp"
@@ -35,6 +37,20 @@ public:
 
   alignas(64) Scalar data[Rows * Cols];
 
+private:
+  static constexpr auto get_magnitude(const Scalar& x) {
+    if constexpr (requires { x.norm(); })
+      return x.norm();
+    else if constexpr (requires { x.abs(); })
+      return x.abs();
+    else if constexpr (requires { x.sign_trit(); }) {
+      if (x.sign_trit() == Trit::N) return -x;
+      return x;
+    } else
+      return x;
+  }
+
+public:
   constexpr T81Matrix() noexcept = default;
 
   explicit constexpr T81Matrix(Scalar fill) noexcept {
@@ -103,7 +119,38 @@ public:
              (*this)(0, 1) * ((*this)(1, 0) * (*this)(2, 2) - (*this)(1, 2) * (*this)(2, 0)) +
              (*this)(0, 2) * ((*this)(1, 0) * (*this)(2, 1) - (*this)(1, 1) * (*this)(2, 0));
     } else {
-      return Scalar{};
+      // Generic Gaussian elimination for N >= 4
+      T81Matrix temp = *this;
+      Scalar det = Scalar(1);
+
+      for (size_t i = 0; i < Rows; ++i) {
+        size_t pivot = i;
+        for (size_t k = i + 1; k < Rows; ++k) {
+          if (get_magnitude(temp(k, i)) > get_magnitude(temp(pivot, i))) pivot = k;
+        }
+
+        if (pivot != i) {
+          for (size_t j = 0; j < Cols; ++j) {
+            using std::swap;
+            swap(temp(i, j), temp(pivot, j));
+          }
+          det = -det;
+        }
+
+        if (temp(i, i) == Scalar(0)) return Scalar(0);
+
+        det = det * temp(i, i);
+        Scalar div = temp(i, i);
+        Scalar inv = Scalar(1) / div;
+
+        for (size_t k = i + 1; k < Rows; ++k) {
+          Scalar factor = temp(k, i) * inv;
+          for (size_t j = i + 1; j < Cols; ++j) {
+            temp(k, j) = temp(k, j) - factor * temp(i, j);
+          }
+        }
+      }
+      return det;
     }
   }
 
@@ -134,6 +181,47 @@ public:
       res(2, 0) = ((*this)(1, 0) * (*this)(2, 1) - (*this)(1, 1) * (*this)(2, 0)) / det;
       res(2, 1) = ((*this)(2, 0) * (*this)(0, 1) - (*this)(0, 0) * (*this)(2, 1)) / det;
       res(2, 2) = ((*this)(0, 0) * (*this)(1, 1) - (*this)(1, 0) * (*this)(0, 1)) / det;
+    } else {
+      // Gaussian elimination with augmented matrix [A|I]
+      T81Matrix work = *this;
+      T81Matrix inv(Scalar(0));
+      for (size_t i = 0; i < Rows; ++i) inv(i, i) = Scalar(1);
+
+      for (size_t i = 0; i < Rows; ++i) {
+        size_t pivot = i;
+        for (size_t k = i + 1; k < Rows; ++k) {
+          if (get_magnitude(work(k, i)) > get_magnitude(work(pivot, i))) pivot = k;
+        }
+
+        if (work(pivot, i) == Scalar(0)) return T81Matrix();  // Singular
+
+        if (pivot != i) {
+          for (size_t j = 0; j < Cols; ++j) {
+            using std::swap;
+            swap(work(i, j), work(pivot, j));
+            swap(inv(i, j), inv(pivot, j));
+          }
+        }
+
+        Scalar div = work(i, i);
+        Scalar scale = Scalar(1) / div;
+
+        for (size_t j = 0; j < Cols; ++j) {
+          work(i, j) = work(i, j) * scale;
+          inv(i, j) = inv(i, j) * scale;
+        }
+
+        for (size_t k = 0; k < Rows; ++k) {
+          if (k != i) {
+            Scalar f = work(k, i);
+            for (size_t j = 0; j < Cols; ++j) {
+              work(k, j) = work(k, j) - f * work(i, j);
+              inv(k, j) = inv(k, j) - f * inv(i, j);
+            }
+          }
+        }
+      }
+      return inv;
     }
     return res;
   }
