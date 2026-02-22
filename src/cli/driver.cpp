@@ -794,7 +794,7 @@ int repl(const std::shared_ptr<t81::weights::ModelFile>& weights_model,
   return 0;
 }
 
-int run_tisc(const fs::path& path, const std::optional<fs::path>& policy_path) {
+int run_tisc(const fs::path& path, const std::optional<fs::path>& policy_path, bool trace_enabled) {
   verbose("Loading TISC program: " + path.string());
 
   auto program = t81::tisc::load_program(path.string());
@@ -826,7 +826,13 @@ int run_tisc(const fs::path& path, const std::optional<fs::path>& policy_path) {
     return trap_exit_code(result.error());
   }
 
-  info("Program terminated normally");
+  if (trace_enabled) {
+    for (const auto& entry : vm->state().trace) {
+      std::cout << format_trace_entry(entry) << "\n";
+    }
+  } else {
+    info("Program terminated normally");
+  }
   return 0;
 }
 
