@@ -225,80 +225,90 @@ The **Definitive Technical Monograph** is the single source of truth for T81. It
    * [6.3 Embedding T81 (Python API)](book/06_Usage.md#63-embedding-t81-python-api)
    * [6.4 Debugging](book/06_Usage.md#64-debugging)
 
+7. **[Programming in T81Lang](book/07_Programming_in_T81Lang.md)**
+
+   * [7.1 Design Philosophy](book/07_Programming_in_T81Lang.md#71-design-philosophy)
+   * [7.2 Syntax Basics](book/07_Programming_in_T81Lang.md#72-syntax-basics)
+   * [7.3 Data Types](book/07_Programming_in_T81Lang.md#73-data-types)
+   * [7.4 Control Flow](book/07_Programming_in_T81Lang.md#74-control-flow)
+   * [7.5 Functions](book/07_Programming_in_T81Lang.md#75-functions)
+   * [7.6 Axion Integration](book/07_Programming_in_T81Lang.md#76-axion-integration)
+   * [7.7 Examples](book/07_Programming_in_T81Lang.md#77-examples)
+
 </details>
 
 <details>
 <summary><strong>Part III — Governance and Verification</strong></summary>
 
-7. **[Verification and Audit](book/07_Verification_and_Audit.md)**
+8. **[Verification and Audit](book/08_Verification_and_Audit.md)**
 
-   * [7.1 Formal Verification Methodology](book/07_Verification_and_Audit.md#71-formal-verification-methodology)
-   * [7.2 The Formal Audit Matrix](book/07_Verification_and_Audit.md#72-the-formal-audit-matrix)
-   * [7.3 Property-Based Testing](book/07_Verification_and_Audit.md#73-property-based-testing)
-   * [7.4 The Determinism Gate](book/07_Verification_and_Audit.md#74-the-determinism-gate)
+   * [8.1 Formal Verification Methodology](book/08_Verification_and_Audit.md#71-formal-verification-methodology)
+   * [8.2 The Formal Audit Matrix](book/08_Verification_and_Audit.md#72-the-formal-audit-matrix)
+   * [8.3 Property-Based Testing](book/08_Verification_and_Audit.md#73-property-based-testing)
+   * [8.4 The Determinism Gate](book/08_Verification_and_Audit.md#74-the-determinism-gate)
 
-8. **[The Axion Safety Kernel](book/08_The_Axion_Kernel.md)**
+9. **[The Axion Safety Kernel](book/09_The_Axion_Kernel.md)**
 
-   * [8.1 Formal Definition](book/08_The_Axion_Kernel.md#81-formal-definition)
-   * [8.2 The Policy Model](book/08_The_Axion_Kernel.md#82-the-policy-model)
-   * [8.3 Instruction Interception](book/08_The_Axion_Kernel.md#83-instruction-interception)
-   * [8.4 The Audit Log (Trace)](book/08_The_Axion_Kernel.md#84-the-audit-log-trace)
-   * [8.5 Cognitive Promotion](book/08_The_Axion_Kernel.md#85-cognitive-promotion)
+   * [9.1 Formal Definition](book/09_The_Axion_Kernel.md#81-formal-definition)
+   * [9.2 The Policy Model](book/09_The_Axion_Kernel.md#82-the-policy-model)
+   * [9.3 Instruction Interception](book/09_The_Axion_Kernel.md#83-instruction-interception)
+   * [9.4 The Audit Log (Trace)](book/09_The_Axion_Kernel.md#84-the-audit-log-trace)
+   * [9.5 Cognitive Promotion](book/09_The_Axion_Kernel.md#85-cognitive-promotion)
 
-9. **[Cognitive Tiers and Distributed Compute](book/09_Cognitive_Tiers_and_Distributed_Compute.md)**
+10. **[Cognitive Tiers and Distributed Compute](book/10_Cognitive_Tiers_and_Distributed_Compute.md)**
 
-   * [9.1 The Cognitive Tier Model](book/09_Cognitive_Tiers_and_Distributed_Compute.md#91-the-cognitive-tier-model)
-   * [9.2 Distributed Compute (Tier 4)](book/09_Cognitive_Tiers_and_Distributed_Compute.md#92-distributed-compute-tier-4)
-   * [9.3 Trace-Based JIT Compilation](book/09_Cognitive_Tiers_and_Distributed_Compute.md#93-trace-based-jit-compilation)
-   * [9.4 Infinite Forms (Tier 5)](book/09_Cognitive_Tiers_and_Distributed_Compute.md#94-infinite-forms-tier-5)
+   * [10.1 The Cognitive Tier Model](book/10_Cognitive_Tiers_and_Distributed_Compute.md#91-the-cognitive-tier-model)
+   * [10.2 Distributed Compute (Tier 4)](book/10_Cognitive_Tiers_and_Distributed_Compute.md#92-distributed-compute-tier-4)
+   * [10.3 Trace-Based JIT Compilation](book/10_Cognitive_Tiers_and_Distributed_Compute.md#93-trace-based-jit-compilation)
+   * [10.4 Infinite Forms (Tier 5)](book/10_Cognitive_Tiers_and_Distributed_Compute.md#94-infinite-forms-tier-5)
 
-10. **[Appendices](book/10_Appendices.md)**
+11. **[Appendices](book/11_Appendices.md)**
 
-* [10.1 What Is Not Yet Implemented](book/10_Appendices.md#101-what-is-not-yet-implemented)
-* [10.2 Glossary](book/10_Appendices.md#102-glossary)
-* [10.3 Useful Links](book/10_Appendices.md#103-useful-links)
+* [11.1 What Is Not Yet Implemented](book/11_Appendices.md#101-what-is-not-yet-implemented)
+* [11.2 Glossary](book/11_Appendices.md#102-glossary)
+* [11.3 Useful Links](book/11_Appendices.md#103-useful-links)
 
 </details>
 
 <details>
 <summary><strong>Part IV — Formalization and Structural Hardening</strong></summary>
 
-11. **[Formal Semantics of TISC and T81VM](book/11_Formal_Semantics.md)**
+12. **[Formal Semantics of TISC and T81VM](book/12_Formal_Semantics.md)**
 
-* [11.1 Operational Semantics](book/11_Formal_Semantics.md#111-operational-semantics)
-* [11.1.1 The Transition Function δ](book/11_Formal_Semantics.md#1111-the-transition-function)
-* [11.2 Algebraic Transition Function](book/11_Formal_Semantics.md#112-algebraic-transition-function)
-* [11.3 Canonicalization Rewriting System](book/11_Formal_Semantics.md#113-canonicalization-rewriting-system)
-* [11.4 Determinism Proof Sketches](book/11_Formal_Semantics.md#114-determinism-proof-sketches)
-* [11.5 Interpreter vs Trace-JIT Equivalence](book/11_Formal_Semantics.md#115-interpreter-vs-trace-jit-equivalence)
+* [12.1 Operational Semantics](book/12_Formal_Semantics.md#111-operational-semantics)
+* [12.1.1 The Transition Function δ](book/12_Formal_Semantics.md#1111-the-transition-function)
+* [12.2 Algebraic Transition Function](book/12_Formal_Semantics.md#112-algebraic-transition-function)
+* [12.3 Canonicalization Rewriting System](book/12_Formal_Semantics.md#113-canonicalization-rewriting-system)
+* [12.4 Determinism Proof Sketches](book/12_Formal_Semantics.md#114-determinism-proof-sketches)
+* [12.5 Interpreter vs Trace-JIT Equivalence](book/12_Formal_Semantics.md#115-interpreter-vs-trace-jit-equivalence)
 
-12. **[Adversarial Modeling and Determinism Attacks](book/12_Adversarial_Modeling.md)**
+13. **[Adversarial Modeling and Determinism Attacks](book/13_Adversarial_Modeling.md)**
 
-* [12.1 Threat Model](book/12_Adversarial_Modeling.md#121-threat-model)
-* [12.2 Compiler-Level Attacks](book/12_Adversarial_Modeling.md#122-compiler-level-attacks)
-* [12.3 VM and GC Attack Vectors](book/12_Adversarial_Modeling.md#123-vm-and-gc-attack-vectors)
-* [12.4 CanonFS and Hash Attacks](book/12_Adversarial_Modeling.md#124-canonfs-and-hash-attacks)
-* [12.5 Distributed Tier Time-Travel Attack](book/12_Adversarial_Modeling.md#125-distributed-tier-time-travel-attack)
-* [12.6 Determinism Breach Postmortem Template](book/12_Adversarial_Modeling.md#126-determinism-breach-postmortem-template)
+* [13.1 Threat Model](book/13_Adversarial_Modeling.md#121-threat-model)
+* [13.2 Compiler-Level Attacks](book/13_Adversarial_Modeling.md#122-compiler-level-attacks)
+* [13.3 VM and GC Attack Vectors](book/13_Adversarial_Modeling.md#123-vm-and-gc-attack-vectors)
+* [13.4 CanonFS and Hash Attacks](book/13_Adversarial_Modeling.md#124-canonfs-and-hash-attacks)
+* [13.5 Distributed Tier Time-Travel Attack](book/13_Adversarial_Modeling.md#125-distributed-tier-time-travel-attack)
+* [13.6 Determinism Breach Postmortem Template](book/13_Adversarial_Modeling.md#126-determinism-breach-postmortem-template)
 
 </details>
 
 <details>
 <summary><strong>Part V — Continuity and Research Horizon</strong></summary>
 
-13. **[Continuity and Resilience](book/13_Continuity_Resilience.md)**
+14. **[Continuity and Resilience](book/14_Continuity_Resilience.md)**
 
-* [13.1 The Cleanroom Protocol](book/13_Continuity_Resilience.md#131-the-cleanroom-protocol)
-* [13.2 Single Points of Failure](book/13_Continuity_Resilience.md#132-single-points-of-failure)
-* [13.3 Continuity Manifest](book/13_Continuity_Resilience.md#133-continuity-manifest)
-* [13.4 Immutable Formal Invariants](book/13_Continuity_Resilience.md#134-immutable-formal-invariants)
+* [14.1 The Cleanroom Protocol](book/14_Continuity_Resilience.md#131-the-cleanroom-protocol)
+* [14.2 Single Points of Failure](book/14_Continuity_Resilience.md#132-single-points-of-failure)
+* [14.3 Continuity Manifest](book/14_Continuity_Resilience.md#133-continuity-manifest)
+* [14.4 Immutable Formal Invariants](book/14_Continuity_Resilience.md#134-immutable-formal-invariants)
 
-14. **[Research Frontier](book/14_Research_Frontier.md)**
+15. **[Research Frontier](book/15_Research_Frontier.md)**
 
-* [14.1 Ternary Hardware Acceleration](book/14_Research_Frontier.md#141-ternary-hardware-acceleration)
-* [14.2 Formal Verification Paths](book/14_Research_Frontier.md#142-formal-verification-paths)
-* [14.3 CanonFS as a Merkle Substrate](book/14_Research_Frontier.md#143-canonfs-as-a-merkle-substrate)
-* [14.4 Deterministic AI Inference at Scale](book/14_Research_Frontier.md#144-deterministic-ai-inference-at-scale)
+* [15.1 Ternary Hardware Acceleration](book/15_Research_Frontier.md#141-ternary-hardware-acceleration)
+* [15.2 Formal Verification Paths](book/15_Research_Frontier.md#142-formal-verification-paths)
+* [15.3 CanonFS as a Merkle Substrate](book/15_Research_Frontier.md#143-canonfs-as-a-merkle-substrate)
+* [15.4 Deterministic AI Inference at Scale](book/15_Research_Frontier.md#144-deterministic-ai-inference-at-scale)
 
 </details>
 

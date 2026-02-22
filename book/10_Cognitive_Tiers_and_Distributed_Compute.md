@@ -1,6 +1,6 @@
-# Chapter 9: Cognitive Tiers and Distributed Compute
+# Chapter 10: Cognitive Tiers and Distributed Compute
 
-## 9.1 The Cognitive Tier Model
+## 10.1 The Cognitive Tier Model
 
 **Status: Implemented**
 
@@ -14,29 +14,29 @@ T81 organizes computational capability into **Cognitive Tiers**. This taxonomy a
 | **4** | **Distributed** | Gossip, Consensus, State Merging. | Network latency, CAP theorem. | Requires `NetAccess`. |
 | **5** | **Infinite** | Geometric series, non-terminating forms. | Unbounded. | Requires `InfExpand`. |
 
-### 9.1.1 Promotion Mechanism
+### 10.1.1 Promotion Mechanism
 A process starts at Tier 1. To escalate:
 1.  **Request**: `Promote` opcode with a capability token.
 2.  **Audit**: Axion validates the request against the active policy.
 3.  **Grant**: If successful, the VM unlocks the corresponding opcodes (e.g., `Recurse`, `InfExpand`).
 
-## 9.2 Distributed Compute (Tier 4)
+## 10.2 Distributed Compute (Tier 4)
 
 **Status: Experimental**
 
 Tier 4 extends the T81VM across network boundaries. It treats the network not as a socket abstraction, but as a **Distributed Shared Memory** system governed by consensus.
 
-### 9.2.1 State Merging
+### 10.2.1 State Merging
 When two nodes compute on the same dataset, their states $S_A$ and $S_B$ may diverge. Tier 4 provides a mechanism to merge these states deterministically using **CRDTs (Conflict-free Replicated Data Types)** or **Paxos-like Consensus**.
 
 *   **Gossip Protocol**: Nodes exchange `StateHash` digests.
 *   **Convergence**: If $Hash(S_A) \neq Hash(S_B)$, the nodes exchange the full trace.
 *   **Resolution**: Since execution is deterministic, the node with the longer valid trace (Proof of Work/Time) is typically considered authoritative, or a merge function is applied.
 
-### 9.2.2 The "Time Travel" Attack
+### 10.2.2 The "Time Travel" Attack
 In a distributed system, a malicious node might withhold a state transition and release it later to invalidate others' work. Tier 4 mitigates this by requiring **Lamport Timestamps** on all state transitions. A transition $S_t \to S_{t+1}$ is only valid if signed by a quorum of nodes or if the timestamp is strictly monotonic and verified.
 
-## 9.3 Trace-Based JIT Compilation
+## 10.3 Trace-Based JIT Compilation
 
 **Status: Implemented (Local)**
 
@@ -49,18 +49,18 @@ While primarily a performance optimization, the **Trace-JIT** is conceptually a 
 
 This process mirrors the cognitive act of "learning": converting explicit, slow reasoning (interpretation) into implicit, fast intuition (compiled code).
 
-## 9.4 Infinite Forms (Tier 5)
+## 10.4 Infinite Forms (Tier 5)
 
 **Status: Implemented (Geometric)**
 
 Tier 5 deals with **Infinite Forms**—computations that do not terminate but converge to a value. T81 provides explicit support for analytic continuation and series summation.
 
-### 9.4.1 The Infinite Object
+### 10.4.1 The Infinite Object
 An `InfiniteCanonicalForm` is a handle to a mathematical series, defined by:
 *   **First Term ($a$)**
 *   **Ratio ($r$)** (for Geometric series) or **Generator Function** ($f(n)$).
 
-### 9.4.2 Collapse and Convergence
+### 10.4.2 Collapse and Convergence
 The `InfCollapse` opcode attempts to resolve an infinite form to a finite value.
 For a Geometric Series $\sum_{n=0}^{\infty} ar^n$:
 1.  **Check Convergence**: If $|r| < 1$, the series converges.

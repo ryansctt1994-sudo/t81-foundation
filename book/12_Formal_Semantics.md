@@ -1,12 +1,12 @@
-# Chapter 11: Formal Semantics of TISC and T81VM
+# Chapter 12: Formal Semantics of TISC and T81VM
 
-## 11.1 Operational Semantics
+## 12.1 Operational Semantics
 
 **Status: Formalizing**
 
 The T81 Virtual Machine (T81VM) is formally defined as a **Deterministic Finite Automaton with Infinite Memory** (DFA-IM). Its semantics are specified using **Small-Step Operational Semantics** (SSOS).
 
-### 11.1.1 The Transition Function $\delta$
+### 12.1.1 The Transition Function $\delta$
 
 The core of the VM is the transition function $\delta$, which maps a state $S$ to a successor state $S'$:
 $$
@@ -20,7 +20,7 @@ S_0 \xrightarrow{\delta} S_1 \xrightarrow{\delta} \dots \xrightarrow{\delta} S_n
 $$
 where $S_n$ is a **Halt State** (either `STOP` or `TRAP`).
 
-### 11.1.2 Inference Rules
+### 12.1.2 Inference Rules
 
 We use inference rules of the form:
 $$
@@ -47,7 +47,7 @@ $$
 \frac{\alpha(S, \text{Op}) = \text{Allow}}{S \to \delta_{\text{Op}}(S)}
 $$
 
-## 11.2 Algebraic Transition Function
+## 12.2 Algebraic Transition Function
 
 **Status: Theoretical**
 
@@ -67,13 +67,13 @@ $$
 \forall S \in \mathcal{S}, Op \in \mathcal{O}: \exists! S' \text{ such that } S \xrightarrow{Op} S'
 $$
 
-## 11.3 Canonicalization Rewriting System
+## 12.3 Canonicalization Rewriting System
 
 **Status: Implemented**
 
 The T81 compiler and runtime employ a **Rewriting System** to ensure canonical forms. This is critical for `CanonHash81` stability.
 
-### 11.3.1 Normal Forms
+### 12.3.1 Normal Forms
 A value $v$ is in **Normal Form** if it cannot be rewritten further by the reduction rules.
 
 **Rule: Float Normalization**
@@ -89,7 +89,7 @@ i < j \implies \text{TopoRank}(v_i) < \text{TopoRank}(v_j)
 $$
 This ensures that isomorphic graphs serialize to identical byte streams.
 
-## 11.4 Determinism Proof Sketches
+## 12.4 Determinism Proof Sketches
 
 ### Theorem 1: Hardware Independence of `dmath`
 
@@ -111,7 +111,7 @@ This ensures that isomorphic graphs serialize to identical byte streams.
 3.  Therefore, the "else" branch is taken, leading to a Trap state, not a state produced by execution of $Op$.
 4.  By induction, no valid state transition uses $Op$. $\blacksquare$
 
-## 11.5 Interpreter vs Trace-JIT Equivalence
+## 12.5 Interpreter vs Trace-JIT Equivalence
 
 **Status: In Progress**
 

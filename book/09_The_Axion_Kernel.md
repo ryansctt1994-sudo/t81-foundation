@@ -1,6 +1,6 @@
-# Chapter 8: The Axion Safety Kernel
+# Chapter 9: The Axion Safety Kernel
 
-## 8.1 Formal Definition
+## 9.1 Formal Definition
 
 **Status: Implemented & Tested**
 
@@ -13,13 +13,13 @@ $$
 
 This evaluation happens **before** the state transition $S \xrightarrow{Op} S'$ occurs. If $\alpha(S, Op) = \text{Deny}$, the transition is aborted, and the machine traps with a `SecurityFault`.
 
-## 8.2 The Policy Model
+## 9.2 The Policy Model
 
 **Status: Implemented**
 
 Policies are declarative rulesets that define the constraints for a specific execution context. A policy does not say *what* to compute, but *how* it is allowed to compute.
 
-### 8.2.1 Policy Language (S-Expressions)
+### 9.2.1 Policy Language (S-Expressions)
 Axion policies are defined using a Lisp-like S-expression syntax, ensuring easy parsing and canonicalization.
 
 **Example: A Strict Tier 1 Policy**
@@ -46,19 +46,19 @@ Axion policies are defined using a Lisp-like S-expression syntax, ensuring easy 
 )
 ```
 
-### 8.2.2 Capabilities
+### 9.2.2 Capabilities
 Capabilities are granular permissions granted to a process.
 *   **NetAccess**: Ability to use `IoNet` handles (Tier 4).
 *   **MetaWrite**: Ability to modify the Meta segment (Reflection).
 *   **InfExpand**: Ability to instantiate infinite forms (Tier 5).
 
-## 8.3 Instruction Interception
+## 9.3 Instruction Interception
 
 **Status: Implemented & Tested**
 
 The Axion Kernel is integrated directly into the VM's fetch-decode-execute loop.
 
-### 8.3.1 The Interceptor Hook
+### 9.3.1 The Interceptor Hook
 In `src/vm/vm.cpp`, the main loop invokes the policy engine:
 
 ```cpp
@@ -82,16 +82,16 @@ while (!halted) {
 }
 ```
 
-### 8.3.2 Zero-Cost Abstractions?
+### 9.3.2 Zero-Cost Abstractions?
 No. T81 explicitly rejects "Zero-Cost Abstractions" if they compromise safety. The Axion check imposes a performance overhead. This is a deliberate design choice: **Correctness > Performance**. However, for JIT-compiled traces, the policy checks are performed once during trace recording and baked into the optimized trace as guarded assertions, reducing runtime overhead significantly.
 
-## 8.4 The Audit Log (Trace)
+## 9.4 The Audit Log (Trace)
 
 **Status: Implemented & Tested**
 
 The **Trace** is the cryptographic proof of what happened. It is not just a debug log; it is a Merkle chain of events.
 
-### 8.4.1 Trace Structure
+### 9.4.1 Trace Structure
 Each entry in the log contains:
 1.  **Tick**: The logical clock time.
 2.  **Opcode**: The instruction executed.
@@ -104,7 +104,7 @@ $$
 
 The final hash $H_n$ is the **Proof of Execution**. If two parties run the same code and get the same $H_n$, they are cryptographically guaranteed to have reached the exact same state via the exact same path.
 
-## 8.5 Cognitive Promotion
+## 9.5 Cognitive Promotion
 
 **Status: Implemented**
 
