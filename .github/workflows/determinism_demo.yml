@@ -108,8 +108,13 @@ jobs:
       - name: Install asciinema + agg
         run: |
           sudo apt-get update
-          sudo apt-get install -y asciinema python3-pip
-          pip3 install --user agg
+          sudo apt-get install -y asciinema
+
+          # Install agg (asciinema gif generator) from GitHub releases
+          mkdir -p $HOME/.local/bin
+          # Using version 1.4.3 for stability
+          curl -L https://github.com/asciinema/agg/releases/download/v1.4.3/agg-x86_64-unknown-linux-gnu -o $HOME/.local/bin/agg
+          chmod +x $HOME/.local/bin/agg
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       # Build again (or download a build artifact if you already build elsewhere)
