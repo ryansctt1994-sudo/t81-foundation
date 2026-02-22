@@ -6,14 +6,14 @@
 #include "t81/core/T81Float.hpp"
 #include "t81/core/T81Matrix.hpp"
 
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
 using namespace t81;
 
 template <typename Scalar>
 bool is_close(const Scalar& a, const Scalar& b, double tol = 1e-9) {
-    return std::abs(a.to_double() - b.to_double()) < tol;
+  return std::abs(a.to_double() - b.to_double()) < tol;
 }
 
 #define ASSERT_EQ(a, b) assert((a) == (b))
@@ -115,60 +115,65 @@ int main() {
 
     // Simple diagonal
     Mat D{};
-    D(0,0) = two; D(1,1) = two; D(2,2) = two;
+    D(0, 0) = two;
+    D(1, 1) = two;
+    D(2, 2) = two;
     ASSERT_EQ(D.determinant(), Scalar::from_double(8.0));
     Mat D_inv = D.inverse();
-    ASSERT_EQ(D_inv(0,0), Scalar::from_double(0.5));
+    ASSERT_EQ(D_inv(0, 0), Scalar::from_double(0.5));
 
     std::cout << "  [OK] 3x3 Determinant and Inverse (simple)\n";
   }
 
   // 7) 4x4 Determinant and Inverse (Generic Implementation)
   {
-      using Mat4 = T81Matrix<Scalar, 4, 4>;
-      Mat4 I = t81::identity<Scalar, 4>();
-      ASSERT_EQ(I.determinant(), one);
-      Mat4 I_inv = I.inverse();
-      ASSERT_EQ(I_inv, I);
+    using Mat4 = T81Matrix<Scalar, 4, 4>;
+    Mat4 I = t81::identity<Scalar, 4>();
+    ASSERT_EQ(I.determinant(), one);
+    Mat4 I_inv = I.inverse();
+    ASSERT_EQ(I_inv, I);
 
-      // Permutation matrix (det = -1)
-      // 0 1 0 0
-      // 0 0 1 0
-      // 0 0 0 1
-      // 1 0 0 0
-      Mat4 P{};
-      P(0,1) = one; P(1,2) = one; P(2,3) = one; P(3,0) = one;
+    // Permutation matrix (det = -1)
+    // 0 1 0 0
+    // 0 0 1 0
+    // 0 0 0 1
+    // 1 0 0 0
+    Mat4 P{};
+    P(0, 1) = one;
+    P(1, 2) = one;
+    P(2, 3) = one;
+    P(3, 0) = one;
 
-      Scalar det = P.determinant();
-      Scalar neg_one = Scalar::from_double(-1.0);
-      ASSERT_EQ(det, neg_one);
+    Scalar det = P.determinant();
+    Scalar neg_one = Scalar::from_double(-1.0);
+    ASSERT_EQ(det, neg_one);
 
-      Mat4 P_inv = P.inverse();
-      Mat4 P_T = P.transpose();
-      ASSERT_EQ(P_inv, P_T);
+    Mat4 P_inv = P.inverse();
+    Mat4 P_T = P.transpose();
+    ASSERT_EQ(P_inv, P_T);
 
-      std::cout << "  [OK] 4x4 Determinant and Inverse (permutation)\n";
+    std::cout << "  [OK] 4x4 Determinant and Inverse (permutation)\n";
   }
 
   // 8) 5x5 Determinant and Inverse (Larger Generic)
   {
-      using Mat5 = T81Matrix<Scalar, 5, 5>;
-      Mat5 D{};
-      // Diagonal 1, 2, 1, 2, 1
-      D(0,0) = one;
-      D(1,1) = two;
-      D(2,2) = one;
-      D(3,3) = two;
-      D(4,4) = one;
+    using Mat5 = T81Matrix<Scalar, 5, 5>;
+    Mat5 D{};
+    // Diagonal 1, 2, 1, 2, 1
+    D(0, 0) = one;
+    D(1, 1) = two;
+    D(2, 2) = one;
+    D(3, 3) = two;
+    D(4, 4) = one;
 
-      ASSERT_EQ(D.determinant(), four); // 1*2*1*2*1 = 4
+    ASSERT_EQ(D.determinant(), four);  // 1*2*1*2*1 = 4
 
-      Mat5 D_inv = D.inverse();
-      ASSERT_EQ(D_inv(1,1), Scalar::from_double(0.5));
-      ASSERT_EQ(D_inv(3,3), Scalar::from_double(0.5));
-      ASSERT_EQ(D_inv(0,0), one);
+    Mat5 D_inv = D.inverse();
+    ASSERT_EQ(D_inv(1, 1), Scalar::from_double(0.5));
+    ASSERT_EQ(D_inv(3, 3), Scalar::from_double(0.5));
+    ASSERT_EQ(D_inv(0, 0), one);
 
-      std::cout << "  [OK] 5x5 Determinant and Inverse (diagonal)\n";
+    std::cout << "  [OK] 5x5 Determinant and Inverse (diagonal)\n";
   }
 
   std::cout << "All T81Matrix tests PASSED!\n";
