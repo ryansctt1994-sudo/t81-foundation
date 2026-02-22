@@ -234,13 +234,13 @@ For a comprehensive, specification-grade description of the architecture — inc
 
 3. **[T81VM Architecture](book/03_Architecture.md)**
 
-   * [3.1 Formal State Machine](book/03_Architecture.md#31-formal-state-machine)
-   * [3.1.1 State Definition](book/03_Architecture.md#311-state-definition)
-   * [3.2 Memory Layout](book/03_Architecture.md#32-memory-layout)
-   * [3.3 Register File](book/03_Architecture.md#33-register-file)
-   * [3.4 TISC Instruction Set Architecture](book/03_Architecture.md#34-tisc-instruction-set-architecture-isa)
-   * [3.5 Fault Semantics](book/03_Architecture.md#35-fault-semantics)
-   * [3.6 Garbage Collection](book/03_Architecture.md#36-garbage-collection)
+   * [3.1 Overview](book/03_Architecture.md#31-overview)
+   * [3.1.1 The Execution Pipeline](book/03_Architecture.md#311-the-execution-pipeline)
+   * [3.2 The Runtime Boundary](book/03_Architecture.md#32-the-runtime-boundary)
+   * [3.3 Memory Model](book/03_Architecture.md#33-memory-model)
+   * [3.3.1 Formal State Definition](book/03_Architecture.md#331-formal-state-definition)
+   * [3.4 The Instruction Set (TISC)](book/03_Architecture.md#34-the-instruction-set-tisc)
+   * [3.5 JIT Compilation (Trace-JIT)](book/03_Architecture.md#35-jit-compilation-trace-jit)
 
 4. **[Data Types and Canonical Serialization](book/04_Data_Types_and_Serialization.md)**
 
@@ -269,10 +269,10 @@ For a comprehensive, specification-grade description of the architecture — inc
 
 7. **[Verification and Audit](book/07_Verification_and_Audit.md)**
 
-   * [7.1 Formal Verification Methodology](book/07_Verification_and_Audit.md#71-the-verification-stack)
-   * [7.2 The Formal Audit Matrix](book/07_Verification_and_Audit.md#71-the-verification-stack)
-   * [7.3 Property-Based Testing](book/07_Verification_and_Audit.md#71-the-verification-stack)
-   * [7.4 The Determinism Gate](book/07_Verification_and_Audit.md#72-determinism-gate)
+   * [7.1 Formal Verification Methodology](book/07_Verification_and_Audit.md#71-formal-verification-methodology)
+   * [7.2 The Formal Audit Matrix](book/07_Verification_and_Audit.md#72-the-formal-audit-matrix)
+   * [7.3 Property-Based Testing](book/07_Verification_and_Audit.md#73-property-based-testing)
+   * [7.4 The Determinism Gate](book/07_Verification_and_Audit.md#74-the-determinism-gate)
 
 8. **[The Axion Safety Kernel](book/08_The_Axion_Kernel.md)**
 
@@ -286,14 +286,14 @@ For a comprehensive, specification-grade description of the architecture — inc
 
    * [9.1 The Cognitive Tier Model](book/09_Cognitive_Tiers_and_Distributed_Compute.md#91-the-cognitive-tier-model)
    * [9.2 Distributed Compute (Tier 4)](book/09_Cognitive_Tiers_and_Distributed_Compute.md#92-distributed-compute-tier-4)
-   * [9.3 Trace-Based JIT Compilation](book/09_Cognitive_Tiers_and_Distributed_Compute.md#92-distributed-compute-tier-4)
-   * [9.4 Infinite Forms (Tier 5)](book/09_Cognitive_Tiers_and_Distributed_Compute.md#93-infinite-forms-tier-5)
+   * [9.3 Trace-Based JIT Compilation](book/09_Cognitive_Tiers_and_Distributed_Compute.md#93-trace-based-jit-compilation)
+   * [9.4 Infinite Forms (Tier 5)](book/09_Cognitive_Tiers_and_Distributed_Compute.md#94-infinite-forms-tier-5)
 
 10. **[Appendices](book/10_Appendices.md)**
 
 * [10.1 What Is Not Yet Implemented](book/10_Appendices.md#101-what-is-not-yet-implemented)
-* [10.2 Threat Model and Determinism Attack Surface](book/10_Appendices.md#101-what-is-not-yet-implemented)
-* [10.3 Glossary](book/10_Appendices.md#103-useful-links)
+* [10.2 Glossary](book/10_Appendices.md#102-glossary)
+* [10.3 Useful Links](book/10_Appendices.md#103-useful-links)
 
 </details>
 
@@ -302,19 +302,21 @@ For a comprehensive, specification-grade description of the architecture — inc
 
 11. **[Formal Semantics of TISC and T81VM](book/11_Formal_Semantics.md)**
 
-* [Denotational Semantics of TISC](book/11_Formal_Semantics.md#111-operational-semantics)
-* [Algebraic Transition Function δ](book/11_Formal_Semantics.md#1111-the-transition-function)
-* [Canonicalization Rewriting System](book/11_Formal_Semantics.md#111-operational-semantics)
-* [Determinism Proof Sketches](book/11_Formal_Semantics.md#1111-the-transition-function)
-* [Interpreter vs Trace-JIT Equivalence](book/11_Formal_Semantics.md#1111-the-transition-function)
+* [11.1 Operational Semantics](book/11_Formal_Semantics.md#111-operational-semantics)
+* [11.1.1 The Transition Function δ](book/11_Formal_Semantics.md#1111-the-transition-function)
+* [11.2 Algebraic Transition Function](book/11_Formal_Semantics.md#112-algebraic-transition-function)
+* [11.3 Canonicalization Rewriting System](book/11_Formal_Semantics.md#113-canonicalization-rewriting-system)
+* [11.4 Determinism Proof Sketches](book/11_Formal_Semantics.md#114-determinism-proof-sketches)
+* [11.5 Interpreter vs Trace-JIT Equivalence](book/11_Formal_Semantics.md#115-interpreter-vs-trace-jit-equivalence)
 
 12. **[Adversarial Modeling and Determinism Attacks](book/12_Adversarial_Modeling.md)**
 
-* [Compiler-Level Attacks](book/12_Adversarial_Modeling.md#121-threat-model)
-* [VM and GC Attack Vectors](book/12_Adversarial_Modeling.md#121-threat-model)
-* [CanonFS and Hash Attacks](book/12_Adversarial_Modeling.md#121-threat-model)
-* [Distributed Tier Time-Travel Attack](book/12_Adversarial_Modeling.md#1212-time-travel-attacks)
-* [Determinism Breach Postmortem Template](book/12_Adversarial_Modeling.md#121-threat-model)
+* [12.1 Threat Model](book/12_Adversarial_Modeling.md#121-threat-model)
+* [12.2 Compiler-Level Attacks](book/12_Adversarial_Modeling.md#122-compiler-level-attacks)
+* [12.3 VM and GC Attack Vectors](book/12_Adversarial_Modeling.md#123-vm-and-gc-attack-vectors)
+* [12.4 CanonFS and Hash Attacks](book/12_Adversarial_Modeling.md#124-canonfs-and-hash-attacks)
+* [12.5 Distributed Tier Time-Travel Attack](book/12_Adversarial_Modeling.md#125-distributed-tier-time-travel-attack)
+* [12.6 Determinism Breach Postmortem Template](book/12_Adversarial_Modeling.md#126-determinism-breach-postmortem-template)
 
 </details>
 
@@ -323,17 +325,17 @@ For a comprehensive, specification-grade description of the architecture — inc
 
 13. **[Continuity and Resilience](book/13_Continuity_Resilience.md)**
 
-* [Cleanroom Reconstruction Protocol](book/13_Continuity_Resilience.md#131-the-cleanroom-protocol)
-* [Single Points of Failure](book/13_Continuity_Resilience.md#131-the-cleanroom-protocol)
-* [Continuity Manifest](book/13_Continuity_Resilience.md#131-the-cleanroom-protocol)
-* [Immutable Formal Invariants](book/13_Continuity_Resilience.md#132-long-term-archival)
+* [13.1 The Cleanroom Protocol](book/13_Continuity_Resilience.md#131-the-cleanroom-protocol)
+* [13.2 Single Points of Failure](book/13_Continuity_Resilience.md#132-single-points-of-failure)
+* [13.3 Continuity Manifest](book/13_Continuity_Resilience.md#133-continuity-manifest)
+* [13.4 Immutable Formal Invariants](book/13_Continuity_Resilience.md#134-immutable-formal-invariants)
 
 14. **[Research Frontier](book/14_Research_Frontier.md)**
 
-* [Ternary Hardware Acceleration](book/14_Research_Frontier.md)
-* [Formal Verification Paths](book/14_Research_Frontier.md)
-* [CanonFS as a Merkle Substrate](book/14_Research_Frontier.md)
-* [Deterministic AI Inference at Scale](book/14_Research_Frontier.md)
+* [14.1 Ternary Hardware Acceleration](book/14_Research_Frontier.md#141-ternary-hardware-acceleration)
+* [14.2 Formal Verification Paths](book/14_Research_Frontier.md#142-formal-verification-paths)
+* [14.3 CanonFS as a Merkle Substrate](book/14_Research_Frontier.md#143-canonfs-as-a-merkle-substrate)
+* [14.4 Deterministic AI Inference at Scale](book/14_Research_Frontier.md#144-deterministic-ai-inference-at-scale)
 
 </details>
 
