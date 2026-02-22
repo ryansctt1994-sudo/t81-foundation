@@ -2,37 +2,46 @@
 
 ## 10.1 O Que Ainda Não Foi Implementado
 
-Embora a arquitetura central T81 seja estável, vários recursos permanecem em estados experimentais ou aspiracionais a partir de Fevereiro de 2026.
+**Status: Acompanhamento**
 
-1.  **Transcendentais Totalmente Determinísticas (Fase 2)**:
-    *   Atualmente, funções trigonométricas inversas (`asin`, `acos`, `atan`) e funções hiperbólicas (`sinh`, `cosh`, `tanh`) dependem da `libm` do hospedeiro, a menos que `T81_DETERMINISTIC` esteja definido (o que as desabilita ou retorna erros).
-    *   **Meta**: Implementar suporte `dmath` para todas as funções transcendentais.
+Embora o núcleo da T81VM e da TISC ISA sejam estáveis, vários recursos avançados permanecem em fases de desenvolvimento ativo ou pesquisa.
 
-2.  **Recursos Avançados do CanonFS**:
-    *   Atualmente, o CanonFS suporta carregamento básico endereçável por conteúdo.
-    *   **Faltando**: Fixação distribuída (pinning), replicação peer-to-peer e coleta de lixo de artefatos não referenciados.
+### 10.1.1 Fase 2: Cobertura Completa de `dmath`
+Atualmente, o `dmath` fornece implementações determinísticas para aritmética básica (`+`, `-`, `*`, `/`) e principais transcendentais (`sin`, `cos`, `exp`, `log`).
+*   **Faltando**: Funções trigonométricas inversas (`asin`, `acos`, `atan`) atualmente dependem da `libc` do hospedeiro (a menos que `T81_DETERMINISTIC` esteja definido, o que causa um trap).
+*   **Faltando**: Funções hiperbólicas (`sinh`, `cosh`, `tanh`) são parciais.
+*   **Plano**: Implementar expansões completas de séries de Taylor/Maclaurin para todas as funções matemáticas padrão em `include/t81/core/detail/dmath.hpp` para remover todas as dependências de `libm`.
 
-3.  **Maturidade do Trace-JIT**:
-    *   O Trace-JIT (`src/vm/jit_compiler.cpp`) é funcional, mas considerado **Experimental**. Ele ainda não cobre todos os opcodes e pode recorrer ao intérprete frequentemente.
+### 10.1.2 Fase 3: Consenso Distribuído (Nível 4)
+Opcodes de Nível 4 (`Gossip`, `Merge`) são especificados, mas a pilha de rede P2P subjacente é experimental.
+*   **Faltando**: Descoberta robusta de pares (DHT).
+*   **Faltando**: Mecanismo de resistência a Sybil (espaço reservado para Prova de Trabalho/Participação).
+*   **Plano**: Integrar uma camada de rede endereçável por conteúdo (ex: libp2p ou Kademlia personalizado) para suportar fusão de estado descentralizada.
 
-4.  **Álgebra Simbólica de Nível 1 Completa**:
-    *   O suporte básico a grafos simbólicos existe (`src/cog/tier1/symbolic.cpp`), mas a reescrita e simplificação algébrica completa (capacidades CAS) ainda não estão expostas via opcodes padrão.
+### 10.1.3 Fase 4: Formas Infinitas Completas (Nível 5)
+O Nível 5 suporta colapso básico de Séries Geométricas.
+*   **Faltando**: Continuação analítica geral para séries não geométricas.
+*   **Faltando**: Soma simbólica de funções geradoras mais complexas.
+*   **Plano**: Expandir `InfCollapse` para lidar com uma classe mais ampla de funções meromorfas.
 
-5.  **Tipos Holotensor**:
-    *   Mencionados nas primeiras especificações como um formato de tensor esparso de alta dimensão. Atualmente, apenas `T729Tensor` denso e `T81Tensor` estão implementados.
+## 10.2 Glossário
 
-## 10.2 Códigos de Erro
-
-| Código | Nome | Descrição |
-| :--- | :--- | :--- |
-| `0x00` | `Ok` | Sucesso. |
-| `0x01` | `SecurityFault` | Violação de política Axion. |
-| `0x02` | `TypeFault` | Tipo de operando inválido. |
-| `0x03` | `StackFault` | Estouro de pilha (overflow/underflow). |
-| `0x04` | `MathFault` | Divisão por zero ou erro de domínio. |
+| Termo | Definição |
+| :--- | :--- |
+| **Axion** | O kernel de segurança do T81, responsável pela aplicação de políticas e registro de auditoria. |
+| **CanonRef** | Uma referência canônica (hash SHA3-256) apontando para um objeto imutável no CanonFS. |
+| **Nível Cognitivo** | Um nível de capacidade computacional (1=Simbólico a 5=Infinito). |
+| **Portão de Determinismo** | O processo de CI (`t81lang_repro_gate`) que verifica a reprodutibilidade bit-exact do compilador. |
+| **dmath** | Biblioteca de Matemática Determinística; uma implementação de software de aritmética de ponto flutuante. |
+| **T81Float** | Um número de ponto flutuante ternário balanceado $(s, m, e)$. |
+| **T81Int** | Um inteiro ternário balanceado de precisão arbitrária. |
+| **TISC** | Computador de Conjunto de Instruções Ternárias; a linguagem de bytecode da T81VM. |
+| **Trit** | Um dígito de base-3 $\{-1, 0, 1\}$. |
+| **Tryte** | Uma sequência de trits (geralmente 4). |
+| **Honestidade Estrutural** | O princípio de que um sistema não deve sintetizar informações ou ocultar aproximação. |
 
 ## 10.3 Links Úteis
 
-*   **Repositório**: [github.com/t81dev/t81-foundation](https://github.com/t81dev/t81-foundation)
+*   **Repositório**: [github.com/t81-foundation/t81](https://github.com/t81-foundation/t81)
 *   **Especificação**: diretório `spec/` no repositório.
-*   **Issues**: Rastreador de Issues do GitHub.
+*   **Painel de CI**: Aba GitHub Actions.

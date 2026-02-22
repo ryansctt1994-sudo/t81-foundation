@@ -2,37 +2,46 @@
 
 ## 10.1 Lo Que Aún No Está Implementado
 
-Si bien la arquitectura central de T81 es estable, varias características permanecen en estados experimentales o aspiracionales a partir de febrero de 2026.
+**Estado: Seguimiento**
 
-1.  **Trascendentales Totalmente Deterministas (Fase 2)**:
-    *   Actualmente, las funciones trigonométricas inversas (`asin`, `acos`, `atan`) y las funciones hiperbólicas (`sinh`, `cosh`, `tanh`) dependen de la `libm` del host a menos que se establezca `T81_DETERMINISTIC` (lo que las deshabilita o devuelve errores).
-    *   **Meta**: Implementar soporte `dmath` para todas las funciones trascendentales.
+Aunque el T81VM central y la ISA TISC son estables, varias características avanzadas permanecen en fases de desarrollo activo o investigación.
 
-2.  **Características Avanzadas de CanonFS**:
-    *   Actualmente, CanonFS soporta carga básica direccionable por contenido.
-    *   **Faltante**: Fijación (pinning) distribuida, replicación peer-to-peer y recolección de basura de artefactos no referenciados.
+### 10.1.1 Fase 2: Cobertura Completa de `dmath`
+Actualmente, `dmath` proporciona implementaciones deterministas para aritmética básica (`+`, `-`, `*`, `/`) y trascendentales clave (`sin`, `cos`, `exp`, `log`).
+*   **Faltante**: Las funciones trigonométricas inversas (`asin`, `acos`, `atan`) dependen actualmente de la `libc` del host (a menos que se establezca `T81_DETERMINISTIC`, lo que provoca una trampa).
+*   **Faltante**: Las funciones hiperbólicas (`sinh`, `cosh`, `tanh`) son parciales.
+*   **Plan**: Implementar expansiones completas de series de Taylor/Maclaurin para todas las funciones matemáticas estándar en `include/t81/core/detail/dmath.hpp` para eliminar todas las dependencias de `libm`.
 
-3.  **Madurez de Trace-JIT**:
-    *   El Trace-JIT (`src/vm/jit_compiler.cpp`) es funcional pero se considera **Experimental**. Aún no cubre todos los opcodes y puede recurrir al intérprete con frecuencia.
+### 10.1.2 Fase 3: Consenso Distribuido (Nivel 4)
+Los opcodes de Nivel 4 (`Gossip`, `Merge`) están especificados pero la pila de red P2P subyacente es experimental.
+*   **Faltante**: Descubrimiento de pares robusto (DHT).
+*   **Faltante**: Mecanismo de resistencia Sybil (marcador de posición de Prueba de Trabajo/Participación).
+*   **Plan**: Integrar una capa de red direccionable por contenido (ej. libp2p o Kademlia personalizado) para soportar la fusión de estados descentralizada.
 
-4.  **Álgebra Simbólica de Nivel 1 Completa**:
-    *   Existe soporte básico de grafos simbólicos (`src/cog/tier1/symbolic.cpp`), pero la reescritura algebraica completa y la simplificación (capacidades CAS) aún no están expuestas a través de opcodes estándar.
+### 10.1.3 Fase 4: Formas Infinitas Completas (Nivel 5)
+El Nivel 5 soporta el colapso básico de Series Geométricas.
+*   **Faltante**: Continuación analítica general para series no geométricas.
+*   **Faltante**: Suma simbólica de funciones generadoras más complejas.
+*   **Plan**: Expandir `InfCollapse` para manejar una clase más amplia de funciones meromorfas.
 
-5.  **Tipos de Holotensor**:
-    *   Mencionados en especificaciones tempranas como un formato de tensor disperso de alta dimensión. Actualmente, solo están implementados los densos `T729Tensor` y `T81Tensor`.
+## 10.2 Glosario
 
-## 10.2 Códigos de Error
-
-| Código | Nombre | Descripción |
-| :--- | :--- | :--- |
-| `0x00` | `Ok` | Éxito. |
-| `0x01` | `SecurityFault` | Violación de política Axion. |
-| `0x02` | `TypeFault` | Tipo de operando inválido. |
-| `0x03` | `StackFault` | Desbordamiento/subdesbordamiento de pila. |
-| `0x04` | `MathFault` | División por cero o error de dominio. |
+| Término | Definición |
+| :--- | :--- |
+| **Axion** | El kernel de seguridad de T81, responsable del cumplimiento de políticas y registro de auditoría. |
+| **CanonRef** | Una referencia canónica (hash SHA3-256) que apunta a un objeto inmutable en CanonFS. |
+| **Nivel Cognitivo** | Un nivel de capacidad computacional (1=Simbólico a 5=Infinito). |
+| **Puerta de Determinismo** | El proceso de CI (`t81lang_repro_gate`) que verifica la reproducibilidad exacta a nivel de bit del compilador. |
+| **dmath** | Biblioteca de Matemática Determinista; una implementación de software de aritmética de punto flotante. |
+| **T81Float** | Un número de punto flotante ternario balanceado $(s, m, e)$. |
+| **T81Int** | Un entero ternario balanceado de precisión arbitraria. |
+| **TISC** | Computadora con Conjunto de Instrucciones Ternarias; el lenguaje de bytecode de la T81VM. |
+| **Trit** | Un dígito base-3 $\{-1, 0, 1\}$. |
+| **Tryte** | Una secuencia de trits (generalmente 4). |
+| **Honestidad Estructural** | El principio de que un sistema no debe sintetizar información ni ocultar aproximaciones. |
 
 ## 10.3 Enlaces Útiles
 
-*   **Repositorio**: [github.com/t81dev/t81-foundation](https://github.com/t81dev/t81-foundation)
+*   **Repositorio**: [github.com/t81-foundation/t81](https://github.com/t81-foundation/t81)
 *   **Especificación**: Directorio `spec/` en el repositorio.
-*   **Problemas (Issues)**: Rastreador de Issues de GitHub.
+*   **Panel de CI**: Pestaña de Acciones de GitHub.

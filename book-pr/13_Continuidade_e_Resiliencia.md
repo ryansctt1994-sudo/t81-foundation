@@ -2,31 +2,51 @@
 
 ## 13.1 O Protocolo Cleanroom
 
-**Status: Documentado**
-
-O **Protocolo de Reconstrução Cleanroom** define o conjunto mínimo de etapas necessárias para reconstruir o sistema T81 do zero, assumindo a perda total de infraestrutura.
-
-### 13.1.1 Bootstrap Mínimo
-1.  **Código Fonte**: Uma cópia dos diretórios `src/` e `include/`.
-2.  **Compilador**: Qualquer compilador compatível com C++23 (Clang 18+, GCC 14+).
-3.  **Sistema de Build**: CMake 3.25+.
-
-**Comando**:
-```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --parallel
-```
-
-### 13.1.2 Verificação
-Após a reconstrução, o sistema deve verificar a si mesmo contra um conjunto conhecido de artefatos `CanonHash81`.
-```bash
-./build/t81 repro-hash tests/fixtures/t81lang_determinism
-```
-
-## 13.2 Arquivamento de Longo Prazo
-
 **Status: Aspiracional**
 
-A meta do T81 é ser legível e executável em 50+ anos.
-*   **Estabilidade de Formato**: Os formatos de fonte `.t81` e bytecode `.tisc` estão congelados.
-*   **Dependências**: A VM central tem zero dependências de tempo de execução externas além da biblioteca padrão C++.
+O projeto T81 é projetado com uma mentalidade de **"Escala de Civilização"**. O objetivo é que, se todos os repositórios de código-fonte (GitHub, GitLab, PyPI) desaparecessem, o sistema pudesse ser reconstruído a partir desta monografia e uma especificação de compilador C++ padrão.
+
+### 13.1.1 Etapas de Reconstrução
+1.  **Recuperar**: Obter uma cópia da **Monografia Técnica Definitiva** (este livro).
+2.  **Verificar**: Confirmar os hashes criptográficos dos algoritmos principais (SHA3-256, Aritmética Ternária Balanceada) contra constantes matemáticas conhecidas.
+3.  **Implementar**:
+    *   Escrever um compilador compatível com C++23.
+    *   Implementar `T81Int` e `T81Float` de acordo com as especificações de layout de bits no Capítulo 4.
+    *   Implementar o loop de instrução da VM TISC (Capítulo 3).
+    *   Implementar a lógica de política Axion (Capítulo 8).
+4.  **Validar**: Executar a suíte de testes (`tests/cpp/*.cpp`) incluída no apêndice ou reconstruída a partir das descrições.
+
+## 13.2 Pontos Únicos de Falha
+
+**Status: Mitigado**
+
+O T81 identifica e mitiga a dependência de infraestrutura centralizada.
+
+*   **Controle de Fonte**: O repositório é espelhado em várias forjas git (GitHub, GitLab, potencialmente IPFS).
+*   **Ferramentas de Build**: CMake é o sistema de build padrão, mas a estrutura do projeto é simples o suficiente para compilação manual ou scripts shell.
+*   **Dependências**: A VM central tem **zero dependências de tempo de execução exigidas** além da biblioteca padrão C++. Ele integra componentes críticos (como `asio` para rede) ou os implementa do zero (como `dmath` para transcendentais).
+
+## 13.3 Manifesto de Continuidade
+
+**Status: Documentado**
+
+Os seguintes artefatos constituem o "Kit de Continuidade" necessário para reconstruir o T81:
+
+1.  **O Livro**: `book/*.md` (Este documento).
+2.  **A Especificação**: `spec/*.md` (Especificações formais TISC/Axion).
+3.  **O Código**: `src/` e `include/` (Implementação de referência).
+4.  **Os Testes**: `tests/cpp/` (Lógica de validação).
+5.  **Os Scripts**: `scripts/ci/` (Portões de reprodução).
+
+## 13.4 Invariantes Formais Imutáveis
+
+**Status: Eterno**
+
+Independentemente dos detalhes de implementação (C++, Rust, Zig), qualquer sistema que se chame "T81" deve aderir a essas invariantes:
+
+1.  **Determinismo Estrito**: $f(S, I) \to S'$ é exato em bits entre plataformas.
+2.  **Nativo Ternário**: A lógica é base-3.
+3.  **Política Aplicada**: Nenhuma instrução executa sem aprovação do Axion.
+4.  **Honestidade Estrutural**: Sem aproximações sem tipagem explícita.
+
+Se um sistema viola qualquer um desses, é um fork, não T81.
