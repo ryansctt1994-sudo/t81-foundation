@@ -508,6 +508,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_float_fraction_ops_test tests/cpp/vm_float_fraction_ops_test.cpp)
   target_link_libraries(t81_vm_float_fraction_ops_test PRIVATE t81_core)
 
+  add_executable(t81_vm_literal_pool_extension_test tests/cpp/test_vm_literal_pool_extension.cpp)
+  target_link_libraries(t81_vm_literal_pool_extension_test PRIVATE t81_core)
+
   add_executable(t81_vm_neg_jumps_test tests/cpp/vm_neg_jumps_test.cpp)
   target_link_libraries(t81_vm_neg_jumps_test PRIVATE t81_core)
 
@@ -990,6 +993,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     llama_kernels_test
     t81_vm_jump_flags_test
     t81_vm_float_fraction_ops_test
+    t81_vm_literal_pool_extension_test
     t81_vm_neg_jumps_test
     t81_vm_print_test
     t81_limb_bohemian_add_test

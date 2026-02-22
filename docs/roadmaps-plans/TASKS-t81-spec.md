@@ -67,8 +67,8 @@
 - [ ] Concurrency Model (spec section 3)
   - [ ] Multiple execution contexts / threads support
   - [ ] Shared memory segments
-- [ ] Literal Pools
-  - [ ] Verify deterministic pool extension for conversions (`I2F`, etc.)
+- [x] Literal Pools
+  - [x] Verify deterministic pool extension for conversions (`I2F`, etc.)
 - [x] Code Segment Protection
   - [x] Verify enforcement of "Writable only via privileged loader" (Enforced in VM: MetaWrite/MetaRefine denied on Code segment)
 - [ ] Libm Gap Mitigation
