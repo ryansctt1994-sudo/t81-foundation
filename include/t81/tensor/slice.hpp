@@ -7,7 +7,7 @@ namespace t81::ops {
 
 // Slice rank-2 tensor rows[r0:r1) and cols[c0:c1).
 // Indices are half-open, 0-based. Throws on rank≠2 or bad bounds.
-inline T729Tensor slice2d(const T729Tensor& m, int r0, int r1, int c0, int c1) {
+inline T729DynamicTensor slice2d(const T729DynamicTensor& m, int r0, int r1, int c0, int c1) {
   if (m.rank() != 2) throw std::invalid_argument("slice2d: expects rank-2");
   const int rows = m.shape()[0], cols = m.shape()[1];
   if (r0 < 0 || r1 < r0 || r1 > rows) throw std::invalid_argument("slice2d: bad row range");
@@ -25,7 +25,7 @@ inline T729Tensor slice2d(const T729Tensor& m, int r0, int r1, int c0, int c1) {
       out[dst_base + static_cast<size_t>(c)] = d[src_base + static_cast<size_t>(c)];
     }
   }
-  return T729Tensor({out_r, out_c}, std::move(out));
+  return T729DynamicTensor({out_r, out_c}, std::move(out));
 }
 
 }  // namespace t81::ops

@@ -28,14 +28,14 @@ int main() {
 
   // ---- Tensor demo ---------------------------------------------------------
   // Vectors for dot: [1,2,3] · [4,5,6] = 32
-  T729Tensor v1({3});
+  T729DynamicTensor v1({3});
   v1.data() = {1, 2, 3};
-  T729Tensor v2({3});
+  T729DynamicTensor v2({3});
   v2.data() = {4, 5, 6};
-  auto dot = T729Tensor::contract_dot(v1, v2);
+  auto dot = T729DynamicTensor::contract_dot(v1, v2);
 
   // 2x3 matrix ops
-  T729Tensor m({2, 3});
+  T729DynamicTensor m({2, 3});
   m.data() = {1, 2, 3, 4, 5, 6};
 
   auto mt = t81::ops::transpose(m);

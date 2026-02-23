@@ -169,6 +169,10 @@ inline const T81Symbol IOSTREAM = T81Symbol::intern("IOSTREAM");
 inline const T81Symbol NO_IDENTITY = T81Symbol::intern("NO_IDENTITY");
 }  // namespace symbols
 
+inline std::ostream& operator<<(std::ostream& os, T81Symbol s) {
+  return os << (s.is_valid() ? s.to_string() : "§null");
+}
+
 }  // namespace t81
 
 namespace std {
@@ -179,7 +183,3 @@ struct hash<t81::T81Symbol> {
   }
 };
 }  // namespace std
-
-inline std::ostream& operator<<(std::ostream& os, t81::T81Symbol s) {
-  return os << (s.is_valid() ? s.to_string() : "§null");
-}

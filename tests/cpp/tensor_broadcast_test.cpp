@@ -8,7 +8,7 @@ int main() {
   using namespace t81;
 
   // Broadcast a vector {3} -> {2,3}
-  T729Tensor v({3});
+  T729DynamicTensor v({3});
   v.data() = {1, 2, 3};
   [[maybe_unused]] auto M = t81::ops::broadcast_to(v, {2, 3});
   assert(M.rank() == 2);
@@ -20,7 +20,7 @@ int main() {
   assert(md[3] == 1 && md[4] == 2 && md[5] == 3);
 
   // Broadcast a row {1,3} -> {4,3}
-  T729Tensor row({1, 3});
+  T729DynamicTensor row({1, 3});
   row.data() = {10, 20, 30};
   [[maybe_unused]] auto R = t81::ops::broadcast_to(row, {4, 3});
   assert(R.rank() == 2);

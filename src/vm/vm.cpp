@@ -439,15 +439,15 @@ public:
       ++ctx.sp;
       return addr;
     };
-    auto tensor_ptr = [this](std::int64_t handle) -> t81::T729Tensor* {
+    auto tensor_ptr = [this](std::int64_t handle) -> t81::T729DynamicTensor* {
       if (handle <= 0) return nullptr;
       std::size_t idx = static_cast<std::size_t>(handle - 1);
       if (idx >= state_.tensors.size()) return nullptr;
       if (!state_.tensors[idx].has_value()) return nullptr;
       return &state_.tensors[idx].value();
     };
-    auto alloc_tensor = [this,
-                         current_pc](t81::T729Tensor tensor) -> std::expected<std::int64_t, Trap> {
+    auto alloc_tensor =
+        [this, current_pc](t81::T729DynamicTensor tensor) -> std::expected<std::int64_t, Trap> {
       if (state_.policy) {
         std::size_t active_tensors = state_.tensors.size() - state_.free_tensor_indices.size();
         if (state_.policy->max_tensors &&
@@ -553,7 +553,7 @@ public:
         shape.reserve(native->shape.size());
         for (auto d : native->shape) shape.push_back(static_cast<int>(d));
 
-        t81::T729Tensor promoted(std::move(shape), std::move(float_data));
+        t81::T729DynamicTensor promoted(std::move(shape), std::move(float_data));
         auto result = alloc_tensor(std::move(promoted));
         if (!result) {
           return std::expected<void, Trap>(t81::unexpect, result.error());
@@ -1266,20 +1266,20 @@ public:
         if (num_elements != expected) {
           // For T3_K or others this might differ, but for now we assume packed u64
           // Actually, serialize_tensor in canonize_tensor used NativeTensor which has uint64_t
-          // data. And promoted to float for T729Tensor. Wait, T729Tensor uses float (32-bit?) or
-          // T81Float<72,9>? T729Tensor is alias for T81Tensor<T81Float<72,9>>? The memory says:
-          // "T729Tensor ... is a template alias for T81Tensor specialized with T81Float<72, 9>".
-          // But in vm.cpp: `t81::T729Tensor promoted(std::move(shape), std::move(float_data));`
-          // where `float_data` is `std::vector<float>`.
-          // So T729Tensor seems to hold float?
-          // Let's check `include/t81/core/T729Tensor.hpp` or `t81/tensor.hpp`.
-          // I don't have access to those files right now (didn't read them), but `vm.cpp` uses
-          // `std::vector<float> data = tensor->data();`. So `T729Tensor` uses `float` or
-          // convertible to `float`. The serialized format I wrote in `canonize_tensor` writes
-          // `uint64_t` from `NativeTensor`. `NativeTensor` holds trits packed in limbs or T3_K. If
-          // `fmt` is BalancedTernary (0), it is `vector<uint64_t>`. To load it into `T729Tensor`
-          // (which is floats in VM), I need to convert/promote it! Just like `promote_to_tensor`
-          // does for `WeightsTensorHandle`.
+          // data. And promoted to float for T729DynamicTensor. Wait, T729DynamicTensor uses float
+          // (32-bit?) or T81Float<72,9>? T729DynamicTensor is alias for T81Tensor<T81Float<72,9>>?
+          // The memory says: "T729DynamicTensor ... is a template alias for T81Tensor specialized
+          // with T81Float<72, 9>". But in vm.cpp: `t81::T729DynamicTensor
+          // promoted(std::move(shape), std::move(float_data));` where `float_data` is
+          // `std::vector<float>`. So T729DynamicTensor seems to hold float? Let's check
+          // `include/t81/core/T729DynamicTensor.hpp` or `t81/tensor.hpp`. I don't have access to
+          // those files right now (didn't read them), but `vm.cpp` uses `std::vector<float> data =
+          // tensor->data();`. So `T729DynamicTensor` uses `float` or convertible to `float`. The
+          // serialized format I wrote in `canonize_tensor` writes `uint64_t` from `NativeTensor`.
+          // `NativeTensor` holds trits packed in limbs or T3_K. If `fmt` is BalancedTernary (0), it
+          // is `vector<uint64_t>`. To load it into `T729DynamicTensor` (which is floats in VM), I
+          // need to convert/promote it! Just like `promote_to_tensor` does for
+          // `WeightsTensorHandle`.
 
           // I should reuse logic from `promote_to_tensor`?
           // But `promote_to_tensor` works on `NativeTensor`.
@@ -1299,7 +1299,7 @@ public:
           }
           native.trits = 0;  // Not stored in header? num_trits() calculates it.
 
-          // Convert NativeTensor to T729Tensor (floats)
+          // Convert NativeTensor to T729DynamicTensor (floats)
           std::vector<float> float_data;
           uint64_t calculated_trits = 1;
           for (auto d : native.shape) calculated_trits *= d;
@@ -1348,7 +1348,7 @@ public:
             }
           }
 
-          t81::T729Tensor loaded_tensor(std::move(shape), std::move(float_data));
+          t81::T729DynamicTensor loaded_tensor(std::move(shape), std::move(float_data));
           auto res = alloc_tensor(std::move(loaded_tensor));
           if (!res) {
             trap = res.error();
@@ -1382,7 +1382,7 @@ public:
         }
         std::vector<float> data = tensor->data();
         for (auto& val : data) val = std::exp(val);
-        auto res_handle = alloc_tensor(T729Tensor(tensor->shape(), std::move(data)));
+        auto res_handle = alloc_tensor(T729DynamicTensor(tensor->shape(), std::move(data)));
         if (!res_handle) {
           trap = res_handle.error();
           break;
@@ -1721,7 +1721,7 @@ public:
         }
         std::vector<float> data = tensor->data();
         for (auto& val : data) val = std::sqrt(val);
-        auto res_handle = alloc_tensor(T729Tensor(tensor->shape(), std::move(data)));
+        auto res_handle = alloc_tensor(T729DynamicTensor(tensor->shape(), std::move(data)));
         if (!res_handle) {
           trap = res_handle.error();
           break;
@@ -2695,7 +2695,7 @@ public:
           }
           auto data = tensor->data();
           data.push_back(static_cast<float>(ctx.registers[insn.c]));
-          auto res_handle = alloc_tensor(T729Tensor({old_len + 1}, std::move(data)));
+          auto res_handle = alloc_tensor(T729DynamicTensor({old_len + 1}, std::move(data)));
           if (!res_handle) {
             trap = res_handle.error();
             break;
@@ -2748,7 +2748,7 @@ public:
           }
           data.pop_back();
           auto res_handle =
-              alloc_tensor(T729Tensor({tensor->shape().front() - 1}, std::move(data)));
+              alloc_tensor(T729DynamicTensor({tensor->shape().front() - 1}, std::move(data)));
           if (!res_handle) {
             trap = res_handle.error();
             break;
@@ -3561,7 +3561,7 @@ public:
             data[i] = tensor_a->data()[i] * tensor_b->data()[i];
           }
         }
-        auto res_handle = alloc_tensor(t81::T729Tensor(tensor_a->shape(), std::move(data)));
+        auto res_handle = alloc_tensor(t81::T729DynamicTensor(tensor_a->shape(), std::move(data)));
         if (!res_handle) {
           trap = res_handle.error();
           break;
@@ -3638,7 +3638,7 @@ public:
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TMatMul kernel execution"};
         record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
-        t81::T729Tensor result = t81::ops::matmul(*tensor_a, *tensor_b);
+        t81::T729DynamicTensor result = t81::ops::matmul(*tensor_a, *tensor_b);
         auto res_handle = alloc_tensor(std::move(result));
         if (!res_handle) {
           trap = res_handle.error();
@@ -3681,7 +3681,7 @@ public:
           break;
         }
         try {
-          auto result = t81::T729Tensor::contract_dot(*tensor_a, *tensor_b);
+          auto result = t81::T729DynamicTensor::contract_dot(*tensor_a, *tensor_b);
           auto res_handle = alloc_tensor(std::move(result));
           if (!res_handle) {
             trap = res_handle.error();
@@ -3750,7 +3750,7 @@ public:
         }
 
         std::vector<int> shape = {static_cast<int>(size)};
-        t81::T729Tensor t(shape);
+        t81::T729DynamicTensor t(shape);
         auto res_handle = alloc_tensor(std::move(t));
         if (!res_handle) {
           trap = res_handle.error();
@@ -3824,7 +3824,7 @@ public:
           break;
         }
         // Deep copy
-        t81::T729Tensor copy(tensor->shape(), std::vector<float>(tensor->data()));
+        t81::T729DynamicTensor copy(tensor->shape(), std::vector<float>(tensor->data()));
         auto res_handle = alloc_tensor(std::move(copy));
         if (!res_handle) {
           trap = res_handle.error();
@@ -4488,6 +4488,28 @@ public:
         record_axion_event(insn.opcode, 0, 0, verdict);
         // For now, treat as NOP but logged.
         // In strict mode or future, this might be Unimplemented trap.
+        break;
+      }
+      case t81::tisc::Opcode::TNeuralFwd: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        // Identity for now, just copy B to A
+        copy_reg(insn.a, insn.b);
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow,
+                                    "TNeuralFwd: forward pass identity"};
+        record_axion_event(insn.opcode, 0, ctx.registers[insn.a], verdict);
+        break;
+      }
+      case t81::tisc::Opcode::TNeuralBwd: {
+        if (!reg_ok(insn.a)) {  // Operand is the model/tensor to train
+          trap = Trap::DecodeFault;
+          break;
+        }
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow,
+                                    "TNeuralBwd: backward pass stub"};
+        record_axion_event(insn.opcode, 0, ctx.registers[insn.a], verdict);
         break;
       }
       default:

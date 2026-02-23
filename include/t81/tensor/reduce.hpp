@@ -9,7 +9,7 @@ namespace t81::ops {
 // Reduce a rank-2 tensor along axis:
 //   axis == 0  → reduce over rows (per-column result)    → shape {C}
 //   axis == 1  → reduce over cols  (per-row result)      → shape {R}
-inline T729Tensor reduce_sum_2d(const T729Tensor& m, int axis) {
+inline T729DynamicTensor reduce_sum_2d(const T729DynamicTensor& m, int axis) {
   if (m.rank() != 2) throw std::invalid_argument("reduce_sum_2d: expects rank-2");
   const int R = m.shape()[0], C = m.shape()[1];
   const auto& d = m.data();
@@ -20,7 +20,7 @@ inline T729Tensor reduce_sum_2d(const T729Tensor& m, int axis) {
       const size_t base = (size_t)r * C;
       for (int c = 0; c < C; ++c) out[(size_t)c] += d[base + (size_t)c];
     }
-    return T729Tensor({C}, std::move(out));
+    return T729DynamicTensor({C}, std::move(out));
   } else if (axis == 1) {
     std::vector<float> out((size_t)R, 0.0f);
     for (int r = 0; r < R; ++r) {
@@ -29,13 +29,13 @@ inline T729Tensor reduce_sum_2d(const T729Tensor& m, int axis) {
       for (int c = 0; c < C; ++c) s += d[base + (size_t)c];
       out[(size_t)r] = s;
     }
-    return T729Tensor({R}, std::move(out));
+    return T729DynamicTensor({R}, std::move(out));
   }
   throw std::invalid_argument("reduce_sum_2d: axis must be 0 or 1");
 }
 
 // Reduce max over axis (rank-2). Same axis semantics as sum.
-inline T729Tensor reduce_max_2d(const T729Tensor& m, int axis) {
+inline T729DynamicTensor reduce_max_2d(const T729DynamicTensor& m, int axis) {
   if (m.rank() != 2) throw std::invalid_argument("reduce_max_2d: expects rank-2");
   const int R = m.shape()[0], C = m.shape()[1];
   const auto& d = m.data();
@@ -49,7 +49,7 @@ inline T729Tensor reduce_max_2d(const T729Tensor& m, int axis) {
         if (v > out[(size_t)c]) out[(size_t)c] = v;
       }
     }
-    return T729Tensor({C}, std::move(out));
+    return T729DynamicTensor({C}, std::move(out));
   } else if (axis == 1) {
     std::vector<float> out((size_t)R, -std::numeric_limits<float>::infinity());
     for (int r = 0; r < R; ++r) {
@@ -61,13 +61,13 @@ inline T729Tensor reduce_max_2d(const T729Tensor& m, int axis) {
       }
       out[(size_t)r] = mmax;
     }
-    return T729Tensor({R}, std::move(out));
+    return T729DynamicTensor({R}, std::move(out));
   }
   throw std::invalid_argument("reduce_max_2d: axis must be 0 or 1");
 }
 
 // Reduce min over axis (rank-2). Same axis semantics as sum.
-inline T729Tensor reduce_min_2d(const T729Tensor& m, int axis) {
+inline T729DynamicTensor reduce_min_2d(const T729DynamicTensor& m, int axis) {
   if (m.rank() != 2) throw std::invalid_argument("reduce_min_2d: expects rank-2");
   const int R = m.shape()[0], C = m.shape()[1];
   const auto& d = m.data();
@@ -81,7 +81,7 @@ inline T729Tensor reduce_min_2d(const T729Tensor& m, int axis) {
         if (v < out[(size_t)c]) out[(size_t)c] = v;
       }
     }
-    return T729Tensor({C}, std::move(out));
+    return T729DynamicTensor({C}, std::move(out));
   } else if (axis == 1) {
     std::vector<float> out((size_t)R, std::numeric_limits<float>::infinity());
     for (int r = 0; r < R; ++r) {
@@ -93,17 +93,17 @@ inline T729Tensor reduce_min_2d(const T729Tensor& m, int axis) {
       }
       out[(size_t)r] = mmin;
     }
-    return T729Tensor({R}, std::move(out));
+    return T729DynamicTensor({R}, std::move(out));
   }
   throw std::invalid_argument("reduce_min_2d: axis must be 0 or 1");
 }
 
 // Reduce mean over axis (rank-2). Same axis semantics as sum.
-inline T729Tensor reduce_mean_2d(const T729Tensor& m, int axis) {
+inline T729DynamicTensor reduce_mean_2d(const T729DynamicTensor& m, int axis) {
   if (m.rank() != 2) throw std::invalid_argument("reduce_mean_2d: expects rank-2");
   const int R = m.shape()[0], C = m.shape()[1];
 
-  T729Tensor sums = reduce_sum_2d(m, axis);
+  T729DynamicTensor sums = reduce_sum_2d(m, axis);
   float count = static_cast<float>(axis == 0 ? R : C);
 
   auto& d = sums.data();

@@ -34,14 +34,14 @@ public:
       if (value > 1) return 1;
       return static_cast<int>(value);
     };
-    auto tensor_ptr = [&state](std::int64_t handle) -> t81::T729Tensor* {
+    auto tensor_ptr = [&state](std::int64_t handle) -> t81::T729DynamicTensor* {
       if (handle <= 0) return nullptr;
       const auto idx = static_cast<std::size_t>(handle - 1);
       if (idx >= state.tensors.size()) return nullptr;
       if (!state.tensors[idx].has_value()) return nullptr;
       return &state.tensors[idx].value();
     };
-    auto alloc_tensor = [&state](t81::T729Tensor tensor) -> std::int64_t {
+    auto alloc_tensor = [&state](t81::T729DynamicTensor tensor) -> std::int64_t {
       std::size_t idx_handle;
       if (!state.free_tensor_indices.empty()) {
         auto raw_idx = state.free_tensor_indices.back();

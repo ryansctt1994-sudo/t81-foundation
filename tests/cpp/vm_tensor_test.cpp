@@ -23,10 +23,10 @@ int main() {
 
   auto& mutable_state = const_cast<vm::State&>(vm->state());
   // Seed tensor pool with two vectors and two matrices.
-  t81::T729Tensor vecA({3}, {1.0f, 2.0f, 3.0f});
-  t81::T729Tensor vecB({3}, {4.0f, 5.0f, 6.0f});
-  t81::T729Tensor matA({2, 2}, {1.0f, 2.0f, 3.0f, 4.0f});
-  t81::T729Tensor matB({2, 2}, {5.0f, 6.0f, 7.0f, 8.0f});
+  t81::T729DynamicTensor vecA({3}, {1.0f, 2.0f, 3.0f});
+  t81::T729DynamicTensor vecB({3}, {4.0f, 5.0f, 6.0f});
+  t81::T729DynamicTensor matA({2, 2}, {1.0f, 2.0f, 3.0f, 4.0f});
+  t81::T729DynamicTensor matB({2, 2}, {5.0f, 6.0f, 7.0f, 8.0f});
   mutable_state.tensors.push_back(vecA);  // handle 1
   mutable_state.tensors.push_back(vecB);  // handle 2
   mutable_state.tensors.push_back(matA);  // handle 3
@@ -60,7 +60,7 @@ int main() {
 
   // Shape checks via literal handles.
   [[maybe_unused]] tisc::Program chk;
-  chk.tensor_pool.push_back(t81::T729Tensor({2, 2}, {1.0f, 0.0f, 0.0f, 1.0f}));
+  chk.tensor_pool.push_back(t81::T729DynamicTensor({2, 2}, {1.0f, 0.0f, 0.0f, 1.0f}));
   chk.shape_pool.push_back({2, 2});
   chk.shape_pool.push_back({2, 3});
   tisc::Insn lt{tisc::Opcode::LoadImm, 1, 1, 0};

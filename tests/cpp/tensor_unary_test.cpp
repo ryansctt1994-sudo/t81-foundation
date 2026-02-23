@@ -13,7 +13,7 @@ int main() {
   using namespace t81;
 
   // Base tensor: [-1, 0, 1, 2, 4]
-  T729Tensor x({5});
+  T729DynamicTensor x({5});
   x.data() = {-1.f, 0.f, 1.f, 2.f, 4.f};
 
   // relu
@@ -47,7 +47,7 @@ int main() {
 
   // log (only positive entries survive; ensure throw on non-positive)
   {
-    T729Tensor p({3});
+    T729DynamicTensor p({3});
     p.data() = {0.5f, 1.f, 10.f};
     [[maybe_unused]] auto y = t81::ops::log(p);
     const auto& d = y.data();

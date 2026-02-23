@@ -40,7 +40,7 @@ void test_ternary_tensor_ops() {
 }
 
 void test_reductions() {
-  T729Tensor a({2, 3}, {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f});
+  T729DynamicTensor a({2, 3}, {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f});
 
   auto min_col = reduce_min_2d(a, 0);  // min of [1,4], [2,5], [3,6] -> [1,2,3]
   assert(min_col.data()[0] == 1.0f);
