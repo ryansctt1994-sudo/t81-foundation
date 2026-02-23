@@ -145,13 +145,13 @@
 - [x] RFC-0025: Policy-Gated Tensor Loading
   - [x] `TLOADHASH` opcode logic in VM (see `src/vm/vm.cpp`, `TLoadHash` case)
   - [x] Axion policy check for `allowed-tensor-hashes` (see `src/axion/policy_engine.cpp`)
-  - [ ] `t81-canonize-tensor` CLI tool
+  - [x] `t81-canonize-tensor` CLI tool (Implemented as `t81 canonize-tensor` subcommand)
 
 ### Neural & Agentic Primitives (RFC-0012, 0013, 0014, 0015)
 - [x] RFC-0012: Ternary Tensor Quantization (Implemented via `T3_K` and `promote_to_tensor` in VM)
 - [ ] RFC-0013: Ternary Matrix Multiply & SIMD
-  - [ ] `**` operator in T81Lang grammar
-  - [ ] `TMATMUL_TRIT` opcode implementation
+  - [x] `**` operator in T81Lang grammar
+  - [x] `TMATMUL_TRIT` opcode implementation (Implemented via `TMatMul` mapping)
   - [ ] Trit-packed SIMD backend (`RFC-0016` dependency)
 - [ ] RFC-0014: Neural Primitives
   - [ ] `infer` expression syntax and lowering

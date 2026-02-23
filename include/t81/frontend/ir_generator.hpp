@@ -924,6 +924,25 @@ public:
       case TokenType::Percent:
         opcode = O::MOD;
         break;
+      case TokenType::StarStar:
+        if (kind == NumericCategory::Float) {
+          opcode = O::FPOW;
+        } else {
+          // Check for Tensor/Matrix types
+          bool is_tensor = false;
+          if (result_type && (result_type->kind == Type::Kind::Tensor ||
+                              result_type->kind == Type::Kind::Matrix)) {
+            is_tensor = true;
+          }
+          if (is_tensor) {
+            opcode = O::TMATMUL;
+          } else {
+            throw std::runtime_error(
+                "Operator '**' not supported for this type (only Float power and Tensor/Matrix "
+                "matmul supported)");
+          }
+        }
+        break;
       default:
         throw std::runtime_error("Unsupported binary operator");
     }
