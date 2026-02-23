@@ -19,6 +19,7 @@ void test_proof_basic() {
 
   assert(!proof.is_complete());
   bool ok = proof.apply_rule(rule, agent);
+  (void)ok;
   assert(ok);
   assert(proof.is_complete());
 

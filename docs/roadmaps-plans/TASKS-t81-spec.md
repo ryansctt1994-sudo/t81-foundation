@@ -150,13 +150,13 @@
 ### Neural & Agentic Primitives (RFC-0012, 0013, 0014, 0015)
 - [x] RFC-0012: Ternary Tensor Quantization (Implemented via `T3_K` and `promote_to_tensor` in VM)
 - [ ] RFC-0013: Ternary Matrix Multiply & SIMD
-  - [x] `**` operator in T81Lang grammar
+  - [x] `**` operator in T81Lang grammar (Verified semantic analysis for Tensor types)
   - [x] `TMATMUL_TRIT` opcode implementation (Implemented via `TMatMul` mapping)
   - [ ] Trit-packed SIMD backend (`RFC-0016` dependency)
-- [ ] RFC-0014: Neural Primitives
-  - [ ] `infer` expression syntax and lowering
-  - [ ] `train` statement block and lowering
-  - [ ] `TNEURAL_FWD` / `TNEURAL_BWD` opcodes
+- [x] RFC-0014: Neural Primitives
+  - [x] `infer` expression syntax and lowering (Implemented `InferExpr` and `TNeuralFwd`)
+  - [x] `train` statement block and lowering (Implemented `TrainStmt` and `TNeuralBwd`)
+  - [x] `TNEURAL_FWD` / `TNEURAL_BWD` opcodes (Implemented as `TNeuralFwd`, `TNeuralBwd`)
 - [x] RFC-0015: Agentic Constructs
   - [x] `T81Agent` core class structure (see `include/t81/core/T81Agent.hpp`)
   - [ ] Full integration with `infer`/`train` primitives

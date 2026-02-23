@@ -20,6 +20,7 @@ int main() {
     sum += r;
     assert(std::abs(r - 1.0 / 3.0) < 0.01);
   }
+  (void)sum;
   assert(std::abs(sum - 1.0) < 0.01);
 
   std::cout << "pagerank convergence test passed" << std::endl;

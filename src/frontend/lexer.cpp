@@ -42,6 +42,8 @@ const std::unordered_map<std::string_view, TokenType> KEYWORDS = {
     {"recurse", TokenType::Recurse},
     {"distributed", TokenType::Distributed},
     {"infinite", TokenType::Infinite},
+    {"infer", TokenType::Infer},
+    {"train", TokenType::Train},
     {"record", TokenType::Record},
     {"enum", TokenType::Enum},
     {"break", TokenType::Break},

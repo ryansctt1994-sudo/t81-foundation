@@ -664,6 +664,21 @@ public:
     return {};
   }
 
+  std::any visit(const TrainStmt& stmt) override {
+    stmt.model->accept(*this);
+    auto model_reg = ensure_expr_result(stmt.model.get());
+
+    // Evaluate body
+    for (const auto& s : stmt.body) s->accept(*this);
+
+    // Emit Backward Pass (TNeuralBwd) on the model
+    tisc::ir::Instruction instr;
+    instr.opcode = tisc::ir::Opcode::TNEURAL_BWD;
+    instr.operands = {model_reg.reg};
+    emit(instr);
+    return {};
+  }
+
   std::any visit(const LoopStmt& stmt) override {
     auto entry_label = new_label();
     auto exit_label = new_label();
@@ -4784,6 +4799,20 @@ public:
     auto seed_val = ensure_expr_result(expr.seed.get());
     auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
     copy_to_dest(seed_val, dest);
+    record_result(&expr, dest);
+    return {};
+  }
+
+  std::any visit(const InferExpr& expr) override {
+    expr.expression->accept(*this);
+    auto val = ensure_expr_result(expr.expression.get());
+    // infer <expr> -> TNeuralFwd(dest, val)
+    // Assuming result is a Tensor (Integer handle)
+    auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+    tisc::ir::Instruction instr;
+    instr.opcode = tisc::ir::Opcode::TNEURAL_FWD;
+    instr.operands = {dest.reg, val.reg};
+    emit(instr);
     record_result(&expr, dest);
     return {};
   }

@@ -63,6 +63,10 @@ std::string token_type_name(TokenType type) {
       return "symbol literal";
     case TokenType::InfiniteLiteral:
       return "infinite literal";
+    case TokenType::Infer:
+      return "'infer'";
+    case TokenType::Train:
+      return "'train'";
     case TokenType::Break:
       return "'break'";
     case TokenType::Continue:
@@ -626,6 +630,15 @@ std::unique_ptr<Stmt> Parser::statement() {
     std::vector<std::unique_ptr<Stmt>> body = block();
     return std::make_unique<InfiniteStmt>(keyword, std::move(body));
   }
+  if (match({TokenType::Train})) {
+    Token keyword = previous();
+    consume(TokenType::LParen, "Expect '(' after 'train'.");
+    auto model = expression();
+    consume(TokenType::RParen, "Expect ')' after train model expression.");
+    consume(TokenType::LBrace, "Expect '{' before train body.");
+    std::vector<std::unique_ptr<Stmt>> body = block();
+    return std::make_unique<TrainStmt>(keyword, std::move(model), std::move(body));
+  }
   if (check(TokenType::At) || check(TokenType::Loop)) {
     return loop_statement();
   }
@@ -1093,6 +1106,10 @@ std::unique_ptr<Expr> Parser::primary() {
     auto seed = expression();
     consume(TokenType::RBrace, "Expect '}' after infinite literal seed.");
     expr = std::make_unique<InfiniteLiteralExpr>(token, std::move(seed));
+  } else if (match({TokenType::Infer})) {
+    Token keyword = previous();
+    auto inner = expression();
+    expr = std::make_unique<InferExpr>(keyword, std::move(inner));
   } else if (is_type_start_token(peek())) {
     expr = type();
   } else {

@@ -285,8 +285,26 @@ Opcode map_opcode(const ir::Instruction& instr) {
       return Opcode::TNew;
     case O::TSET:
       return Opcode::TSet;
+    case O::TNEURAL_FWD:
+      return Opcode::TNeuralFwd;
+    case O::TNEURAL_BWD:
+      return Opcode::TNeuralBwd;
     default:
-      throw std::runtime_error("Unsupported IR opcode in binary emitter.");
+      // Fallback for Tier 4 opcodes if they have direct mapping
+      switch (instr.opcode) {
+        case O::GOSSIP:
+          return Opcode::Gossip;
+        case O::MERGE:
+          return Opcode::Merge;
+        case O::TICKSYNC:
+          return Opcode::TickSync;
+        case O::COHERENCE:
+          return Opcode::Coherence;
+        case O::DISTSEAL:
+          return Opcode::DistSeal;
+        default:
+          throw std::runtime_error("Unsupported IR opcode in binary emitter.");
+      }
   }
 }
 

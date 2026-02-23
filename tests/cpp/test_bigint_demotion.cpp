@@ -7,7 +7,7 @@
 // Simple assertion helper
 #define ASSERT_THROWS(expr, ExType)                                         \
   try {                                                                     \
-    expr;                                                                   \
+    (void)(expr);                                                           \
     std::cerr << "FAIL: " << #expr << " did not throw " << #ExType << "\n"; \
     return 1;                                                               \
   } catch (const ExType&) {                                                 \

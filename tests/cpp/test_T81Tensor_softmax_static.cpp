@@ -26,6 +26,9 @@ int main() {
   double s2 = s.data[2].to_double();
   double s3 = s.data[3].to_double();
 
+  (void)s2;
+  (void)s3;
+
   assert(std::abs(s2 - 0.26894) < 0.001);
   assert(std::abs(s3 - 0.73105) < 0.001);
   assert(std::abs(s2 + s3 - 1.0) < 0.001);

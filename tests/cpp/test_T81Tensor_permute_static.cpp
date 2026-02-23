@@ -37,6 +37,7 @@ int main() {
 
   // permute<0, 2, 1> -> swap last two dims
   auto p3 = permute<0, 2, 1>(t3);
+  (void)p3;
 
   // t3(0, 1, 0) = 2. p3(0, 0, 1) should be 2.
   assert(p3(0, 0, 1).to_double() == 2.0);

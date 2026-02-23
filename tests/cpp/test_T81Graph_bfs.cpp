@@ -19,6 +19,7 @@ int main() {
   // 2: dist 2 (from 1)
 
   auto dists = g.bfs(0);
+  (void)dists;
 
   assert(dists(0).to_int64() == 0);
   assert(dists(1).to_int64() == 1);
@@ -32,6 +33,7 @@ int main() {
   // 3: dist 2
 
   auto dists1 = g.bfs(1);
+  (void)dists1;
   assert(dists1(0).to_int64() == -1);
   assert(dists1(1).to_int64() == 0);
   assert(dists1(2).to_int64() == 1);
