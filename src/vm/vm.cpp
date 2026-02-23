@@ -4638,9 +4638,11 @@ private:
       auto& tctx = state_.contexts[state_.current_context];
       sys_ctx.recursion_depth = std::max(tctx.stack_frames.size(), tctx.call_depth);
       sys_ctx.stack_usage = tctx.stack_base - tctx.sp;
+      sys_ctx.current_tier = static_cast<int>(tctx.tier_status.current);
     } else {
       sys_ctx.recursion_depth = 0;
       sys_ctx.stack_usage = 0;
+      sys_ctx.current_tier = 0;
     }
 
     sys_ctx.reflection_count = state_.reflection_count;
