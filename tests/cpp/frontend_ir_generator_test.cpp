@@ -1084,6 +1084,50 @@ void test_std_bytes_aliases_lower_to_string_opcodes() {
             << std::endl;
 }
 
+void test_bitwise_boolean_coercion() {
+  std::string source = R"(
+        fn main() -> i32 {
+            let a: i32 = (1 == 1) & 1;
+            let b: i32 = (1 == 1) | (2 < 3);
+            let c: i32 = (1 != 1) ^ (2 > 3);
+            return a;
+        }
+    )";
+  Lexer lexer(source);
+  Parser parser(lexer);
+  auto stmts = parser.parse();
+  EXPECT(!parser.had_error(), "parser failed for bitwise boolean coercion fixture");
+
+  SemanticAnalyzer analyzer(stmts);
+  analyzer.analyze();
+  EXPECT(!analyzer.had_error(), "semantic analyzer failed for bitwise boolean coercion fixture");
+
+  IRGenerator generator;
+  generator.attach_semantic_analyzer(&analyzer);
+  auto program = generator.generate(stmts);
+  const auto& instructions = program.instructions();
+  EXPECT(!instructions.empty(), "bitwise boolean coercion fixture produced no IR");
+
+  bool has_bitand = false;
+  bool has_bitor = false;
+  bool has_bitxor = false;
+  bool has_cmp = false;
+
+  for (const auto& inst : instructions) {
+    if (inst.opcode == Opcode::BITAND) has_bitand = true;
+    if (inst.opcode == Opcode::BITOR) has_bitor = true;
+    if (inst.opcode == Opcode::BITXOR) has_bitxor = true;
+    if (inst.opcode == Opcode::CMP) has_cmp = true;
+  }
+
+  EXPECT(has_bitand, "Expected BITAND for (bool & int)");
+  EXPECT(has_bitor, "Expected BITOR for (bool | bool)");
+  EXPECT(has_bitxor, "Expected BITXOR for (bool ^ bool)");
+  EXPECT(has_cmp, "Expected CMP for comparisons");
+
+  std::cout << "IRGeneratorTest test_bitwise_boolean_coercion passed!" << std::endl;
+}
+
 int main() {
   test_simple_addition();
   test_if_statement();
@@ -1105,6 +1149,7 @@ int main() {
   test_std_tensor_matmul_alias_lowers_to_tmatmul();
   test_std_tensor_vec_add_alias_lowers_to_tvecadd();
   test_std_bytes_aliases_lower_to_string_opcodes();
+  test_bitwise_boolean_coercion();
 
   std::cout << "All IRGenerator integration tests completed!" << std::endl;
   return 0;
