@@ -4507,7 +4507,8 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TNeuralBwd: backward pass stub"};
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow,
+                                    "TNeuralBwd: backward pass stub"};
         record_axion_event(insn.opcode, 0, ctx.registers[insn.a], verdict);
         break;
       }

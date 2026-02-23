@@ -3,8 +3,8 @@
 #include "t81/vm/traps.hpp"
 #include "t81/vm/vm.hpp"
 
-#include <vector>
 #include <iostream>
+#include <vector>
 #include "test_runtime_check.hpp"
 
 namespace {
@@ -42,8 +42,8 @@ int main() {
     // R2 = TNeuralFwd(R1) -> should be 42 (identity)
     t81::tisc::Insn fwd;
     fwd.opcode = t81::tisc::Opcode::TNeuralFwd;
-    fwd.a = 2; // Dest
-    fwd.b = 1; // Src
+    fwd.a = 2;  // Dest
+    fwd.b = 1;  // Src
     prog.push_back(fwd);
 
     // R3 = R2 - R1
