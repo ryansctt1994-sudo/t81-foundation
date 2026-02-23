@@ -1,5 +1,10 @@
 # PackedTritVector Prototype Phase 2C Report
 
+*   **Status:** Completed (Prototype Phase 2C)
+*   **Hardening:** Completed (semantic + sanitizer audit)
+*   **Next Step:** Phase 2D (Native SIMD + integration thresholds)
+*   **Core Constraints:** PT-5 remains canonical storage; `TXor` remains LUT fallback unless proven safe
+
 ## 1. Summary
 
 Phase 2C of the `PackedTritVector` prototype implements SWAR (SIMD Within A Register) optimizations for the 2-bit packed trit arithmetic operations `TNot`, `TAnd`, and `TOr`. This phase aims to improve the compute throughput of packed trit vectors while maintaining exact canonical ternary semantics. The optimization utilizes 64-bit word-level parallelism to process 32 trits per cycle, significantly reducing the overhead observed in the Phase 2B LUT-based implementation. `TXor` remains on the Phase 2B LUT path due to its non-commutative nature and higher semantic risk.
@@ -23,11 +28,11 @@ The optimization strategy distinguishes between "safe" commutative/bitwise-frien
 *   **Trailing Bits:** The final byte is masked to ensure unused bits (padding) remain zero, preserving canonical state.
 
 ### Invalid State Policy
-Phase 2C relies on input validation during construction (`from_trits` rejects invalid trits). The SWAR logic assumes valid 2-bit patterns (`00`, `01`, `11`). Invalid patterns (`10`) are not explicitly handled in the hot path, but the system guarantees they are not introduced by valid operations.
+Phase 2C relies on strict boundaries for data validity. Hot paths assume valid encoded inputs. Public constructors and factory methods enforce validity. Regression tests verify valid operations preserve valid encodings. Invalid patterns (`10`) are not explicitly handled in the hot path, but the system guarantees they are not introduced by valid operations.
 
 ## 4. Implementation of Phase 2C Fast Paths
 
-*   **`TNot`:** Implemented as `x ^ ((x & 0x55...) << 1)`. This correctly toggles the high bit based on the low bit to map `00`→`00`, `01`→`11`, `11`→`01`.
+*   **`TNot`:** Implemented as `x ^ ((x & 0x55...) << 1)`. This correctly toggles the high bit based on the low bit to map `00`->`00`, `01`->`11`, `11`->`01`.
 *   **`TAnd` (Min):** Uses a constructed high/low bit formula:
     *   `H = (a | b) & 0xAA...`
     *   `L = (a & b) & 0x55...`
@@ -82,12 +87,12 @@ Benchmarks were run on `ComputeTritVector` for Size=4096 trits.
 *   [x] Phase 2B LUT path preserved as reference/fallback
 *   [x] SWAR-first fast path implemented for `TNot`, `TAnd`, `TOr`
 *   [x] `TXor` path decision is explicit (LUT fallback)
-*   [x] Differential tests compare Phase 2C vs Reference
+*   [x] Differential tests compare Phase 2C vs Phase 2B LUT and Scalar Reference
 *   [x] `TXor` exactness guarded by LUT fallback
 *   [x] Edge lengths/final-byte masking behavior re-verified
 *   [x] Benchmarks compare scalar / Phase 2A / Phase 2B / Phase 2C
 *   [x] Performance claims are conservative (parity with scalar, huge win over LUT)
-*   [x] Phase 2C report created
+*   [x] Phase 2C report canonicalized
 
 ## 9. Phase 2D Recommendations and Remaining Gaps
 
@@ -97,17 +102,17 @@ Benchmarks were run on `ComputeTritVector` for Size=4096 trits.
 
 ## 10. Phase 2C Hardening Audit (Feb 2026)
 
-A comprehensive hardening and verification audit was conducted to ensure Phase 2C is production-ready, semantically correct, and free of undefined behavior.
+A comprehensive hardening and verification audit was conducted to ensure Phase 2C is prototype-hardened and integration-ready for the experimental compute path.
 
 ### 10.1 Semantic Verification
-*   **Exhaustive Truth-Table Test:** A new test suite (`test_phase2c_truth_table`) verified all 9 combinations of input trits $\{-1, 0, 1\} \times \{-1, 0, 1\}$ for `TAnd`, `TOr`, and `TNot` against the Scalar Reference and Phase 2B LUT implementation.
+*   **Exhaustive Truth-Table Test:** A new test suite (`test_phase2c_truth_table`) verified all 9 combinations of input trits `{-1, 0, 1} x {-1, 0, 1}` for `TAnd`, `TOr`, and `TNot` against the Scalar Reference and Phase 2B LUT implementation.
     *   **Result:** PASS.
-    *   **Note:** A logic error in the initial `TOr` SWAR formula for the $(-1, 0)$ case was identified and fixed during this audit.
-*   **TXor Commutativity:** Explicitly verified that `TXor` implements Ternary Difference ($a - b$), which is non-commutative.
+    *   **Note:** A logic error in the initial `TOr` SWAR formula for the `(-1, 0)` case was identified and fixed during this audit.
+*   **TXor Commutativity:** Explicitly verified that `TXor` implements Ternary Difference (`a - b`), which is non-commutative.
     *   **Result:** Confirmed. Phase 2C correctly uses the Phase 2B LUT fallback for this operation to guarantee correctness.
 
 ### 10.2 Stress Testing & Edge Cases
-*   **Chained Operations:** Verified complex chained operations (e.g., $((a \land b) \lor c) \land d$ and $\neg(a \land (b \lor c))$) across a wide range of vector sizes, including non-aligned lengths ($1, 2, 3, \dots, 1027$).
+*   **Chained Operations:** Verified complex chained operations (e.g., `((a AND b) OR c) AND d` and `NOT(a AND (b OR c))`) across a wide range of vector sizes, including non-aligned lengths (`1, 2, 3, ..., 1027`).
 *   **Padding Integrity:** Verified that trailing padding bits in the final byte are correctly masked and remain zero after SWAR operations.
     *   **Result:** PASS.
 
@@ -123,7 +128,7 @@ New benchmarks were added to measure performance in realistic scenarios (`BM_Rea
 | Benchmark | Variant | Time (ns) | Speedup vs Phase 2B | Notes |
 | :--- | :--- | :--- | :--- | :--- |
 | **Real Workload** | Phase 2B (LUT) | 5010 ns | 1.0x | |
-| **Real Workload** | Phase 2C (SWAR) | **345 ns** | **14.5x** | Chained mixed ops ($a \land b, c \lor a, \neg d$) |
+| **Real Workload** | Phase 2C (SWAR) | **345 ns** | **14.5x** | Chained mixed ops (`a AND b`, `c OR a`, `NOT d`) |
 | **Raw Compute** | Phase 2C (Alloc-Free) | **53 ns** | N/A | Direct buffer reuse (TAnd) |
 
 **Conclusion:** Phase 2C delivers a ~14.5x speedup over Phase 2B in realistic chained workloads and maintains strict semantic correctness and memory safety.
