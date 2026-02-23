@@ -2,13 +2,9 @@
 
 Status: Canonical + Developer Semantic Companion (Unified v3)
 Version: 3.0.0-draft
-Sources: `opcode_ver1.txt` (canonical registry) + `opcode_ver2.txt` (semantic/operator reference)
 
 ## 1. Purpose
 - This document reconciles the canonical opcode inventory with developer-facing semantics/traps.
-- Numeric opcode identity, category placement, determinism, and implementation location are sourced from the canonical registry (v1).
-- Operand semantics, stack effects, and trap behavior are sourced from the semantic reference (v2) where present.
-- Where semantic detail is not yet present in v2, canonical rows are retained and marked `Semantic Detail Pending`.
 
 ## 2. Encoding Overview
 - **Instruction Word Format**: Fixed-width 13-byte encoding.
