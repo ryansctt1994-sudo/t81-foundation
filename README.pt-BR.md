@@ -211,7 +211,7 @@ Definido em especificações como [spec/t81vm-spec.md](https://www.google.com/se
 
 Para uma descrição abrangente e em nível de especificação da arquitetura — incluindo semântica formal, invariantes de determinismo, modelagem adversária e design de continuidade a longo prazo — consulte:
 
-➡️ **[A Fundação T81 — Monografia Técnica Definitiva](book-pr/README.md)**
+➡️ **[A Fundação T81 — Monografia Técnica Definitiva](book/book-pt/README.md)**
 
 **Caminhos para o leitor:**
 
@@ -224,18 +224,18 @@ Para uma descrição abrangente e em nível de especificação da arquitetura �
 <details>
 <summary><strong>Parte I — Fundamentos</strong></summary>
 
-1. **[Introdução](book-pr/01_Introducao.md)**
-* [1.1 Escopo e Definição](book-pr/01_Introducao.md#11-escopo-e-definicao)
-* [1.2 Arquitetura do Sistema](book-pr/01_Introducao.md#12-arquitetura-do-sistema)
-* [1.3 Missão de Computação Verificável](book-pr/01_Introducao.md#13-missao-de-computacao-verificavel)
+1. **[Introdução](book/book-pt/01_Introducao.md)**
+* [1.1 Escopo e Definição](book/book-pt/01_Introducao.md#11-escopo-e-definicao)
+* [1.2 Arquitetura do Sistema](book/book-pt/01_Introducao.md#12-arquitetura-do-sistema)
+* [1.3 Missão de Computação Verificável](book/book-pt/01_Introducao.md#13-missao-de-computacao-verificavel)
 
 
-2. **[Princípios Centrais e Invariantes](book-pr/02_Principios.md)**
-* [2.1 O Invariante de Determinismo](book-pr/02_Principios.md#21-o-invariante-de-determinismo)
-* [2.1.1 Superfícies de Determinismo e Vetores de Ataque](book-pr/02_Principios.md#211-superficies-de-determinismo-e-vetores-de-ataque)
-* [2.2 Lógica Ternária (Base-3)](book-pr/02_Principios.md#22-logica-ternaria-base-3)
-* [2.3 Auditabilidade e o Trace Axion](book-pr/02_Principios.md#23-auditabilidade-e-o-trace-axion)
-* [2.4 Os Nove Princípios (Aplicação de Ética)](book-pr/02_Principios.md#24-os-nove-principios-aplicacao-de-etica)
+2. **[Princípios Centrais e Invariantes](book/book-pt/02_Principios.md)**
+* [2.1 O Invariante de Determinismo](book/book-pt/02_Principios.md#21-o-invariante-de-determinismo)
+* [2.1.1 Superfícies de Determinismo e Vetores de Ataque](book/book-pt/02_Principios.md#211-superficies-de-determinismo-e-vetores-de-ataque)
+* [2.2 Lógica Ternária (Base-3)](book/book-pt/02_Principios.md#22-logica-ternaria-base-3)
+* [2.3 Auditabilidade e o Trace Axion](book/book-pt/02_Principios.md#23-auditabilidade-e-o-trace-axion)
+* [2.4 Os Nove Princípios (Aplicação de Ética)](book/book-pt/02_Principios.md#24-os-nove-principios-aplicacao-de-etica)
 
 
 
@@ -244,34 +244,34 @@ Para uma descrição abrangente e em nível de especificação da arquitetura �
 <details>
 <summary><strong>Parte II — A Máquina Determinística</strong></summary>
 
-3. **[Arquitetura T81VM](book-pr/03_Arquitetura.md)**
-* [3.1 Máquina de Estados Formal](book-pr/03_Arquitetura.md#31-maquina-de-estados-formal)
-* [3.1.1 Definição de Estado](book-pr/03_Arquitetura.md#311-definicao-de-estado)
-* [3.2 Layout de Memória](book-pr/03_Arquitetura.md#32-layout-de-memoria)
-* [3.3 Arquivo de Registradores](book-pr/03_Arquitetura.md#33-arquivo-de-registradores)
-* [3.4 Arquitetura do Conjunto de Instruções TISC (ISA)](book-pr/03_Arquitetura.md#34-o-conjunto-de-instrucoes-tisc)
-* [3.5 Semântica de Falhas](book-pr/03_Arquitetura.md#35-semantica-de-falhas)
-* [3.6 Coleta de Lixo (Garbage Collection)](book-pr/03_Arquitetura.md#36-coleta-de-lixo-garbage-collection)
+3. **[Arquitetura T81VM](book/book-pt/03_Arquitetura.md)**
+* [3.1 Máquina de Estados Formal](book/book-pt/03_Arquitetura.md#31-maquina-de-estados-formal)
+* [3.1.1 Definição de Estado](book/book-pt/03_Arquitetura.md#311-definicao-de-estado)
+* [3.2 Layout de Memória](book/book-pt/03_Arquitetura.md#32-layout-de-memoria)
+* [3.3 Arquivo de Registradores](book/book-pt/03_Arquitetura.md#33-arquivo-de-registradores)
+* [3.4 Arquitetura do Conjunto de Instruções TISC (ISA)](book/book-pt/03_Arquitetura.md#34-o-conjunto-de-instrucoes-tisc)
+* [3.5 Semântica de Falhas](book/book-pt/03_Arquitetura.md#35-semantica-de-falhas)
+* [3.6 Coleta de Lixo (Garbage Collection)](book/book-pt/03_Arquitetura.md#36-coleta-de-lixo-garbage-collection)
 
 
-4. **[Tipos de Dados e Serialização Canônica](book-pr/04_Tipos_de_Dados_e_Serializacao.md)**
-* [4.1 Tipos Primitivos](book-pr/04_Tipos_de_Dados_e_Serializacao.md#41-tipos-primitivos)
-* [4.2 T81Float e dmath](book-pr/04_Tipos_de_Dados_e_Serializacao.md#42-t81float-e-dmath)
-* [4.3 Tensores e Layouts Canônicos](book-pr/04_Tipos_de_Dados_e_Serializacao.md#43-tensores-e-layouts-canonicos)
-* [4.4 Regras de Serialização Canônica](book-pr/04_Tipos_de_Dados_e_Serializacao.md#44-regras-de-serializacao-canonica)
+4. **[Tipos de Dados e Serialização Canônica](book/book-pt/04_Tipos_de_Dados_e_Serializacao.md)**
+* [4.1 Tipos Primitivos](book/book-pt/04_Tipos_de_Dados_e_Serializacao.md#41-tipos-primitivos)
+* [4.2 T81Float e dmath](book/book-pt/04_Tipos_de_Dados_e_Serializacao.md#42-t81float-e-dmath)
+* [4.3 Tensores e Layouts Canônicos](book/book-pt/04_Tipos_de_Dados_e_Serializacao.md#43-tensores-e-layouts-canonicos)
+* [4.4 Regras de Serialização Canônica](book/book-pt/04_Tipos_de_Dados_e_Serializacao.md#44-regras-de-serializacao-canonica)
 
 
-5. **[Instalação e Verificação de Build](book-pr/05_Instalacao.md)**
-* [5.1 Pré-requisitos](book-pr/05_Instalacao.md#51-pre-requisitos)
-* [5.2 Compilando a partir da Fonte](book-pr/05_Instalacao.md#52-compilando-a-partir-da-fonte)
-* [5.3 Verificando o Build](book-pr/05_Instalacao.md#53-verificando-o-build)
+5. **[Instalação e Verificação de Build](book/book-pt/05_Instalacao.md)**
+* [5.1 Pré-requisitos](book/book-pt/05_Instalacao.md#51-pre-requisitos)
+* [5.2 Compilando a partir da Fonte](book/book-pt/05_Instalacao.md#52-compilando-a-partir-da-fonte)
+* [5.3 Verificando o Build](book/book-pt/05_Instalacao.md#53-verificando-o-build)
 
 
-6. **[Uso de CLI e API](book-pr/06_Uso.md)**
-* [6.1 Interface de Linha de Comando](book-pr/06_Uso.md#61-a-cli-unificada)
-* [6.2 Embarcando T81 (API C++)](book-pr/06_Uso.md#62-embarcando-t81-api-c)
-* [6.3 Embarcando T81 (API Python)](book-pr/06_Uso.md#63-embarcando-t81-api-python)
-* [6.4 Depuração](book-pr/06_Uso.md#64-depuracao)
+6. **[Uso de CLI e API](book/book-pt/06_Uso.md)**
+* [6.1 Interface de Linha de Comando](book/book-pt/06_Uso.md#61-a-cli-unificada)
+* [6.2 Embarcando T81 (API C++)](book/book-pt/06_Uso.md#62-embarcando-t81-api-c)
+* [6.3 Embarcando T81 (API Python)](book/book-pt/06_Uso.md#63-embarcando-t81-api-python)
+* [6.4 Depuração](book/book-pt/06_Uso.md#64-depuracao)
 
 
 
@@ -280,73 +280,73 @@ Para uma descrição abrangente e em nível de especificação da arquitetura �
 <details>
 <summary><strong>Parte III — Governança e Verificação</strong></summary>
 
-7. **[Verificação e Auditoria](book-pr/07_Verificacao_e_Auditoria.md)**
-* [7.1 Metodologia de Verificação Formal](book-pr/07_Verificacao_e_Auditoria.md#71-a-pilha-de-verificacao)
-* [7.2 A Matriz de Auditoria Formal](book-pr/07_Verificacao_e_Auditoria.md#72-portao-de-determinismo-determinism-gate)
-* [7.3 Testes Baseados em Propriedades](book-pr/07_Verificacao_e_Auditoria.md#73-verificacao-de-trace)
-* [7.4 O Portão de Determinismo (Determinism Gate)](book-pr/07_Verificacao_e_Auditoria.md#72-portao-de-determinismo-determinism-gate)
+7. **[Verificação e Auditoria](book/book-pt/07_Verificacao_e_Auditoria.md)**
+* [7.1 Metodologia de Verificação Formal](book/book-pt/07_Verificacao_e_Auditoria.md#71-a-pilha-de-verificacao)
+* [7.2 A Matriz de Auditoria Formal](book/book-pt/07_Verificacao_e_Auditoria.md#72-portao-de-determinismo-determinism-gate)
+* [7.3 Testes Baseados em Propriedades](book/book-pt/07_Verificacao_e_Auditoria.md#73-verificacao-de-trace)
+* [7.4 O Portão de Determinismo (Determinism Gate)](book/book-pt/07_Verificacao_e_Auditoria.md#72-portao-de-determinismo-determinism-gate)
 
 
-8. **[O Kernel de Segurança Axion](book-pr/08_O_Kernel_Axion.md)**
-* [8.1 Definição Formal](book-pr/08_O_Kernel_Axion.md#81-definicao-formal)
-* [8.2 O Modelo de Política](book-pr/08_O_Kernel_Axion.md#82-o-modelo-de-politica)
-* [8.3 Interceptação de Instruções](book-pr/08_O_Kernel_Axion.md#83-interceptacao-de-instrucao)
-* [8.4 O Log de Auditoria (Trace)](book-pr/08_O_Kernel_Axion.md#84-o-log-de-auditoria-trace)
-* [8.5 Promoção Cognitiva](book-pr/08_O_Kernel_Axion.md#85-promocao-cognitiva)
+8. **[O Kernel de Segurança Axion](book/book-pt/08_O_Kernel_Axion.md)**
+* [8.1 Definição Formal](book/book-pt/08_O_Kernel_Axion.md#81-definicao-formal)
+* [8.2 O Modelo de Política](book/book-pt/08_O_Kernel_Axion.md#82-o-modelo-de-politica)
+* [8.3 Interceptação de Instruções](book/book-pt/08_O_Kernel_Axion.md#83-interceptacao-de-instrucao)
+* [8.4 O Log de Auditoria (Trace)](book/book-pt/08_O_Kernel_Axion.md#84-o-log-de-auditoria-trace)
+* [8.5 Promoção Cognitiva](book/book-pt/08_O_Kernel_Axion.md#85-promocao-cognitiva)
 
 
-9. **[Níveis Cognitivos e Computação Distribuída](book-pr/09_Niveis_Cognitivos_e_Computacao_Distribuida.md)**
-* [9.1 O Modelo de Nível Cognitivo](book-pr/09_Niveis_Cognitivos_e_Computacao_Distribuida.md#91-o-modelo-de-nivel-cognitivo)
-* [9.2 Computação Distribuída (Nível 4)](book-pr/09_Niveis_Cognitivos_e_Computacao_Distribuida.md#92-computacao-distribuida-nivel-4)
-* [9.3 Compilação JIT Baseada em Trace](book-pr/09_Niveis_Cognitivos_e_Computacao_Distribuida.md#922-relogios-logicos-ticksync)
-* [9.4 Formas Infinitas (Nível 5)](book-pr/09_Niveis_Cognitivos_e_Computacao_Distribuida.md#93-formas-infinitas-nivel-5)
+9. **[Níveis Cognitivos e Computação Distribuída](book/book-pt/09_Niveis_Cognitivos_e_Computacao_Distribuida.md)**
+* [9.1 O Modelo de Nível Cognitivo](book/book-pt/09_Niveis_Cognitivos_e_Computacao_Distribuida.md#91-o-modelo-de-nivel-cognitivo)
+* [9.2 Computação Distribuída (Nível 4)](book/book-pt/09_Niveis_Cognitivos_e_Computacao_Distribuida.md#92-computacao-distribuida-nivel-4)
+* [9.3 Compilação JIT Baseada em Trace](book/book-pt/09_Niveis_Cognitivos_e_Computacao_Distribuida.md#922-relogios-logicos-ticksync)
+* [9.4 Formas Infinitas (Nível 5)](book/book-pt/09_Niveis_Cognitivos_e_Computacao_Distribuida.md#93-formas-infinitas-nivel-5)
 
 
-10. **[Apêndices](book-pr/10_Apendices.md)**
+10. **[Apêndices](book/book-pt/10_Apendices.md)**
 
-* [10.1 O Que Ainda Não Foi Implementado](book-pr/10_Apendices.md#101-o-que-ainda-nao-foi-implementado)
-* [10.2 Modelo de Ameaça e Superfície de Ataque ao Determinismo](book-pr/10_Apendices.md#102-codigos-de-erro)
-* [10.3 Glossário](book-pr/10_Apendices.md#103-links-uteis)
+* [10.1 O Que Ainda Não Foi Implementado](book/book-pt/10_Apendices.md#101-o-que-ainda-nao-foi-implementado)
+* [10.2 Modelo de Ameaça e Superfície de Ataque ao Determinismo](book/book-pt/10_Apendices.md#102-codigos-de-erro)
+* [10.3 Glossário](book/book-pt/10_Apendices.md#103-links-uteis)
 
 </details>
 
 <details>
 <summary><strong>Parte IV — Formalização e Endurecimento Estrutural</strong></summary>
 
-11. **[Semântica Formal de TISC e T81VM](book-pr/11_Semantica_Formal.md)**
+11. **[Semântica Formal de TISC e T81VM](book/book-pt/11_Semantica_Formal.md)**
 
-* [Semântica Denotacional de TISC](book-pr/11_Semantica_Formal.md#111-semantica-operacional)
-* [Função de Transição Algébrica δ](book-pr/11_Semantica_Formal.md#1111-a-funcao-de-transicao)
-* [Sistema de Reescrita de Canonicalização](book-pr/11_Semantica_Formal.md)
-* [Esboços de Prova de Determinismo](book-pr/11_Semantica_Formal.md)
-* [Equivalência entre Intérprete e Trace-JIT](book-pr/11_Semantica_Formal.md)
+* [Semântica Denotacional de TISC](book/book-pt/11_Semantica_Formal.md#111-semantica-operacional)
+* [Função de Transição Algébrica δ](book/book-pt/11_Semantica_Formal.md#1111-a-funcao-de-transicao)
+* [Sistema de Reescrita de Canonicalização](book/book-pt/11_Semantica_Formal.md)
+* [Esboços de Prova de Determinismo](book/book-pt/11_Semantica_Formal.md)
+* [Equivalência entre Intérprete e Trace-JIT](book/book-pt/11_Semantica_Formal.md)
 
-12. **[Modelagem Adversária e Ataques ao Determinismo](book-pr/12_Modelagem_Adversaria.md)**
+12. **[Modelagem Adversária e Ataques ao Determinismo](book/book-pt/12_Modelagem_Adversaria.md)**
 
-* [Ataques ao Nível do Compilador](book-pr/12_Modelagem_Adversaria.md#121-modelo-de-ameaca)
-* [Vetores de Ataque em VM e GC](book-pr/12_Modelagem_Adversaria.md#121-modelo-de-ameaca)
-* [Ataques a CanonFS e Hash](book-pr/12_Modelagem_Adversaria.md)
-* [Ataque de Viagem no Tempo em Nível Distribuído](book-pr/12_Modelagem_Adversaria.md#1212-ataques-de-viagem-no-tempo)
-* [Template de Post-mortem de Violação de Determinismo](book-pr/12_Modelagem_Adversaria.md)
+* [Ataques ao Nível do Compilador](book/book-pt/12_Modelagem_Adversaria.md#121-modelo-de-ameaca)
+* [Vetores de Ataque em VM e GC](book/book-pt/12_Modelagem_Adversaria.md#121-modelo-de-ameaca)
+* [Ataques a CanonFS e Hash](book/book-pt/12_Modelagem_Adversaria.md)
+* [Ataque de Viagem no Tempo em Nível Distribuído](book/book-pt/12_Modelagem_Adversaria.md#1212-ataques-de-viagem-no-tempo)
+* [Template de Post-mortem de Violação de Determinismo](book/book-pt/12_Modelagem_Adversaria.md)
 
 </details>
 
 <details>
 <summary><strong>Parte V — Continuidade e Horizonte de Pesquisa</strong></summary>
 
-13. **[Continuidade e Resiliência](book-pr/13_Continuidade_e_Resiliencia.md)**
+13. **[Continuidade e Resiliência](book/book-pt/13_Continuidade_e_Resiliencia.md)**
 
-* [Protocolo de Reconstrução em Ambiente Limpo (Cleanroom)](book-pr/13_Continuidade_e_Resiliencia.md#131-o-protocolo-cleanroom)
-* [Pontos Únicos de Falha](book-pr/13_Continuidade_e_Resiliencia.md)
-* [Manifesto de Continuidade](book-pr/13_Continuidade_e_Resiliencia.md)
-* [Invariantes Formais Imutáveis](book-pr/13_Continuidade_e_Resiliencia.md)
+* [Protocolo de Reconstrução em Ambiente Limpo (Cleanroom)](book/book-pt/13_Continuidade_e_Resiliencia.md#131-o-protocolo-cleanroom)
+* [Pontos Únicos de Falha](book/book-pt/13_Continuidade_e_Resiliencia.md)
+* [Manifesto de Continuidade](book/book-pt/13_Continuidade_e_Resiliencia.md)
+* [Invariantes Formais Imutáveis](book/book-pt/13_Continuidade_e_Resiliencia.md)
 
-14. **[Fronteira de Pesquisa](book-pr/14_Fronteira_de_Pesquisa.md)**
+14. **[Fronteira de Pesquisa](book/book-pt/14_Fronteira_de_Pesquisa.md)**
 
-* [Aceleração de Hardware Ternário](book-pr/14_Fronteira_de_Pesquisa.md)
-* [Caminhos de Verificação Formal](book-pr/14_Fronteira_de_Pesquisa.md)
-* [CanonFS como Substrato Merkle](book-pr/14_Fronteira_de_Pesquisa.md)
-* [Inferência de IA Determinística em Escala](book-pr/14_Fronteira_de_Pesquisa.md)
+* [Aceleração de Hardware Ternário](book/book-pt/14_Fronteira_de_Pesquisa.md)
+* [Caminhos de Verificação Formal](book/book-pt/14_Fronteira_de_Pesquisa.md)
+* [CanonFS como Substrato Merkle](book/book-pt/14_Fronteira_de_Pesquisa.md)
+* [Inferência de IA Determinística em Escala](book/book-pt/14_Fronteira_de_Pesquisa.md)
 
 </details>
 
