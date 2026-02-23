@@ -135,6 +135,7 @@ public:
   std::any visit(const RecurseStmt& stmt) override;
   std::any visit(const DistributedStmt& stmt) override;
   std::any visit(const InfiniteStmt& stmt) override;
+  std::any visit(const TrainStmt& stmt) override;
   std::any visit(const FunctionStmt& stmt) override;
   std::any visit(const TypeDecl& stmt) override;
   std::any visit(const RecordDecl& stmt) override;
@@ -160,6 +161,7 @@ public:
   std::any visit(const IfExpr& expr) override;
   std::any visit(const SimpleTypeExpr& expr) override;
   std::any visit(const GenericTypeExpr& expr) override;
+  std::any visit(const InferExpr& expr) override;
 
   struct MatchMetadata {
     const MatchExpr* expr = nullptr;

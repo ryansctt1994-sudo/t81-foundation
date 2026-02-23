@@ -1527,6 +1527,16 @@ std::any SemanticAnalyzer::visit(const InfiniteStmt& stmt) {
   return {};
 }
 
+std::any SemanticAnalyzer::visit(const TrainStmt& stmt) {
+  evaluate_expression(*stmt.model);
+  enter_scope();
+  for (const auto& s : stmt.body) {
+    analyze(*s);
+  }
+  exit_scope();
+  return {};
+}
+
 std::any SemanticAnalyzer::visit(const RecurseStmt& stmt) {
   SemanticSymbol* symbol = resolve_symbol(stmt.name);
   if (!symbol) {
@@ -4140,6 +4150,13 @@ std::any SemanticAnalyzer::visit(const InfiniteLiteralExpr& expr) {
     evaluate_expression(*expr.seed);
   }
   return Type{Type::Kind::InfiniteCanonicalForm};
+}
+
+std::any SemanticAnalyzer::visit(const InferExpr& expr) {
+  evaluate_expression(*expr.expression);
+  // infer <model(...)> likely returns a Tensor or result of the model.
+  // For now, we assume it returns a Tensor.
+  return Type{Type::Kind::Tensor};
 }
 
 std::any SemanticAnalyzer::visit(const UnaryExpr& expr) {

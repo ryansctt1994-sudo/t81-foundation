@@ -150,6 +150,16 @@ public:
     return ss.str();
   }
 
+  std::any visit(const TrainStmt& stmt) override {
+    [[maybe_unused]] std::stringstream ss;
+    ss << "(train " << print(*stmt.model) << " (block";
+    for (const auto& s : stmt.body) {
+      ss << " " << print(*s);
+    }
+    ss << "))";
+    return ss.str();
+  }
+
   std::any visit(const FunctionStmt& stmt) override {
     [[maybe_unused]] std::stringstream ss;
     ss << "(fn " << stmt.name.lexeme;
@@ -243,6 +253,10 @@ public:
       return "(infinite_literal " + print(*expr.seed) + ")";
     }
     return std::string("(infinite_literal)");
+  }
+
+  std::any visit(const InferExpr& expr) override {
+    return "(infer " + print(*expr.expression) + ")";
   }
 
   std::any visit(const VectorLiteralExpr& expr) override {

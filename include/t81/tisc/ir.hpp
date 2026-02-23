@@ -143,6 +143,10 @@ enum class Opcode {
   TNEW,
   TSET,
 
+  // Neural
+  TNEURAL_FWD,
+  TNEURAL_BWD,
+
   // Tier 4
   GOSSIP,
   MERGE,

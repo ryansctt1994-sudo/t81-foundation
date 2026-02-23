@@ -39,6 +39,7 @@ struct IfExpr;
 struct TypeExpr;         // Base class for type expressions
 struct SimpleTypeExpr;   // For simple types like "T81Int"
 struct GenericTypeExpr;  // For generic types like "Vector[T]"
+struct InferExpr;
 struct ExpressionStmt;
 struct VarStmt;
 struct LetStmt;
@@ -50,6 +51,7 @@ struct ReflectStmt;
 struct RecurseStmt;
 struct DistributedStmt;
 struct InfiniteStmt;
+struct TrainStmt;
 struct ReturnStmt;
 struct BreakStmt;
 struct ContinueStmt;
@@ -95,6 +97,7 @@ public:
   virtual std::any visit(const IfExpr& expr) = 0;
   virtual std::any visit(const SimpleTypeExpr& expr) = 0;
   virtual std::any visit(const GenericTypeExpr& expr) = 0;
+  virtual std::any visit(const InferExpr& expr) = 0;
 };
 
 class StmtVisitor {
@@ -111,6 +114,7 @@ public:
   virtual std::any visit(const RecurseStmt& stmt) = 0;
   virtual std::any visit(const DistributedStmt& stmt) = 0;
   virtual std::any visit(const InfiniteStmt& stmt) = 0;
+  virtual std::any visit(const TrainStmt& stmt) = 0;
   virtual std::any visit(const LoopStmt& stmt) = 0;
   virtual std::any visit(const ReturnStmt& stmt) = 0;
   virtual std::any visit(const BreakStmt& stmt) = 0;
@@ -329,6 +333,16 @@ struct IfExpr : Expr {
   const std::unique_ptr<Expr> else_branch;
 };
 
+struct InferExpr : Expr {
+  InferExpr(Token keyword, std::unique_ptr<Expr> expression)
+      : keyword(keyword), expression(std::move(expression)) {}
+
+  std::any accept(ExprVisitor& visitor) const override { return visitor.visit(*this); }
+
+  const Token keyword;
+  const std::unique_ptr<Expr> expression;
+};
+
 // --- Statement Nodes ---
 
 struct ExpressionStmt : Stmt {
@@ -488,6 +502,17 @@ struct InfiniteStmt : Stmt {
   std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
 
   const Token keyword;
+  const std::vector<std::unique_ptr<Stmt>> body;
+};
+
+struct TrainStmt : Stmt {
+  TrainStmt(Token keyword, std::unique_ptr<Expr> model, std::vector<std::unique_ptr<Stmt>> body)
+      : keyword(keyword), model(std::move(model)), body(std::move(body)) {}
+
+  std::any accept(StmtVisitor& visitor) const override { return visitor.visit(*this); }
+
+  const Token keyword;
+  const std::unique_ptr<Expr> model;
   const std::vector<std::unique_ptr<Stmt>> body;
 };
 

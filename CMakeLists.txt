@@ -478,6 +478,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_neural_primitives_test tests/cpp/test_neural_primitives.cpp)
   target_link_libraries(t81_neural_primitives_test PRIVATE t81_core)
 
+  add_executable(t81_frontend_neural_test tests/cpp/test_frontend_neural.cpp)
+  target_link_libraries(t81_frontend_neural_test PRIVATE t81_frontend t81_core)
+
   add_executable(t81_c_api_bigint_test tests/cpp/c_api_bigint_test.c)
   target_link_libraries(t81_c_api_bigint_test PRIVATE t81_c_api)
   target_include_directories(t81_c_api_bigint_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -1002,6 +1005,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_symbolic_algebra_test
     t81_semantic_graph_test
     t81_neural_primitives_test
+    t81_frontend_neural_test
     t81_c_api_bigint_test
     t81_tensor_unary_test
     t81_hanoi_integration_test

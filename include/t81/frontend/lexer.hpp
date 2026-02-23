@@ -38,6 +38,8 @@ enum class TokenType {
   Recurse,
   Distributed,
   Infinite,
+  Infer,
+  Train,
   Break,
   Continue,
   Return,

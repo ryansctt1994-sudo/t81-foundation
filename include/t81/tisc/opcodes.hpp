@@ -173,6 +173,8 @@ enum class Opcode : std::uint8_t {
   AxReport,
   F2Frac,
   Frac2F,
+  TNeuralFwd,
+  TNeuralBwd,
 };
 
 [[nodiscard]] constexpr std::string_view opcode_name(Opcode opcode) {
@@ -507,12 +509,16 @@ enum class Opcode : std::uint8_t {
       return "F2Frac";
     case Opcode::Frac2F:
       return "Frac2F";
+    case Opcode::TNeuralFwd:
+      return "TNeuralFwd";
+    case Opcode::TNeuralBwd:
+      return "TNeuralBwd";
   }
   return "Unknown";
 }
 
-inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::Frac2F) + 1> kAllOpcodes = [] {
-  std::array<Opcode, static_cast<std::size_t>(Opcode::Frac2F) + 1> values{};
+inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::TNeuralBwd) + 1> kAllOpcodes = [] {
+  std::array<Opcode, static_cast<std::size_t>(Opcode::TNeuralBwd) + 1> values{};
   for (std::size_t i = 0; i < values.size(); ++i) {
     values[i] = static_cast<Opcode>(i);
   }
@@ -520,6 +526,6 @@ inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::Frac2F) + 1
 }();
 
 [[nodiscard]] constexpr bool is_valid_opcode(std::uint8_t raw_opcode) {
-  return raw_opcode <= static_cast<std::uint8_t>(Opcode::Frac2F);
+  return raw_opcode <= static_cast<std::uint8_t>(Opcode::TNeuralBwd);
 }
 }  // namespace t81::tisc
