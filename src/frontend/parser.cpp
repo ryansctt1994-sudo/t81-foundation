@@ -1035,7 +1035,8 @@ std::unique_ptr<Expr> Parser::comparison() {
 // shift -> term ( ( "<<" | ">>" | ">>>" ) term )* ;
 std::unique_ptr<Expr> Parser::shift() {
   std::unique_ptr<Expr> expr = term();
-  while (match({TokenType::LessLess, TokenType::GreaterGreater, TokenType::GreaterGreaterGreater})) {
+  while (
+      match({TokenType::LessLess, TokenType::GreaterGreater, TokenType::GreaterGreaterGreater})) {
     Token op = previous();
     std::unique_ptr<Expr> right = term();
     expr = std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
