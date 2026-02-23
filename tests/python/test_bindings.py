@@ -15,7 +15,7 @@ def test_t81int():
     print(f"Repr: {repr(a)}")
 
 def test_t729tensor():
-    t = t81_python.T729Tensor([2, 2], [1.0, 2.0, 3.0, 4.0])
+    t = t81_python.T729DynamicTensor([2, 2], [1.0, 2.0, 3.0, 4.0])
     print(f"Tensor shape: {t.shape}")
     print(f"Tensor data: {t.data}")
     assert t.shape == [2, 2]

@@ -29,7 +29,8 @@ T729DynamicTensor reference_matmul(const T729DynamicTensor& A, const T729Dynamic
   return T729DynamicTensor({m, n}, std::move(out));
 }
 
-T729DynamicTensor reference_rmsnorm(const T729DynamicTensor& x, const T729DynamicTensor& w, float eps = 1e-6f) {
+T729DynamicTensor reference_rmsnorm(const T729DynamicTensor& x, const T729DynamicTensor& w,
+                                    float eps = 1e-6f) {
   const int dim = x.shape().back();
   std::vector<float> out = x.data();
   const float* w_ptr = w.data().data();

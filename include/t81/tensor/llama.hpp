@@ -49,7 +49,8 @@ inline __m256 simd_exp(__m256 x) {
 }
 #endif
 
-inline T729DynamicTensor rmsnorm(const T729DynamicTensor& x, const T729DynamicTensor& w, float eps = 1e-6f) {
+inline T729DynamicTensor rmsnorm(const T729DynamicTensor& x, const T729DynamicTensor& w,
+                                 float eps = 1e-6f) {
   if (x.rank() == 0 || w.rank() != 1 || w.shape()[0] != x.shape().back()) {
     throw std::invalid_argument("rmsnorm: shape mismatch");
   }

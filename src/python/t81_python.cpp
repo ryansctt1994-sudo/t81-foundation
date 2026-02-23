@@ -129,15 +129,16 @@ PYBIND11_MODULE(t81_python, m) {
       .def("rank", [](const Tensor2D33&) { return Tensor2D33::rank(); })
       .def("__add__", [](const Tensor2D33& a, const Tensor2D33& b) { return a + b; });
 
-  // Bind T729Tensor (float)
-  py::class_<T729Tensor>(m, "T729Tensor")
+  // Bind T729DynamicTensor (float)
+  py::class_<T729DynamicTensor>(m, "T729DynamicTensor")
       .def(py::init<std::vector<int>>())
       .def(py::init<std::vector<int>, std::vector<float>>())
-      .def_property_readonly("shape", &T729Tensor::shape)
-      .def_property("data", py::overload_cast<>(&T729Tensor::data),
-                    [](T729Tensor& self, std::vector<float> d) { self.data() = std::move(d); })
-      .def("rank", &T729Tensor::rank)
-      .def("size", &T729Tensor::size);
+      .def_property_readonly("shape", &T729DynamicTensor::shape)
+      .def_property(
+          "data", py::overload_cast<>(&T729DynamicTensor::data),
+          [](T729DynamicTensor& self, std::vector<float> d) { self.data() = std::move(d); })
+      .def("rank", &T729DynamicTensor::rank)
+      .def("size", &T729DynamicTensor::size);
 
   // Bind T729IntTensor
   py::class_<T729IntTensor>(m, "T729IntTensor")

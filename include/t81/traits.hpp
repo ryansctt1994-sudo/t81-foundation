@@ -11,7 +11,7 @@ namespace t81::traits {
 template <typename T>
 struct is_tensor : std::false_type {};
 template <>
-struct is_tensor<T729Tensor> : std::true_type {};
+struct is_tensor<T729DynamicTensor> : std::true_type {};
 template <typename T>
 inline constexpr bool is_tensor_v = is_tensor<T>::value;
 
@@ -38,7 +38,7 @@ struct value_type {
 };
 
 template <>
-struct value_type<T729Tensor> {
+struct value_type<T729DynamicTensor> {
   using type = float;
 };
 
@@ -52,7 +52,7 @@ struct shape_type {
 };
 
 template <>
-struct shape_type<T729Tensor> {
+struct shape_type<T729DynamicTensor> {
   using type = std::vector<int>;
 };
 

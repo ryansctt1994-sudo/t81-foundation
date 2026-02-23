@@ -3,9 +3,9 @@
 #include "t81/vm/traps.hpp"
 #include "t81/vm/vm.hpp"
 
+#include <cassert>
 #include <iostream>
 #include <vector>
-#include <cassert>
 
 namespace {
 t81::vm::Trap run_until_trap(const std::vector<t81::tisc::Insn>& insns) {

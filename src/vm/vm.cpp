@@ -446,8 +446,8 @@ public:
       if (!state_.tensors[idx].has_value()) return nullptr;
       return &state_.tensors[idx].value();
     };
-    auto alloc_tensor = [this,
-                         current_pc](t81::T729DynamicTensor tensor) -> std::expected<std::int64_t, Trap> {
+    auto alloc_tensor =
+        [this, current_pc](t81::T729DynamicTensor tensor) -> std::expected<std::int64_t, Trap> {
       if (state_.policy) {
         std::size_t active_tensors = state_.tensors.size() - state_.free_tensor_indices.size();
         if (state_.policy->max_tensors &&
@@ -1266,20 +1266,20 @@ public:
         if (num_elements != expected) {
           // For T3_K or others this might differ, but for now we assume packed u64
           // Actually, serialize_tensor in canonize_tensor used NativeTensor which has uint64_t
-          // data. And promoted to float for T729DynamicTensor. Wait, T729DynamicTensor uses float (32-bit?) or
-          // T81Float<72,9>? T729DynamicTensor is alias for T81Tensor<T81Float<72,9>>? The memory says:
-          // "T729DynamicTensor ... is a template alias for T81Tensor specialized with T81Float<72, 9>".
-          // But in vm.cpp: `t81::T729DynamicTensor promoted(std::move(shape), std::move(float_data));`
-          // where `float_data` is `std::vector<float>`.
-          // So T729DynamicTensor seems to hold float?
-          // Let's check `include/t81/core/T729DynamicTensor.hpp` or `t81/tensor.hpp`.
-          // I don't have access to those files right now (didn't read them), but `vm.cpp` uses
-          // `std::vector<float> data = tensor->data();`. So `T729DynamicTensor` uses `float` or
-          // convertible to `float`. The serialized format I wrote in `canonize_tensor` writes
-          // `uint64_t` from `NativeTensor`. `NativeTensor` holds trits packed in limbs or T3_K. If
-          // `fmt` is BalancedTernary (0), it is `vector<uint64_t>`. To load it into `T729DynamicTensor`
-          // (which is floats in VM), I need to convert/promote it! Just like `promote_to_tensor`
-          // does for `WeightsTensorHandle`.
+          // data. And promoted to float for T729DynamicTensor. Wait, T729DynamicTensor uses float
+          // (32-bit?) or T81Float<72,9>? T729DynamicTensor is alias for T81Tensor<T81Float<72,9>>?
+          // The memory says: "T729DynamicTensor ... is a template alias for T81Tensor specialized
+          // with T81Float<72, 9>". But in vm.cpp: `t81::T729DynamicTensor
+          // promoted(std::move(shape), std::move(float_data));` where `float_data` is
+          // `std::vector<float>`. So T729DynamicTensor seems to hold float? Let's check
+          // `include/t81/core/T729DynamicTensor.hpp` or `t81/tensor.hpp`. I don't have access to
+          // those files right now (didn't read them), but `vm.cpp` uses `std::vector<float> data =
+          // tensor->data();`. So `T729DynamicTensor` uses `float` or convertible to `float`. The
+          // serialized format I wrote in `canonize_tensor` writes `uint64_t` from `NativeTensor`.
+          // `NativeTensor` holds trits packed in limbs or T3_K. If `fmt` is BalancedTernary (0), it
+          // is `vector<uint64_t>`. To load it into `T729DynamicTensor` (which is floats in VM), I
+          // need to convert/promote it! Just like `promote_to_tensor` does for
+          // `WeightsTensorHandle`.
 
           // I should reuse logic from `promote_to_tensor`?
           // But `promote_to_tensor` works on `NativeTensor`.
