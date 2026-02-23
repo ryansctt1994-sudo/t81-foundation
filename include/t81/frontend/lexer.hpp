@@ -82,6 +82,7 @@ enum class TokenType {
   Plus,
   Minus,
   Star,
+  StarStar,
   Slash,
   Percent,
   Equal,

@@ -92,5 +92,35 @@ int main() {
     )";
   check_no_error(test4, "If Expression with Else If");
 
+  // Test 5: Exponentiation
+  std::string test5 = R"(
+        fn main() -> T81Float {
+            let x: T81Float = 2.0t81;
+            let y: T81Float = x ** 3.0t81;
+            return y;
+        }
+    )";
+  check_no_error(test5, "Exponentiation");
+
+  // Test 6: Exponentiation Associativity
+  std::string test6 = R"(
+        fn main() -> T81Float {
+            let x: T81Float = 2.0t81 ** 3.0t81 ** 2.0t81;
+            return x;
+        }
+    )";
+  check_no_error(test6, "Exponentiation Associativity");
+
+  // Test 7: Tensor Matrix Multiplication
+  std::string test7 = R"(
+        fn main() -> i32 {
+            let A: Tensor = Tensor.from_list([1.0, 2.0]);
+            let B: Tensor = Tensor.from_list([3.0, 4.0]);
+            let C: Tensor = A ** B;
+            return 0;
+        }
+    )";
+  check_no_error(test7, "Tensor MatMul");
+
   return 0;
 }

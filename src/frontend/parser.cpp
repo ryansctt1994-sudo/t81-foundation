@@ -131,6 +131,8 @@ std::string token_type_name(TokenType type) {
       return "'-'";
     case TokenType::Star:
       return "'*'";
+    case TokenType::StarStar:
+      return "'**'";
     case TokenType::Slash:
       return "'/'";
     case TokenType::Percent:
@@ -959,13 +961,25 @@ std::unique_ptr<Expr> Parser::term() {
 }
 
 // Parses a multiplication/division/modulo expression.
-// factor -> unary ( ( "/" | "*" | "%" ) unary )* ;
+// factor -> exponent ( ( "/" | "*" | "%" ) exponent )* ;
 std::unique_ptr<Expr> Parser::factor() {
-  std::unique_ptr<Expr> expr = unary();
+  std::unique_ptr<Expr> expr = exponent();
   while (match({TokenType::Slash, TokenType::Star, TokenType::Percent})) {
     Token op = previous();
-    std::unique_ptr<Expr> right = unary();
+    std::unique_ptr<Expr> right = exponent();
     expr = std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
+  }
+  return expr;
+}
+
+// Parses an exponentiation/matmul expression.
+// exponent -> unary ( "**" exponent )? ; (Right-associative)
+std::unique_ptr<Expr> Parser::exponent() {
+  std::unique_ptr<Expr> expr = unary();
+  if (match({TokenType::StarStar})) {
+    Token op = previous();
+    std::unique_ptr<Expr> right = exponent();
+    return std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
   }
   return expr;
 }

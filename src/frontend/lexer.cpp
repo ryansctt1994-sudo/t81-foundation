@@ -129,7 +129,7 @@ Token Lexer::next_token() {
     case '+':
       return make_token(TokenType::Plus);
     case '*':
-      return make_token(TokenType::Star);
+      return make_token(match('*') ? TokenType::StarStar : TokenType::Star);
     case '%':
       return make_token(TokenType::Percent);
     case '^':

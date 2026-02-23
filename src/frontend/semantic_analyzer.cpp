@@ -1912,6 +1912,12 @@ std::any SemanticAnalyzer::visit(const BinaryExpr& expr) {
     case TokenType::Slash:
     case TokenType::Percent:
       return widen_numeric(left_type, right_type, expr.op);
+    case TokenType::StarStar:
+      if ((left_type.kind == Type::Kind::Tensor || left_type.kind == Type::Kind::Matrix) &&
+          (right_type.kind == Type::Kind::Tensor || right_type.kind == Type::Kind::Matrix)) {
+        return left_type;
+      }
+      return widen_numeric(left_type, right_type, expr.op);
     case TokenType::Greater:
     case TokenType::GreaterEqual:
     case TokenType::Less:
