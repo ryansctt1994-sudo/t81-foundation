@@ -11,7 +11,7 @@ The prototype implements `TAnd`, `TOr`, `TXor`, and `TNot` using an "unpack-oper
 *   **Module Path:** `include/t81/experimental/packed_trit_vector.hpp`
 *   **Reused Codec APIs:** `t81::codec::trit_packing` (specifically `pack_pt5` and `unpack_pt5`)
 *   **Semantics Source:** `src/vm/vm.cpp` (canonical TISC opcode implementation) and scalar logic defined in `PackedTritVector` for testing.
-*   **TXor Semantics:** `TXor` is implemented as `a - b` (difference) with wrapping, matching the TISC VM implementation (`src/vm/vm.cpp`). Note that this is non-commutative, unlike typical XOR.
+*   **TXor Semantics:** `TXor` is semantically defined as ternary difference (`lhs - rhs`) with wrapping, exactly matching the TISC VM implementation (`src/vm/vm.cpp`). Note that this is **non-commutative** and distinct from binary XOR. For example, `0 TXor 1` is -1, while `1 TXor 0` is 1.
 
 ## 3. Prototype API and Semantics
 
@@ -30,7 +30,7 @@ The `PackedTritVector` class provides the following API:
     *   `Result<PackedTritVector> t_not() const`: Ternary NOT.
     *   `Result<PackedTritVector> t_and(const PackedTritVector& other) const`: Ternary AND (Min).
     *   `Result<PackedTritVector> t_or(const PackedTritVector& other) const`: Ternary OR (Max).
-    *   `Result<PackedTritVector> t_xor(const PackedTritVector& other) const`: Ternary XOR (Difference modulo 3).
+    *   `Result<PackedTritVector> t_xor(const PackedTritVector& other) const`: Ternary XOR (Difference modulo 3, non-commutative).
 
 *   **Error Handling:** Uses `t81::Result` to report invalid inputs, length mismatches, or packing errors.
 
@@ -46,6 +46,12 @@ A dedicated test suite (`tests/cpp/test_packed_trit_vector.cpp`) verifies correc
 ## 5. Benchmark Scaffold
 
 A Google Benchmark scaffold (`benchmarks/BM_PackedTritVector.cpp`) compares scalar vs. packed operations across sizes 16, 64, 512, and 4096 trits.
+
+**Methodology:**
+*   **Build Mode:** Default CMake configuration (Release/RelWithDebInfo recommended for results).
+*   **Framework:** Google Benchmark.
+*   **Metrics:** Wall time (ns) and CPU time (ns).
+*   **Inclusions:** Phase 1 packed operation timings are inclusive of the full unpack-operate-repack cycle, as per the current prototype strategy.
 
 **Scenarios:**
 *   `BM_ScalarTAnd/TOr/TXor/TNot`: Naive loop over `std::vector<int8_t>`.
@@ -69,7 +75,7 @@ A Google Benchmark scaffold (`benchmarks/BM_PackedTritVector.cpp`) compares scal
 *   [x] Conformance tests added (fixed + randomized + error cases)
 *   [x] Benchmark scaffold added (with sizes and reporting fields)
 *   [x] Prototype report created
-*   [ ] Any unrun tests/benchmarks clearly marked as unexecuted (All run)
+*   [x] Tests/benchmarks execution status explicitly reported (all run)
 
 ## 7. Known Limitations and Phase 2 Recommendations
 

@@ -35,9 +35,6 @@ public:
   }
 
   static Result<PackedTritVector> from_packed(const std::vector<uint8_t>& packed, size_t trit_count) {
-    // Validate by unpacking?
-    // The prompt says "construct from PT-5 packed bytes + trit_count (validated)".
-    // unpacking is the best validation for now.
     auto res = t81::codec::trit_packing::unpack_pt5(packed, trit_count);
     if (res.is_err()) {
         return Result<PackedTritVector>(res.error());
@@ -162,6 +159,156 @@ private:
       : packed_(std::move(packed)), count_(count) {}
 
   std::vector<uint8_t> packed_;
+  size_t count_;
+};
+
+// Phase 2A: Compute-Friendly Representation Prototype
+// Uses 2-bit packing (4 trits per byte) for faster access than PT-5.
+// Mapping: 0->00, 1->01, -1->11 (Invalid: 10)
+class ComputeTritVector {
+public:
+  static Result<ComputeTritVector> from_trits(const std::vector<int8_t>& trits) {
+    std::vector<uint8_t> data;
+    size_t packed_len = (trits.size() + 3) / 4;
+    data.reserve(packed_len);
+
+    for (size_t i = 0; i < trits.size(); i += 4) {
+      uint8_t byte = 0;
+      for (size_t j = 0; j < 4; ++j) {
+        if (i + j < trits.size()) {
+          int8_t t = trits[i + j];
+          if (t < -1 || t > 1) {
+             return Result<ComputeTritVector>::failure(
+                T81Symbol::intern("INVALID_TRIT"),
+                T81String("Input trit value must be -1, 0, or 1"),
+                T81Symbol::intern("ComputeTritVector"));
+          }
+          // Map: 0->00, 1->01, -1->11.
+          uint8_t val = 0;
+          if (t == 0) val = 0; // 00
+          else if (t == 1) val = 1; // 01
+          else if (t == -1) val = 3; // 11
+
+          byte |= (val << (j * 2));
+        }
+      }
+      data.push_back(byte);
+    }
+    return Result<ComputeTritVector>::success(ComputeTritVector(std::move(data), trits.size()));
+  }
+
+  static Result<ComputeTritVector> from_phase1(const PackedTritVector& other) {
+    auto trits_res = other.to_trits();
+    if (trits_res.is_err()) return Result<ComputeTritVector>(trits_res.error());
+    return from_trits(trits_res.value());
+  }
+
+  size_t size() const { return count_; }
+  const std::vector<uint8_t>& data() const { return data_; }
+
+  Result<std::vector<int8_t>> to_trits() const {
+    std::vector<int8_t> out;
+    out.reserve(count_);
+    for (size_t i = 0; i < count_; ++i) {
+      size_t byte_idx = i / 4;
+      size_t bit_idx = (i % 4) * 2;
+      uint8_t byte = data_[byte_idx];
+      uint8_t val = (byte >> bit_idx) & 0x03;
+
+      int8_t t = 0;
+      if (val == 0) t = 0;
+      else if (val == 1) t = 1;
+      else if (val == 3) t = -1;
+      else {
+         return Result<std::vector<int8_t>>::failure(
+            T81Symbol::intern("INVALID_PACKED_DATA"),
+            T81String("Encountered invalid 2-bit pattern"),
+            T81Symbol::intern("ComputeTritVector"));
+      }
+      out.push_back(t);
+    }
+    return Result<std::vector<int8_t>>::success(out);
+  }
+
+  Result<ComputeTritVector> t_not() const {
+    auto trits_res = to_trits();
+    if (trits_res.is_err()) return Result<ComputeTritVector>(trits_res.error());
+    std::vector<int8_t> trits = trits_res.value();
+    for (auto& t : trits) t = PackedTritVector::scalar_not(t);
+    return from_trits(trits);
+  }
+
+  Result<ComputeTritVector> t_and(const ComputeTritVector& other) const {
+    if (count_ != other.count_) {
+       return Result<ComputeTritVector>::failure(
+            T81Symbol::intern("LENGTH_MISMATCH"),
+            T81String("Vectors must have same length for binary operation"),
+            T81Symbol::intern("ComputeTritVector"));
+    }
+    auto lhs_res = to_trits();
+    if (lhs_res.is_err()) return Result<ComputeTritVector>(lhs_res.error());
+    auto rhs_res = other.to_trits();
+    if (rhs_res.is_err()) return Result<ComputeTritVector>(rhs_res.error());
+
+    auto& lhs = lhs_res.value();
+    auto& rhs = rhs_res.value();
+    std::vector<int8_t> res;
+    res.reserve(count_);
+    for(size_t i=0; i<count_; ++i) {
+        res.push_back(PackedTritVector::scalar_and(lhs[i], rhs[i]));
+    }
+    return from_trits(res);
+  }
+
+  Result<ComputeTritVector> t_or(const ComputeTritVector& other) const {
+    if (count_ != other.count_) {
+       return Result<ComputeTritVector>::failure(
+            T81Symbol::intern("LENGTH_MISMATCH"),
+            T81String("Vectors must have same length for binary operation"),
+            T81Symbol::intern("ComputeTritVector"));
+    }
+    auto lhs_res = to_trits();
+    if (lhs_res.is_err()) return Result<ComputeTritVector>(lhs_res.error());
+    auto rhs_res = other.to_trits();
+    if (rhs_res.is_err()) return Result<ComputeTritVector>(rhs_res.error());
+
+    auto& lhs = lhs_res.value();
+    auto& rhs = rhs_res.value();
+    std::vector<int8_t> res;
+    res.reserve(count_);
+    for(size_t i=0; i<count_; ++i) {
+        res.push_back(PackedTritVector::scalar_or(lhs[i], rhs[i]));
+    }
+    return from_trits(res);
+  }
+
+  Result<ComputeTritVector> t_xor(const ComputeTritVector& other) const {
+    if (count_ != other.count_) {
+       return Result<ComputeTritVector>::failure(
+            T81Symbol::intern("LENGTH_MISMATCH"),
+            T81String("Vectors must have same length for binary operation"),
+            T81Symbol::intern("ComputeTritVector"));
+    }
+    auto lhs_res = to_trits();
+    if (lhs_res.is_err()) return Result<ComputeTritVector>(lhs_res.error());
+    auto rhs_res = other.to_trits();
+    if (rhs_res.is_err()) return Result<ComputeTritVector>(rhs_res.error());
+
+    auto& lhs = lhs_res.value();
+    auto& rhs = rhs_res.value();
+    std::vector<int8_t> res;
+    res.reserve(count_);
+    for(size_t i=0; i<count_; ++i) {
+        res.push_back(PackedTritVector::scalar_xor(lhs[i], rhs[i]));
+    }
+    return from_trits(res);
+  }
+
+private:
+  ComputeTritVector(std::vector<uint8_t> data, size_t count)
+    : data_(std::move(data)), count_(count) {}
+
+  std::vector<uint8_t> data_;
   size_t count_;
 };
 
