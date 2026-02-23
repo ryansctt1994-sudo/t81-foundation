@@ -11,14 +11,14 @@ int main() {
   // A: 2x3
   // [1 2 3
   //  4 5 6]
-  T729Tensor A({2, 3});
+  T729DynamicTensor A({2, 3});
   A.data() = {1, 2, 3, 4, 5, 6};
 
   // B: 3x2
   // [7  8
   //  9 10
   // 11 12]
-  T729Tensor B({3, 2});
+  T729DynamicTensor B({3, 2});
   B.data() = {7, 8, 9, 10, 11, 12};
 
   // C = A·B -> 2x2

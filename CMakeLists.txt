@@ -349,6 +349,14 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_new_opcodes_test tests/cpp/vm_new_opcodes_test.cpp)
   target_link_libraries(t81_vm_new_opcodes_test PRIVATE t81_core)
 
+  add_executable(t81_test_axion_opcodes tests/cpp/test_axion_opcodes.cpp)
+  target_link_libraries(t81_test_axion_opcodes PRIVATE t81_core)
+  add_test(NAME t81_test_axion_opcodes COMMAND t81_test_axion_opcodes)
+
+  add_executable(t81_vm_neural_opcodes_test tests/cpp/test_vm_neural_opcodes.cpp)
+  target_link_libraries(t81_vm_neural_opcodes_test PRIVATE t81_core)
+  add_test(NAME t81_vm_neural_opcodes_test COMMAND t81_vm_neural_opcodes_test)
+
   add_executable(t81_vm_memory_test tests/cpp/vm_memory_test.cpp)
   target_link_libraries(t81_vm_memory_test PRIVATE t81_core)
 
@@ -373,6 +381,9 @@ if(T81_BUILD_TESTS)
 
   add_executable(t81_axion_stub_test tests/cpp/axion_stub_test.cpp)
   target_link_libraries(t81_axion_stub_test PRIVATE t81_core)
+
+  add_executable(t81_check_tier_test tests/cpp/test_check_tier.cpp)
+  target_link_libraries(t81_check_tier_test PRIVATE t81_core)
 
   add_executable(t81_codec_base243_test tests/cpp/codec_base243_test.cpp)
   target_link_libraries(t81_codec_base243_test PRIVATE t81_core)
@@ -1228,6 +1239,10 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_agent_test PRIVATE t81_core)
   add_test(NAME t81_agent_test COMMAND t81_agent_test)
 
+  add_executable(t81_agent_neural_test tests/cpp/test_T81Agent_neural.cpp)
+  target_link_libraries(t81_agent_neural_test PRIVATE t81_core)
+  add_test(NAME t81_agent_neural_test COMMAND t81_agent_neural_test)
+
   add_executable(t81_stream_test tests/cpp/test_T81Stream.cpp)
   target_link_libraries(t81_stream_test PRIVATE t81_core)
   add_test(NAME t81_stream_test COMMAND t81_stream_test)
@@ -1379,3 +1394,6 @@ if(T81_BUILD_TESTS)
   target_link_libraries(test_bigint_demotion PRIVATE t81_core)
   add_test(NAME test_bigint_demotion COMMAND test_bigint_demotion)
 endif()
+add_executable(t81_graph_algorithms_test tests/cpp/test_T81Graph_algorithms.cpp)
+target_link_libraries(t81_graph_algorithms_test PRIVATE t81_core)
+add_test(NAME t81_graph_algorithms_test COMMAND t81_graph_algorithms_test)

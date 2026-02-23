@@ -12,8 +12,8 @@ static void BM_TensorMatMul_Naive(benchmark::State& state) {
     const int K = state.range(0);
     const int N = state.range(0);
 
-    T729Tensor A({M, K});
-    T729Tensor B({K, N});
+    T729DynamicTensor A({M, K});
+    T729DynamicTensor B({K, N});
 
     std::mt19937 gen(42);
     std::uniform_real_distribution<float> dis(-1.0f, 1.0f);

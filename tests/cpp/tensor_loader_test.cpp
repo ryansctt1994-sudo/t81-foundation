@@ -8,7 +8,7 @@ int main() {
   using namespace t81;
 
   // Build a 2x3 tensor
-  T729Tensor m({2, 3});
+  T729DynamicTensor m({2, 3});
   m.data() = {1, 2, 3, 4, 5, 6};
 
   // Save to text via stringstream

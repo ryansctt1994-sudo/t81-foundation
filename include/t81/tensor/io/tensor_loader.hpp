@@ -19,20 +19,20 @@ namespace t81::io {
 //   1 2 3 4 5 6
 
 // Parse from an input stream.
-T729Tensor load_tensor_txt(std::istream& in);
+T729DynamicTensor load_tensor_txt(std::istream& in);
 
 // Parse from a file path.
-inline T729Tensor load_tensor_txt_file(const std::string& path) {
+inline T729DynamicTensor load_tensor_txt_file(const std::string& path) {
   std::ifstream f(path);
   if (!f) throw std::runtime_error("load_tensor_txt_file: cannot open: " + path);
   return load_tensor_txt(f);
 }
 
 // Write to an output stream.
-void save_tensor_txt(std::ostream& out, const T729Tensor& t);
+void save_tensor_txt(std::ostream& out, const T729DynamicTensor& t);
 
 // Write to a file path (truncates).
-inline void save_tensor_txt_file(const std::string& path, const T729Tensor& t) {
+inline void save_tensor_txt_file(const std::string& path, const T729DynamicTensor& t) {
   std::ofstream f(path);
   if (!f) throw std::runtime_error("save_tensor_txt_file: cannot open: " + path);
   save_tensor_txt(f, t);

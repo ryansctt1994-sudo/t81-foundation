@@ -8,7 +8,7 @@ int main() {
   using namespace t81;
 
   // 2x3 tensor: [1 2 3; 4 5 6]
-  T729Tensor m({2, 3});
+  T729DynamicTensor m({2, 3});
   m.data() = {1, 2, 3, 4, 5, 6};
 
   // Reshape 2x3 -> 3x2 (same data, row-major)

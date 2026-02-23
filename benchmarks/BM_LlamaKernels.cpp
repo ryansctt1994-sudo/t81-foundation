@@ -12,8 +12,8 @@ using namespace t81;
 static void BM_Llama_RMSNorm_T81(benchmark::State& state) {
     const int hidden_dim = state.range(0);
     const int64_t work_per_iter = hidden_dim;
-    T729Tensor x({1, hidden_dim});
-    T729Tensor w({hidden_dim});
+    T729DynamicTensor x({1, hidden_dim});
+    T729DynamicTensor w({hidden_dim});
 
     std::mt19937 gen(42);
     std::uniform_real_distribution<float> dis(-1.0f, 1.0f);
@@ -57,7 +57,7 @@ BENCHMARK(BM_Llama_RMSNorm_Binary)->Arg(1024)->Arg(2048)->Arg(4096);
 static void BM_Llama_SiLU_T81(benchmark::State& state) {
     const int size = state.range(0);
     const int64_t work_per_iter = size;
-    T729Tensor x({1, size});
+    T729DynamicTensor x({1, size});
 
     std::mt19937 gen(42);
     std::uniform_real_distribution<float> dis(-1.0f, 1.0f);
@@ -97,7 +97,7 @@ BENCHMARK(BM_Llama_SiLU_Binary)->Arg(1024)->Arg(4096)->Arg(16384);
 static void BM_Llama_Softmax_T81(benchmark::State& state) {
     const int dim = state.range(0);
     const int64_t work_per_iter = dim;
-    T729Tensor x({1, dim});
+    T729DynamicTensor x({1, dim});
 
     std::mt19937 gen(42);
     std::uniform_real_distribution<float> dis(-1.0f, 1.0f);
@@ -143,7 +143,7 @@ BENCHMARK(BM_Llama_Softmax_Binary)->Arg(1024)->Arg(4096)->Arg(16384);
 static void BM_Llama_RoPE_T81(benchmark::State& state) {
     const int head_dim = state.range(0);
     const int64_t work_per_iter = head_dim;
-    T729Tensor x({1, head_dim});
+    T729DynamicTensor x({1, head_dim});
 
     std::mt19937 gen(42);
     std::uniform_real_distribution<float> dis(-1.0f, 1.0f);
@@ -189,9 +189,9 @@ BENCHMARK(BM_Llama_RoPE_Binary)->Arg(128)->Arg(256);
 static void BM_Llama_Block_T81(benchmark::State& state) {
     const int hidden_dim = state.range(0);
     const int64_t work_per_iter = hidden_dim;
-    T729Tensor x({1, hidden_dim});
-    T729Tensor w_norm({hidden_dim});
-    T729Tensor w_q({hidden_dim, hidden_dim});
+    T729DynamicTensor x({1, hidden_dim});
+    T729DynamicTensor w_norm({hidden_dim});
+    T729DynamicTensor w_q({hidden_dim, hidden_dim});
 
     std::mt19937 gen(42);
     std::uniform_real_distribution<float> dis(-1.0f, 1.0f);

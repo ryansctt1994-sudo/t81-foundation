@@ -10,7 +10,7 @@
 namespace t81::ops {
 
 // Optimized matrix multiply: (m×k) · (k×n) → (m×n)
-inline T729Tensor matmul(const T729Tensor& A, const T729Tensor& B) {
+inline T729DynamicTensor matmul(const T729DynamicTensor& A, const T729DynamicTensor& B) {
   if (A.rank() != 2 || B.rank() != 2)
     throw std::invalid_argument("matmul: both inputs must be rank-2");
   const int m = A.shape()[0], kA = A.shape()[1];
@@ -61,7 +61,7 @@ inline T729Tensor matmul(const T729Tensor& A, const T729Tensor& B) {
     }
   }
 
-  return T729Tensor({m, n}, std::move(c));
+  return T729DynamicTensor({m, n}, std::move(c));
 }
 
 }  // namespace t81::ops

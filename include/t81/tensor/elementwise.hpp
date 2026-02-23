@@ -33,16 +33,16 @@ inline T729TensorBase<T> elemwise_binary(const T729TensorBase<T>& A, const T729T
 }
 
 // Convenience wrappers
-inline T729Tensor add(const T729Tensor& A, const T729Tensor& B) {
+inline T729DynamicTensor add(const T729DynamicTensor& A, const T729DynamicTensor& B) {
   return elemwise_binary(A, B, [](float x, float y) { return x + y; });
 }
-inline T729Tensor sub(const T729Tensor& A, const T729Tensor& B) {
+inline T729DynamicTensor sub(const T729DynamicTensor& A, const T729DynamicTensor& B) {
   return elemwise_binary(A, B, [](float x, float y) { return x - y; });
 }
-inline T729Tensor mul(const T729Tensor& A, const T729Tensor& B) {
+inline T729DynamicTensor mul(const T729DynamicTensor& A, const T729DynamicTensor& B) {
   return elemwise_binary(A, B, [](float x, float y) { return x * y; });
 }
-inline T729Tensor div(const T729Tensor& A, const T729Tensor& B) {
+inline T729DynamicTensor div(const T729DynamicTensor& A, const T729DynamicTensor& B) {
   return elemwise_binary(A, B, [](float x, float y) {
     if (y == 0.0f) throw std::domain_error("elemwise div: divide by zero");
     return x / y;

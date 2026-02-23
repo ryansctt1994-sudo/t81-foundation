@@ -27,11 +27,11 @@ Values are read/written in row-major order.
 **APIs**
 
 ```cpp
-t81::T729Tensor t81::io::load_tensor_txt(std::istream& in);
-t81::T729Tensor t81::io::load_tensor_txt_file(const std::string& path);
+t81::T729DynamicTensor t81::io::load_tensor_txt(std::istream& in);
+t81::T729DynamicTensor t81::io::load_tensor_txt_file(const std::string& path);
 
-void t81::io::save_tensor_txt(std::ostream& out, const t81::T729Tensor& t);
-void t81::io::save_tensor_txt_file(const std::string& path, const t81::T729Tensor& t);
+void t81::io::save_tensor_txt(std::ostream& out, const t81::T729DynamicTensor& t);
+void t81::io::save_tensor_txt_file(const std::string& path, const t81::T729DynamicTensor& t);
 ```
 
 ## Build

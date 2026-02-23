@@ -107,7 +107,11 @@
   - [x] Singular matrix safety verification (Verified in `tests/cpp/test_T81Matrix_singular.cpp`)
 - [x] T81Polynomial (Univariate polynomials) (see `include/t81/core/T81Polynomial.hpp`)
 - [x] T81Graph (Static graph, hardware-native) (see `include/t81/core/T81Graph.hpp`)
-- [ ] Holotensor Types (Future/Aspirational)
+  - [x] Cycle Detection (`has_cycle` via iterative DFS)
+  - [x] Topological Sort (`topological_sort`)
+  - [x] BFS / Shortest Path (see `tests/cpp/test_T81Graph_bfs.cpp`)
+  - [x] PageRank Convergence (see `tests/cpp/test_T81Graph_pagerank_convergence.cpp`)
+- [x+] Holotensor Types (T729Tensor, T81Float<72,9>) (see `include/t81/core/T729Tensor.hpp`, `tests/cpp/test_t729_tensor.cpp`)
 
 ## Cross-cutting / Later Phases
 - [x] Full regression suite coverage (173/173 tests passing)
@@ -121,6 +125,7 @@
   - [x] Expose T81BigInt, VM, CanonFS
 - [x] GGUF / SafeTensors → ternary conversion tools
   - [x] Basic importer script / CLI
+- [x+] Llama / LLM Kernels (RMSNorm, SiLU, Softmax on T729Tensor) (see `include/t81/tensor/llama.hpp`, `tests/cpp/llama_kernels_test.cpp`)
 
 ## 8. RFC Implementation Tracking (Full List)
 
@@ -152,19 +157,19 @@
 - [ ] RFC-0013: Ternary Matrix Multiply & SIMD
   - [x] `**` operator in T81Lang grammar (Verified semantic analysis for Tensor types)
   - [x] `TMATMUL_TRIT` opcode implementation (Implemented via `TMatMul` mapping)
-  - [ ] Trit-packed SIMD backend (`RFC-0016` dependency)
+  - [x+] Trit-packed SIMD backend (`RFC-0016` dependency) (see `include/t81/native.hpp`)
 - [x] RFC-0014: Neural Primitives
   - [x] `infer` expression syntax and lowering (Implemented `InferExpr` and `TNeuralFwd`)
   - [x] `train` statement block and lowering (Implemented `TrainStmt` and `TNeuralBwd`)
   - [x] `TNEURAL_FWD` / `TNEURAL_BWD` opcodes (Implemented as `TNeuralFwd`, `TNeuralBwd`)
 - [x] RFC-0015: Agentic Constructs
   - [x] `T81Agent` core class structure (see `include/t81/core/T81Agent.hpp`)
-  - [ ] Full integration with `infer`/`train` primitives
+  - [x] Full integration with `infer`/`train` primitives (Implemented via TNeuralFwd/TNeuralBwd opcodes and T81Agent methods)
 
 ### Advanced Features & Hardware (RFC-0016 to RFC-0024)
-- [ ] RFC-0016: T81 SIMD Limb (Optimized ternary SIMD arithmetic)
-- [ ] RFC-0017: T81 Native (Native machine code generation backend)
-- [ ] RFC-0018: T81 Native SIMD Arithmetic
+- [x+] RFC-0016: T81 SIMD Limb (Optimized ternary SIMD arithmetic) (see `include/t81/simd/add_helpers.hpp`, `tests/cpp/test_t81_simd_add_helpers.cpp`)
+- [x+] RFC-0017: T81 Native (Native machine code generation backend) (see `include/t81/native.hpp`, `tests/cpp/test_t81_native_arith.cpp`)
+- [x+] RFC-0018: T81 Native SIMD Arithmetic (AVX2 impl in `include/t81/native.hpp`)
 - [x] RFC-0021: Tier 4 Cognition (Self-Reflection)
   - [x] `Tier4Loop` implementation (see `src/cog/tier4/tier4_loop.cpp`)
   - [x] Observation / Reflection cycle (`observe`, `reflect`, `refine`)
@@ -172,4 +177,4 @@
   - [x] `print` builtin in Semantic Analyzer (`src/frontend/semantic_analyzer.cpp`)
   - [x] `std.io` module (`src/lang/std/io.t81`)
   - [x] VM output buffer (`state.printed_output`)
-- [ ] RFC-0024: C++23 Default Wording Alignment (Ongoing codebase updates)
+- [x] RFC-0024: C++23 Default Wording Alignment (Ongoing codebase updates) (T81_USE_CXX23=ON in CMakeLists.txt)
