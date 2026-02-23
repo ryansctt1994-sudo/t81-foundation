@@ -4,6 +4,7 @@
 
 *   **Status:** Investigation / Not Adopted / Extension Candidate
 *   **Core ISA Note:** The TISC v1.1.0 core ISA remains frozen and unchanged. This document explores potential *future* extensions or library patterns and does not propose modifications to the existing canonical opcode set.
+*   **Audit Update:** An audit of existing packed representations has been completed. See [Packed-Trit Representation Audit and Comparison](packed-trit-representation-audit-and-comparison.md).
 
 ## 2. Motivation
 
@@ -15,7 +16,7 @@ As T81 workloads evolve towards more complex ternary neural networks and symboli
 
 Current TISC opcodes cover two distinct domains:
 1.  **Scalar Integer/Binary Domain:** Handled by standard arithmetic and the newly added binary bitwise ops (e.g., `BitAnd` on `int64`).
-2.  **Scalar Logical Ternary Domain:** Handled by `TAnd`, `TOr`, `TXor`, `TNot`, which operate on individual register values interpreted as logical trits (Min/Max functions).
+2.  **Scalar Logical Ternary Domain:** Handled by `TAnd`, `TOr`, `TXor`, `TNot`, which operate on individual register values interpreted as logical trits.
 
 **The Gap:** There is no efficient mechanism to perform parallel or packed operations on ternary data. For example, applying a ternary mask to a packed "tryte" buffer, or performing a lane-wise `TAnd` across a tensor slice, currently requires unpacking to scalar registers, executing a loop of scalar `TAnd` instructions, and repacking. This is computationally expensive and semantically obscure.
 
@@ -31,7 +32,7 @@ To avoid confusion, we must strictly define the following terms:
     *   *Status:* **Core ISA (Frozen).**
 
 *   **Ternary Logic (Scalar/Logical):** Operations on individual values representing a single logical trit (`-1`, `0`, `1`).
-    *   *Examples:* `TAnd` (Min), `TOr` (Max), `TXor` (Sum/Mod).
+    *   *Examples:* `TAnd` (Min), `TOr` (Max), `TXor` (See canonical semantics in `opcode-semantics.md`).
     *   *Domain:* Scalar registers (conceptually `trit`).
     *   *Status:* **Core ISA (Frozen).**
 
@@ -85,7 +86,7 @@ We must gather evidence for the following workloads before justifying ISA extens
 3.  **Truth Tables:** Do we strictly follow Kleene Logic (Strong logic of indeterminacy) or a different ternary calculus?
 4.  **Neutral/Unknown Handling:** How do ops handle "don't care" states vs explicit `0` (Unknown)?
 5.  **Mismatched Widths:** If operating on vectors, what happens on length mismatch? Trap? Pad with `0`? Cyclic repeat?
-6.  **Encoding Dependence:** Does `TritAnd` behave differently if the backing store is 2-bit encoded vs balanced-ternary? (It must not).
+6.  **Encoding Dependence (Representation Invariance):** Semantics must be defined on logical trits, not the underlying bit-packing. Does `TritAnd` behave identically whether the backing store is 2-bit encoded, balanced-ternary, or unpacked? (It must).
 7.  **Determinism:** Can we guarantee bit-exact results across different backing implementations (e.g., FPGA vs CPU emulation)?
 
 ## 8. Candidate Solution Spaces
@@ -99,7 +100,8 @@ We must gather evidence for the following workloads before justifying ISA extens
 ### B. TISC Extension Opcodes (Optional Extension Set)
 *   **Description:** Define a block of opcodes (e.g., `0xB0`–`0xBF`) specifically for packed trit ops, available only if the VM advertises the extension.
 *   **Pros:** High performance; dense encoding; standardizes the semantics.
-*   **Cons:** Fragmented ecosystem (code might not run everywhere); consumes precious opcode space.
+*   **Cons:** Fragmented ecosystem (code might not run everywhere); consumes constrained opcode encoding space.
+*   **Requirement:** Any extension must include a software-only fallback path for VMs that do not implement the extension.
 
 ### C. Accelerator / Hardware-Specific Intrinsics
 *   **Description:** Opcodes that map directly to hardware functions, potentially trapping to software emulation if absent.
@@ -116,9 +118,11 @@ We must gather evidence for the following workloads before justifying ISA extens
 To move from "Investigation" to "Extension Proposal," the following must be demonstrated:
 
 1.  **Workload Hotspot:** Profiling must show that >5% of cycles in a key target workload (e.g., Large Ternary Model inference) are spent in inefficient scalar ternary emulation.
-2.  **Ambiguity Reduction:** Evidence that developers are implementing conflicting packed representations, creating interoperability silos.
-3.  **Stable Semantics:** A prototype library implementation has stabilized and seen adoption.
-4.  **Deterministic Conformance:** Proof that the proposed operations can be implemented bit-exactly on standard x64/ARM64 without prohibitive cost.
+2.  **Structural Burden:** Evidence that library-only implementations introduce excessive code size, complexity, or duplication that an opcode would eliminate.
+3.  **Ambiguity Reduction:** Evidence that developers are implementing conflicting packed representations, creating interoperability silos.
+4.  **Stable Semantics:** A prototype library implementation has stabilized and seen adoption.
+5.  **Deterministic Conformance:** Proof that the proposed operations can be implemented bit-exactly on standard x64/ARM64 without prohibitive cost.
+6.  **Discoverability:** A defined mechanism for the VM to query support for this extension.
 
 **Core ISA inclusion is not the default path.** We prefer keeping the Core small and freezing it.
 
@@ -140,7 +144,7 @@ To move from "Investigation" to "Extension Proposal," the following must be demo
 
 ## 12. Recommended Next Steps
 
-1.  **Document Data-Domain Candidates:** Create a technical note comparing 2-bit vs. Base-3 packed representations for T81.
+1.  **Review Representation Audit:** Consult [Packed-Trit Representation Audit and Comparison](packed-trit-representation-audit-and-comparison.md) for an analysis of existing PT-5 and Base-81 codecs.
 2.  **Prototype Library:** Implement `lib/tritwise.t81` (or C++ native module) providing `PackedTrit` helpers.
 3.  **Collect Evidence:** Instrument standard T81 benchmarks to look for patterns resembling manual packed-trit manipulation.
 4.  **Draft Semantics:** If demand exists, draft a precise semantic spec for `TritAnd`/`TritOr` on the chosen data domain.
