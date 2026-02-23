@@ -1927,22 +1927,14 @@ std::any SemanticAnalyzer::visit(const BinaryExpr& expr) {
     case TokenType::Caret:
     case TokenType::LessLess:
     case TokenType::GreaterGreater:
-    case TokenType::GreaterGreaterGreater: {
-      bool left_valid = is_integer_type(left_type) || left_type.kind == Type::Kind::Bool;
-      bool right_valid = is_integer_type(right_type) || right_type.kind == Type::Kind::Bool;
-
-      if (!left_valid || !right_valid) {
-        error(expr.op, "Bitwise operators require integer operands (or boolean which coerces to "
-                       "integer), got '" +
+    case TokenType::GreaterGreaterGreater:
+      if (!is_integer_type(left_type) || !is_integer_type(right_type)) {
+        error(expr.op, "Bitwise operators require integer operands, got '" +
                            type_to_string(left_type) + "' and '" + type_to_string(right_type) +
                            "'.");
         return make_error_type();
       }
-      // Coerce Bool -> I32 for bitwise operations (Spec 2.6)
-      Type l = left_type.kind == Type::Kind::Bool ? Type{Type::Kind::I32} : left_type;
-      Type r = right_type.kind == Type::Kind::Bool ? Type{Type::Kind::I32} : right_type;
-      return widen_numeric(l, r, expr.op);
-    }
+      return widen_numeric(left_type, right_type, expr.op);
     case TokenType::StarStar:
       if ((left_type.kind == Type::Kind::Tensor || left_type.kind == Type::Kind::Matrix) &&
           (right_type.kind == Type::Kind::Tensor || right_type.kind == Type::Kind::Matrix)) {

@@ -6,6 +6,10 @@
 
 using namespace t81::experimental;
 
+// -----------------------------------------------------------------------------
+// SCALAR BENCHMARKS
+// -----------------------------------------------------------------------------
+
 static void BM_ScalarTAnd(benchmark::State& state) {
     size_t len = state.range(0);
     std::mt19937 rng(42);
@@ -24,6 +28,66 @@ static void BM_ScalarTAnd(benchmark::State& state) {
     }
 }
 BENCHMARK(BM_ScalarTAnd)->Range(16, 4096);
+
+static void BM_ScalarTOr(benchmark::State& state) {
+    size_t len = state.range(0);
+    std::mt19937 rng(42);
+    std::uniform_int_distribution<int> dist(-1, 1);
+    std::vector<int8_t> v1(len), v2(len), res(len);
+    for (size_t i = 0; i < len; ++i) {
+        v1[i] = static_cast<int8_t>(dist(rng));
+        v2[i] = static_cast<int8_t>(dist(rng));
+    }
+
+    for (auto _ : state) {
+        for (size_t i = 0; i < len; ++i) {
+            res[i] = PackedTritVector::scalar_or(v1[i], v2[i]);
+        }
+        benchmark::DoNotOptimize(res.data());
+    }
+}
+BENCHMARK(BM_ScalarTOr)->Range(16, 4096);
+
+static void BM_ScalarTXor(benchmark::State& state) {
+    size_t len = state.range(0);
+    std::mt19937 rng(42);
+    std::uniform_int_distribution<int> dist(-1, 1);
+    std::vector<int8_t> v1(len), v2(len), res(len);
+    for (size_t i = 0; i < len; ++i) {
+        v1[i] = static_cast<int8_t>(dist(rng));
+        v2[i] = static_cast<int8_t>(dist(rng));
+    }
+
+    for (auto _ : state) {
+        for (size_t i = 0; i < len; ++i) {
+            res[i] = PackedTritVector::scalar_xor(v1[i], v2[i]);
+        }
+        benchmark::DoNotOptimize(res.data());
+    }
+}
+BENCHMARK(BM_ScalarTXor)->Range(16, 4096);
+
+static void BM_ScalarTNot(benchmark::State& state) {
+    size_t len = state.range(0);
+    std::mt19937 rng(42);
+    std::uniform_int_distribution<int> dist(-1, 1);
+    std::vector<int8_t> v1(len), res(len);
+    for (size_t i = 0; i < len; ++i) {
+        v1[i] = static_cast<int8_t>(dist(rng));
+    }
+
+    for (auto _ : state) {
+        for (size_t i = 0; i < len; ++i) {
+            res[i] = PackedTritVector::scalar_not(v1[i]);
+        }
+        benchmark::DoNotOptimize(res.data());
+    }
+}
+BENCHMARK(BM_ScalarTNot)->Range(16, 4096);
+
+// -----------------------------------------------------------------------------
+// PHASE 1 (PT-5) BENCHMARKS
+// -----------------------------------------------------------------------------
 
 static void BM_PackedTAnd(benchmark::State& state) {
     size_t len = state.range(0);
@@ -45,25 +109,6 @@ static void BM_PackedTAnd(benchmark::State& state) {
 }
 BENCHMARK(BM_PackedTAnd)->Range(16, 4096);
 
-static void BM_ScalarTOr(benchmark::State& state) {
-    size_t len = state.range(0);
-    std::mt19937 rng(42);
-    std::uniform_int_distribution<int> dist(-1, 1);
-    std::vector<int8_t> v1(len), v2(len), res(len);
-    for (size_t i = 0; i < len; ++i) {
-        v1[i] = static_cast<int8_t>(dist(rng));
-        v2[i] = static_cast<int8_t>(dist(rng));
-    }
-
-    for (auto _ : state) {
-        for (size_t i = 0; i < len; ++i) {
-            res[i] = PackedTritVector::scalar_or(v1[i], v2[i]);
-        }
-        benchmark::DoNotOptimize(res.data());
-    }
-}
-BENCHMARK(BM_ScalarTOr)->Range(16, 4096);
-
 static void BM_PackedTOr(benchmark::State& state) {
     size_t len = state.range(0);
     std::mt19937 rng(42);
@@ -84,25 +129,6 @@ static void BM_PackedTOr(benchmark::State& state) {
 }
 BENCHMARK(BM_PackedTOr)->Range(16, 4096);
 
-static void BM_ScalarTXor(benchmark::State& state) {
-    size_t len = state.range(0);
-    std::mt19937 rng(42);
-    std::uniform_int_distribution<int> dist(-1, 1);
-    std::vector<int8_t> v1(len), v2(len), res(len);
-    for (size_t i = 0; i < len; ++i) {
-        v1[i] = static_cast<int8_t>(dist(rng));
-        v2[i] = static_cast<int8_t>(dist(rng));
-    }
-
-    for (auto _ : state) {
-        for (size_t i = 0; i < len; ++i) {
-            res[i] = PackedTritVector::scalar_xor(v1[i], v2[i]);
-        }
-        benchmark::DoNotOptimize(res.data());
-    }
-}
-BENCHMARK(BM_ScalarTXor)->Range(16, 4096);
-
 static void BM_PackedTXor(benchmark::State& state) {
     size_t len = state.range(0);
     std::mt19937 rng(42);
@@ -122,24 +148,6 @@ static void BM_PackedTXor(benchmark::State& state) {
     }
 }
 BENCHMARK(BM_PackedTXor)->Range(16, 4096);
-
-static void BM_ScalarTNot(benchmark::State& state) {
-    size_t len = state.range(0);
-    std::mt19937 rng(42);
-    std::uniform_int_distribution<int> dist(-1, 1);
-    std::vector<int8_t> v1(len), res(len);
-    for (size_t i = 0; i < len; ++i) {
-        v1[i] = static_cast<int8_t>(dist(rng));
-    }
-
-    for (auto _ : state) {
-        for (size_t i = 0; i < len; ++i) {
-            res[i] = PackedTritVector::scalar_not(v1[i]);
-        }
-        benchmark::DoNotOptimize(res.data());
-    }
-}
-BENCHMARK(BM_ScalarTNot)->Range(16, 4096);
 
 static void BM_PackedTNot(benchmark::State& state) {
     size_t len = state.range(0);
@@ -191,3 +199,135 @@ static void BM_UnpackPT5(benchmark::State& state) {
     }
 }
 BENCHMARK(BM_UnpackPT5)->Range(16, 4096);
+
+// -----------------------------------------------------------------------------
+// PHASE 2A (ComputeTritVector) BENCHMARKS
+// -----------------------------------------------------------------------------
+
+static void BM_ComputeTAnd(benchmark::State& state) {
+    size_t len = state.range(0);
+    std::mt19937 rng(42);
+    std::uniform_int_distribution<int> dist(-1, 1);
+    std::vector<int8_t> t1(len), t2(len);
+    for (size_t i = 0; i < len; ++i) {
+        t1[i] = static_cast<int8_t>(dist(rng));
+        t2[i] = static_cast<int8_t>(dist(rng));
+    }
+
+    auto p1 = ComputeTritVector::from_trits(t1).value();
+    auto p2 = ComputeTritVector::from_trits(t2).value();
+
+    for (auto _ : state) {
+        auto res = p1.t_and(p2).value();
+        benchmark::DoNotOptimize(res.data().data());
+    }
+}
+BENCHMARK(BM_ComputeTAnd)->Range(16, 4096);
+
+static void BM_ComputeTOr(benchmark::State& state) {
+    size_t len = state.range(0);
+    std::mt19937 rng(42);
+    std::uniform_int_distribution<int> dist(-1, 1);
+    std::vector<int8_t> t1(len), t2(len);
+    for (size_t i = 0; i < len; ++i) {
+        t1[i] = static_cast<int8_t>(dist(rng));
+        t2[i] = static_cast<int8_t>(dist(rng));
+    }
+
+    auto p1 = ComputeTritVector::from_trits(t1).value();
+    auto p2 = ComputeTritVector::from_trits(t2).value();
+
+    for (auto _ : state) {
+        auto res = p1.t_or(p2).value();
+        benchmark::DoNotOptimize(res.data().data());
+    }
+}
+BENCHMARK(BM_ComputeTOr)->Range(16, 4096);
+
+static void BM_ComputeTXor(benchmark::State& state) {
+    size_t len = state.range(0);
+    std::mt19937 rng(42);
+    std::uniform_int_distribution<int> dist(-1, 1);
+    std::vector<int8_t> t1(len), t2(len);
+    for (size_t i = 0; i < len; ++i) {
+        t1[i] = static_cast<int8_t>(dist(rng));
+        t2[i] = static_cast<int8_t>(dist(rng));
+    }
+
+    auto p1 = ComputeTritVector::from_trits(t1).value();
+    auto p2 = ComputeTritVector::from_trits(t2).value();
+
+    for (auto _ : state) {
+        auto res = p1.t_xor(p2).value();
+        benchmark::DoNotOptimize(res.data().data());
+    }
+}
+BENCHMARK(BM_ComputeTXor)->Range(16, 4096);
+
+static void BM_ComputeTNot(benchmark::State& state) {
+    size_t len = state.range(0);
+    std::mt19937 rng(42);
+    std::uniform_int_distribution<int> dist(-1, 1);
+    std::vector<int8_t> t1(len);
+    for (size_t i = 0; i < len; ++i) {
+        t1[i] = static_cast<int8_t>(dist(rng));
+    }
+
+    auto p1 = ComputeTritVector::from_trits(t1).value();
+
+    for (auto _ : state) {
+        auto res = p1.t_not().value();
+        benchmark::DoNotOptimize(res.data().data());
+    }
+}
+BENCHMARK(BM_ComputeTNot)->Range(16, 4096);
+
+static void BM_ComputePack(benchmark::State& state) {
+    size_t len = state.range(0);
+    std::mt19937 rng(42);
+    std::uniform_int_distribution<int> dist(-1, 1);
+    std::vector<int8_t> t1(len);
+    for (size_t i = 0; i < len; ++i) {
+        t1[i] = static_cast<int8_t>(dist(rng));
+    }
+
+    for (auto _ : state) {
+        auto res = ComputeTritVector::from_trits(t1).value();
+        benchmark::DoNotOptimize(res.data().data());
+    }
+}
+BENCHMARK(BM_ComputePack)->Range(16, 4096);
+
+static void BM_ComputeUnpack(benchmark::State& state) {
+    size_t len = state.range(0);
+    std::mt19937 rng(42);
+    std::uniform_int_distribution<int> dist(-1, 1);
+    std::vector<int8_t> t1(len);
+    for (size_t i = 0; i < len; ++i) {
+        t1[i] = static_cast<int8_t>(dist(rng));
+    }
+    auto p1 = ComputeTritVector::from_trits(t1).value();
+
+    for (auto _ : state) {
+        auto res = p1.to_trits().value();
+        benchmark::DoNotOptimize(res.data());
+    }
+}
+BENCHMARK(BM_ComputeUnpack)->Range(16, 4096);
+
+static void BM_ComputeFromPhase1(benchmark::State& state) {
+    size_t len = state.range(0);
+    std::mt19937 rng(42);
+    std::uniform_int_distribution<int> dist(-1, 1);
+    std::vector<int8_t> t1(len);
+    for (size_t i = 0; i < len; ++i) {
+        t1[i] = static_cast<int8_t>(dist(rng));
+    }
+    auto p1 = PackedTritVector::from_trits(t1).value();
+
+    for (auto _ : state) {
+        auto res = ComputeTritVector::from_phase1(p1).value();
+        benchmark::DoNotOptimize(res.data().data());
+    }
+}
+BENCHMARK(BM_ComputeFromPhase1)->Range(16, 4096);

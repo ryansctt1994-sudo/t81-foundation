@@ -262,16 +262,6 @@ No other implicit conversions are permitted. In particular, the compiler MUST
 NOT automatically convert floats or fractions back to integers; such narrowing
 would need explicit syntax in a future revision.
 
-### 2.6 Boolean Coercion
-
-Boolean values (from comparisons or literals) MAY be used in bitwise operations
-(`&`, `|`, `^`, `<<`, `>>`, `>>>`). In these contexts, `true` is coerced to
-`1t81` (T81Int) and `false` to `0t81` (T81Int).
-
-This is a **special-case coercion** for bitwise logic only. It does NOT apply
-to standard arithmetic (`+`, `-`, `*`, `/`, `%`) or other contexts where integers
-are expected.
-
 ______________________________________________________________________
 
 ## 3. Purity and Effects
@@ -360,7 +350,6 @@ The semantic analyzer **MUST** enforce the following guarantees:
 - **Arithmetic Correctness:**
   - Arithmetic expressions are only legal when both operands share a primitive type and TISC exposes a matching opcode (`ADD/SUB/MUL/DIV/MOD` for `T81Int`, `FADD/FSUB/FMUL/FDIV` for `T81Float`, `FRACADD/FRACSUB/FRACMUL/FRACDIV` for `T81Fraction`).
   - When an expression mixes `T81Int` with either `T81Float` or `T81Fraction`, the compiler MUST insert a deterministic widening conversion (`I2F` or `I2FRAC`) so the operands share the non-integer type before lowering.
-  - Bitwise operations (`&`, `|`, `^`, `<<`, `>>`, `>>>`) accept `T81Int` or `Bool` operands. `Bool` operands are coerced to `T81Int` (0 or 1).
   - Any other mixed-type arithmetic MUST be rejected.
   - The modulo operator (`%`) is legal **only** when both operands are `T81Int`.
   - Division by zero MUST surface the VM’s deterministic `DivideByZero` fault.

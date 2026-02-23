@@ -2,44 +2,56 @@
 
 This checklist tracks the steps required to transition from the "Investigation" phase to a concrete library prototype for Tritwise Operations.
 
-## Phase 1: Library Prototype (C++ / T81)
+## Phase 1: Library Prototype (C++ / T81) - COMPLETED
 
-- [ ] **Define `PackedTritVector` Class**
-    - [ ] Create a C++ class wrapping `std::vector<uint8_t>` (using PT-5 encoding).
-    - [ ] Implement `get_trit(index)` and `set_trit(index, value)` with automatic unpacking/packing.
-    - [ ] Add `trit_count` property.
+- [x] **Define `PackedTritVector` Class**
+    - [x] Create a C++ class wrapping `std::vector<uint8_t>` (using PT-5 encoding).
+    - [x] Implement `from_trits` / `to_trits` with automatic unpacking/packing.
+    - [x] Add `trit_count` property.
 
-- [ ] **Implement Core Logical Operations**
-    - [ ] `TritAnd(a, b)`: Lane-wise Minimum.
-    - [ ] `TritOr(a, b)`: Lane-wise Maximum.
-    - [ ] `TritXor(a, b)`: Lane-wise Sum/Mod (Canonical).
-    - [ ] `TritNot(a)`: Lane-wise Inversion.
+- [x] **Implement Core Logical Operations** (Unpack-Op-Repack Strategy)
+    - [x] `t_and(a, b)`: Lane-wise Minimum.
+    - [x] `t_or(a, b)`: Lane-wise Maximum.
+    - [x] `t_xor(a, b)`: Lane-wise Difference (Canonical `lhs - rhs` wrapped).
+    - [x] `t_not(a)`: Lane-wise Inversion.
 
-- [ ] **Implement Utility Operations**
-    - [ ] `PopCount(a)`: Count non-zero trits.
-    - [ ] `FirstNonZero(a)`: Index of first non-zero trit (for masking).
-    - [ ] `Slice(start, len)`: Sub-vector extraction.
+- [ ] **Implement Utility Operations** (Deferred to future phases)
+    - [ ] `pop_count(a)`: Count non-zero trits.
+    - [ ] `first_non_zero(a)`: Index of first non-zero trit.
+    - [ ] `slice(start, len)`: Sub-vector extraction.
 
-## Phase 2: Verification & Conformance
+## Phase 2A: Compute Representation Prototype - COMPLETED
 
-- [ ] **Generate Conformance Vectors**
-    - [ ] Create a script that generates random trit sequences.
-    - [ ] Compute expected results using scalar logic (reference implementation).
-    - [ ] Verify that `PackedTritVector` operations match scalar results exactly.
-    - [ ] **Edge Case:** Mismatched lengths (pad with 0 vs trap?).
-    - [ ] **Edge Case:** Zero-length vectors.
+- [x] **Prototyping Alternative Backings**
+    - [x] Implement `ComputeTritVector` (2 bits/trit, 4 trits/byte).
+    - [x] Implement `t_and/or/xor/not` on `ComputeTritVector` (unpack-op-repack for semantic parity).
+    - [x] Verify semantic equivalence between Scalar, Phase 1 (PT-5), and Phase 2A (2-bit).
 
-- [ ] **Benchmark Baseline**
-    - [ ] Measure throughput (Trits/sec) of scalar loop implementation.
-    - [ ] Measure throughput of PT-5 unpack-op-repack loop.
-    - [ ] *Goal:* Establish the "cost of abstraction".
+- [x] **Verification & Conformance**
+    - [x] Create randomized conformance vectors (deterministic seed 42).
+    - [x] Verify exact scalar reference matching.
+    - [x] **Critical:** Verify `TXor` truth table (9 cases) for non-commutative behavior.
+    - [x] Verify cross-representation consistency (`Phase1 == Phase2A`).
 
-## Phase 3: Optimization Investigation
+- [x] **Benchmark Baseline**
+    - [x] Measure throughput of scalar loop implementation.
+    - [x] Measure throughput of PT-5 unpack-op-repack loop.
+    - [x] Measure throughput of 2-bit unpack-op-repack loop.
+    - [x] *Result:* Both packed implementations are significantly slower than scalar due to codec overhead. 2-bit packing requires direct bitwise operations to realize performance benefits.
 
-- [ ] **Prototyping Alternative Backings**
-    - [ ] Implement `PackedTritVector2Bit` (2 bits/trit, no division).
-    - [ ] Benchmark `TritAnd` on 2-bit vs PT-5.
-    - [ ] *Hypothesis:* 2-bit packing will be 5-10x faster for logical ops but 50% less dense.
+## Phase 2B: Direct Bitwise Operations (Next Step)
+
+- [ ] **Implement Direct Logic on 2-bit Packing**
+    - [ ] Derive boolean formulas for `TAnd`, `TOr`, `TNot`, `TXor` on 2-bit representation.
+    - [ ] Implement operations directly on `std::vector<uint8_t>` (SWAR), bypassing unpack/repack.
+    - [ ] Benchmark against Scalar and Phase 1.
+    - [ ] *Goal:* Demonstrate speedup > 1x vs Scalar (e.g., 4x theoretical peak per byte).
+
+## Phase 3: SIMD Optimization (Future)
+
+- [ ] **SIMD Acceleration**
+    - [ ] Implement AVX2/NEON kernels for 2-bit packed operations.
+    - [ ] Benchmark large vector throughput.
 
 ## Phase 4: Extension Integration (Optional)
 

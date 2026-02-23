@@ -5121,9 +5121,6 @@ private:
     if (target == tisc::ir::PrimitiveKind::Unknown || source.primitive == target) {
       return source;
     }
-    // Boolean -> Integer coercion is allowed for bitwise operations.
-    // Spec 2.6: Booleans are coerced to 1t81 (true) or 0t81 (false) in bitwise contexts.
-    // Since boolean registers in VM are essentially integer 0/1, no opcode is needed.
     if (source.primitive == tisc::ir::PrimitiveKind::Boolean &&
         target == tisc::ir::PrimitiveKind::Integer) {
       return source;
