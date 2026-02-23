@@ -400,6 +400,12 @@ if(T81_BUILD_TESTS)
   add_executable(t81_packed_trit_vector_test tests/cpp/test_packed_trit_vector.cpp)
   target_link_libraries(t81_packed_trit_vector_test PRIVATE t81_core)
 
+  add_executable(t81_phase2c_truth_table_test tests/cpp/test_phase2c_truth_table.cpp)
+  target_link_libraries(t81_phase2c_truth_table_test PRIVATE t81_core)
+
+  add_executable(t81_packed_trit_vector_stress_test tests/cpp/test_packed_trit_vector_stress.cpp)
+  target_link_libraries(t81_packed_trit_vector_stress_test PRIVATE t81_core)
+
   add_executable(t81_base81_balanced_test tests/cpp/test_base81_balanced.cpp)
   target_link_libraries(t81_base81_balanced_test PRIVATE t81_core)
 
@@ -1013,6 +1019,8 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_codec_base81_test
     t81_trit_packing_test
     t81_packed_trit_vector_test
+    t81_phase2c_truth_table_test
+    t81_packed_trit_vector_stress_test
     t81_base81_balanced_test
     t81_base81_packed_test
     t81_metadata_test

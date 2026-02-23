@@ -238,7 +238,7 @@ void test_phase2c_swar_equivalence() {
     auto not_swar = v1.t_not().value();
     auto not_ref = v1.t_not_ref().value();
     assert(check_vec(not_swar.to_trits().value(), not_ref.to_trits().value()));
-    assert(not_swar.data() == not_ref.data()); // Byte-wise identical
+    assert(not_swar.data() == not_ref.data());  // Byte-wise identical
 
     // And (SWAR)
     auto and_swar = v1.t_and(v2).value();
@@ -338,7 +338,7 @@ void test_trailing_byte_masking() {
   // What if we have invalid padding? We can't inject it easily.
   // But we can ensure that valid ops don't dirty the padding.
   uint8_t byte = v_not.data()[0];
-  assert((byte & 0xFC) == 0); // Top 6 bits must be 0
+  assert((byte & 0xFC) == 0);  // Top 6 bits must be 0
 }
 
 int main() {
