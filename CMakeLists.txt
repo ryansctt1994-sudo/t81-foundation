@@ -583,6 +583,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_frontend_ir_generator_test tests/cpp/frontend_ir_generator_test.cpp)
   target_link_libraries(t81_frontend_ir_generator_test PRIVATE t81_frontend t81_tisc)
 
+  add_executable(t81_frontend_logical_lowering_test tests/cpp/test_frontend_logical_lowering.cpp)
+  target_link_libraries(t81_frontend_logical_lowering_test PRIVATE t81_frontend t81_tisc)
+
   add_executable(t81_ir_snapshot_audit_test tests/cpp/test_ir_snapshot_audit.cpp)
   target_link_libraries(t81_ir_snapshot_audit_test PRIVATE t81_frontend t81_tisc)
   add_test(NAME t81_ir_snapshot_audit_test COMMAND t81_ir_snapshot_audit_test)
@@ -1074,6 +1077,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_frontend_parser_recovery_test
     t81_frontend_parser_legacy_rejection_test
     t81_frontend_ir_generator_test
+    t81_frontend_logical_lowering_test
     t81_semantic_analyzer_option_result_test
     test_std_option_result
     t81_semantic_analyzer_match_test
