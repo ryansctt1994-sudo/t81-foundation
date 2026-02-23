@@ -1,0 +1,67 @@
+// T81Lang Parser Regression Corpus
+// Format: { "expression", "expected_ast_string" }
+
+// 1. Bitwise Precedence
+// & > ^ > |
+{ "a & b | c", "(| (& a b) c)" },
+{ "a | b & c", "(| a (& b c))" },
+{ "a ^ b | c", "(| (^ a b) c)" },
+{ "a | b ^ c", "(| a (^ b c))" },
+{ "a & b ^ c", "(^ (& a b) c)" },
+{ "a ^ b & c", "(^ a (& b c))" },
+
+// Unary ~
+{ "~a & b", "(& (~ a) b)" },
+{ "~a + 1", "(+ (~ a) 1)" },
+
+// Shifts vs Arithmetic
+// + > <<
+{ "a << b + c", "(<< a (+ b c))" },
+{ "a + b << c", "(<< (+ a b) c)" },
+{ "a >> b - c", "(>> a (- b c))" },
+{ "a >>> b * c", "(>>> a (* b c))" },
+
+// Shifts vs Comparison
+// << > <
+{ "a < b << c", "(< a (<< b c))" },
+{ "a << b < c", "(< (<< a b) c)" },
+
+// Bitwise vs Equality
+// == > &
+{ "a & b == c", "(& a (== b c))" },
+{ "a == b & c", "(& (== a b) c)" },
+
+// Custom Operators
+// == > .. > -> > &
+{ "a -> b & c", "(& (-> a b) c)" },
+{ "a & b -> c", "(& a (-> b c))" },
+{ "a .. b -> c", "(-> (.. a b) c)" },
+{ "a -> b .. c", "(-> a (.. b c))" },
+
+// Logical vs Bitwise
+// | > &&
+{ "a && b | c", "(&& a (| b c))" },
+{ "a | b && c", "(&& (| a b) c)" },
+// && > ||
+{ "a || b && c", "(|| a (&& b c))" },
+{ "a && b || c", "(|| (&& a b) c)" },
+
+// Assignment
+// = is lowest
+{ "x = a | b", "(= x (| a b))" },
+{ "x = a & b", "(= x (& a b))" },
+{ "x = a << b", "(= x (<< a b))" },
+
+// Associativity
+// Left-associative mostly
+{ "a + b + c", "(+ (+ a b) c)" },
+{ "a << b << c", "(<< (<< a b) c)" },
+{ "a -> b -> c", "(-> (-> a b) c)" },
+{ "a & b & c", "(& (& a b) c)" },
+// Exponent is Right-associative (checked in parser audit)
+{ "a ** b ** c", "(** a (** b c))" },
+
+// Unary Chaining
+{ "~-a", "(~ (- a))" },
+{ "-~a", "(- (~ a))" },
+{ "!~a", "(! (~ a))" },
