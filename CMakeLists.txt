@@ -561,6 +561,10 @@ if(T81_BUILD_TESTS)
   add_executable(t81_frontend_parser_test tests/cpp/frontend_parser_test.cpp)
   target_link_libraries(t81_frontend_parser_test PRIVATE t81_frontend)
 
+  add_executable(t81_parser_regression_audit_test tests/cpp/test_parser_regression_audit.cpp)
+  target_link_libraries(t81_parser_regression_audit_test PRIVATE t81_frontend)
+  add_test(NAME t81_parser_regression_audit_test COMMAND t81_parser_regression_audit_test)
+
   add_executable(t81_spec_compliance_test tests/cpp/spec_compliance_test.cpp)
   target_link_libraries(t81_spec_compliance_test PRIVATE t81_frontend)
 
@@ -578,6 +582,10 @@ if(T81_BUILD_TESTS)
 
   add_executable(t81_frontend_ir_generator_test tests/cpp/frontend_ir_generator_test.cpp)
   target_link_libraries(t81_frontend_ir_generator_test PRIVATE t81_frontend t81_tisc)
+
+  add_executable(t81_ir_snapshot_audit_test tests/cpp/test_ir_snapshot_audit.cpp)
+  target_link_libraries(t81_ir_snapshot_audit_test PRIVATE t81_frontend t81_tisc)
+  add_test(NAME t81_ir_snapshot_audit_test COMMAND t81_ir_snapshot_audit_test)
 
   add_executable(t81_semantic_analyzer_option_result_test tests/cpp/semantic_analyzer_option_result_test.cpp)
   target_link_libraries(t81_semantic_analyzer_option_result_test PRIVATE t81_frontend)
