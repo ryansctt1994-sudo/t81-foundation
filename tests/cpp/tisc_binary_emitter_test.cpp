@@ -2,6 +2,7 @@
 #include <iostream>
 #include "t81/tisc/binary_emitter.hpp"
 #include "t81/tisc/ir.hpp"
+#include "t81/tisc/pretty_printer.hpp"
 
 using namespace t81::tisc::ir;
 
@@ -151,6 +152,57 @@ void test_string_opcode_mappings() {
   std::cout << "BinaryEmitterTest test_string_opcode_mappings passed!" << std::endl;
 }
 
+void test_bitwise_opcode_mappings() {
+  IntermediateProgram ir_program;
+  ir_program.add_instruction({Opcode::BITAND, {Register{1}, Register{2}, Register{3}}});
+  ir_program.add_instruction({Opcode::BITOR, {Register{4}, Register{5}, Register{6}}});
+  ir_program.add_instruction({Opcode::BITXOR, {Register{7}, Register{8}, Register{9}}});
+  ir_program.add_instruction({Opcode::BITNOT, {Register{10}, Register{11}, Register{12}}});
+  ir_program.add_instruction({Opcode::BITSHL, {Register{13}, Register{14}, Register{15}}});
+  ir_program.add_instruction({Opcode::BITSHR, {Register{16}, Register{17}, Register{18}}});
+  ir_program.add_instruction({Opcode::BITUSHR, {Register{19}, Register{20}, Register{21}}});
+  ir_program.add_instruction({Opcode::HALT, {}});
+
+  t81::tisc::BinaryEmitter emitter;
+  auto program = emitter.emit(ir_program);
+
+  assert(program.insns.size() == 8);
+  assert(program.insns[0].opcode == t81::tisc::Opcode::BitAnd);
+  assert(program.insns[1].opcode == t81::tisc::Opcode::BitOr);
+  assert(program.insns[2].opcode == t81::tisc::Opcode::BitXor);
+  assert(program.insns[3].opcode == t81::tisc::Opcode::BitNot);
+  assert(program.insns[4].opcode == t81::tisc::Opcode::BitShl);
+  assert(program.insns[5].opcode == t81::tisc::Opcode::BitShr);
+  assert(program.insns[6].opcode == t81::tisc::Opcode::BitUShr);
+  assert(program.insns[7].opcode == t81::tisc::Opcode::Halt);
+
+  std::cout << "BinaryEmitterTest test_bitwise_opcode_mappings passed!" << std::endl;
+}
+
+void test_bitwise_pretty_printer() {
+  IntermediateProgram ir_program;
+  ir_program.add_instruction({Opcode::BITAND, {Register{1}, Register{2}, Register{3}}});
+  ir_program.add_instruction({Opcode::BITOR, {Register{4}, Register{5}, Register{6}}});
+  ir_program.add_instruction({Opcode::BITXOR, {Register{7}, Register{8}, Register{9}}});
+  ir_program.add_instruction({Opcode::BITNOT, {Register{10}, Register{11}, Register{12}}});
+  ir_program.add_instruction({Opcode::BITSHL, {Register{13}, Register{14}, Register{15}}});
+  ir_program.add_instruction({Opcode::BITSHR, {Register{16}, Register{17}, Register{18}}});
+  ir_program.add_instruction({Opcode::BITUSHR, {Register{19}, Register{20}, Register{21}}});
+  ir_program.add_instruction({Opcode::HALT, {}});
+
+  std::string output = t81::tisc::pretty_print(ir_program);
+
+  assert(output.find("BitAnd") != std::string::npos);
+  assert(output.find("BitOr") != std::string::npos);
+  assert(output.find("BitXor") != std::string::npos);
+  assert(output.find("BitNot") != std::string::npos);
+  assert(output.find("BitShl") != std::string::npos);
+  assert(output.find("BitShr") != std::string::npos);
+  assert(output.find("BitUShr") != std::string::npos);
+
+  std::cout << "BinaryEmitterTest test_bitwise_pretty_printer passed!" << std::endl;
+}
+
 int main() {
   test_simple_program();
   test_jump();
@@ -159,5 +211,7 @@ int main() {
   test_print_opcode_mapping();
   test_float_literal_pool_mapping();
   test_string_opcode_mappings();
+  test_bitwise_opcode_mappings();
+  test_bitwise_pretty_printer();
   return 0;
 }

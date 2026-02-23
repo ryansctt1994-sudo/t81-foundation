@@ -147,6 +147,15 @@ enum class Opcode {
   TNEURAL_FWD,
   TNEURAL_BWD,
 
+  // Bitwise
+  BITAND,
+  BITOR,
+  BITXOR,
+  BITNOT,
+  BITSHL,
+  BITSHR,
+  BITUSHR,
+
   // Tier 4
   GOSSIP,
   MERGE,

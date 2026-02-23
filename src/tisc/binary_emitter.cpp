@@ -289,6 +289,20 @@ Opcode map_opcode(const ir::Instruction& instr) {
       return Opcode::TNeuralFwd;
     case O::TNEURAL_BWD:
       return Opcode::TNeuralBwd;
+    case O::BITAND:
+      return Opcode::BitAnd;
+    case O::BITOR:
+      return Opcode::BitOr;
+    case O::BITXOR:
+      return Opcode::BitXor;
+    case O::BITNOT:
+      return Opcode::BitNot;
+    case O::BITSHL:
+      return Opcode::BitShl;
+    case O::BITSHR:
+      return Opcode::BitShr;
+    case O::BITUSHR:
+      return Opcode::BitUShr;
     default:
       // Fallback for Tier 4 opcodes if they have direct mapping
       switch (instr.opcode) {

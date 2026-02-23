@@ -54,6 +54,20 @@ std::string opcode_to_string(ir::Opcode opcode) {
       return "CALL";
     case ir::Opcode::RET:
       return "RET";
+    case ir::Opcode::BITAND:
+      return "BitAnd";
+    case ir::Opcode::BITOR:
+      return "BitOr";
+    case ir::Opcode::BITXOR:
+      return "BitXor";
+    case ir::Opcode::BITNOT:
+      return "BitNot";
+    case ir::Opcode::BITSHL:
+      return "BitShl";
+    case ir::Opcode::BITSHR:
+      return "BitShr";
+    case ir::Opcode::BITUSHR:
+      return "BitUShr";
     case ir::Opcode::LABEL:
       return "L";
     default:
