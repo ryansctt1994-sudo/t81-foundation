@@ -776,29 +776,45 @@ type_parameter_list ::= type ( "," constant_expression )*
 ```ebnf
 expression ::= assignment
 
-assignment ::= identifier "=" assignment
-             | logical_or
+assignment ::= logical_or ( "=" assignment )?
 
 logical_or ::= logical_and ( "||" logical_and )*
 
-logical_and ::= equality ( "&&" equality )*
+logical_and ::= bitwise_or ( "&&" bitwise_or )*
+
+bitwise_or ::= bitwise_xor ( "|" bitwise_xor )*
+
+bitwise_xor ::= bitwise_and ( "^" bitwise_and )*
+
+bitwise_and ::= arrow ( "&" arrow )*
+
+arrow ::= range ( "->" range )*
+
+range ::= equality ( ".." equality )?
 
 equality ::= comparison ( ( "!=" | "==" ) comparison )*
 
-comparison ::= term ( ( ">" | ">=" | "<" | "<=" ) term )*
+comparison ::= shift ( ( ">" | ">=" | "<" | "<=" ) shift )*
+
+shift ::= term ( ( "<<" | ">>" | ">>>" ) term )*
 
 term ::= factor ( ( "-" | "+" ) factor )*
 
-factor ::= unary ( ( "/" | "*" | "%" ) unary )*
+factor ::= exponent ( ( "/" | "*" | "%" ) exponent )*
 
-unary ::= ( "!" | "-" ) unary
+exponent ::= unary ( "**" exponent )?
+
+unary ::= ( "!" | "-" | "~" ) unary
         | call
 
-call ::= primary ( "(" arguments? ")" )*
+call ::= primary ( "(" arguments? ")" | "[" arguments? "]" | "." identifier )*
 
 primary ::= literal
           | identifier
           | "(" expression ")"
+          | match_expression
+          | block_expression
+          | if_expression
 
 arguments ::= expression ( "," expression )*
 
@@ -812,6 +828,12 @@ literal ::= integer_literal
 vector_literal ::= "[" ( expression ( "," expression )* | expression ";" expression )? "]"
 
 constant_expression ::= integer_literal | identifier
+
+match_expression ::= "match" "(" expression ")" "{" match_arm* "}"
+match_arm ::= pattern [ "if" expression ] "=>" expression ( "," | ";" )?
+
+block_expression ::= block
+if_expression ::= "if" expression block [ "else" ( block | if_expression ) ]
 ```
 
 ## A.4 Statements
@@ -846,9 +868,20 @@ block ::= "{" statement* [ expression ] "}"
 program ::= declaration*
 
 declaration ::= function_declaration
+              | type_declaration
+              | record_declaration
+              | enum_declaration
               | statement
 
-function_declaration ::= "fn" identifier "(" parameters? ")" ( "->" type )? block
+type_declaration ::= "type" identifier [ "[" generic_params "]" ] "=" type ";"
+
+record_declaration ::= "record" identifier "{" ( identifier ":" type ";" )* "}"
+
+enum_declaration ::= "enum" identifier "{" ( identifier [ "(" type ")" ] ";" )* "}"
+
+function_declaration ::= "fn" identifier [ "[" generic_params "]" ] "(" parameters? ")" ( "->" type )? block
+
+generic_params ::= identifier ( "," identifier )*
 
 parameters ::= parameter ( "," parameter )*
 

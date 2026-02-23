@@ -5121,6 +5121,10 @@ private:
     if (target == tisc::ir::PrimitiveKind::Unknown || source.primitive == target) {
       return source;
     }
+    if (source.primitive == tisc::ir::PrimitiveKind::Boolean &&
+        target == tisc::ir::PrimitiveKind::Integer) {
+      return source;
+    }
     if (source.primitive != tisc::ir::PrimitiveKind::Integer) {
       throw std::runtime_error("Implicit conversion only supported from integers");
     }

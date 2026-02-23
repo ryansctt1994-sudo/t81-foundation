@@ -580,6 +580,10 @@ if(T81_BUILD_TESTS)
   add_executable(t81_frontend_ir_generator_test tests/cpp/frontend_ir_generator_test.cpp)
   target_link_libraries(t81_frontend_ir_generator_test PRIVATE t81_frontend t81_tisc)
 
+  add_executable(t81_ir_snapshot_audit_test tests/cpp/test_ir_snapshot_audit.cpp)
+  target_link_libraries(t81_ir_snapshot_audit_test PRIVATE t81_frontend t81_tisc)
+  add_test(NAME t81_ir_snapshot_audit_test COMMAND t81_ir_snapshot_audit_test)
+
   add_executable(t81_semantic_analyzer_option_result_test tests/cpp/semantic_analyzer_option_result_test.cpp)
   target_link_libraries(t81_semantic_analyzer_option_result_test PRIVATE t81_frontend)
 
