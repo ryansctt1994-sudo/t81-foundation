@@ -90,6 +90,17 @@ let success: Result[i32, T81String] = Ok(200);
 let failure: Result[i32, T81String] = Err("Something went wrong");
 ```
 
+### 7.3.4 Bitwise Operations
+T81Lang supports standard bitwise operators for integer types (`i32`, `i64`, `T81BigInt`, `T81Uint`, etc.).
+
+*   `&` (AND)
+*   `|` (OR)
+*   `^` (XOR)
+*   `~` (NOT)
+*   `<<` (Left Shift)
+*   `>>` (Arithmetic Right Shift)
+*   `>>>` (Logical Right Shift)
+
 ## 7.4 Control Flow
 
 ### 7.4.1 Conditionals

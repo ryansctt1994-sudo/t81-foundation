@@ -167,6 +167,14 @@ std::string token_type_name(TokenType type) {
       return "'||'";
     case TokenType::Caret:
       return "'^'";
+    case TokenType::Tilde:
+      return "'~'";
+    case TokenType::LessLess:
+      return "'<<'";
+    case TokenType::GreaterGreater:
+      return "'>>'";
+    case TokenType::GreaterGreaterGreater:
+      return "'>>>'";
     case TokenType::Question:
       return "'?'";
     case TokenType::LParen:
@@ -895,9 +903,10 @@ std::unique_ptr<Stmt> Parser::expression_statement() {
 std::unique_ptr<Expr> Parser::expression() { return assignment(); }
 
 // Parses an assignment expression.
-// assignment -> IDENTIFIER "=" assignment | arrow ;
+// assignment -> logical_or ( "=" assignment )? ;
+// Changed to call logical_or instead of bitwise_or.
 std::unique_ptr<Expr> Parser::assignment() {
-  std::unique_ptr<Expr> expr = arrow();
+  std::unique_ptr<Expr> expr = logical_or();
   if (match({TokenType::Equal})) {
     Token equals = previous();
     std::unique_ptr<Expr> value = assignment();
@@ -908,6 +917,66 @@ std::unique_ptr<Expr> Parser::assignment() {
     }
 
     report_error(equals, "Invalid assignment target");
+  }
+  return expr;
+}
+
+// Parses a logical OR expression.
+// logical_or -> logical_and ( "||" logical_and )* ;
+std::unique_ptr<Expr> Parser::logical_or() {
+  std::unique_ptr<Expr> expr = logical_and();
+  while (match({TokenType::PipePipe})) {
+    Token op = previous();
+    std::unique_ptr<Expr> right = logical_and();
+    expr = std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
+  }
+  return expr;
+}
+
+// Parses a logical AND expression.
+// logical_and -> bitwise_or ( "&&" bitwise_or )* ;
+std::unique_ptr<Expr> Parser::logical_and() {
+  std::unique_ptr<Expr> expr = bitwise_or();
+  while (match({TokenType::AmpAmp})) {
+    Token op = previous();
+    std::unique_ptr<Expr> right = bitwise_or();
+    expr = std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
+  }
+  return expr;
+}
+
+// Parses a bitwise OR expression.
+// bitwise_or -> bitwise_xor ( "|" bitwise_xor )* ;
+std::unique_ptr<Expr> Parser::bitwise_or() {
+  std::unique_ptr<Expr> expr = bitwise_xor();
+  while (match({TokenType::Pipe})) {
+    Token op = previous();
+    std::unique_ptr<Expr> right = bitwise_xor();
+    expr = std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
+  }
+  return expr;
+}
+
+// Parses a bitwise XOR expression.
+// bitwise_xor -> bitwise_and ( "^" bitwise_and )* ;
+std::unique_ptr<Expr> Parser::bitwise_xor() {
+  std::unique_ptr<Expr> expr = bitwise_and();
+  while (match({TokenType::Caret})) {
+    Token op = previous();
+    std::unique_ptr<Expr> right = bitwise_and();
+    expr = std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
+  }
+  return expr;
+}
+
+// Parses a bitwise AND expression.
+// bitwise_and -> arrow ( "&" arrow )* ;
+std::unique_ptr<Expr> Parser::bitwise_and() {
+  std::unique_ptr<Expr> expr = arrow();
+  while (match({TokenType::Amp})) {
+    Token op = previous();
+    std::unique_ptr<Expr> right = arrow();
+    expr = std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
   }
   return expr;
 }
@@ -949,11 +1018,25 @@ std::unique_ptr<Expr> Parser::equality() {
 }
 
 // Parses a comparison expression.
-// comparison -> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+// comparison -> shift ( ( ">" | ">=" | "<" | "<=" ) shift )* ;
+// Changed to call shift() instead of term()
 std::unique_ptr<Expr> Parser::comparison() {
-  std::unique_ptr<Expr> expr = term();
+  std::unique_ptr<Expr> expr = shift();
   while (
       match({TokenType::Greater, TokenType::GreaterEqual, TokenType::Less, TokenType::LessEqual})) {
+    Token op = previous();
+    std::unique_ptr<Expr> right = shift();
+    expr = std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
+  }
+  return expr;
+}
+
+// Parses a shift expression.
+// shift -> term ( ( "<<" | ">>" | ">>>" ) term )* ;
+std::unique_ptr<Expr> Parser::shift() {
+  std::unique_ptr<Expr> expr = term();
+  while (
+      match({TokenType::LessLess, TokenType::GreaterGreater, TokenType::GreaterGreaterGreater})) {
     Token op = previous();
     std::unique_ptr<Expr> right = term();
     expr = std::make_unique<BinaryExpr>(std::move(expr), op, std::move(right));
@@ -998,9 +1081,10 @@ std::unique_ptr<Expr> Parser::exponent() {
 }
 
 // Parses a unary expression.
-// unary -> ( "!" | "-" ) unary | call ;
+// unary -> ( "!" | "-" | "~" ) unary | call ;
+// Added Tilde
 std::unique_ptr<Expr> Parser::unary() {
-  if (match({TokenType::Bang, TokenType::Minus})) {
+  if (match({TokenType::Bang, TokenType::Minus, TokenType::Tilde})) {
     Token op = previous();
     std::unique_ptr<Expr> right = unary();
     return std::make_unique<UnaryExpr>(op, std::move(right));

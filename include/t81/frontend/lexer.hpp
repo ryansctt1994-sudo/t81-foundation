@@ -1,8 +1,3 @@
-/**
- * @file lexer.hpp
- * @brief Defines the Lexer and token types for the T81Lang frontend.
- */
-
 #ifndef T81_FRONTEND_LEXER_HPP
 #define T81_FRONTEND_LEXER_HPP
 
@@ -13,10 +8,6 @@
 namespace t81 {
 namespace frontend {
 
-/**
- * @enum TokenType
- * @brief Describes the different types of tokens that the Lexer can produce.
- */
 enum class TokenType {
   // Keywords
   Module,
@@ -74,8 +65,8 @@ enum class TokenType {
   Ternary,
   Base81Integer,
   Base81Float,
-  Symbol,           // :symbol
-  InfiniteLiteral,  // ∞{...}
+  Symbol,
+  InfiniteLiteral,
 
   // Identifier
   Identifier,
@@ -100,7 +91,11 @@ enum class TokenType {
   Pipe,
   PipePipe,
   Caret,
+  Tilde,
   Question,
+  LessLess,
+  GreaterGreater,
+  GreaterGreaterGreater,
 
   // Punctuation
   LParen,
@@ -112,60 +107,31 @@ enum class TokenType {
   Comma,
   Colon,
   Semicolon,
-  Arrow,     // ->
-  FatArrow,  // =>
-  DotDot,    // ..
-  Dot,       // .
+  Arrow,
+  FatArrow,
+  DotDot,
+  Dot,
 
   // Special
-  At,  // @
+  At,
 
   // Control
-  Eof,     ///< End of file/source.
-  Illegal  ///< An illegal or unexpected character.
+  Eof,
+  Illegal
 };
 
-/**
- * @struct Token
- * @brief Represents a single token scanned from the source code.
- */
 struct Token {
-  TokenType type;           ///< The type of the token.
-  std::string_view lexeme;  ///< The substring from the source code.
-  int line;                 ///< The line number where the token appears.
-  int column;               ///< The column number where the token begins.
+  TokenType type;
+  std::string_view lexeme;
+  int line;
+  int column;
 };
 
-/**
- * @class Lexer
- * @brief A lexical analyzer for the T81Lang language.
- *
- * The Lexer scans a source string and converts it into a sequence of tokens.
- */
 class Lexer {
 public:
-  /**
-   * @brief Constructs a Lexer for the given source code.
-   * @param source A string_view of the source code to tokenize.
-   */
   Lexer(std::string_view source);
-
-  /**
-   * @brief Scans and returns the next token in the source stream.
-   * @return The next Token.
-   */
   Token next_token();
-
-  /**
-   * @brief Scans the entire source and returns all tokens.
-   * @return A vector containing all tokens from the source.
-   */
   std::vector<Token> all_tokens();
-
-  /**
-   * @brief Peeks the next token without advancing the lexer state.
-   * @return The next Token.
-   */
   Token peek_next_token();
 
 private:
