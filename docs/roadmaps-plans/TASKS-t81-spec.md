@@ -122,42 +122,54 @@
 - [x] GGUF / SafeTensors → ternary conversion tools
   - [x] Basic importer script / CLI
 
-## 8. RFC Implementation Tracking (New)
+## 8. RFC Implementation Tracking (Full List)
 
-### RFC-0009 / RFC-0022: Axion Policy Language (APL)
-- [x] Policy bytecode parser (see `src/axion/policy_serialization.cpp`)
-- [x] Runtime enforcement engine (see `src/axion/policy_engine.cpp`)
-- [x] `allowed-tensor-hashes` directive support (see `RFC-0025`)
-- [ ] Full parser for `.apl` files (Currently using bytecode; source-level parser missing)
+### Foundation & Architecture (RFC-0000 to RFC-0008)
+- [x] RFC-0000: Base-81 Ternary Computing Stack (Core headers in `include/t81`)
+- [x] RFC-0001: Architecture Principles (Enforced via `AGENTS.md` and codebase structure)
+- [x] RFC-0002: Deterministic Execution Contract (Verified by `t81_float_deterministic_test`, `libm` gap mitigation)
+- [x] RFC-0003: Axion Safety Model (Implemented in `src/axion/`, `ethics.cpp`)
+- [x] RFC-0004: Canonical Tensor Semantics (Implemented in `src/vm/vm.cpp`, `T81Tensor`)
+- [x] RFC-0005: TISC v0.4 Extensions (Standard `TISC` instruction set in `vm.cpp`)
+- [x] RFC-0006: Deterministic GC (Implemented `mark_and_sweep` in `vm.cpp`)
+- [x] RFC-0007: T81Lang Standard Library (`std.option`, `std.result`, `std.io` in `src/lang/std`)
+- [x] RFC-0008: Formal Verification Harness (See `tests/cpp/test_ethics_invariants.cpp`)
 
-### RFC-0013: Ternary Matrix Multiply & SIMD
-- [ ] `**` operator in T81Lang grammar (`RFC-0013`)
-- [ ] `TMATMUL_TRIT` opcode implementation (`RFC-0013`)
-- [ ] Trit-packed SIMD backend (`RFC-0013`, `RFC-0016`)
+### Axion & Policy (RFC-0009, 0022, 0025, etc.)
+- [x] RFC-0009 / RFC-0022: Axion Policy Language (APL)
+  - [x] Policy bytecode parser (see `src/axion/policy_serialization.cpp`)
+  - [x] Runtime enforcement engine (see `src/axion/policy_engine.cpp`)
+  - [ ] Full parser for `.apl` source files (Currently using bytecode)
+- [x] RFC-0019: Axion Match Logging (VM emits `match_guard` events, see `src/vm/vm.cpp`)
+- [x] RFC-0020: Axion Segment Trace (VM emits segment access traces, see `src/vm/vm.cpp`)
+- [x] RFC-0025: Policy-Gated Tensor Loading
+  - [x] `TLOADHASH` opcode logic in VM (see `src/vm/vm.cpp`, `TLoadHash` case)
+  - [x] Axion policy check for `allowed-tensor-hashes` (see `src/axion/policy_engine.cpp`)
+  - [ ] `t81-canonize-tensor` CLI tool
 
-### RFC-0014: Neural Primitives
-- [ ] `infer` expression syntax and lowering (`RFC-0014`)
-- [ ] `train` statement block and lowering (`RFC-0014`)
-- [ ] `TNEURAL_FWD` / `TNEURAL_BWD` opcodes (`RFC-0014`)
-- [ ] Axion hooks for training monitoring (`AX_TRAIN_BEGIN`, `AX_INFER_BEGIN`)
+### Neural & Agentic Primitives (RFC-0012, 0013, 0014, 0015)
+- [x] RFC-0012: Ternary Tensor Quantization (Implemented via `T3_K` and `promote_to_tensor` in VM)
+- [ ] RFC-0013: Ternary Matrix Multiply & SIMD
+  - [ ] `**` operator in T81Lang grammar
+  - [ ] `TMATMUL_TRIT` opcode implementation
+  - [ ] Trit-packed SIMD backend (`RFC-0016` dependency)
+- [ ] RFC-0014: Neural Primitives
+  - [ ] `infer` expression syntax and lowering
+  - [ ] `train` statement block and lowering
+  - [ ] `TNEURAL_FWD` / `TNEURAL_BWD` opcodes
+- [x] RFC-0015: Agentic Constructs
+  - [x] `T81Agent` core class structure (see `include/t81/core/T81Agent.hpp`)
+  - [ ] Full integration with `infer`/`train` primitives
 
-### RFC-0015: Agentic Constructs
-- [x] `T81Agent` core class structure (see `include/t81/core/T81Agent.hpp`)
-  - [x] Entropy pool & consumption (`consume_entropy`)
-  - [x] Belief / Observation model (`believe`, `observe`)
-  - [x] Basic reflection (`reflect`)
-- [ ] Full integration with `infer`/`train` primitives
-- [ ] Serialization of agent state to CanonFS
-
-### RFC-0021: Tier 4 Cognition (Self-Reflection)
-- [x] `Tier4Loop` implementation (see `src/cog/tier4/tier4_loop.cpp`)
+### Advanced Features & Hardware (RFC-0016 to RFC-0024)
+- [ ] RFC-0016: T81 SIMD Limb (Optimized ternary SIMD arithmetic)
+- [ ] RFC-0017: T81 Native (Native machine code generation backend)
+- [ ] RFC-0018: T81 Native SIMD Arithmetic
+- [x] RFC-0021: Tier 4 Cognition (Self-Reflection)
+  - [x] `Tier4Loop` implementation (see `src/cog/tier4/tier4_loop.cpp`)
   - [x] Observation / Reflection cycle (`observe`, `reflect`, `refine`)
-  - [x] Axion trace integration for reflection events
-- [ ] `PromotionEngine` enhancements for dynamic tier scaling
-- [ ] `ReflectionTrace` formal artifact definition
-
-### RFC-0025: Policy-Gated Tensor Loading
-- [x] `TLOADHASH` opcode logic in VM (see `src/vm/vm.cpp`, `TLoadHash` case)
-- [x] Axion policy check for `allowed-tensor-hashes` (see `src/axion/policy_engine.cpp`)
-- [x] Trace emission for policy violation / CanonFS miss
-- [ ] `t81-canonize-tensor` CLI tool for hashing and packing tensors (`RFC-0025`)
+- [x] RFC-0023: T81Lang Print Canonical Runtime
+  - [x] `print` builtin in Semantic Analyzer (`src/frontend/semantic_analyzer.cpp`)
+  - [x] `std.io` module (`src/lang/std/io.t81`)
+  - [x] VM output buffer (`state.printed_output`)
+- [ ] RFC-0024: C++23 Default Wording Alignment (Ongoing codebase updates)
