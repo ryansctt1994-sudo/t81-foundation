@@ -227,7 +227,7 @@ La **Monografía Técnica Definitiva** es la única fuente de verdad para T81. S
 
 </details>
 
-> 📚 **Lea la monografía completa aquí:** [book/book-es/LEEME.md](LEEME)
+> 📚 **Lea la monografía completa aquí:** [LEEME](book/book-es/LEEME.md)
 
 ## Compatibilidad y No-Objetivos
 
