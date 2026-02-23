@@ -218,6 +218,91 @@ void test_errors() {
   assert(p2_v1.t_and(p2_v2).is_err());
 }
 
+void test_phase2b_lut_equivalence() {
+  std::cout << "[Phase 2B] Testing LUT vs Reference Implementation..." << std::endl;
+  std::mt19937 rng(42);
+  std::uniform_int_distribution<int> dist(-1, 1);
+
+  for (int len : {0, 1, 2, 4, 5, 7, 8, 16, 64, 100}) {
+    std::vector<int8_t> t1_data;
+    std::vector<int8_t> t2_data;
+    for (int i = 0; i < len; ++i) {
+      t1_data.push_back(static_cast<int8_t>(dist(rng)));
+      t2_data.push_back(static_cast<int8_t>(dist(rng)));
+    }
+
+    auto v1 = ComputeTritVector::from_trits(t1_data).value();
+    auto v2 = ComputeTritVector::from_trits(t2_data).value();
+
+    // Not
+    auto not_lut = v1.t_not().value();
+    auto not_ref = v1.t_not_ref().value();
+    assert(check_vec(not_lut.to_trits().value(), not_ref.to_trits().value()));
+    assert(not_lut.data() == not_ref.data()); // Byte-wise identical
+
+    // And
+    auto and_lut = v1.t_and(v2).value();
+    auto and_ref = v1.t_and_ref(v2).value();
+    assert(check_vec(and_lut.to_trits().value(), and_ref.to_trits().value()));
+    assert(and_lut.data() == and_ref.data());
+
+    // Or
+    auto or_lut = v1.t_or(v2).value();
+    auto or_ref = v1.t_or_ref(v2).value();
+    assert(check_vec(or_lut.to_trits().value(), or_ref.to_trits().value()));
+    assert(or_lut.data() == or_ref.data());
+
+    // Xor
+    auto xor_lut = v1.t_xor(v2).value();
+    auto xor_ref = v1.t_xor_ref(v2).value();
+    assert(check_vec(xor_lut.to_trits().value(), xor_ref.to_trits().value()));
+    assert(xor_lut.data() == xor_ref.data());
+  }
+}
+
+void test_trailing_byte_masking() {
+  std::cout << "[Phase 2B] Testing Trailing Byte Masking..." << std::endl;
+  // Length 1: 1 trit. Fits in 2 bits. Remaining 6 bits of byte should be 0.
+  // Trit 0 -> 00.
+  // If we do NOT(0) -> NOT(00) -> 00 (scalar_not(0)=0).
+  // If we have padding bits non-zero, they should be masked.
+
+  // Use length 1 with value 0.
+  std::vector<int8_t> trits = {0};
+  auto v = ComputeTritVector::from_trits(trits).value();
+
+  // Apply t_not. scalar_not(0) is 0.
+  // If LUT logic was naive: LUT[0] -> LUT[00 00 00 00] -> ?
+  // 00 -> 0. scalar_not(0)=0 -> 00.
+  // So result is 00 00 00 00.
+
+  // Let's try value 1. NOT(1) = -1.
+  // 1 -> 01. NOT -> 11.
+  // Input: 01 00 00 00 (little endian in trit slots?)
+  // Lane 0: 01. Lane 1: 00. ...
+  // LUT should map Lane 0: 01->11. Lane 1: 00->00.
+  // Result: 11 00 00 00.
+
+  trits = {1};
+  v = ComputeTritVector::from_trits(trits).value();
+  auto v_not = v.t_not().value();
+
+  // Check trits
+  auto res_trits = v_not.to_trits().value();
+  assert(res_trits[0] == -1);
+
+  // Check raw data padding
+  // Only 1 trit used (2 bits). Mask is 0x03.
+  // Byte should be (11) & 0x03 = 0x03.
+  // If high bits were set by LUT (unlikely for 0->0 map), they should be cleared.
+  // Actually, for 0->0, it's fine.
+
+  // What if we have invalid padding? We can't inject it easily.
+  // But we can ensure that valid ops don't dirty the padding.
+  uint8_t byte = v_not.data()[0];
+  assert((byte & 0xFC) == 0); // Top 6 bits must be 0
+}
+
 int main() {
   test_phase1_roundtrip();
   test_scalar_logic_basis();
@@ -227,6 +312,8 @@ int main() {
   test_cross_representation_consistency();
   test_randomized_determinism();
   test_errors();
+  test_phase2b_lut_equivalence();
+  test_trailing_byte_masking();
 
   std::cout << "All tests passed!" << std::endl;
   return 0;

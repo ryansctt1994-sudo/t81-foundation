@@ -230,7 +230,7 @@ public:
     return Result<std::vector<int8_t>>::success(out);
   }
 
-  Result<ComputeTritVector> t_not() const {
+  Result<ComputeTritVector> t_not_ref() const {
     auto trits_res = to_trits();
     if (trits_res.is_err()) return Result<ComputeTritVector>(trits_res.error());
     std::vector<int8_t> trits = trits_res.value();
@@ -238,7 +238,7 @@ public:
     return from_trits(trits);
   }
 
-  Result<ComputeTritVector> t_and(const ComputeTritVector& other) const {
+  Result<ComputeTritVector> t_and_ref(const ComputeTritVector& other) const {
     if (count_ != other.count_) {
        return Result<ComputeTritVector>::failure(
             T81Symbol::intern("LENGTH_MISMATCH"),
@@ -260,7 +260,7 @@ public:
     return from_trits(res);
   }
 
-  Result<ComputeTritVector> t_or(const ComputeTritVector& other) const {
+  Result<ComputeTritVector> t_or_ref(const ComputeTritVector& other) const {
     if (count_ != other.count_) {
        return Result<ComputeTritVector>::failure(
             T81Symbol::intern("LENGTH_MISMATCH"),
@@ -282,7 +282,7 @@ public:
     return from_trits(res);
   }
 
-  Result<ComputeTritVector> t_xor(const ComputeTritVector& other) const {
+  Result<ComputeTritVector> t_xor_ref(const ComputeTritVector& other) const {
     if (count_ != other.count_) {
        return Result<ComputeTritVector>::failure(
             T81Symbol::intern("LENGTH_MISMATCH"),
@@ -304,9 +304,176 @@ public:
     return from_trits(res);
   }
 
+  // Phase 2B: Direct operations calling reference for now (will be replaced by LUT implementation)
+  Result<ComputeTritVector> t_not() const {
+    const auto& luts = LUTs::get();
+    std::vector<uint8_t> res_data;
+    res_data.reserve(data_.size());
+
+    for (size_t i = 0; i < data_.size(); ++i) {
+        res_data.push_back(luts.op_not[data_[i]]);
+    }
+
+    // Mask trailing bits of the last byte to ensure padding is 00
+    if (count_ % 4 != 0 && !res_data.empty()) {
+        size_t used_trits = count_ % 4;
+        size_t used_bits = used_trits * 2;
+        uint8_t mask = (1 << used_bits) - 1;
+        res_data.back() &= mask;
+    }
+
+    return Result<ComputeTritVector>::success(ComputeTritVector(std::move(res_data), count_));
+  }
+
+  Result<ComputeTritVector> t_and(const ComputeTritVector& other) const {
+    if (count_ != other.count_) {
+       return Result<ComputeTritVector>::failure(
+            T81Symbol::intern("LENGTH_MISMATCH"),
+            T81String("Vectors must have same length for binary operation"),
+            T81Symbol::intern("ComputeTritVector"));
+    }
+    const auto& luts = LUTs::get();
+    std::vector<uint8_t> res_data;
+    res_data.reserve(data_.size());
+
+    for (size_t i = 0; i < data_.size(); ++i) {
+        res_data.push_back(luts.op_and[data_[i]][other.data_[i]]);
+    }
+
+    // Mask trailing bits
+    if (count_ % 4 != 0 && !res_data.empty()) {
+        size_t used_trits = count_ % 4;
+        size_t used_bits = used_trits * 2;
+        uint8_t mask = (1 << used_bits) - 1;
+        res_data.back() &= mask;
+    }
+
+    return Result<ComputeTritVector>::success(ComputeTritVector(std::move(res_data), count_));
+  }
+
+  Result<ComputeTritVector> t_or(const ComputeTritVector& other) const {
+    if (count_ != other.count_) {
+       return Result<ComputeTritVector>::failure(
+            T81Symbol::intern("LENGTH_MISMATCH"),
+            T81String("Vectors must have same length for binary operation"),
+            T81Symbol::intern("ComputeTritVector"));
+    }
+    const auto& luts = LUTs::get();
+    std::vector<uint8_t> res_data;
+    res_data.reserve(data_.size());
+
+    for (size_t i = 0; i < data_.size(); ++i) {
+        res_data.push_back(luts.op_or[data_[i]][other.data_[i]]);
+    }
+
+    // Mask trailing bits
+    if (count_ % 4 != 0 && !res_data.empty()) {
+        size_t used_trits = count_ % 4;
+        size_t used_bits = used_trits * 2;
+        uint8_t mask = (1 << used_bits) - 1;
+        res_data.back() &= mask;
+    }
+
+    return Result<ComputeTritVector>::success(ComputeTritVector(std::move(res_data), count_));
+  }
+
+  Result<ComputeTritVector> t_xor(const ComputeTritVector& other) const {
+    if (count_ != other.count_) {
+       return Result<ComputeTritVector>::failure(
+            T81Symbol::intern("LENGTH_MISMATCH"),
+            T81String("Vectors must have same length for binary operation"),
+            T81Symbol::intern("ComputeTritVector"));
+    }
+    const auto& luts = LUTs::get();
+    std::vector<uint8_t> res_data;
+    res_data.reserve(data_.size());
+
+    for (size_t i = 0; i < data_.size(); ++i) {
+        // Note: TXor is non-commutative: a - b.
+        // We assume LUT is built as lut[a][b].
+        res_data.push_back(luts.op_xor[data_[i]][other.data_[i]]);
+    }
+
+    // Mask trailing bits
+    if (count_ % 4 != 0 && !res_data.empty()) {
+        size_t used_trits = count_ % 4;
+        size_t used_bits = used_trits * 2;
+        uint8_t mask = (1 << used_bits) - 1;
+        res_data.back() &= mask;
+    }
+
+    return Result<ComputeTritVector>::success(ComputeTritVector(std::move(res_data), count_));
+  }
+
 private:
   ComputeTritVector(std::vector<uint8_t> data, size_t count)
     : data_(std::move(data)), count_(count) {}
+
+  struct LUTs {
+      uint8_t op_not[256];
+      uint8_t op_and[256][256];
+      uint8_t op_or[256][256];
+      uint8_t op_xor[256][256];
+
+      static const LUTs& get() {
+          static LUTs instance;
+          return instance;
+      }
+
+  private:
+      LUTs() {
+          for (int i = 0; i < 256; ++i) {
+              op_not[i] = generate_unary(i, [](int8_t t) { return PackedTritVector::scalar_not(t); });
+              for (int j = 0; j < 256; ++j) {
+                  op_and[i][j] = generate_binary(i, j, [](int8_t a, int8_t b) { return PackedTritVector::scalar_and(a, b); });
+                  op_or[i][j] = generate_binary(i, j, [](int8_t a, int8_t b) { return PackedTritVector::scalar_or(a, b); });
+                  op_xor[i][j] = generate_binary(i, j, [](int8_t a, int8_t b) { return PackedTritVector::scalar_xor(a, b); });
+              }
+          }
+      }
+
+      static uint8_t generate_unary(uint8_t in, int8_t (*op)(int8_t)) {
+          uint8_t out = 0;
+          for (int lane = 0; lane < 4; ++lane) {
+              int8_t t = decode_trit(in, lane);
+              if (t == 2) return 0xAA; // Invalid input -> Invalid output pattern
+
+              int8_t res = op(t);
+              encode_trit(out, lane, res);
+          }
+          return out;
+      }
+
+      static uint8_t generate_binary(uint8_t a_in, uint8_t b_in, int8_t (*op)(int8_t, int8_t)) {
+          uint8_t out = 0;
+          for (int lane = 0; lane < 4; ++lane) {
+              int8_t t_a = decode_trit(a_in, lane);
+              int8_t t_b = decode_trit(b_in, lane);
+              if (t_a == 2 || t_b == 2) return 0xAA; // Invalid input -> Invalid output pattern
+
+              int8_t res = op(t_a, t_b);
+              encode_trit(out, lane, res);
+          }
+          return out;
+      }
+
+      // 00 -> 0, 01 -> 1, 11 -> -1, 10 -> 2 (Invalid)
+      static int8_t decode_trit(uint8_t byte, int lane) {
+          uint8_t val = (byte >> (lane * 2)) & 0x03;
+          if (val == 0) return 0;
+          if (val == 1) return 1;
+          if (val == 3) return -1;
+          return 2; // Invalid
+      }
+
+      static void encode_trit(uint8_t& byte, int lane, int8_t t) {
+          uint8_t val = 0; // 00
+          if (t == 1) val = 1; // 01
+          else if (t == -1) val = 3; // 11
+          // t=0 -> 00
+          byte |= (val << (lane * 2));
+      }
+  };
 
   std::vector<uint8_t> data_;
   size_t count_;
