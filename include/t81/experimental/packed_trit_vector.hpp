@@ -488,7 +488,8 @@ public:
         uint64_t l_b = b & 0x5555555555555555ULL;
 
         uint64_t H = h_a & h_b;
-        uint64_t L = (l_a & l_b) | ((l_a | l_b) & ~(h_a | h_b));
+        uint64_t mask = (h_a | h_b) >> 1;
+        uint64_t L = (l_a & l_b) | ((l_a | l_b) & ~mask);
         uint64_t res = H | (H >> 1) | L;
 
         std::memcpy(dst + i, &res, 8);
@@ -505,7 +506,8 @@ public:
         uint8_t l_b = b & 0x55;
 
         uint8_t H = h_a & h_b;
-        uint8_t L = (l_a & l_b) | ((l_a | l_b) & ~(h_a | h_b));
+        uint8_t mask = (h_a | h_b) >> 1;
+        uint8_t L = (l_a & l_b) | ((l_a | l_b) & ~mask);
         dst[i] = H | (H >> 1) | L;
     }
 
