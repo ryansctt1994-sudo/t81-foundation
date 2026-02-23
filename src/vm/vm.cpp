@@ -4477,11 +4477,38 @@ public:
         record_axion_event(insn.opcode, 0, seal, verdict);
         break;
       }
-      case t81::tisc::Opcode::AxCheck:
+      case t81::tisc::Opcode::AxCheck: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        bool ok = ctx.registers[insn.a] != 0;
+        auto msg = symbol_like_text(ctx.register_tags[insn.b], ctx.registers[insn.b]);
+        std::string text = msg.has_value() ? std::string(*msg) : "Check";
+
+        t81::axion::Verdict verdict;
+        verdict.kind = ok ? t81::axion::VerdictKind::Allow : t81::axion::VerdictKind::Deny;
+        verdict.reason = "AxCheck: " + text;
+        record_axion_event(insn.opcode, 0, ok ? 1 : 0, verdict);
+        break;
+      }
+      case t81::tisc::Opcode::AxReport: {
+        if (!reg_ok(insn.a)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        auto msg = symbol_like_text(ctx.register_tags[insn.a], ctx.registers[insn.a]);
+        std::string text = msg.has_value() ? std::string(*msg) : "Report";
+
+        t81::axion::Verdict verdict;
+        verdict.kind = t81::axion::VerdictKind::Allow;
+        verdict.reason = "AxReport: " + text;
+        record_axion_event(insn.opcode, 0, 0, verdict);
+        break;
+      }
       case t81::tisc::Opcode::AxSign:
       case t81::tisc::Opcode::AxLineage:
-      case t81::tisc::Opcode::AxCanon:
-      case t81::tisc::Opcode::AxReport: {
+      case t81::tisc::Opcode::AxCanon: {
         // Generic handler for unimplemented/stubbed cognitive opcodes
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow,
                                     "Cognitive Opcode Stub Execution"};

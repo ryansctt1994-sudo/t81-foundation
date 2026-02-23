@@ -35,7 +35,7 @@ int main() {
   PolicyEngine engine(std::move(roundtrip));
 
   SyscallContext ctx{};
-  ctx.current_tier = 3;
+  ctx.current_tier = 3;  // Satisfy (tier 3) requirement
   ctx.instruction_count = 50;
   [[maybe_unused]] auto v1 = engine.evaluate(ctx);
   if (!expect(v1.kind == VerdictKind::Allow, "expected allow at count=50")) return 1;
