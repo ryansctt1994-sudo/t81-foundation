@@ -5,24 +5,20 @@
 # T81 Foundation
 
 <p align="center">
-<strong>Детерминированный стек тернарно-ориентированных вычислений, включающий типы данных base-81, набор инструкций TISC, T81VM, язык T81Lang, движок безопасности и оптимизации Axion, а также уровни рекурсивного познания. Создан для побитово точного, проверяемого и воспроизводимого выполнения в сферах ИИ, криптографии и научных вычислений.</strong>
+  <a href="https://github.com/t81dev/t81-foundation/stargazers"><img src="https://img.shields.io/github/stars/t81dev/t81-foundation?style=for-the-badge&logo=github&color=blue" alt="Stars"></a>
+  <a href="https://github.com/t81dev/t81-foundation/network/members"><img src="https://img.shields.io/github/forks/t81dev/t81-foundation?style=for-the-badge&logo=github&color=blue" alt="Forks"></a>
+  <a href="https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?branch=main&style=for-the-badge&logo=github" alt="CI Status"></a>
+  <a href="https://github.com/t81dev/t81-foundation/commits/main"><img src="https://img.shields.io/github/commit-activity/m/t81dev/t81-foundation?style=for-the-badge&logo=github&color=green" alt="Commit Activity"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License: MIT"></a>
+  <a href="https://en.cppreference.com/w/cpp/23"><img src="https://img.shields.io/badge/Language-C%2B%2B23-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white" alt="Language: C++23"></a>
 </p>
 
 <p align="center">
-<a href="[https://github.com/t81dev/t81-foundation/stargazers](https://github.com/t81dev/t81-foundation/stargazers)"><img src="[https://img.shields.io/github/stars/t81dev/t81-foundation?style=for-the-badge&logo=github&color=blue](https://img.shields.io/github/stars/t81dev/t81-foundation?style=for-the-badge&logo=github&color=blue)" alt="Stars"></a>
-<a href="[https://github.com/t81dev/t81-foundation/network/members](https://github.com/t81dev/t81-foundation/network/members)"><img src="[https://img.shields.io/github/forks/t81dev/t81-foundation?style=for-the-badge&logo=github&color=blue](https://img.shields.io/github/forks/t81dev/t81-foundation?style=for-the-badge&logo=github&color=blue)" alt="Forks"></a>
-<a href="[https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml](https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml)"><img src="[https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?branch=main&style=for-the-badge&logo=github](https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?branch=main&style=for-the-badge&logo=github)" alt="CI Status"></a>
-<a href="[https://github.com/t81dev/t81-foundation/commits/main](https://github.com/t81dev/t81-foundation/commits/main)"><img src="[https://img.shields.io/github/commit-activity/m/t81dev/t81-foundation?style=for-the-badge&logo=github&color=green](https://img.shields.io/github/commit-activity/m/t81dev/t81-foundation?style=for-the-badge&logo=github&color=green)" alt="Commit Activity"></a>
-<a href="[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)"><img src="[https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)" alt="License: MIT"></a>
-<a href="[https://en.cppreference.com/w/cpp/23](https://en.cppreference.com/w/cpp/23)"><img src="[https://img.shields.io/badge/Language-C%2B%2B23-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white](https://img.shields.io/badge/Language-C%2B%2B23-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white)" alt="Language: C++23"></a>
-</p>
-
-<p align="center">
-<a href="README.md"><img src="[https://img.shields.io/badge/Lang-English-blue?style=flat-square](https://img.shields.io/badge/Lang-English-blue?style=flat-square)" alt="English"></a>
-<a href="README.zh-CN.md"><img src="[https://img.shields.io/badge/Lang-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-red?style=flat-square](https://img.shields.io/badge/Lang-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-red?style=flat-square)" alt="简体中文"></a>
-<a href="README.es.md"><img src="[https://img.shields.io/badge/Lang-Espa%C3%B1ol-green?style=flat-square](https://img.shields.io/badge/Lang-Espa%C3%B1ol-green?style=flat-square)" alt="Español"></a>
-<a href="README.ru.md"><img src="[https://img.shields.io/badge/Lang-%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9-blueviolet?style=flat-square](https://img.shields.io/badge/Lang-%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9-blueviolet?style=flat-square)" alt="Русский"></a>
-<a href="README.pt-BR.md"><img src="[https://img.shields.io/badge/Lang-Portugu%C3%AAs-orange?style=flat-square](https://img.shields.io/badge/Lang-Portugu%C3%AAs-orange?style=flat-square)" alt="Português"></a>
+  <a href="README.md"><img src="https://img.shields.io/badge/Lang-English-blue?style=flat-square" alt="English"></a>
+  <a href="README.zh-CN.md"><img src="https://img.shields.io/badge/Lang-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-red?style=flat-square" alt="简体中文"></a>
+  <a href="README.es.md"><img src="https://img.shields.io/badge/Lang-Espa%C3%B1ol-green?style=flat-square" alt="Español"></a>
+  <a href="README.ru.md"><img src="https://img.shields.io/badge/Lang-%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9-blueviolet?style=flat-square" alt="Русский"></a>
+  <a href="README.pt-BR.md"><img src="https://img.shields.io/badge/Lang-Portugu%C3%AAs-orange?style=flat-square" alt="Português"></a>
 </p>
 
 ---
