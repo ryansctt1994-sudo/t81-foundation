@@ -282,6 +282,88 @@ static void BM_ComputeTNot(benchmark::State& state) {
 }
 BENCHMARK(BM_ComputeTNot)->Range(16, 4096);
 
+// -----------------------------------------------------------------------------
+// PHASE 2A (Reference / Naive) BENCHMARKS
+// -----------------------------------------------------------------------------
+
+static void BM_ComputeTAnd_Phase2A(benchmark::State& state) {
+    size_t len = state.range(0);
+    std::mt19937 rng(42);
+    std::uniform_int_distribution<int> dist(-1, 1);
+    std::vector<int8_t> t1(len), t2(len);
+    for (size_t i = 0; i < len; ++i) {
+        t1[i] = static_cast<int8_t>(dist(rng));
+        t2[i] = static_cast<int8_t>(dist(rng));
+    }
+
+    auto p1 = ComputeTritVector::from_trits(t1).value();
+    auto p2 = ComputeTritVector::from_trits(t2).value();
+
+    for (auto _ : state) {
+        auto res = p1.t_and_ref(p2).value();
+        benchmark::DoNotOptimize(res.data().data());
+    }
+}
+BENCHMARK(BM_ComputeTAnd_Phase2A)->Range(16, 4096);
+
+static void BM_ComputeTOr_Phase2A(benchmark::State& state) {
+    size_t len = state.range(0);
+    std::mt19937 rng(42);
+    std::uniform_int_distribution<int> dist(-1, 1);
+    std::vector<int8_t> t1(len), t2(len);
+    for (size_t i = 0; i < len; ++i) {
+        t1[i] = static_cast<int8_t>(dist(rng));
+        t2[i] = static_cast<int8_t>(dist(rng));
+    }
+
+    auto p1 = ComputeTritVector::from_trits(t1).value();
+    auto p2 = ComputeTritVector::from_trits(t2).value();
+
+    for (auto _ : state) {
+        auto res = p1.t_or_ref(p2).value();
+        benchmark::DoNotOptimize(res.data().data());
+    }
+}
+BENCHMARK(BM_ComputeTOr_Phase2A)->Range(16, 4096);
+
+static void BM_ComputeTXor_Phase2A(benchmark::State& state) {
+    size_t len = state.range(0);
+    std::mt19937 rng(42);
+    std::uniform_int_distribution<int> dist(-1, 1);
+    std::vector<int8_t> t1(len), t2(len);
+    for (size_t i = 0; i < len; ++i) {
+        t1[i] = static_cast<int8_t>(dist(rng));
+        t2[i] = static_cast<int8_t>(dist(rng));
+    }
+
+    auto p1 = ComputeTritVector::from_trits(t1).value();
+    auto p2 = ComputeTritVector::from_trits(t2).value();
+
+    for (auto _ : state) {
+        auto res = p1.t_xor_ref(p2).value();
+        benchmark::DoNotOptimize(res.data().data());
+    }
+}
+BENCHMARK(BM_ComputeTXor_Phase2A)->Range(16, 4096);
+
+static void BM_ComputeTNot_Phase2A(benchmark::State& state) {
+    size_t len = state.range(0);
+    std::mt19937 rng(42);
+    std::uniform_int_distribution<int> dist(-1, 1);
+    std::vector<int8_t> t1(len);
+    for (size_t i = 0; i < len; ++i) {
+        t1[i] = static_cast<int8_t>(dist(rng));
+    }
+
+    auto p1 = ComputeTritVector::from_trits(t1).value();
+
+    for (auto _ : state) {
+        auto res = p1.t_not_ref().value();
+        benchmark::DoNotOptimize(res.data().data());
+    }
+}
+BENCHMARK(BM_ComputeTNot_Phase2A)->Range(16, 4096);
+
 static void BM_ComputePack(benchmark::State& state) {
     size_t len = state.range(0);
     std::mt19937 rng(42);
