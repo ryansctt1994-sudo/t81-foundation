@@ -3,19 +3,19 @@
  * @brief Tests for T81Graph cycle detection and topological sort.
  */
 
+#include <cassert>
 #include <iostream>
 #include <vector>
-#include <cassert>
 #include "t81/core/T81Graph.hpp"
 #include "t81/core/T81Int.hpp"
 
 using namespace t81;
 
 // Helper macro for assertions
-#define EXPECT(cond, msg) \
-  if (!(cond)) { \
+#define EXPECT(cond, msg)                                   \
+  if (!(cond)) {                                            \
     std::cerr << "FAIL: " << msg << " (" << #cond << ")\n"; \
-    std::exit(1); \
+    std::exit(1);                                           \
   }
 
 void test_cycle_detection() {
@@ -103,10 +103,10 @@ void test_topological_sort() {
     auto& res = *sorted;
     // 0 must come before 1 and 2
     int64_t p0 = -1, p1 = -1, p2 = -1;
-    for(size_t i=0; i<3; ++i) {
-        if (res(i).to_int64() == 0) p0 = i;
-        if (res(i).to_int64() == 1) p1 = i;
-        if (res(i).to_int64() == 2) p2 = i;
+    for (size_t i = 0; i < 3; ++i) {
+      if (res(i).to_int64() == 0) p0 = i;
+      if (res(i).to_int64() == 1) p1 = i;
+      if (res(i).to_int64() == 2) p2 = i;
     }
     EXPECT(p0 < p1, "0 must precede 1");
     EXPECT(p0 < p2, "0 must precede 2");
