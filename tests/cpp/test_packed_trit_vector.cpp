@@ -218,12 +218,54 @@ void test_errors() {
   assert(p2_v1.t_and(p2_v2).is_err());
 }
 
-void test_phase2b_lut_equivalence() {
-  std::cout << "[Phase 2B] Testing LUT vs Reference Implementation..." << std::endl;
+void test_phase2c_swar_equivalence() {
+  std::cout << "[Phase 2C] Testing SWAR vs Reference Implementation..." << std::endl;
   std::mt19937 rng(42);
   std::uniform_int_distribution<int> dist(-1, 1);
 
-  for (int len : {0, 1, 2, 4, 5, 7, 8, 16, 64, 100}) {
+  for (int len : {0, 1, 2, 4, 5, 7, 8, 16, 64, 100, 255, 256, 1024, 1027}) {
+    std::vector<int8_t> t1_data;
+    std::vector<int8_t> t2_data;
+    for (int i = 0; i < len; ++i) {
+      t1_data.push_back(static_cast<int8_t>(dist(rng)));
+      t2_data.push_back(static_cast<int8_t>(dist(rng)));
+    }
+
+    auto v1 = ComputeTritVector::from_trits(t1_data).value();
+    auto v2 = ComputeTritVector::from_trits(t2_data).value();
+
+    // Not (SWAR)
+    auto not_swar = v1.t_not().value();
+    auto not_ref = v1.t_not_ref().value();
+    assert(check_vec(not_swar.to_trits().value(), not_ref.to_trits().value()));
+    assert(not_swar.data() == not_ref.data()); // Byte-wise identical
+
+    // And (SWAR)
+    auto and_swar = v1.t_and(v2).value();
+    auto and_ref = v1.t_and_ref(v2).value();
+    assert(check_vec(and_swar.to_trits().value(), and_ref.to_trits().value()));
+    assert(and_swar.data() == and_ref.data());
+
+    // Or (SWAR)
+    auto or_swar = v1.t_or(v2).value();
+    auto or_ref = v1.t_or_ref(v2).value();
+    assert(check_vec(or_swar.to_trits().value(), or_ref.to_trits().value()));
+    assert(or_swar.data() == or_ref.data());
+
+    // Xor (Still LUT)
+    auto xor_lut = v1.t_xor(v2).value();
+    auto xor_ref = v1.t_xor_ref(v2).value();
+    assert(check_vec(xor_lut.to_trits().value(), xor_ref.to_trits().value()));
+    assert(xor_lut.data() == xor_ref.data());
+  }
+}
+
+void test_phase2b_lut_explicit() {
+  std::cout << "[Phase 2B] Testing LUT (explicit) vs Reference..." << std::endl;
+  std::mt19937 rng(42);
+  std::uniform_int_distribution<int> dist(-1, 1);
+
+  for (int len : {0, 1, 2, 4, 16, 64}) {
     std::vector<int8_t> t1_data;
     std::vector<int8_t> t2_data;
     for (int i = 0; i < len; ++i) {
@@ -235,28 +277,24 @@ void test_phase2b_lut_equivalence() {
     auto v2 = ComputeTritVector::from_trits(t2_data).value();
 
     // Not
-    auto not_lut = v1.t_not().value();
+    auto not_lut = v1.t_not_lut().value();
     auto not_ref = v1.t_not_ref().value();
     assert(check_vec(not_lut.to_trits().value(), not_ref.to_trits().value()));
-    assert(not_lut.data() == not_ref.data()); // Byte-wise identical
 
     // And
-    auto and_lut = v1.t_and(v2).value();
+    auto and_lut = v1.t_and_lut(v2).value();
     auto and_ref = v1.t_and_ref(v2).value();
     assert(check_vec(and_lut.to_trits().value(), and_ref.to_trits().value()));
-    assert(and_lut.data() == and_ref.data());
 
     // Or
-    auto or_lut = v1.t_or(v2).value();
+    auto or_lut = v1.t_or_lut(v2).value();
     auto or_ref = v1.t_or_ref(v2).value();
     assert(check_vec(or_lut.to_trits().value(), or_ref.to_trits().value()));
-    assert(or_lut.data() == or_ref.data());
 
     // Xor
-    auto xor_lut = v1.t_xor(v2).value();
+    auto xor_lut = v1.t_xor_lut(v2).value();
     auto xor_ref = v1.t_xor_ref(v2).value();
     assert(check_vec(xor_lut.to_trits().value(), xor_ref.to_trits().value()));
-    assert(xor_lut.data() == xor_ref.data());
   }
 }
 
@@ -312,7 +350,8 @@ int main() {
   test_cross_representation_consistency();
   test_randomized_determinism();
   test_errors();
-  test_phase2b_lut_equivalence();
+  test_phase2c_swar_equivalence();
+  test_phase2b_lut_explicit();
   test_trailing_byte_masking();
 
   std::cout << "All tests passed!" << std::endl;
