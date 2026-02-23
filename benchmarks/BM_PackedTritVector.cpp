@@ -202,20 +202,39 @@ static void BM_UnpackPT5(benchmark::State& state) {
 BENCHMARK(BM_UnpackPT5)->Range(16, 4096);
 
 // -----------------------------------------------------------------------------
-// PHASE 2B / 2C (ComputeTritVector) BENCHMARKS
+// PHASE 2B / 2C / 2D (ComputeTritVector) BENCHMARKS
 // -----------------------------------------------------------------------------
 
-// Phase 2C: SWAR
+// Phase 2C: SWAR Baseline (Explicit Call)
 static void BM_ComputeTAnd_Phase2C_SWAR(benchmark::State& state) {
   size_t len = state.range(0);
   std::mt19937 rng(42);
-  std::uniform_int_distribution<int> dist(-1, 1);
   std::vector<int8_t> t1(len), t2(len);
+  std::uniform_int_distribution<int> dist(-1, 1);
   for (size_t i = 0; i < len; ++i) {
     t1[i] = static_cast<int8_t>(dist(rng));
     t2[i] = static_cast<int8_t>(dist(rng));
   }
+  auto p1 = ComputeTritVector::from_trits(t1).value();
+  auto p2 = ComputeTritVector::from_trits(t2).value();
 
+  for (auto _ : state) {
+    auto res = p1.t_and_swar(p2).value();
+    benchmark::DoNotOptimize(res.data().data());
+  }
+}
+BENCHMARK(BM_ComputeTAnd_Phase2C_SWAR)->Range(16, 4096);
+
+// Phase 2D: AVX2 / Native (via default API)
+static void BM_ComputeTAnd_Phase2D_AVX2(benchmark::State& state) {
+  size_t len = state.range(0);
+  std::mt19937 rng(42);
+  std::vector<int8_t> t1(len), t2(len);
+  std::uniform_int_distribution<int> dist(-1, 1);
+  for (size_t i = 0; i < len; ++i) {
+    t1[i] = static_cast<int8_t>(dist(rng));
+    t2[i] = static_cast<int8_t>(dist(rng));
+  }
   auto p1 = ComputeTritVector::from_trits(t1).value();
   auto p2 = ComputeTritVector::from_trits(t2).value();
 
@@ -224,7 +243,35 @@ static void BM_ComputeTAnd_Phase2C_SWAR(benchmark::State& state) {
     benchmark::DoNotOptimize(res.data().data());
   }
 }
-BENCHMARK(BM_ComputeTAnd_Phase2C_SWAR)->Range(16, 4096);
+BENCHMARK(BM_ComputeTAnd_Phase2D_AVX2)->Range(16, 4096);
+
+// Phase 2D: In-Place API
+static void BM_ComputeTAnd_Phase2D_InPlace(benchmark::State& state) {
+  size_t len = state.range(0);
+  std::mt19937 rng(42);
+  std::vector<int8_t> t1(len), t2(len);
+  std::uniform_int_distribution<int> dist(-1, 1);
+  for (size_t i = 0; i < len; ++i) {
+    t1[i] = static_cast<int8_t>(dist(rng));
+    t2[i] = static_cast<int8_t>(dist(rng));
+  }
+  auto p1 = ComputeTritVector::from_trits(t1).value();
+  auto p2 = ComputeTritVector::from_trits(t2).value();
+
+  for (auto _ : state) {
+    // Copy for destructive op? Or just overwrite?
+    // In real usage we might overwrite. To benchmark API overhead correctly vs alloc:
+    // If we copy inside loop, we measure copy cost + op.
+    // If we don't, we just measure op but data changes. Since AND is idempotent-ish (not really), let's copy to a reusable buffer.
+    // Ideally we want to measure "op cost without allocation".
+    // We can use a temp vector and copy back?
+    // Or just run it. The data changes but validity (-1,0,1) is preserved.
+    p1.t_and_inplace(p2);
+    benchmark::DoNotOptimize(p1.data().data());
+  }
+}
+BENCHMARK(BM_ComputeTAnd_Phase2D_InPlace)->Range(16, 4096);
+
 
 static void BM_ComputeTOr_Phase2C_SWAR(benchmark::State& state) {
   size_t len = state.range(0);
@@ -235,7 +282,25 @@ static void BM_ComputeTOr_Phase2C_SWAR(benchmark::State& state) {
     t1[i] = static_cast<int8_t>(dist(rng));
     t2[i] = static_cast<int8_t>(dist(rng));
   }
+  auto p1 = ComputeTritVector::from_trits(t1).value();
+  auto p2 = ComputeTritVector::from_trits(t2).value();
 
+  for (auto _ : state) {
+    auto res = p1.t_or_swar(p2).value();
+    benchmark::DoNotOptimize(res.data().data());
+  }
+}
+BENCHMARK(BM_ComputeTOr_Phase2C_SWAR)->Range(16, 4096);
+
+static void BM_ComputeTOr_Phase2D_AVX2(benchmark::State& state) {
+  size_t len = state.range(0);
+  std::mt19937 rng(42);
+  std::uniform_int_distribution<int> dist(-1, 1);
+  std::vector<int8_t> t1(len), t2(len);
+  for (size_t i = 0; i < len; ++i) {
+    t1[i] = static_cast<int8_t>(dist(rng));
+    t2[i] = static_cast<int8_t>(dist(rng));
+  }
   auto p1 = ComputeTritVector::from_trits(t1).value();
   auto p2 = ComputeTritVector::from_trits(t2).value();
 
@@ -244,9 +309,29 @@ static void BM_ComputeTOr_Phase2C_SWAR(benchmark::State& state) {
     benchmark::DoNotOptimize(res.data().data());
   }
 }
-BENCHMARK(BM_ComputeTOr_Phase2C_SWAR)->Range(16, 4096);
+BENCHMARK(BM_ComputeTOr_Phase2D_AVX2)->Range(16, 4096);
 
-// Phase 2C: TXor remains LUT (or whatever implementation is chosen)
+static void BM_ComputeTOr_Phase2D_InPlace(benchmark::State& state) {
+  size_t len = state.range(0);
+  std::mt19937 rng(42);
+  std::uniform_int_distribution<int> dist(-1, 1);
+  std::vector<int8_t> t1(len), t2(len);
+  for (size_t i = 0; i < len; ++i) {
+    t1[i] = static_cast<int8_t>(dist(rng));
+    t2[i] = static_cast<int8_t>(dist(rng));
+  }
+  auto p1 = ComputeTritVector::from_trits(t1).value();
+  auto p2 = ComputeTritVector::from_trits(t2).value();
+
+  for (auto _ : state) {
+    p1.t_or_inplace(p2);
+    benchmark::DoNotOptimize(p1.data().data());
+  }
+}
+BENCHMARK(BM_ComputeTOr_Phase2D_InPlace)->Range(16, 4096);
+
+
+// Phase 2C: TXor remains LUT
 static void BM_ComputeTXor_Phase2C(benchmark::State& state) {
   size_t len = state.range(0);
   std::mt19937 rng(42);
@@ -256,12 +341,11 @@ static void BM_ComputeTXor_Phase2C(benchmark::State& state) {
     t1[i] = static_cast<int8_t>(dist(rng));
     t2[i] = static_cast<int8_t>(dist(rng));
   }
-
   auto p1 = ComputeTritVector::from_trits(t1).value();
   auto p2 = ComputeTritVector::from_trits(t2).value();
 
   for (auto _ : state) {
-    auto res = p1.t_xor(p2).value();
+    auto res = p1.t_xor(p2).value(); // Fallback
     benchmark::DoNotOptimize(res.data().data());
   }
 }
@@ -275,7 +359,23 @@ static void BM_ComputeTNot_Phase2C_SWAR(benchmark::State& state) {
   for (size_t i = 0; i < len; ++i) {
     t1[i] = static_cast<int8_t>(dist(rng));
   }
+  auto p1 = ComputeTritVector::from_trits(t1).value();
 
+  for (auto _ : state) {
+    auto res = p1.t_not_swar().value();
+    benchmark::DoNotOptimize(res.data().data());
+  }
+}
+BENCHMARK(BM_ComputeTNot_Phase2C_SWAR)->Range(16, 4096);
+
+static void BM_ComputeTNot_Phase2D_AVX2(benchmark::State& state) {
+  size_t len = state.range(0);
+  std::mt19937 rng(42);
+  std::uniform_int_distribution<int> dist(-1, 1);
+  std::vector<int8_t> t1(len);
+  for (size_t i = 0; i < len; ++i) {
+    t1[i] = static_cast<int8_t>(dist(rng));
+  }
   auto p1 = ComputeTritVector::from_trits(t1).value();
 
   for (auto _ : state) {
@@ -283,7 +383,24 @@ static void BM_ComputeTNot_Phase2C_SWAR(benchmark::State& state) {
     benchmark::DoNotOptimize(res.data().data());
   }
 }
-BENCHMARK(BM_ComputeTNot_Phase2C_SWAR)->Range(16, 4096);
+BENCHMARK(BM_ComputeTNot_Phase2D_AVX2)->Range(16, 4096);
+
+static void BM_ComputeTNot_Phase2D_InPlace(benchmark::State& state) {
+  size_t len = state.range(0);
+  std::mt19937 rng(42);
+  std::uniform_int_distribution<int> dist(-1, 1);
+  std::vector<int8_t> t1(len);
+  for (size_t i = 0; i < len; ++i) {
+    t1[i] = static_cast<int8_t>(dist(rng));
+  }
+  auto p1 = ComputeTritVector::from_trits(t1).value();
+
+  for (auto _ : state) {
+    p1.t_not_inplace();
+    benchmark::DoNotOptimize(p1.data().data());
+  }
+}
+BENCHMARK(BM_ComputeTNot_Phase2D_InPlace)->Range(16, 4096);
 
 // Phase 2B: LUT Explicit
 

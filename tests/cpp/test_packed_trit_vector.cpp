@@ -341,7 +341,107 @@ void test_trailing_byte_masking() {
   assert((byte & 0xFC) == 0);  // Top 6 bits must be 0
 }
 
+void test_inplace_apis() {
+  std::cout << "[Phase 2D] Testing In-Place APIs..." << std::endl;
+  std::mt19937 rng(42);
+  std::uniform_int_distribution<int> dist(-1, 1);
+
+  size_t len = 64;
+  std::vector<int8_t> t1_data(len), t2_data(len);
+  for (size_t i = 0; i < len; ++i) {
+    t1_data[i] = static_cast<int8_t>(dist(rng));
+    t2_data[i] = static_cast<int8_t>(dist(rng));
+  }
+
+  // Baseline
+  auto v1 = ComputeTritVector::from_trits(t1_data).value();
+  auto v2 = ComputeTritVector::from_trits(t2_data).value();
+  auto v1_orig = v1.to_trits().value();
+
+  // Test t_not_inplace
+  {
+    auto v = ComputeTritVector::from_trits(t1_data).value(); // Copy
+    assert(v.t_not_inplace().is_ok());
+    auto expected = v1.t_not().value();
+    assert(check_vec(v.to_trits().value(), expected.to_trits().value()));
+    // Double negation should return to original
+    assert(v.t_not_inplace().is_ok());
+    assert(check_vec(v.to_trits().value(), v1_orig));
+  }
+
+  // Test t_and_inplace
+  {
+    auto v = ComputeTritVector::from_trits(t1_data).value(); // Copy
+    assert(v.t_and_inplace(v2).is_ok());
+    auto expected = v1.t_and(v2).value();
+    assert(check_vec(v.to_trits().value(), expected.to_trits().value()));
+  }
+
+  // Test t_or_inplace
+  {
+    auto v = ComputeTritVector::from_trits(t1_data).value(); // Copy
+    assert(v.t_or_inplace(v2).is_ok());
+    auto expected = v1.t_or(v2).value();
+    assert(check_vec(v.to_trits().value(), expected.to_trits().value()));
+  }
+
+  // Test aliasing (src == dst)
+  {
+    // AND with self -> self
+    auto v = ComputeTritVector::from_trits(t1_data).value();
+    assert(v.t_and_inplace(v).is_ok()); // aliasing
+    assert(check_vec(v.to_trits().value(), v1_orig));
+
+    // OR with self -> self
+    v = ComputeTritVector::from_trits(t1_data).value();
+    assert(v.t_or_inplace(v).is_ok());
+    assert(check_vec(v.to_trits().value(), v1_orig));
+  }
+}
+
+void test_avx2_vs_swar() {
+  std::cout << "[Phase 2D] Testing AVX2 vs SWAR Differential..." << std::endl;
+  std::mt19937 rng(42);
+  std::uniform_int_distribution<int> dist(-1, 1);
+
+  // Test various lengths to hit SIMD loops and tails
+  for (size_t len : {16, 31, 32, 33, 64, 100, 1024}) {
+    std::vector<int8_t> t1_data(len), t2_data(len);
+    for (size_t i = 0; i < len; ++i) {
+      t1_data[i] = static_cast<int8_t>(dist(rng));
+      t2_data[i] = static_cast<int8_t>(dist(rng));
+    }
+
+    auto v1 = ComputeTritVector::from_trits(t1_data).value();
+    auto v2 = ComputeTritVector::from_trits(t2_data).value();
+
+    // Not
+    // v1.t_not() uses AVX2 (if enabled), v1.t_not_swar() forces SWAR
+    auto not_simd = v1.t_not().value();
+    auto not_swar = v1.t_not_swar().value();
+    assert(check_vec(not_simd.to_trits().value(), not_swar.to_trits().value()));
+    assert(not_simd.data() == not_swar.data());
+
+    // And
+    auto and_simd = v1.t_and(v2).value();
+    auto and_swar = v1.t_and_swar(v2).value();
+    assert(check_vec(and_simd.to_trits().value(), and_swar.to_trits().value()));
+    assert(and_simd.data() == and_swar.data());
+
+    // Or
+    auto or_simd = v1.t_or(v2).value();
+    auto or_swar = v1.t_or_swar(v2).value();
+    assert(check_vec(or_simd.to_trits().value(), or_swar.to_trits().value()));
+    assert(or_simd.data() == or_swar.data());
+  }
+}
+
 int main() {
+#if defined(__AVX2__)
+  std::cout << "[Info] AVX2 Enabled" << std::endl;
+#else
+  std::cout << "[Info] AVX2 Disabled - Using Fallback" << std::endl;
+#endif
   test_phase1_roundtrip();
   test_scalar_logic_basis();
   test_txor_truth_table();
@@ -353,6 +453,8 @@ int main() {
   test_phase2c_swar_equivalence();
   test_phase2b_lut_explicit();
   test_trailing_byte_masking();
+  test_inplace_apis();
+  test_avx2_vs_swar();
 
   std::cout << "All tests passed!" << std::endl;
   return 0;
