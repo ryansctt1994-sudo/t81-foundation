@@ -100,3 +100,10 @@ python3 scripts/ci/check_architecture_targets.py
 *   **"C++23 not supported"**: Actualiza tu compilador. T81 depende en gran medida de las características modernas de C++ para la seguridad de tipos.
 *   **"Trace Hash Mismatch"**: Es posible que estés enlazando con una versión diferente de las bibliotecas estándar, o se activó el respaldo `dmath`. Asegúrate de que `T81_DETERMINISTIC` esté definido.
 *   **"SIMD Instruction Fault"**: T81 intenta detectar la disponibilidad de AVX2/NEON. Si estás compilando de forma cruzada, asegúrate de que las banderas de destino sean correctas.
+
+---
+**Canonical Source**: /book (English)
+**Source Version**: Phase 1 Expansion
+**Last Synced**: 2026-02-23
+**Translation Status**: Needs Update
+---

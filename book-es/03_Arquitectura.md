@@ -132,3 +132,10 @@ $$
 Si el código optimizado encuentra un estado donde una guardia falla (ej. falla una verificación de tipo), debe **Desoptimizar**—transferir el control de vuelta al intérprete en el punto exacto de la falla, reconstruyendo el estado completo del intérprete. Esto asegura que la optimización nunca altere la semántica o el resultado del programa.
 
 > **Verificación**: `tests/cpp/jit_test.cpp` y `tests/cpp/jit_trace_equivalence_test.cpp` verifican que la ejecución JIT coincida exactamente con el intérprete para entradas aleatorias.
+
+---
+**Canonical Source**: /book (English)
+**Source Version**: Phase 1 Expansion
+**Last Synced**: 2026-02-23
+**Translation Status**: Needs Update
+---

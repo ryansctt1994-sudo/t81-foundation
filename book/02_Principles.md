@@ -11,7 +11,7 @@ $$
 \forall \text{hardware } H: \text{Exec}_H(S, I) \to S' \implies S' \text{ is invariant}
 $$
 
-Achieving this requires eliminating all sources of non-determinism common in modern computing. T81 treats the host environment (OS, CPU, FPU) as an "adversarial entropy source" that must be constrained.
+Achieving this requires eliminating all sources of non-determinism common in modern computing. T81 treats the host environment (OS, CPU, FPU) as an "adversarial entropy source" that must be constrained. This means that T81 code cannot access the system clock (`time()`), random number generators (`/dev/urandom`), or uninitialized memory, as these vary across runs.
 
 ### 2.1.1 Determinism Surfaces and Attack Vectors
 
@@ -28,11 +28,11 @@ The "Determinism Surface" is the boundary where the abstract machine interacts w
 | **JIT** | Optimization divergence | Trace Equivalence Checks | `src/vm/jit_compiler.cpp` |
 
 ### 2.1.2 The "Libm Gap" and `dmath`
-A critical vulnerability in cross-platform determinism is the "Libm Gap". The IEEE-754 standard defines floating-point formats but leaves transcendental functions (sin, cos, pow) loosely specified. As a result, `std::sin(x)` on x86_64/GLIBC may differ by 1 ULP (Unit in the Last Place) from `std::sin(x)` on ARM64/MUSL.
+A critical vulnerability in cross-platform determinism is the "Libm Gap". The IEEE-754 standard defines floating-point formats but leaves transcendental functions (sin, cos, pow) loosely specified. As a result, `std::sin(x)` on x86_64/GLIBC may differ by 1 ULP (Unit in the Last Place) from `std::sin(x)` on ARM64/MUSL. In chaos-sensitive simulations or long-running neural network training, this 1 ULP difference can cascade into a completely divergent result.
 
 T81 solves this with **`dmath`** (Deterministic Math), a custom library that implements:
-*   **Soft-Float Arithmetic**: `Add`, `Sub`, `Mul` are bit-exact.
-*   **Custom Transcendentals**: `Sin`, `Cos`, `Exp` are implemented via Taylor/Maclaurin series with a fixed number of iterations and fixed constants, ignoring the host's `libm`.
+*   **Soft-Float Arithmetic**: `Add`, `Sub`, `Mul` are bit-exact. They emulate IEEE-754 behavior (or T81's custom format) entirely in integer logic.
+*   **Custom Transcendentals**: `Sin`, `Cos`, `Exp` are implemented via Taylor/Maclaurin series or CORDIC algorithms with a fixed number of iterations and fixed constants, ignoring the host's `libm`.
 *   **Rounding Mode**: Ties-to-even is enforced in software.
 
 > **Invariant**: $\text{dmath::sin}(x)$ produces the exact same bit pattern on an Intel i9, an Apple M3, and a RISC-V development board.
@@ -44,17 +44,18 @@ T81 solves this with **`dmath`** (Deterministic Math), a custom library that imp
 T81 is a **balanced ternary** system. The fundamental unit is the **trit**, with values $\{-1, 0, 1\}$ (often denoted as $-, 0, +$ or $T, 0, 1$).
 
 ### 2.2.1 Why Ternary?
-1.  **Symmetric Arithmetic**: The value range is symmetric around zero. In binary (Two's Complement), the range is asymmetric (e.g., -128 to +127). In balanced ternary, an $N$-trit integer covers $-\frac{3^N-1}{2} \dots +\frac{3^N-1}{2}$.
+1.  **Symmetric Arithmetic**: The value range is symmetric around zero. In binary (Two's Complement), the range is asymmetric (e.g., -128 to +127). In balanced ternary, an $N$-trit integer covers $-\frac{3^N-1}{2} \dots +\frac{3^N-1}{2}$. For example, a 3-trit number ranges from -13 to +13.
 2.  **Rounding Efficiency**: Rounding to the nearest integer is equivalent to truncation. $0.5$ is not exactly representable, avoiding the "0.5 rounding problem."
-3.  **Radix Economy**: The radix economy $E(r, N) = r \lfloor \log_r N \rfloor$ is minimized when $r = e \approx 2.718$. The integer $3$ is closer to $e$ than $2$ is, making ternary theoretically more efficient for information storage density.
-4.  **Signed Representation**: Negative numbers do not require a separate sign bit. The sign is carried by the most significant non-zero trit.
+3.  **Radix Economy**: The radix economy $E(r, N) = r \lfloor \log_r N \rfloor$ is minimized when $r = e \approx 2.718$. The integer $3$ is closer to $e$ than $2$ is, making ternary theoretically more efficient for information storage density per logic gate.
+4.  **Signed Representation**: Negative numbers do not require a separate sign bit. The sign is carried by the most significant non-zero trit. This simplifies arithmetic logic units (ALUs) by unifying addition and subtraction.
 
 ### 2.2.2 Implementation
 In the C++ codebase, trits are simulated on binary hardware for efficiency.
-*   **Packed Storage**: `T81Int` uses a 2-bit-per-trit encoding scheme (00=0, 01=1, 11=-1/T). This allows 4 trits to fit in a byte (a Tryte).
+*   **Packed Storage**: `T81Int` uses a 2-bit-per-trit encoding scheme (00=0, 01=1, 11=-1/T). This allows 4 trits to fit in a byte (a Tryte), utilizing 8 bits to store $3^4 = 81$ states (vs $2^8 = 256$ states). While slightly less dense than binary, it allows efficient emulation.
 *   **Arithmetic**: Operations are implemented using integer math that simulates balanced ternary carry chains.
     *   Example: $1 + 1 = 1T$ (which is $3 - 1 = 2$).
     *   Example: $T + T = T1$ (which is $-3 + 1 = -2$).
+    *   Example: $1 + T = 0$ (Cancellation).
 
 ## 2.3 Auditability and The Axion Trace
 
@@ -67,15 +68,26 @@ A trace $\mathcal{T}$ is an ordered sequence of events $E_0, E_1, \dots, E_k$. E
 
 ```cpp
 struct AxionEvent {
-    uint64_t tick;          // Logical timestamp
-    Opcode op;              // The operation attempted
+    uint64_t tick;          // Logical timestamp (instruction count)
+    Opcode op;              // The operation attempted (e.g., CALL, STORE)
     Verdict verdict;        // The kernel's decision (Allow/Deny)
-    CanonHash81 state_hash; // Merkle root of the VM state
-    std::string metadata;   // Contextual debug info
+    CanonHash81 state_hash; // Merkle root of the VM state AFTER the op
+    std::string metadata;   // Contextual debug info (e.g., "tier_3_promotion")
 };
 ```
 
-This trace serves as a **Proof of Execution**. By replaying the trace against the initial state, an auditor can mathematically prove that the computation yielded the claimed result without trusting the hardware that produced it.
+This trace serves as a **Proof of Execution**. By replaying the trace against the initial state, an auditor can mathematically prove that the computation yielded the claimed result without trusting the hardware that produced it. The `state_hash` acts as a checkpoint; if replay diverges at tick $T$, the calculated hash will differ from the recorded hash.
+
+### 2.3.2 Example Trace
+Imagine a program calculating a factorial. The trace might look like this:
+
+| Tick | Opcode | Verdict | State Hash | Note |
+| :--- | :--- | :--- | :--- | :--- |
+| 100 | `Load(5)` | `Allow` | `0xa1b2...` | Push 5 to stack |
+| 101 | `Recurse` | `Allow` | `0x99c8...` | Enter new frame |
+| ... | ... | ... | ... | ... |
+| 500 | `Recurse` | `Deny` | `0xdead...` | Max depth exceeded |
+| 501 | `Trap` | `N/A` | `0x0000...` | Execution halted |
 
 ## 2.4 The Nine Principles (Ethics Enforcement)
 
@@ -103,6 +115,7 @@ T81 embeds a set of immutable "Constitutional Principles" ($\Theta_1 \dots \Thet
 *   [ ] **GC Determinism**: Does the Garbage Collector run at exact instruction counts (allocations), not wall time? (Check `kGcInterval` in `src/vm/vm.cpp`)
 *   [ ] **Trace Integrity**: Is the Axion log immutable during execution? (Verified by `tests/cpp/axion_log_determinism_test.cpp`)
 *   [ ] **Ethics Enforcement**: Do the $\Theta$ checks fire correctly when limits are exceeded? (Verified by `tests/cpp/test_ethics.cpp`)
+*   [ ] **Trit Encoding**: Are negative zero representations handled correctly in packed trytes? (Verified by `tests/cpp/test_ternary_encoding.cpp`)
 
 ## 2.6 Formal Audit Matrix
 
@@ -112,3 +125,4 @@ T81 embeds a set of immutable "Constitutional Principles" ($\Theta_1 \dots \Thet
 | Ternary Logic | `spec/t81-data-types.md` | `include/t81/ternary.hpp` | `tests/cpp/ternary_arith_test.cpp` |
 | Auditability | `spec/axion-kernel.md` | `include/t81/axion/api.hpp` | `tests/cpp/test_ethics.cpp` |
 | Canonical Storage | `spec/canonfs-spec.md` | `src/canonfs/` | `tests/cpp/canonfs_driver_test.cpp` |
+| Policy Enforcement | `spec/policy-engine.md` | `src/axion/policy_engine.cpp` | `tests/cpp/test_resource_monitoring.cpp` |

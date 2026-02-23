@@ -123,3 +123,10 @@ Breakpoint en PC=10
 (t81-gdb) reg r1
 r1 = 42 (Int)
 ```
+
+---
+**Canonical Source**: /book (English)
+**Source Version**: Phase 1 Expansion
+**Last Synced**: 2026-02-23
+**Translation Status**: Needs Update
+---
