@@ -939,6 +939,24 @@ public:
       case TokenType::Percent:
         opcode = O::MOD;
         break;
+      case TokenType::Amp:
+        opcode = O::BITAND;
+        break;
+      case TokenType::Pipe:
+        opcode = O::BITOR;
+        break;
+      case TokenType::Caret:
+        opcode = O::BITXOR;
+        break;
+      case TokenType::LessLess:
+        opcode = O::BITSHL;
+        break;
+      case TokenType::GreaterGreater:
+        opcode = O::BITSHR;
+        break;
+      case TokenType::GreaterGreaterGreater:
+        opcode = O::BITUSHR;
+        break;
       case TokenType::StarStar:
         if (kind == NumericCategory::Float) {
           opcode = O::FPOW;
@@ -1039,6 +1057,8 @@ public:
     tisc::ir::Opcode opcode;
     if (expr.op.type == TokenType::Minus) {
       opcode = tisc::ir::Opcode::NEG;
+    } else if (expr.op.type == TokenType::Tilde) {
+      opcode = tisc::ir::Opcode::BITNOT;
     } else {
       throw std::runtime_error("Unsupported unary operator");
     }

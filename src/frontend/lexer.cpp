@@ -8,9 +8,7 @@
 namespace t81 {
 namespace frontend {
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MSVC FIX — These overloads MUST be in namespace t81::frontend, NOT anonymous
-// ─────────────────────────────────────────────────────────────────────────────
+// MSVC FIX - These overloads MUST be in namespace t81::frontend, NOT anonymous
 inline std::string_view make_sv(const char* b, const char* e) noexcept {
   return std::string_view(b, static_cast<std::size_t>(e - b));
 }
@@ -20,9 +18,6 @@ inline std::string_view make_sv(It b, It e) noexcept {
   return std::string_view(&*b, static_cast<std::size_t>(std::distance(b, e)));
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Keywords
-// ─────────────────────────────────────────────────────────────────────────────
 namespace {
 const std::unordered_map<std::string_view, TokenType> KEYWORDS = {
     {"module", TokenType::Module},
@@ -76,7 +71,6 @@ bool is_alpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') 
 
 bool is_digit(char c) { return c >= '0' && c <= '9'; }
 }  // anonymous namespace
-// ─────────────────────────────────────────────────────────────────────────────
 
 Lexer::Lexer(std::string_view source)
     : _source(source),
@@ -136,6 +130,8 @@ Token Lexer::next_token() {
       return make_token(TokenType::Percent);
     case '^':
       return make_token(TokenType::Caret);
+    case '~':
+      return make_token(TokenType::Tilde);
     case '/':
       return make_token(TokenType::Slash);
     case '-':
@@ -148,8 +144,13 @@ Token Lexer::next_token() {
     case '!':
       return make_token(match('=') ? TokenType::BangEqual : TokenType::Bang);
     case '<':
+      if (match('<')) return make_token(TokenType::LessLess);
       return make_token(match('=') ? TokenType::LessEqual : TokenType::Less);
     case '>':
+      if (match('>')) {
+        if (match('>')) return make_token(TokenType::GreaterGreaterGreater);
+        return make_token(TokenType::GreaterGreater);
+      }
       return make_token(match('=') ? TokenType::GreaterEqual : TokenType::Greater);
     case '&':
       return make_token(match('&') ? TokenType::AmpAmp : TokenType::Amp);
@@ -163,8 +164,6 @@ Token Lexer::next_token() {
 
 std::vector<Token> Lexer::all_tokens() {
   std::vector<Token> tokens;
-  // Reserve space for tokens to avoid reallocations.
-  // A heuristic of source size / 5 is often good for typical code.
   tokens.reserve(_source.size() / 5);
   Token token;
   do {

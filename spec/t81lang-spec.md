@@ -97,9 +97,13 @@ loop_stmt     ::= "loop" block
 
 expr             ::= logical_or_expr
 logical_or_expr  ::= logical_and_expr { "||" logical_and_expr }
-logical_and_expr ::= equality_expr { "&&" equality_expr }
+logical_and_expr ::= bitwise_or_expr { "&&" bitwise_or_expr }
+bitwise_or_expr  ::= bitwise_xor_expr { "|" bitwise_xor_expr }
+bitwise_xor_expr ::= bitwise_and_expr { "^" bitwise_and_expr }
+bitwise_and_expr ::= equality_expr { "&" equality_expr }
 equality_expr    ::= relational_expr { ("==" | "!=") relational_expr }
-relational_expr  ::= additive_expr { ("<" | "<=" | ">" | ">=") additive_expr }
+relational_expr  ::= shift_expr { ("<" | "<=" | ">" | ">=") shift_expr }
+shift_expr       ::= additive_expr { ("<<" | ">>" | ">>>") additive_expr }
 additive_expr    ::= term { ("+" | "-") term }
 term             ::= factor { ("*" | "/" | "%") factor }
 factor        ::= literal
@@ -548,6 +552,13 @@ Maps IR instructions to TISC sequences:
 | `a % b` (`T81Int`) | `MOD` (faults on zero divisor) |
 | `a / b` (`T81Float`) | `FDIV` (faults on zero divisor) |
 | `a / b` (`T81Fraction`) | `FRACDIV` (faults on zero divisor) |
+| `a & b` | `BITAND` |
+| `a \| b` | `BITOR` |
+| `a ^ b` | `BITXOR` |
+| `~a` | `BITNOT` |
+| `a << b` | `BITSHL` (shift amount masked `& 0x3F`) |
+| `a >> b` | `BITSHR` (arithmetic shift, amount masked) |
+| `a >>> b` | `BITUSHR` (logical shift, amount masked) |
 | comparisons (`==`, `!=`, `<`, `<=`, `>`, `>=`) | `CMP`, `SETF`, literal/branch sequence producing a `T81Int` (`Symbol` allowed only for `==`/`!=`) |
 | `T81Int → T81Float/T81Fraction` promotion | `I2F` / `I2FRAC` emitted before the consuming opcode/assignment |
 | `Some(expr)` | Evaluate `expr`, `MAKE_OPTION_SOME` to produce canonical handle |

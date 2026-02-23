@@ -1,8 +1,3 @@
-/**
- * @file lexer.hpp
- * @brief Defines the Lexer and token types for the T81Lang frontend.
- */
-
 #ifndef T81_FRONTEND_LEXER_HPP
 #define T81_FRONTEND_LEXER_HPP
 
@@ -13,159 +8,44 @@
 namespace t81 {
 namespace frontend {
 
-/**
- * @enum TokenType
- * @brief Describes the different types of tokens that the Lexer can produce.
- */
 enum class TokenType {
   // Keywords
-  Module,
-  Type,
-  Const,
-  Export,
-  Fn,
-  Let,
-  Var,
-  Record,
-  Enum,
-  If,
-  Else,
-  For,
-  In,
-  While,
-  Loop,
-  Reflect,
-  Recurse,
-  Distributed,
-  Infinite,
-  Infer,
-  Train,
-  Break,
-  Continue,
-  Return,
-  Match,
-  True,
-  False,
+  Module, Type, Const, Export, Fn, Let, Var, Record, Enum, If, Else, For, In, While, Loop, Reflect, Recurse, Distributed, Infinite, Infer, Train, Break, Continue, Return, Match, True, False,
 
   // Type Keywords
-  Void,
-  Bool,
-  I32,
-  I16,
-  I8,
-  I2,
-  T81BigInt,
-  T81Float,
-  T81Fraction,
-  T81Fixed,
-  T81Complex,
-  T81Qutrit,
-  T81Uint,
-  T81String,
-  T81Vector,
-  Matrix,
-  Tensor,
-  Graph,
+  Void, Bool, I32, I16, I8, I2, T81BigInt, T81Float, T81Fraction, T81Fixed, T81Complex, T81Qutrit, T81Uint, T81String, T81Vector, Matrix, Tensor, Graph,
 
   // Literals
-  Integer,
-  Float,
-  String,
-  Ternary,
-  Base81Integer,
-  Base81Float,
-  Symbol,           // :symbol
-  InfiniteLiteral,  // ∞{...}
+  Integer, Float, String, Ternary, Base81Integer, Base81Float, Symbol, InfiniteLiteral,
 
   // Identifier
   Identifier,
 
   // Operators
-  Plus,
-  Minus,
-  Star,
-  StarStar,
-  Slash,
-  Percent,
-  Equal,
-  EqualEqual,
-  Bang,
-  BangEqual,
-  Less,
-  LessEqual,
-  Greater,
-  GreaterEqual,
-  Amp,
-  AmpAmp,
-  Pipe,
-  PipePipe,
-  Caret,
-  Question,
+  Plus, Minus, Star, StarStar, Slash, Percent, Equal, EqualEqual, Bang, BangEqual, Less, LessEqual, Greater, GreaterEqual, Amp, AmpAmp, Pipe, PipePipe, Caret, Tilde, Question, LessLess, GreaterGreater, GreaterGreaterGreater,
 
   // Punctuation
-  LParen,
-  RParen,
-  LBrace,
-  RBrace,
-  LBracket,
-  RBracket,
-  Comma,
-  Colon,
-  Semicolon,
-  Arrow,     // ->
-  FatArrow,  // =>
-  DotDot,    // ..
-  Dot,       // .
+  LParen, RParen, LBrace, RBrace, LBracket, RBracket, Comma, Colon, Semicolon, Arrow, FatArrow, DotDot, Dot,
 
   // Special
-  At,  // @
+  At,
 
   // Control
-  Eof,     ///< End of file/source.
-  Illegal  ///< An illegal or unexpected character.
+  Eof, Illegal
 };
 
-/**
- * @struct Token
- * @brief Represents a single token scanned from the source code.
- */
 struct Token {
-  TokenType type;           ///< The type of the token.
-  std::string_view lexeme;  ///< The substring from the source code.
-  int line;                 ///< The line number where the token appears.
-  int column;               ///< The column number where the token begins.
+  TokenType type;
+  std::string_view lexeme;
+  int line;
+  int column;
 };
 
-/**
- * @class Lexer
- * @brief A lexical analyzer for the T81Lang language.
- *
- * The Lexer scans a source string and converts it into a sequence of tokens.
- */
 class Lexer {
 public:
-  /**
-   * @brief Constructs a Lexer for the given source code.
-   * @param source A string_view of the source code to tokenize.
-   */
   Lexer(std::string_view source);
-
-  /**
-   * @brief Scans and returns the next token in the source stream.
-   * @return The next Token.
-   */
   Token next_token();
-
-  /**
-   * @brief Scans the entire source and returns all tokens.
-   * @return A vector containing all tokens from the source.
-   */
   std::vector<Token> all_tokens();
-
-  /**
-   * @brief Peeks the next token without advancing the lexer state.
-   * @return The next Token.
-   */
   Token peek_next_token();
 
 private:
