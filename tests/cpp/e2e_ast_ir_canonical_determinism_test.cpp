@@ -555,6 +555,20 @@ const char* ir_opcode_name(tisc::ir::Opcode op) {
       return "TNEW";
     case t81::tisc::ir::Opcode::TSET:
       return "TSET";
+    case t81::tisc::ir::Opcode::TNEURAL_FWD:
+      return "TNEURAL_FWD";
+    case t81::tisc::ir::Opcode::TNEURAL_BWD:
+      return "TNEURAL_BWD";
+    case t81::tisc::ir::Opcode::GOSSIP:
+      return "GOSSIP";
+    case t81::tisc::ir::Opcode::MERGE:
+      return "MERGE";
+    case t81::tisc::ir::Opcode::TICKSYNC:
+      return "TICKSYNC";
+    case t81::tisc::ir::Opcode::COHERENCE:
+      return "COHERENCE";
+    case t81::tisc::ir::Opcode::DISTSEAL:
+      return "DISTSEAL";
     case O::LABEL:
       return "LABEL";
   }
