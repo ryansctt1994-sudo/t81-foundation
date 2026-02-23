@@ -1,7 +1,7 @@
 # TISC Opcode Listing (Unified Canonical + Semantic Reference)
 
-Status: Canonical + Developer Semantic Companion (Unified v3)
-Version: 3.0.0-draft
+Status: Canonical / Frozen (v1.1.0)
+Version: 3.1.0
 
 ## 1. Purpose
 - This document reconciles the canonical opcode inventory with developer-facing semantics/traps.
@@ -13,7 +13,7 @@ Version: 3.0.0-draft
   - Bytes 5-8: Operand B (`int32_t`, little-endian)
   - Bytes 9-12: Operand C (`int32_t`, little-endian)
 - **Operands**: All instructions encode three 32-bit signed integer operands. Unused operands are encoded but ignored (typically zeroed).
-- **Reserved Ranges**: `0xA7` through `0xFF` (167-255) reserved for future expansion.
+- **Reserved Ranges**: `0xAE` through `0xFF` (174-255) reserved for future expansion.
 - **Determinism Rule**: Implemented opcodes must exhibit bit-exact deterministic behavior across platforms.
 
 ## 3. Notation (Semantic Layer)
@@ -88,6 +88,18 @@ Version: 3.0.0-draft
 | Neg | 59 | `0x3B` | A, B, C | `A: Dest, B: Src` | - | Integer Negation | `R[A] = -R[B]` (Integer). | DecodeFault | Yes | Implemented | src/vm/vm.cpp |
 | TVecMul | 79 | `0x4F` | A, B, C | `A: Dest, B: T1, C: T2` | - | Tensor Vector Multiplication | Tensor element-wise multiplication. | ShapeFault | Yes | Implemented | src/vm/vm.cpp |
 | TNorm | 127 | `0x7F` | A, B, C | `A: Dest, B: Src` | - | Ternary Normalization | Normalizes/Clamps trit value. | DecodeFault | Yes | Implemented | src/vm/vm.cpp |
+
+### Bitwise Operations
+
+| Mnemonic | Dec | Hex | Canonical Operands | Semantic Operands | Stack | Canonical Description | Semantic Notes | Traps / Side Effects | Deterministic | Status | Impl |
+| :--- | ---: | :---: | :--- | :--- | :---: | :--- | :--- | :--- | :---: | :--- | :--- |
+| BitAnd | 167 | `0xA7` | A, B, C | `A: Dest, B: Src1, C: Src2` | - | Bitwise AND | `R[A] = R[B] & R[C]`. | DecodeFault | Yes | Frozen | src/vm/vm.cpp |
+| BitOr | 168 | `0xA8` | A, B, C | `A: Dest, B: Src1, C: Src2` | - | Bitwise OR | `R[A] = R[B] \| R[C]`. | DecodeFault | Yes | Frozen | src/vm/vm.cpp |
+| BitXor | 169 | `0xA9` | A, B, C | `A: Dest, B: Src1, C: Src2` | - | Bitwise XOR | `R[A] = R[B] ^ R[C]`. | DecodeFault | Yes | Frozen | src/vm/vm.cpp |
+| BitNot | 170 | `0xAA` | A, B, C | `A: Dest, B: Src` | - | Bitwise NOT | `R[A] = ~R[B]`. | DecodeFault | Yes | Frozen | src/vm/vm.cpp |
+| BitShl | 171 | `0xAB` | A, B, C | `A: Dest, B: Src, C: Amt` | - | Bitwise Shift Left | `R[A] = R[B] << (R[C] & 0x3F)`. | DecodeFault | Yes | Frozen | src/vm/vm.cpp |
+| BitShr | 172 | `0xAC` | A, B, C | `A: Dest, B: Src, C: Amt` | - | Arithmetic Shift Right | `R[A] = R[B] >> (R[C] & 0x3F)`. | DecodeFault | Yes | Frozen | src/vm/vm.cpp |
+| BitUShr | 173 | `0xAD` | A, B, C | `A: Dest, B: Src, C: Amt` | - | Logical Shift Right | `R[A] = (u64)R[B] >> (R[C] & 0x3F)`. | DecodeFault | Yes | Frozen | src/vm/vm.cpp |
 
 ### Comparison
 
@@ -272,26 +284,24 @@ Version: 3.0.0-draft
 | InfSignature | 157 | `0x9D` | A, B, C | `A: Dest, B: Form` | - | Infinite Signature | Generates signature hash for the infinite form. | BoundsFault | Yes | Implemented | src/vm/vm.cpp |
 
 ## 6. Reconciliation Summary
-- **Canonical opcode rows merged from v1 categories**: 166 (opcodes `0x01`-`0xA6` plus `0x00` NOP handled separately)
-- **Semantic rows available from v2**: 121
-- **Canonical rows with v2 semantic coverage**: 120/166
-- **Rows marked Stub/Placeholder**: 12
-
-### 6.1 Canonical opcodes missing detailed semantic rows in v2
-
-- **Arithmetic**: `FAdd` (0x24), `FSub` (0x25), `FMul` (0x26), `FDiv` (0x27), `FracAdd` (0x28), `FracSub` (0x29), `FracMul` (0x2A), `FracDiv` (0x2B)
-- **Memory / Stack / Heap**: `SetF` (0x2C)
-- **Tensor / Neural**: `ChkShape` (0x2D)
-- **Options / Results / Enums**: `ResultIsOk` (0x34), `ResultUnwrapOk` (0x35), `ResultUnwrapErr` (0x36), `MakeEnumVariant` (0x37), `MakeEnumVariantPayload` (0x38), `EnumIsVariant` (0x39), `EnumUnwrapPayload` (0x3A)
-- **Math (Float)**: `FSin` (0x51), `FCos` (0x52), `FTan` (0x53), `FAsin` (0x54), `FAcos` (0x55), `FAtan` (0x56), `FSinh` (0x57), `FCosh` (0x58), `FTanh` (0x59), `FSqrt` (0x5A), `FExp` (0x5B), `FLog` (0x5C), `FPow` (0x5D)
-- **String / Vector**: `StrEmpty` (0x64), `VecLen` (0x65), `VecEmpty` (0x66), `VecFirst` (0x67), `VecLast` (0x68), `VecPush` (0x69), `VecPop` (0x6A), `StrStartsWith` (0x6F), `StrEndsWith` (0x70), `StrContains` (0x71), `StrIndexOf` (0x72), `StrReplace` (0x73), `StrVecNew` (0x74), `StrVecPush` (0x75), `StrSplit` (0x76), `StrJoin` (0x77)
+- **Canonical opcode rows merged from v1 categories**: 173 (opcodes `0x01`-`0xAD` plus `0x00` NOP handled separately)
+- **Canonical rows with semantic coverage**: 174/174 (Full Parity)
+- **Rows marked Stub/Placeholder**: 12 (documented as Functional Stubs)
 
 ### 6.2 Reserved / Unused
 - `0x00` = `NOP` (semantically documented; not listed in v1 category tables).
-- `0xA7` through `0xFF` reserved for future standardization.
+- `0xAE` through `0xFF` reserved for future standardization.
 
 ## 7. Implementation Consistency Audit (carried from v1)
-- **VM Opcode Count**: 167 defined opcodes (`0x00`-`0xA6`).
-- **Header Enum Count**: 167 entries.
+- **VM Opcode Count**: 174 defined opcodes (`0x00`-`0xAD`).
+- **Header Enum Count**: 174 entries.
 - **Coverage**: All opcodes defined in `include/t81/tisc/opcodes.hpp` are present in `src/vm/vm.cpp` dispatch switch.
 - **Discrepancies**: None found (per v1 audit).
+
+## 8. Deferred Extensions
+
+These operations are NOT part of the TISC v1.1.0 Core ISA but are tracked for potential future inclusion (v1.2+ or v2.0).
+
+- **RotL / RotR**: Bitwise Rotate Left/Right. Currently polyfilled via shifts.
+- **PopCount**: Population Count.
+- **Sha3**: SHA3-256 primitives. Currently provided via `std.crypto` library or `TLoadHash` for loading.

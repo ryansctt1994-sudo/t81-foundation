@@ -66,7 +66,75 @@ The instruction format is a fixed 13-byte sequence:
 | `0x62` | `PRINT` | `A: Reg` | - | Prints value in `R[A]` to output. | TypeFault |
 | `0x63` | `STRLEN` | `A: Dest, B: StrHandle` | - | Gets length of string at `R[B]`. | DecodeFault |
 | `0x6E` | `STRCONCAT` | `A: Dest, B: Str1, C: Str2` | - | Concatenates strings. | DecodeFault |
+| `0x2C` | `SETF` | `A: Dest` | - | Sets `R[A]` based on flags (-1=Neg, 0=Zero, 1=Pos). | DecodeFault |
 | `0x84` | `ASSERT` | `A: Cond` | - | Traps if `R[A]` is 0. | AssertionFailed |
+
+---
+
+## Bitwise Operations
+
+All bitwise operations operate on 64-bit signed integers (`int64_t`). Non-integer types in source operands trigger `TypeFault`.
+
+**Shift Behavior:**
+Shift amounts are masked with `0x3F` (AND 63) to ensure deterministic execution for out-of-range shifts.
+- `BitShl`: `R[A] = R[B] << (R[C] & 0x3F)`
+- `BitShr`: `R[A] = R[B] >> (R[C] & 0x3F)` (Arithmetic Shift, sign-extended)
+- `BitUShr`: `R[A] = (uint64_t)R[B] >> (R[C] & 0x3F)` (Logical Shift, zero-filled)
+
+| Opcode | Mnemonic | Operands / Encoding | Stack Effect | Description / Semantics | Side Effects / Traps |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `0xA7` | `BITAND` | `A: Dest, B: Src1, C: Src2` | - | `R[A] = R[B] & R[C]`. | DecodeFault |
+| `0xA8` | `BITOR` | `A: Dest, B: Src1, C: Src2` | - | `R[A] = R[B] \| R[C]`. | DecodeFault |
+| `0xA9` | `BITXOR` | `A: Dest, B: Src1, C: Src2` | - | `R[A] = R[B] ^ R[C]`. | DecodeFault |
+| `0xAA` | `BITNOT` | `A: Dest, B: Src` | - | `R[A] = ~R[B]`. | DecodeFault |
+| `0xAB` | `BITSHL` | `A: Dest, B: Src, C: Amt` | - | Shift Left. Amount `R[C] & 0x3F`. | DecodeFault |
+| `0xAC` | `BITSHR` | `A: Dest, B: Src, C: Amt` | - | Arithmetic Shift Right. Amount `R[C] & 0x3F`. | DecodeFault |
+| `0xAD` | `BITUSHR`| `A: Dest, B: Src, C: Amt` | - | Logical Shift Right. Amount `R[C] & 0x3F`. | DecodeFault |
+
+---
+
+## Math (Float)
+
+*Note: Behavior may depend on `T81_DETERMINISTIC` compilation flag. Default implementation relies on host `libm`.*
+
+| Opcode | Mnemonic | Operands / Encoding | Stack Effect | Description / Semantics | Side Effects / Traps |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `0x51` | `FSIN` | `A: Dest, B: Src` | - | `R[A] = sin(R[B])`. | TypeFault |
+| `0x52` | `FCOS` | `A: Dest, B: Src` | - | `R[A] = cos(R[B])`. | TypeFault |
+| `0x53` | `FTAN` | `A: Dest, B: Src` | - | `R[A] = tan(R[B])`. | TypeFault |
+| `0x54` | `FASIN` | `A: Dest, B: Src` | - | `R[A] = asin(R[B])`. | TypeFault |
+| `0x55` | `FACOS` | `A: Dest, B: Src` | - | `R[A] = acos(R[B])`. | TypeFault |
+| `0x56` | `FATAN` | `A: Dest, B: Src` | - | `R[A] = atan(R[B])`. | TypeFault |
+| `0x57` | `FSINH` | `A: Dest, B: Src` | - | `R[A] = sinh(R[B])`. | TypeFault |
+| `0x58` | `FCOSH` | `A: Dest, B: Src` | - | `R[A] = cosh(R[B])`. | TypeFault |
+| `0x59` | `FTANH` | `A: Dest, B: Src` | - | `R[A] = tanh(R[B])`. | TypeFault |
+| `0x5A` | `FSQRT` | `A: Dest, B: Src` | - | `R[A] = sqrt(R[B])`. | TypeFault |
+| `0x5B` | `FEXP` | `A: Dest, B: Src` | - | `R[A] = exp(R[B])`. | TypeFault |
+| `0x5C` | `FLOG` | `A: Dest, B: Src` | - | `R[A] = log(R[B])`. | TypeFault |
+| `0x5D` | `FPOW` | `A: Dest, B: Base, C: Exp` | - | `R[A] = pow(R[B], R[C])`. | TypeFault |
+
+---
+
+## String & Vector Operations (Extended)
+
+| Opcode | Mnemonic | Operands / Encoding | Stack Effect | Description / Semantics | Side Effects / Traps |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `0x64` | `STREMPTY` | `A: Dest, B: Str` | - | `R[A] = (R[B].length == 0)`. | TypeFault |
+| `0x65` | `VECLEN` | `A: Dest, B: Vec` | - | `R[A] = R[B].length`. | TypeFault |
+| `0x66` | `VECEMPTY` | `A: Dest, B: Vec` | - | `R[A] = (R[B].length == 0)`. | TypeFault |
+| `0x67` | `VECFIRST` | `A: Dest, B: Vec` | - | `R[A] = R[B][0]`. | TypeFault |
+| `0x68` | `VECLAST` | `A: Dest, B: Vec` | - | `R[A] = R[B][len-1]`. | TypeFault |
+| `0x69` | `VECPUSH` | `A: Dest, B: Vec, C: Val` | - | Pushes `R[C]` to vector `R[B]`, returns new len. | TypeFault |
+| `0x6A` | `VECPOP` | `A: Dest, B: Vec` | - | Pops from vector `R[B]`, returns new len. | TypeFault |
+| `0x6F` | `STRSTARTSWITH` | `A: Dest, B: Str, C: Pfx` | - | `R[A] = R[B].startsWith(R[C])`. | TypeFault |
+| `0x70` | `STRENDSWITH` | `A: Dest, B: Str, C: Sfx` | - | `R[A] = R[B].endsWith(R[C])`. | TypeFault |
+| `0x71` | `STRCONTAINS` | `A: Dest, B: Str, C: Sub` | - | `R[A] = R[B].contains(R[C])`. | TypeFault |
+| `0x72` | `STRINDEXOF` | `A: Dest, B: Str, C: Sub` | - | `R[A] = R[B].indexOf(R[C])`. | TypeFault |
+| `0x73` | `STRREPLACE` | `A: Dest, B: Str, C: Rep` | - | Replaces occurrences. | TypeFault |
+| `0x74` | `STRVECNEW` | `A: Dest` | - | Creates new empty string vector. | - |
+| `0x75` | `STRVECPUSH` | `A: Dest, B: Val` | - | Pushes string `R[B]` to vector `R[A]`. | TypeFault |
+| `0x76` | `STRSPLIT` | `A: Dest, B: Str, C: Sep` | - | Splits string `R[B]` by `R[C]`. | TypeFault |
+| `0x77` | `STRJOIN` | `A: Dest, B: Vec, C: Sep` | - | Joins vector `R[B]` with separator `R[C]`. | TypeFault |
 
 ---
 
@@ -86,6 +154,13 @@ The instruction format is a fixed 13-byte sequence:
 | `0x31` | `MAKERESULTERR` | `A: Dest, B: Val` | - | Creates `Result::Err(R[B])`. | DecodeFault |
 | `0x32` | `OPTIONISSOME` | `A: Dest, B: Opt` | - | Checks if Option `R[B]` is Some. | TypeFault |
 | `0x33` | `OPTIONUNWRAP` | `A: Dest, B: Opt` | - | Unwraps Option `R[B]` or traps if None. | DecodeFault |
+| `0x34` | `RESULTISOK` | `A: Dest, B: Res` | - | Checks if Result `R[B]` is Ok. | TypeFault |
+| `0x35` | `RESULTUNWRAPOK` | `A: Dest, B: Res` | - | Unwraps Ok value from Result `R[B]`. | DecodeFault |
+| `0x36` | `RESULTUNWRAPERR` | `A: Dest, B: Res` | - | Unwraps Err value from Result `R[B]`. | DecodeFault |
+| `0x37` | `MAKEENUMVARIANT` | `A: Dest, B: VarID` | - | Creates Enum Variant `B` (no payload). | DecodeFault |
+| `0x38` | `MAKEENUMVARIANTPAYLOAD` | `A: Dst, B: Val, C: VarID` | - | Creates Enum Variant `C` with payload `B`. | DecodeFault |
+| `0x39` | `ENUMISVARIANT` | `A: Dest, B: Enum, C: VarID` | - | Checks if Enum `R[B]` is Variant `C`. | TypeFault |
+| `0x3A` | `ENUMUNWRAPPAYLOAD` | `A: Dest, B: Enum` | - | Unwraps payload from Enum `R[B]`. | TypeFault |
 | `0x78` | `MAKECOMPLEX` | `A: Dest, B: Re, C: Im` | - | Creates Complex number from Integers `R[B]`, `R[C]`. | TypeFault |
 
 ---

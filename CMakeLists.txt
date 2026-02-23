@@ -357,6 +357,10 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_vm_neural_opcodes_test PRIVATE t81_core)
   add_test(NAME t81_vm_neural_opcodes_test COMMAND t81_vm_neural_opcodes_test)
 
+  add_executable(test_bitwise tests/cpp/test_bitwise.cpp)
+  target_link_libraries(test_bitwise PRIVATE t81_core)
+  add_test(NAME test_bitwise COMMAND test_bitwise)
+
   add_executable(t81_vm_memory_test tests/cpp/vm_memory_test.cpp)
   target_link_libraries(t81_vm_memory_test PRIVATE t81_core)
 
