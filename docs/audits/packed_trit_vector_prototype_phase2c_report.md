@@ -100,40 +100,6 @@ Benchmarks were run on `ComputeTritVector` for Size=4096 trits.
 A comprehensive hardening and verification audit was conducted to ensure Phase 2C is production-ready, semantically correct, and free of undefined behavior.
 
 ### 10.1 Semantic Verification
-*   **Exhaustive Truth-Table Test:** A new test suite () verified all 9 combinations of input trits $\{-1, 0, 1\} \times \{-1, 0, 1\}$ for `TAnd`, `TOr`, and `TNot` against the Scalar Reference and Phase 2B LUT implementation.
-    *   **Result:** PASS.
-    *   **Note:** A logic error in the initial `TOr` SWAR formula for the $ case was identified and fixed during this audit.
-*   **TXor Commutativity:** Explicitly verified that `TXor` implements Ternary Difference ( - b$), which is non-commutative.
-    *   **Result:** Confirmed. Phase 2C correctly uses the Phase 2B LUT fallback for this operation to guarantee correctness.
-
-### 10.2 Stress Testing & Edge Cases
-*   **Chained Operations:** Verified complex chained operations (e.g.,  \land d$ and $\neg(a \land (b \lor c))$) across a wide range of vector sizes, including non-aligned lengths (, 2, 3, \dots, 1027$).
-*   **Padding Integrity:** Verified that trailing padding bits in the final byte are correctly masked and remain zero after SWAR operations.
-    *   **Result:** PASS.
-
-### 10.3 Sanitizer Audit
-The implementation was compiled and run with AddressSanitizer (ASAN) and UndefinedBehaviorSanitizer (UBSAN).
-*   **ASAN:** No memory leaks, out-of-bounds accesses, or use-after-free errors detected.
-*   **UBSAN:** No undefined behavior (integer overflows, invalid shifts, alignment issues) detected.
-    *   **Result:** CLEAN.
-
-### 10.4 Real-World Performance Benchmarks
-New benchmarks were added to measure performance in realistic scenarios () and raw compute throughput without allocation overhead ().
-
-| Benchmark | Variant | Time (ns) | Speedup vs Phase 2B | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| **Real Workload** | Phase 2B (LUT) | 5010 ns | 1.0x | |
-| **Real Workload** | Phase 2C (SWAR) | **345 ns** | **14.5x** | Chained mixed ops ( \land b, c \lor a, \neg d$) |
-| **Raw Compute** | Phase 2C (Alloc-Free) | **53 ns** | N/A | Direct buffer reuse (TAnd) |
-
-**Conclusion:** Phase 2C delivers a ~14.5x speedup over Phase 2B in realistic chained workloads and maintains strict semantic correctness and memory safety.
-
-
-## 10. Phase 2C Hardening Audit (Feb 2026)
-
-A comprehensive hardening and verification audit was conducted to ensure Phase 2C is production-ready, semantically correct, and free of undefined behavior.
-
-### 10.1 Semantic Verification
 *   **Exhaustive Truth-Table Test:** A new test suite (`test_phase2c_truth_table`) verified all 9 combinations of input trits $\{-1, 0, 1\} \times \{-1, 0, 1\}$ for `TAnd`, `TOr`, and `TNot` against the Scalar Reference and Phase 2B LUT implementation.
     *   **Result:** PASS.
     *   **Note:** A logic error in the initial `TOr` SWAR formula for the $(-1, 0)$ case was identified and fixed during this audit.
