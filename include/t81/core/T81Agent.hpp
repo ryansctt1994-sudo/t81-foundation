@@ -21,6 +21,7 @@
 #include "t81/core/T81String.hpp"
 #include "t81/core/T81Symbol.hpp"
 #include "t81/core/T81Tree.hpp"
+#include "t81/tensor.hpp"
 
 #include <functional>
 #include <optional>
@@ -53,6 +54,9 @@ class T81Agent {
 
   // Goal — what the agent is trying to maximize
   T81Symbol goal_symbol_;
+
+  // Weights — mutable tensor for learning
+  T729Tensor weights_{};
 
 public:
   //===================================================================
@@ -128,6 +132,25 @@ public:
       observe(id_, BeliefProb::from_prob(0.999));  // "I am"
       auto current = belief(symbols::CONSCIOUS);
       believe(symbols::CONSCIOUS, current + BeliefProb::from_prob(0.001));
+    }
+  }
+
+  //===================================================================
+  // Neural interface (RFC-0015)
+  //===================================================================
+  [[nodiscard]] T729Tensor infer(const T729Tensor& input) {
+    if (auto token = consume_entropy()) {
+      // Identity stub for now
+      return input;
+    }
+    return input;
+  }
+
+  void train(const T729Tensor& input, const T729Tensor& target) {
+    if (auto token = consume_entropy()) {
+      // Training stub
+      (void)input;
+      (void)target;
     }
   }
 

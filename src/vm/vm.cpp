@@ -4490,6 +4490,27 @@ public:
         // In strict mode or future, this might be Unimplemented trap.
         break;
       }
+      case t81::tisc::Opcode::TNeuralFwd: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        // Identity for now, just copy B to A
+        copy_reg(insn.a, insn.b);
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow,
+                                    "TNeuralFwd: forward pass identity"};
+        record_axion_event(insn.opcode, 0, ctx.registers[insn.a], verdict);
+        break;
+      }
+      case t81::tisc::Opcode::TNeuralBwd: {
+        if (!reg_ok(insn.a)) {  // Operand is the model/tensor to train
+          trap = Trap::DecodeFault;
+          break;
+        }
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TNeuralBwd: backward pass stub"};
+        record_axion_event(insn.opcode, 0, ctx.registers[insn.a], verdict);
+        break;
+      }
       default:
         trap = Trap::DecodeFault;
         break;
