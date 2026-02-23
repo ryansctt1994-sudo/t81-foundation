@@ -56,7 +56,7 @@ class T81Agent {
   T81Symbol goal_symbol_;
 
   // Weights — mutable tensor for learning
-  T729Tensor weights_{};
+  T729DynamicTensor weights_{};
 
 public:
   //===================================================================
@@ -138,7 +138,7 @@ public:
   //===================================================================
   // Neural interface (RFC-0015)
   //===================================================================
-  [[nodiscard]] T729Tensor infer(const T729Tensor& input) {
+  [[nodiscard]] T729DynamicTensor infer(const T729DynamicTensor& input) {
     if (auto token = consume_entropy()) {
       // Identity stub for now
       return input;
@@ -146,7 +146,7 @@ public:
     return input;
   }
 
-  void train(const T729Tensor& input, const T729Tensor& target) {
+  void train(const T729DynamicTensor& input, const T729DynamicTensor& target) {
     if (auto token = consume_entropy()) {
       // Training stub
       (void)input;

@@ -93,7 +93,7 @@ int main() {
   {
     [[maybe_unused]] bool threw = false;
     try {
-      t81::T729Tensor huge({INT_MAX, INT_MAX, INT_MAX});
+      t81::T729DynamicTensor huge({INT_MAX, INT_MAX, INT_MAX});
     } catch (const std::overflow_error&) {
       threw = true;
     }

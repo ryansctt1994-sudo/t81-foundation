@@ -351,6 +351,7 @@ if(T81_BUILD_TESTS)
 
   add_executable(t81_vm_neural_opcodes_test tests/cpp/test_vm_neural_opcodes.cpp)
   target_link_libraries(t81_vm_neural_opcodes_test PRIVATE t81_core)
+  add_test(NAME t81_vm_neural_opcodes_test COMMAND t81_vm_neural_opcodes_test)
 
   add_executable(t81_vm_memory_test tests/cpp/vm_memory_test.cpp)
   target_link_libraries(t81_vm_memory_test PRIVATE t81_core)

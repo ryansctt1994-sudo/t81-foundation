@@ -6,7 +6,7 @@
 namespace t81::ops {
 
 // Transpose a rank-2 tensor (rows x cols) → (cols x rows).
-inline T729Tensor transpose(const T729Tensor& m) {
+inline T729DynamicTensor transpose(const T729DynamicTensor& m) {
   if (m.rank() != 2) throw std::invalid_argument("transpose: expects rank-2");
   const int rows = m.shape()[0], cols = m.shape()[1];
   const auto& d = m.data();
@@ -17,7 +17,7 @@ inline T729Tensor transpose(const T729Tensor& m) {
       out[static_cast<size_t>(c) * rows + r] = d[static_cast<size_t>(r) * cols + c];
     }
   }
-  return T729Tensor({cols, rows}, std::move(out));
+  return T729DynamicTensor({cols, rows}, std::move(out));
 }
 
 }  // namespace t81::ops

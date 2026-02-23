@@ -279,7 +279,7 @@ void demo_extras() {
   // T81Reflection
   // T81Result has reflect()
   auto reflection = res.reflect();
-  std::cout << "T81Reflection: Reflected result with status " << reflection.instance_id() << "\n";
+  std::cout << "T81Reflection: Reflected result with status " << reflection.instance_id().to_string() << "\n";
 }
 
 // Main execution

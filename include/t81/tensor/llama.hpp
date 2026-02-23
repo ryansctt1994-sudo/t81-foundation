@@ -49,7 +49,7 @@ inline __m256 simd_exp(__m256 x) {
 }
 #endif
 
-inline T729Tensor rmsnorm(const T729Tensor& x, const T729Tensor& w, float eps = 1e-6f) {
+inline T729DynamicTensor rmsnorm(const T729DynamicTensor& x, const T729DynamicTensor& w, float eps = 1e-6f) {
   if (x.rank() == 0 || w.rank() != 1 || w.shape()[0] != x.shape().back()) {
     throw std::invalid_argument("rmsnorm: shape mismatch");
   }
@@ -94,10 +94,10 @@ inline T729Tensor rmsnorm(const T729Tensor& x, const T729Tensor& w, float eps = 
       row[j_norm] = (row[j_norm] * inv_ss) * w_ptr[j_norm];
 #endif
   }
-  return T729Tensor(x.shape(), std::move(out));
+  return T729DynamicTensor(x.shape(), std::move(out));
 }
 
-inline T729Tensor silu(const T729Tensor& x) {
+inline T729DynamicTensor silu(const T729DynamicTensor& x) {
   std::vector<float> out = x.data();
   float* data = out.data();
   size_t size = out.size();
@@ -116,10 +116,10 @@ inline T729Tensor silu(const T729Tensor& x) {
   for (; i < size; ++i) {
     data[i] = data[i] / (1.0f + std::exp(-data[i]));
   }
-  return T729Tensor(x.shape(), std::move(out));
+  return T729DynamicTensor(x.shape(), std::move(out));
 }
 
-inline T729Tensor softmax(const T729Tensor& x) {
+inline T729DynamicTensor softmax(const T729DynamicTensor& x) {
   if (x.rank() == 0) throw std::invalid_argument("softmax: rank 0");
   int dim = x.shape().back();
   std::vector<float> out = x.data();
@@ -186,10 +186,10 @@ inline T729Tensor softmax(const T729Tensor& x) {
     for (int j_norm = 0; j_norm < dim; ++j_norm) row[j_norm] *= inv_sum;
 #endif
   }
-  return T729Tensor(x.shape(), std::move(out));
+  return T729DynamicTensor(x.shape(), std::move(out));
 }
 
-inline T729Tensor rope(const T729Tensor& x, int pos) {
+inline T729DynamicTensor rope(const T729DynamicTensor& x, int pos) {
   if (x.rank() < 2) throw std::invalid_argument("rope: rank must be at least 2");
   int head_dim = x.shape().back();
   std::vector<float> data = x.data();
@@ -205,7 +205,7 @@ inline T729Tensor rope(const T729Tensor& x, int pos) {
       data[i + static_cast<size_t>(j + 1)] = v0 * f_sin + v1 * f_cos;
     }
   }
-  return T729Tensor(x.shape(), std::move(data));
+  return T729DynamicTensor(x.shape(), std::move(data));
 }
 
 }  // namespace t81::ops

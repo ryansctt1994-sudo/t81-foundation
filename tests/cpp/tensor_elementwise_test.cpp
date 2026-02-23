@@ -10,9 +10,9 @@ int main() {
 
   // Same-shape elementwise ops
   {
-    T729Tensor A({2, 3});
+    T729DynamicTensor A({2, 3});
     A.data() = {1, 2, 3, 4, 5, 6};
-    T729Tensor B({2, 3});
+    T729DynamicTensor B({2, 3});
     B.data() = {6, 5, 4, 3, 2, 1};
 
     [[maybe_unused]] auto S = t81::ops::add(A, B);
@@ -26,9 +26,9 @@ int main() {
 
   // Broadcasting: vector {3} + matrix {2,3} → {2,3}
   {
-    T729Tensor row({3});
+    T729DynamicTensor row({3});
     row.data() = {10, 20, 30};
-    T729Tensor A({2, 3});
+    T729DynamicTensor A({2, 3});
     A.data() = {1, 2, 3, 4, 5, 6};
 
     [[maybe_unused]] auto S = t81::ops::add(A, row);
@@ -39,9 +39,9 @@ int main() {
 
   // Broadcasting: row {1,3} * matrix {2,3} → {2,3}
   {
-    T729Tensor row({1, 3});
+    T729DynamicTensor row({1, 3});
     row.data() = {2, 3, 4};
-    T729Tensor A({2, 3});
+    T729DynamicTensor A({2, 3});
     A.data() = {1, 2, 3, 4, 5, 6};
 
     [[maybe_unused]] auto P = t81::ops::mul(A, row);
@@ -51,9 +51,9 @@ int main() {
 
   // Division by zero should throw
   {
-    T729Tensor A({3});
+    T729DynamicTensor A({3});
     A.data() = {1, 2, 3};
-    T729Tensor Z({3});
+    T729DynamicTensor Z({3});
     Z.data() = {1, 0, 1};
     [[maybe_unused]] bool threw = false;
     try {

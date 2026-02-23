@@ -175,7 +175,7 @@ private:
   }
 };
 
-using T729Tensor = T729TensorBase<float>;
+using T729DynamicTensor = T729TensorBase<float>;
 using T729IntTensor = T729TensorBase<T81Int<81>>;
 
 }  // namespace t81

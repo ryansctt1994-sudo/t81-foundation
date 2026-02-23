@@ -17,10 +17,10 @@ void test_neural_identity() {
 
   // Create input tensor [1, 2, 3]
   std::vector<float> data = {1.0f, 2.0f, 3.0f};
-  T729Tensor input({3}, data);
+  T729DynamicTensor input({3}, data);
 
   // Infer
-  T729Tensor output = agent.infer(input);
+  T729DynamicTensor output = agent.infer(input);
 
   // Verify identity
   assert(output.shape() == input.shape());
@@ -35,8 +35,8 @@ void test_train_stub() {
   fuel.push_back(acquire_entropy());
   T81Agent agent(id, std::move(fuel));
 
-  T729Tensor input({1}, {1.0f});
-  T729Tensor target({1}, {1.0f});
+  T729DynamicTensor input({1}, {1.0f});
+  T729DynamicTensor target({1}, {1.0f});
 
   // Should not crash
   agent.train(input, target);

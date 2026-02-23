@@ -4845,7 +4845,7 @@ public:
     if (!data) {
       throw std::runtime_error("Vector literal data missing during IR generation.");
     }
-    t81::T729Tensor tensor({static_cast<int>(data->size())}, *data);
+    t81::T729DynamicTensor tensor({static_cast<int>(data->size())}, *data);
     int handle = _program.add_tensor(std::move(tensor));
     auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
     tisc::ir::Instruction instr;

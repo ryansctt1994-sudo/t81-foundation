@@ -229,7 +229,7 @@ struct State {
   std::vector<std::int64_t> memory;
   std::vector<ValueTag> memory_tags;
   MemoryLayout layout{};
-  std::vector<std::optional<t81::T729Tensor>> tensors;
+  std::vector<std::optional<t81::T729DynamicTensor>> tensors;
   std::vector<std::size_t> free_tensor_indices;
   std::size_t total_tensor_elements{0};
   std::vector<double> floats;

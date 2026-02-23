@@ -13,8 +13,8 @@ int main() {
 
   // Test RMSNorm
   {
-    T729Tensor x({1, 4}, {1.0f, 2.0f, 3.0f, 4.0f});
-    T729Tensor w({4}, {1.0f, 1.0f, 1.0f, 1.0f});
+    T729DynamicTensor x({1, 4}, {1.0f, 2.0f, 3.0f, 4.0f});
+    T729DynamicTensor w({4}, {1.0f, 1.0f, 1.0f, 1.0f});
     [[maybe_unused]] auto y = rmsnorm(x, w);
     // ss = (1+4+9+16)/4 = 30/4 = 7.5
     // ss = sqrt(7.5 + 1e-6) ~= 2.7386127
@@ -28,7 +28,7 @@ int main() {
 
   // Test SiLU
   {
-    T729Tensor x({2}, {0.0f, 1.0f});
+    T729DynamicTensor x({2}, {0.0f, 1.0f});
     [[maybe_unused]] auto y = silu(x);
     // silu(0) = 0 / (1 + exp(0)) = 0
     // silu(1) = 1 / (1 + exp(-1)) ~= 1 / (1 + 0.367879) ~= 0.731058
@@ -39,7 +39,7 @@ int main() {
 
   // Test Softmax
   {
-    T729Tensor x({1, 3}, {0.0f, 1.0f, 2.0f});
+    T729DynamicTensor x({1, 3}, {0.0f, 1.0f, 2.0f});
     [[maybe_unused]] auto y = softmax(x);
     // max = 2
     // exp(0-2), exp(1-2), exp(2-2) = exp(-2), exp(-1), 1

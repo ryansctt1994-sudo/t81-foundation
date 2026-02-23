@@ -196,17 +196,17 @@ public:
 
   const std::vector<TypeAliasMetadata>& type_aliases() const { return _type_aliases; }
 
-  int add_tensor(t81::T729Tensor tensor) {
+  int add_tensor(t81::T729DynamicTensor tensor) {
     _tensor_pool.push_back(std::move(tensor));
     return static_cast<int>(_tensor_pool.size());
   }
 
-  const std::vector<t81::T729Tensor>& tensor_pool() const { return _tensor_pool; }
+  const std::vector<t81::T729DynamicTensor>& tensor_pool() const { return _tensor_pool; }
 
 private:
   std::vector<Instruction> _instructions;
   std::vector<TypeAliasMetadata> _type_aliases;
-  std::vector<t81::T729Tensor> _tensor_pool;
+  std::vector<t81::T729DynamicTensor> _tensor_pool;
 };
 
 using TypeAliasMetadata = t81::tisc::TypeAliasMetadata;

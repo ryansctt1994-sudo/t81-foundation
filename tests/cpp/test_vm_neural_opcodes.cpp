@@ -5,7 +5,7 @@
 
 #include <iostream>
 #include <vector>
-#include "test_runtime_check.hpp"
+#include <cassert>
 
 namespace {
 t81::vm::Trap run_until_trap(const std::vector<t81::tisc::Insn>& insns) {
@@ -22,7 +22,8 @@ t81::vm::Trap run_until_trap(const std::vector<t81::tisc::Insn>& insns) {
 
 void run_expect_success(const std::vector<t81::tisc::Insn>& insns) {
   t81::vm::Trap t = run_until_trap(insns);
-  T81_TEST_CHECK(t == t81::vm::Trap::None);
+  assert(t == t81::vm::Trap::None);
+  (void)t;
 }
 }  // namespace
 
