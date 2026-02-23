@@ -1,7 +1,3 @@
-Вот перевод документа `README.md` на русский язык:
-
----
-
 # T81 Foundation
 
 <p align="center">
