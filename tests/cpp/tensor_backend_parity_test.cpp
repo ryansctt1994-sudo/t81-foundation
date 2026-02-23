@@ -9,9 +9,9 @@
 
 namespace {
 
-using t81::T729Tensor;
+using t81::T729DynamicTensor;
 
-T729Tensor reference_matmul(const T729Tensor& A, const T729Tensor& B) {
+T729DynamicTensor reference_matmul(const T729DynamicTensor& A, const T729DynamicTensor& B) {
   const int m = A.shape()[0];
   const int k = A.shape()[1];
   const int n = B.shape()[1];
@@ -26,10 +26,11 @@ T729Tensor reference_matmul(const T729Tensor& A, const T729Tensor& B) {
       out[static_cast<size_t>(i) * n + j] = sum;
     }
   }
-  return T729Tensor({m, n}, std::move(out));
+  return T729DynamicTensor({m, n}, std::move(out));
 }
 
-T729Tensor reference_rmsnorm(const T729Tensor& x, const T729Tensor& w, float eps = 1e-6f) {
+T729DynamicTensor reference_rmsnorm(const T729DynamicTensor& x, const T729DynamicTensor& w,
+                                    float eps = 1e-6f) {
   const int dim = x.shape().back();
   std::vector<float> out = x.data();
   const float* w_ptr = w.data().data();
@@ -44,10 +45,10 @@ T729Tensor reference_rmsnorm(const T729Tensor& x, const T729Tensor& w, float eps
       out[i + static_cast<size_t>(j)] = out[i + static_cast<size_t>(j)] * inv * w_ptr[j];
     }
   }
-  return T729Tensor(x.shape(), std::move(out));
+  return T729DynamicTensor(x.shape(), std::move(out));
 }
 
-void assert_tensor_near(const T729Tensor& a, const T729Tensor& b, float eps) {
+void assert_tensor_near(const T729DynamicTensor& a, const T729DynamicTensor& b, float eps) {
   assert(a.shape() == b.shape());
   assert(a.data().size() == b.data().size());
   for (size_t i = 0; i < a.data().size(); ++i) {
@@ -64,8 +65,8 @@ void assert_tensor_near(const T729Tensor& a, const T729Tensor& b, float eps) {
 
 void test_matmul_backend_parity() {
   // Nontrivial shape and values to exercise vectorized/scalar tails.
-  T729Tensor A({5, 7});
-  T729Tensor B({7, 6});
+  T729DynamicTensor A({5, 7});
+  T729DynamicTensor B({7, 6});
   for (int i = 0; i < 5 * 7; ++i) {
     A.data()[static_cast<size_t>(i)] = ((i % 11) - 5) * 0.125f;
   }
@@ -79,8 +80,8 @@ void test_matmul_backend_parity() {
 }
 
 void test_rmsnorm_backend_parity() {
-  T729Tensor x({3, 8});
-  T729Tensor w({8});
+  T729DynamicTensor x({3, 8});
+  T729DynamicTensor w({8});
   for (int i = 0; i < 3 * 8; ++i) {
     x.data()[static_cast<size_t>(i)] = ((i % 9) - 4) * 0.3f;
   }

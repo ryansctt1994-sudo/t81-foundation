@@ -10,7 +10,7 @@ int main() {
   // 2x3 matrix:
   // [1 2 3
   //  4 5 6]
-  T729Tensor m({2, 3});
+  T729DynamicTensor m({2, 3});
   m.data() = {1, 2, 3, 4, 5, 6};
 
   // Sum axis 0 (per-column) => {3}

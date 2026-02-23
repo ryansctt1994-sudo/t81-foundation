@@ -164,7 +164,7 @@
   - [x] `TNEURAL_FWD` / `TNEURAL_BWD` opcodes (Implemented as `TNeuralFwd`, `TNeuralBwd`)
 - [x] RFC-0015: Agentic Constructs
   - [x] `T81Agent` core class structure (see `include/t81/core/T81Agent.hpp`)
-  - [ ] Full integration with `infer`/`train` primitives
+  - [x] Full integration with `infer`/`train` primitives (Implemented via TNeuralFwd/TNeuralBwd opcodes and T81Agent methods)
 
 ### Advanced Features & Hardware (RFC-0016 to RFC-0024)
 - [x+] RFC-0016: T81 SIMD Limb (Optimized ternary SIMD arithmetic) (see `include/t81/simd/add_helpers.hpp`, `tests/cpp/test_t81_simd_add_helpers.cpp`)

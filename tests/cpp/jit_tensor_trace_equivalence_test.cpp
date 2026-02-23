@@ -9,7 +9,7 @@
 
 namespace {
 
-using t81::T729Tensor;
+using t81::T729DynamicTensor;
 using t81::tisc::Insn;
 using t81::tisc::LiteralKind;
 using t81::tisc::Opcode;
@@ -31,9 +31,9 @@ Insn make_tensor_handle_imm(int reg, std::int64_t handle) {
 
 Program make_hot_tensor_program() {
   Program p;
-  p.tensor_pool.push_back(T729Tensor({2, 2}, {1.0f, 2.0f, 3.0f, 4.0f}));   // handle 1
-  p.tensor_pool.push_back(T729Tensor({2, 2}, {0.5f, 0.0f, 1.0f, -0.5f}));  // handle 2
-  p.tensor_pool.push_back(T729Tensor({2}, {1.0f, 1.0f}));                  // handle 3
+  p.tensor_pool.push_back(T729DynamicTensor({2, 2}, {1.0f, 2.0f, 3.0f, 4.0f}));   // handle 1
+  p.tensor_pool.push_back(T729DynamicTensor({2, 2}, {0.5f, 0.0f, 1.0f, -0.5f}));  // handle 2
+  p.tensor_pool.push_back(T729DynamicTensor({2}, {1.0f, 1.0f}));                  // handle 3
 
   p.insns.push_back(make_tensor_handle_imm(1, 1));
   p.insns.push_back(make_tensor_handle_imm(2, 2));
@@ -53,7 +53,7 @@ Program make_hot_tensor_program() {
 struct Snapshot {
   std::vector<std::int64_t> regs;
   std::vector<t81::vm::ValueTag> tags;
-  T729Tensor final_tensor;
+  T729DynamicTensor final_tensor;
   std::vector<std::string> reasons;
 };
 
@@ -91,7 +91,7 @@ Snapshot run_once(const Program& p) {
   return out;
 }
 
-bool tensor_close(const T729Tensor& a, const T729Tensor& b) {
+bool tensor_close(const T729DynamicTensor& a, const T729DynamicTensor& b) {
   if (!expect(a.shape() == b.shape(), "tensor shapes diverged")) return false;
   if (!expect(a.data().size() == b.data().size(), "tensor data sizes diverged")) return false;
   for (size_t i = 0; i < a.data().size(); ++i) {

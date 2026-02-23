@@ -321,7 +321,7 @@ int main() {
     corrupt_handle.literal_kind = t81::tisc::LiteralKind::TensorHandle;
 
     [[maybe_unused]] t81::tisc::Program program;
-    t81::T729Tensor dummy_tensor({1}, {0.0f});
+    t81::T729DynamicTensor dummy_tensor({1}, {0.0f});
     program.tensor_pool.push_back(dummy_tensor);
     program.tensor_pool.push_back(dummy_tensor);
     program.insns = {load_tensor_a, load_tensor_b, corrupt_handle, vec_add, halt};

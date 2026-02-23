@@ -8,7 +8,7 @@ int main() {
   // Build a 2x3 matrix:
   // [1 2 3
   //  4 5 6]
-  T729Tensor A({2, 3});
+  T729DynamicTensor A({2, 3});
   A.data() = {1, 2, 3, 4, 5, 6};
 
   // Transpose -> 3x2
@@ -28,12 +28,12 @@ int main() {
   auto sum_rows = t81::ops::reduce_sum_2d(A, 1);  // {2}
 
   // Broadcast a row {1,3} -> {2,3}
-  T729Tensor row({1, 3});
+  T729DynamicTensor row({1, 3});
   row.data() = {10, 20, 30};
   auto B = t81::ops::broadcast_to(row, {2, 3});
 
   // Print a helper
-  auto dump = [](const char* name, const T729Tensor& t) {
+  auto dump = [](const char* name, const T729DynamicTensor& t) {
     std::cout << name << " [" << t.shape()[0];
     for (int i = 1; i < t.rank(); ++i) std::cout << "x" << t.shape()[i];
     std::cout << "]: {";

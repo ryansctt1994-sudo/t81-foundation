@@ -349,6 +349,10 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_new_opcodes_test tests/cpp/vm_new_opcodes_test.cpp)
   target_link_libraries(t81_vm_new_opcodes_test PRIVATE t81_core)
 
+  add_executable(t81_vm_neural_opcodes_test tests/cpp/test_vm_neural_opcodes.cpp)
+  target_link_libraries(t81_vm_neural_opcodes_test PRIVATE t81_core)
+  add_test(NAME t81_vm_neural_opcodes_test COMMAND t81_vm_neural_opcodes_test)
+
   add_executable(t81_vm_memory_test tests/cpp/vm_memory_test.cpp)
   target_link_libraries(t81_vm_memory_test PRIVATE t81_core)
 
@@ -1230,6 +1234,10 @@ if(T81_BUILD_TESTS)
   add_executable(t81_agent_test tests/cpp/test_T81Agent.cpp)
   target_link_libraries(t81_agent_test PRIVATE t81_core)
   add_test(NAME t81_agent_test COMMAND t81_agent_test)
+
+  add_executable(t81_agent_neural_test tests/cpp/test_T81Agent_neural.cpp)
+  target_link_libraries(t81_agent_neural_test PRIVATE t81_core)
+  add_test(NAME t81_agent_neural_test COMMAND t81_agent_neural_test)
 
   add_executable(t81_stream_test tests/cpp/test_T81Stream.cpp)
   target_link_libraries(t81_stream_test PRIVATE t81_core)

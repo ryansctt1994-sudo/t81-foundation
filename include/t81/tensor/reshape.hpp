@@ -8,7 +8,7 @@ namespace t81::ops {
 // Reshape with total-size preservation. A dimension may be -1 to infer.
 // Example: reshape(x, { -1, 3 }) infers the first dim from size/3.
 // Throws if product(new_shape with -1 resolved) != old size or multiple -1s.
-inline T729Tensor reshape(const T729Tensor& m, std::vector<int> new_shape) {
+inline T729DynamicTensor reshape(const T729DynamicTensor& m, std::vector<int> new_shape) {
   if (new_shape.empty()) throw std::invalid_argument("reshape: new_shape must be non-empty");
 
   // compute old size
@@ -45,7 +45,7 @@ inline T729Tensor reshape(const T729Tensor& m, std::vector<int> new_shape) {
   if (new_sz != old_sz) throw std::invalid_argument("reshape: size mismatch");
 
   // data stays identical, only shape changes
-  return T729Tensor(std::move(new_shape), m.data());
+  return T729DynamicTensor(std::move(new_shape), m.data());
 }
 
 }  // namespace t81::ops

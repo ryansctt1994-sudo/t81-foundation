@@ -8,7 +8,7 @@ static void require(bool cond, const char* msg) {
   if (!cond) throw std::runtime_error(msg);
 }
 
-T729Tensor load_tensor_txt(std::istream& in) {
+T729DynamicTensor load_tensor_txt(std::istream& in) {
   // Read first line: RANK D1 D2 ... DR
   std::string header;
   {
@@ -58,10 +58,10 @@ T729Tensor load_tensor_txt(std::istream& in) {
     if (data.size() == total) break;
   }
   require(data.size() == total, "load_tensor_txt: not enough data");
-  return T729Tensor(std::move(shape), std::move(data));
+  return T729DynamicTensor(std::move(shape), std::move(data));
 }
 
-void save_tensor_txt(std::ostream& out, const T729Tensor& t) {
+void save_tensor_txt(std::ostream& out, const T729DynamicTensor& t) {
   // Header
   out << t.rank();
   for (int d : t.shape()) out << ' ' << d;
