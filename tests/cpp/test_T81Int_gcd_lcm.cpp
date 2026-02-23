@@ -5,7 +5,7 @@
 using namespace t81;
 
 int main() {
-  using I = T81Int<18>;
+  using I [[maybe_unused]] = T81Int<18>;
 
   assert(gcd(I(12), I(18)).to_int64() == 6);
   assert(gcd(I(-12), I(18)).to_int64() == 6);

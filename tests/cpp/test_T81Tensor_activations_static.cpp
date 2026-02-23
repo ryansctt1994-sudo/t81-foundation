@@ -15,6 +15,7 @@ int main() {
 
   // ReLU
   auto r = relu(t);
+  (void)r;
   assert(r.data[0].to_double() == 0.0);
   assert(r.data[1].to_double() == 0.0);
   assert(r.data[2].to_double() == 1.0);
@@ -30,6 +31,10 @@ int main() {
   double g0 = g.data[0].to_double();
   double g1 = g.data[1].to_double();
   double g2 = g.data[2].to_double();
+
+  (void)g0;
+  (void)g1;
+  (void)g2;
 
   assert(std::abs(g0 - -0.15880799) < 0.001);
   assert(g1 == 0.0);
