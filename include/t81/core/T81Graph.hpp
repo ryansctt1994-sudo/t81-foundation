@@ -33,6 +33,7 @@ using Weight81 = T81Float<72, 9>;  // 81-trit floating weight
 // T81Graph<NodeCount, MaxDegree> — Static, cache-oblivious, hardware-native
 // ======================================================================
 #include <algorithm>
+#include <optional>
 #include <sstream>
 #include <type_traits>
 #include <vector>
@@ -440,6 +441,191 @@ public:
       }
     }
     return g;
+  }
+
+  /**
+   * @brief Checks if the graph contains any cycles.
+   * @return true if a cycle is detected, false otherwise.
+   */
+  [[nodiscard]] constexpr bool has_cycle() const noexcept {
+    // 0 = unvisited, 1 = visiting, 2 = visited
+    std::array<uint8_t, NodeCount> state{};
+    state.fill(0);
+
+    // Iterative DFS to avoid recursion depth limits
+    struct Frame {
+      NodeID u;
+      typename std::span<const std::pair<NodeID, Weight>>::iterator it;
+      typename std::span<const std::pair<NodeID, Weight>>::iterator end;
+    };
+
+    // Use heap if stack frame array is large
+    // Frame size is roughly 16-24 bytes. Max depth NodeCount.
+    static constexpr bool kUseHeapStack = (NodeCount * sizeof(Frame) > 4096);
+    using StackStorage =
+        std::conditional_t<kUseHeapStack, std::vector<Frame>, std::array<Frame, NodeCount>>;
+
+    StackStorage stack;
+    if constexpr (kUseHeapStack) {
+      stack.reserve(NodeCount);
+    }
+    size_t stack_ptr = 0;
+
+    for (size_t i = 0; i < NodeCount; ++i) {
+      if (state[i] == 0) {
+        // Start DFS from i
+        stack_ptr = 0;  // Reset "stack"
+        if constexpr (kUseHeapStack) {
+          stack.clear();
+          auto out = outgoing(static_cast<NodeID>(i));
+          stack.push_back({static_cast<NodeID>(i), out.begin(), out.end()});
+        } else {
+          auto out = outgoing(static_cast<NodeID>(i));
+          stack[0].u = static_cast<NodeID>(i);
+          stack[0].it = out.begin();
+          stack[0].end = out.end();
+          stack_ptr = 1;
+        }
+        state[i] = 1;  // visiting
+
+        while (true) {
+          // Peek top
+          Frame* top;
+          if constexpr (kUseHeapStack) {
+            if (stack.empty()) break;
+            top = &stack.back();
+          } else {
+            if (stack_ptr == 0) break;
+            top = &stack[stack_ptr - 1];
+          }
+
+          if (top->it != top->end) {
+            NodeID v = top->it->first;
+            ++top->it;  // Advance for when we return
+
+            if (state[v] == 1) {
+              return true;  // Cycle detected (back edge)
+            }
+            if (state[v] == 0) {
+              state[v] = 1;  // visiting
+              // Push v
+              auto out_v = outgoing(v);
+              if constexpr (kUseHeapStack) {
+                stack.push_back({v, out_v.begin(), out_v.end()});
+              } else {
+                stack[stack_ptr].u = v;
+                stack[stack_ptr].it = out_v.begin();
+                stack[stack_ptr].end = out_v.end();
+                stack_ptr++;
+              }
+            }
+          } else {
+            // Finished node
+            state[top->u] = 2;  // visited
+            if constexpr (kUseHeapStack) {
+              stack.pop_back();
+            } else {
+              --stack_ptr;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * @brief Performs a topological sort of the graph.
+   * @return A tensor containing the sorted NodeIDs if acyclic, or std::nullopt if cyclic.
+   */
+  [[nodiscard]] constexpr std::optional<T81Tensor<T81Int<81>, 1, NodeCount>> topological_sort()
+      const noexcept {
+    using ResultTensor = T81Tensor<T81Int<81>, 1, NodeCount>;
+    ResultTensor result;
+    size_t result_idx = NodeCount;  // Fill from back
+
+    // 0 = unvisited, 1 = visiting, 2 = visited
+    std::array<uint8_t, NodeCount> state{};
+    state.fill(0);
+
+    struct Frame {
+      NodeID u;
+      typename std::span<const std::pair<NodeID, Weight>>::iterator it;
+      typename std::span<const std::pair<NodeID, Weight>>::iterator end;
+    };
+
+    static constexpr bool kUseHeapStack = (NodeCount * sizeof(Frame) > 4096);
+    using StackStorage =
+        std::conditional_t<kUseHeapStack, std::vector<Frame>, std::array<Frame, NodeCount>>;
+
+    StackStorage stack;
+    if constexpr (kUseHeapStack) {
+      stack.reserve(NodeCount);
+    }
+    size_t stack_ptr = 0;
+
+    for (size_t i = 0; i < NodeCount; ++i) {
+      if (state[i] == 0) {
+        stack_ptr = 0;
+        if constexpr (kUseHeapStack) {
+          stack.clear();
+          auto out = outgoing(static_cast<NodeID>(i));
+          stack.push_back({static_cast<NodeID>(i), out.begin(), out.end()});
+        } else {
+          auto out = outgoing(static_cast<NodeID>(i));
+          stack[0].u = static_cast<NodeID>(i);
+          stack[0].it = out.begin();
+          stack[0].end = out.end();
+          stack_ptr = 1;
+        }
+        state[i] = 1;
+
+        while (true) {
+          Frame* top;
+          if constexpr (kUseHeapStack) {
+            if (stack.empty()) break;
+            top = &stack.back();
+          } else {
+            if (stack_ptr == 0) break;
+            top = &stack[stack_ptr - 1];
+          }
+
+          if (top->it != top->end) {
+            NodeID v = top->it->first;
+            ++top->it;
+
+            if (state[v] == 1) {
+              return std::nullopt;  // Cycle
+            }
+            if (state[v] == 0) {
+              state[v] = 1;
+              auto out_v = outgoing(v);
+              if constexpr (kUseHeapStack) {
+                stack.push_back({v, out_v.begin(), out_v.end()});
+              } else {
+                stack[stack_ptr].u = v;
+                stack[stack_ptr].it = out_v.begin();
+                stack[stack_ptr].end = out_v.end();
+                stack_ptr++;
+              }
+            }
+          } else {
+            state[top->u] = 2;
+            // Add to result (post-order reverse)
+            if (result_idx > 0) {
+              result(--result_idx) = T81Int<81>(static_cast<std::int64_t>(top->u));
+            }
+            if constexpr (kUseHeapStack) {
+              stack.pop_back();
+            } else {
+              --stack_ptr;
+            }
+          }
+        }
+      }
+    }
+
+    return result;
   }
 };
 

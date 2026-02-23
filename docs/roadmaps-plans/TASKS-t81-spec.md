@@ -107,6 +107,8 @@
   - [x] Singular matrix safety verification (Verified in `tests/cpp/test_T81Matrix_singular.cpp`)
 - [x] T81Polynomial (Univariate polynomials) (see `include/t81/core/T81Polynomial.hpp`)
 - [x] T81Graph (Static graph, hardware-native) (see `include/t81/core/T81Graph.hpp`)
+  - [x] Cycle Detection (`has_cycle` via iterative DFS)
+  - [x] Topological Sort (`topological_sort`)
 - [ ] Holotensor Types (Future/Aspirational)
 
 ## Cross-cutting / Later Phases
