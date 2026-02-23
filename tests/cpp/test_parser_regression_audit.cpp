@@ -1,20 +1,18 @@
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
 #include "t81/frontend/ast.hpp"
 #include "t81/frontend/lexer.hpp"
 #include "t81/frontend/parser.hpp"
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <string>
-#include <memory>
 
 using namespace t81::frontend;
 
 // Minimal AST Printer for Regression Audit
 class ASTPrinter : public ExprVisitor {
 public:
-  std::string print(const Expr& expr) {
-    return std::any_cast<std::string>(expr.accept(*this));
-  }
+  std::string print(const Expr& expr) { return std::any_cast<std::string>(expr.accept(*this)); }
 
   std::any visit(const BinaryExpr& expr) override {
     return parenthesize(expr.op.lexeme, {expr.left.get(), expr.right.get()});
@@ -24,17 +22,13 @@ public:
     return parenthesize(expr.op.lexeme, {expr.right.get()});
   }
 
-  std::any visit(const LiteralExpr& expr) override {
-    return std::string(expr.value.lexeme);
-  }
+  std::any visit(const LiteralExpr& expr) override { return std::string(expr.value.lexeme); }
 
   std::any visit(const GroupingExpr& expr) override {
     return std::string("(group ") + print(*expr.expression) + ")";
   }
 
-  std::any visit(const VariableExpr& expr) override {
-    return std::string(expr.name.lexeme);
-  }
+  std::any visit(const VariableExpr& expr) override { return std::string(expr.name.lexeme); }
 
   std::any visit(const AssignExpr& expr) override {
     return parenthesize("=", {expr.target.get(), expr.value.get()});
@@ -74,67 +68,65 @@ struct TestCase {
 };
 
 int main() {
-  std::vector<TestCase> cases = {
-    // 1. Bitwise Precedence
-    { "a & b | c", "(| (& a b) c)" },
-    { "a | b & c", "(| a (& b c))" },
-    { "a ^ b | c", "(| (^ a b) c)" },
-    { "a | b ^ c", "(| a (^ b c))" },
-    { "a & b ^ c", "(^ (& a b) c)" },
-    { "a ^ b & c", "(^ a (& b c))" },
+  std::vector<TestCase> cases = {// 1. Bitwise Precedence
+                                 {"a & b | c", "(| (& a b) c)"},
+                                 {"a | b & c", "(| a (& b c))"},
+                                 {"a ^ b | c", "(| (^ a b) c)"},
+                                 {"a | b ^ c", "(| a (^ b c))"},
+                                 {"a & b ^ c", "(^ (& a b) c)"},
+                                 {"a ^ b & c", "(^ a (& b c))"},
 
-    // 2. Unary ~
-    { "~a & b", "(& (~ a) b)" },
-    { "~a + 1", "(+ (~ a) 1)" },
+                                 // 2. Unary ~
+                                 {"~a & b", "(& (~ a) b)"},
+                                 {"~a + 1", "(+ (~ a) 1)"},
 
-    // 3. Shifts vs Arithmetic
-    { "a << b + c", "(<< a (+ b c))" },
-    { "a + b << c", "(<< (+ a b) c)" },
-    { "a >> b - c", "(>> a (- b c))" },
-    { "a >>> b * c", "(>>> a (* b c))" },
+                                 // 3. Shifts vs Arithmetic
+                                 {"a << b + c", "(<< a (+ b c))"},
+                                 {"a + b << c", "(<< (+ a b) c)"},
+                                 {"a >> b - c", "(>> a (- b c))"},
+                                 {"a >>> b * c", "(>>> a (* b c))"},
 
-    // 4. Shifts vs Comparison
-    { "a < b << c", "(< a (<< b c))" },
-    { "a << b < c", "(< (<< a b) c)" },
+                                 // 4. Shifts vs Comparison
+                                 {"a < b << c", "(< a (<< b c))"},
+                                 {"a << b < c", "(< (<< a b) c)"},
 
-    // 5. Bitwise vs Equality
-    { "a & b == c", "(& a (== b c))" },
-    { "a == b & c", "(& (== a b) c)" },
+                                 // 5. Bitwise vs Equality
+                                 {"a & b == c", "(& a (== b c))"},
+                                 {"a == b & c", "(& (== a b) c)"},
 
-    // 6. Custom Operators (->, ..)
-    { "a -> b & c", "(& (-> a b) c)" },
-    { "a & b -> c", "(& a (-> b c))" },
-    { "a .. b -> c", "(-> (.. a b) c)" },
-    { "a -> b .. c", "(-> a (.. b c))" },
+                                 // 6. Custom Operators (->, ..)
+                                 {"a -> b & c", "(& (-> a b) c)"},
+                                 {"a & b -> c", "(& a (-> b c))"},
+                                 {"a .. b -> c", "(-> (.. a b) c)"},
+                                 {"a -> b .. c", "(-> a (.. b c))"},
 
-    // 7. Logical vs Bitwise
-    { "a && b | c", "(&& a (| b c))" },
-    { "a | b && c", "(&& (| a b) c)" },
-    { "a || b && c", "(|| a (&& b c))" },
-    { "a && b || c", "(|| (&& a b) c)" },
+                                 // 7. Logical vs Bitwise
+                                 {"a && b | c", "(&& a (| b c))"},
+                                 {"a | b && c", "(&& (| a b) c)"},
+                                 {"a || b && c", "(|| a (&& b c))"},
+                                 {"a && b || c", "(|| (&& a b) c)"},
 
-    // 8. Assignment
-    { "x = a | b", "(= x (| a b))" },
-    { "x = a & b", "(= x (& a b))" },
-    { "x = a << b", "(= x (<< a b))" },
+                                 // 8. Assignment
+                                 {"x = a | b", "(= x (| a b))"},
+                                 {"x = a & b", "(= x (& a b))"},
+                                 {"x = a << b", "(= x (<< a b))"},
 
-    // 9. Associativity
-    { "a + b + c", "(+ (+ a b) c)" },
-    { "a << b << c", "(<< (<< a b) c)" },
-    { "a -> b -> c", "(-> (-> a b) c)" },
-    { "a & b & c", "(& (& a b) c)" },
-    { "a ** b ** c", "(** a (** b c))" },
+                                 // 9. Associativity
+                                 {"a + b + c", "(+ (+ a b) c)"},
+                                 {"a << b << c", "(<< (<< a b) c)"},
+                                 {"a -> b -> c", "(-> (-> a b) c)"},
+                                 {"a & b & c", "(& (& a b) c)"},
+                                 {"a ** b ** c", "(** a (** b c))"},
 
-    // 10. Unary Chaining
-    { "~-a", "(~ (- a))" },
-    { "-~a", "(- (~ a))" },
-    { "!~a", "(! (~ a))" },
+                                 // 10. Unary Chaining
+                                 {"~-a", "(~ (- a))"},
+                                 {"-~a", "(- (~ a))"},
+                                 {"!~a", "(! (~ a))"},
 
-    // 11. Existing Arithmetic Regressions
-    { "a + b * c", "(+ a (* b c))" },
-    { "a * b + c", "(+ (* a b) c)" },
-    { "(a + b) * c", "(* (group (+ a b)) c)" }
-  };
+                                 // 11. Existing Arithmetic Regressions
+                                 {"a + b * c", "(+ a (* b c))"},
+                                 {"a * b + c", "(+ (* a b) c)"},
+                                 {"(a + b) * c", "(* (group (+ a b)) c)"}};
 
   int passed = 0;
   int failed = 0;
@@ -171,15 +163,16 @@ int main() {
       // Extract the expression from the statement
       const auto& stmt = stmts[0];
       // stmt is unique_ptr<Stmt>. We need to cast it to ExpressionStmt.
-      // But we can't RTTI easily if types are not fully polymorphic or we don't know the exact layout.
-      // Actually Stmt has `accept(StmtVisitor)`. We can use a visitor to extract the expression.
+      // But we can't RTTI easily if types are not fully polymorphic or we don't know the exact
+      // layout. Actually Stmt has `accept(StmtVisitor)`. We can use a visitor to extract the
+      // expression.
 
       class ExtractExprVisitor : public StmtVisitor {
       public:
         const Expr* result = nullptr;
         std::any visit(const ExpressionStmt& stmt) override {
-            result = stmt.expression.get();
-            return {};
+          result = stmt.expression.get();
+          return {};
         }
         // Others ignore
         std::any visit(const VarStmt&) override { return {}; }
@@ -207,7 +200,8 @@ int main() {
       stmt->accept(extractor);
 
       if (!extractor.result) {
-        std::cerr << "[FAIL] Could not extract expression from statement for: " << test.expression << "\n";
+        std::cerr << "[FAIL] Could not extract expression from statement for: " << test.expression
+                  << "\n";
         failed++;
         continue;
       }
