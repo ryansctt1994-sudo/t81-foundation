@@ -397,6 +397,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_trit_packing_test tests/cpp/trit_packing_test.cpp)
   target_link_libraries(t81_trit_packing_test PRIVATE t81_core)
 
+  add_executable(t81_packed_trit_vector_test tests/cpp/test_packed_trit_vector.cpp)
+  target_link_libraries(t81_packed_trit_vector_test PRIVATE t81_core)
+
   add_executable(t81_base81_balanced_test tests/cpp/test_base81_balanced.cpp)
   target_link_libraries(t81_base81_balanced_test PRIVATE t81_core)
 
@@ -998,6 +1001,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_tisc t81_vm)
     t81_codec_base243_test
     t81_codec_base81_test
     t81_trit_packing_test
+    t81_packed_trit_vector_test
     t81_base81_balanced_test
     t81_base81_packed_test
     t81_metadata_test
