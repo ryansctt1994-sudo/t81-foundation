@@ -6,6 +6,7 @@
 #include <string>
 #include <string_view>
 #include <algorithm>
+#include <cstring>
 #include "t81/codec/trit_packing.hpp"
 #include "t81/core/Result.hpp"
 #include "t81/core/T81Int.hpp"
@@ -304,8 +305,8 @@ public:
     return from_trits(res);
   }
 
-  // Phase 2B: Direct operations calling reference for now (will be replaced by LUT implementation)
-  Result<ComputeTritVector> t_not() const {
+  // Phase 2B: Direct operations using LUT
+  Result<ComputeTritVector> t_not_lut() const {
     const auto& luts = LUTs::get();
     std::vector<uint8_t> res_data;
     res_data.reserve(data_.size());
@@ -314,18 +315,14 @@ public:
         res_data.push_back(luts.op_not[data_[i]]);
     }
 
-    // Mask trailing bits of the last byte to ensure padding is 00
     if (count_ % 4 != 0 && !res_data.empty()) {
-        size_t used_trits = count_ % 4;
-        size_t used_bits = used_trits * 2;
-        uint8_t mask = (1 << used_bits) - 1;
-        res_data.back() &= mask;
+        mask_trailing(res_data.back(), count_ % 4);
     }
 
     return Result<ComputeTritVector>::success(ComputeTritVector(std::move(res_data), count_));
   }
 
-  Result<ComputeTritVector> t_and(const ComputeTritVector& other) const {
+  Result<ComputeTritVector> t_and_lut(const ComputeTritVector& other) const {
     if (count_ != other.count_) {
        return Result<ComputeTritVector>::failure(
             T81Symbol::intern("LENGTH_MISMATCH"),
@@ -340,18 +337,14 @@ public:
         res_data.push_back(luts.op_and[data_[i]][other.data_[i]]);
     }
 
-    // Mask trailing bits
     if (count_ % 4 != 0 && !res_data.empty()) {
-        size_t used_trits = count_ % 4;
-        size_t used_bits = used_trits * 2;
-        uint8_t mask = (1 << used_bits) - 1;
-        res_data.back() &= mask;
+        mask_trailing(res_data.back(), count_ % 4);
     }
 
     return Result<ComputeTritVector>::success(ComputeTritVector(std::move(res_data), count_));
   }
 
-  Result<ComputeTritVector> t_or(const ComputeTritVector& other) const {
+  Result<ComputeTritVector> t_or_lut(const ComputeTritVector& other) const {
     if (count_ != other.count_) {
        return Result<ComputeTritVector>::failure(
             T81Symbol::intern("LENGTH_MISMATCH"),
@@ -366,18 +359,15 @@ public:
         res_data.push_back(luts.op_or[data_[i]][other.data_[i]]);
     }
 
-    // Mask trailing bits
     if (count_ % 4 != 0 && !res_data.empty()) {
-        size_t used_trits = count_ % 4;
-        size_t used_bits = used_trits * 2;
-        uint8_t mask = (1 << used_bits) - 1;
-        res_data.back() &= mask;
+        mask_trailing(res_data.back(), count_ % 4);
     }
 
     return Result<ComputeTritVector>::success(ComputeTritVector(std::move(res_data), count_));
   }
 
-  Result<ComputeTritVector> t_xor(const ComputeTritVector& other) const {
+  // Phase 2B+ / 2C: TXor remains on LUT path for safety (non-commutative, complex logic)
+  Result<ComputeTritVector> t_xor_lut(const ComputeTritVector& other) const {
     if (count_ != other.count_) {
        return Result<ComputeTritVector>::failure(
             T81Symbol::intern("LENGTH_MISMATCH"),
@@ -389,25 +379,157 @@ public:
     res_data.reserve(data_.size());
 
     for (size_t i = 0; i < data_.size(); ++i) {
-        // Note: TXor is non-commutative: a - b.
-        // We assume LUT is built as lut[a][b].
         res_data.push_back(luts.op_xor[data_[i]][other.data_[i]]);
     }
 
-    // Mask trailing bits
     if (count_ % 4 != 0 && !res_data.empty()) {
-        size_t used_trits = count_ % 4;
-        size_t used_bits = used_trits * 2;
-        uint8_t mask = (1 << used_bits) - 1;
-        res_data.back() &= mask;
+        mask_trailing(res_data.back(), count_ % 4);
     }
 
     return Result<ComputeTritVector>::success(ComputeTritVector(std::move(res_data), count_));
   }
 
+  // Phase 2C: SWAR Implementations
+  Result<ComputeTritVector> t_not_swar() const {
+      std::vector<uint8_t> res_data(data_.size());
+      size_t n = data_.size();
+      const uint8_t* src = data_.data();
+      uint8_t* dst = res_data.data();
+
+      size_t i = 0;
+      // Process 64-bit chunks
+      for (; i + 8 <= n; i += 8) {
+          uint64_t x;
+          std::memcpy(&x, src + i, 8);
+          uint64_t low = x & 0x5555555555555555ULL;
+          uint64_t res = x ^ (low << 1);
+          std::memcpy(dst + i, &res, 8);
+      }
+
+      // Process remaining bytes
+      for (; i < n; ++i) {
+          uint8_t x = src[i];
+          uint8_t low = x & 0x55;
+          dst[i] = x ^ (low << 1);
+      }
+
+      if (count_ % 4 != 0 && !res_data.empty()) {
+        mask_trailing(res_data.back(), count_ % 4);
+      }
+      return Result<ComputeTritVector>::success(ComputeTritVector(std::move(res_data), count_));
+  }
+
+  Result<ComputeTritVector> t_and_swar(const ComputeTritVector& other) const {
+    if (count_ != other.count_) {
+       return Result<ComputeTritVector>::failure(
+            T81Symbol::intern("LENGTH_MISMATCH"),
+            T81String("Vectors must have same length for binary operation"),
+            T81Symbol::intern("ComputeTritVector"));
+    }
+    std::vector<uint8_t> res_data(data_.size());
+    size_t n = data_.size();
+    const uint8_t* src_a = data_.data();
+    const uint8_t* src_b = other.data().data();
+    uint8_t* dst = res_data.data();
+
+    size_t i = 0;
+    // Process 64-bit chunks
+    for (; i + 8 <= n; i += 8) {
+        uint64_t a, b;
+        std::memcpy(&a, src_a + i, 8);
+        std::memcpy(&b, src_b + i, 8);
+
+        uint64_t H = (a | b) & 0xAAAAAAAAAAAAAAAAULL;
+        uint64_t L_content = (a & b) & 0x5555555555555555ULL;
+        uint64_t res = H | (H >> 1) | L_content;
+
+        std::memcpy(dst + i, &res, 8);
+    }
+
+    // Process remaining bytes
+    for (; i < n; ++i) {
+        uint8_t a = src_a[i];
+        uint8_t b = src_b[i];
+
+        uint8_t H = (a | b) & 0xAA;
+        uint8_t L_content = (a & b) & 0x55;
+        dst[i] = H | (H >> 1) | L_content;
+    }
+
+    if (count_ % 4 != 0 && !res_data.empty()) {
+        mask_trailing(res_data.back(), count_ % 4);
+    }
+    return Result<ComputeTritVector>::success(ComputeTritVector(std::move(res_data), count_));
+  }
+
+  Result<ComputeTritVector> t_or_swar(const ComputeTritVector& other) const {
+    if (count_ != other.count_) {
+       return Result<ComputeTritVector>::failure(
+            T81Symbol::intern("LENGTH_MISMATCH"),
+            T81String("Vectors must have same length for binary operation"),
+            T81Symbol::intern("ComputeTritVector"));
+    }
+    std::vector<uint8_t> res_data(data_.size());
+    size_t n = data_.size();
+    const uint8_t* src_a = data_.data();
+    const uint8_t* src_b = other.data().data();
+    uint8_t* dst = res_data.data();
+
+    size_t i = 0;
+    // Process 64-bit chunks
+    for (; i + 8 <= n; i += 8) {
+        uint64_t a, b;
+        std::memcpy(&a, src_a + i, 8);
+        std::memcpy(&b, src_b + i, 8);
+
+        uint64_t h_a = a & 0xAAAAAAAAAAAAAAAAULL;
+        uint64_t h_b = b & 0xAAAAAAAAAAAAAAAAULL;
+        uint64_t l_a = a & 0x5555555555555555ULL;
+        uint64_t l_b = b & 0x5555555555555555ULL;
+
+        uint64_t H = h_a & h_b;
+        uint64_t L = (l_a & l_b) | ((l_a | l_b) & ~(h_a | h_b));
+        uint64_t res = H | (H >> 1) | L;
+
+        std::memcpy(dst + i, &res, 8);
+    }
+
+    // Process remaining bytes
+    for (; i < n; ++i) {
+        uint8_t a = src_a[i];
+        uint8_t b = src_b[i];
+
+        uint8_t h_a = a & 0xAA;
+        uint8_t h_b = b & 0xAA;
+        uint8_t l_a = a & 0x55;
+        uint8_t l_b = b & 0x55;
+
+        uint8_t H = h_a & h_b;
+        uint8_t L = (l_a & l_b) | ((l_a | l_b) & ~(h_a | h_b));
+        dst[i] = H | (H >> 1) | L;
+    }
+
+    if (count_ % 4 != 0 && !res_data.empty()) {
+        mask_trailing(res_data.back(), count_ % 4);
+    }
+    return Result<ComputeTritVector>::success(ComputeTritVector(std::move(res_data), count_));
+  }
+
+  // Public API Wrappers
+  Result<ComputeTritVector> t_not() const { return t_not_swar(); }
+  Result<ComputeTritVector> t_and(const ComputeTritVector& other) const { return t_and_swar(other); }
+  Result<ComputeTritVector> t_or(const ComputeTritVector& other) const { return t_or_swar(other); }
+  Result<ComputeTritVector> t_xor(const ComputeTritVector& other) const { return t_xor_lut(other); }
+
 private:
   ComputeTritVector(std::vector<uint8_t> data, size_t count)
     : data_(std::move(data)), count_(count) {}
+
+  static void mask_trailing(uint8_t& byte, size_t used_trits) {
+        size_t used_bits = used_trits * 2;
+        uint8_t mask = (1 << used_bits) - 1;
+        byte &= mask;
+  }
 
   struct LUTs {
       uint8_t op_not[256];
