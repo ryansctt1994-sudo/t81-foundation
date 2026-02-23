@@ -33,7 +33,7 @@ T81 identifies and mitigates reliance on centralized infrastructure.
 
 The following artifacts constitute the "Continuity Kit" necessary to rebuild T81:
 
-1.  **The Book**: `book/*.md` (This document).
+1.  **The Book**: `book/book-en/*.md` (This document).
 2.  **The Spec**: `spec/*.md` (Formal TISC/Axion specifications).
 3.  **The Code**: `src/` and `include/` (Reference implementation).
 4.  **The Tests**: `tests/cpp/` (Validation logic).
