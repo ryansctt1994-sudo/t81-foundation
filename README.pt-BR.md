@@ -213,7 +213,7 @@ A **Monografia Técnica Definitiva** é a única fonte da verdade para o T81. El
 
 </details>
 
-> 📚 **Leia a monografia completa aqui:** [README.md](book-pt/README.md)
+> 📚 **Leia a monografia completa aqui:** [README.md](book/book-pt/README.md)
 
 ## Compatibilidade e Não-Objetivos
 
