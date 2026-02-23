@@ -850,6 +850,67 @@ public:
 
   // Expressions
   std::any visit(const BinaryExpr& expr) override {
+    if (expr.op.type == TokenType::AmpAmp || expr.op.type == TokenType::PipePipe) {
+      auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+      auto end_label = new_label();
+
+      if (expr.op.type == TokenType::AmpAmp) {
+        // Short-circuit AND: lhs && rhs
+        // Initialize false (0). If lhs is false, jump to end.
+        // If rhs is false, jump to end. Else set true (1).
+        tisc::ir::Instruction init_false;
+        init_false.opcode = tisc::ir::Opcode::LOADI;
+        init_false.operands = {dest.reg, tisc::ir::Immediate{0}};
+        init_false.primitive = tisc::ir::PrimitiveKind::Boolean;
+        init_false.literal_kind = tisc::LiteralKind::Bool;
+        emit(init_false);
+
+        expr.left->accept(*this);
+        auto left = ensure_expr_result(expr.left.get());
+        emit_jump_if_zero(end_label, left);
+
+        expr.right->accept(*this);
+        auto right = ensure_expr_result(expr.right.get());
+        emit_jump_if_zero(end_label, right);
+
+        tisc::ir::Instruction set_true;
+        set_true.opcode = tisc::ir::Opcode::LOADI;
+        set_true.operands = {dest.reg, tisc::ir::Immediate{1}};
+        set_true.primitive = tisc::ir::PrimitiveKind::Boolean;
+        set_true.literal_kind = tisc::LiteralKind::Bool;
+        emit(set_true);
+      } else {
+        // Short-circuit OR: lhs || rhs
+        // Initialize true (1). If lhs is true, jump to end.
+        // If rhs is true, jump to end. Else set false (0).
+        tisc::ir::Instruction init_true;
+        init_true.opcode = tisc::ir::Opcode::LOADI;
+        init_true.operands = {dest.reg, tisc::ir::Immediate{1}};
+        init_true.primitive = tisc::ir::PrimitiveKind::Boolean;
+        init_true.literal_kind = tisc::LiteralKind::Bool;
+        emit(init_true);
+
+        expr.left->accept(*this);
+        auto left = ensure_expr_result(expr.left.get());
+        emit_jump_if_not_zero(end_label, left);
+
+        expr.right->accept(*this);
+        auto right = ensure_expr_result(expr.right.get());
+        emit_jump_if_not_zero(end_label, right);
+
+        tisc::ir::Instruction set_false;
+        set_false.opcode = tisc::ir::Opcode::LOADI;
+        set_false.operands = {dest.reg, tisc::ir::Immediate{0}};
+        set_false.primitive = tisc::ir::PrimitiveKind::Boolean;
+        set_false.literal_kind = tisc::LiteralKind::Bool;
+        emit(set_false);
+      }
+
+      emit_label(end_label);
+      record_result(&expr, dest);
+      return {};
+    }
+
     auto left = evaluate_expr(expr.left.get());
     auto right = evaluate_expr(expr.right.get());
     const Type* result_type = typed_expr(&expr);
