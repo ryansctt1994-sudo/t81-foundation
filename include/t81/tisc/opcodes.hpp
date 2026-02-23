@@ -175,6 +175,13 @@ enum class Opcode : std::uint8_t {
   Frac2F,
   TNeuralFwd,
   TNeuralBwd,
+  BitAnd,
+  BitOr,
+  BitXor,
+  BitNot,
+  BitShl,
+  BitShr,
+  BitUShr,
 };
 
 [[nodiscard]] constexpr std::string_view opcode_name(Opcode opcode) {
@@ -513,13 +520,27 @@ enum class Opcode : std::uint8_t {
       return "TNeuralFwd";
     case Opcode::TNeuralBwd:
       return "TNeuralBwd";
+    case Opcode::BitAnd:
+      return "BitAnd";
+    case Opcode::BitOr:
+      return "BitOr";
+    case Opcode::BitXor:
+      return "BitXor";
+    case Opcode::BitNot:
+      return "BitNot";
+    case Opcode::BitShl:
+      return "BitShl";
+    case Opcode::BitShr:
+      return "BitShr";
+    case Opcode::BitUShr:
+      return "BitUShr";
   }
   return "Unknown";
 }
 
-inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::TNeuralBwd) + 1> kAllOpcodes =
+inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::BitUShr) + 1> kAllOpcodes =
     [] {
-      std::array<Opcode, static_cast<std::size_t>(Opcode::TNeuralBwd) + 1> values{};
+      std::array<Opcode, static_cast<std::size_t>(Opcode::BitUShr) + 1> values{};
       for (std::size_t i = 0; i < values.size(); ++i) {
         values[i] = static_cast<Opcode>(i);
       }
@@ -527,6 +548,6 @@ inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::TNeuralBwd)
     }();
 
 [[nodiscard]] constexpr bool is_valid_opcode(std::uint8_t raw_opcode) {
-  return raw_opcode <= static_cast<std::uint8_t>(Opcode::TNeuralBwd);
+  return raw_opcode <= static_cast<std::uint8_t>(Opcode::BitUShr);
 }
 }  // namespace t81::tisc

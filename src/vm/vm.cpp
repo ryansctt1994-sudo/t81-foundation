@@ -4539,6 +4539,59 @@ public:
         record_axion_event(insn.opcode, 0, ctx.registers[insn.a], verdict);
         break;
       }
+      case t81::tisc::Opcode::BitAnd:
+      case t81::tisc::Opcode::BitOr:
+      case t81::tisc::Opcode::BitXor: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        std::int64_t v = 0;
+        if (insn.opcode == t81::tisc::Opcode::BitAnd) {
+          v = ctx.registers[insn.b] & ctx.registers[insn.c];
+        } else if (insn.opcode == t81::tisc::Opcode::BitOr) {
+          v = ctx.registers[insn.b] | ctx.registers[insn.c];
+        } else {
+          v = ctx.registers[insn.b] ^ ctx.registers[insn.c];
+        }
+        ctx.registers[insn.a] = v;
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(v);
+        break;
+      }
+      case t81::tisc::Opcode::BitNot: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        std::int64_t v = ~ctx.registers[insn.b];
+        ctx.registers[insn.a] = v;
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(v);
+        break;
+      }
+      case t81::tisc::Opcode::BitShl:
+      case t81::tisc::Opcode::BitShr:
+      case t81::tisc::Opcode::BitUShr: {
+        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+          trap = Trap::DecodeFault;
+          break;
+        }
+        std::int64_t val = ctx.registers[insn.b];
+        std::int64_t amt = ctx.registers[insn.c] & 0x3F;
+        std::int64_t res = 0;
+        if (insn.opcode == t81::tisc::Opcode::BitShl) {
+          res = val << amt;
+        } else if (insn.opcode == t81::tisc::Opcode::BitShr) {
+          res = val >> amt;
+        } else {
+          res = static_cast<std::int64_t>(static_cast<uint64_t>(val) >> amt);
+        }
+        ctx.registers[insn.a] = res;
+        ctx.register_tags[insn.a] = ValueTag::Int;
+        update_flags(res);
+        break;
+      }
       default:
         trap = Trap::DecodeFault;
         break;

@@ -1,5 +1,5 @@
 # TISC Opcode Listing
-Status: Canonical
+Status: Canonical / Frozen (v1.1.0)
 Version: 1.1.0
 Source of Truth: VM + opcode headers
 
@@ -10,7 +10,7 @@ Source of Truth: VM + opcode headers
   - Bytes 5-8: Operand B (`int32_t`, little-endian)
   - Bytes 9-12: Operand C (`int32_t`, little-endian)
 - **Operands**: All instructions encode three 32-bit signed integer operands (A, B, C). Unused operands for a specific opcode are ignored by the VM but must be present in the binary stream (typically zeroed).
-- **Reserved Ranges**: Opcodes 167 through 255 are reserved for future expansion.
+- **Reserved Ranges**: Opcodes 174 (0xAE) through 255 (0xFF) are reserved for future expansion.
 - **Determinism**: All implemented opcodes must exhibit bit-exact deterministic behavior across all platforms. Floating point operations (FAdd, etc.) use `T81Float` or deterministic software implementations where hardware checks fail.
 
 ## 2. Opcode Categories
@@ -39,6 +39,13 @@ Source of Truth: VM + opcode headers
 | TMatMul | 34 (0x22) | A, B, C | Tensor Matrix Multiplication | Yes | src/vm/vm.cpp |
 | TTenDot | 35 (0x23) | A, B, C | Tensor Dot Product | Yes | src/vm/vm.cpp |
 | TNorm | 127 (0x7F) | A, B, C | Ternary Normalization | Yes | src/vm/vm.cpp |
+| BitAnd | 167 (0xA7) | A, B, C | Bitwise AND | Yes | src/vm/vm.cpp |
+| BitOr | 168 (0xA8) | A, B, C | Bitwise OR | Yes | src/vm/vm.cpp |
+| BitXor | 169 (0xA9) | A, B, C | Bitwise XOR | Yes | src/vm/vm.cpp |
+| BitNot | 170 (0xAA) | A, B, C | Bitwise NOT | Yes | src/vm/vm.cpp |
+| BitShl | 171 (0xAB) | A, B, C | Bitwise Shift Left | Yes | src/vm/vm.cpp |
+| BitShr | 172 (0xAC) | A, B, C | Bitwise Shift Right (Arithmetic) | Yes | src/vm/vm.cpp |
+| BitUShr | 173 (0xAD) | A, B, C | Bitwise Shift Right (Logical) | Yes | src/vm/vm.cpp |
 
 ### 2.2 Control Flow
 | Mnemonic | Numeric Encoding | Operands | Description | Deterministic | Implementation Location |
@@ -243,10 +250,10 @@ Source of Truth: VM + opcode headers
 
 ## 3. Reserved / Unused Opcodes
 - **Nop (0x00)**: No Operation.
-- **Reserved**: Opcodes 167 (0xA7) through 255 (0xFF) are reserved for future standardization.
+- **Reserved**: Opcodes 174 (0xAE) through 255 (0xFF) are reserved for future standardization.
 
 ## 4. Implementation Consistency Audit
-- **VM Opcode Count**: 167 defined opcodes (0-166).
-- **Header Enum Count**: 167 entries.
+- **VM Opcode Count**: 174 defined opcodes (0-173).
+- **Header Enum Count**: 174 entries.
 - **Coverage**: All opcodes defined in `include/t81/tisc/opcodes.hpp` are present in `src/vm/vm.cpp` dispatch switch.
 - **Discrepancies**: None found.
