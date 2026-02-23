@@ -374,6 +374,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_axion_stub_test tests/cpp/axion_stub_test.cpp)
   target_link_libraries(t81_axion_stub_test PRIVATE t81_core)
 
+  add_executable(t81_check_tier_test tests/cpp/test_check_tier.cpp)
+  target_link_libraries(t81_check_tier_test PRIVATE t81_core)
+
   add_executable(t81_codec_base243_test tests/cpp/codec_base243_test.cpp)
   target_link_libraries(t81_codec_base243_test PRIVATE t81_core)
   add_executable(t81_codec_base81_test tests/cpp/codec_base81_test.cpp)

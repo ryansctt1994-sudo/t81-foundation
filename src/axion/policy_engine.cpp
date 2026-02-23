@@ -62,8 +62,11 @@ Verdict PolicyEngine::execute_bytecode(const SyscallContext& ctx) {
     switch (op) {
       case AxionOp::CheckTier: {
         uint32_t required = read_u32();
-        // Tier check would happen here in a full implementation
-        (void)required;
+        if (static_cast<uint32_t>(ctx.current_tier) < required) {
+          std::ostringstream ss;
+          ss << "Tier check failed: current=" << ctx.current_tier << " required=" << required;
+          return Verdict{VerdictKind::Deny, ss.str()};
+        }
         break;
       }
       case AxionOp::LimitInstructions: {

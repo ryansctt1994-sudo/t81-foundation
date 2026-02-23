@@ -135,3 +135,13 @@ Deferred: host-float math determinism and content-addressable symbol identity.
 | **P2** | `T81Float` | Code | **DONE** | **Fix Determinism:** Implemented `to_canonical_string` without `double`. |
 
 ---
+
+## 8. Stub Implementation Remediation
+
+| Component | Stub Feature | Location | Status | Action |
+| :--- | :--- | :--- | :--- | :--- |
+| `AxionPolicy` | `CheckTier` Opcode | `src/axion/policy_engine.cpp` | **DONE** | Implemented tier check logic against `SyscallContext`. |
+| `VM` | `AxCheck`, `AxSign`, etc. | `src/vm/vm.cpp` | **Pending** | Currently stubs logging "Cognitive Opcode Stub Execution". |
+| `VM` | Networking (`NSend`, `NRecv`) | `src/vm/vm.cpp` | **Pending** | Placeholders returning dummy values. |
+| `VM` | Async (`VWait`, `VYield`) | `src/vm/vm.cpp` | **Pending** | Placeholders. |
+| `T81Float` | Ternary-Decimal Conv | `include/t81/std/string.hpp` | **Deferred** | Uses `double` conversion fallback (marked TODO). |
