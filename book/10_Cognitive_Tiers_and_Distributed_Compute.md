@@ -4,7 +4,7 @@
 
 **Status: Implemented**
 
-T81 organizes computational capability into **Cognitive Tiers**. This taxonomy allows the system to bound the "danger" or "cost" of a computation. A program must explicitly request promotion to higher tiers to access advanced capabilities.
+T81 organizes computational complexity into **Cognitive Tiers**. This taxonomy allows the system to bound the "danger" or "cost" of a computation. A program must explicitly request promotion to higher tiers to access advanced capabilities.
 
 | Tier | Name | Capability | Constraint | Axion Policy |
 | :--- | :--- | :--- | :--- | :--- |
@@ -53,12 +53,14 @@ This process mirrors the cognitive act of "learning": converting explicit, slow 
 
 **Status: Implemented (Geometric)**
 
-Tier 5 deals with **Infinite Forms**—computations that do not terminate but converge to a value. T81 provides explicit support for analytic continuation and series summation.
+Tier 5 deals with **Infinite Forms**—computations that do not terminate but converge to a value. T81 provides explicit support for analytic continuation and series summation. This is crucial for high-precision physics simulations or symbolic AI.
 
 ### 10.4.1 The Infinite Object
 An `InfiniteCanonicalForm` is a handle to a mathematical series, defined by:
 *   **First Term ($a$)**
 *   **Ratio ($r$)** (for Geometric series) or **Generator Function** ($f(n)$).
+
+It acts as a lazy evaluator. You can ask for the "100th term", or you can ask for the "Sum".
 
 ### 10.4.2 Collapse and Convergence
 The `InfCollapse` opcode attempts to resolve an infinite form to a finite value.

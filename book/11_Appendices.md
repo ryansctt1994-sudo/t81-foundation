@@ -33,15 +33,18 @@ Tier 5 supports basic Geometric Series collapse.
 | **Cognitive Tier** | A level of computational capability (1=Symbolic to 5=Infinite). |
 | **Determinism Gate** | The CI process (`t81lang_repro_gate`) that verifies bit-exact reproducibility of the compiler. |
 | **dmath** | Deterministic Math library; a software implementation of floating-point arithmetic. |
-| **T81Float** | A balanced ternary floating-point number $(s, m, e)$. |
+| **T81Float** | A balanced ternary floating-point number $(s, m, e)$ packed into 64 bits. |
 | **T81Int** | An arbitrary-precision balanced ternary integer. |
 | **TISC** | Ternary Instruction Set Computer; the bytecode language of the T81VM. |
 | **Trit** | A base-3 digit $\{-1, 0, 1\}$. |
 | **Tryte** | A sequence of trits (usually 4). |
 | **Structural Honesty** | The principle that a system must not synthesize information or hide approximation. |
+| **Segmented Memory** | A memory model where addresses are (SegmentID, Offset) pairs, preventing pointer aliasing. |
+| **Opaque Handle** | An integer index used to reference a heap object, preventing memory address leakage. |
 
 ## 11.3 Useful Links
 
 *   **Repository**: [github.com/t81-foundation/t81](https://github.com/t81-foundation/t81)
 *   **Specification**: `spec/` directory in the repo.
 *   **CI Dashboard**: GitHub Actions tab.
+*   **Community**: Discord / Matrix (TBD).

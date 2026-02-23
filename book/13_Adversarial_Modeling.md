@@ -14,7 +14,7 @@ T81 assumes a hostile environment. The **Host** (OS, Hardware, Operator) is cons
 
 **Attack Vector**: "Trojan Source" / Homoglyphs.
 **Description**: An attacker uses Unicode control characters (e.g., Right-to-Left Override) to make source code appear different to humans than to the compiler.
-**Mitigation**: The T81 Lexer enforces a strict subset of UTF-8. Control characters and non-printable characters are rejected during tokenization.
+**Mitigation**: The T81 Lexer enforces a strict subset of UTF-8. Control characters and non-printable characters are rejected during tokenization. All identifiers must be normalized to NFC form.
 
 **Attack Vector**: Token Reordering / Optimization Drift.
 **Description**: A malicious compiler might reorder instructions in a way that preserves semantics on one architecture but not another (e.g., due to memory model differences).
@@ -23,16 +23,16 @@ T81 assumes a hostile environment. The **Host** (OS, Hardware, Operator) is cons
 ## 13.3 VM and GC Attack Vectors
 
 **Attack Vector**: Rowhammer / Bit Flips.
-**Description**: Physical attacks on DRAM to flip bits in sensitive memory (e.g., changing a `Deny` verdict to `Allow`).
-**Mitigation**: T81 uses **Opaque Handles** and **Memory Segmentation**. Critical kernel structures are stored in isolated pages (where possible) and validated by checksums. However, software cannot fully mitigate hardware faults without ECC memory.
+**Description**: Physical attacks on DRAM to flip bits in sensitive memory (e.g., changing a `Deny` verdict to `Allow` or flipping a trit).
+**Mitigation**: T81 uses **Opaque Handles** and **Memory Segmentation**. Critical kernel structures are stored in isolated pages (where possible) and validated by checksums. However, software cannot fully mitigate hardware faults without ECC memory. Future versions may implement software-based Reed-Solomon encoding for critical state.
 
 **Attack Vector**: Garbage Collection Nondeterminism.
 **Description**: If GC runs based on wall-clock time or memory pressure, execution traces will diverge across runs.
-**Mitigation**: The T81 GC is **deterministic**. It is triggered solely by allocation counts (`bytes_allocated > threshold`). This ensures that GC pauses happen at the exact same instruction on every run.
+**Mitigation**: The T81 GC is **deterministic**. It is triggered solely by allocation counts (`bytes_allocated > threshold`). This ensures that GC pauses happen at the exact same instruction on every run, preserving the trace structure.
 
 **Attack Vector**: Timing Side-Channels.
 **Description**: Observing the time it takes to compute a function (e.g., modular exponentiation) to infer secret keys.
-**Mitigation**: `dmath` aims for constant-time implementations for cryptographic primitives, but general-purpose arithmetic is not guaranteed to be constant-time. T81 focuses on *functional* determinism, not *temporal* determinism (constant cycles).
+**Mitigation**: `dmath` aims for constant-time implementations for cryptographic primitives, but general-purpose arithmetic is not guaranteed to be constant-time. T81 focuses on *functional* determinism, not *temporal* determinism (constant cycles). Users should be aware of this limitation for cryptographic code.
 
 ## 13.4 CanonFS and Hash Attacks
 

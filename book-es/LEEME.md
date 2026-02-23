@@ -143,73 +143,83 @@ Y la restricción, cuando se aplica deliberadamente, es una forma de claridad.
 <details>
 <summary><strong>Parte III — Gobernanza y Verificación</strong></summary>
 
-7. **[Verificación y Auditoría](./07_Verificacion_y_Auditoria.md)**
 
-   * [7.1 Metodología de Verificación Formal](./07_Verificacion_y_Auditoria.md#71-metodología-de-verificación-formal)
-   * [7.2 La Matriz de Auditoría Formal](./07_Verificacion_y_Auditoria.md#72-la-matriz-de-auditoría-formal)
-   * [7.3 Pruebas Basadas en Propiedades](./07_Verificacion_y_Auditoria.md#73-pruebas-basadas-en-propiedades)
-   * [7.4 La Puerta de Determinismo](./07_Verificacion_y_Auditoria.md#74-la-puerta-de-determinismo)
+7. **[Programación en T81Lang](./07_Programacion_en_T81Lang.md)**
 
-8. **[El Kernel de Seguridad Axion](./08_El_Kernel_Axion.md)**
+   * [7.1 Filosofía de Diseño](./07_Programacion_en_T81Lang.md#71-filosofia-de-diseno)
+   * [7.2 Conceptos Básicos de Sintaxis](./07_Programacion_en_T81Lang.md#72-conceptos-basicos-de-sintaxis)
+   * [7.3 Tipos de Datos](./07_Programacion_en_T81Lang.md#73-tipos-de-datos)
+   * [7.4 Flujo de Control](./07_Programacion_en_T81Lang.md#74-flujo-de-control)
+   * [7.5 Funciones](./07_Programacion_en_T81Lang.md#75-funciones)
+   * [7.6 Integración con Axion](./07_Programacion_en_T81Lang.md#76-integracion-con-axion)
+   * [7.7 Ejemplos](./07_Programacion_en_T81Lang.md#77-ejemplos)
+8. **[Verificación y Auditoría](./08_Verificacion_y_Auditoria.md)**
 
-   * [8.1 Definición Formal](./08_El_Kernel_Axion.md#81-definición-formal)
-   * [8.2 El Modelo de Políticas](./08_El_Kernel_Axion.md#82-el-modelo-de-políticas)
-   * [8.3 Intercepción de Instrucciones](./08_El_Kernel_Axion.md#83-intercepción-de-instrucciones)
-   * [8.4 El Registro de Auditoría (Traza)](./08_El_Kernel_Axion.md#84-el-registro-de-auditoría-traza)
-   * [8.5 Promoción Cognitiva](./08_El_Kernel_Axion.md#85-promoción-cognitiva)
+   * [8.1 Metodología de Verificación Formal](./08_Verificacion_y_Auditoria.md#81-metodología-de-verificación-formal)
+   * [8.2 La Matriz de Auditoría Formal](./08_Verificacion_y_Auditoria.md#82-la-matriz-de-auditoría-formal)
+   * [8.3 Pruebas Basadas en Propiedades](./08_Verificacion_y_Auditoria.md#83-pruebas-basadas-en-propiedades)
+   * [8.4 La Puerta de Determinismo](./08_Verificacion_y_Auditoria.md#84-la-puerta-de-determinismo)
 
-9. **[Niveles Cognitivos y Cómputo Distribuido](./09_Niveles_Cognitivos_y_Computo_Distribuido.md)**
+9. **[El Kernel de Seguridad Axion](./09_El_Kernel_Axion.md)**
 
-   * [9.1 El Modelo de Niveles Cognitivos](./09_Niveles_Cognitivos_y_Computo_Distribuido.md#91-el-modelo-de-niveles-cognitivos)
-   * [9.2 Cómputo Distribuido (Nivel 4)](./09_Niveles_Cognitivos_y_Computo_Distribuido.md#92-cómputo-distribuido-nivel-4)
-   * [9.3 Compilación JIT Basada en Trazas](./09_Niveles_Cognitivos_y_Computo_Distribuido.md#93-compilación-jit-basada-en-trazas)
-   * [9.4 Formas Infinitas (Nivel 5)](./09_Niveles_Cognitivos_y_Computo_Distribuido.md#94-formas-infinitas-nivel-5)
+   * [9.1 Definición Formal](./09_El_Kernel_Axion.md#91-definición-formal)
+   * [9.2 El Modelo de Políticas](./09_El_Kernel_Axion.md#92-el-modelo-de-políticas)
+   * [9.3 Intercepción de Instrucciones](./09_El_Kernel_Axion.md#93-intercepción-de-instrucciones)
+   * [9.4 El Registro de Auditoría (Traza)](./09_El_Kernel_Axion.md#94-el-registro-de-auditoría-traza)
+   * [9.5 Promoción Cognitiva](./09_El_Kernel_Axion.md#95-promoción-cognitiva)
 
-10. **[Apéndices](./10_Apendices.md)**
+10. **[Niveles Cognitivos y Cómputo Distribuido](./10_Niveles_Cognitivos_y_Computo_Distribuido.md)**
 
-* [10.1 Lo Que Aún No Está Implementado](./10_Apendices.md#101-lo-que-aún-no-está-implementado)
-* [10.2 Glosario](./10_Apendices.md#102-glosario)
-* [10.3 Enlaces Útiles](./10_Apendices.md#103-enlaces-útiles)
+   * [10.1 El Modelo de Niveles Cognitivos](./10_Niveles_Cognitivos_y_Computo_Distribuido.md#101-el-modelo-de-niveles-cognitivos)
+   * [10.2 Cómputo Distribuido (Nivel 4)](./10_Niveles_Cognitivos_y_Computo_Distribuido.md#102-cómputo-distribuido-nivel-4)
+   * [10.3 Compilación JIT Basada en Trazas](./10_Niveles_Cognitivos_y_Computo_Distribuido.md#103-compilación-jit-basada-en-trazas)
+   * [10.4 Formas Infinitas (Nivel 5)](./10_Niveles_Cognitivos_y_Computo_Distribuido.md#104-formas-infinitas-nivel-5)
+
+11. **[Apéndices](./11_Apendices.md)**
+
+   * [11.1 Lo Que Aún No Está Implementado](./11_Apendices.md#111-lo-que-aún-no-está-implementado)
+   * [11.2 Glosario](./11_Apendices.md#112-glosario)
+   * [11.3 Enlaces Útiles](./11_Apendices.md#113-enlaces-útiles)
 
 </details>
 
 <details>
 <summary><strong>Parte IV — Formalización y Endurecimiento Estructural</strong></summary>
 
-11. **[Semántica Formal de TISC y T81VM](./11_Semantica_Formal.md)**
+12. **[Semántica Formal de TISC y T81VM](./12_Semantica_Formal.md)**
 
-* [11.1 Semántica Operacional](./11_Semantica_Formal.md#111-semántica-operacional)
-* [11.2 Función de Transición Algebraica](./11_Semantica_Formal.md#112-función-de-transición-algebraica)
-* [11.3 Sistema de Reescritura de Canonicalización](./11_Semantica_Formal.md#113-sistema-de-reescritura-de-canonicalización)
-* [11.4 Bocetos de Prueba de Determinismo](./11_Semantica_Formal.md#114-bocetos-de-prueba-de-determinismo)
-* [11.5 Equivalencia Intérprete vs Trace-JIT](./11_Semantica_Formal.md#115-equivalencia-intérprete-vs-trace-jit)
+   * [12.1 Semántica Operacional](./12_Semantica_Formal.md#121-semántica-operacional)
+   * [12.2 Función de Transición Algebraica](./12_Semantica_Formal.md#122-función-de-transición-algebraica)
+   * [12.3 Sistema de Reescritura de Canonicalización](./12_Semantica_Formal.md#123-sistema-de-reescritura-de-canonicalización)
+   * [12.4 Bocetos de Prueba de Determinismo](./12_Semantica_Formal.md#124-bocetos-de-prueba-de-determinismo)
+   * [12.5 Equivalencia Intérprete vs Trace-JIT](./12_Semantica_Formal.md#125-equivalencia-intérprete-vs-trace-jit)
 
-12. **[Modelado Adversarial y Ataques de Determinismo](./12_Modelado_Adversarial.md)**
+13. **[Modelado Adversarial y Ataques de Determinismo](./13_Modelado_Adversarial.md)**
 
-* [12.1 Modelo de Amenazas](./12_Modelado_Adversarial.md#121-modelo-de-amenazas)
-* [12.2 Ataques a Nivel de Compilador](./12_Modelado_Adversarial.md#122-ataques-a-nivel-de-compilador)
-* [12.3 Vectores de Ataque de VM y GC](./12_Modelado_Adversarial.md#123-vectores-de-ataque-de-vm-y-gc)
-* [12.4 Ataques a CanonFS y Hash](./12_Modelado_Adversarial.md#124-ataques-a-canonfs-y-hash)
-* [12.5 Ataque de Viaje en el Tiempo de Nivel Distribuido](./12_Modelado_Adversarial.md#125-ataque-de-viaje-en-el-tiempo-de-nivel-distribuido)
-* [12.6 Plantilla Post-Mortem de Brecha de Determinismo](./12_Modelado_Adversarial.md#126-plantilla-post-mortem-de-brecha-de-determinismo)
+   * [13.1 Modelo de Amenazas](./13_Modelado_Adversarial.md#131-modelo-de-amenazas)
+   * [13.2 Ataques a Nivel de Compilador](./13_Modelado_Adversarial.md#132-ataques-a-nivel-de-compilador)
+   * [13.3 Vectores de Ataque de VM y GC](./13_Modelado_Adversarial.md#133-vectores-de-ataque-de-vm-y-gc)
+   * [13.4 Ataques a CanonFS y Hash](./13_Modelado_Adversarial.md#134-ataques-a-canonfs-y-hash)
+   * [13.5 Ataque de Viaje en el Tiempo de Nivel Distribuido](./13_Modelado_Adversarial.md#135-ataque-de-viaje-en-el-tiempo-de-nivel-distribuido)
+   * [13.6 Plantilla Post-Mortem de Brecha de Determinismo](./13_Modelado_Adversarial.md#136-plantilla-post-mortem-de-brecha-de-determinismo)
 
 </details>
 
 <details>
 <summary><strong>Parte V — Continuidad y Horizonte de Investigación</strong></summary>
 
-13. **[Continuidad y Resiliencia](./13_Continuidad_Resiliencia.md)**
+14. **[Continuidad y Resiliencia](./14_Continuidad_Resiliencia.md)**
 
-* [13.1 El Protocolo de Sala Limpia](./13_Continuidad_Resiliencia.md#131-el-protocolo-de-sala-limpia)
-* [13.2 Puntos Únicos de Fallo](./13_Continuidad_Resiliencia.md#132-puntos-únicos-de-fallo)
-* [13.3 Manifiesto de Continuidad](./13_Continuidad_Resiliencia.md#133-manifiesto-de-continuidad)
-* [13.4 Invariantes Formales Inmutables](./13_Continuidad_Resiliencia.md#134-invariantes-formales-inmutables)
+   * [14.1 El Protocolo de Sala Limpia](./14_Continuidad_Resiliencia.md#141-el-protocolo-de-sala-limpia)
+   * [14.2 Puntos Únicos de Fallo](./14_Continuidad_Resiliencia.md#142-puntos-únicos-de-fallo)
+   * [14.3 Manifiesto de Continuidad](./14_Continuidad_Resiliencia.md#143-manifiesto-de-continuidad)
+   * [14.4 Invariantes Formales Inmutables](./14_Continuidad_Resiliencia.md#144-invariantes-formales-inmutables)
 
-14. **[Frontera de Investigación](./14_Frontera_de_Investigacion.md)**
+15. **[Frontera de Investigación](./15_Frontera_de_Investigacion.md)**
 
-* [14.1 Aceleración de Hardware Ternario](./14_Frontera_de_Investigacion.md#141-aceleración-de-hardware-ternario)
-* [14.2 Rutas de Verificación Formal](./14_Frontera_de_Investigacion.md#142-rutas-de-verificación-formal)
-* [14.3 CanonFS como Sustrato Merkle](./14_Frontera_de_Investigacion.md#143-canonfs-como-sustrato-merkle)
-* [14.4 Inferencia de IA Determinista a Escala](./14_Frontera_de_Investigacion.md#144-inferencia-de-ia-determinista-a-escala)
+   * [15.1 Aceleración de Hardware Ternario](./15_Frontera_de_Investigacion.md#151-aceleración-de-hardware-ternario)
+   * [15.2 Rutas de Verificación Formal](./15_Frontera_de_Investigacion.md#152-rutas-de-verificación-formal)
+   * [15.3 CanonFS como Sustrato Merkle](./15_Frontera_de_Investigacion.md#153-canonfs-como-sustrato-merkle)
+   * [15.4 Inferencia de IA Determinista a Escala](./15_Frontera_de_Investigacion.md#154-inferencia-de-ia-determinista-a-escala)
 
 </details>

@@ -112,3 +112,10 @@ T81 integra un conjunto de "Principios Constitucionales" inmutables ($\Theta_1 \
 | Lógica Ternaria | `spec/t81-data-types.md` | `include/t81/ternary.hpp` | `tests/cpp/ternary_arith_test.cpp` |
 | Auditabilidad | `spec/axion-kernel.md` | `include/t81/axion/api.hpp` | `tests/cpp/test_ethics.cpp` |
 | Almacenamiento Canónico | `spec/canonfs-spec.md` | `src/canonfs/` | `tests/cpp/canonfs_driver_test.cpp` |
+
+---
+**Canonical Source**: /book (English)
+**Source Version**: Phase 1 Expansion
+**Last Synced**: 2026-02-23
+**Translation Status**: Needs Update
+---

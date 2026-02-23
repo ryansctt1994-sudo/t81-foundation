@@ -7,11 +7,12 @@
 While T81 runs efficiently on binary hardware via emulation (`packed-trit` storage), native ternary hardware could offer significant advantages.
 *   **Information Density**: Trits carry $\approx 1.58$ bits of information. A 27-trit word fits in 64 bits but represents $7.6 \times 10^{12}$ values, far exceeding $2^{32}$.
 *   **Arithmetic Efficiency**: Balanced ternary addition reduces the average number of carry operations compared to binary.
-*   **Energy Efficiency**: Research suggests that ternary logic gates can be more power-efficient for certain AI workloads (e.g., Sparse Neural Networks).
+*   **Energy Efficiency**: Research suggests that ternary logic gates can be more power-efficient for certain AI workloads (e.g., Sparse Neural Networks), as the "0" state naturally maps to "Off".
 
 **Path Forward**:
-1.  **FPGA Emulation**: Port the TISC core to Verilog/VHDL targeting Xilinx Artix-7, implementing native ternary ALUs.
+1.  **FPGA Emulation**: Port the TISC core to Verilog/VHDL targeting Xilinx Artix-7, implementing native ternary ALUs (via 2-bit binary mapping).
 2.  **ASIC Design**: Collaborate with open-source silicon projects (OpenROAD) to tape out a proof-of-concept ternary coprocessor.
+3.  **Memristors**: Investigate multi-state memory devices that can store trits natively.
 
 ## 15.2 Formal Verification Paths
 

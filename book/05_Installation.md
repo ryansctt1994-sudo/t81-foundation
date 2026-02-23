@@ -2,49 +2,53 @@
 
 ## 5.1 Prerequisites
 
-**Status: Standardized**
+**Status: Stable**
 
-Building T81 requires a modern C++ toolchain capable of supporting C++23 features. The project enforces strict compiler warnings and standard compliance to minimize undefined behavior.
+To build T81 from source, you need a modern C++ toolchain capable of C++23.
 
-### Supported Platforms
-*   **Linux**: x86_64, ARM64 (aarch64), RISC-V (rv64gc)
-*   **macOS**: Apple Silicon (M1/M2/M3), Intel (legacy)
-*   **Windows**: WSL2 recommended (MSVC support is experimental)
-
-### Toolchain Requirements
 *   **Compiler**:
-    *   Clang 18+ (Recommended for strictness)
-    *   GCC 14+
-    *   MSVC 19.38+ (VS 2022)
-*   **Build System**: CMake 3.25 or newer.
-*   **Python**: Python 3.10+ (Used for validation scripts and bindings).
-*   **Ninja**: Recommended for faster builds.
+    *   Clang 16+ (Recommended for strict compliance)
+    *   GCC 13+
+    *   MSVC 19.36+ (VS 2022)
+*   **Build System**:
+    *   CMake 3.25+
+    *   Ninja (Optional, recommended for speed)
+*   **Dependencies**:
+    *   Python 3.10+ (For validation scripts)
+    *   Git (For version control)
+
+### 5.1.1 Environment Setup (Ubuntu/Debian)
+```bash
+sudo apt update
+sudo apt install -y build-essential cmake ninja-build clang-16 python3 python3-pip git
+```
+
+### 5.1.2 Environment Setup (macOS)
+```bash
+brew install cmake ninja llvm python3
+```
 
 ## 5.2 Building from Source
 
-**Status: Automated**
+**Status: Implemented**
 
-The standard build process is encapsulated in the `make cmake-ritual` command, but can be manually executed via CMake.
-
-### 5.2.1 The CMake Workflow
+Clone the repository recursively to fetch submodules (if any).
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/t81-foundation/t81.git
 cd t81
+```
 
-# 2. Configure (Release mode recommended for performance)
-cmake -B build -G Ninja \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DT81_USE_CXX23=ON \
-    -DT81_BUILD_TESTS=ON
+### 5.2.1 Standard Release Build
+This builds the `t81` binary with optimizations (`-O3`) enabled.
 
-# 3. Build the core executable
-cmake --build build --target t81
+```bash
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build
 ```
 
 ### 5.2.2 Build Options
-The following CMake options control the build configuration:
+You can control the build configuration:
 
 | Option | Default | Description |
 | :--- | :--- | :--- |
@@ -53,6 +57,7 @@ The following CMake options control the build configuration:
 | `T81_BUILD_EXAMPLES` | `ON` | Compile demo programs in `examples/`. |
 | `T81_ENABLE_ASAN` | `OFF` | Enable AddressSanitizer (Debug only). |
 | `T81_ENABLE_UBSAN` | `OFF` | Enable UndefinedBehaviorSanitizer. |
+| `T81_DETERMINISTIC` | `AUTO` | Force usage of `dmath` over `libm`. If `AUTO`, attempts to detect if `libm` is safe (rarely true). |
 
 > **Note on Determinism**: To ensure strict determinism (disabling host FPU fallbacks for transcendentals), define `T81_DETERMINISTIC` manually if not set by default:
 > `cmake -B build -DCMAKE_CXX_FLAGS="-DT81_DETERMINISTIC"`
@@ -97,6 +102,7 @@ python3 scripts/ci/check_architecture_targets.py
 
 ## 5.4 Troubleshooting
 
-*   **"C++23 not supported"**: Upgrade your compiler. T81 relies heavily on modern C++ features for type safety.
-*   **"Trace Hash Mismatch"**: You may be linking against a different version of standard libraries, or `dmath` fallback was triggered. Ensure `T81_DETERMINISTIC` is defined.
-*   **"SIMD Instruction Fault"**: T81 attempts to detect AVX2/NEON availability. If cross-compiling, ensure target flags are correct.
+*   **"C++23 not supported"**: Upgrade your compiler. T81 relies heavily on modern C++ features for type safety (`std::expected`, `std::span`). Check `clang --version`.
+*   **"Trace Hash Mismatch"**: You may be linking against a different version of standard libraries, or `dmath` fallback was triggered. Ensure `T81_DETERMINISTIC` is defined. Check for compiler flags like `-ffast-math` which break IEEE compliance—T81 forbids them.
+*   **"SIMD Instruction Fault"**: T81 attempts to detect AVX2/NEON availability. If cross-compiling, ensure target flags are correct. Use `-DENABLE_AVX2=OFF` if on older hardware.
+*   **"Memory Allocation Failed"**: If running large models, ensure your ulimit is sufficient. T81 aggressively pre-allocates tensor pools.

@@ -181,3 +181,10 @@ La siguiente lista de verificación define los criterios de aceptación para una
 *   **Preguntas Abiertas**: La prueba formal de equivalencia entre la optimización de traza del compilador JIT y la función de paso del intérprete necesita ser rigorizada en la Sección 11.
 *   **Figuras Sugeridas**: Un diagrama de secuencia que muestre la interacción entre el Intérprete, el Motor de Políticas Axion y el Registrador de Trazas durante un solo ciclo de instrucción sería beneficioso en la Sección 1.2.
 *   **Referencias Cruzadas**: Asegurar que la "Frontera de Investigación" (Capítulo 14) esté actualizada para reflejar el progreso reciente en la implementación de Formas Infinitas de Nivel 5.
+
+---
+**Canonical Source**: /book (English)
+**Source Version**: Phase 1 Expansion
+**Last Synced**: 2026-02-23
+**Translation Status**: Needs Update
+---

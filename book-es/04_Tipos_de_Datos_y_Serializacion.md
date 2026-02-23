@@ -101,3 +101,10 @@ Para asegurar un hashing consistente (para `CanonRef`), todos los datos deben no
     *   Los nodos se re-indexan por una clasificación topológica canónica. Si el grafo tiene ciclos, se aplica una regla de desempate determinista (basada en pesos de aristas).
 
 > **Verificación**: `tests/cpp/test_property_invariants.cpp` verifica estas propiedades a través de pruebas basadas en propiedades (fuzzing), asegurando que $Serialize(Deserialize(Serialize(X))) \equiv Serialize(X)$.
+
+---
+**Canonical Source**: /book (English)
+**Source Version**: Phase 1 Expansion
+**Last Synced**: 2026-02-23
+**Translation Status**: Needs Update
+---
