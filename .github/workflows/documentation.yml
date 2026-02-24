@@ -1,0 +1,200 @@
+name: Documentation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'spec/**'
+      - 'book/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # From pdf.yaml
+  build-pdfs:
+    name: Build PDFs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Build all PDFs with Marp (directory → pdf/output/)
+        uses: docker://marpteam/marp-cli:v4.2.3@sha256:472c9e9203391568cd777a70455ee241ee8d16a123dbbc2329277a35b6c56fc8
+        with:
+          args: >-
+            -I pdf/
+            --pdf
+            --allow-local-files
+            --title "T81 Foundation Specification"
+            --output pdf/output/
+        env:
+          # Fix permission issues between container and GitHub runner
+          MARP_USER: root:root
+
+      - name: Upload PDFs
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: t81-spec-pdfs
+          path: pdf/output/*.pdf
+          if-no-files-found: error
+
+  # From toc.yml
+  inject-toc:
+    name: Inject TOCs
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0                      # required for git push
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install TOC script dependencies (if any)
+        run: |
+          python -m pip install --quiet --upgrade pip
+          if [ -f "requirements.txt" ]; then
+            pip install --quiet -r requirements.txt
+          fi
+          # inject_toc.py likely uses only stdlib → nothing needed
+
+      - name: Inject Table of Contents into Markdown files
+        run: python3 scripts/inject_toc.py
+
+      - name: Create Pull Request with TOC updates
+        id: cpr
+        continue-on-error: true
+        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: auto/toc-refresh
+          delete-branch: true
+          title: "chore(docs): regenerate Tables of Contents"
+          body: "Automated run of `scripts/inject_toc.py`."
+          commit-message: "chore(docs): regenerate Tables of Contents [ci skip]"
+          labels: documentation,automated
+
+      - name: Success summary
+        if: success()
+        run: |
+          {
+            echo "### Tables of Contents auto-updated"
+            echo "- Files processed by scripts/inject_toc.py"
+            echo "- Trigger: ${{ github.event_name }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # From sidebar.yml
+  generate-sidebar:
+    name: Generate Sidebar
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0            # needed for clean git history & push
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install script dependencies (if any)
+        run: |
+          python -m pip install --quiet --upgrade pip
+          if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi
+          # Most likely you only need stdlib → nothing to install
+
+      - name: Generate sidebar
+        run: python3 scripts/generate_sidebar.py
+
+      - name: Create Pull Request with updated sidebar
+        id: cpr
+        continue-on-error: true
+        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: auto/sidebar
+          delete-branch: true
+          title: 'chore(docs): regenerate sidebar'
+          body: 'Automated run of `scripts/generate_sidebar.py`'
+          commit-message: 'chore(docs): regenerate sidebar [ci skip]'
+          labels: documentation,automated
+
+      - name: Success summary
+        if: success()
+        run: |
+          {
+            echo "### Sidebar auto-updated"
+            echo "- File: docs/_includes/sidebar.html"
+            echo "- Trigger: ${{ github.event_name }}"
+            echo "- PR outcome: ${{ steps.cpr.outcome }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # From static.yml
+  build-index:
+    name: Build Search Index
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js (LTS)
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Cheerio & Lunr (in docs/search)
+        working-directory: docs/search
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install cheerio@1.0.0-rc.12 lunr@2.3.9
+          fi
+
+      - name: Build search index
+        working-directory: docs/search
+        run: node build_index.js
+
+      - name: Create Pull Request with updated index
+        id: cpr
+        continue-on-error: true
+        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: auto/search-index
+          delete-branch: true
+          title: 'chore(docs): regenerate search index'
+          body: 'Automated run of `docs/search/build_index.js`'
+          commit-message: 'chore(docs): update search_index.json [ci skip]'
+          labels: documentation,automated
+
+      - name: Workflow summary
+        if: always()
+        run: |
+          {
+            echo "### Search index automation"
+            echo "- PR step outcome: ${{ steps.cpr.outcome }}"
+          } >> "$GITHUB_STEP_SUMMARY"
