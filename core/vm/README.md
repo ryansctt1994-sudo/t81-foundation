@@ -1,4 +1,4 @@
-# `src/vm`
+# `core/vm`
 
 Implementation of the HanoiVM runtime.
 

@@ -90,7 +90,7 @@ Subsystems own specific directories. New files must be placed accordingly.
 | :--- | :--- | :--- | :--- |
 | **Core Types** | `src/data_types/` | `src/data_types/` | `spec/t81-data-types.md` |
 | **TISC ISA** | `core/isa/` | `core/isa/` | `spec/tisc-spec.md` |
-| **VM** | `src/vm/` | `src/vm/` | `spec/t81vm-spec.md` |
+| **VM** | `core/vm/` | `core/vm/` | `spec/t81vm-spec.md` |
 | **Language** | `src/lang/` | `src/lang/` | `spec/t81lang-spec.md` |
 | **Axion** | `src/axion/` | `src/axion/` | `spec/axion-kernel.md` |
 | **Docs** | `docs/` | N/A | `docs/spec/INDEX.md` |

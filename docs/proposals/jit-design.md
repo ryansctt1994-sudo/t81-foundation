@@ -29,5 +29,5 @@ The prototype will target a subset of TISC:
 
 ## 5. Implementation Roadmap
 - `include/t81/vm/jit.hpp`: JIT interface.
-- `src/vm/jit_compiler.cpp`: Trace recorder and basic emitter.
+- `core/vm/jit_compiler.cpp`: Trace recorder and basic emitter.
 - `t81 debug --jit`: Debugger support for JIT-compiled regions.

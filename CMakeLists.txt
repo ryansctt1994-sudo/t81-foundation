@@ -68,7 +68,6 @@ add_library(t81_core STATIC
   core/types/bigint.cpp
   core/types/fraction.cpp
   core/isa/encoding.cpp
-  src/vm/vm.cpp
   src/canonfs/in_memory_driver.cpp
   src/canonfs/persistent_driver.cpp
   src/canonfs/axion_hook.cpp
@@ -94,7 +93,6 @@ add_library(t81_core STATIC
   src/codec/base81_packed.cpp
   src/codec/metadata.cpp
   src/codec/trit_packing.cpp
-  src/vm/jit_compiler.cpp
   src/hash/canonhash81.cpp
   src/crypto/sha3.cpp
   src/setun/bridge.cpp
@@ -155,12 +153,15 @@ target_include_directories(t81_isa PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-add_library(t81_vm INTERFACE)
-target_include_directories(t81_vm INTERFACE
+add_library(t81_vm STATIC
+  core/vm/vm.cpp
+  core/vm/jit_compiler.cpp
+)
+target_include_directories(t81_vm PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
-target_link_libraries(t81_vm INTERFACE t81_core)
+target_link_libraries(t81_vm PUBLIC t81_core t81_isa)
 
 add_library(t81_llvm INTERFACE)
 target_include_directories(t81_llvm INTERFACE
@@ -343,44 +344,44 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_isa_encoding_test PRIVATE t81_core)
 
   add_executable(t81_vm_tensor_test tests/cpp/vm_tensor_test.cpp)
-  target_link_libraries(t81_vm_tensor_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_tensor_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_vm_fault_test tests/cpp/vm_fault_test.cpp)
-  target_link_libraries(t81_vm_fault_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_fault_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_vm_deterministic_fault_test tests/cpp/test_vm_deterministic_fault.cpp)
-  target_link_libraries(t81_vm_deterministic_fault_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_deterministic_fault_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_vm_new_opcodes_test tests/cpp/vm_new_opcodes_test.cpp)
-  target_link_libraries(t81_vm_new_opcodes_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_new_opcodes_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_test_axion_opcodes tests/cpp/test_axion_opcodes.cpp)
-  target_link_libraries(t81_test_axion_opcodes PRIVATE t81_core)
+  target_link_libraries(t81_test_axion_opcodes PRIVATE t81_vm t81_core)
   add_test(NAME t81_test_axion_opcodes COMMAND t81_test_axion_opcodes)
 
   add_executable(t81_vm_neural_opcodes_test tests/cpp/test_vm_neural_opcodes.cpp)
-  target_link_libraries(t81_vm_neural_opcodes_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_neural_opcodes_test PRIVATE t81_vm t81_core)
   add_test(NAME t81_vm_neural_opcodes_test COMMAND t81_vm_neural_opcodes_test)
 
   add_executable(test_bitwise tests/cpp/test_bitwise.cpp)
-  target_link_libraries(test_bitwise PRIVATE t81_core)
+  target_link_libraries(test_bitwise PRIVATE t81_vm t81_core)
   add_test(NAME test_bitwise COMMAND test_bitwise)
 
   add_executable(t81_vm_memory_test tests/cpp/vm_memory_test.cpp)
-  target_link_libraries(t81_vm_memory_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_memory_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_vm_resource_monitoring_test tests/cpp/test_resource_monitoring.cpp)
-  target_link_libraries(t81_vm_resource_monitoring_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_resource_monitoring_test PRIVATE t81_vm t81_core)
   add_test(NAME t81_vm_resource_monitoring_test COMMAND t81_vm_resource_monitoring_test)
 
   add_executable(t81_axion_log_determinism_test tests/cpp/axion_log_determinism_test.cpp)
-  target_link_libraries(t81_axion_log_determinism_test PRIVATE t81_core)
+  target_link_libraries(t81_axion_log_determinism_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_reflection_non_interference_test tests/cpp/reflection_non_interference_test.cpp)
-  target_link_libraries(t81_reflection_non_interference_test PRIVATE t81_core)
+  target_link_libraries(t81_reflection_non_interference_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_weights_load_test tests/cpp/weights_load_test.cpp)
-  target_link_libraries(t81_weights_load_test PRIVATE t81_core)
+  target_link_libraries(t81_weights_load_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_hash_stub_test tests/cpp/hash_stub_test.cpp)
   target_link_libraries(t81_hash_stub_test PRIVATE t81_core)
@@ -454,7 +455,7 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_numeric_format_test PRIVATE t81_core)
 
   add_executable(axion_recursion_guardrails_test tests/cpp/axion_recursion_guardrails_test.cpp)
-  target_link_libraries(axion_recursion_guardrails_test PRIVATE t81_core)
+  target_link_libraries(axion_recursion_guardrails_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_tensor_shape_test tests/cpp/tensor_shape_test.cpp)
   target_link_libraries(t81_tensor_shape_test PRIVATE t81_core)
@@ -531,50 +532,50 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_hanoi_integration_test PRIVATE t81_core)
 
   add_executable(t81_vm_load_store_test tests/cpp/vm_load_store_test.cpp)
-  target_link_libraries(t81_vm_load_store_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_load_store_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_vm_divmod_test tests/cpp/vm_divmod_test.cpp)
-  target_link_libraries(t81_vm_divmod_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_divmod_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_vm_illegal_test tests/cpp/vm_illegal_test.cpp)
-  target_link_libraries(t81_vm_illegal_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_illegal_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_vm_bounds_test tests/cpp/vm_bounds_test.cpp)
-  target_link_libraries(t81_vm_bounds_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_bounds_test PRIVATE t81_vm t81_core)
 
   add_executable(vm_bounds_trace_test tests/cpp/vm_bounds_trace_test.cpp)
-  target_link_libraries(vm_bounds_trace_test PRIVATE t81_core)
+  target_link_libraries(vm_bounds_trace_test PRIVATE t81_vm t81_core)
   add_test(NAME vm_bounds_trace_test COMMAND vm_bounds_trace_test)
 
   add_executable(t81_canonfs_driver_test tests/cpp/canonfs_driver_test.cpp)
   target_link_libraries(t81_canonfs_driver_test PRIVATE t81_core)
 
   add_executable(t81_vm_trace_test tests/cpp/vm_trace_test.cpp)
-  target_link_libraries(t81_vm_trace_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_trace_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_vm_determinism_property_test tests/cpp/vm_determinism_property_test.cpp)
-  target_link_libraries(t81_vm_determinism_property_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_determinism_property_test PRIVATE t81_vm t81_core)
 
   add_executable(vm_extended_ops_test tests/cpp/vm_extended_ops_test.cpp)
-  target_link_libraries(vm_extended_ops_test PRIVATE t81_core)
+  target_link_libraries(vm_extended_ops_test PRIVATE t81_vm t81_core)
 
   add_executable(llama_kernels_test tests/cpp/llama_kernels_test.cpp)
   target_link_libraries(llama_kernels_test PRIVATE t81_core)
 
   add_executable(t81_vm_jump_flags_test tests/cpp/vm_jump_flags_test.cpp)
-  target_link_libraries(t81_vm_jump_flags_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_jump_flags_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_vm_float_fraction_ops_test tests/cpp/vm_float_fraction_ops_test.cpp)
-  target_link_libraries(t81_vm_float_fraction_ops_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_float_fraction_ops_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_vm_literal_pool_extension_test tests/cpp/test_vm_literal_pool_extension.cpp)
-  target_link_libraries(t81_vm_literal_pool_extension_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_literal_pool_extension_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_vm_neg_jumps_test tests/cpp/vm_neg_jumps_test.cpp)
-  target_link_libraries(t81_vm_neg_jumps_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_neg_jumps_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_vm_print_test tests/cpp/vm_print_test.cpp)
-  target_link_libraries(t81_vm_print_test PRIVATE t81_core)
+  target_link_libraries(t81_vm_print_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_frontend_lexer_test tests/cpp/frontend_lexer_test.cpp)
   target_link_libraries(t81_frontend_lexer_test PRIVATE t81_frontend)
@@ -743,13 +744,13 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_tier5_test PRIVATE t81_core)
 
   add_executable(t81_tier4_vm_test tests/cpp/tier4_vm_test.cpp)
-  target_link_libraries(t81_tier4_vm_test PRIVATE t81_core)
+  target_link_libraries(t81_tier4_vm_test PRIVATE t81_vm t81_core)
 
   add_executable(tiers_structure_test tests/cpp/tiers_structure_test.cpp)
   target_link_libraries(tiers_structure_test PRIVATE t81_core)
 
   add_executable(t81_jit_test tests/cpp/jit_test.cpp)
-  target_link_libraries(t81_jit_test PRIVATE t81_core)
+  target_link_libraries(t81_jit_test PRIVATE t81_vm t81_core)
 
   add_executable(jit_trace_equivalence_test tests/cpp/jit_trace_equivalence_test.cpp)
   target_link_libraries(jit_trace_equivalence_test PRIVATE t81_vm)
@@ -968,10 +969,10 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
   target_link_libraries(t81_bigint_allocation_guardrail_test PRIVATE t81_core)
 
   add_executable(t81_vm_tier_promotion_test tests/cpp/vm_tier_promotion_test.cpp)
-  target_link_libraries(t81_vm_tier_promotion_test PRIVATE t81_core t81_isa)
+  target_link_libraries(t81_vm_tier_promotion_test PRIVATE t81_vm t81_core t81_isa)
 
   add_executable(t81_code_protection_test tests/cpp/test_code_protection.cpp)
-  target_link_libraries(t81_code_protection_test PRIVATE t81_core)
+  target_link_libraries(t81_code_protection_test PRIVATE t81_vm t81_core)
 
   enable_testing()
   set(T81_TEST_TARGETS
@@ -1230,7 +1231,7 @@ if(pybind11_DIR)
   find_package(Python REQUIRED COMPONENTS Interpreter Development)
   find_package(pybind11 REQUIRED)
   pybind11_add_module(t81_python src/python/t81_python.cpp)
-  target_link_libraries(t81_python PRIVATE t81_core t81_frontend t81_isa)
+  target_link_libraries(t81_python PRIVATE t81_core t81_frontend t81_isa t81_vm)
 endif()
 
 # =============================================================================

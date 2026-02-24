@@ -24,7 +24,7 @@ This plan outlines the minimal set of changes required to enforce the **Strict D
 
 *   **Files:**
     *   `include/t81/vm/trap.hpp` (or `fault.hpp`)
-    *   `src/vm/vm.cpp`
+    *   `core/vm/vm.cpp`
 *   **Change Scope:**
     *   Define new trap codes:
         *   `Trap::FloatOpForbidden`

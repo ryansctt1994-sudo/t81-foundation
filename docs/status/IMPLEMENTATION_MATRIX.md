@@ -3,7 +3,7 @@
 | Subsystem | Specification Status | Implementation Status | Spec-Code Alignment | Drift Risk | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Data Types** | `spec/t81-data-types.md` (Frozen) | **Implemented** | High | Low | Core types (`Trit`, `Tryte`) are fully supported in `src/data_types`. |
-| **TISC ISA** | `spec/tisc-spec.md` (Frozen) | **Implemented** | High | Low | Full opcode coverage in `core/isa` and `src/vm`. |
+| **TISC ISA** | `spec/tisc-spec.md` (Frozen) | **Implemented** | High | Low | Full opcode coverage in `core/isa` and `core/vm`. |
 | **T81VM** | `spec/t81vm-spec.md` (Beta) | **Partial** | Medium | Medium | Dispatch loop is solid; IO and memory model are still evolving. |
 | **T81Lang** | `spec/t81lang-spec.md` (Draft) | **Stubbed** | Low | High | `src/lang` is largely empty (`std/` exists, but compiler core is missing). |
 | **Axion Kernel** | `spec/axion-kernel.md` (Draft) | **Partial** | Medium | Medium | Basic policy engine exists (`src/axion`), but kernel features are incomplete. |
