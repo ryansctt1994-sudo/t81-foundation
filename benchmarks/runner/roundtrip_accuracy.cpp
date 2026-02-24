@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <random>
-#include "t81/core/cell.hpp"
+#include "t81/types/cell.hpp"
 
 namespace {
     const size_t DATA_SIZE = 10000;

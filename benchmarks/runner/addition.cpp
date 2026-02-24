@@ -3,8 +3,8 @@
 #include <cstdint>
 #include <random>
 
-#include "t81/core/T81Int.hpp"
-#include "t81/core/T81Limb.hpp"
+#include "t81/types/T81Int.hpp"
+#include "t81/types/T81Limb.hpp"
 
 namespace {
 constexpr size_t kBinaryLimbs = 1024 / 64;

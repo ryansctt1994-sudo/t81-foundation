@@ -1,6 +1,6 @@
 #include <benchmark/benchmark.h>
-#include "t81/core/cell.hpp"
-#include "t81/core/packing.hpp"
+#include "t81/types/cell.hpp"
+#include "t81/types/packing.hpp"
 #include <cmath>
 
 static void BM_PackingDensity_Theoretical(benchmark::State& state) {
