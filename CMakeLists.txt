@@ -70,14 +70,8 @@ add_library(t81_core STATIC
   core/isa/encoding.cpp
   src/canonfs/in_memory_driver.cpp
   src/canonfs/persistent_driver.cpp
-  src/canonfs/axion_hook.cpp
   src/hanoi/error.cpp
   src/hanoi/in_memory_kernel.cpp        # ← fixed path
-  src/axion/axion_api.cpp
-  src/axion/engine.cpp
-  src/axion/ethics.cpp
-  src/axion/policy_engine.cpp
-  src/axion/policy_serialization.cpp
   src/tools/weights.cpp
   src/tools/weights_t81w_emitter.cpp
   src/cog/promotion.cpp
@@ -113,6 +107,20 @@ endif()
 # =============================================================================
 # Other libraries
 # =============================================================================
+add_library(t81_axion STATIC
+  kernel/axion/axion_api.cpp
+  kernel/axion/engine.cpp
+  kernel/axion/ethics.cpp
+  kernel/axion/policy_engine.cpp
+  kernel/axion/policy_serialization.cpp
+  kernel/axion/canonfs_hook.cpp
+)
+target_link_libraries(t81_axion PUBLIC t81_core)
+target_include_directories(t81_axion PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
 add_library(t81_io STATIC src/io/tensor_loader.cpp)
 target_link_libraries(t81_io PUBLIC t81_core)
 target_include_directories(t81_io PUBLIC
@@ -161,7 +169,7 @@ target_include_directories(t81_vm PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
-target_link_libraries(t81_vm PUBLIC t81_core t81_isa)
+target_link_libraries(t81_vm PUBLIC t81_core t81_isa t81_axion)
 
 add_library(t81_llvm INTERFACE)
 target_include_directories(t81_llvm INTERFACE
@@ -198,7 +206,7 @@ add_executable(t81_ir_roundtrip examples/ir_roundtrip.cpp)
 target_link_libraries(t81_ir_roundtrip PRIVATE t81_core)
 
 add_executable(axion_demo examples/axion_demo.cpp)
-target_link_libraries(axion_demo PRIVATE t81_core)
+target_link_libraries(axion_demo PRIVATE t81_core t81_axion)
 
 add_executable(axion_guard_trace examples/axion_guard_trace.cpp)
 target_link_libraries(axion_guard_trace PRIVATE t81_cli_driver t81_vm)
@@ -216,7 +224,7 @@ add_executable(llama32_demo examples/llama32_demo.cpp)
 target_link_libraries(llama32_demo PRIVATE t81_cli_driver t81_vm)
 
 add_executable(canonfs_trace_demo examples/canonfs_trace_demo.cpp)
-target_link_libraries(canonfs_trace_demo PRIVATE t81_core)
+target_link_libraries(canonfs_trace_demo PRIVATE t81_core t81_axion)
 
 add_executable(axion_nested_guard_test tests/cpp/axion_nested_guard_test.cpp)
 target_link_libraries(axion_nested_guard_test PRIVATE t81_cli_driver t81_vm)
@@ -332,10 +340,10 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_canonfs_io_test PRIVATE t81_core)
 
   add_executable(canonfs_axion_trace_test tests/cpp/canonfs_axion_trace_test.cpp)
-  target_link_libraries(canonfs_axion_trace_test PRIVATE t81_core)
+  target_link_libraries(canonfs_axion_trace_test PRIVATE t81_core t81_axion)
 
   add_executable(canonfs_persistent_driver_test tests/cpp/canonfs_persistent_driver_test.cpp)
-  target_link_libraries(canonfs_persistent_driver_test PRIVATE t81_core)
+  target_link_libraries(canonfs_persistent_driver_test PRIVATE t81_core t81_axion)
 
   add_executable(t81_ir_encoding_test tests/cpp/ir_encoding_test.cpp)
   target_link_libraries(t81_ir_encoding_test PRIVATE t81_core)
@@ -390,10 +398,10 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_sha3_test PRIVATE t81_core)
 
   add_executable(t81_axion_stub_test tests/cpp/axion_stub_test.cpp)
-  target_link_libraries(t81_axion_stub_test PRIVATE t81_core)
+  target_link_libraries(t81_axion_stub_test PRIVATE t81_core t81_axion)
 
   add_executable(t81_check_tier_test tests/cpp/test_check_tier.cpp)
-  target_link_libraries(t81_check_tier_test PRIVATE t81_core)
+  target_link_libraries(t81_check_tier_test PRIVATE t81_core t81_axion)
 
   add_executable(t81_codec_base243_test tests/cpp/codec_base243_test.cpp)
   target_link_libraries(t81_codec_base243_test PRIVATE t81_core)
@@ -774,7 +782,7 @@ add_executable(axion_policy_gc_trace_test tests/cpp/axion_policy_gc_trace_test.c
 target_link_libraries(axion_policy_gc_trace_test PRIVATE t81_cli_driver t81_isa t81_vm)
 
   add_executable(axion_policy_bytecode_test tests/cpp/axion_policy_bytecode_test.cpp)
-  target_link_libraries(axion_policy_bytecode_test PRIVATE t81_core)
+  target_link_libraries(axion_policy_bytecode_test PRIVATE t81_core t81_axion)
 
 add_executable(axion_policy_segment_event_test tests/cpp/axion_policy_segment_event_test.cpp)
 target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)

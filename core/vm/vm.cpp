@@ -2375,7 +2375,9 @@ public:
         }
 
         if (need_promotion) {
-          auto res = t81::cog::try_promote(ctx.tier_status, *axion_engine_);
+          auto res = t81::cog::try_promote(ctx.tier_status, [&](const t81::axion::SyscallContext& ctx) {
+            return axion_engine_->evaluate(ctx);
+          });
           if (res) {
             ctx.tier_status = *res;
             t81::axion::Verdict verdict;

@@ -1,9 +1,11 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
-#include "t81/axion/engine.hpp"
+#include "t81/axion/context.hpp"
+#include "t81/axion/verdict.hpp"
 #include "t81/cog/tier4/self_model.hpp"
 #include "t81/vm/state.hpp"
 
@@ -26,7 +28,9 @@ struct ReflectionTrace {
  */
 class Tier4Loop {
 public:
-  Tier4Loop(t81::axion::Engine& engine);
+  using AxionEvaluator = std::function<t81::axion::Verdict(const t81::axion::SyscallContext&)>;
+
+  Tier4Loop(AxionEvaluator evaluator);
 
   void observe(const std::string& observation);
   ReflectionTrace reflect();
@@ -45,7 +49,7 @@ public:
   void update_self_model(const std::string& belief_key, const std::string& belief_val);
 
 private:
-  t81::axion::Engine& engine_;
+  AxionEvaluator evaluator_;
   SelfModel model_;
 
   void log_reflection(const std::string& reason);
