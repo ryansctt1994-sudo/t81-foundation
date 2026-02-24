@@ -36,6 +36,7 @@ T81 is a sovereign computing stack designed to eliminate floating-point non-dete
 - [CLI Examples](#cli-examples)
 - [Screenshots & Demo](#screenshots--demo)
 - [Repository Map](#repository-map)
+- [Authority](#authority)
 - [Document Authority Map](#document-authority-map)
 - [Compatibility & Non-Goals](#compatibility--non-goals)
 - [Configuration & Axion](#configuration--axion)
@@ -168,6 +169,14 @@ Key directories in the codebase:
 - **`tests/`**: Comprehensive unit and integration test suite.
 - **`spec/`**: Normative specifications (TISC, Data Types).
 - **`tools/`**: Utility scripts and VSCode extension helpers.
+
+## Authority
+
+This project follows a strict [Authority Model](docs/governance/SPEC_AUTHORITY_MODEL.md).
+
+*   **[Architecture Overview](docs/architecture/OVERVIEW.md)**: System boundaries and invariants.
+*   **[Normative Specs](spec/)**: The authoritative "law" of the system.
+*   **[Authority Model](docs/governance/SPEC_AUTHORITY_MODEL.md)**: Rules for conflicts and freezes.
 
 ## Document Authority Map
 
