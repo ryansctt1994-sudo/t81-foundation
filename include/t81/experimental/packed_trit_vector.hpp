@@ -530,8 +530,8 @@ public:
   // Below these sizes (in bytes), the overhead of SIMD setup/tail handling
   // outweighs the throughput benefit, so we fall back to SWAR.
   // Determined via benchmarks/BM_PackedTritVector.cpp.
-  static constexpr size_t AVX2_THRESHOLD_BYTES = 64; // ~256 trits (Verified on x86_64)
-  static constexpr size_t NEON_THRESHOLD_BYTES = 64; // Estimated, to be tuned on ARM
+  static constexpr size_t AVX2_THRESHOLD_BYTES = 64;  // ~256 trits (Verified on x86_64)
+  static constexpr size_t NEON_THRESHOLD_BYTES = 64;  // Estimated, to be tuned on ARM
 
   // Kernel Dispatch Layer
   static void kernel_not(const uint8_t* in, uint8_t* out, size_t len) {

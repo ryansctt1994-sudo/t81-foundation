@@ -46,7 +46,6 @@ int main() {
   // Or better, we replicate the serialization to compute the expected hash.
 
   // Re-serialize to get hash
-  auto& t = model["test_tensor"];  // Moved from, but let's recreate or just rely on scanning
   // Actually save_t81w does not modify model in place destructive enough to prevent checking.
   // Wait, map access `model["test_tensor"]` creates if not exists, but we moved it in.
   // Let's reconstruct the tensor for verification.
