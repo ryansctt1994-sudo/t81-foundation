@@ -2,8 +2,19 @@
 #include <vector>
 #include <random>
 #include <algorithm>
+#include <iostream>
 #include "t81/tritwise/tritwise.hpp"
 #include "t81/experimental/packed_trit_vector.hpp"
+
+#ifdef T81_TRITWISE_PROFILE
+struct ProfilingWarning {
+    ProfilingWarning() {
+        std::cerr << "\n[WARNING] T81_TRITWISE_PROFILE is ENABLED. Performance numbers will be distorted!"
+                  << "\n          Re-run with -DT81_TRITWISE_PROFILE=OFF for clean measurements.\n" << std::endl;
+    }
+};
+static ProfilingWarning warning_instance;
+#endif
 
 using namespace t81::tritwise;
 using t81::experimental::ComputeTritVector;
