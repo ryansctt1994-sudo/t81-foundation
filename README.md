@@ -81,6 +81,9 @@ Key directories:
 Determinism surfaces and their verification status are formally enumerated in
 [DETERMINISM_SURFACE_REGISTRY.md](docs/governance/DETERMINISM_SURFACE_REGISTRY.md).
 
+Determinism threat analysis is documented in
+[DETERMINISM_THREAT_MODEL.md](docs/governance/DETERMINISM_THREAT_MODEL.md).
+
 ### Freeze Enforcement
 
 Frozen components (ISA, Data Types, Determinism surfaces) are governed by

@@ -6,6 +6,8 @@ Define what is and is not guaranteed to be deterministic in the T81 system.
 
 Clarify that determinism guarantees apply only to explicitly verified surfaces.
 
+Threat modeling for these surfaces is documented in `DETERMINISM_THREAT_MODEL.md`.
+
 Reference:
 
 * `docs/architecture/OVERVIEW.md`
