@@ -1,0 +1,57 @@
+subsystems:
+  - name: Data Types
+    spec: spec/t81-data-types.md
+    code_dirs:
+      - src/data_types
+    test_dirs:
+      - tests/data_types
+    declared_status: implemented
+
+  - name: TISC ISA
+    spec: spec/tisc-spec.md
+    code_dirs:
+      - src/tisc
+      - src/vm
+    test_dirs:
+      - tests/tisc
+    declared_status: implemented
+
+  - name: T81VM
+    spec: spec/t81vm-spec.md
+    code_dirs:
+      - src/vm
+    test_dirs:
+      - tests/vm
+    declared_status: partial
+
+  - name: T81Lang
+    spec: spec/t81lang-spec.md
+    code_dirs:
+      - src/lang
+    test_dirs:
+      - tests/lang
+    declared_status: stubbed
+
+  - name: Axion Kernel
+    spec: spec/axion-kernel.md
+    code_dirs:
+      - src/axion
+    test_dirs:
+      - tests/axion
+    declared_status: partial
+
+  - name: Cognitive Tiers
+    spec: spec/cognitive-tiers.md
+    code_dirs:
+      - src/tiers
+    test_dirs:
+      - tests/tiers
+    declared_status: stubbed
+
+  - name: Hanoi Kernel
+    spec: spec/hanoi-kernel-spec.md
+    code_dirs:
+      - src/hanoi
+    test_dirs:
+      - tests/hanoi
+    declared_status: concept
