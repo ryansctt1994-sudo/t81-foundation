@@ -8,7 +8,9 @@
 
 int main() {
   [[maybe_unused]] auto engine = t81::axion::make_policy_engine(std::nullopt);
-  t81::cog::v1::Tier4Loop loop(*engine);
+  t81::cog::v1::Tier4Loop loop([&](const t81::axion::SyscallContext& ctx) {
+    return engine->evaluate(ctx);
+  });
 
   std::cout << "Starting Tier 4 Reflection Loop test...\n";
 

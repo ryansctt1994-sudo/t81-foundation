@@ -1,6 +1,7 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
+#include "t81/axion/engine.hpp"
 #include "t81/canonfs/canon_driver.hpp"
 #include "t81/cog/tier4/tier4_loop.hpp"
 #include "t81/types/T81BigInt.hpp"
@@ -37,7 +38,9 @@ void test_canonfs_cache() {
 void test_tier4_loop() {
   std::cout << "Testing Tier 4 Loop..." << std::endl;
   [[maybe_unused]] auto engine = t81::axion::make_allow_all_engine();
-  t81::cog::v1::Tier4Loop loop(*engine);
+  t81::cog::v1::Tier4Loop loop([&](const t81::axion::SyscallContext& ctx) {
+    return engine->evaluate(ctx);
+  });
 
   loop.observe("test");
   loop.reflect();

@@ -5,7 +5,7 @@
 
 namespace t81::cog::v1 {
 
-Tier4Loop::Tier4Loop(t81::axion::Engine& engine) : engine_(engine) {
+Tier4Loop::Tier4Loop(AxionEvaluator evaluator) : evaluator_(std::move(evaluator)) {
   model_.current_goal = "initialize";
   model_.confidence = 1.0f;
 }
@@ -74,7 +74,9 @@ void Tier4Loop::log_reflection(const std::string& reason) {
   ctx.trace_reasons.push_back(ss.str());
   ctx.next_opcode = t81::tisc::Opcode::Nop;
 
-  engine_.evaluate(ctx);
+  if (evaluator_) {
+    evaluator_(ctx);
+  }
 }
 
 }  // namespace t81::cog::v1

@@ -3,14 +3,14 @@
 #include "t81/axion/context.hpp"
 
 namespace t81::cog {
-Result<TierStatus> try_promote(const TierStatus& status, t81::axion::Engine& engine) {
+Result<TierStatus> try_promote(const TierStatus& status, AxionCallback callback) {
   if (status.current == TierId::Tier5) {
     return Result<TierStatus>(t81::unexpect, PromotionError::NotEligible);
   }
 
   t81::axion::SyscallContext ctx{{},      "system", "promote", "",
                                  nullptr, {},       0,         t81::tisc::Opcode::Nop};
-  auto verdict = engine.evaluate(ctx);
+  auto verdict = callback(ctx);
   if (verdict.kind == t81::axion::VerdictKind::Deny) {
     return Result<TierStatus>(t81::unexpect, PromotionError::AxionDenied);
   }
