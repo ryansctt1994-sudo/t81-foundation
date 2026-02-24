@@ -27,7 +27,7 @@ The T81 documentation ecosystem is stratified by authority. In the event of a co
 1.  **Spec vs. Docs**: If a statement in `/docs` conflicts with `/spec`, the **`/spec` definition is correct**. The documentation must be updated to match the spec.
 2.  **README vs. Architecture**: If the root `README.md` conflicts with `/docs/architecture/OVERVIEW.md`, the **`OVERVIEW.md` is correct**.
 3.  **Book vs. Specs/Docs**: The `/book` directory is a monograph and may lag behind the bleeding edge. If it conflicts with `/docs` or `/spec`, the **`/docs` or `/spec` prevails**.
-4.  **Code vs. Spec**: If the implementation in `src/` behaves differently than defined in `/spec/`, **it is a bug in the code**, unless the spec is explicitly marked as "Draft".
+4.  **Code vs. Spec**: If the implementation in `src/` behaves differently than defined in `/spec/`, **it is a bug in the code**, unless the spec is explicitly marked as "Draft". See `docs/governance/SPEC_DRIFT_POLICY.md` for enforcement details.
 
 ---
 
@@ -56,6 +56,7 @@ Certain subsystems are designated as **Frozen**. Changes to these areas are rest
 *   **Scope**: Execution traces, floating-point math (`dmath`), and serialization.
 *   **State**: **Frozen**.
 *   **Guarantee**: Bit-exact reproducibility across x86-64 and ARM64 (Linux/macOS).
+*   **Audit**: See `docs/status/VERIFIED_SURFACE_AUDIT.md`.
 
 ### D. Public API Surface
 *   **Scope**: `include/t81/` headers.

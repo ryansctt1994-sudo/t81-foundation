@@ -13,6 +13,7 @@ Reference:
 * `docs/architecture/OVERVIEW.md`
 * `docs/governance/FREEZE_ENFORCEMENT.md`
 * `docs/governance/SPEC_AUTHORITY_MODEL.md`
+* `docs/status/VERIFIED_SURFACE_AUDIT.md` (Traceability Audit)
 
 ---
 

@@ -12,6 +12,8 @@ This document defines the strict enforcement rules for "Frozen" subsystems withi
 
 The following subsystems are designated as **Frozen**. Modifications to these areas are strictly regulated to preserve the "Sovereign" guarantees of the v1.0 release.
 
+For a concise summary of frozen vs. experimental components, see the [Deterministic Core Profile](../spec/DETERMINISTIC_CORE_PROFILE_v1.md).
+
 ### A. Data Types
 *   **Scope:** `src/data_types/`, `spec/t81-data-types.md`
 *   **Frozen Surface:**
