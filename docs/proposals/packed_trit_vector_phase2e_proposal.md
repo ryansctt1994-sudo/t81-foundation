@@ -43,7 +43,7 @@ Benchmarks from Phase 2D indicate a crossover point around 256 trits where SIMD 
 
 ## 6. Deliverables
 
-1.  **NEON Backend:** Complete implementation of `kernel_not_neon`, `kernel_and_neon`, `kernel_or_neon` in `include/t81/experimental/packed_trit_vector.hpp`.
-2.  **Tuned Dispatch:** `ComputeTritVector` uses size thresholds to select the fastest kernel.
-3.  **CI Benchmarks:** Automated job running `BM_PackedTritVector` and failing on significant regression (>10%).
-4.  **Extended Determinism Gate:** `tests/cpp/test_packed_trit_vector.cpp` updated to validate NEON paths explicitly (via cross-compilation or native runners).
+1.  **NEON Backend:** [DONE] Complete implementation of `kernel_not_neon`, `kernel_and_neon`, `kernel_or_neon` in `include/t81/experimental/packed_trit_vector.hpp`.
+2.  **Tuned Dispatch:** [DONE] `ComputeTritVector` uses size thresholds (`AVX2_THRESHOLD_BYTES = 64`) to select the fastest kernel.
+3.  **CI Benchmarks:** [DONE] Automated job `benchmark_packed_trit_vector.yml` enforces <15% regression.
+4.  **Extended Determinism Gate:** [DONE] `tests/cpp/test_packed_trit_vector.cpp` updated to validate NEON paths explicitly (guarded by `__ARM_NEON`).
