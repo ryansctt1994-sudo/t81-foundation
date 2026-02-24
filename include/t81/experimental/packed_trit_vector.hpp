@@ -7,6 +7,11 @@
 #include <string>
 #include <string_view>
 #include <vector>
+
+#if defined(__x86_64__) && defined(__AVX2__)
+#include <immintrin.h>
+#endif
+
 #include "t81/codec/trit_packing.hpp"
 #include "t81/core/Result.hpp"
 #include "t81/core/T81Int.hpp"
@@ -164,7 +169,7 @@ class ComputeTritVector {
 public:
   static Result<ComputeTritVector> from_trits(const std::vector<int8_t>& trits) {
     std::vector<uint8_t> data;
-    size_t packed_len = (trits.size() + 3) / 4;
+    size_t packed_len = bytes_for_trits(trits.size());
     data.reserve(packed_len);
 
     for (size_t i = 0; i < trits.size(); i += 4) {
@@ -203,6 +208,9 @@ public:
 
   size_t size() const { return count_; }
   const std::vector<uint8_t>& data() const { return data_; }
+  // Non-const data access for in-place benchmarks/tests that need raw pointers,
+  // though generally discouraged in public API.
+  std::vector<uint8_t>& data_mut() { return data_; }
 
   Result<std::vector<int8_t>> to_trits() const {
     std::vector<int8_t> out;
@@ -388,34 +396,14 @@ public:
     return Result<ComputeTritVector>::success(ComputeTritVector(std::move(res_data), count_));
   }
 
-  // Phase 2C: SWAR Implementations
+  // Phase 2C: SWAR Implementations (Exposed for verification/benchmarking)
   Result<ComputeTritVector> t_not_swar() const {
-    std::vector<uint8_t> res_data(data_.size());
-    size_t n = data_.size();
-    const uint8_t* src = data_.data();
-    uint8_t* dst = res_data.data();
-
-    size_t i = 0;
-    // Process 64-bit chunks
-    for (; i + 8 <= n; i += 8) {
-      uint64_t x;
-      std::memcpy(&x, src + i, 8);
-      uint64_t low = x & 0x5555555555555555ULL;
-      uint64_t res = x ^ (low << 1);
-      std::memcpy(dst + i, &res, 8);
+    ComputeTritVector res = *this;
+    kernel_not_swar(data_.data(), res.data_.data(), data_.size());
+    if (count_ % 4 != 0 && !res.data_.empty()) {
+      mask_trailing(res.data_.back(), count_ % 4);
     }
-
-    // Process remaining bytes
-    for (; i < n; ++i) {
-      uint8_t x = src[i];
-      uint8_t low = x & 0x55;
-      dst[i] = x ^ (low << 1);
-    }
-
-    if (count_ % 4 != 0 && !res_data.empty()) {
-      mask_trailing(res_data.back(), count_ % 4);
-    }
-    return Result<ComputeTritVector>::success(ComputeTritVector(std::move(res_data), count_));
+    return Result<ComputeTritVector>::success(std::move(res));
   }
 
   Result<ComputeTritVector> t_and_swar(const ComputeTritVector& other) const {
@@ -425,14 +413,164 @@ public:
           T81String("Vectors must have same length for binary operation"),
           T81Symbol::intern("ComputeTritVector"));
     }
-    std::vector<uint8_t> res_data(data_.size());
-    size_t n = data_.size();
-    const uint8_t* src_a = data_.data();
-    const uint8_t* src_b = other.data().data();
-    uint8_t* dst = res_data.data();
+    ComputeTritVector res = *this;
+    kernel_and_swar(data_.data(), other.data_.data(), res.data_.data(), data_.size());
+    if (count_ % 4 != 0 && !res.data_.empty()) {
+      mask_trailing(res.data_.back(), count_ % 4);
+    }
+    return Result<ComputeTritVector>::success(std::move(res));
+  }
 
+  Result<ComputeTritVector> t_or_swar(const ComputeTritVector& other) const {
+    if (count_ != other.count_) {
+      return Result<ComputeTritVector>::failure(
+          T81Symbol::intern("LENGTH_MISMATCH"),
+          T81String("Vectors must have same length for binary operation"),
+          T81Symbol::intern("ComputeTritVector"));
+    }
+    ComputeTritVector res = *this;
+    kernel_or_swar(data_.data(), other.data_.data(), res.data_.data(), data_.size());
+    if (count_ % 4 != 0 && !res.data_.empty()) {
+      mask_trailing(res.data_.back(), count_ % 4);
+    }
+    return Result<ComputeTritVector>::success(std::move(res));
+  }
+
+  // Phase 2D: Zero-Allocation / In-Place APIs
+
+  Result<bool> t_not_inplace() {
+    kernel_not(data_.data(), data_.data(), data_.size());
+    if (count_ % 4 != 0 && !data_.empty()) {
+      mask_trailing(data_.back(), count_ % 4);
+    }
+    return Result<bool>::success(true);
+  }
+
+  Result<bool> t_and_inplace(const ComputeTritVector& other) {
+    if (count_ != other.count_) {
+      return Result<bool>::failure(T81Symbol::intern("LENGTH_MISMATCH"),
+                                   T81String("Vectors must have same length for binary operation"),
+                                   T81Symbol::intern("ComputeTritVector"));
+    }
+    kernel_and(data_.data(), other.data_.data(), data_.data(), data_.size());
+    if (count_ % 4 != 0 && !data_.empty()) {
+      mask_trailing(data_.back(), count_ % 4);
+    }
+    return Result<bool>::success(true);
+  }
+
+  Result<bool> t_or_inplace(const ComputeTritVector& other) {
+    if (count_ != other.count_) {
+      return Result<bool>::failure(T81Symbol::intern("LENGTH_MISMATCH"),
+                                   T81String("Vectors must have same length for binary operation"),
+                                   T81Symbol::intern("ComputeTritVector"));
+    }
+    kernel_or(data_.data(), other.data_.data(), data_.data(), data_.size());
+    if (count_ % 4 != 0 && !data_.empty()) {
+      mask_trailing(data_.back(), count_ % 4);
+    }
+    return Result<bool>::success(true);
+  }
+
+  // Phase 2C/2D: Public API Wrappers (dispatch to kernels via inplace)
+
+  Result<ComputeTritVector> t_not() const {
+    ComputeTritVector res = *this;
+    auto r = res.t_not_inplace();
+    if (r.is_err()) return Result<ComputeTritVector>(r.error());
+    return Result<ComputeTritVector>::success(std::move(res));
+  }
+
+  Result<ComputeTritVector> t_and(const ComputeTritVector& other) const {
+    if (count_ != other.count_) {
+      return Result<ComputeTritVector>::failure(
+          T81Symbol::intern("LENGTH_MISMATCH"),
+          T81String("Vectors must have same length for binary operation"),
+          T81Symbol::intern("ComputeTritVector"));
+    }
+    ComputeTritVector res = *this;
+    auto r = res.t_and_inplace(other);
+    if (r.is_err()) return Result<ComputeTritVector>(r.error());
+    return Result<ComputeTritVector>::success(std::move(res));
+  }
+
+  Result<ComputeTritVector> t_or(const ComputeTritVector& other) const {
+    if (count_ != other.count_) {
+      return Result<ComputeTritVector>::failure(
+          T81Symbol::intern("LENGTH_MISMATCH"),
+          T81String("Vectors must have same length for binary operation"),
+          T81Symbol::intern("ComputeTritVector"));
+    }
+    ComputeTritVector res = *this;
+    auto r = res.t_or_inplace(other);
+    if (r.is_err()) return Result<ComputeTritVector>(r.error());
+    return Result<ComputeTritVector>::success(std::move(res));
+  }
+
+  Result<ComputeTritVector> t_xor(const ComputeTritVector& other) const { return t_xor_lut(other); }
+
+private:
+  ComputeTritVector(std::vector<uint8_t> data, size_t count)
+      : data_(std::move(data)), count_(count) {}
+
+  static size_t bytes_for_trits(size_t trit_count) { return (trit_count + 3) / 4; }
+
+  static void mask_trailing(uint8_t& byte, size_t used_trits) {
+    size_t used_bits = used_trits * 2;
+    uint8_t mask = (1 << used_bits) - 1;
+    byte &= mask;
+  }
+
+  // Kernel Dispatch Layer
+  static void kernel_not(const uint8_t* in, uint8_t* out, size_t len) {
+#if defined(__x86_64__) && defined(__AVX2__)
+    kernel_not_avx2(in, out, len);
+#elif defined(__aarch64__) && defined(__ARM_NEON)
+    kernel_not_neon(in, out, len);
+#else
+    kernel_not_swar(in, out, len);
+#endif
+  }
+
+  static void kernel_and(const uint8_t* a, const uint8_t* b, uint8_t* out, size_t len) {
+#if defined(__x86_64__) && defined(__AVX2__)
+    kernel_and_avx2(a, b, out, len);
+#elif defined(__aarch64__) && defined(__ARM_NEON)
+    kernel_and_neon(a, b, out, len);
+#else
+    kernel_and_swar(a, b, out, len);
+#endif
+  }
+
+  static void kernel_or(const uint8_t* a, const uint8_t* b, uint8_t* out, size_t len) {
+#if defined(__x86_64__) && defined(__AVX2__)
+    kernel_or_avx2(a, b, out, len);
+#elif defined(__aarch64__) && defined(__ARM_NEON)
+    kernel_or_neon(a, b, out, len);
+#else
+    kernel_or_swar(a, b, out, len);
+#endif
+  }
+
+  // SWAR Kernels
+  static void kernel_not_swar(const uint8_t* src, uint8_t* dst, size_t n) {
     size_t i = 0;
-    // Process 64-bit chunks
+    for (; i + 8 <= n; i += 8) {
+      uint64_t x;
+      std::memcpy(&x, src + i, 8);
+      uint64_t low = x & 0x5555555555555555ULL;
+      uint64_t res = x ^ (low << 1);
+      std::memcpy(dst + i, &res, 8);
+    }
+    for (; i < n; ++i) {
+      uint8_t x = src[i];
+      uint8_t low = x & 0x55;
+      dst[i] = x ^ (low << 1);
+    }
+  }
+
+  static void kernel_and_swar(const uint8_t* src_a, const uint8_t* src_b, uint8_t* dst, size_t n) {
+    size_t i = 0;
     for (; i + 8 <= n; i += 8) {
       uint64_t a, b;
       std::memcpy(&a, src_a + i, 8);
@@ -444,8 +582,6 @@ public:
 
       std::memcpy(dst + i, &res, 8);
     }
-
-    // Process remaining bytes
     for (; i < n; ++i) {
       uint8_t a = src_a[i];
       uint8_t b = src_b[i];
@@ -454,28 +590,10 @@ public:
       uint8_t L_content = (a & b) & 0x55;
       dst[i] = H | (H >> 1) | L_content;
     }
-
-    if (count_ % 4 != 0 && !res_data.empty()) {
-      mask_trailing(res_data.back(), count_ % 4);
-    }
-    return Result<ComputeTritVector>::success(ComputeTritVector(std::move(res_data), count_));
   }
 
-  Result<ComputeTritVector> t_or_swar(const ComputeTritVector& other) const {
-    if (count_ != other.count_) {
-      return Result<ComputeTritVector>::failure(
-          T81Symbol::intern("LENGTH_MISMATCH"),
-          T81String("Vectors must have same length for binary operation"),
-          T81Symbol::intern("ComputeTritVector"));
-    }
-    std::vector<uint8_t> res_data(data_.size());
-    size_t n = data_.size();
-    const uint8_t* src_a = data_.data();
-    const uint8_t* src_b = other.data().data();
-    uint8_t* dst = res_data.data();
-
+  static void kernel_or_swar(const uint8_t* src_a, const uint8_t* src_b, uint8_t* dst, size_t n) {
     size_t i = 0;
-    // Process 64-bit chunks
     for (; i + 8 <= n; i += 8) {
       uint64_t a, b;
       std::memcpy(&a, src_a + i, 8);
@@ -493,8 +611,6 @@ public:
 
       std::memcpy(dst + i, &res, 8);
     }
-
-    // Process remaining bytes
     for (; i < n; ++i) {
       uint8_t a = src_a[i];
       uint8_t b = src_b[i];
@@ -509,30 +625,97 @@ public:
       uint8_t L = (l_a & l_b) | ((l_a | l_b) & ~mask);
       dst[i] = H | (H >> 1) | L;
     }
+  }
 
-    if (count_ % 4 != 0 && !res_data.empty()) {
-      mask_trailing(res_data.back(), count_ % 4);
+#if defined(__aarch64__) && defined(__ARM_NEON)
+#include <arm_neon.h>
+  static void kernel_not_neon(const uint8_t* src, uint8_t* dst, size_t n) {
+    // TODO: Implement NEON kernel
+    kernel_not_swar(src, dst, n);
+  }
+  static void kernel_and_neon(const uint8_t* src_a, const uint8_t* src_b, uint8_t* dst, size_t n) {
+    kernel_and_swar(src_a, src_b, dst, n);
+  }
+  static void kernel_or_neon(const uint8_t* src_a, const uint8_t* src_b, uint8_t* dst, size_t n) {
+    kernel_or_swar(src_a, src_b, dst, n);
+  }
+#endif
+
+#if defined(__x86_64__) && defined(__AVX2__)
+  static void kernel_not_avx2(const uint8_t* src, uint8_t* dst, size_t n) {
+    size_t i = 0;
+    __m256i mask55 = _mm256_set1_epi8(0x55);
+    for (; i + 32 <= n; i += 32) {
+      __m256i x = _mm256_loadu_si256((const __m256i*)(src + i));
+      __m256i low = _mm256_and_si256(x, mask55);
+      __m256i low_sh = _mm256_slli_epi64(low, 1);
+      __m256i res = _mm256_xor_si256(x, low_sh);
+      _mm256_storeu_si256((__m256i*)(dst + i), res);
     }
-    return Result<ComputeTritVector>::success(ComputeTritVector(std::move(res_data), count_));
+    // Tail
+    if (i < n) {
+      kernel_not_swar(src + i, dst + i, n - i);
+    }
   }
 
-  // Public API Wrappers
-  Result<ComputeTritVector> t_not() const { return t_not_swar(); }
-  Result<ComputeTritVector> t_and(const ComputeTritVector& other) const {
-    return t_and_swar(other);
-  }
-  Result<ComputeTritVector> t_or(const ComputeTritVector& other) const { return t_or_swar(other); }
-  Result<ComputeTritVector> t_xor(const ComputeTritVector& other) const { return t_xor_lut(other); }
+  static void kernel_and_avx2(const uint8_t* src_a, const uint8_t* src_b, uint8_t* dst, size_t n) {
+    size_t i = 0;
+    __m256i maskAA = _mm256_set1_epi8(static_cast<int8_t>(0xAA));
+    __m256i mask55 = _mm256_set1_epi8(0x55);
+    for (; i + 32 <= n; i += 32) {
+      __m256i va = _mm256_loadu_si256((const __m256i*)(src_a + i));
+      __m256i vb = _mm256_loadu_si256((const __m256i*)(src_b + i));
 
-private:
-  ComputeTritVector(std::vector<uint8_t> data, size_t count)
-      : data_(std::move(data)), count_(count) {}
+      __m256i a_or_b = _mm256_or_si256(va, vb);
+      __m256i H = _mm256_and_si256(a_or_b, maskAA);
 
-  static void mask_trailing(uint8_t& byte, size_t used_trits) {
-    size_t used_bits = used_trits * 2;
-    uint8_t mask = (1 << used_bits) - 1;
-    byte &= mask;
+      __m256i a_and_b = _mm256_and_si256(va, vb);
+      __m256i L_content = _mm256_and_si256(a_and_b, mask55);
+
+      __m256i H_shr = _mm256_srli_epi64(H, 1);
+      __m256i res = _mm256_or_si256(H, H_shr);
+      res = _mm256_or_si256(res, L_content);
+      _mm256_storeu_si256((__m256i*)(dst + i), res);
+    }
+    if (i < n) {
+      kernel_and_swar(src_a + i, src_b + i, dst + i, n - i);
+    }
   }
+
+  static void kernel_or_avx2(const uint8_t* src_a, const uint8_t* src_b, uint8_t* dst, size_t n) {
+    size_t i = 0;
+    __m256i maskAA = _mm256_set1_epi8(static_cast<int8_t>(0xAA));
+    __m256i mask55 = _mm256_set1_epi8(0x55);
+    for (; i + 32 <= n; i += 32) {
+      __m256i va = _mm256_loadu_si256((const __m256i*)(src_a + i));
+      __m256i vb = _mm256_loadu_si256((const __m256i*)(src_b + i));
+
+      __m256i h_a = _mm256_and_si256(va, maskAA);
+      __m256i h_b = _mm256_and_si256(vb, maskAA);
+      __m256i l_a = _mm256_and_si256(va, mask55);
+      __m256i l_b = _mm256_and_si256(vb, mask55);
+
+      __m256i H = _mm256_and_si256(h_a, h_b);
+      __m256i h_or = _mm256_or_si256(h_a, h_b);
+      __m256i mask = _mm256_srli_epi64(h_or, 1);
+
+      __m256i l_and = _mm256_and_si256(l_a, l_b);
+      __m256i l_or = _mm256_or_si256(l_a, l_b);
+
+      // L = (l_a & l_b) | ((l_a | l_b) & ~mask)
+      __m256i L_part2 = _mm256_andnot_si256(mask, l_or);
+      __m256i L = _mm256_or_si256(l_and, L_part2);
+
+      __m256i H_shr = _mm256_srli_epi64(H, 1);
+      __m256i res = _mm256_or_si256(H, H_shr);
+      res = _mm256_or_si256(res, L);
+      _mm256_storeu_si256((__m256i*)(dst + i), res);
+    }
+    if (i < n) {
+      kernel_or_swar(src_a + i, src_b + i, dst + i, n - i);
+    }
+  }
+#endif
 
   struct LUTs {
     uint8_t op_not[256];

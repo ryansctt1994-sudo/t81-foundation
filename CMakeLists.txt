@@ -399,6 +399,9 @@ if(T81_BUILD_TESTS)
 
   add_executable(t81_packed_trit_vector_test tests/cpp/test_packed_trit_vector.cpp)
   target_link_libraries(t81_packed_trit_vector_test PRIVATE t81_core)
+  if(T81_IS_X86_64 AND NOT MSVC)
+    target_compile_options(t81_packed_trit_vector_test PRIVATE -mavx2 -mfma)
+  endif()
 
   add_executable(t81_phase2c_truth_table_test tests/cpp/test_phase2c_truth_table.cpp)
   target_link_libraries(t81_phase2c_truth_table_test PRIVATE t81_core)
