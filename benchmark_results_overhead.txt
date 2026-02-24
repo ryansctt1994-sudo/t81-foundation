@@ -1,0 +1,10 @@
+
+Generating benchmark report...
+Benchmark                T81 Result          T81 Iter Time   Binary Result       Binary Iter     Thru Ratio        Lat Speedup       NThru Ratio       NLat Speedup      T81 Advantage            Notes
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+BM_Overhead_DirectSWAR   not-implemented (missing baseline)5.12 ns         not-implemented (missing baseline)not-implemented (missing baseline)not-implemented (missing baseline)not-implemented (missing baseline)not-applicable (no native variant)not-applicable (no native variant)not-applicable (no annotation)not-applicable (no annotation)
+BM_Overhead_DispatchOnly not-implemented (missing baseline)<1 ns (below timer resolution)not-implemented (missing baseline)not-implemented (missing baseline)not-implemented (missing baseline)below timer resolutionnot-applicable (no native variant)not-applicable (no native variant)not-applicable (no annotation)not-applicable (no annotation)
+BM_Overhead_EmptyCall    not-implemented (missing baseline)<1 ns (below timer resolution)not-implemented (missing baseline)not-implemented (missing baseline)not-implemented (missing baseline)below timer resolutionnot-applicable (no native variant)not-applicable (no native variant)not-applicable (no annotation)not-applicable (no annotation)
+BM_Overhead_LibraryAPI   not-implemented (missing baseline)3.50 ns         not-implemented (missing baseline)not-implemented (missing baseline)not-implemented (missing baseline)not-implemented (missing baseline)not-applicable (no native variant)not-applicable (no native variant)not-applicable (no annotation)not-applicable (no annotation)
+BM_Overhead_TritwiseWrappernot-implemented (missing baseline)4.67 ns         not-implemented (missing baseline)not-implemented (missing baseline)not-implemented (missing baseline)not-implemented (missing baseline)not-applicable (no native variant)not-applicable (no native variant)not-applicable (no annotation)not-applicable (no annotation)
+Successfully wrote report to docs/reference/benchmarks.md

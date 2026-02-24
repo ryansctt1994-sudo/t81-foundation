@@ -560,8 +560,124 @@ public:
   static constexpr size_t AVX2_THRESHOLD_BYTES = 64;  // ~256 trits (Verified on x86_64)
   static constexpr size_t NEON_THRESHOLD_BYTES = 64;  // Estimated, to be tuned on ARM
 
+  // Inline helpers for fastpaths
+  static inline void op_not_64(const uint8_t* src, uint8_t* dst) {
+    uint64_t x;
+    std::memcpy(&x, src, 8);
+    uint64_t low = x & 0x5555555555555555ULL;
+    uint64_t res = x ^ (low << 1);
+    std::memcpy(dst, &res, 8);
+  }
+
+  static inline void op_and_64(const uint8_t* src_a, const uint8_t* src_b, uint8_t* dst) {
+    uint64_t a, b;
+    std::memcpy(&a, src_a, 8);
+    std::memcpy(&b, src_b, 8);
+    uint64_t H = (a | b) & 0xAAAAAAAAAAAAAAAAULL;
+    uint64_t L_content = (a & b) & 0x5555555555555555ULL;
+    uint64_t res = H | (H >> 1) | L_content;
+    std::memcpy(dst, &res, 8);
+  }
+
+  static inline void op_or_64(const uint8_t* src_a, const uint8_t* src_b, uint8_t* dst) {
+    uint64_t a, b;
+    std::memcpy(&a, src_a, 8);
+    std::memcpy(&b, src_b, 8);
+    uint64_t h_a = a & 0xAAAAAAAAAAAAAAAAULL;
+    uint64_t h_b = b & 0xAAAAAAAAAAAAAAAAULL;
+    uint64_t l_a = a & 0x5555555555555555ULL;
+    uint64_t l_b = b & 0x5555555555555555ULL;
+    uint64_t H = h_a & h_b;
+    uint64_t mask = (h_a | h_b) >> 1;
+    uint64_t L = (l_a & l_b) | ((l_a | l_b) & ~mask);
+    uint64_t res = H | (H >> 1) | L;
+    std::memcpy(dst, &res, 8);
+  }
+
+  // Fastpaths
+  static void fastpath_not_tiny(const uint8_t* src, uint8_t* dst, size_t n) {
+    if (n == 8) {
+      op_not_64(src, dst);
+      return;
+    }
+    // Fallback for < 8
+    for (size_t i = 0; i < n; ++i) {
+      uint8_t x = src[i];
+      uint8_t low = x & 0x55;
+      dst[i] = x ^ (low << 1);
+    }
+  }
+
+  static void fastpath_not_small(const uint8_t* src, uint8_t* dst, size_t n) {
+    if (n == 16) {
+      op_not_64(src, dst);
+      op_not_64(src + 8, dst + 8);
+      return;
+    }
+    kernel_not_swar(src, dst, n);
+  }
+
+  static void fastpath_and_tiny(const uint8_t* a, const uint8_t* b, uint8_t* out, size_t n) {
+    if (n == 8) {
+      op_and_64(a, b, out);
+      return;
+    }
+    for (size_t i = 0; i < n; ++i) {
+      uint8_t val_a = a[i];
+      uint8_t val_b = b[i];
+      uint8_t H = (val_a | val_b) & 0xAA;
+      uint8_t L_content = (val_a & val_b) & 0x55;
+      out[i] = H | (H >> 1) | L_content;
+    }
+  }
+
+  static void fastpath_and_small(const uint8_t* a, const uint8_t* b, uint8_t* out, size_t n) {
+    if (n == 16) {
+      op_and_64(a, b, out);
+      op_and_64(a + 8, b + 8, out + 8);
+      return;
+    }
+    kernel_and_swar(a, b, out, n);
+  }
+
+  static void fastpath_or_tiny(const uint8_t* a, const uint8_t* b, uint8_t* out, size_t n) {
+    if (n == 8) {
+      op_or_64(a, b, out);
+      return;
+    }
+    for (size_t i = 0; i < n; ++i) {
+      uint8_t val_a = a[i];
+      uint8_t val_b = b[i];
+      uint8_t h_a = val_a & 0xAA;
+      uint8_t h_b = val_b & 0xAA;
+      uint8_t l_a = val_a & 0x55;
+      uint8_t l_b = val_b & 0x55;
+      uint8_t H = h_a & h_b;
+      uint8_t mask = (h_a | h_b) >> 1;
+      uint8_t L = (l_a & l_b) | ((l_a | l_b) & ~mask);
+      out[i] = H | (H >> 1) | L;
+    }
+  }
+
+  static void fastpath_or_small(const uint8_t* a, const uint8_t* b, uint8_t* out, size_t n) {
+    if (n == 16) {
+      op_or_64(a, b, out);
+      op_or_64(a + 8, b + 8, out + 8);
+      return;
+    }
+    kernel_or_swar(a, b, out, n);
+  }
+
   // Kernel Dispatch Layer
   static void kernel_not(const uint8_t* in, uint8_t* out, size_t len) {
+    if (len <= 8) {
+      fastpath_not_tiny(in, out, len);
+      return;
+    }
+    if (len <= 16) {
+      fastpath_not_small(in, out, len);
+      return;
+    }
     T81_PROFILE_RECORD("TNot", len);
 #if defined(__x86_64__) && defined(__AVX2__)
     if (len >= AVX2_THRESHOLD_BYTES) {
@@ -578,6 +694,14 @@ public:
   }
 
   static void kernel_and(const uint8_t* a, const uint8_t* b, uint8_t* out, size_t len) {
+    if (len <= 8) {
+      fastpath_and_tiny(a, b, out, len);
+      return;
+    }
+    if (len <= 16) {
+      fastpath_and_small(a, b, out, len);
+      return;
+    }
     T81_PROFILE_RECORD("TAnd", len);
 #if defined(__x86_64__) && defined(__AVX2__)
     if (len >= AVX2_THRESHOLD_BYTES) {
@@ -594,6 +718,14 @@ public:
   }
 
   static void kernel_or(const uint8_t* a, const uint8_t* b, uint8_t* out, size_t len) {
+    if (len <= 8) {
+      fastpath_or_tiny(a, b, out, len);
+      return;
+    }
+    if (len <= 16) {
+      fastpath_or_small(a, b, out, len);
+      return;
+    }
     T81_PROFILE_RECORD("TOr", len);
 #if defined(__x86_64__) && defined(__AVX2__)
     if (len >= AVX2_THRESHOLD_BYTES) {
