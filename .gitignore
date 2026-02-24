@@ -107,3 +107,12 @@ WORKSPACE
 WORKSPACE.bzlmod
 bazel-*
 .bazelrc
+# ── Hygiene / Root Containment ──────────────────────────────
+build_test/
+.t81_canonfs/
+logs/
+artifacts/
+benchmarks/results/
+benchmark*.txt
+dummy.*
+generate_dummy_safetensors
