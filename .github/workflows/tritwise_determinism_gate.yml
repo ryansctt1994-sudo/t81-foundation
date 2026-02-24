@@ -9,7 +9,7 @@ on:
 
 jobs:
   tritwise-compliance:
-    name: " Compliance / Ubuntu (AVX2 + ASAN) "
+    name: " Compliance / Ubuntu (AVX2 + ASAN + Determinism) "
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

@@ -15,6 +15,11 @@ option(T81_RUN_FRONTEND_FUZZ_IN_CTEST "Run frontend fuzz target via ctest matrix
 option(T81_ENABLE_ASAN "Enable AddressSanitizer for supported compilers" OFF)
 option(T81_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer for supported compilers" OFF)
 option(T81_USE_CXX23 "Build with C++23 language mode (fallback: C++20)" ON)
+option(T81_TRITWISE_PROFILE "Enable profiling for tritwise operations" OFF)
+
+if(T81_TRITWISE_PROFILE)
+  add_compile_definitions(T81_TRITWISE_PROFILE)
+endif()
 
 if(T81_USE_CXX23)
   set(T81_CXX_STD_FEATURE cxx_std_23)

@@ -18,6 +18,12 @@ bool check_vec(const std::vector<int8_t>& a, const std::vector<int8_t>& b) {
   return true;
 }
 
+// RFC Compliance: Outcome A (No Extension Needed)
+// This test suite validates:
+// 1. Cross-backend byte identity (Scalar vs SWAR vs AVX2 vs NEON).
+// 2. TXor routing to LUT fallback (via truth table verification).
+// 3. Determinism of tritwise operations across all supported platforms.
+
 // Helper to check byte equality
 bool check_bytes(const std::vector<uint8_t>& a, const std::vector<uint8_t>& b) {
   if (a.size() != b.size()) return false;
