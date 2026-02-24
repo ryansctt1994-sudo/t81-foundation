@@ -60,7 +60,7 @@ The CI system will flag translations that are significantly behind the canonical
 
 *   **Do not change the structure**: Do not add new sections or reorder existing ones.
 *   **Code blocks**: Do not translate code comments unless they are purely explanatory. Variable names and keywords must remain in English/TISC.
-*   **Glossary**: Use the official [T81 Multilingual Glossary](../glossary/MULTILINGUAL_GLOSSARY.md) (to be created) for technical terms.
+*   **Glossary**: Use the official T81 Multilingual Glossary (to be created) for technical terms.
 
 ## 6. Adding a New Language
 
