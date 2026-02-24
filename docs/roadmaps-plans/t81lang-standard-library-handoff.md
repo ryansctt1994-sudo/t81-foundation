@@ -35,8 +35,8 @@ Generic function work now supported:
 ## 2. Files Most Recently Touched
 
 Core implementation:
-- `src/vm/vm.cpp`
-- `src/vm/jit_compiler.cpp`
+- `core/vm/vm.cpp`
+- `core/vm/jit_compiler.cpp`
 - `include/t81/vm/state.hpp`
 
 Coverage:

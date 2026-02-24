@@ -73,7 +73,7 @@ Defines the Ternary Instruction Set Computer architecture: opcodes, semantics, a
 [`/spec/tisc-spec.md`](../../spec/tisc-spec.md)
 
 **Code**
-`core/isa/`, `src/vm/`
+`core/isa/`, `core/vm/`
 
 **Verification Surfaces**
 
@@ -95,7 +95,7 @@ Virtual machine runtime executing TISC bytecode. Handles dispatch, memory model,
 [`/spec/t81vm-spec.md`](../../spec/t81vm-spec.md)
 
 **Code**
-`src/vm/`
+`core/vm/`
 
 **Verification Surfaces**
 

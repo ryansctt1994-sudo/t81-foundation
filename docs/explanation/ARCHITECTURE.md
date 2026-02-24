@@ -287,7 +287,7 @@ ______________________________________________________________________
 | :--- | :--- | :--- | :--- |
 | **T81Lang** | `../../src/frontend/`, `../../include/t81/frontend/` | @t81dev | `../../spec/lang/` |
 | **TISC** | `../../core/isa/`, `../../include/t81/isa/` | @t81dev | `../../spec/tisc/` |
-| **HanoiVM** | `../../src/vm/`, `../../include/t81/vm/` | @t81dev | `../../spec/vm/` |
+| **HanoiVM** | `../../core/vm/`, `../../include/t81/vm/` | @t81dev | `../../spec/vm/` |
 | **Axion** | `../../src/axion/`, `../../include/t81/axion/` | @t81dev | `../../spec/axion/` |
 | **CanonFS** | `../../src/canonfs/`, `../../include/t81/canonfs/` | @t81dev | `../../spec/canonfs/` |
 | **Cognitive** | `../../src/cog/`, `../../include/t81/cog/` | @t81dev | `../../spec/spec/t81-spec.md` |

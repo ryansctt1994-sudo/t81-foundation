@@ -15,7 +15,7 @@ flowchart LR
     IR --> TISC[TISC Emitter]
     TISC --> VM[VM Interpreter]
 
-    subgraph Runtime [src/vm]
+    subgraph Runtime [core/vm]
         VM --> JIT{Hotspot?}
         JIT -- Yes --> Trace[ThreadedJitTrace]
         JIT -- No --> Exec[Execute Step]
