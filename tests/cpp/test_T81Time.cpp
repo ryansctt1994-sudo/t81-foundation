@@ -1,5 +1,5 @@
-#include "t81/core/T81Symbol.hpp"
-#include "t81/core/T81Time.hpp"
+#include "t81/types/T81Symbol.hpp"
+#include "t81/types/T81Time.hpp"
 
 #include <cassert>
 #include <chrono>

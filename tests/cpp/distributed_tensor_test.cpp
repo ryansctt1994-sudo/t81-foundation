@@ -1,6 +1,6 @@
 #include <cassert>
 #include <iostream>
-#include "t81/core/DistributedTensor.hpp"
+#include "t81/types/DistributedTensor.hpp"
 
 using namespace t81;
 

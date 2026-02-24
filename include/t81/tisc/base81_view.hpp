@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include "t81/core/Result.hpp"
+#include "t81/types/Result.hpp"
 #include "t81/tisc/program.hpp"
 
 namespace t81::tisc::base81_view {

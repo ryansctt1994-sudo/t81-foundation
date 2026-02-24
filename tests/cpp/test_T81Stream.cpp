@@ -2,7 +2,7 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
-#include "t81/core/T81Stream.hpp"
+#include "t81/types/T81Stream.hpp"
 
 using namespace t81;
 

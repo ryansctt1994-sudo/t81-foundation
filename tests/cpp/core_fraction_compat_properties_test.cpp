@@ -4,7 +4,7 @@
 #include <random>
 #include <string>
 
-#include "t81/core/fraction.hpp"
+#include "t81/types/fraction.hpp"
 #include "t81/fraction.hpp"
 
 int main() {

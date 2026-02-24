@@ -1,6 +1,6 @@
 #include <iostream>
 #include <stdexcept>
-#include "t81/core/T81BigInt.hpp"
+#include "t81/types/T81BigInt.hpp"
 
 using namespace t81;
 using namespace t81::v1;

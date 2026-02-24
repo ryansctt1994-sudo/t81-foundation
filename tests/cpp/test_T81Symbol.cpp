@@ -1,6 +1,6 @@
 #include <cassert>
 #include <iostream>
-#include "t81/core/T81Symbol.hpp"
+#include "t81/types/T81Symbol.hpp"
 
 using namespace t81;
 

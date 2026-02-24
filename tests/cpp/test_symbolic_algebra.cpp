@@ -2,8 +2,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
-#include "t81/core/T81Polynomial.hpp"
-#include "t81/core/T81Symbolic.hpp"
+#include "t81/types/T81Polynomial.hpp"
+#include "t81/types/T81Symbolic.hpp"
 
 using namespace t81;
 

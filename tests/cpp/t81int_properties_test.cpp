@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <type_traits>
 
-#include "t81/core/T81Int.hpp"
+#include "t81/types/T81Int.hpp"
 
 // Helper to check conditions and log failures
 auto expect = [](bool cond, const char* msg) -> bool {

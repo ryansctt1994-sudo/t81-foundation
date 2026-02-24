@@ -7,9 +7,9 @@
 #include <iomanip>
 #include <sstream>
 #include <vector>
-#include "t81/core/T81Float.hpp"
-#include "t81/core/T81Int.hpp"
-#include "t81/core/T81String.hpp"
+#include "t81/types/T81Float.hpp"
+#include "t81/types/T81Int.hpp"
+#include "t81/types/T81String.hpp"
 
 namespace t81::text {
 

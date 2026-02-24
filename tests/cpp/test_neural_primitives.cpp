@@ -1,7 +1,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
-#include "t81/core/T81NN.hpp"
+#include "t81/types/T81NN.hpp"
 
 using namespace t81;
 using namespace t81::nn;

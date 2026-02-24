@@ -1,6 +1,6 @@
 #include <cassert>
 #include <iostream>
-#include "t81/core/T81Qutrit.hpp"
+#include "t81/types/T81Qutrit.hpp"
 
 using namespace t81;
 using namespace t81::qutrit;  // ZERO, ONE, TWO

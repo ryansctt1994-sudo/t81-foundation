@@ -1,6 +1,6 @@
 #include <cassert>
 #include <iostream>
-#include "t81/core/T81Polynomial.hpp"
+#include "t81/types/T81Polynomial.hpp"
 
 using namespace t81;
 

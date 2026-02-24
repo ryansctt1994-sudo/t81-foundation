@@ -1,8 +1,8 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
-#include "t81/core/T81Float.hpp"
-#include "t81/core/T81Matrix.hpp"
+#include "t81/types/T81Float.hpp"
+#include "t81/types/T81Matrix.hpp"
 
 using namespace t81;
 

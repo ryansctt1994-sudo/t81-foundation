@@ -1,8 +1,8 @@
 #include <cassert>
 #include <chrono>
 #include <iostream>
-#include "t81/core/T81Agent.hpp"
-#include "t81/core/T81Thread.hpp"
+#include "t81/types/T81Agent.hpp"
+#include "t81/types/T81Thread.hpp"
 
 using namespace t81;
 

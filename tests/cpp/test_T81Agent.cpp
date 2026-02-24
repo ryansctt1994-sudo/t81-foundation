@@ -1,8 +1,8 @@
 #undef NDEBUG
 #include <cassert>
 #include <iostream>
-#include "t81/core/T81Agent.hpp"
-#include "t81/core/T81Entropy.hpp"
+#include "t81/types/T81Agent.hpp"
+#include "t81/types/T81Entropy.hpp"
 
 using namespace t81;
 

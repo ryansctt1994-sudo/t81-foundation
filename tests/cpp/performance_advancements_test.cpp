@@ -3,7 +3,7 @@
 #include <vector>
 #include "t81/canonfs/canon_driver.hpp"
 #include "t81/cog/tier4/tier4_loop.hpp"
-#include "t81/core/T81BigInt.hpp"
+#include "t81/types/T81BigInt.hpp"
 
 using namespace t81::v1;
 using namespace t81::canonfs;

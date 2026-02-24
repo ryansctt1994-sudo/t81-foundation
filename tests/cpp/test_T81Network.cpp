@@ -1,6 +1,6 @@
-#include "t81/core/T81Agent.hpp"
-#include "t81/core/T81Entropy.hpp"
-#include "t81/core/T81Network.hpp"
+#include "t81/types/T81Agent.hpp"
+#include "t81/types/T81Entropy.hpp"
+#include "t81/types/T81Network.hpp"
 #undef NDEBUG
 #include <cassert>
 #include <iostream>

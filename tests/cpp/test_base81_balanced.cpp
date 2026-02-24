@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include "t81/codec/base81_balanced.hpp"
-#include "t81/core/T81Int.hpp"
+#include "t81/types/T81Int.hpp"
 
 using namespace t81;
 using namespace t81::codec::base81_balanced;

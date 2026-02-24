@@ -1,8 +1,8 @@
 #include <iostream>
 #include <limits>
 #include <stdexcept>
-#include "t81/core/T81BigInt.hpp"
-#include "t81/core/T81Int.hpp"
+#include "t81/types/T81BigInt.hpp"
+#include "t81/types/T81Int.hpp"
 
 // Simple assertion helper
 #define ASSERT_THROWS(expr, ExType)                                         \

@@ -4,7 +4,7 @@
 #include <random>
 #include <vector>
 
-#include "t81/core/T81Float.hpp"
+#include "t81/types/T81Float.hpp"
 
 using namespace t81::v1;
 

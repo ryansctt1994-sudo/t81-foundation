@@ -2,8 +2,8 @@
 #include <iostream>
 #include <random>
 
-#include "t81/core/T81Int.hpp"
-#include "t81/core/T81Prob.hpp"
+#include "t81/types/T81Int.hpp"
+#include "t81/types/T81Prob.hpp"
 
 int main() {
   using t81::T81Int;

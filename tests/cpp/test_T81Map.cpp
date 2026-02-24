@@ -3,10 +3,10 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include "t81/core/T81Entropy.hpp"
-#include "t81/core/T81Int.hpp"
-#include "t81/core/T81Map.hpp"
-#include "t81/core/T81Symbol.hpp"
+#include "t81/types/T81Entropy.hpp"
+#include "t81/types/T81Int.hpp"
+#include "t81/types/T81Map.hpp"
+#include "t81/types/T81Symbol.hpp"
 
 using namespace t81;
 

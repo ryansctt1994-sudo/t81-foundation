@@ -1,6 +1,6 @@
 #include <iostream>
 #include <memory>
-#include "t81/core/T81Graph.hpp"
+#include "t81/types/T81Graph.hpp"
 
 using namespace t81;
 

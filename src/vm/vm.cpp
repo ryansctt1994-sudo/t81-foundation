@@ -1272,7 +1272,7 @@ public:
           // with T81Float<72, 9>". But in vm.cpp: `t81::T729DynamicTensor
           // promoted(std::move(shape), std::move(float_data));` where `float_data` is
           // `std::vector<float>`. So T729DynamicTensor seems to hold float? Let's check
-          // `include/t81/core/T729DynamicTensor.hpp` or `t81/tensor.hpp`. I don't have access to
+          // `include/t81/types/T729DynamicTensor.hpp` or `t81/tensor.hpp`. I don't have access to
           // those files right now (didn't read them), but `vm.cpp` uses `std::vector<float> data =
           // tensor->data();`. So `T729DynamicTensor` uses `float` or convertible to `float`. The
           // serialized format I wrote in `canonize_tensor` writes `uint64_t` from `NativeTensor`.

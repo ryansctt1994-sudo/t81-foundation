@@ -1,8 +1,8 @@
 #include <cassert>
 #include <iostream>
 
-#include "t81/core/bigint.hpp"
-#include "t81/core/fraction.hpp"
+#include "t81/types/bigint.hpp"
+#include "t81/types/fraction.hpp"
 #include "t81/fraction.hpp"
 
 int main() {

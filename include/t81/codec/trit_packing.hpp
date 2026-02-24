@@ -3,8 +3,8 @@
 #include <cstdint>
 #include <string_view>
 #include <vector>
-#include "t81/core/Result.hpp"
-#include "t81/core/T81Int.hpp"
+#include "t81/types/Result.hpp"
+#include "t81/types/T81Int.hpp"
 
 namespace t81::codec::trit_packing {
 

@@ -2,15 +2,15 @@
 #include <iostream>
 #include <thread>
 #include <vector>
-#include "t81/core/T81Entropy.hpp"
-#include "t81/core/T81Float.hpp"
-#include "t81/core/T81Graph.hpp"
-#include "t81/core/T81IOStream.hpp"
-#include "t81/core/T81Int.hpp"
-#include "t81/core/T81Map.hpp"
-#include "t81/core/T81Symbol.hpp"
-#include "t81/core/T81Tensor.hpp"
-#include "t81/core/T81Time.hpp"
+#include "t81/types/T81Entropy.hpp"
+#include "t81/types/T81Float.hpp"
+#include "t81/types/T81Graph.hpp"
+#include "t81/types/T81IOStream.hpp"
+#include "t81/types/T81Int.hpp"
+#include "t81/types/T81Map.hpp"
+#include "t81/types/T81Symbol.hpp"
+#include "t81/types/T81Tensor.hpp"
+#include "t81/types/T81Time.hpp"
 
 using namespace t81;
 

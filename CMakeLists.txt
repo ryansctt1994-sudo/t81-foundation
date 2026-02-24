@@ -65,8 +65,8 @@ endif()
 # Core library
 # =============================================================================
 add_library(t81_core STATIC
-  src/core/bigint.cpp
-  src/core/fraction.cpp
+  core/types/bigint.cpp
+  core/types/fraction.cpp
   src/tisc/encoding.cpp
   src/vm/vm.cpp
   src/canonfs/in_memory_driver.cpp

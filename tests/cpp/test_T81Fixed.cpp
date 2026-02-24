@@ -1,7 +1,7 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
-#include "t81/core/T81Fixed.hpp"
+#include "t81/types/T81Fixed.hpp"
 
 using namespace t81;
 

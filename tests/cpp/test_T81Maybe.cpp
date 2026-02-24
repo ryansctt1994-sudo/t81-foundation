@@ -1,7 +1,7 @@
 #include <cassert>
-#include "t81/core/T81Int.hpp"
-#include "t81/core/T81Maybe.hpp"
-#include "t81/core/T81Symbol.hpp"
+#include "t81/types/T81Int.hpp"
+#include "t81/types/T81Maybe.hpp"
+#include "t81/types/T81Symbol.hpp"
 
 using namespace t81;
 

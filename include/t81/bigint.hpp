@@ -3,10 +3,10 @@
  * @brief Legacy header providing T81BigInt via the robust implementation.
  *
  * This file is a compatibility shim that aliases `t81::T81BigInt` to the
- * canonical `t81::v1::T81BigInt` implementation in `t81/core/T81BigInt.hpp`.
+ * canonical `t81::v1::T81BigInt` implementation in `t81/types/T81BigInt.hpp`.
  */
 #pragma once
-#include "t81/core/T81BigInt.hpp"
+#include "t81/types/T81BigInt.hpp"
 
 namespace t81 {
 

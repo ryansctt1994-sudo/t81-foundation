@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include "t81/core/tensor.hpp"
+#include "t81/types/tensor.hpp"
 
 #include <filesystem>
 #include <map>

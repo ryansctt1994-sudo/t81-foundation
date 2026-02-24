@@ -3,8 +3,8 @@
 
 #undef NDEBUG
 #include <cassert>
-#include "t81/core/T81Float.hpp"
-#include "t81/core/T81Matrix.hpp"
+#include "t81/types/T81Float.hpp"
+#include "t81/types/T81Matrix.hpp"
 
 #include <cmath>
 #include <iostream>

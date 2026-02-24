@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <cstring>
 
-#include "t81/core/T81Limb.hpp"
+#include "t81/types/T81Limb.hpp"
 #include "t81/native.hpp"
 #include "t81/packing.hpp"
 

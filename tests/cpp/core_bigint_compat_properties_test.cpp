@@ -5,7 +5,7 @@
 #include <random>
 
 #include "t81/bigint.hpp"
-#include "t81/core/bigint.hpp"
+#include "t81/types/bigint.hpp"
 
 int main() {
   using t81::T81BigInt;
