@@ -172,7 +172,10 @@ PYBIND11_MODULE(t81_python, m) {
       .def("get_register",
            [](vm::IVirtualMachine& self, int idx) {
              if (idx < 0 || idx >= 243) throw py::index_error();
-             return self.state().registers[idx];
+             auto& state = self.state();
+             if (state.contexts.empty())
+               throw std::runtime_error("VM not initialized (no contexts)");
+             return state.contexts[state.current_context].registers[idx];
            })
       .def("set_register",
            [](vm::IVirtualMachine& self, int idx, int64_t val) {
@@ -238,7 +241,9 @@ PYBIND11_MODULE(t81_python, m) {
     auto res = vm->run_to_halt();
     if (!res) throw std::runtime_error("VM Trap during execution");
 
-    return vm->state().registers[0];
+    auto& state = vm->state();
+    if (state.contexts.empty()) throw std::runtime_error("VM state invalid");
+    return state.contexts[state.current_context].registers[0];
   });
 
   // Bind CanonFS
