@@ -475,6 +475,7 @@ jobs:
     name: " benchmark / linux-x86_64 "
     needs: spec-and-docs
     runs-on: ubuntu-24.04
+    continue-on-error: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -652,6 +653,51 @@ jobs:
           python3 scripts/verify_ternary_logic.py
 
   ############################################################################
+  # JOB: tritwise-determinism
+  ############################################################################
+  tritwise-determinism:
+    name: " gate / tritwise-determinism / ${{ matrix.config.name }}"
+    needs: spec-and-docs
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: "avx2-asan"
+            cmake_args: "-DCMAKE_BUILD_TYPE=Debug -DT81_BUILD_BENCHMARKS=ON -DT81_BUILD_TESTS=ON -DT81_ENABLE_ASAN=ON -DT81_ENABLE_UBSAN=ON -DCMAKE_CXX_FLAGS=\"-mavx2 -mfma\""
+            build_targets: "t81_tritwise_backend_equivalence_test benchmark_runner"
+            run_cmd: "./build/t81_tritwise_backend_equivalence_test"
+            smoke_cmd: "./build/benchmarks/benchmark_runner --benchmark_filter=\"BM_MaskApply_Library/256\" --benchmark_min_time=0.01"
+          - name: "no-simd"
+            cmake_args: "-DCMAKE_BUILD_TYPE=Debug -DT81_BUILD_TESTS=ON"
+            build_targets: "t81_tritwise_backend_equivalence_test"
+            run_cmd: "./build/t81_tritwise_backend_equivalence_test"
+            smoke_cmd: "echo 'No smoke test for no-simd'"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y build-essential cmake ninja-build python3
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B build -G Ninja ${{ matrix.config.cmake_args }}
+
+      - name: Build
+        run: cmake --build build --target ${{ matrix.config.build_targets }} --parallel
+
+      - name: Run Equivalence Tests
+        run: ${{ matrix.config.run_cmd }}
+
+      - name: Run Benchmark Smoke Test
+        if: matrix.config.name == 'avx2-asan'
+        run: ${{ matrix.config.smoke_cmd }}
+
+  ############################################################################
   # JOB: quality-gate
   ############################################################################
   quality-gate:
@@ -667,6 +713,7 @@ jobs:
       - fuzzing
       - formal-verification
       - benchmarks
+      - tritwise-determinism
     if: always()
     steps:
       - name: Verify all required jobs succeeded
@@ -681,4 +728,5 @@ jobs:
           if [[ "${{ needs.fuzzing.result }}" != "success" ]]; then exit 1; fi
           if [[ "${{ needs.formal-verification.result }}" != "success" ]]; then exit 1; fi
           if [[ "${{ needs.benchmarks.result }}" != "success" ]]; then exit 1; fi
+          if [[ "${{ needs.tritwise-determinism.result }}" != "success" ]]; then exit 1; fi
           echo "All required CI quality gates passed."

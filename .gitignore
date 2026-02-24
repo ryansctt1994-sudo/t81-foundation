@@ -95,6 +95,7 @@ pdf/*.toc
 *~
 .DS_Store
 Thumbs.db
+._*
 
 # ── Legacy hanoivm ──────────────────────────────────────────
 legacy/hanoivm/**/*.{c,h,tex,dvi,pdf,log,aux,toc,idx,out}
