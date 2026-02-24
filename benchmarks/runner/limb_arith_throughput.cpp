@@ -1,7 +1,7 @@
 #include <benchmark/benchmark.h>
 #include <vector>
 #include <random>
-#include "t81/core/T81Limb.hpp"
+#include "t81/types/T81Limb.hpp"
 #include "t81/t81.hpp"
 
 #pragma GCC diagnostic push

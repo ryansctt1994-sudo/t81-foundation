@@ -1,8 +1,8 @@
 #ifndef T81_CORE_H
 #define T81_CORE_H
 
-#include "data_types/t81_bigint.h"
-#include "data_types/t81_fraction.h"
-#include "data_types/t81_tensor.h"
+#include <t81/types/T81BigInt.hpp>
+#include <t81/types/T81Fraction.hpp>
+#include <t81/types/T81Tensor.hpp>
 
 #endif  // T81_CORE_H

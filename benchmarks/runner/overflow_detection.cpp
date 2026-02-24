@@ -1,6 +1,6 @@
 // benchmarks/runner/overflow_detection.cpp
 #include <benchmark/benchmark.h>
-#include "t81/core/cell.hpp"
+#include "t81/types/cell.hpp"
 #include <limits>
 #include <string>
 

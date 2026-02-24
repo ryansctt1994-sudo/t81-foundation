@@ -2,8 +2,8 @@
 #include <vector>
 #include <random>
 #include <cstdint>
-#include "t81/core/cell.hpp"
-#include "t81/core/cell_packed.hpp"
+#include "t81/types/cell.hpp"
+#include "t81/types/cell_packed.hpp"
 #include "t81/t81.hpp"
 
 namespace {
