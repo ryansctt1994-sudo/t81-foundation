@@ -12,6 +12,10 @@
 #include <immintrin.h>
 #endif
 
+#if defined(__aarch64__) && defined(__ARM_NEON)
+#include <arm_neon.h>
+#endif
+
 #include "t81/codec/trit_packing.hpp"
 #include "t81/core/Result.hpp"
 #include "t81/core/T81Int.hpp"
@@ -522,35 +526,57 @@ private:
   }
 
 public:
+  // Thresholds for dispatching to SIMD kernels.
+  // Below these sizes (in bytes), the overhead of SIMD setup/tail handling
+  // outweighs the throughput benefit, so we fall back to SWAR.
+  // Determined via benchmarks/BM_PackedTritVector.cpp.
+  static constexpr size_t AVX2_THRESHOLD_BYTES = 64; // ~256 trits (Verified on x86_64)
+  static constexpr size_t NEON_THRESHOLD_BYTES = 64; // Estimated, to be tuned on ARM
+
   // Kernel Dispatch Layer
   static void kernel_not(const uint8_t* in, uint8_t* out, size_t len) {
 #if defined(__x86_64__) && defined(__AVX2__)
-    kernel_not_avx2(in, out, len);
+    if (len >= AVX2_THRESHOLD_BYTES) {
+      kernel_not_avx2(in, out, len);
+      return;
+    }
 #elif defined(__aarch64__) && defined(__ARM_NEON)
-    kernel_not_neon(in, out, len);
-#else
-    kernel_not_swar(in, out, len);
+    if (len >= NEON_THRESHOLD_BYTES) {
+      kernel_not_neon(in, out, len);
+      return;
+    }
 #endif
+    kernel_not_swar(in, out, len);
   }
 
   static void kernel_and(const uint8_t* a, const uint8_t* b, uint8_t* out, size_t len) {
 #if defined(__x86_64__) && defined(__AVX2__)
-    kernel_and_avx2(a, b, out, len);
+    if (len >= AVX2_THRESHOLD_BYTES) {
+      kernel_and_avx2(a, b, out, len);
+      return;
+    }
 #elif defined(__aarch64__) && defined(__ARM_NEON)
-    kernel_and_neon(a, b, out, len);
-#else
-    kernel_and_swar(a, b, out, len);
+    if (len >= NEON_THRESHOLD_BYTES) {
+      kernel_and_neon(a, b, out, len);
+      return;
+    }
 #endif
+    kernel_and_swar(a, b, out, len);
   }
 
   static void kernel_or(const uint8_t* a, const uint8_t* b, uint8_t* out, size_t len) {
 #if defined(__x86_64__) && defined(__AVX2__)
-    kernel_or_avx2(a, b, out, len);
+    if (len >= AVX2_THRESHOLD_BYTES) {
+      kernel_or_avx2(a, b, out, len);
+      return;
+    }
 #elif defined(__aarch64__) && defined(__ARM_NEON)
-    kernel_or_neon(a, b, out, len);
-#else
-    kernel_or_swar(a, b, out, len);
+    if (len >= NEON_THRESHOLD_BYTES) {
+      kernel_or_neon(a, b, out, len);
+      return;
+    }
 #endif
+    kernel_or_swar(a, b, out, len);
   }
 
   // SWAR Kernels
@@ -629,16 +655,78 @@ public:
   }
 
 #if defined(__aarch64__) && defined(__ARM_NEON)
-#include <arm_neon.h>
   static void kernel_not_neon(const uint8_t* src, uint8_t* dst, size_t n) {
-    // TODO: Implement NEON kernel
-    kernel_not_swar(src, dst, n);
+    size_t i = 0;
+    uint8x16_t mask55 = vdupq_n_u8(0x55);
+    for (; i + 16 <= n; i += 16) {
+      uint8x16_t x = vld1q_u8(src + i);
+      uint8x16_t low = vandq_u8(x, mask55);
+      uint8x16_t low_sh = vshlq_n_u8(low, 1);
+      uint8x16_t res = veorq_u8(x, low_sh);
+      vst1q_u8(dst + i, res);
+    }
+    if (i < n) {
+      kernel_not_swar(src + i, dst + i, n - i);
+    }
   }
+
   static void kernel_and_neon(const uint8_t* src_a, const uint8_t* src_b, uint8_t* dst, size_t n) {
-    kernel_and_swar(src_a, src_b, dst, n);
+    size_t i = 0;
+    uint8x16_t maskAA = vdupq_n_u8(0xAA);
+    uint8x16_t mask55 = vdupq_n_u8(0x55);
+    for (; i + 16 <= n; i += 16) {
+      uint8x16_t va = vld1q_u8(src_a + i);
+      uint8x16_t vb = vld1q_u8(src_b + i);
+
+      uint8x16_t a_or_b = vorrq_u8(va, vb);
+      uint8x16_t H = vandq_u8(a_or_b, maskAA);
+
+      uint8x16_t a_and_b = vandq_u8(va, vb);
+      uint8x16_t L_content = vandq_u8(a_and_b, mask55);
+
+      uint8x16_t H_shr = vshrq_n_u8(H, 1);
+      uint8x16_t res = vorrq_u8(H, H_shr);
+      res = vorrq_u8(res, L_content);
+      vst1q_u8(dst + i, res);
+    }
+    if (i < n) {
+      kernel_and_swar(src_a + i, src_b + i, dst + i, n - i);
+    }
   }
+
   static void kernel_or_neon(const uint8_t* src_a, const uint8_t* src_b, uint8_t* dst, size_t n) {
-    kernel_or_swar(src_a, src_b, dst, n);
+    size_t i = 0;
+    uint8x16_t maskAA = vdupq_n_u8(0xAA);
+    uint8x16_t mask55 = vdupq_n_u8(0x55);
+    for (; i + 16 <= n; i += 16) {
+      uint8x16_t va = vld1q_u8(src_a + i);
+      uint8x16_t vb = vld1q_u8(src_b + i);
+
+      uint8x16_t h_a = vandq_u8(va, maskAA);
+      uint8x16_t h_b = vandq_u8(vb, maskAA);
+      uint8x16_t l_a = vandq_u8(va, mask55);
+      uint8x16_t l_b = vandq_u8(vb, mask55);
+
+      uint8x16_t H = vandq_u8(h_a, h_b);
+      uint8x16_t h_or = vorrq_u8(h_a, h_b);
+      uint8x16_t mask = vshrq_n_u8(h_or, 1);
+
+      uint8x16_t l_and = vandq_u8(l_a, l_b);
+      uint8x16_t l_or = vorrq_u8(l_a, l_b);
+
+      // L = (l_a & l_b) | ((l_a | l_b) & ~mask)
+      // vbicq_u8(a, b) -> a & ~b
+      uint8x16_t L_part2 = vbicq_u8(l_or, mask);
+      uint8x16_t L = vorrq_u8(l_and, L_part2);
+
+      uint8x16_t H_shr = vshrq_n_u8(H, 1);
+      uint8x16_t res = vorrq_u8(H, H_shr);
+      res = vorrq_u8(res, L);
+      vst1q_u8(dst + i, res);
+    }
+    if (i < n) {
+      kernel_or_swar(src_a + i, src_b + i, dst + i, n - i);
+    }
   }
 #endif
 

@@ -773,6 +773,33 @@ static void BM_Kernel_TAnd_AVX2(benchmark::State& state) {
 BENCHMARK(BM_Kernel_TAnd_AVX2)->RangeMultiplier(4)->Range(16, 65536);
 #endif
 
+#if defined(__aarch64__) && defined(__ARM_NEON)
+static void BM_Kernel_TAnd_NEON(benchmark::State& state) {
+  size_t len = state.range(0);
+  std::mt19937 rng(42);
+  std::uniform_int_distribution<int> dist(-1, 1);
+  std::vector<int8_t> t1(len), t2(len);
+  for (size_t i = 0; i < len; ++i) {
+    t1[i] = static_cast<int8_t>(dist(rng));
+    t2[i] = static_cast<int8_t>(dist(rng));
+  }
+  auto p1 = ComputeTritVector::from_trits(t1).value();
+  auto p2 = ComputeTritVector::from_trits(t2).value();
+
+  const uint8_t* src_a = p1.data().data();
+  const uint8_t* src_b = p2.data().data();
+  std::vector<uint8_t> dst = p1.data();
+  uint8_t* dst_ptr = dst.data();
+  size_t n = dst.size();
+
+  for (auto _ : state) {
+    ComputeTritVector::kernel_and_neon(src_a, src_b, dst_ptr, n);
+    benchmark::DoNotOptimize(dst_ptr);
+  }
+}
+BENCHMARK(BM_Kernel_TAnd_NEON)->RangeMultiplier(4)->Range(16, 65536);
+#endif
+
 // Real Workload In-Place
 static void BM_RealWorkload_Phase2D_InPlace(benchmark::State& state) {
   size_t len = state.range(0);

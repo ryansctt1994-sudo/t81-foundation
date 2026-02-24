@@ -162,7 +162,7 @@ void test_randomized_determinism() {
   std::mt19937 rng(42);
   std::uniform_int_distribution<int> dist(-1, 1);
 
-  for (int len : {0, 1, 2, 4, 5, 6, 16, 64, 100}) {
+  for (int len : {0, 1, 2, 4, 5, 6, 16, 64, 100, 255, 256, 257, 1024, 4096}) {
     std::vector<int8_t> t1_data;
     std::vector<int8_t> t2_data;
     for (int i = 0; i < len; ++i) {
@@ -399,13 +399,15 @@ void test_inplace_apis() {
   }
 }
 
-void test_avx2_vs_swar() {
-  std::cout << "[Phase 2D] Testing AVX2 vs SWAR Differential..." << std::endl;
+void test_simd_vs_swar() {
+  std::cout << "[Phase 2D/2E] Testing SIMD vs SWAR Differential..." << std::endl;
   std::mt19937 rng(42);
   std::uniform_int_distribution<int> dist(-1, 1);
 
-  // Test various lengths to hit SIMD loops and tails
-  for (size_t len : {16, 31, 32, 33, 64, 100, 1024}) {
+  // Test various lengths to hit SIMD loops, tails, and thresholds
+  // 256 trits (64 bytes) is the current threshold.
+  // We test below, at, and above.
+  for (size_t len : {16, 31, 32, 33, 64, 100, 255, 256, 257, 1024, 4096}) {
     std::vector<int8_t> t1_data(len), t2_data(len);
     for (size_t i = 0; i < len; ++i) {
       t1_data[i] = static_cast<int8_t>(dist(rng));
@@ -416,7 +418,7 @@ void test_avx2_vs_swar() {
     auto v2 = ComputeTritVector::from_trits(t2_data).value();
 
     // Not
-    // v1.t_not() uses AVX2 (if enabled), v1.t_not_swar() forces SWAR
+    // v1.t_not() uses SIMD dispatch (if enabled/large enough), v1.t_not_swar() forces SWAR
     auto not_simd = v1.t_not().value();
     auto not_swar = v1.t_not_swar().value();
     assert(check_vec(not_simd.to_trits().value(), not_swar.to_trits().value()));
@@ -436,6 +438,47 @@ void test_avx2_vs_swar() {
   }
 }
 
+#if defined(__aarch64__) && defined(__ARM_NEON)
+void test_neon_explicit() {
+  std::cout << "[Phase 2E] Testing NEON Explicit Kernels..." << std::endl;
+  std::mt19937 rng(42);
+  std::uniform_int_distribution<int> dist(-1, 1);
+
+  for (size_t len : {16, 64, 256, 1024}) {
+    std::vector<int8_t> t1_data(len), t2_data(len);
+    for (size_t i = 0; i < len; ++i) {
+      t1_data[i] = static_cast<int8_t>(dist(rng));
+      t2_data[i] = static_cast<int8_t>(dist(rng));
+    }
+
+    auto v1 = ComputeTritVector::from_trits(t1_data).value();
+    auto v2 = ComputeTritVector::from_trits(t2_data).value();
+
+    // We can call kernels directly if they are public.
+    // Since ComputeTritVector has raw data access via data(), we can use that.
+
+    // Prepare output buffers
+    std::vector<uint8_t> out_not(v1.data().size());
+    std::vector<uint8_t> out_and(v1.data().size());
+    std::vector<uint8_t> out_or(v1.data().size());
+
+    // Call NEON kernels
+    ComputeTritVector::kernel_not_neon(v1.data().data(), out_not.data(), v1.data().size());
+    ComputeTritVector::kernel_and_neon(v1.data().data(), v2.data().data(), out_and.data(), v1.data().size());
+    ComputeTritVector::kernel_or_neon(v1.data().data(), v2.data().data(), out_or.data(), v1.data().size());
+
+    // Compare with SWAR
+    auto not_swar = v1.t_not_swar().value();
+    auto and_swar = v1.t_and_swar(v2).value();
+    auto or_swar = v1.t_or_swar(v2).value();
+
+    assert(out_not == not_swar.data());
+    assert(out_and == and_swar.data());
+    assert(out_or == or_swar.data());
+  }
+}
+#endif
+
 int main() {
 #if defined(__AVX2__)
   std::cout << "[Info] AVX2 Enabled" << std::endl;
@@ -454,7 +497,10 @@ int main() {
   test_phase2b_lut_explicit();
   test_trailing_byte_masking();
   test_inplace_apis();
-  test_avx2_vs_swar();
+  test_simd_vs_swar();
+#if defined(__aarch64__) && defined(__ARM_NEON)
+  test_neon_explicit();
+#endif
 
   std::cout << "All tests passed!" << std::endl;
   return 0;

@@ -142,3 +142,5 @@ Chained operations (`a & b -> c | a -> ~d`) simulating typical usage.
 1.  **NEON Implementation:** Implement `kernel_*_neon` using ARM intrinsics (checking `__ARM_NEON`) to support Apple Silicon and other ARM targets.
 2.  **Allocator Awareness:** For by-value APIs, consider integrating with a memory pool or arena to reduce allocation cost without requiring manual in-place management by the user.
 3.  **Threshold Tuning:** A dynamic threshold (dispatch to SWAR if size < 256 trits) could recover the 10-20% kernel regression on tiny vectors, though the API overhead savings mask this in practice.
+
+> **Update (Phase 2E):** Items 1 and 3 have been addressed. NEON backend and Threshold Dispatch (`AVX2_THRESHOLD_BYTES = 64`) are implemented. See `docs/audits/packed_trit_vector_phase2e_compliance.md`.
