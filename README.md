@@ -102,6 +102,12 @@ Breaking determinism on a verified surface is treated as a critical defect and m
 * Sacrificing determinism for hardware-specific fast-math optimizations.
 * Serving as a general-purpose replacement for C++ or Python.
 
+## Deterministic Core Profile
+
+Reference: [`docs/spec/DETERMINISTIC_CORE_PROFILE_v1.md`](docs/spec/DETERMINISTIC_CORE_PROFILE_v1.md)
+
+The Deterministic Core Profile defines the minimal frozen and verified subset of the system. Experimental components are outside this profile.
+
 ---
 
 ## The Narrative Technical Monograph
