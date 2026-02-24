@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "t81/bigint.hpp"
-#include "t81/core/T81Int.hpp"
+#include "t81/types/T81Int.hpp"
 
 using namespace t81::v1;
 

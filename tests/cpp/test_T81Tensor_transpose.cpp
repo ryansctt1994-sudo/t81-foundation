@@ -1,6 +1,6 @@
 #include <cassert>
 #include <iostream>
-#include "t81/core/T81Tensor.hpp"
+#include "t81/types/T81Tensor.hpp"
 
 int main() {
   using namespace t81;

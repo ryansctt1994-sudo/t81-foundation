@@ -1,5 +1,5 @@
 #include <cassert>
-#include "t81/core/T81Uint.hpp"
+#include "t81/types/T81Uint.hpp"
 
 using namespace t81;
 

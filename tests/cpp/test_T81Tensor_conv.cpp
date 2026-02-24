@@ -1,6 +1,6 @@
 #include <cstdlib>
 #include <iostream>
-#include "t81/core/T81Tensor.hpp"
+#include "t81/types/T81Tensor.hpp"
 
 using namespace t81;
 

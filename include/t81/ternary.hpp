@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include "t81/core/T81Int.hpp"
+#include "t81/types/T81Int.hpp"
 
 namespace t81 {
 

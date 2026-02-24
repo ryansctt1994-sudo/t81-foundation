@@ -3,8 +3,8 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
-#include "t81/core/T81Float.hpp"
-#include "t81/core/T81Tensor.hpp"
+#include "t81/types/T81Float.hpp"
+#include "t81/types/T81Tensor.hpp"
 
 // Simple assertion macro
 #define TEST_ASSERT(cond)                                                                 \

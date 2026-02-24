@@ -2,9 +2,9 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
-#include "t81/core/T81Entropy.hpp"
-#include "t81/core/T81Int.hpp"
-#include "t81/core/T81List.hpp"
+#include "t81/types/T81Entropy.hpp"
+#include "t81/types/T81Int.hpp"
+#include "t81/types/T81List.hpp"
 
 using namespace t81;
 

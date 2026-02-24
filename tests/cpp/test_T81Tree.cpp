@@ -3,8 +3,8 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
-#include "t81/core/T81Int.hpp"
-#include "t81/core/T81Tree.hpp"
+#include "t81/types/T81Int.hpp"
+#include "t81/types/T81Tree.hpp"
 
 using namespace t81;
 

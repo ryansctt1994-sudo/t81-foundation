@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
 #include <stdexcept>
-#include "t81/core/T81Int.hpp"
+#include "t81/types/T81Int.hpp"
 
 int main() {
   using BigT = t81::T81Int<50>;

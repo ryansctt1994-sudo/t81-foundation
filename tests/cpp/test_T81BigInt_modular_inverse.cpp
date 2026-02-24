@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <tuple>
-#include "t81/core/T81BigInt.hpp"
+#include "t81/types/T81BigInt.hpp"
 
 using namespace t81::v1;
 

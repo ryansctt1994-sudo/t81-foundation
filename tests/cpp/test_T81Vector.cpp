@@ -1,8 +1,8 @@
 // tests/cpp/test_T81Vector.cpp
 // Works with T81Vector<3> using T81Float<18,9>, with relaxed tolerances.
 
-#include "t81/core/T81Float.hpp"
-#include "t81/core/T81Vector.hpp"
+#include "t81/types/T81Float.hpp"
+#include "t81/types/T81Vector.hpp"
 
 #include <cassert>
 #include <cmath>

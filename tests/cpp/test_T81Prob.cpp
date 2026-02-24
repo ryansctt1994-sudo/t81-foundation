@@ -3,7 +3,7 @@
 #include <iostream>
 #include <span>
 #include <vector>
-#include "t81/core/T81Prob.hpp"
+#include "t81/types/T81Prob.hpp"
 
 using namespace t81;
 

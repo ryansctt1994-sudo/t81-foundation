@@ -60,11 +60,11 @@
 #include "t81/canonical.hpp"
 
 // ---------- Modern core (spec-driven, canonical for new code) ----------
-#include "t81/core/base81.hpp"
-#include "t81/core/bigint.hpp"
-#include "t81/core/fraction.hpp"
-#include "t81/core/ids.hpp"
-#include "t81/core/tensor.hpp"
+#include "t81/types/base81.hpp"
+#include "t81/types/bigint.hpp"
+#include "t81/types/fraction.hpp"
+#include "t81/types/ids.hpp"
+#include "t81/types/tensor.hpp"
 #include "t81/support/expected.hpp"
 
 // NOTE:

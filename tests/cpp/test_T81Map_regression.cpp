@@ -1,6 +1,6 @@
 #include <cassert>
 #include <iostream>
-#include "t81/core/T81Map.hpp"
+#include "t81/types/T81Map.hpp"
 
 using namespace t81;
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "t81/core/T81BigInt.hpp"
-#include "t81/core/T81Float.hpp"
-#include "t81/core/T81Fraction.hpp"
+#include "t81/types/T81BigInt.hpp"
+#include "t81/types/T81Float.hpp"
+#include "t81/types/T81Fraction.hpp"
 
 #include <limits>
 #include <locale>

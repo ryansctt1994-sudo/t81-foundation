@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <span>
 #include <vector>
-#include "t81/core/Result.hpp"
+#include "t81/types/Result.hpp"
 
 namespace t81::codec::base81_packed {
 

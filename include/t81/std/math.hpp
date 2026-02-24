@@ -9,7 +9,7 @@
  * where available.
  */
 #pragma once
-#include "t81/core/T81Float.hpp"
+#include "t81/types/T81Float.hpp"
 
 namespace t81::math {
 

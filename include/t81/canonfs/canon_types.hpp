@@ -5,7 +5,7 @@
 #include <optional>
 #include <string>
 #include <vector>
-#include "t81/core/base81.hpp"
+#include "t81/types/base81.hpp"
 #include "t81/hash/canonhash.hpp"
 
 namespace t81::canonfs {

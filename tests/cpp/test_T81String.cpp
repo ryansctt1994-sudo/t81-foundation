@@ -1,6 +1,6 @@
 #include <cassert>
 #include <iostream>
-#include "t81/core/T81String.hpp"
+#include "t81/types/T81String.hpp"
 
 using namespace t81;
 

@@ -2,7 +2,7 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
-#include "t81/core/T81Quaternion.hpp"
+#include "t81/types/T81Quaternion.hpp"
 
 using namespace t81;
 

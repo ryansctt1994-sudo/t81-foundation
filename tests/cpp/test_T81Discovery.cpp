@@ -1,7 +1,7 @@
 #include <cassert>
 #include <iostream>
-#include "t81/core/T81Agent.hpp"
-#include "t81/core/T81Discovery.hpp"
+#include "t81/types/T81Agent.hpp"
+#include "t81/types/T81Discovery.hpp"
 
 using namespace t81;
 

@@ -4,7 +4,7 @@
 #include <vector>
 
 #include <t81/codec/base81.hpp>
-#include <t81/core/base81.hpp>
+#include <t81/types/base81.hpp>
 
 int main() {
   using namespace t81::codec::base81;

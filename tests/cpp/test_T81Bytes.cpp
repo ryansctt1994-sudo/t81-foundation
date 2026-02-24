@@ -3,7 +3,7 @@
 
 #include <cassert>
 #include <iostream>
-#include "t81/core/T81Bytes.hpp"
+#include "t81/types/T81Bytes.hpp"
 
 using namespace t81;
 

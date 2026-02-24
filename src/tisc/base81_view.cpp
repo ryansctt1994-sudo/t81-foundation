@@ -2,7 +2,7 @@
 #include <sstream>
 #include <string_view>
 #include "t81/codec/trit_packing.hpp"
-#include "t81/core/T81Int.hpp"
+#include "t81/types/T81Int.hpp"
 
 namespace t81::tisc::base81_view {
 

@@ -1,7 +1,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
-#include "t81/core/T729Tensor.hpp"
+#include "t81/types/T729Tensor.hpp"
 
 using namespace t81;
 using namespace t81::holotensor;
