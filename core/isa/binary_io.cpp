@@ -1,4 +1,4 @@
-#include "t81/tisc/binary_io.hpp"
+#include "t81/isa/binary_io.hpp"
 #include <cstdint>
 #include <fstream>
 #include <stdexcept>
@@ -7,7 +7,7 @@
 #include "t81/bigint.hpp"
 #include "t81/fraction.hpp"
 #include "t81/tensor.hpp"
-#include "t81/tisc/type_alias.hpp"
+#include "t81/isa/type_alias.hpp"
 
 namespace t81 {
 namespace tisc {

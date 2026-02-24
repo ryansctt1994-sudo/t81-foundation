@@ -89,7 +89,7 @@ T81 is organized as a vertical, explicitly governed stack:
 2. **Frontend (T81Lang)** (`../../include/t81/frontend`, `../../src/frontend`)
    Lexer, parser, semantic analysis, and IR generation with deterministic lowering rules.
 
-3. **TISC + Virtual Machine** (`../../include/t81/tisc`, `../../src/tisc`, `../../src/vm`)
+3. **TISC + Virtual Machine** (`../../include/t81/tisc`, `../../core/isa`, `../../src/vm`)
    Canonical program format and deterministic execution model.
 
 4. **Axion Governance + CanonFS** (`../../src/axion`, `../../src/canonfs`, `../../include/t81/canonfs`)

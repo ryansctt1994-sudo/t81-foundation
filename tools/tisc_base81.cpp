@@ -2,8 +2,8 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include "t81/tisc/base81_view.hpp"
-#include "t81/tisc/encoding.hpp"
+#include "t81/isa/base81_view.hpp"
+#include "t81/isa/encoding.hpp"
 
 using namespace t81::tisc;
 

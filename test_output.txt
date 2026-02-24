@@ -132,8 +132,8 @@ Test project /app/build
  65/248 Test  #65: t81_canonfs_io_test ................................   Passed    0.00 sec
         Start  66: t81_ir_encoding_test
  66/248 Test  #66: t81_ir_encoding_test ...............................   Passed    0.00 sec
-        Start  67: t81_tisc_encoding_test
- 67/248 Test  #67: t81_tisc_encoding_test .............................   Passed    0.00 sec
+        Start  67: t81_isa_encoding_test
+ 67/248 Test  #67: t81_isa_encoding_test .............................   Passed    0.00 sec
         Start  68: t81_hash_stub_test
  68/248 Test  #68: t81_hash_stub_test .................................   Passed    0.00 sec
         Start  69: t81_sha3_test
@@ -158,8 +158,8 @@ Test project /app/build
  78/248 Test  #78: t81_base81_packed_test .............................   Passed    0.00 sec
         Start  79: t81_metadata_test
  79/248 Test  #79: t81_metadata_test ..................................   Passed    0.00 sec
-        Start  80: t81_tisc_base81_view_test
- 80/248 Test  #80: t81_tisc_base81_view_test ..........................   Passed    0.00 sec
+        Start  80: t81_isa_base81_view_test
+ 80/248 Test  #80: t81_isa_base81_view_test ..........................   Passed    0.00 sec
         Start  81: setun_bridge_test
  81/248 Test  #81: setun_bridge_test ..................................   Passed    0.00 sec
         Start  82: tisc_opcode_matrix_test
@@ -306,14 +306,14 @@ Test project /app/build
 152/248 Test #152: t81_semantic_analyzer_cascade_suppression_test .....   Passed    0.00 sec
         Start 153: t81_semantic_analyzer_diagnostic_precision_test
 153/248 Test #153: t81_semantic_analyzer_diagnostic_precision_test ....   Passed    0.00 sec
-        Start 154: t81_tisc_binary_emitter_test
-154/248 Test #154: t81_tisc_binary_emitter_test .......................   Passed    0.00 sec
-        Start 155: t81_tisc_type_alias_io_test
-155/248 Test #155: t81_tisc_type_alias_io_test ........................   Passed    0.00 sec
-        Start 156: t81_tisc_binary_io_determinism_test
-156/248 Test #156: t81_tisc_binary_io_determinism_test ................   Passed    0.00 sec
-        Start 157: t81_tisc_binary_metadata_roundtrip_property_test
-157/248 Test #157: t81_tisc_binary_metadata_roundtrip_property_test ...   Passed    0.02 sec
+        Start 154: t81_isa_binary_emitter_test
+154/248 Test #154: t81_isa_binary_emitter_test .......................   Passed    0.00 sec
+        Start 155: t81_isa_type_alias_io_test
+155/248 Test #155: t81_isa_type_alias_io_test ........................   Passed    0.00 sec
+        Start 156: t81_isa_binary_io_determinism_test
+156/248 Test #156: t81_isa_binary_io_determinism_test ................   Passed    0.00 sec
+        Start 157: t81_isa_binary_metadata_roundtrip_property_test
+157/248 Test #157: t81_isa_binary_metadata_roundtrip_property_test ...   Passed    0.02 sec
         Start 158: e2e_option_result_test
 158/248 Test #158: e2e_option_result_test .............................   Passed    0.00 sec
         Start 159: e2e_option_result_function_test

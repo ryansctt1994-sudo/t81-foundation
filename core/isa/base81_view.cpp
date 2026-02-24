@@ -1,4 +1,4 @@
-#include "t81/tisc/base81_view.hpp"
+#include "t81/isa/base81_view.hpp"
 #include <sstream>
 #include <string_view>
 #include "t81/codec/trit_packing.hpp"

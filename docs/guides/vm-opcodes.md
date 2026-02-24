@@ -29,7 +29,7 @@ This guide provides an overview of the TISC instruction set and the T81 Virtual 
 **Companion Documents:**
 - **Specification:** [`spec/tisc-spec.md`](../../spec/tisc-spec.md), [`spec/t81vm-spec.md`](../../spec/t81vm-spec.md)
 - **Key Source Files:**
-    - [`include/t81/tisc/opcodes.hpp`](../../include/t81/tisc/opcodes.hpp): The `Opcode` enum.
+    - [`include/t81/isa/opcodes.hpp`](../../include/t81/isa/opcodes.hpp): The `Opcode` enum.
     - [`src/vm/vm.cpp`](../../src/vm/vm.cpp): The VM implementation.
 - **Tests:** `tests/cpp/t81_vm_*_test.cpp`, `tests/cpp/e2e_*_test.cpp`
 
@@ -138,7 +138,7 @@ This section provides a conceptual walkthrough for adding a new instruction to t
 
 ### Step 1: Define the New Opcode
 
-1.  **Add to Enum:** Open `include/t81/tisc/opcodes.hpp` and add your new opcode to the `Opcode` enum.
+1.  **Add to Enum:** Open `include/t81/isa/opcodes.hpp` and add your new opcode to the `Opcode` enum.
 2.  **Update Specification:** In a real contribution, you must update the formal TISC specification in `spec/tisc-spec.md`. This includes assigning a binary encoding and defining the precise semantics.
 
 ### Step 2: Implement the Opcode in the VM

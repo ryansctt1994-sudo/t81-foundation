@@ -1,4 +1,4 @@
-#include "t81/tisc/opcodes.hpp"
+#include "t81/isa/opcodes.hpp"
 #include "t81/vm/vm.hpp"
 
 #include <iostream>

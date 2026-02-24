@@ -135,9 +135,9 @@ Use this order to localize drift quickly:
    - lexer/parser diagnostics first
    - then semantic analysis differences
 4. IR/binary lowering:
-   - check `frontend_ir_generator_test` and `t81_tisc_binary_emitter_test`
+   - check `frontend_ir_generator_test` and `t81_isa_binary_emitter_test`
 5. Program serialization:
-   - run `t81_tisc_binary_io_determinism_test`
+   - run `t81_isa_binary_io_determinism_test`
    - focus on field-wise writes (avoid raw struct/padding writes)
 6. Runtime output only mismatch:
    - run `e2e_print_runtime_test` and `t81_vm_print_test`

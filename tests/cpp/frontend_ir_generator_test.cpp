@@ -5,8 +5,8 @@
 #include "t81/frontend/lexer.hpp"
 #include "t81/frontend/parser.hpp"
 #include "t81/frontend/semantic_analyzer.hpp"
-#include "t81/tisc/ir.hpp"
-#include "t81/tisc/pretty_printer.hpp"
+#include "t81/isa/ir.hpp"
+#include "t81/isa/pretty_printer.hpp"
 
 #include <cassert>
 #include <iostream>

@@ -290,7 +290,7 @@
 2026-02-15T03:16:03.0964363Z ##[endgroup]
 2026-02-15T03:16:09.1800139Z [1/541] Building CXX object CMakeFiles/t81_core.dir/src/canonfs/persistent_driver.cpp.o
 2026-02-15T03:16:09.4185491Z [2/541] Building CXX object CMakeFiles/t81_core.dir/src/canonfs/in_memory_driver.cpp.o
-2026-02-15T03:16:09.7784169Z [3/541] Building CXX object CMakeFiles/t81_core.dir/src/tisc/encoding.cpp.o
+2026-02-15T03:16:09.7784169Z [3/541] Building CXX object CMakeFiles/t81_core.dir/core/isa/encoding.cpp.o
 2026-02-15T03:16:09.8673471Z [4/541] Building CXX object CMakeFiles/t81_core.dir/src/core/bigint.cpp.o
 2026-02-15T03:16:09.8747127Z [5/541] Building CXX object CMakeFiles/t81_core.dir/src/core/fraction.cpp.o
 2026-02-15T03:16:10.5574411Z [6/541] Building CXX object CMakeFiles/t81_core.dir/src/hanoi/error.cpp.o
@@ -317,17 +317,17 @@
 2026-02-15T03:16:33.1877700Z [27/541] Building CXX object CMakeFiles/t81_core.dir/src/simd/base81_digits_avx2.cpp.o
 2026-02-15T03:16:33.4259686Z [28/541] Building CXX object CMakeFiles/t81_core.dir/src/vm/jit_compiler.cpp.o
 2026-02-15T03:16:38.4221017Z [29/541] Building CXX object CMakeFiles/t81_core.dir/src/setun/bridge.cpp.o
-2026-02-15T03:16:38.6084235Z [30/541] Building CXX object CMakeFiles/t81_tisc.dir/src/tisc/pretty_printer.cpp.o
+2026-02-15T03:16:38.6084235Z [30/541] Building CXX object CMakeFiles/t81_isa.dir/core/isa/pretty_printer.cpp.o
 2026-02-15T03:16:38.6202713Z [31/541] Linking CXX static library libt81_core.a
 2026-02-15T03:16:38.8737546Z [32/541] Building CXX object CMakeFiles/t81_frontend.dir/src/frontend/symbol_table.cpp.o
 2026-02-15T03:16:40.6840449Z [33/541] Building CXX object CMakeFiles/t81_frontend.dir/src/frontend/parser.cpp.o
-2026-02-15T03:16:41.5277114Z [34/541] Building CXX object CMakeFiles/t81_tisc.dir/src/tisc/binary_emitter.cpp.o
+2026-02-15T03:16:41.5277114Z [34/541] Building CXX object CMakeFiles/t81_isa.dir/core/isa/binary_emitter.cpp.o
 2026-02-15T03:16:43.5729145Z [35/541] Building CXX object CMakeFiles/t81_io.dir/src/io/tensor_loader.cpp.o
-2026-02-15T03:16:47.3249895Z [36/541] Building CXX object CMakeFiles/t81_tisc.dir/src/tisc/base81_view.cpp.o
+2026-02-15T03:16:47.3249895Z [36/541] Building CXX object CMakeFiles/t81_isa.dir/core/isa/base81_view.cpp.o
 2026-02-15T03:16:48.1324014Z [37/541] Building CXX object CMakeFiles/t81_frontend.dir/src/frontend/semantic_analyzer.cpp.o
 2026-02-15T03:16:48.2177192Z [38/541] Linking CXX static library libt81_frontend.a
-2026-02-15T03:16:48.4469153Z [39/541] Building CXX object CMakeFiles/t81_tisc.dir/src/tisc/binary_io.cpp.o
-2026-02-15T03:16:48.5309498Z [40/541] Linking CXX static library libt81_tisc.a
+2026-02-15T03:16:48.4469153Z [39/541] Building CXX object CMakeFiles/t81_isa.dir/core/isa/binary_io.cpp.o
+2026-02-15T03:16:48.5309498Z [40/541] Linking CXX static library libt81_isa.a
 2026-02-15T03:16:50.3573369Z [41/541] Building CXX object CMakeFiles/t81_c_api.dir/src/c_api/t81_c_api.cpp.o
 2026-02-15T03:16:50.5122471Z [42/541] Building CXX object _deps/googlebenchmark-build/src/CMakeFiles/benchmark.dir/benchmark_name.cc.o
 2026-02-15T03:16:50.6547020Z [43/541] Building CXX object CMakeFiles/t81_cli_driver.dir/src/cli/debugger.cpp.o
@@ -399,7 +399,7 @@
 2026-02-15T03:17:53.7766534Z     9 | static bool eq(const Insn& a, const Insn& b) {
 2026-02-15T03:17:53.7767452Z       |             ^~
 2026-02-15T03:17:53.7767962Z 1 warning generated.
-2026-02-15T03:17:56.8586433Z [108/541] Building CXX object CMakeFiles/t81_tisc_encoding_test.dir/tests/cpp/tisc_encoding_test.cpp.o
+2026-02-15T03:17:56.8586433Z [108/541] Building CXX object CMakeFiles/t81_isa_encoding_test.dir/tests/cpp/tisc_encoding_test.cpp.o
 2026-02-15T03:17:56.8592253Z /home/runner/work/t81-foundation/t81-foundation/tests/cpp/tisc_encoding_test.cpp:23:17: warning: unused variable 'lhs' [-Wunused-variable]
 2026-02-15T03:17:56.8593880Z    23 |     const auto& lhs = program.insns[i];
 2026-02-15T03:17:56.8597357Z       |                 ^~~
@@ -442,7 +442,7 @@
 2026-02-15T03:18:13.5062763Z    61 |   auto insn = translate_line("MUL R1, R2");
 2026-02-15T03:18:13.5064879Z       |        ^~~~
 2026-02-15T03:18:13.5066853Z 2 warnings generated.
-2026-02-15T03:18:13.5867597Z [125/541] Building CXX object CMakeFiles/t81_tisc_base81_view_test.dir/tests/cpp/test_tisc_base81_view.cpp.o
+2026-02-15T03:18:13.5867597Z [125/541] Building CXX object CMakeFiles/t81_isa_base81_view_test.dir/tests/cpp/test_tisc_base81_view.cpp.o
 2026-02-15T03:18:14.6239997Z [126/541] Building CXX object CMakeFiles/tisc_base81.dir/tools/tisc_base81.cpp.o
 2026-02-15T03:18:15.0855143Z [127/541] Building CXX object CMakeFiles/tisc_opcode_matrix_test.dir/tests/cpp/tisc_opcode_matrix_test.cpp.o
 2026-02-15T03:18:15.0872133Z /home/runner/work/t81-foundation/t81-foundation/tests/cpp/tisc_opcode_matrix_test.cpp:13:10: warning: unused variable '[_, inserted]' [-Wunused-variable]
@@ -553,8 +553,8 @@
 2026-02-15T03:19:01.9967191Z 1 warning generated.
 2026-02-15T03:19:03.4687631Z [173/541] Building CXX object CMakeFiles/t81_semantic_analyzer_numeric_test.dir/tests/cpp/semantic_analyzer_numeric_test.cpp.o
 2026-02-15T03:19:03.9614468Z [174/541] Building CXX object CMakeFiles/t81_frontend_ir_generator_test.dir/tests/cpp/frontend_ir_generator_test.cpp.o
-2026-02-15T03:19:05.2569404Z [175/541] Building CXX object CMakeFiles/t81_tisc_binary_emitter_test.dir/tests/cpp/tisc_binary_emitter_test.cpp.o
-2026-02-15T03:19:06.1245798Z [176/541] Building CXX object CMakeFiles/t81_tisc_type_alias_io_test.dir/tests/cpp/tisc_type_alias_io_test.cpp.o
+2026-02-15T03:19:05.2569404Z [175/541] Building CXX object CMakeFiles/t81_isa_binary_emitter_test.dir/tests/cpp/tisc_binary_emitter_test.cpp.o
+2026-02-15T03:19:06.1245798Z [176/541] Building CXX object CMakeFiles/t81_isa_type_alias_io_test.dir/tests/cpp/tisc_type_alias_io_test.cpp.o
 2026-02-15T03:19:06.1252576Z /home/runner/work/t81-foundation/t81-foundation/tests/cpp/tisc_type_alias_io_test.cpp:66:21: warning: unused variable 'actual' [-Wunused-variable]
 2026-02-15T03:19:06.1259318Z    66 |         const auto& actual = loaded.type_aliases[i];
 2026-02-15T03:19:06.1262812Z       |                     ^~~~~~
@@ -565,9 +565,9 @@
 2026-02-15T03:19:06.1323779Z    55 |     auto matches_variants = [](const std::vector<VariantInfo>& lhs, const std::vector<VariantInfo>& rhs) {
 2026-02-15T03:19:06.1324753Z       |          ^~~~~~~~~~~~~~~~
 2026-02-15T03:19:06.1325237Z 3 warnings generated.
-2026-02-15T03:19:06.1326271Z [177/541] Building CXX object CMakeFiles/t81_tisc_binary_io_determinism_test.dir/tests/cpp/tisc_binary_io_determinism_test.cpp.o
+2026-02-15T03:19:06.1326271Z [177/541] Building CXX object CMakeFiles/t81_isa_binary_io_determinism_test.dir/tests/cpp/tisc_binary_io_determinism_test.cpp.o
 2026-02-15T03:19:08.8447801Z [178/541] Building CXX object CMakeFiles/t81_semantic_analyzer_loop_test.dir/tests/cpp/semantic_analyzer_loop_test.cpp.o
-2026-02-15T03:19:15.4437889Z [179/541] Building CXX object CMakeFiles/t81_tisc_binary_metadata_roundtrip_property_test.dir/tests/cpp/tisc_binary_metadata_roundtrip_property_test.cpp.o
+2026-02-15T03:19:15.4437889Z [179/541] Building CXX object CMakeFiles/t81_isa_binary_metadata_roundtrip_property_test.dir/tests/cpp/tisc_binary_metadata_roundtrip_property_test.cpp.o
 2026-02-15T03:19:17.3314640Z [180/541] Building CXX object CMakeFiles/ir_inspector.dir/tools/ir_inspector.cpp.o
 2026-02-15T03:19:18.4106486Z [181/541] Building CXX object CMakeFiles/e2e_let_statement_test.dir/tests/cpp/e2e_let_statement_test.cpp.o
 2026-02-15T03:19:18.9082272Z [182/541] Building CXX object CMakeFiles/e2e_arithmetic_test.dir/tests/cpp/e2e_arithmetic_test.cpp.o
@@ -870,7 +870,7 @@
 2026-02-15T03:21:45.0674106Z [348/541] Linking CXX executable t81_ir_encoding_test
 2026-02-15T03:21:45.1017404Z [349/541] Linking CXX executable canonfs_persistent_driver_test
 2026-02-15T03:21:45.1747380Z [350/541] Building CXX object benchmarks/CMakeFiles/benchmark_runner.dir/BM_Base81SIMD.cpp.o
-2026-02-15T03:21:45.2350178Z [351/541] Linking CXX executable t81_tisc_encoding_test
+2026-02-15T03:21:45.2350178Z [351/541] Linking CXX executable t81_isa_encoding_test
 2026-02-15T03:21:45.2975422Z [352/541] Building CXX object benchmarks/CMakeFiles/benchmark_runner.dir/runner/t81lang_compile.cpp.o
 2026-02-15T03:21:45.3116531Z [353/541] Linking CXX executable t81_vm_fault_test
 2026-02-15T03:21:45.3476256Z [354/541] Linking CXX executable t81_vm_tensor_test
@@ -886,7 +886,7 @@
 2026-02-15T03:21:45.8142048Z [364/541] Linking CXX executable t81_codec_base81_test
 2026-02-15T03:21:45.8365148Z [365/541] Linking CXX executable t81_base81_packed_test
 2026-02-15T03:21:45.8544683Z [366/541] Linking CXX executable t81_base81_balanced_test
-2026-02-15T03:21:45.9455920Z [367/541] Linking CXX executable t81_tisc_base81_view_test
+2026-02-15T03:21:45.9455920Z [367/541] Linking CXX executable t81_isa_base81_view_test
 2026-02-15T03:21:45.9536907Z [368/541] Linking CXX executable setun_bridge_test
 2026-02-15T03:21:45.9893289Z [369/541] Linking CXX executable tisc_base81
 2026-02-15T03:21:46.0103947Z [370/541] Linking CXX executable t81_metadata_test
@@ -939,11 +939,11 @@
 2026-02-15T03:21:47.2874342Z [417/541] Linking CXX executable t81_semantic_analyzer_record_enum_test
 2026-02-15T03:21:47.2990832Z [418/541] Linking CXX executable t81_semantic_analyzer_vector_literal_test
 2026-02-15T03:21:47.3699347Z [419/541] Linking CXX executable t81_semantic_analyzer_numeric_test
-2026-02-15T03:21:47.3990473Z [420/541] Linking CXX executable t81_tisc_type_alias_io_test
-2026-02-15T03:21:47.4059949Z [421/541] Linking CXX executable t81_tisc_binary_emitter_test
+2026-02-15T03:21:47.3990473Z [420/541] Linking CXX executable t81_isa_type_alias_io_test
+2026-02-15T03:21:47.4059949Z [421/541] Linking CXX executable t81_isa_binary_emitter_test
 2026-02-15T03:21:47.4090588Z [422/541] Linking CXX executable t81_semantic_analyzer_equality_test
-2026-02-15T03:21:47.4326650Z [423/541] Linking CXX executable t81_tisc_binary_io_determinism_test
-2026-02-15T03:21:47.4514699Z [424/541] Linking CXX executable t81_tisc_binary_metadata_roundtrip_property_test
+2026-02-15T03:21:47.4326650Z [423/541] Linking CXX executable t81_isa_binary_io_determinism_test
+2026-02-15T03:21:47.4514699Z [424/541] Linking CXX executable t81_isa_binary_metadata_roundtrip_property_test
 2026-02-15T03:21:47.5116088Z [425/541] Linking CXX executable t81_semantic_analyzer_loop_test
 2026-02-15T03:21:47.5485292Z [426/541] Linking CXX executable e2e_arithmetic_test
 2026-02-15T03:21:47.6284714Z [427/541] Linking CXX executable e2e_option_type_test
@@ -1118,8 +1118,8 @@
 2026-02-15T03:21:51.7852112Z 24/43 Test  #99: t81_vm_print_test ..................................   Passed    0.00 sec
 2026-02-15T03:21:51.7853517Z       Start 106: t81_bigint_v1_baseline_test
 2026-02-15T03:21:51.8582056Z 25/43 Test #106: t81_bigint_v1_baseline_test ........................   Passed    0.07 sec
-2026-02-15T03:21:51.8583979Z       Start 123: t81_tisc_binary_io_determinism_test
-2026-02-15T03:21:51.8613230Z 26/43 Test #123: t81_tisc_binary_io_determinism_test ................   Passed    0.00 sec
+2026-02-15T03:21:51.8583979Z       Start 123: t81_isa_binary_io_determinism_test
+2026-02-15T03:21:51.8613230Z 26/43 Test #123: t81_isa_binary_io_determinism_test ................   Passed    0.00 sec
 2026-02-15T03:21:51.8614663Z       Start 132: e2e_compile_determinism_test
 2026-02-15T03:21:51.8665989Z 27/43 Test #132: e2e_compile_determinism_test .......................   Passed    0.00 sec
 2026-02-15T03:21:51.8667893Z       Start 133: e2e_match_metadata_determinism_test

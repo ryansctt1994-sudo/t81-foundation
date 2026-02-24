@@ -5,7 +5,7 @@
 #include <utility>
 
 #include "t81/support/expected.hpp"
-#include "t81/tisc/program.hpp"
+#include "t81/isa/program.hpp"
 
 namespace t81::setun {
 

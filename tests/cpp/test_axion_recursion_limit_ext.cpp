@@ -2,7 +2,7 @@
 #include <iostream>
 #include "t81/axion/policy.hpp"
 #include "t81/axion/policy_engine.hpp"
-#include "t81/tisc/program.hpp"
+#include "t81/isa/program.hpp"
 #include "t81/vm/vm.hpp"
 
 void test_recursion_limit() {

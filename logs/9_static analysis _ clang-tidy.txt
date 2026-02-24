@@ -317,21 +317,21 @@
 2026-02-15T03:19:12.0977743Z [12/206] Processing file /home/runner/work/t81-foundation/t81-foundation/src/codec/trit_packing.cpp.
 2026-02-15T03:19:43.6003855Z 611970 warnings and 3 errors generated.
 2026-02-15T03:19:43.6021942Z Error while processing /home/runner/work/t81-foundation/t81-foundation/src/codec/trit_packing.cpp.
-2026-02-15T03:19:43.6026065Z [13/206] Processing file /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp.
+2026-02-15T03:19:43.6026065Z [13/206] Processing file /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp.
 2026-02-15T03:20:01.8086054Z 673094 warnings and 3 errors generated.
-2026-02-15T03:20:01.8104136Z Error while processing /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp.
-2026-02-15T03:20:01.8108047Z [14/206] Processing file /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp.
+2026-02-15T03:20:01.8104136Z Error while processing /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp.
+2026-02-15T03:20:01.8108047Z [14/206] Processing file /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp.
 2026-02-15T03:20:19.8484037Z 731103 warnings and 3 errors generated.
-2026-02-15T03:20:19.8562778Z Error while processing /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp.
-2026-02-15T03:20:19.8568194Z [15/206] Processing file /home/runner/work/t81-foundation/t81-foundation/src/tisc/encoding.cpp.
+2026-02-15T03:20:19.8562778Z Error while processing /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp.
+2026-02-15T03:20:19.8568194Z [15/206] Processing file /home/runner/work/t81-foundation/t81-foundation/core/isa/encoding.cpp.
 2026-02-15T03:20:31.1580004Z 788111 warnings and 3 errors generated.
-2026-02-15T03:20:31.1597467Z Error while processing /home/runner/work/t81-foundation/t81-foundation/src/tisc/encoding.cpp.
-2026-02-15T03:20:31.1600283Z [16/206] Processing file /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp.
+2026-02-15T03:20:31.1597467Z Error while processing /home/runner/work/t81-foundation/t81-foundation/core/isa/encoding.cpp.
+2026-02-15T03:20:31.1600283Z [16/206] Processing file /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp.
 2026-02-15T03:20:44.9418977Z 844926 warnings and 3 errors generated.
-2026-02-15T03:20:44.9435879Z Error while processing /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp.
-2026-02-15T03:20:44.9438642Z [17/206] Processing file /home/runner/work/t81-foundation/t81-foundation/src/tisc/pretty_printer.cpp.
+2026-02-15T03:20:44.9435879Z Error while processing /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp.
+2026-02-15T03:20:44.9438642Z [17/206] Processing file /home/runner/work/t81-foundation/t81-foundation/core/isa/pretty_printer.cpp.
 2026-02-15T03:20:58.5852802Z 901621 warnings and 3 errors generated.
-2026-02-15T03:20:58.5870833Z Error while processing /home/runner/work/t81-foundation/t81-foundation/src/tisc/pretty_printer.cpp.
+2026-02-15T03:20:58.5870833Z Error while processing /home/runner/work/t81-foundation/t81-foundation/core/isa/pretty_printer.cpp.
 2026-02-15T03:20:58.5873474Z [18/206] Processing file /home/runner/work/t81-foundation/t81-foundation/src/simd/base81_digits_avx2.cpp.
 2026-02-15T03:21:04.9293024Z 947551 warnings and 3 errors generated.
 2026-02-15T03:21:04.9305611Z Error while processing /home/runner/work/t81-foundation/t81-foundation/src/simd/base81_digits_avx2.cpp.
@@ -515,36 +515,36 @@
 2026-02-15T03:32:02.4662301Z [78/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/t81.hpp.
 2026-02-15T03:32:20.1377877Z 3726970 warnings and 5 errors generated.
 2026-02-15T03:32:20.1412113Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/t81.hpp.
-2026-02-15T03:32:20.1418584Z [79/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/type_alias.hpp.
+2026-02-15T03:32:20.1418584Z [79/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/type_alias.hpp.
 2026-02-15T03:32:22.7577472Z 3748440 warnings and 5 errors generated.
-2026-02-15T03:32:22.7592220Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/type_alias.hpp.
-2026-02-15T03:32:22.7607457Z [80/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/binary_io.hpp.
+2026-02-15T03:32:22.7592220Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/type_alias.hpp.
+2026-02-15T03:32:22.7607457Z [80/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/binary_io.hpp.
 2026-02-15T03:32:34.0454566Z 3805406 warnings and 5 errors generated.
-2026-02-15T03:32:34.0474375Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/binary_io.hpp.
-2026-02-15T03:32:34.0493688Z [81/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/binary.hpp.
+2026-02-15T03:32:34.0474375Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/binary_io.hpp.
+2026-02-15T03:32:34.0493688Z [81/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/binary.hpp.
 2026-02-15T03:32:35.5934430Z 3820040 warnings and 5 errors generated.
-2026-02-15T03:32:35.5942111Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/binary.hpp.
-2026-02-15T03:32:35.5958879Z [82/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/ir.hpp.
+2026-02-15T03:32:35.5942111Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/binary.hpp.
+2026-02-15T03:32:35.5958879Z [82/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/ir.hpp.
 2026-02-15T03:32:47.0894075Z 3876693 warnings and 5 errors generated.
-2026-02-15T03:32:47.0915780Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/ir.hpp.
-2026-02-15T03:32:47.0937196Z [83/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/pretty_printer.hpp.
+2026-02-15T03:32:47.0915780Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/ir.hpp.
+2026-02-15T03:32:47.0937196Z [83/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/pretty_printer.hpp.
 2026-02-15T03:32:58.6567872Z 3933347 warnings and 5 errors generated.
-2026-02-15T03:32:58.6586258Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/pretty_printer.hpp.
-2026-02-15T03:32:58.6587929Z [84/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/encoding.hpp.
+2026-02-15T03:32:58.6586258Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/pretty_printer.hpp.
+2026-02-15T03:32:58.6587929Z [84/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/encoding.hpp.
 2026-02-15T03:33:09.7484381Z 3990156 warnings and 5 errors generated.
-2026-02-15T03:33:09.7503958Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/encoding.hpp.
-2026-02-15T03:33:09.7508691Z [85/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/opcodes.hpp.
+2026-02-15T03:33:09.7503958Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/encoding.hpp.
+2026-02-15T03:33:09.7508691Z [85/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/opcodes.hpp.
 2026-02-15T03:33:10.8605119Z 4001583 warnings and 5 errors generated.
-2026-02-15T03:33:10.8609798Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/opcodes.hpp.
-2026-02-15T03:33:10.8615050Z [86/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/binary_emitter.hpp.
+2026-02-15T03:33:10.8609798Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/opcodes.hpp.
+2026-02-15T03:33:10.8615050Z [86/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/binary_emitter.hpp.
 2026-02-15T03:33:22.1758727Z 4058237 warnings and 5 errors generated.
-2026-02-15T03:33:22.1776678Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/binary_emitter.hpp.
-2026-02-15T03:33:22.1783066Z [87/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/program.hpp.
+2026-02-15T03:33:22.1776678Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/binary_emitter.hpp.
+2026-02-15T03:33:22.1783066Z [87/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/program.hpp.
 2026-02-15T03:33:33.4288064Z 4115202 warnings and 5 errors generated.
-2026-02-15T03:33:33.4306807Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/program.hpp.
-2026-02-15T03:33:33.4310959Z [88/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/base81_view.hpp.
+2026-02-15T03:33:33.4306807Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/program.hpp.
+2026-02-15T03:33:33.4310959Z [88/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/base81_view.hpp.
 2026-02-15T03:33:46.4186821Z 4176061 warnings and 5 errors generated.
-2026-02-15T03:33:46.4205909Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/base81_view.hpp.
+2026-02-15T03:33:46.4205909Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/base81_view.hpp.
 2026-02-15T03:33:46.4212650Z [89/206] Processing file /home/runner/work/t81-foundation/t81-foundation/include/t81/fraction.hpp.
 2026-02-15T03:34:11.1262252Z 4227601 warnings and 5 errors generated.
 2026-02-15T03:34:11.1279293Z Error while processing /home/runner/work/t81-foundation/t81-foundation/include/t81/fraction.hpp.
@@ -14150,16 +14150,16 @@
 2026-02-15T03:50:24.8838343Z    83 |         if (i < b.size()) sum += trit_to_int(b[i]);
 2026-02-15T03:50:24.8838423Z       |                          ^                         
 2026-02-15T03:50:24.8838501Z       |                           {
-2026-02-15T03:50:24.8839130Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/base81_view.hpp:18:40: error: parameter name 's' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:24.8839130Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/base81_view.hpp:18:40: error: parameter name 's' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:24.8839372Z    18 | Result<Program> parse(std::string_view s);
 2026-02-15T03:50:24.8839449Z       |                                        ^
-2026-02-15T03:50:24.8840010Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/binary.hpp:7:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
+2026-02-15T03:50:24.8840010Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/binary.hpp:7:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
 2026-02-15T03:50:24.8840077Z     7 | namespace t81 {
 2026-02-15T03:50:24.8840141Z       | ^~~~~~~~~~~~~~~
 2026-02-15T03:50:24.8840208Z     8 | namespace tisc {
 2026-02-15T03:50:24.8840266Z       | ~~~~~~~~~~~~~~
 2026-02-15T03:50:24.8840335Z       | namespace t81::tisc
-2026-02-15T03:50:24.8841130Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/binary_emitter.hpp:9:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
+2026-02-15T03:50:24.8841130Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/binary_emitter.hpp:9:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
 2026-02-15T03:50:24.8841203Z     9 | namespace t81 {
 2026-02-15T03:50:24.8841262Z       | ^~~~~~~~~~~~~~~
 2026-02-15T03:50:24.8841332Z    10 | namespace tisc {
@@ -14176,7 +14176,7 @@
 2026-02-15T03:50:24.8842114Z       | } // namespace t81::tisc
 2026-02-15T03:50:24.8842179Z    18 | } // namespace t81
 2026-02-15T03:50:24.8842239Z       | ~~~~~~~~~~~~~~~~~~
-2026-02-15T03:50:24.8842809Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/binary_io.hpp:7:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
+2026-02-15T03:50:24.8842809Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/binary_io.hpp:7:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
 2026-02-15T03:50:24.8842878Z     7 | namespace t81 {
 2026-02-15T03:50:24.8842936Z       | ^~~~~~~~~~~~~~~
 2026-02-15T03:50:24.8843007Z     8 | namespace tisc {
@@ -14191,10 +14191,10 @@
 2026-02-15T03:50:24.8843726Z       | } // namespace t81::tisc
 2026-02-15T03:50:24.8843798Z    14 | } // namespace t81
 2026-02-15T03:50:24.8843857Z       | ~~~~~~~~~~~~~~~~~~
-2026-02-15T03:50:24.8844812Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/encoding.hpp:10:12: error: enum 'EncodingError' uses a larger base type ('int', size: 4 bytes) than necessary for its value set, consider using 'std::uint8_t' (1 byte) as the base type to reduce its size [performance-enum-size,-warnings-as-errors]
+2026-02-15T03:50:24.8844812Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/encoding.hpp:10:12: error: enum 'EncodingError' uses a larger base type ('int', size: 4 bytes) than necessary for its value set, consider using 'std::uint8_t' (1 byte) as the base type to reduce its size [performance-enum-size,-warnings-as-errors]
 2026-02-15T03:50:24.8844898Z    10 | enum class EncodingError {
 2026-02-15T03:50:24.8844957Z       |            ^
-2026-02-15T03:50:24.8845500Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/ir.hpp:13:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
+2026-02-15T03:50:24.8845500Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/ir.hpp:13:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
 2026-02-15T03:50:24.8845566Z    13 | namespace t81 {
 2026-02-15T03:50:24.8845630Z       | ^~~~~~~~~~~~~~~
 2026-02-15T03:50:24.8845695Z    14 | namespace tisc {
@@ -14202,16 +14202,16 @@
 2026-02-15T03:50:24.8845821Z    15 | namespace ir {
 2026-02-15T03:50:24.8845878Z       | ~~~~~~~~~~~~
 2026-02-15T03:50:24.8845953Z       | namespace t81::tisc::ir
-2026-02-15T03:50:24.8846863Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/ir.hpp:17:12: error: enum 'PrimitiveKind' uses a larger base type ('int', size: 4 bytes) than necessary for its value set, consider using 'std::uint8_t' (1 byte) as the base type to reduce its size [performance-enum-size,-warnings-as-errors]
+2026-02-15T03:50:24.8846863Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/ir.hpp:17:12: error: enum 'PrimitiveKind' uses a larger base type ('int', size: 4 bytes) than necessary for its value set, consider using 'std::uint8_t' (1 byte) as the base type to reduce its size [performance-enum-size,-warnings-as-errors]
 2026-02-15T03:50:24.8847055Z    17 | enum class PrimitiveKind {
 2026-02-15T03:50:24.8847112Z       |            ^
-2026-02-15T03:50:24.8848040Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/ir.hpp:25:12: error: enum 'ComparisonRelation' uses a larger base type ('int', size: 4 bytes) than necessary for its value set, consider using 'std::uint8_t' (1 byte) as the base type to reduce its size [performance-enum-size,-warnings-as-errors]
+2026-02-15T03:50:24.8848040Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/ir.hpp:25:12: error: enum 'ComparisonRelation' uses a larger base type ('int', size: 4 bytes) than necessary for its value set, consider using 'std::uint8_t' (1 byte) as the base type to reduce its size [performance-enum-size,-warnings-as-errors]
 2026-02-15T03:50:24.8848123Z    25 | enum class ComparisonRelation {
 2026-02-15T03:50:24.8848181Z       |            ^
-2026-02-15T03:50:24.8849135Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/ir.hpp:35:12: error: enum 'Opcode' uses a larger base type ('int', size: 4 bytes) than necessary for its value set, consider using 'std::uint8_t' (1 byte) as the base type to reduce its size [performance-enum-size,-warnings-as-errors]
+2026-02-15T03:50:24.8849135Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/ir.hpp:35:12: error: enum 'Opcode' uses a larger base type ('int', size: 4 bytes) than necessary for its value set, consider using 'std::uint8_t' (1 byte) as the base type to reduce its size [performance-enum-size,-warnings-as-errors]
 2026-02-15T03:50:24.8849210Z    35 | enum class Opcode {
 2026-02-15T03:50:24.8849267Z       |            ^
-2026-02-15T03:50:24.8849966Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/ir.hpp:92:8: error: constructor does not initialize these fields: opcode, operands, text_literal [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
+2026-02-15T03:50:24.8849966Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/ir.hpp:92:8: error: constructor does not initialize these fields: opcode, operands, text_literal [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
 2026-02-15T03:50:24.8850042Z    92 | struct Instruction {
 2026-02-15T03:50:24.8850099Z       |        ^
 2026-02-15T03:50:24.8850165Z    93 |     Opcode opcode;
@@ -14226,7 +14226,7 @@
 2026-02-15T03:50:24.8851170Z   100 |     std::optional<std::string> text_literal;
 2026-02-15T03:50:24.8851246Z       |                                            
 2026-02-15T03:50:24.8851327Z       |                                            {}
-2026-02-15T03:50:24.8852002Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/ir.hpp:102:5: error: constructor does not initialize these fields: operands, text_literal [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
+2026-02-15T03:50:24.8852002Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/ir.hpp:102:5: error: constructor does not initialize these fields: operands, text_literal [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
 2026-02-15T03:50:24.8852086Z    94 |     std::vector<Operand> operands;
 2026-02-15T03:50:24.8852156Z       |                                  
 2026-02-15T03:50:24.8852228Z       |                                  {}
@@ -14241,13 +14241,13 @@
 2026-02-15T03:50:24.8853091Z   101 | 
 2026-02-15T03:50:24.8853303Z   102 |     Instruction(Opcode opcode_ = Opcode::NOP, std::vector<Operand> operands_ = {})
 2026-02-15T03:50:24.8853361Z       |     ^
-2026-02-15T03:50:24.8854111Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/ir.hpp:106:7: error: constructor does not initialize these fields: _instructions, _type_aliases, _tensor_pool [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
+2026-02-15T03:50:24.8854111Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/ir.hpp:106:7: error: constructor does not initialize these fields: _instructions, _type_aliases, _tensor_pool [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
 2026-02-15T03:50:24.8854309Z   106 | class IntermediateProgram {
 2026-02-15T03:50:24.8854366Z       |       ^
-2026-02-15T03:50:24.8855272Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/opcodes.hpp:9:12: error: enum 'Opcode' uses a larger base type ('int', size: 4 bytes) than necessary for its value set, consider using 'std::uint8_t' (1 byte) as the base type to reduce its size [performance-enum-size,-warnings-as-errors]
+2026-02-15T03:50:24.8855272Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/opcodes.hpp:9:12: error: enum 'Opcode' uses a larger base type ('int', size: 4 bytes) than necessary for its value set, consider using 'std::uint8_t' (1 byte) as the base type to reduce its size [performance-enum-size,-warnings-as-errors]
 2026-02-15T03:50:24.8855357Z     9 | enum class Opcode : std::uint8_t {
 2026-02-15T03:50:24.8855416Z       |            ^
-2026-02-15T03:50:24.8856007Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/pretty_printer.hpp:7:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
+2026-02-15T03:50:24.8856007Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/pretty_printer.hpp:7:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
 2026-02-15T03:50:24.8856072Z     7 | namespace t81 {
 2026-02-15T03:50:24.8856232Z       | ^~~~~~~~~~~~~~~
 2026-02-15T03:50:24.8856305Z     8 | namespace tisc {
@@ -14261,10 +14261,10 @@
 2026-02-15T03:50:24.8856922Z       | } // namespace t81::tisc
 2026-02-15T03:50:24.8856987Z    13 | } // namespace t81
 2026-02-15T03:50:24.8857047Z       | ~~~~~~~~~~~~~~~~~~
-2026-02-15T03:50:24.8857970Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/program.hpp:15:12: error: enum 'LiteralKind' uses a larger base type ('int', size: 4 bytes) than necessary for its value set, consider using 'std::uint8_t' (1 byte) as the base type to reduce its size [performance-enum-size,-warnings-as-errors]
+2026-02-15T03:50:24.8857970Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/program.hpp:15:12: error: enum 'LiteralKind' uses a larger base type ('int', size: 4 bytes) than necessary for its value set, consider using 'std::uint8_t' (1 byte) as the base type to reduce its size [performance-enum-size,-warnings-as-errors]
 2026-02-15T03:50:24.8858069Z    15 | enum class LiteralKind : std::uint8_t {
 2026-02-15T03:50:24.8858127Z       |            ^
-2026-02-15T03:50:24.8858797Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/program.hpp:33:8: error: constructor does not initialize these fields: name, payload [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
+2026-02-15T03:50:24.8858797Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/program.hpp:33:8: error: constructor does not initialize these fields: name, payload [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
 2026-02-15T03:50:24.8858877Z    33 | struct EnumVariantMetadata {
 2026-02-15T03:50:24.8858934Z       |        ^
 2026-02-15T03:50:24.8859005Z    34 |   std::string name;
@@ -14273,7 +14273,7 @@
 2026-02-15T03:50:24.8859221Z    35 |   std::optional<std::string> payload;
 2026-02-15T03:50:24.8859289Z       |                                     
 2026-02-15T03:50:24.8859360Z       |                                     {}
-2026-02-15T03:50:24.8860021Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/program.hpp:39:8: error: constructor does not initialize these fields: name, variants [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
+2026-02-15T03:50:24.8860021Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/program.hpp:39:8: error: constructor does not initialize these fields: name, variants [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
 2026-02-15T03:50:24.8860098Z    39 | struct EnumMetadata {
 2026-02-15T03:50:24.8860159Z       |        ^
 2026-02-15T03:50:24.8860225Z    40 |   int enum_id = -1;
@@ -14283,7 +14283,7 @@
 2026-02-15T03:50:24.8860521Z    42 |   std::vector<EnumVariantMetadata> variants;
 2026-02-15T03:50:24.8860692Z       |                                            
 2026-02-15T03:50:24.8860769Z       |                                            {}
-2026-02-15T03:50:24.8861796Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/program.hpp:45:8: error: constructor does not initialize these fields: insns, float_pool, fraction_pool, symbol_pool, tensor_pool, axion_policy_text, match_metadata_text, type_aliases, enum_metadata [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
+2026-02-15T03:50:24.8861796Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/program.hpp:45:8: error: constructor does not initialize these fields: insns, float_pool, fraction_pool, symbol_pool, tensor_pool, axion_policy_text, match_metadata_text, type_aliases, enum_metadata [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
 2026-02-15T03:50:24.8861873Z    45 | struct Program {
 2026-02-15T03:50:24.8861929Z       |        ^
 2026-02-15T03:50:24.8862123Z    46 |   std::vector<Insn> insns;
@@ -14315,16 +14315,16 @@
 2026-02-15T03:50:24.8864390Z    56 |   std::vector<EnumMetadata> enum_metadata;
 2026-02-15T03:50:24.8864478Z       |                                          
 2026-02-15T03:50:24.8864549Z       |                                          {}
-2026-02-15T03:50:24.8865124Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/type_alias.hpp:8:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
+2026-02-15T03:50:24.8865124Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/type_alias.hpp:8:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
 2026-02-15T03:50:24.8865190Z     8 | namespace t81 {
 2026-02-15T03:50:24.8865257Z       | ^~~~~~~~~~~~~~~
 2026-02-15T03:50:24.8865326Z     9 | namespace tisc {
 2026-02-15T03:50:24.8865385Z       | ~~~~~~~~~~~~~~
 2026-02-15T03:50:24.8865461Z       | namespace t81::tisc
-2026-02-15T03:50:24.8866404Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/type_alias.hpp:11:12: error: enum 'StructuralKind' uses a larger base type ('int', size: 4 bytes) than necessary for its value set, consider using 'std::uint8_t' (1 byte) as the base type to reduce its size [performance-enum-size,-warnings-as-errors]
+2026-02-15T03:50:24.8866404Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/type_alias.hpp:11:12: error: enum 'StructuralKind' uses a larger base type ('int', size: 4 bytes) than necessary for its value set, consider using 'std::uint8_t' (1 byte) as the base type to reduce its size [performance-enum-size,-warnings-as-errors]
 2026-02-15T03:50:24.8866510Z    11 | enum class StructuralKind : std::uint8_t {
 2026-02-15T03:50:24.8866575Z       |            ^
-2026-02-15T03:50:24.8867228Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/type_alias.hpp:17:8: error: constructor does not initialize these fields: name, type [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
+2026-02-15T03:50:24.8867228Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/type_alias.hpp:17:8: error: constructor does not initialize these fields: name, type [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
 2026-02-15T03:50:24.8867297Z    17 | struct FieldInfo {
 2026-02-15T03:50:24.8867360Z       |        ^
 2026-02-15T03:50:24.8867432Z    18 |     std::string name;
@@ -14333,7 +14333,7 @@
 2026-02-15T03:50:24.8867635Z    19 |     std::string type;
 2026-02-15T03:50:24.8867695Z       |                     
 2026-02-15T03:50:24.8867756Z       |                     {}
-2026-02-15T03:50:24.8868434Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/type_alias.hpp:22:8: error: constructor does not initialize these fields: name, payload [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
+2026-02-15T03:50:24.8868434Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/type_alias.hpp:22:8: error: constructor does not initialize these fields: name, payload [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
 2026-02-15T03:50:24.8868590Z    22 | struct VariantInfo {
 2026-02-15T03:50:24.8868647Z       |        ^
 2026-02-15T03:50:24.8868718Z    23 |     std::string name;
@@ -14342,7 +14342,7 @@
 2026-02-15T03:50:24.8868925Z    24 |     std::optional<std::string> payload;
 2026-02-15T03:50:24.8869002Z       |                                       
 2026-02-15T03:50:24.8869071Z       |                                       {}
-2026-02-15T03:50:24.8869851Z /home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/type_alias.hpp:27:8: error: constructor does not initialize these fields: name, params, alias, fields, variants, module_path [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
+2026-02-15T03:50:24.8869851Z /home/runner/work/t81-foundation/t81-foundation/include/t81/isa/type_alias.hpp:27:8: error: constructor does not initialize these fields: name, params, alias, fields, variants, module_path [cppcoreguidelines-pro-type-member-init,-warnings-as-errors]
 2026-02-15T03:50:24.8869935Z    27 | struct TypeAliasMetadata {
 2026-02-15T03:50:24.8869995Z       |        ^
 2026-02-15T03:50:24.8870140Z    28 |     std::string name;
@@ -19289,286 +19289,286 @@
 2026-02-15T03:50:25.0154869Z /home/runner/work/t81-foundation/t81-foundation/src/tensor/stats.cpp:6:8: error: variable name 's' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0155012Z     6 |   auto s = reduce_sum(z, {axis}, true);
 2026-02-15T03:50:25.0155075Z       |        ^
-2026-02-15T03:50:25.0155739Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp:16:15: error: variable name 'op' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0155739Z /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp:16:15: error: variable name 'op' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0155865Z    16 |     T81Int<8> op(static_cast<int64_t>(insn.opcode));
 2026-02-15T03:50:25.0155941Z       |               ^
-2026-02-15T03:50:25.0156550Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp:17:32: error: statement should be inside braces [readability-braces-around-statements,-warnings-as-errors]
+2026-02-15T03:50:25.0156550Z /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp:17:32: error: statement should be inside braces [readability-braces-around-statements,-warnings-as-errors]
 2026-02-15T03:50:25.0156672Z    17 |     for (int i = 0; i < 8; ++i) trits.push_back(op[i]);
 2026-02-15T03:50:25.0156762Z       |                                ^                       
 2026-02-15T03:50:25.0156831Z       |                                 {
-2026-02-15T03:50:25.0157420Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp:20:20: error: variable name 'v' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0157420Z /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp:20:20: error: variable name 'v' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0157526Z    20 |         T81Int<20> v(static_cast<int64_t>(val));
 2026-02-15T03:50:25.0157592Z       |                    ^
-2026-02-15T03:50:25.0158134Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp:21:37: error: statement should be inside braces [readability-braces-around-statements,-warnings-as-errors]
+2026-02-15T03:50:25.0158134Z /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp:21:37: error: statement should be inside braces [readability-braces-around-statements,-warnings-as-errors]
 2026-02-15T03:50:25.0158256Z    21 |         for (int i = 0; i < 20; ++i) trits.push_back(v[i]);
 2026-02-15T03:50:25.0158351Z       |                                     ^                      
 2026-02-15T03:50:25.0158426Z       |                                      {
-2026-02-15T03:50:25.0159198Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp:25:12: error: narrowing conversion from 'std::int64_t' (aka 'long') to signed type 'int32_t' (aka 'int') is implementation-defined [bugprone-narrowing-conversions,-warnings-as-errors]
+2026-02-15T03:50:25.0159198Z /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp:25:12: error: narrowing conversion from 'std::int64_t' (aka 'long') to signed type 'int32_t' (aka 'int') is implementation-defined [bugprone-narrowing-conversions,-warnings-as-errors]
 2026-02-15T03:50:25.0159273Z    25 |     add_32(insn.b);
 2026-02-15T03:50:25.0159332Z       |            ^
-2026-02-15T03:50:25.0159873Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp:29:18: error: statement should be inside braces [readability-braces-around-statements,-warnings-as-errors]
+2026-02-15T03:50:25.0159873Z /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp:29:18: error: statement should be inside braces [readability-braces-around-statements,-warnings-as-errors]
 2026-02-15T03:50:25.0159997Z    29 |     if (!b81_res) return "???";
 2026-02-15T03:50:25.0160060Z       |                  ^             
 2026-02-15T03:50:25.0160121Z       |                   {
-2026-02-15T03:50:25.0160819Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp:36:26: error: statement should be inside braces [readability-braces-around-statements,-warnings-as-errors]
+2026-02-15T03:50:25.0160819Z /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp:36:26: error: statement should be inside braces [readability-braces-around-statements,-warnings-as-errors]
 2026-02-15T03:50:25.0160906Z    36 |         if (!out.empty()) out += " ";
 2026-02-15T03:50:25.0160975Z       |                          ^           
 2026-02-15T03:50:25.0161046Z       |                           {
-2026-02-15T03:50:25.0161645Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp:42:40: error: parameter name 's' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0161645Z /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp:42:40: error: parameter name 's' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0161817Z    42 | Result<Program> parse(std::string_view s) {
 2026-02-15T03:50:25.0161894Z       |                                        ^
-2026-02-15T03:50:25.0162505Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp:44:23: error: variable name 'ss' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0162505Z /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp:44:23: error: variable name 'ss' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0162583Z    44 |     std::stringstream ss;
 2026-02-15T03:50:25.0162646Z       |                       ^
-2026-02-15T03:50:25.0163185Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp:49:25: error: statement should be inside braces [readability-braces-around-statements,-warnings-as-errors]
+2026-02-15T03:50:25.0163185Z /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp:49:25: error: statement should be inside braces [readability-braces-around-statements,-warnings-as-errors]
 2026-02-15T03:50:25.0163351Z    49 |         if (!digits_res) return digits_res.error();
 2026-02-15T03:50:25.0163434Z       |                         ^                          
 2026-02-15T03:50:25.0163506Z       |                          {
-2026-02-15T03:50:25.0164043Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp:52:24: error: statement should be inside braces [readability-braces-around-statements,-warnings-as-errors]
+2026-02-15T03:50:25.0164043Z /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp:52:24: error: statement should be inside braces [readability-braces-around-statements,-warnings-as-errors]
 2026-02-15T03:50:25.0164147Z    52 |         if (!trits_res) return trits_res.error();
 2026-02-15T03:50:25.0164234Z       |                        ^                         
 2026-02-15T03:50:25.0164297Z       |                         {
-2026-02-15T03:50:25.0164935Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp:56:19: error: variable name 'op' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0164935Z /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp:56:19: error: variable name 'op' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0165010Z    56 |         T81Int<8> op;
 2026-02-15T03:50:25.0165074Z       |                   ^
-2026-02-15T03:50:25.0165606Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp:57:36: error: statement should be inside braces [readability-braces-around-statements,-warnings-as-errors]
+2026-02-15T03:50:25.0165606Z /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp:57:36: error: statement should be inside braces [readability-braces-around-statements,-warnings-as-errors]
 2026-02-15T03:50:25.0165717Z    57 |         for (int i = 0; i < 8; ++i) op[i] = trits[i];
 2026-02-15T03:50:25.0165804Z       |                                    ^                 
 2026-02-15T03:50:25.0165872Z       |                                     {
-2026-02-15T03:50:25.0166461Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp:61:24: error: variable name 'v' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0166461Z /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp:61:24: error: variable name 'v' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0166537Z    61 |             T81Int<20> v;
 2026-02-15T03:50:25.0166601Z       |                        ^
-2026-02-15T03:50:25.0167135Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/base81_view.cpp:62:41: error: statement should be inside braces [readability-braces-around-statements,-warnings-as-errors]
+2026-02-15T03:50:25.0167135Z /home/runner/work/t81-foundation/t81-foundation/core/isa/base81_view.cpp:62:41: error: statement should be inside braces [readability-braces-around-statements,-warnings-as-errors]
 2026-02-15T03:50:25.0167269Z    62 |             for (int i = 0; i < 20; ++i) v[i] = trits[offset + i];
 2026-02-15T03:50:25.0167362Z       |                                         ^                         
 2026-02-15T03:50:25.0167436Z       |                                          {
-2026-02-15T03:50:25.0167999Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:6:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
+2026-02-15T03:50:25.0167999Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:6:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
 2026-02-15T03:50:25.0168144Z     6 | namespace t81 {
 2026-02-15T03:50:25.0168206Z       | ^~~~~~~~~~~~~~~
 2026-02-15T03:50:25.0168280Z     7 | namespace tisc {
 2026-02-15T03:50:25.0168339Z       | ~~~~~~~~~~~~~~
 2026-02-15T03:50:25.0168413Z       | namespace t81::tisc
-2026-02-15T03:50:25.0168939Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:82:9: error: switch has 2 consecutive identical branches [bugprone-branch-clone,-warnings-as-errors]
+2026-02-15T03:50:25.0168939Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:82:9: error: switch has 2 consecutive identical branches [bugprone-branch-clone,-warnings-as-errors]
 2026-02-15T03:50:25.0169019Z    82 |         case O::ADD:
 2026-02-15T03:50:25.0169077Z       |         ^
-2026-02-15T03:50:25.0169404Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:96:71: note: last of these clones ends here
+2026-02-15T03:50:25.0169404Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:96:71: note: last of these clones ends here
 2026-02-15T03:50:25.0169568Z    96 |             return map_primitive_opcode(instr.opcode, instr.primitive);
 2026-02-15T03:50:25.0169713Z       |                                                                       ^
-2026-02-15T03:50:25.0170323Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:155:24: error: method 'emit' can be made static [readability-convert-member-functions-to-static,-warnings-as-errors]
+2026-02-15T03:50:25.0170323Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:155:24: error: method 'emit' can be made static [readability-convert-member-functions-to-static,-warnings-as-errors]
 2026-02-15T03:50:25.0170527Z   155 | Program BinaryEmitter::emit(const ir::IntermediateProgram& ir_program) {
 2026-02-15T03:50:25.0170756Z       |                        ^
-2026-02-15T03:50:25.0171429Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:155:24: error: function 'emit' has cognitive complexity of 42 (threshold 25) [readability-function-cognitive-complexity,-warnings-as-errors]
-2026-02-15T03:50:25.0171821Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:159:26: note: nesting level increased to 1
+2026-02-15T03:50:25.0171429Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:155:24: error: function 'emit' has cognitive complexity of 42 (threshold 25) [readability-function-cognitive-complexity,-warnings-as-errors]
+2026-02-15T03:50:25.0171821Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:159:26: note: nesting level increased to 1
 2026-02-15T03:50:25.0171966Z   159 |     auto ensure_symbol = [&](const std::string& text) -> int {
 2026-02-15T03:50:25.0172034Z       |                          ^
-2026-02-15T03:50:25.0172472Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:161:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+2026-02-15T03:50:25.0172472Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:161:9: note: +2, including nesting penalty of 1, nesting level increased to 2
 2026-02-15T03:50:25.0172565Z   161 |         if (it != symbol_indices.end()) {
 2026-02-15T03:50:25.0172624Z       |         ^
-2026-02-15T03:50:25.0173102Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:172:5: note: +1, including nesting penalty of 0, nesting level increased to 1
+2026-02-15T03:50:25.0173102Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:172:5: note: +1, including nesting penalty of 0, nesting level increased to 1
 2026-02-15T03:50:25.0173238Z   172 |     for (const auto& instr : ir_program.instructions()) {
 2026-02-15T03:50:25.0173296Z       |     ^
-2026-02-15T03:50:25.0173724Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:173:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+2026-02-15T03:50:25.0173724Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:173:9: note: +2, including nesting penalty of 1, nesting level increased to 2
 2026-02-15T03:50:25.0173830Z   173 |         if (instr.opcode == ir::Opcode::LABEL) {
 2026-02-15T03:50:25.0173888Z       |         ^
-2026-02-15T03:50:25.0174223Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:175:11: note: +1, nesting level increased to 2
+2026-02-15T03:50:25.0174223Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:175:11: note: +1, nesting level increased to 2
 2026-02-15T03:50:25.0174293Z   175 |         } else {
 2026-02-15T03:50:25.0174351Z       |           ^
-2026-02-15T03:50:25.0174773Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:181:5: note: +1, including nesting penalty of 0, nesting level increased to 1
+2026-02-15T03:50:25.0174773Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:181:5: note: +1, including nesting penalty of 0, nesting level increased to 1
 2026-02-15T03:50:25.0174908Z   181 |     for (const auto& instr : ir_program.instructions()) {
 2026-02-15T03:50:25.0174966Z       |     ^
-2026-02-15T03:50:25.0175384Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:182:9: note: +2, including nesting penalty of 1, nesting level increased to 2
+2026-02-15T03:50:25.0175384Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:182:9: note: +2, including nesting penalty of 1, nesting level increased to 2
 2026-02-15T03:50:25.0175492Z   182 |         if (instr.opcode != ir::Opcode::LABEL) {
 2026-02-15T03:50:25.0175549Z       |         ^
-2026-02-15T03:50:25.0175971Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:187:13: note: +3, including nesting penalty of 2, nesting level increased to 3
+2026-02-15T03:50:25.0175971Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:187:13: note: +3, including nesting penalty of 2, nesting level increased to 3
 2026-02-15T03:50:25.0176077Z   187 |             if (!instr.operands.empty()) {
 2026-02-15T03:50:25.0176137Z       |             ^
-2026-02-15T03:50:25.0176620Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:188:17: note: +4, including nesting penalty of 3, nesting level increased to 4
+2026-02-15T03:50:25.0176620Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:188:17: note: +4, including nesting penalty of 3, nesting level increased to 4
 2026-02-15T03:50:25.0176792Z   188 |                 if (std::holds_alternative<ir::Register>(instr.operands[0])) {
 2026-02-15T03:50:25.0176854Z       |                 ^
-2026-02-15T03:50:25.0177187Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:190:24: note: +1, nesting level increased to 4
+2026-02-15T03:50:25.0177187Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:190:24: note: +1, nesting level increased to 4
 2026-02-15T03:50:25.0177376Z   190 |                 } else if (std::holds_alternative<ir::Immediate>(instr.operands[0])) {
 2026-02-15T03:50:25.0177447Z       |                        ^
-2026-02-15T03:50:25.0177776Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:192:24: note: +1, nesting level increased to 4
+2026-02-15T03:50:25.0177776Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:192:24: note: +1, nesting level increased to 4
 2026-02-15T03:50:25.0177996Z   192 |                 } else if (std::holds_alternative<ir::Label>(instr.operands[0])) {
 2026-02-15T03:50:25.0178068Z       |                        ^
-2026-02-15T03:50:25.0178493Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:197:13: note: +3, including nesting penalty of 2, nesting level increased to 3
+2026-02-15T03:50:25.0178493Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:197:13: note: +3, including nesting penalty of 2, nesting level increased to 3
 2026-02-15T03:50:25.0178598Z   197 |             if (instr.operands.size() > 1) {
 2026-02-15T03:50:25.0178661Z       |             ^
-2026-02-15T03:50:25.0179081Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:198:18: note: +4, including nesting penalty of 3, nesting level increased to 4
+2026-02-15T03:50:25.0179081Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:198:18: note: +4, including nesting penalty of 3, nesting level increased to 4
 2026-02-15T03:50:25.0179282Z   198 |                  if (std::holds_alternative<ir::Register>(instr.operands[1])) {
 2026-02-15T03:50:25.0179350Z       |                  ^
-2026-02-15T03:50:25.0179678Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:200:24: note: +1, nesting level increased to 4
+2026-02-15T03:50:25.0179678Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:200:24: note: +1, nesting level increased to 4
 2026-02-15T03:50:25.0179859Z   200 |                 } else if (std::holds_alternative<ir::Immediate>(instr.operands[1])) {
 2026-02-15T03:50:25.0179925Z       |                        ^
-2026-02-15T03:50:25.0180251Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:202:24: note: +1, nesting level increased to 4
+2026-02-15T03:50:25.0180251Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:202:24: note: +1, nesting level increased to 4
 2026-02-15T03:50:25.0180415Z   202 |                 } else if (std::holds_alternative<ir::Label>(instr.operands[1])) {
 2026-02-15T03:50:25.0180521Z       |                        ^
-2026-02-15T03:50:25.0181044Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:207:13: note: +3, including nesting penalty of 2, nesting level increased to 3
+2026-02-15T03:50:25.0181044Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:207:13: note: +3, including nesting penalty of 2, nesting level increased to 3
 2026-02-15T03:50:25.0181139Z   207 |             if (instr.operands.size() > 2) {
 2026-02-15T03:50:25.0181197Z       |             ^
-2026-02-15T03:50:25.0181628Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:208:17: note: +4, including nesting penalty of 3, nesting level increased to 4
+2026-02-15T03:50:25.0181628Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:208:17: note: +4, including nesting penalty of 3, nesting level increased to 4
 2026-02-15T03:50:25.0181788Z   208 |                 if (std::holds_alternative<ir::Register>(instr.operands[2])) {
 2026-02-15T03:50:25.0181850Z       |                 ^
-2026-02-15T03:50:25.0182183Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:210:24: note: +1, nesting level increased to 4
+2026-02-15T03:50:25.0182183Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:210:24: note: +1, nesting level increased to 4
 2026-02-15T03:50:25.0182361Z   210 |                 } else if (std::holds_alternative<ir::Immediate>(instr.operands[2])) {
 2026-02-15T03:50:25.0182423Z       |                        ^
-2026-02-15T03:50:25.0182849Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:215:13: note: +3, including nesting penalty of 2, nesting level increased to 3
+2026-02-15T03:50:25.0182849Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:215:13: note: +3, including nesting penalty of 2, nesting level increased to 3
 2026-02-15T03:50:25.0182954Z   215 |             if (instr.text_literal.has_value()) {
 2026-02-15T03:50:25.0183012Z       |             ^
-2026-02-15T03:50:25.0183439Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:216:17: note: +4, including nesting penalty of 3, nesting level increased to 4
+2026-02-15T03:50:25.0183439Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:216:17: note: +4, including nesting penalty of 3, nesting level increased to 4
 2026-02-15T03:50:25.0183534Z   216 |                 switch (instr.literal_kind) {
 2026-02-15T03:50:25.0183597Z       |                 ^
-2026-02-15T03:50:25.0184220Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:160:14: error: variable name 'it' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0184220Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:160:14: error: variable name 'it' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0184382Z   160 |         auto it = symbol_indices.find(text);
 2026-02-15T03:50:25.0184445Z       |              ^
-2026-02-15T03:50:25.0185218Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:191:34: error: narrowing conversion from 'long long' to signed type 'std::int32_t' (aka 'int') is implementation-defined [bugprone-narrowing-conversions,-warnings-as-errors]
+2026-02-15T03:50:25.0185218Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:191:34: error: narrowing conversion from 'long long' to signed type 'std::int32_t' (aka 'int') is implementation-defined [bugprone-narrowing-conversions,-warnings-as-errors]
 2026-02-15T03:50:25.0185384Z   191 |                      vm_insn.a = std::get<ir::Immediate>(instr.operands[0]).value;
 2026-02-15T03:50:25.0185453Z       |                                  ^
-2026-02-15T03:50:25.0186267Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_emitter.cpp:211:33: error: narrowing conversion from 'long long' to signed type 'std::int32_t' (aka 'int') is implementation-defined [bugprone-narrowing-conversions,-warnings-as-errors]
+2026-02-15T03:50:25.0186267Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_emitter.cpp:211:33: error: narrowing conversion from 'long long' to signed type 'std::int32_t' (aka 'int') is implementation-defined [bugprone-narrowing-conversions,-warnings-as-errors]
 2026-02-15T03:50:25.0186430Z   211 |                     vm_insn.c = std::get<ir::Immediate>(instr.operands[2]).value;
 2026-02-15T03:50:25.0186497Z       |                                 ^
-2026-02-15T03:50:25.0187047Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:12:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
+2026-02-15T03:50:25.0187047Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:12:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
 2026-02-15T03:50:25.0187114Z    12 | namespace t81 {
 2026-02-15T03:50:25.0187173Z       | ^~~~~~~~~~~~~~~
 2026-02-15T03:50:25.0187291Z    13 | namespace tisc {
 2026-02-15T03:50:25.0187354Z       | ~~~~~~~~~~~~~~
 2026-02-15T03:50:25.0187425Z       | namespace t81::tisc
-2026-02-15T03:50:25.0188025Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:17:33: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0188025Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:17:33: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0188187Z    17 | void write_vector(std::ostream& os, const std::vector<T>& vec) {
 2026-02-15T03:50:25.0188257Z       |                                 ^
-2026-02-15T03:50:25.0188898Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:26:32: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0188898Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:26:32: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0189041Z    26 | void read_vector(std::istream& is, std::vector<T>& vec) {
 2026-02-15T03:50:25.0189106Z       |                                ^
-2026-02-15T03:50:25.0189629Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:27:14: error: variable 'size' is not initialized [cppcoreguidelines-init-variables,-warnings-as-errors]
+2026-02-15T03:50:25.0189629Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:27:14: error: variable 'size' is not initialized [cppcoreguidelines-init-variables,-warnings-as-errors]
 2026-02-15T03:50:25.0189710Z    27 |     uint64_t size;
 2026-02-15T03:50:25.0189770Z       |              ^   
 2026-02-15T03:50:25.0189832Z       |                   = 0
-2026-02-15T03:50:25.0190427Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:35:38: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0190427Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:35:38: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0190734Z    35 | void write_insn_vector(std::ostream& os, const std::vector<t81::tisc::Insn>& vec) {
 2026-02-15T03:50:25.0190809Z       |                                      ^
-2026-02-15T03:50:25.0191402Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:49:37: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0191402Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:49:37: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0191585Z    49 | void read_insn_vector(std::istream& is, std::vector<t81::tisc::Insn>& vec) {
 2026-02-15T03:50:25.0191657Z       |                                     ^
-2026-02-15T03:50:25.0192247Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:69:33: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0192247Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:69:33: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0192395Z    69 | void write_string(std::ostream& os, const std::string& str) {
 2026-02-15T03:50:25.0192524Z       |                                 ^
-2026-02-15T03:50:25.0193337Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:72:26: error: narrowing conversion from 'uint64_t' (aka 'unsigned long') to signed type 'streamsize' (aka 'long') is implementation-defined [bugprone-narrowing-conversions,-warnings-as-errors]
+2026-02-15T03:50:25.0193337Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:72:26: error: narrowing conversion from 'uint64_t' (aka 'unsigned long') to signed type 'streamsize' (aka 'long') is implementation-defined [bugprone-narrowing-conversions,-warnings-as-errors]
 2026-02-15T03:50:25.0193415Z    72 |     os.write(str.data(), size);
 2026-02-15T03:50:25.0193482Z       |                          ^
-2026-02-15T03:50:25.0194078Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:75:32: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0194078Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:75:32: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0194210Z    75 | void read_string(std::istream& is, std::string& str) {
 2026-02-15T03:50:25.0194276Z       |                                ^
-2026-02-15T03:50:25.0194863Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:76:14: error: variable 'size' is not initialized [cppcoreguidelines-init-variables,-warnings-as-errors]
+2026-02-15T03:50:25.0194863Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:76:14: error: variable 'size' is not initialized [cppcoreguidelines-init-variables,-warnings-as-errors]
 2026-02-15T03:50:25.0194937Z    76 |     uint64_t size;
 2026-02-15T03:50:25.0194996Z       |              ^   
 2026-02-15T03:50:25.0195058Z       |                   = 0
-2026-02-15T03:50:25.0195804Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:79:13: error: 'data' should be used for accessing the data pointer instead of taking the address of the 0-th element [readability-container-data-pointer,-warnings-as-errors]
+2026-02-15T03:50:25.0195804Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:79:13: error: 'data' should be used for accessing the data pointer instead of taking the address of the 0-th element [readability-container-data-pointer,-warnings-as-errors]
 2026-02-15T03:50:25.0195877Z    79 |     is.read(&str[0], size);
 2026-02-15T03:50:25.0196020Z       |             ^~~~~~~
 2026-02-15T03:50:25.0196092Z       |             str.data()
-2026-02-15T03:50:25.0196890Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:79:22: error: narrowing conversion from 'uint64_t' (aka 'unsigned long') to signed type 'streamsize' (aka 'long') is implementation-defined [bugprone-narrowing-conversions,-warnings-as-errors]
+2026-02-15T03:50:25.0196890Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:79:22: error: narrowing conversion from 'uint64_t' (aka 'unsigned long') to signed type 'streamsize' (aka 'long') is implementation-defined [bugprone-narrowing-conversions,-warnings-as-errors]
 2026-02-15T03:50:25.0196960Z    79 |     is.read(&str[0], size);
 2026-02-15T03:50:25.0197030Z       |                      ^
-2026-02-15T03:50:25.0197708Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:83:46: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0197708Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:83:46: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0197904Z    83 | void write_serializable_vector(std::ostream& os, const std::vector<T>& vec) {
 2026-02-15T03:50:25.0197990Z       |                                              ^
-2026-02-15T03:50:25.0198582Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:92:45: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0198582Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:92:45: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0198757Z    92 | void read_serializable_vector(std::istream& is, std::vector<T>& vec) {
 2026-02-15T03:50:25.0198840Z       |                                             ^
-2026-02-15T03:50:25.0199357Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:93:14: error: variable 'size' is not initialized [cppcoreguidelines-init-variables,-warnings-as-errors]
+2026-02-15T03:50:25.0199357Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:93:14: error: variable 'size' is not initialized [cppcoreguidelines-init-variables,-warnings-as-errors]
 2026-02-15T03:50:25.0199425Z    93 |     uint64_t size;
 2026-02-15T03:50:25.0199490Z       |              ^   
 2026-02-15T03:50:25.0199552Z       |                   = 0
-2026-02-15T03:50:25.0200145Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:102:40: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0200145Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:102:40: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0200356Z   102 | void write_vector_string(std::ostream& os, const std::vector<std::string>& vec) {
 2026-02-15T03:50:25.0200430Z       |                                        ^
-2026-02-15T03:50:25.0201224Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:110:39: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0201224Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:110:39: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0201414Z   110 | void read_vector_string(std::istream& is, std::vector<std::string>& vec) {
 2026-02-15T03:50:25.0201560Z       |                                       ^
-2026-02-15T03:50:25.0202094Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:111:14: error: variable 'size' is not initialized [cppcoreguidelines-init-variables,-warnings-as-errors]
+2026-02-15T03:50:25.0202094Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:111:14: error: variable 'size' is not initialized [cppcoreguidelines-init-variables,-warnings-as-errors]
 2026-02-15T03:50:25.0202165Z   111 |     uint64_t size;
 2026-02-15T03:50:25.0202225Z       |              ^   
 2026-02-15T03:50:25.0202285Z       |                   = 0
-2026-02-15T03:50:25.0202876Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:120:44: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0202876Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:120:44: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0203126Z   120 | void write_vector_vector_int(std::ostream& os, const std::vector<std::vector<int>>& vec) {
 2026-02-15T03:50:25.0203205Z       |                                            ^
-2026-02-15T03:50:25.0203854Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:128:43: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0203854Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:128:43: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0204069Z   128 | void read_vector_vector_int(std::istream& is, std::vector<std::vector<int>>& vec) {
 2026-02-15T03:50:25.0204149Z       |                                           ^
-2026-02-15T03:50:25.0204669Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:129:14: error: variable 'size' is not initialized [cppcoreguidelines-init-variables,-warnings-as-errors]
+2026-02-15T03:50:25.0204669Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:129:14: error: variable 'size' is not initialized [cppcoreguidelines-init-variables,-warnings-as-errors]
 2026-02-15T03:50:25.0204791Z   129 |     uint64_t size;
 2026-02-15T03:50:25.0204851Z       |              ^   
 2026-02-15T03:50:25.0204910Z       |                   = 0
-2026-02-15T03:50:25.0205512Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:137:44: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0205512Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:137:44: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0205721Z   137 | static void write_field_info(std::ostream& os, const t81::tisc::FieldInfo& field) {
 2026-02-15T03:50:25.0205798Z       |                                            ^
-2026-02-15T03:50:25.0206445Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:142:43: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0206445Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:142:43: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0206640Z   142 | static void read_field_info(std::istream& is, t81::tisc::FieldInfo& field) {
 2026-02-15T03:50:25.0206714Z       |                                           ^
-2026-02-15T03:50:25.0207313Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:147:46: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0207313Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:147:46: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0207544Z   147 | static void write_variant_info(std::ostream& os, const t81::tisc::VariantInfo& variant) {
 2026-02-15T03:50:25.0207625Z       |                                              ^
-2026-02-15T03:50:25.0208220Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:156:45: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0208220Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:156:45: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0208433Z   156 | static void read_variant_info(std::istream& is, t81::tisc::VariantInfo& variant) {
 2026-02-15T03:50:25.0208509Z       |                                             ^
-2026-02-15T03:50:25.0209130Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:160:9: error: implicit conversion 'uint8_t' (aka 'unsigned char') -> 'bool' [readability-implicit-bool-conversion,-warnings-as-errors]
+2026-02-15T03:50:25.0209130Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:160:9: error: implicit conversion 'uint8_t' (aka 'unsigned char') -> 'bool' [readability-implicit-bool-conversion,-warnings-as-errors]
 2026-02-15T03:50:25.0209204Z   160 |     if (has_payload) {
 2026-02-15T03:50:25.0209265Z       |         ^          
 2026-02-15T03:50:25.0209337Z       |                     != 0u
-2026-02-15T03:50:25.0209933Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:169:55: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0209933Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:169:55: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0210276Z   169 | static void write_enum_variant_metadata(std::ostream& os, const t81::tisc::EnumVariantMetadata& variant) {
 2026-02-15T03:50:25.0210371Z       |                                                       ^
-2026-02-15T03:50:25.0211066Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:179:54: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0211066Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:179:54: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0211337Z   179 | static void read_enum_variant_metadata(std::istream& is, t81::tisc::EnumVariantMetadata& variant) {
 2026-02-15T03:50:25.0211432Z       |                                                      ^
-2026-02-15T03:50:25.0212103Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:183:9: error: implicit conversion 'uint8_t' (aka 'unsigned char') -> 'bool' [readability-implicit-bool-conversion,-warnings-as-errors]
+2026-02-15T03:50:25.0212103Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:183:9: error: implicit conversion 'uint8_t' (aka 'unsigned char') -> 'bool' [readability-implicit-bool-conversion,-warnings-as-errors]
 2026-02-15T03:50:25.0212177Z   183 |     if (has_payload) {
 2026-02-15T03:50:25.0212245Z       |         ^          
 2026-02-15T03:50:25.0212309Z       |                     != 0u
-2026-02-15T03:50:25.0212906Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:193:47: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0212906Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:193:47: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0213142Z   193 | static void write_enum_metadata(std::ostream& os, const t81::tisc::EnumMetadata& meta) {
 2026-02-15T03:50:25.0213224Z       |                                               ^
-2026-02-15T03:50:25.0213869Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:203:46: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0213869Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:203:46: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0214079Z   203 | static void read_enum_metadata(std::istream& is, t81::tisc::EnumMetadata& meta) {
 2026-02-15T03:50:25.0214158Z       |                                              ^
-2026-02-15T03:50:25.0214746Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:214:53: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0214746Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:214:53: error: parameter name 'os' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0215072Z   214 | static void write_type_alias_metadata(std::ostream& os, const t81::tisc::TypeAliasMetadata& meta) {
 2026-02-15T03:50:25.0215160Z       |                                                     ^
-2026-02-15T03:50:25.0215750Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:218:5: error: use auto when initializing with a cast to avoid duplicating the type name [modernize-use-auto,-warnings-as-errors]
+2026-02-15T03:50:25.0215750Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:218:5: error: use auto when initializing with a cast to avoid duplicating the type name [modernize-use-auto,-warnings-as-errors]
 2026-02-15T03:50:25.0215873Z   218 |     uint8_t kind = static_cast<uint8_t>(meta.kind);
 2026-02-15T03:50:25.0215932Z       |     ^~~~~~~
 2026-02-15T03:50:25.0215991Z       |     auto
-2026-02-15T03:50:25.0216584Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/binary_io.cpp:237:52: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0216584Z /home/runner/work/t81-foundation/t81-foundation/core/isa/binary_io.cpp:237:52: error: parameter name 'is' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0216835Z   237 | static void read_type_alias_metadata(std::istream& is, t81::tisc::TypeAliasMetadata& meta) {
 2026-02-15T03:50:25.0216921Z       |                                                    ^
-2026-02-15T03:50:25.0217513Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/encoding.cpp:12:41: error: parameter name 'v' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0217513Z /home/runner/work/t81-foundation/t81-foundation/core/isa/encoding.cpp:12:41: error: parameter name 'v' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0217619Z    12 |     auto append = [&bytes](std::int32_t v) {
 2026-02-15T03:50:25.0217695Z       |                                         ^
-2026-02-15T03:50:25.0218475Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/encoding.cpp:18:12: error: narrowing conversion from 'std::int64_t' (aka 'long') to signed type 'std::int32_t' (aka 'int') is implementation-defined [bugprone-narrowing-conversions,-warnings-as-errors]
+2026-02-15T03:50:25.0218475Z /home/runner/work/t81-foundation/t81-foundation/core/isa/encoding.cpp:18:12: error: narrowing conversion from 'std::int64_t' (aka 'long') to signed type 'std::int32_t' (aka 'int') is implementation-defined [bugprone-narrowing-conversions,-warnings-as-errors]
 2026-02-15T03:50:25.0218550Z    18 |     append(insn.b);
 2026-02-15T03:50:25.0218665Z       |            ^
-2026-02-15T03:50:25.0219383Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/encoding.cpp:28:12: error: avoid repeating the return type from the declaration; use a braced initializer list instead [modernize-return-braced-init-list,-warnings-as-errors]
+2026-02-15T03:50:25.0219383Z /home/runner/work/t81-foundation/t81-foundation/core/isa/encoding.cpp:28:12: error: avoid repeating the return type from the declaration; use a braced initializer list instead [modernize-return-braced-init-list,-warnings-as-errors]
 2026-02-15T03:50:25.0219628Z    28 |     return std::expected<Program, EncodingError>(t81::unexpect, EncodingError::Truncated);
 2026-02-15T03:50:25.0219685Z       |            ^
-2026-02-15T03:50:25.0220392Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/encoding.cpp:34:14: error: avoid repeating the return type from the declaration; use a braced initializer list instead [modernize-return-braced-init-list,-warnings-as-errors]
+2026-02-15T03:50:25.0220392Z /home/runner/work/t81-foundation/t81-foundation/core/isa/encoding.cpp:34:14: error: avoid repeating the return type from the declaration; use a braced initializer list instead [modernize-return-braced-init-list,-warnings-as-errors]
 2026-02-15T03:50:25.0220752Z    34 |       return std::expected<Program, EncodingError>(t81::unexpect, EncodingError::InvalidOpcode);
 2026-02-15T03:50:25.0220814Z       |              ^
-2026-02-15T03:50:25.0221437Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/pretty_printer.cpp:4:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
+2026-02-15T03:50:25.0221437Z /home/runner/work/t81-foundation/t81-foundation/core/isa/pretty_printer.cpp:4:1: error: nested namespaces can be concatenated [modernize-concat-nested-namespaces,-warnings-as-errors]
 2026-02-15T03:50:25.0221516Z     4 | namespace t81 {
 2026-02-15T03:50:25.0221575Z       | ^~~~~~~~~~~~~~~
 2026-02-15T03:50:25.0221642Z     5 | namespace tisc {
 2026-02-15T03:50:25.0221707Z       | ~~~~~~~~~~~~~~
 2026-02-15T03:50:25.0221778Z       | namespace t81::tisc
-2026-02-15T03:50:25.0222404Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/pretty_printer.cpp:29:50: error: parameter name 'op' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0222404Z /home/runner/work/t81-foundation/t81-foundation/core/isa/pretty_printer.cpp:29:50: error: parameter name 'op' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0222596Z    29 | std::string operand_to_string(const ir::Operand& op) {
 2026-02-15T03:50:25.0222679Z       |                                                  ^
-2026-02-15T03:50:25.0223290Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/pretty_printer.cpp:30:23: error: variable name 'ss' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0223290Z /home/runner/work/t81-foundation/t81-foundation/core/isa/pretty_printer.cpp:30:23: error: variable name 'ss' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0223371Z    30 |     std::stringstream ss;
 2026-02-15T03:50:25.0223433Z       |                       ^
-2026-02-15T03:50:25.0224090Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/pretty_printer.cpp:60:23: error: variable name 'ss' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0224090Z /home/runner/work/t81-foundation/t81-foundation/core/isa/pretty_printer.cpp:60:23: error: variable name 'ss' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0224167Z    60 |     std::stringstream ss;
 2026-02-15T03:50:25.0224228Z       |                       ^
-2026-02-15T03:50:25.0224831Z /home/runner/work/t81-foundation/t81-foundation/src/tisc/pretty_printer.cpp:66:30: error: variable name 'op' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
+2026-02-15T03:50:25.0224831Z /home/runner/work/t81-foundation/t81-foundation/core/isa/pretty_printer.cpp:66:30: error: variable name 'op' is too short, expected at least 3 characters [readability-identifier-length,-warnings-as-errors]
 2026-02-15T03:50:25.0224938Z    66 |             for (const auto& op : instr.operands) {
 2026-02-15T03:50:25.0225011Z       |                              ^
 2026-02-15T03:50:25.0225789Z /home/runner/work/t81-foundation/t81-foundation/src/tools/weights.cpp:61:24: error: member 'text_' of type 'const std::string &' (aka 'const basic_string<char> &') is a reference [cppcoreguidelines-avoid-const-or-ref-data-members,-warnings-as-errors]

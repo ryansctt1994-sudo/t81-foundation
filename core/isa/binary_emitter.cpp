@@ -1,4 +1,4 @@
-#include "t81/tisc/binary_emitter.hpp"
+#include "t81/isa/binary_emitter.hpp"
 #include <stdexcept>
 #include <string>
 #include <unordered_map>

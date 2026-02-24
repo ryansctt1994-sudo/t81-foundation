@@ -4,7 +4,7 @@
 #include <string_view>
 #include <t81/support/expected.hpp>
 #include "t81/axion/engine.hpp"
-#include "t81/tisc/program.hpp"
+#include "t81/isa/program.hpp"
 #include "t81/vm/state.hpp"
 #include "t81/vm/traps.hpp"
 

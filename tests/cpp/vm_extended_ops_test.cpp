@@ -2,7 +2,7 @@
 #include <memory>
 #include <string>
 #include <t81/axion/engine.hpp>
-#include <t81/tisc/program.hpp>
+#include <t81/isa/program.hpp>
 #include <t81/vm/vm.hpp>
 #include "test_runtime_check.hpp"
 

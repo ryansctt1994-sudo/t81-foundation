@@ -295,7 +295,7 @@ Version: 3.1.0
 ## 7. Implementation Consistency Audit (carried from v1)
 - **VM Opcode Count**: 174 defined opcodes (`0x00`-`0xAD`).
 - **Header Enum Count**: 174 entries.
-- **Coverage**: All opcodes defined in `include/t81/tisc/opcodes.hpp` are present in `src/vm/vm.cpp` dispatch switch.
+- **Coverage**: All opcodes defined in `include/t81/isa/opcodes.hpp` are present in `src/vm/vm.cpp` dispatch switch.
 - **Discrepancies**: None found (per v1 audit).
 
 ## 8. Deferred Extensions

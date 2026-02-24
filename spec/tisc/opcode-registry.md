@@ -255,5 +255,5 @@ Source of Truth: VM + opcode headers
 ## 4. Implementation Consistency Audit
 - **VM Opcode Count**: 174 defined opcodes (0-173).
 - **Header Enum Count**: 174 entries.
-- **Coverage**: All opcodes defined in `include/t81/tisc/opcodes.hpp` are present in `src/vm/vm.cpp` dispatch switch.
+- **Coverage**: All opcodes defined in `include/t81/isa/opcodes.hpp` are present in `src/vm/vm.cpp` dispatch switch.
 - **Discrepancies**: None found.

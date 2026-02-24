@@ -73,9 +73,9 @@
 // surface remains as a compatibility shim.
 
 // ---------- TISC ISA ----------
-#include "t81/tisc/encoding.hpp"
-#include "t81/tisc/opcodes.hpp"
-#include "t81/tisc/program.hpp"
+#include "t81/isa/encoding.hpp"
+#include "t81/isa/opcodes.hpp"
+#include "t81/isa/program.hpp"
 
 // ---------- VM ----------
 #include "t81/vm/state.hpp"

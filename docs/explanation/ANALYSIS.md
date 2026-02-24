@@ -20,7 +20,7 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-## 2. TISC ISA & VM (`t81_tisc`, `t81_vm`)
+## 2. TISC ISA & VM (`t81_isa`, `t81_vm`)
 
 - **Specification:** [`spec/tisc-spec.md`](../../spec/tisc-spec.md), [`spec/t81vm-spec.md`](../../spec/t81vm-spec.md)
 - **Status:** `Complete` (Core) / `In Development` (Cognitive)

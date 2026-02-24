@@ -5,7 +5,7 @@
 #include <vector>
 #include "t81/axion/policy.hpp"
 #include "t81/hanoi/types.hpp"
-#include "t81/tisc/opcodes.hpp"
+#include "t81/isa/opcodes.hpp"
 
 namespace t81::axion {
 // Syscall context used by policy evaluation without colliding with legacy Context.

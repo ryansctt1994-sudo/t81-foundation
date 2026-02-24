@@ -4,7 +4,7 @@
 #include "t81/axion/ethics.hpp"
 #include "t81/axion/reasons.hpp"
 #include "t81/config.hpp"
-#include "t81/tisc/opcodes.hpp"
+#include "t81/isa/opcodes.hpp"
 
 namespace t81::axion {
 

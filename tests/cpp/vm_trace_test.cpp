@@ -1,5 +1,5 @@
 #include <iostream>
-#include <t81/tisc/program.hpp>
+#include <t81/isa/program.hpp>
 #include <t81/vm/vm.hpp>
 
 using namespace t81;

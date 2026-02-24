@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-#include "t81/tisc/opcodes.hpp"
-#include "t81/tisc/program.hpp"
+#include "t81/isa/opcodes.hpp"
+#include "t81/isa/program.hpp"
 #include "t81/vm/vm.hpp"
 
 int main() {

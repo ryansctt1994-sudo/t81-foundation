@@ -35,9 +35,9 @@
 #include "t81/frontend/lexer.hpp"
 #include "t81/frontend/parser.hpp"
 #include "t81/frontend/semantic_analyzer.hpp"
-#include "t81/tisc/binary_emitter.hpp"
-#include "t81/tisc/binary_io.hpp"
-#include "t81/tisc/program.hpp"
+#include "t81/isa/binary_emitter.hpp"
+#include "t81/isa/binary_io.hpp"
+#include "t81/isa/program.hpp"
 #include "t81/vm/vm.hpp"
 #include "t81/weights.hpp"
 

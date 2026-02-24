@@ -7,8 +7,8 @@
 #include <variant>
 #include <vector>
 #include "t81/tensor.hpp"
-#include "t81/tisc/program.hpp"
-#include "t81/tisc/type_alias.hpp"
+#include "t81/isa/program.hpp"
+#include "t81/isa/type_alias.hpp"
 
 namespace t81 {
 namespace tisc {

@@ -7,7 +7,7 @@
 #include <string>
 #include <string_view>
 
-#include "t81/tisc/program.hpp"
+#include "t81/isa/program.hpp"
 
 namespace t81::weights {
 struct ModelFile;

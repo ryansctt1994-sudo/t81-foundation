@@ -1,8 +1,8 @@
 #include <cassert>
 #include <iostream>
-#include "t81/tisc/binary_emitter.hpp"
-#include "t81/tisc/ir.hpp"
-#include "t81/tisc/pretty_printer.hpp"
+#include "t81/isa/binary_emitter.hpp"
+#include "t81/isa/ir.hpp"
+#include "t81/isa/pretty_printer.hpp"
 
 using namespace t81::tisc::ir;
 

@@ -8,7 +8,7 @@ Verify that the TISC toolchain (Assembler, Disassembler, Pretty Printer, Emitter
 
 ## 2. Audit Targets & Findings
 
-### A. Pretty Printer (`src/tisc/pretty_printer.cpp`)
+### A. Pretty Printer (`core/isa/pretty_printer.cpp`)
 
 *   **Status**: **FAIL**
 *   **Finding**: The `opcode_to_string` function does not contain cases for the new bitwise opcodes:
@@ -16,17 +16,17 @@ Verify that the TISC toolchain (Assembler, Disassembler, Pretty Printer, Emitter
     *   `BitShl`, `BitShr`, `BitUShr`
 *   **Impact**: Debug output for these instructions will render as `"???"`.
 
-### B. Binary Emitter (`src/tisc/binary_emitter.cpp`)
+### B. Binary Emitter (`core/isa/binary_emitter.cpp`)
 
 *   **Status**: **FAIL**
-*   **Finding**: The `map_opcode` function in `src/tisc/binary_emitter.cpp` does not map the IR opcodes to the VM opcodes for:
+*   **Finding**: The `map_opcode` function in `core/isa/binary_emitter.cpp` does not map the IR opcodes to the VM opcodes for:
     *   `BITAND`, `BITOR`, `BITXOR`, `BITNOT`
     *   `BITSHL`, `BITSHR`, `BITUSHR`
 *   **Impact**: The toolchain cannot emit binary code for these instructions from IR.
 
 ### C. Assembler / Parser
 
-*   **Status**: **Not Audited** (Files not present in `src/tisc/` or `include/t81/tisc/` during initial scan).
+*   **Status**: **Not Audited** (Files not present in `core/isa/` or `include/t81/isa/` during initial scan).
 *   **Note**: If the assembler relies on `BinaryEmitter`, it is blocked.
 
 ## 3. Remediation Plan
@@ -35,7 +35,7 @@ The following tasks must be performed immediately after the freeze lock-in:
 
 1.  **Update `pretty_printer.cpp`**: Add `case` statements for all 7 bitwise opcodes in `opcode_to_string`.
 2.  **Update `binary_emitter.cpp`**: Add `case` statements in `map_opcode` to map IR constants to `t81::tisc::Opcode` enum values.
-3.  **Update IR Definitions**: Ensure `include/t81/tisc/ir.hpp` defines the corresponding IR opcodes if missing.
+3.  **Update IR Definitions**: Ensure `include/t81/isa/ir.hpp` defines the corresponding IR opcodes if missing.
 
 ## 4. Conclusion
 

@@ -1,4 +1,4 @@
-#include "t81/tisc/program.hpp"
+#include "t81/isa/program.hpp"
 #include "t81/vm/vm.hpp"
 
 #include <cstdlib>

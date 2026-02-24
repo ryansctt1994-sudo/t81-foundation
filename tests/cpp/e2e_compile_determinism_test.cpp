@@ -1,6 +1,6 @@
 #include "t81/cli/driver.hpp"
 #include "t81/crypto/sha3.hpp"
-#include "t81/tisc/encoding.hpp"
+#include "t81/isa/encoding.hpp"
 #include "t81/vm/vm.hpp"
 
 #include <algorithm>

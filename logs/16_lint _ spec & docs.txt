@@ -431,7 +431,7 @@
 2026-02-15T03:15:21.8207475Z [200] file:///home/runner/work/t81-foundation/t81-foundation/docs/guides/demo-gallery.md#axion-loop-trace
 2026-02-15T03:15:21.8208812Z [200] file:///home/runner/work/t81-foundation/t81-foundation/docs/guides/vm-opcodes.md#stackheap-allocator-opcodes
 2026-02-15T03:15:21.8210310Z [200] file:///home/runner/work/t81-foundation/t81-foundation/docs/guides/vm-opcodes.md#3-how-to-add-a-new-tisc-opcode
-2026-02-15T03:15:21.8211520Z [200] file:///home/runner/work/t81-foundation/t81-foundation/include/t81/tisc/opcodes.hpp
+2026-02-15T03:15:21.8211520Z [200] file:///home/runner/work/t81-foundation/t81-foundation/include/t81/isa/opcodes.hpp
 2026-02-15T03:15:21.8212612Z [200] file:///home/runner/work/t81-foundation/t81-foundation/docs/guides/vm-opcodes.md#1-architecture
 2026-02-15T03:15:21.8214388Z [200] file:///home/runner/work/t81-foundation/t81-foundation/docs/guides/vm-opcodes.md#2-implemented-opcodes
 2026-02-15T03:15:21.8215779Z [200] file:///home/runner/work/t81-foundation/t81-foundation/docs/guides/vm-opcodes.md#axion-loop-metadata-example

@@ -1,7 +1,7 @@
 #include "t81/vm/jit.hpp"
 #include <iostream>
 #include <string>
-#include "t81/tisc/program.hpp"
+#include "t81/isa/program.hpp"
 #include "t81/vm/state.hpp"
 
 using namespace t81::vm;

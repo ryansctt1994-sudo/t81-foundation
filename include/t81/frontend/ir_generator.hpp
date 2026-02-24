@@ -18,7 +18,7 @@
 #include "t81/frontend/semantic_analyzer.hpp"
 #include "t81/frontend/symbol_table.hpp"
 #include "t81/tensor.hpp"
-#include "t81/tisc/ir.hpp"
+#include "t81/isa/ir.hpp"
 
 namespace t81::frontend {
 

@@ -1,6 +1,6 @@
 #include "t81/crypto/sha3.hpp"
-#include "t81/tisc/binary_io.hpp"
-#include "t81/tisc/program.hpp"
+#include "t81/isa/binary_io.hpp"
+#include "t81/isa/program.hpp"
 
 #include <cstdint>
 #include <filesystem>

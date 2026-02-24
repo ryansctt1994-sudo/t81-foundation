@@ -1,5 +1,5 @@
-#include "t81/tisc/binary_io.hpp"
-#include "t81/tisc/type_alias.hpp"
+#include "t81/isa/binary_io.hpp"
+#include "t81/isa/type_alias.hpp"
 
 #include <cassert>
 #include <filesystem>

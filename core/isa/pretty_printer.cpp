@@ -1,4 +1,4 @@
-#include "t81/tisc/pretty_printer.hpp"
+#include "t81/isa/pretty_printer.hpp"
 #include <sstream>
 
 namespace t81 {

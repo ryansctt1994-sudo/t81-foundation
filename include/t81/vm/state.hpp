@@ -19,7 +19,7 @@
 #include "t81/cog/tier5/infinite.hpp"
 #include "t81/fraction.hpp"
 #include "t81/tensor.hpp"
-#include "t81/tisc/program.hpp"
+#include "t81/isa/program.hpp"
 #include "t81/vm/traps.hpp"
 #include "t81/weights.hpp"
 

@@ -73,7 +73,7 @@ Defines the Ternary Instruction Set Computer architecture: opcodes, semantics, a
 [`/spec/tisc-spec.md`](../../spec/tisc-spec.md)
 
 **Code**
-`src/tisc/`, `src/vm/`
+`core/isa/`, `src/vm/`
 
 **Verification Surfaces**
 

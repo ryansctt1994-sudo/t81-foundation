@@ -2,7 +2,7 @@
 #include "t81/frontend/lexer.hpp"
 #include "t81/frontend/parser.hpp"
 #include "t81/frontend/semantic_analyzer.hpp"
-#include "t81/tisc/ir.hpp"
+#include "t81/isa/ir.hpp"
 
 #include <cassert>
 #include <iostream>

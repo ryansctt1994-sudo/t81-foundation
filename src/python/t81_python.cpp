@@ -16,8 +16,8 @@
 #include "t81/frontend/parser.hpp"
 #include "t81/frontend/semantic_analyzer.hpp"
 #include "t81/tensor.hpp"
-#include "t81/tisc/binary_emitter.hpp"
-#include "t81/tisc/program.hpp"
+#include "t81/isa/binary_emitter.hpp"
+#include "t81/isa/program.hpp"
 #include "t81/vm/vm.hpp"
 
 namespace py = pybind11;

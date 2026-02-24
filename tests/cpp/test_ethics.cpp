@@ -4,7 +4,7 @@
 #include "t81/axion/ethics.hpp"
 #include "t81/axion/policy_engine.hpp"
 #include "t81/config.hpp"
-#include "t81/tisc/opcodes.hpp"
+#include "t81/isa/opcodes.hpp"
 
 void test_recursion_limit() {
   t81::axion::SyscallContext ctx;

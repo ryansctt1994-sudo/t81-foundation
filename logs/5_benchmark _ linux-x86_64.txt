@@ -273,7 +273,7 @@
 2026-02-15T03:16:02.0252603Z [36;1mcmake --build build --parallel --target benchmark_runner[0m
 2026-02-15T03:16:02.0301716Z shell: /usr/bin/bash -e {0}
 2026-02-15T03:16:02.0301944Z ##[endgroup]
-2026-02-15T03:16:05.5620750Z [1/76] Building CXX object CMakeFiles/t81_core.dir/src/tisc/encoding.cpp.o
+2026-02-15T03:16:05.5620750Z [1/76] Building CXX object CMakeFiles/t81_core.dir/core/isa/encoding.cpp.o
 2026-02-15T03:16:05.6556647Z [2/76] Building CXX object CMakeFiles/t81_core.dir/src/canonfs/persistent_driver.cpp.o
 2026-02-15T03:16:06.1795983Z [3/76] Building CXX object CMakeFiles/t81_core.dir/src/hanoi/error.cpp.o
 2026-02-15T03:16:06.6924627Z [4/76] Building CXX object CMakeFiles/t81_core.dir/src/core/bigint.cpp.o
@@ -301,17 +301,17 @@
 2026-02-15T03:16:23.5571111Z [26/76] Building CXX object CMakeFiles/t81_core.dir/src/vm/vm.cpp.o
 2026-02-15T03:16:23.5771708Z [27/76] Building CXX object CMakeFiles/t81_core.dir/src/vm/jit_compiler.cpp.o
 2026-02-15T03:16:24.5067931Z [28/76] Building CXX object CMakeFiles/t81_core.dir/src/codec/trit_packing.cpp.o
-2026-02-15T03:16:26.3958247Z [29/76] Building CXX object CMakeFiles/t81_tisc.dir/src/tisc/pretty_printer.cpp.o
+2026-02-15T03:16:26.3958247Z [29/76] Building CXX object CMakeFiles/t81_isa.dir/core/isa/pretty_printer.cpp.o
 2026-02-15T03:16:26.5108825Z [30/76] Building CXX object CMakeFiles/t81_core.dir/src/setun/bridge.cpp.o
 2026-02-15T03:16:26.8114546Z [31/76] Building CXX object CMakeFiles/t81_frontend.dir/src/frontend/symbol_table.cpp.o
 2026-02-15T03:16:27.8135853Z [32/76] Building CXX object CMakeFiles/t81_frontend.dir/src/frontend/parser.cpp.o
-2026-02-15T03:16:29.1771179Z [33/76] Building CXX object CMakeFiles/t81_tisc.dir/src/tisc/binary_emitter.cpp.o
+2026-02-15T03:16:29.1771179Z [33/76] Building CXX object CMakeFiles/t81_isa.dir/core/isa/binary_emitter.cpp.o
 2026-02-15T03:16:30.7171594Z [34/76] Building CXX object _deps/googlebenchmark-build/src/CMakeFiles/benchmark.dir/benchmark_api_internal.cc.o
 2026-02-15T03:16:31.5784698Z [35/76] Building CXX object _deps/googlebenchmark-build/src/CMakeFiles/benchmark.dir/benchmark_name.cc.o
-2026-02-15T03:16:32.1146649Z [36/76] Building CXX object CMakeFiles/t81_tisc.dir/src/tisc/base81_view.cpp.o
+2026-02-15T03:16:32.1146649Z [36/76] Building CXX object CMakeFiles/t81_isa.dir/core/isa/base81_view.cpp.o
 2026-02-15T03:16:32.5655259Z [37/76] Linking CXX static library libt81_core.a
 2026-02-15T03:16:33.2530345Z [38/76] Building CXX object _deps/googlebenchmark-build/src/CMakeFiles/benchmark.dir/check.cc.o
-2026-02-15T03:16:33.7311902Z [39/76] Building CXX object CMakeFiles/t81_tisc.dir/src/tisc/binary_io.cpp.o
+2026-02-15T03:16:33.7311902Z [39/76] Building CXX object CMakeFiles/t81_isa.dir/core/isa/binary_io.cpp.o
 2026-02-15T03:16:34.3322216Z [40/76] Building CXX object _deps/googlebenchmark-build/src/CMakeFiles/benchmark.dir/colorprint.cc.o
 2026-02-15T03:16:34.8188728Z [41/76] Building CXX object _deps/googlebenchmark-build/src/CMakeFiles/benchmark.dir/benchmark.cc.o
 2026-02-15T03:16:35.2810854Z [42/76] Building CXX object CMakeFiles/t81_frontend.dir/src/frontend/semantic_analyzer.cpp.o
@@ -325,7 +325,7 @@
 2026-02-15T03:16:38.2872576Z [50/76] Building CXX object _deps/googlebenchmark-build/src/CMakeFiles/benchmark.dir/reporter.cc.o
 2026-02-15T03:16:38.9151783Z [51/76] Building CXX object _deps/googlebenchmark-build/src/CMakeFiles/benchmark.dir/json_reporter.cc.o
 2026-02-15T03:16:39.0997068Z [52/76] Linking CXX static library libt81_frontend.a
-2026-02-15T03:16:39.2362579Z [53/76] Linking CXX static library libt81_tisc.a
+2026-02-15T03:16:39.2362579Z [53/76] Linking CXX static library libt81_isa.a
 2026-02-15T03:16:40.1847656Z [54/76] Building CXX object _deps/googlebenchmark-build/src/CMakeFiles/benchmark.dir/timers.cc.o
 2026-02-15T03:16:40.2575370Z [55/76] Building CXX object _deps/googlebenchmark-build/src/CMakeFiles/benchmark.dir/string_util.cc.o
 2026-02-15T03:16:40.8108864Z [56/76] Building CXX object _deps/googlebenchmark-build/src/CMakeFiles/benchmark.dir/sysinfo.cc.o
