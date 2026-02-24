@@ -19,12 +19,17 @@
 #include "t81/codec/trit_packing.hpp"
 #include "t81/core/Result.hpp"
 #include "t81/core/T81Int.hpp"
+#include "t81/tritwise/profiling.hpp"
 
 namespace t81::experimental {
+
+class ComputeTritVector;
 
 class PackedTritVector {
 public:
   // Factory methods
+  static Result<PackedTritVector> from_compute(const ComputeTritVector& other);
+
   static Result<PackedTritVector> from_trits(const std::vector<int8_t>& trits) {
     std::vector<Trit> t_vec;
     t_vec.reserve(trits.size());
@@ -210,6 +215,10 @@ public:
     return from_trits(trits_res.value());
   }
 
+  static Result<ComputeTritVector> from_pt5(const PackedTritVector& other) {
+    return from_phase1(other);
+  }
+
   size_t size() const { return count_; }
   const std::vector<uint8_t>& data() const { return data_; }
   // Non-const data access for in-place benchmarks/tests that need raw pointers,
@@ -329,6 +338,7 @@ public:
     if (count_ % 4 != 0 && !res_data.empty()) {
       mask_trailing(res_data.back(), count_ % 4);
     }
+    T81_PROFILE_RECORD("TXor", data_.size());
 
     return Result<ComputeTritVector>::success(ComputeTritVector(std::move(res_data), count_));
   }
@@ -476,6 +486,23 @@ public:
     return Result<bool>::success(true);
   }
 
+  Result<bool> t_xor_inplace(const ComputeTritVector& other) {
+    if (count_ != other.count_) {
+      return Result<bool>::failure(T81Symbol::intern("LENGTH_MISMATCH"),
+                                   T81String("Vectors must have same length for binary operation"),
+                                   T81Symbol::intern("ComputeTritVector"));
+    }
+    const auto& luts = LUTs::get();
+    for (size_t i = 0; i < data_.size(); ++i) {
+      data_[i] = luts.op_xor[data_[i]][other.data_[i]];
+    }
+    if (count_ % 4 != 0 && !data_.empty()) {
+      mask_trailing(data_.back(), count_ % 4);
+    }
+    T81_PROFILE_RECORD("TXor", data_.size());
+    return Result<bool>::success(true);
+  }
+
   // Phase 2C/2D: Public API Wrappers (dispatch to kernels via inplace)
 
   Result<ComputeTritVector> t_not() const {
@@ -535,6 +562,7 @@ public:
 
   // Kernel Dispatch Layer
   static void kernel_not(const uint8_t* in, uint8_t* out, size_t len) {
+    T81_PROFILE_RECORD("TNot", len);
 #if defined(__x86_64__) && defined(__AVX2__)
     if (len >= AVX2_THRESHOLD_BYTES) {
       kernel_not_avx2(in, out, len);
@@ -550,6 +578,7 @@ public:
   }
 
   static void kernel_and(const uint8_t* a, const uint8_t* b, uint8_t* out, size_t len) {
+    T81_PROFILE_RECORD("TAnd", len);
 #if defined(__x86_64__) && defined(__AVX2__)
     if (len >= AVX2_THRESHOLD_BYTES) {
       kernel_and_avx2(a, b, out, len);
@@ -565,6 +594,7 @@ public:
   }
 
   static void kernel_or(const uint8_t* a, const uint8_t* b, uint8_t* out, size_t len) {
+    T81_PROFILE_RECORD("TOr", len);
 #if defined(__x86_64__) && defined(__AVX2__)
     if (len >= AVX2_THRESHOLD_BYTES) {
       kernel_or_avx2(a, b, out, len);
@@ -881,5 +911,11 @@ private:
   std::vector<uint8_t> data_;
   size_t count_;
 };
+
+inline Result<PackedTritVector> PackedTritVector::from_compute(const ComputeTritVector& other) {
+  auto trits_res = other.to_trits();
+  if (trits_res.is_err()) return Result<PackedTritVector>(trits_res.error());
+  return from_trits(trits_res.value());
+}
 
 }  // namespace t81::experimental

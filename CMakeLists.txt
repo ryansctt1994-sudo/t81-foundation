@@ -403,6 +403,13 @@ if(T81_BUILD_TESTS)
     target_compile_options(t81_packed_trit_vector_test PRIVATE -mavx2 -mfma)
   endif()
 
+  add_executable(t81_tritwise_backend_equivalence_test tests/cpp/test_tritwise_backend_equivalence.cpp)
+  target_link_libraries(t81_tritwise_backend_equivalence_test PRIVATE t81_core)
+  if(T81_IS_X86_64 AND NOT MSVC)
+    target_compile_options(t81_tritwise_backend_equivalence_test PRIVATE -mavx2 -mfma)
+  endif()
+  add_test(NAME t81_tritwise_backend_equivalence_test COMMAND t81_tritwise_backend_equivalence_test)
+
   add_executable(t81_phase2c_truth_table_test tests/cpp/test_phase2c_truth_table.cpp)
   target_link_libraries(t81_phase2c_truth_table_test PRIVATE t81_core)
 
