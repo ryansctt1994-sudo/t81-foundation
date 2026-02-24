@@ -521,6 +521,7 @@ private:
     byte &= mask;
   }
 
+public:
   // Kernel Dispatch Layer
   static void kernel_not(const uint8_t* in, uint8_t* out, size_t len) {
 #if defined(__x86_64__) && defined(__AVX2__)
@@ -717,6 +718,7 @@ private:
   }
 #endif
 
+private:
   struct LUTs {
     uint8_t op_not[256];
     uint8_t op_and[256][256];
