@@ -22,6 +22,6 @@
 
 | Milestone | Target Date | Owner | Status |
 | :--- | :--- | :--- | :--- |
-| Governance Reform | Q2 2024 | Governance Architect | In Progress |
-| Benchmark Standardization | Q2 2024 | Perf Team | Pending |
-| T81Lang v0.5 Release | Q3 2024 | Compiler Team | Planned |
+| Governance Reform | Q2 2026 | Governance Architect | In Progress |
+| Benchmark Standardization | Q2 2026 | Perf Team | Pending |
+| T81Lang v0.5 Release | Q3 2026 | Compiler Team | Planned |
