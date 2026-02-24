@@ -78,6 +78,13 @@ Key directories:
 * **Verified Determinism Surfaces**: Bit-exact behavior where explicitly tested and gated.
 * **Compiler Reproducibility**: Enforced via reproducibility scripts in CI.
 
+### Freeze Enforcement
+
+Frozen components (ISA, Data Types, Determinism surfaces) are governed by
+`docs/governance/FREEZE_ENFORCEMENT.md`.
+
+Breaking these boundaries requires a MAJOR version bump and formal change record.
+
 ### Clarification
 
 Determinism guarantees apply to **verified surfaces only**, as documented in `docs/architecture/OVERVIEW.md`.
