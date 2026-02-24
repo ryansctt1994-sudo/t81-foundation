@@ -1,7 +1,7 @@
 #pragma once
 
-#include "t81/experimental/packed_trit_vector.hpp"
 #include "t81/core/Result.hpp"
+#include "t81/experimental/packed_trit_vector.hpp"
 
 namespace t81::tritwise {
 
@@ -23,7 +23,7 @@ using experimental::PackedTritVector;
  * @return Result<bool> Success or error.
  */
 inline Result<bool> tritwise_and(ComputeTritVector& dst, const ComputeTritVector& src) {
-    return dst.t_and_inplace(src);
+  return dst.t_and_inplace(src);
 }
 
 /**
@@ -38,7 +38,7 @@ inline Result<bool> tritwise_and(ComputeTritVector& dst, const ComputeTritVector
  * @return Result<bool> Success or error.
  */
 inline Result<bool> tritwise_or(ComputeTritVector& dst, const ComputeTritVector& src) {
-    return dst.t_or_inplace(src);
+  return dst.t_or_inplace(src);
 }
 
 /**
@@ -51,9 +51,7 @@ inline Result<bool> tritwise_or(ComputeTritVector& dst, const ComputeTritVector&
  * @param dst Vector to negate (modified in-place).
  * @return Result<bool> Success or error.
  */
-inline Result<bool> tritwise_not(ComputeTritVector& dst) {
-    return dst.t_not_inplace();
-}
+inline Result<bool> tritwise_not(ComputeTritVector& dst) { return dst.t_not_inplace(); }
 
 /**
  * @brief Tritwise XOR operation (In-Place).
@@ -67,7 +65,7 @@ inline Result<bool> tritwise_not(ComputeTritVector& dst) {
  * @return Result<bool> Success or error.
  */
 inline Result<bool> tritwise_xor(ComputeTritVector& dst, const ComputeTritVector& src) {
-    return dst.t_xor_inplace(src);
+  return dst.t_xor_inplace(src);
 }
 
 // By-value convenience variants
@@ -75,30 +73,31 @@ inline Result<bool> tritwise_xor(ComputeTritVector& dst, const ComputeTritVector
 /**
  * @brief Tritwise AND operation (By-Value).
  */
-inline Result<ComputeTritVector> tritwise_and(const ComputeTritVector& a, const ComputeTritVector& b) {
-    return a.t_and(b);
+inline Result<ComputeTritVector> tritwise_and(const ComputeTritVector& a,
+                                              const ComputeTritVector& b) {
+  return a.t_and(b);
 }
 
 /**
  * @brief Tritwise OR operation (By-Value).
  */
-inline Result<ComputeTritVector> tritwise_or(const ComputeTritVector& a, const ComputeTritVector& b) {
-    return a.t_or(b);
+inline Result<ComputeTritVector> tritwise_or(const ComputeTritVector& a,
+                                             const ComputeTritVector& b) {
+  return a.t_or(b);
 }
 
 /**
  * @brief Tritwise NOT operation (By-Value).
  */
-inline Result<ComputeTritVector> tritwise_not(const ComputeTritVector& a) {
-    return a.t_not();
-}
+inline Result<ComputeTritVector> tritwise_not(const ComputeTritVector& a) { return a.t_not(); }
 
 /**
  * @brief Tritwise XOR operation (By-Value).
  * Routes to LUT fallback.
  */
-inline Result<ComputeTritVector> tritwise_xor(const ComputeTritVector& a, const ComputeTritVector& b) {
-    return a.t_xor(b); // Uses t_xor_lut internally
+inline Result<ComputeTritVector> tritwise_xor(const ComputeTritVector& a,
+                                              const ComputeTritVector& b) {
+  return a.t_xor(b);  // Uses t_xor_lut internally
 }
 
-} // namespace t81::tritwise
+}  // namespace t81::tritwise

@@ -28,7 +28,7 @@ class ComputeTritVector;
 class PackedTritVector {
 public:
   // Factory methods
-    static Result<PackedTritVector> from_compute(const ComputeTritVector& other);
+  static Result<PackedTritVector> from_compute(const ComputeTritVector& other);
 
   static Result<PackedTritVector> from_trits(const std::vector<int8_t>& trits) {
     std::vector<Trit> t_vec;

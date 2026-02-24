@@ -2,11 +2,11 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <string>
-#include <string_view>
+#include <iostream>
 #include <map>
 #include <mutex>
-#include <iostream>
+#include <string>
+#include <string_view>
 
 #ifdef T81_TRITWISE_PROFILE
 
@@ -34,10 +34,14 @@ public:
     auto& stats = stats_[std::string(op)];
     stats.calls++;
     stats.total_bytes += bytes;
-    if (bytes < 64) stats.hist_lt_64++;
-    else if (bytes < 256) stats.hist_64_256++;
-    else if (bytes < 1024) stats.hist_256_1024++;
-    else stats.hist_gt_1024++;
+    if (bytes < 64)
+      stats.hist_lt_64++;
+    else if (bytes < 256)
+      stats.hist_64_256++;
+    else if (bytes < 1024)
+      stats.hist_256_1024++;
+    else
+      stats.hist_gt_1024++;
   }
 
   void report() const {
@@ -59,7 +63,7 @@ public:
   ~Profiler() {
     // Only print on destruction if stats were collected
     if (!stats_.empty()) {
-        report();
+      report();
     }
   }
 
@@ -68,12 +72,14 @@ private:
   std::map<std::string, OpStats> stats_;
 };
 
-} // namespace t81::tritwise
+}  // namespace t81::tritwise
 
 #define T81_PROFILE_RECORD(op, bytes) t81::tritwise::Profiler::get().record(op, bytes)
 
 #else
 
-#define T81_PROFILE_RECORD(op, bytes) do {} while(0)
+#define T81_PROFILE_RECORD(op, bytes) \
+  do {                                \
+  } while (0)
 
 #endif
