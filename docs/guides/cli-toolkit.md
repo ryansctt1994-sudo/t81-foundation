@@ -56,7 +56,7 @@ Global flags such as `--weights-model=<file>`, `--quiet`, and `--verbose` are av
 
 ## Structural Metadata Guarantees
 
-- Records and enums now survive the CLI boundary as serialized metadata. When the compiler sees `record Point { ... }` or `enum Flag { ... }`, `IRGenerator` emits a `TypeAliasMetadata` entry flagged with `StructuralKind::Record`/`Enum` and includes `FieldInfo`/`VariantInfo` vectors. `t81::cli::compile` stores this metadata inside the `.tisc` file (see `src/tisc/binary_io.cpp`).
+- Records and enums now survive the CLI boundary as serialized metadata. When the compiler sees `record Point { ... }` or `enum Flag { ... }`, `IRGenerator` emits a `TypeAliasMetadata` entry flagged with `StructuralKind::Record`/`Enum` and includes `FieldInfo`/`VariantInfo` vectors. `t81::cli::compile` stores this metadata inside the `.tisc` file (see `core/isa/binary_io.cpp`).
 - The parser now accepts `@schema(<number>)` and `@module(<path>)` annotations before a record or enum declaration; the analyzer records these values and the CLI logs them when `--verbose` is enabled so downstream tooling can report the canonical schema version and owning module path without re-parsing sources.
 - Downstream tools can load the TISC file (`t81::tisc::load_program`) and inspect `program.type_aliases` to recover record layouts or enum discriminants without rerunning the analyzer. The new CLI tests (`tests/cpp/cli_structural_types_test.cpp` and `tests/cpp/cli_record_enum_test.cpp`) assert these guarantees hold end-to-end.
 

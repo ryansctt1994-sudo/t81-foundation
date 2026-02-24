@@ -2,7 +2,7 @@
 #define T81_TISC_BINARY_IO_HPP
 
 #include <string>
-#include "t81/tisc/program.hpp"
+#include "t81/isa/program.hpp"
 
 namespace t81 {
 namespace tisc {

@@ -29,7 +29,7 @@ For a concise summary of frozen vs. experimental components, see the [Determinis
 *   **Allowed:** Performance optimizations that do not alter binary output.
 
 ### B. TISC ISA
-*   **Scope:** `src/tisc/`, `src/vm/`, `spec/tisc-spec.md`
+*   **Scope:** `core/isa/`, `src/vm/`, `spec/tisc-spec.md`
 *   **Frozen Surface:**
     *   Opcode values and encoding.
     *   Instruction semantics (state transitions).

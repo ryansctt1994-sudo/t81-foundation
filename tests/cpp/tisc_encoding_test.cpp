@@ -1,7 +1,7 @@
 #include <cassert>
 #include <vector>
 
-#include "t81/tisc/encoding.hpp"
+#include "t81/isa/encoding.hpp"
 
 int main() {
   using namespace t81::tisc;

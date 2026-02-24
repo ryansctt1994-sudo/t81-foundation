@@ -1,4 +1,4 @@
-# `src/tisc`
+# `core/isa`
 
 Implementation of TISC IR serialization, parsing, and presentation utilities.
 
@@ -14,9 +14,9 @@ Implementation of TISC IR serialization, parsing, and presentation utilities.
 - `pretty_printer.cpp`: readable text form of IR/programs.
 
 ## Related Interfaces
-- `include/t81/tisc/ir.hpp`
-- `include/t81/tisc/program.hpp`
-- `include/t81/tisc/binary_emitter.hpp`
+- `include/t81/isa/ir.hpp`
+- `include/t81/isa/program.hpp`
+- `include/t81/isa/binary_emitter.hpp`
 
 ## Notes
 - Output ordering and encoding must stay reproducible.

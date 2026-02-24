@@ -1,4 +1,4 @@
-#include "t81/tisc/encoding.hpp"
+#include "t81/isa/encoding.hpp"
 
 #include <cstring>
 

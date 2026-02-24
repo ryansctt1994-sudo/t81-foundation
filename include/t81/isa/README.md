@@ -13,7 +13,7 @@ Public interfaces for TISC IR and binary program handling.
 
 ## Consumers
 - Frontend IR generation (`src/frontend`)
-- Emitter/IO implementation (`src/tisc`)
+- Emitter/IO implementation (`core/isa`)
 - VM loading/execution (`src/vm`)
 
 ## Compatibility

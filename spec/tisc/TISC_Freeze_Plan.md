@@ -84,8 +84,8 @@ This sequence minimizes risk and separates "fix what we have" from "add what is 
 | `BitUShr`| Add to Registry/Semantics | Add `Opcode::BitUShr` case| `test_bitwise.cpp` | **Mask shift amt (B & 0x3F)** | Pending |
 
 **Implementation Notes:**
-*   Update `include/t81/tisc/opcodes.hpp` enum.
-*   Update `src/tisc/encoding.cpp` string-to-opcode map (if applicable).
+*   Update `include/t81/isa/opcodes.hpp` enum.
+*   Update `core/isa/encoding.cpp` string-to-opcode map (if applicable).
 *   Ensure `T81_DETERMINISTIC` compliance is irrelevant here (integer only), but verify no undefined behavior on shifts.
 
 ## 5. Deferred Extensions and Non-ISA Items

@@ -7,7 +7,7 @@
 
 #include "t81/axion/policy.hpp"
 #include "t81/axion/policy_engine.hpp"
-#include "t81/tisc/opcodes.hpp"
+#include "t81/isa/opcodes.hpp"
 
 namespace t81::canonfs {
 namespace {

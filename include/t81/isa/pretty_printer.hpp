@@ -2,7 +2,7 @@
 #define T81_TISC_PRETTY_PRINTER_HPP
 
 #include <string>
-#include "t81/tisc/ir.hpp"
+#include "t81/isa/ir.hpp"
 
 namespace t81 {
 namespace tisc {

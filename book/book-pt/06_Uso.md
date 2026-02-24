@@ -58,7 +58,7 @@ Para embutir o T81 em uma aplicação hospedeira (ex: um motor de jogo ou um nó
 
 ```cpp
 #include <t81/vm/vm.hpp>
-#include <t81/tisc/program.hpp>
+#include <t81/isa/program.hpp>
 
 int main() {
     // 1. Criar VM

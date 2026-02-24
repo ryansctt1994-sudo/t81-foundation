@@ -6,9 +6,9 @@
 #include <cstdint>
 
 #include "t81/vm/vm.hpp"
-#include "t81/tisc/program.hpp"
+#include "t81/isa/program.hpp"
 #include "t81/weights.hpp"
-#include "t81/tisc/opcodes.hpp"
+#include "t81/isa/opcodes.hpp"
 
 // This benchmark measures the time taken to promote a tensor from native weights.
 // The promotion logic involves copying the shape vector, which is the target of our optimization.

@@ -3,8 +3,8 @@
 
 #include <cstdint>
 #include <vector>
-#include "t81/tisc/ir.hpp"
-#include "t81/tisc/program.hpp"
+#include "t81/isa/ir.hpp"
+#include "t81/isa/program.hpp"
 
 namespace t81 {
 namespace tisc {

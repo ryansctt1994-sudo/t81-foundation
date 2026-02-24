@@ -3,7 +3,7 @@
 #include <map>
 #include <set>
 #include <string>
-#include "t81/tisc/program.hpp"
+#include "t81/isa/program.hpp"
 #include "t81/vm/vm.hpp"
 
 namespace t81::cli {

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include "t81/cli/logging.hpp"
-#include "t81/tisc/opcodes.hpp"
+#include "t81/isa/opcodes.hpp"
 
 namespace t81::cli {
 

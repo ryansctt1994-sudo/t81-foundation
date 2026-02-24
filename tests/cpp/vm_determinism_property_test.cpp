@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "t81/tisc/encoding.hpp"
-#include "t81/tisc/program.hpp"
+#include "t81/isa/encoding.hpp"
+#include "t81/isa/program.hpp"
 #include "t81/vm/vm.hpp"
 
 namespace {

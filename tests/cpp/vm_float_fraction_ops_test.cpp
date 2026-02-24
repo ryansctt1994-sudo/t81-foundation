@@ -3,7 +3,7 @@
 
 #include "t81/bigint.hpp"
 #include "t81/fraction.hpp"
-#include "t81/tisc/program.hpp"
+#include "t81/isa/program.hpp"
 #include "t81/vm/vm.hpp"
 
 namespace {

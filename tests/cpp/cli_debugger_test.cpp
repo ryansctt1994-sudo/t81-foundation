@@ -1,8 +1,8 @@
 #include "t81/cli/driver.hpp"
-#include "t81/tisc/binary_emitter.hpp"
-#include "t81/tisc/binary_io.hpp"
-#include "t81/tisc/opcodes.hpp"
-#include "t81/tisc/program.hpp"
+#include "t81/isa/binary_emitter.hpp"
+#include "t81/isa/binary_io.hpp"
+#include "t81/isa/opcodes.hpp"
+#include "t81/isa/program.hpp"
 
 #include <cassert>
 #include <filesystem>

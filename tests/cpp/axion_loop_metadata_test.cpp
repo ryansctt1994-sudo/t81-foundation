@@ -1,6 +1,6 @@
 #include "t81/axion/policy.hpp"
 #include "t81/cli/driver.hpp"
-#include "t81/tisc/binary_io.hpp"
+#include "t81/isa/binary_io.hpp"
 #include "t81/vm/vm.hpp"
 
 #include <filesystem>

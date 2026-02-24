@@ -7,8 +7,8 @@
 #include <vector>
 #include "t81/fraction.hpp"
 #include "t81/tensor.hpp"
-#include "t81/tisc/opcodes.hpp"
-#include "t81/tisc/type_alias.hpp"
+#include "t81/isa/opcodes.hpp"
+#include "t81/isa/type_alias.hpp"
 #include "t81/weights.hpp"
 
 namespace t81::tisc {

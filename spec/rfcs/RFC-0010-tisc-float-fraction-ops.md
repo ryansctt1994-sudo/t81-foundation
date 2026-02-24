@@ -58,7 +58,7 @@ Extend `spec/tisc-spec.md §5.7` with the following opcodes (each 3-register for
 
 ## 2. Literal Pools
 
-`include/t81/tisc/program.hpp` already gained float/fraction/symbol pools. This RFC formalizes the requirement:
+`include/t81/isa/program.hpp` already gained float/fraction/symbol pools. This RFC formalizes the requirement:
 
 - When encoding a program, all float/fraction/symbol literals MUST be emitted into these pools with canonical values before any instructions execute.
 - VM MUST preload `state.floats/fractions/symbols` from the program (per `t81vm-spec §4.6`), treat register values as 1-based handles, and maintain determinism when pools grow (e.g., as `FRACADD` produces a new fraction).

@@ -30,13 +30,13 @@ The authoritative build graph is `../../CMakeLists.txt`. It includes static libr
 | `t81_io` | STATIC | Tensor/model I/O helpers | `t81_core` |
 | `t81_c_api` | STATIC | C ABI surface for selected runtime/core functions | `t81_core` |
 | `t81_frontend` | STATIC | Lexer, parser, semantic analyzer (T81Lang frontend) | `t81_core` |
-| `t81_tisc` | STATIC | TISC IR/binary emitter, pretty printer, binary I/O, base81 TISC views | `t81_core` |
+| `t81_isa` | STATIC | TISC IR/binary emitter, pretty printer, binary I/O, base81 TISC views | `t81_core` |
 | `t81_vm` | INTERFACE | VM public facade target for consumers/tests | `t81_core` |
 | `t81_llvm` | INTERFACE | LLVM-facing facade target (placeholder/adapter layer) | `t81_core` |
-| `t81_cli_driver` | STATIC | CLI orchestration (compile/run/trace/repro/tools) | `t81_frontend`, `t81_tisc`, `t81_vm` |
-| `t81` | EXECUTABLE | Main CLI entry point | `t81_frontend`, `t81_tisc`, `t81_vm`, `t81_cli_driver` |
-| `t81_python` | MODULE (optional) | `pybind11` Python bindings | `t81_core`, `t81_frontend`, `t81_tisc` |
-| `benchmark_runner` (subdir) | EXECUTABLE (optional) | Benchmark suite and docs benchmark generation pipeline | `t81_core`, `t81_frontend`, `t81_tisc`, Google Benchmark |
+| `t81_cli_driver` | STATIC | CLI orchestration (compile/run/trace/repro/tools) | `t81_frontend`, `t81_isa`, `t81_vm` |
+| `t81` | EXECUTABLE | Main CLI entry point | `t81_frontend`, `t81_isa`, `t81_vm`, `t81_cli_driver` |
+| `t81_python` | MODULE (optional) | `pybind11` Python bindings | `t81_core`, `t81_frontend`, `t81_isa` |
+| `benchmark_runner` (subdir) | EXECUTABLE (optional) | Benchmark suite and docs benchmark generation pipeline | `t81_core`, `t81_frontend`, `t81_isa`, Google Benchmark |
 
 Notes:
 - CMake defaults to `cxx_std_23`; a temporary compatibility lane remains available via `-DT81_USE_CXX23=OFF`.
@@ -200,7 +200,7 @@ ______________________________________________________________________
 ## 7. Key Architectural Boundaries
 
 - **Frontend vs Runtime:** `t81_frontend` produces typed/validated IR; it does not execute programs.
-- **TISC Format vs VM Execution:** `t81_tisc` defines program representation; `t81_vm` executes it via interpreter and trace-JIT.
+- **TISC Format vs VM Execution:** `t81_isa` defines program representation; `t81_vm` executes it via interpreter and trace-JIT.
 - **Core as substrate:** `t81_core` provides shared primitives/services (VM state, Axion, CanonFS, codecs, tensor numerics) and is the dependency root.
 - **Policy vs performance:** Axion policy checks and trace logging remain mandatory across interpreter and compiled trace paths.
 - **Model tooling vs execution:** `weights` tooling transforms/loads tensors; HanoiVM consumes handles without changing provenance semantics.
@@ -286,7 +286,7 @@ ______________________________________________________________________
 | Component | Directory | Primary Maintainers | Spec Authority |
 | :--- | :--- | :--- | :--- |
 | **T81Lang** | `../../src/frontend/`, `../../include/t81/frontend/` | @t81dev | `../../spec/lang/` |
-| **TISC** | `../../src/tisc/`, `../../include/t81/tisc/` | @t81dev | `../../spec/tisc/` |
+| **TISC** | `../../core/isa/`, `../../include/t81/isa/` | @t81dev | `../../spec/tisc/` |
 | **HanoiVM** | `../../src/vm/`, `../../include/t81/vm/` | @t81dev | `../../spec/vm/` |
 | **Axion** | `../../src/axion/`, `../../include/t81/axion/` | @t81dev | `../../spec/axion/` |
 | **CanonFS** | `../../src/canonfs/`, `../../include/t81/canonfs/` | @t81dev | `../../spec/canonfs/` |

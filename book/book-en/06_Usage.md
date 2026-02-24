@@ -65,7 +65,7 @@ To embed T81 into a host application (e.g., a game engine or a distributed node)
 
 ```cpp
 #include <t81/vm/vm.hpp>
-#include <t81/tisc/program.hpp>
+#include <t81/isa/program.hpp>
 #include <t81/axion/policy.hpp>
 
 int main() {

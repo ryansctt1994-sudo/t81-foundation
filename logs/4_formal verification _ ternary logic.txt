@@ -284,7 +284,7 @@
 2026-02-15T03:16:09.0425634Z [36;1mcmake --build build --parallel --target t81[0m
 2026-02-15T03:16:09.0477783Z shell: /usr/bin/bash -e {0}
 2026-02-15T03:16:09.0478022Z ##[endgroup]
-2026-02-15T03:16:12.8716679Z [1/44] Building CXX object CMakeFiles/t81_core.dir/src/tisc/encoding.cpp.o
+2026-02-15T03:16:12.8716679Z [1/44] Building CXX object CMakeFiles/t81_core.dir/core/isa/encoding.cpp.o
 2026-02-15T03:16:13.3559282Z [2/44] Building CXX object CMakeFiles/t81_core.dir/src/canonfs/persistent_driver.cpp.o
 2026-02-15T03:16:14.0760798Z [3/44] Building CXX object CMakeFiles/t81_core.dir/src/hanoi/error.cpp.o
 2026-02-15T03:16:14.8279965Z [4/44] Building CXX object CMakeFiles/t81_core.dir/src/core/bigint.cpp.o
@@ -313,16 +313,16 @@
 2026-02-15T03:16:32.4765347Z [27/44] Building CXX object CMakeFiles/t81_core.dir/src/vm/jit_compiler.cpp.o
 2026-02-15T03:16:33.5062949Z [28/44] Building CXX object CMakeFiles/t81_core.dir/src/codec/trit_packing.cpp.o
 2026-02-15T03:16:35.3844725Z [29/44] Building CXX object CMakeFiles/t81_frontend.dir/src/frontend/symbol_table.cpp.o
-2026-02-15T03:16:36.5087476Z [30/44] Building CXX object CMakeFiles/t81_tisc.dir/src/tisc/pretty_printer.cpp.o
+2026-02-15T03:16:36.5087476Z [30/44] Building CXX object CMakeFiles/t81_isa.dir/core/isa/pretty_printer.cpp.o
 2026-02-15T03:16:36.7758028Z [31/44] Building CXX object CMakeFiles/t81_core.dir/src/setun/bridge.cpp.o
 2026-02-15T03:16:37.6868890Z [32/44] Building CXX object CMakeFiles/t81_frontend.dir/src/frontend/parser.cpp.o
-2026-02-15T03:16:38.5678348Z [33/44] Building CXX object CMakeFiles/t81_tisc.dir/src/tisc/binary_emitter.cpp.o
-2026-02-15T03:16:42.1050256Z [34/44] Building CXX object CMakeFiles/t81_tisc.dir/src/tisc/base81_view.cpp.o
-2026-02-15T03:16:42.5647990Z [35/44] Building CXX object CMakeFiles/t81_tisc.dir/src/tisc/binary_io.cpp.o
+2026-02-15T03:16:38.5678348Z [33/44] Building CXX object CMakeFiles/t81_isa.dir/core/isa/binary_emitter.cpp.o
+2026-02-15T03:16:42.1050256Z [34/44] Building CXX object CMakeFiles/t81_isa.dir/core/isa/base81_view.cpp.o
+2026-02-15T03:16:42.5647990Z [35/44] Building CXX object CMakeFiles/t81_isa.dir/core/isa/binary_io.cpp.o
 2026-02-15T03:16:42.8019122Z [36/44] Building CXX object CMakeFiles/t81_cli_driver.dir/src/cli/debugger.cpp.o
 2026-02-15T03:16:43.8889798Z [37/44] Building CXX object CMakeFiles/t81_frontend.dir/src/frontend/semantic_analyzer.cpp.o
 2026-02-15T03:16:44.3804979Z [38/44] Linking CXX static library libt81_core.a
-2026-02-15T03:16:44.5067973Z [39/44] Linking CXX static library libt81_tisc.a
+2026-02-15T03:16:44.5067973Z [39/44] Linking CXX static library libt81_isa.a
 2026-02-15T03:16:44.5111118Z [40/44] Linking CXX static library libt81_frontend.a
 2026-02-15T03:16:47.0311761Z [41/44] Building CXX object CMakeFiles/t81.dir/src/cli/main.cpp.o
 2026-02-15T03:16:47.0312519Z In file included from /home/runner/work/t81-foundation/t81-foundation/src/cli/main.cpp:37:

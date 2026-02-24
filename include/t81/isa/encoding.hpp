@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <t81/support/expected.hpp>
 #include <vector>
-#include "t81/tisc/program.hpp"
+#include "t81/isa/program.hpp"
 
 namespace t81::tisc {
 enum class EncodingError {

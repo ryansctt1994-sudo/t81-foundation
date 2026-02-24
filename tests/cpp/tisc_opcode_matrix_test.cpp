@@ -1,5 +1,5 @@
-#include "t81/tisc/encoding.hpp"
-#include "t81/tisc/opcodes.hpp"
+#include "t81/isa/encoding.hpp"
+#include "t81/isa/opcodes.hpp"
 
 #include <cassert>
 #include <iostream>

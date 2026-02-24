@@ -251,7 +251,7 @@
 2026-02-15T03:16:07.2204120Z [36;1mcmake --build build --parallel 2>&1 | tee -a .github/logs/build-and-test.log[0m
 2026-02-15T03:16:07.2274290Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
 2026-02-15T03:16:07.2274550Z ##[endgroup]
-2026-02-15T03:16:10.7313150Z [1/515] Building CXX object CMakeFiles/t81_core.dir/src/tisc/encoding.cpp.o
+2026-02-15T03:16:10.7313150Z [1/515] Building CXX object CMakeFiles/t81_core.dir/core/isa/encoding.cpp.o
 2026-02-15T03:16:10.7816330Z [2/515] Building CXX object CMakeFiles/t81_core.dir/src/canonfs/in_memory_driver.cpp.o
 2026-02-15T03:16:10.9433220Z [3/515] Building CXX object CMakeFiles/t81_core.dir/src/core/bigint.cpp.o
 2026-02-15T03:16:11.2597140Z [4/515] Building CXX object CMakeFiles/t81_core.dir/src/core/fraction.cpp.o
@@ -278,19 +278,19 @@
 2026-02-15T03:16:21.9288570Z [25/515] Building CXX object CMakeFiles/t81_core.dir/src/codec/trit_packing.cpp.o
 2026-02-15T03:16:22.0798830Z [26/515] Building CXX object CMakeFiles/t81_core.dir/src/vm/jit_compiler.cpp.o
 2026-02-15T03:16:22.1195020Z [27/515] Building CXX object CMakeFiles/t81_frontend.dir/src/frontend/lexer.cpp.o
-2026-02-15T03:16:23.8280110Z [28/515] Building CXX object CMakeFiles/t81_tisc.dir/src/tisc/pretty_printer.cpp.o
+2026-02-15T03:16:23.8280110Z [28/515] Building CXX object CMakeFiles/t81_isa.dir/core/isa/pretty_printer.cpp.o
 2026-02-15T03:16:23.8996960Z [29/515] Building CXX object CMakeFiles/t81_core.dir/src/setun/bridge.cpp.o
 2026-02-15T03:16:23.9259130Z [30/515] Building CXX object CMakeFiles/t81_frontend.dir/src/frontend/symbol_table.cpp.o
 2026-02-15T03:16:24.0221110Z [31/515] Building CXX object CMakeFiles/t81_frontend.dir/src/frontend/parser.cpp.o
 2026-02-15T03:16:25.2913450Z [32/515] Linking CXX static library libt81_core.a
-2026-02-15T03:16:27.0178410Z [33/515] Building CXX object CMakeFiles/t81_tisc.dir/src/tisc/binary_emitter.cpp.o
+2026-02-15T03:16:27.0178410Z [33/515] Building CXX object CMakeFiles/t81_isa.dir/core/isa/binary_emitter.cpp.o
 2026-02-15T03:16:27.0386720Z [34/515] Building CXX object CMakeFiles/t81_io.dir/src/io/tensor_loader.cpp.o
-2026-02-15T03:16:27.2704590Z [35/515] Building CXX object CMakeFiles/t81_tisc.dir/src/tisc/base81_view.cpp.o
+2026-02-15T03:16:27.2704590Z [35/515] Building CXX object CMakeFiles/t81_isa.dir/core/isa/base81_view.cpp.o
 2026-02-15T03:16:28.8037540Z [36/515] Building CXX object CMakeFiles/t81_frontend.dir/src/frontend/semantic_analyzer.cpp.o
 2026-02-15T03:16:28.8440750Z [37/515] Linking CXX static library libt81_frontend.a
 2026-02-15T03:16:28.8948970Z [38/515] Linking CXX static library libt81_io.a
-2026-02-15T03:16:28.9751730Z [39/515] Building CXX object CMakeFiles/t81_tisc.dir/src/tisc/binary_io.cpp.o
-2026-02-15T03:16:29.0263360Z [40/515] Linking CXX static library libt81_tisc.a
+2026-02-15T03:16:28.9751730Z [39/515] Building CXX object CMakeFiles/t81_isa.dir/core/isa/binary_io.cpp.o
+2026-02-15T03:16:29.0263360Z [40/515] Linking CXX static library libt81_isa.a
 2026-02-15T03:16:30.5325950Z [41/515] Building CXX object CMakeFiles/t81_cli_driver.dir/src/cli/debugger.cpp.o
 2026-02-15T03:16:31.1416210Z [42/515] Building CXX object CMakeFiles/t81_c_api.dir/src/c_api/t81_c_api.cpp.o
 2026-02-15T03:16:31.1918010Z [43/515] Linking CXX static library libt81_c_api.a
@@ -342,7 +342,7 @@
 2026-02-15T03:16:52.3218590Z             ^
 2026-02-15T03:16:52.3319640Z 1 warning generated.
 2026-02-15T03:16:52.5422730Z [87/515] Building CXX object CMakeFiles/canonfs_persistent_driver_test.dir/tests/cpp/canonfs_persistent_driver_test.cpp.o
-2026-02-15T03:16:53.4169680Z [88/515] Building CXX object CMakeFiles/t81_tisc_encoding_test.dir/tests/cpp/tisc_encoding_test.cpp.o
+2026-02-15T03:16:53.4169680Z [88/515] Building CXX object CMakeFiles/t81_isa_encoding_test.dir/tests/cpp/tisc_encoding_test.cpp.o
 2026-02-15T03:16:53.4271380Z /Users/runner/work/t81-foundation/t81-foundation/tests/cpp/tisc_encoding_test.cpp:23:17: warning: unused variable 'lhs' [-Wunused-variable]
 2026-02-15T03:16:53.4372670Z     const auto& lhs = program.insns[i];
 2026-02-15T03:16:53.4473970Z                 ^
@@ -376,7 +376,7 @@
 2026-02-15T03:16:59.0329310Z [100/515] Building CXX object CMakeFiles/t81_base81_balanced_test.dir/tests/cpp/test_base81_balanced.cpp.o
 2026-02-15T03:16:59.4352770Z [101/515] Building CXX object CMakeFiles/t81_base81_packed_test.dir/tests/cpp/test_base81_packed.cpp.o
 2026-02-15T03:16:59.7764590Z [102/515] Building CXX object CMakeFiles/t81_metadata_test.dir/tests/cpp/test_metadata.cpp.o
-2026-02-15T03:17:00.5591680Z [103/515] Building CXX object CMakeFiles/t81_tisc_base81_view_test.dir/tests/cpp/test_tisc_base81_view.cpp.o
+2026-02-15T03:17:00.5591680Z [103/515] Building CXX object CMakeFiles/t81_isa_base81_view_test.dir/tests/cpp/test_tisc_base81_view.cpp.o
 2026-02-15T03:17:01.0359500Z [104/515] Building CXX object CMakeFiles/setun_bridge_test.dir/tests/cpp/setun_bridge_test.cpp.o
 2026-02-15T03:17:01.0460110Z /Users/runner/work/t81-foundation/t81-foundation/tests/cpp/setun_bridge_test.cpp:13:8: warning: unused variable 'insn' [-Wunused-variable]
 2026-02-15T03:17:01.0559950Z   auto insn = translate_line("ADD R7, R9");
@@ -498,10 +498,10 @@
 2026-02-15T03:17:19.6760600Z inline void expect_semantic_success(const std::string& source, const char* label) {
 2026-02-15T03:17:19.6861690Z                                                                            ^
 2026-02-15T03:17:19.6964400Z 1 warning generated.
-2026-02-15T03:17:20.4806440Z [153/515] Building CXX object CMakeFiles/t81_tisc_binary_emitter_test.dir/tests/cpp/tisc_binary_emitter_test.cpp.o
+2026-02-15T03:17:20.4806440Z [153/515] Building CXX object CMakeFiles/t81_isa_binary_emitter_test.dir/tests/cpp/tisc_binary_emitter_test.cpp.o
 2026-02-15T03:17:21.3135520Z [154/515] Building CXX object CMakeFiles/t81_frontend_ir_generator_test.dir/tests/cpp/frontend_ir_generator_test.cpp.o
-2026-02-15T03:17:21.6045170Z [155/515] Building CXX object CMakeFiles/t81_tisc_binary_io_determinism_test.dir/tests/cpp/tisc_binary_io_determinism_test.cpp.o
-2026-02-15T03:17:21.6346840Z [156/515] Building CXX object CMakeFiles/t81_tisc_type_alias_io_test.dir/tests/cpp/tisc_type_alias_io_test.cpp.o
+2026-02-15T03:17:21.6045170Z [155/515] Building CXX object CMakeFiles/t81_isa_binary_io_determinism_test.dir/tests/cpp/tisc_binary_io_determinism_test.cpp.o
+2026-02-15T03:17:21.6346840Z [156/515] Building CXX object CMakeFiles/t81_isa_type_alias_io_test.dir/tests/cpp/tisc_type_alias_io_test.cpp.o
 2026-02-15T03:17:21.6447210Z /Users/runner/work/t81-foundation/t81-foundation/tests/cpp/tisc_type_alias_io_test.cpp:66:21: warning: unused variable 'actual' [-Wunused-variable]
 2026-02-15T03:17:21.6548510Z         const auto& actual = loaded.type_aliases[i];
 2026-02-15T03:17:21.6649030Z                     ^
@@ -513,7 +513,7 @@
 2026-02-15T03:17:21.7253680Z          ^
 2026-02-15T03:17:21.7354300Z 3 warnings generated.
 2026-02-15T03:17:21.8862050Z [157/515] Building CXX object CMakeFiles/t81_semantic_analyzer_loop_test.dir/tests/cpp/semantic_analyzer_loop_test.cpp.o
-2026-02-15T03:17:23.6166580Z [158/515] Building CXX object CMakeFiles/t81_tisc_binary_metadata_roundtrip_property_test.dir/tests/cpp/tisc_binary_metadata_roundtrip_property_test.cpp.o
+2026-02-15T03:17:23.6166580Z [158/515] Building CXX object CMakeFiles/t81_isa_binary_metadata_roundtrip_property_test.dir/tests/cpp/tisc_binary_metadata_roundtrip_property_test.cpp.o
 2026-02-15T03:17:27.5755300Z [159/515] Building CXX object CMakeFiles/ir_inspector.dir/tools/ir_inspector.cpp.o
 2026-02-15T03:17:27.7072970Z [160/515] Building CXX object CMakeFiles/e2e_let_statement_test.dir/tests/cpp/e2e_let_statement_test.cpp.o
 2026-02-15T03:17:27.8084660Z [161/515] Building CXX object CMakeFiles/e2e_arithmetic_test.dir/tests/cpp/e2e_arithmetic_test.cpp.o
@@ -774,7 +774,7 @@
 2026-02-15T03:18:26.5423270Z [282/515] Building CXX object benchmarks/CMakeFiles/benchmark_runner.dir/BM_TensorMatMul.cpp.o
 2026-02-15T03:18:27.2219620Z [283/515] Building CXX object benchmarks/CMakeFiles/benchmark_runner.dir/runner/limb_arith_throughput.cpp.o
 2026-02-15T03:18:27.4635560Z [284/515] Linking CXX executable t81
-2026-02-15T03:18:27.4736680Z ld: warning: ignoring duplicate libraries: 'libt81_frontend.a', 'libt81_tisc.a'
+2026-02-15T03:18:27.4736680Z ld: warning: ignoring duplicate libraries: 'libt81_frontend.a', 'libt81_isa.a'
 2026-02-15T03:18:27.5144890Z [285/515] Linking CXX executable t81_demo
 2026-02-15T03:18:27.5663930Z [286/515] Linking CXX executable t81_tensor_ops
 2026-02-15T03:18:27.6169580Z [287/515] Linking CXX executable t81_ir_roundtrip
@@ -817,7 +817,7 @@
 2026-02-15T03:18:28.6308250Z [324/515] Linking CXX executable canonfs_axion_trace_test
 2026-02-15T03:18:28.6708920Z [325/515] Linking CXX executable canonfs_persistent_driver_test
 2026-02-15T03:18:28.6809980Z [326/515] Linking CXX executable t81_ir_encoding_test
-2026-02-15T03:18:28.7225640Z [327/515] Linking CXX executable t81_tisc_encoding_test
+2026-02-15T03:18:28.7225640Z [327/515] Linking CXX executable t81_isa_encoding_test
 2026-02-15T03:18:28.7326760Z [328/515] Linking CXX executable t81_vm_tensor_test
 2026-02-15T03:18:28.7742370Z [329/515] Linking CXX executable t81_vm_fault_test
 2026-02-15T03:18:28.7849590Z [330/515] Linking CXX executable t81_vm_memory_test
@@ -833,7 +833,7 @@
 2026-02-15T03:18:28.9706100Z [340/515] Linking CXX executable t81_base81_balanced_test
 2026-02-15T03:18:29.0026090Z [341/515] Linking CXX executable t81_base81_packed_test
 2026-02-15T03:18:29.0127280Z [342/515] Linking CXX executable t81_metadata_test
-2026-02-15T03:18:29.0459170Z [343/515] Linking CXX executable t81_tisc_base81_view_test
+2026-02-15T03:18:29.0459170Z [343/515] Linking CXX executable t81_isa_base81_view_test
 2026-02-15T03:18:29.0559850Z [344/515] Linking CXX executable tisc_base81
 2026-02-15T03:18:29.0664910Z [345/515] Linking CXX executable setun_bridge_test
 2026-02-15T03:18:29.1124040Z [346/515] Linking CXX executable tisc_opcode_matrix_test
@@ -884,11 +884,11 @@
 2026-02-15T03:18:30.0414730Z [391/515] Linking CXX executable t81_semantic_analyzer_record_enum_test
 2026-02-15T03:18:30.0520090Z [392/515] Linking CXX executable t81_semantic_analyzer_numeric_test
 2026-02-15T03:18:30.0644270Z [393/515] Linking CXX executable t81_semantic_analyzer_equality_test
-2026-02-15T03:18:30.0973830Z [394/515] Linking CXX executable t81_tisc_binary_emitter_test
-2026-02-15T03:18:30.1075460Z [395/515] Linking CXX executable t81_tisc_type_alias_io_test
-2026-02-15T03:18:30.1179780Z [396/515] Linking CXX executable t81_tisc_binary_io_determinism_test
+2026-02-15T03:18:30.0973830Z [394/515] Linking CXX executable t81_isa_binary_emitter_test
+2026-02-15T03:18:30.1075460Z [395/515] Linking CXX executable t81_isa_type_alias_io_test
+2026-02-15T03:18:30.1179780Z [396/515] Linking CXX executable t81_isa_binary_io_determinism_test
 2026-02-15T03:18:30.1587460Z [397/515] Linking CXX executable t81_semantic_analyzer_loop_test
-2026-02-15T03:18:30.1688220Z [398/515] Linking CXX executable t81_tisc_binary_metadata_roundtrip_property_test
+2026-02-15T03:18:30.1688220Z [398/515] Linking CXX executable t81_isa_binary_metadata_roundtrip_property_test
 2026-02-15T03:18:30.1808770Z [399/515] Linking CXX executable ir_inspector
 2026-02-15T03:18:30.2234080Z [400/515] Linking CXX executable e2e_arithmetic_test
 2026-02-15T03:18:30.2361070Z [401/515] Linking CXX executable e2e_let_statement_test
@@ -1532,12 +1532,12 @@
 2026-02-15T03:18:33.8705980Z 49: ir_encoding (expanded) ok
 2026-02-15T03:18:33.8706290Z  49/201 Test  #49: t81_ir_encoding_test ...............................   Passed    0.00 sec
 2026-02-15T03:18:33.8706630Z test 50
-2026-02-15T03:18:33.8706770Z         Start  50: t81_tisc_encoding_test
+2026-02-15T03:18:33.8706770Z         Start  50: t81_isa_encoding_test
 2026-02-15T03:18:33.8706930Z 
-2026-02-15T03:18:33.8707160Z 50: Test command: /Users/runner/work/t81-foundation/t81-foundation/build/t81_tisc_encoding_test
+2026-02-15T03:18:33.8707160Z 50: Test command: /Users/runner/work/t81-foundation/t81-foundation/build/t81_isa_encoding_test
 2026-02-15T03:18:33.8707650Z 50: Working Directory: /Users/runner/work/t81-foundation/t81-foundation/build
 2026-02-15T03:18:33.8707970Z 50: Test timeout computed to be: 10000000
-2026-02-15T03:18:33.8708480Z  50/201 Test  #50: t81_tisc_encoding_test .............................   Passed    0.00 sec
+2026-02-15T03:18:33.8708480Z  50/201 Test  #50: t81_isa_encoding_test .............................   Passed    0.00 sec
 2026-02-15T03:18:33.8708810Z test 51
 2026-02-15T03:18:33.8708940Z         Start  51: t81_hash_stub_test
 2026-02-15T03:18:33.8709100Z 
@@ -1616,16 +1616,16 @@
 2026-02-15T03:18:33.8783180Z 58: All metadata tests passed!
 2026-02-15T03:18:33.8783680Z  58/201 Test  #58: t81_metadata_test ..................................   Passed    0.00 sec
 2026-02-15T03:18:33.8784130Z test 59
-2026-02-15T03:18:33.8784350Z         Start  59: t81_tisc_base81_view_test
+2026-02-15T03:18:33.8784350Z         Start  59: t81_isa_base81_view_test
 2026-02-15T03:18:33.8784510Z 
-2026-02-15T03:18:33.8784730Z 59: Test command: /Users/runner/work/t81-foundation/t81-foundation/build/t81_tisc_base81_view_test
+2026-02-15T03:18:33.8784730Z 59: Test command: /Users/runner/work/t81-foundation/t81-foundation/build/t81_isa_base81_view_test
 2026-02-15T03:18:33.8785180Z 59: Working Directory: /Users/runner/work/t81-foundation/t81-foundation/build
 2026-02-15T03:18:33.8785490Z 59: Test timeout computed to be: 10000000
 2026-02-15T03:18:33.8796120Z 59: Testing TISC Base-81 view roundtrip...
 2026-02-15T03:18:33.8796380Z 59: Rendered: jefeeeegeeeeheeee geoeeee>qeeeZeeee
 2026-02-15T03:18:33.8796660Z 59: OK
 2026-02-15T03:18:33.8796860Z 59: All TISC Base-81 view tests passed!
-2026-02-15T03:18:33.8797180Z  59/201 Test  #59: t81_tisc_base81_view_test ..........................   Passed    0.00 sec
+2026-02-15T03:18:33.8797180Z  59/201 Test  #59: t81_isa_base81_view_test ..........................   Passed    0.00 sec
 2026-02-15T03:18:33.8797650Z test 60
 2026-02-15T03:18:33.8797860Z         Start  60: setun_bridge_test
 2026-02-15T03:18:33.8798040Z 
@@ -2731,9 +2731,9 @@
 2026-02-15T03:18:34.2137540Z 120: Semantic analyzer numeric rules tests passed!
 2026-02-15T03:18:34.2140190Z 120/201 Test #120: t81_semantic_analyzer_numeric_test .................   Passed    0.00 sec
 2026-02-15T03:18:34.2141900Z test 121
-2026-02-15T03:18:34.2146550Z         Start 121: t81_tisc_binary_emitter_test
+2026-02-15T03:18:34.2146550Z         Start 121: t81_isa_binary_emitter_test
 2026-02-15T03:18:34.2150620Z 
-2026-02-15T03:18:34.2157240Z 121: Test command: /Users/runner/work/t81-foundation/t81-foundation/build/t81_tisc_binary_emitter_test
+2026-02-15T03:18:34.2157240Z 121: Test command: /Users/runner/work/t81-foundation/t81-foundation/build/t81_isa_binary_emitter_test
 2026-02-15T03:18:34.2158800Z 121: Working Directory: /Users/runner/work/t81-foundation/t81-foundation/build
 2026-02-15T03:18:34.2159240Z 121: Test timeout computed to be: 10000000
 2026-02-15T03:18:34.2161750Z 121: BinaryEmitterTest test_simple_program passed!
@@ -2742,30 +2742,30 @@
 2026-02-15T03:18:34.2170120Z 121: BinaryEmitterTest test_all_comparison_relations passed!
 2026-02-15T03:18:34.2172040Z 121: BinaryEmitterTest test_print_opcode_mapping passed!
 2026-02-15T03:18:34.2172410Z 121: BinaryEmitterTest test_float_literal_pool_mapping passed!
-2026-02-15T03:18:34.2172790Z 121/201 Test #121: t81_tisc_binary_emitter_test .......................   Passed    0.00 sec
+2026-02-15T03:18:34.2172790Z 121/201 Test #121: t81_isa_binary_emitter_test .......................   Passed    0.00 sec
 2026-02-15T03:18:34.2173450Z test 122
-2026-02-15T03:18:34.2173660Z         Start 122: t81_tisc_type_alias_io_test
+2026-02-15T03:18:34.2173660Z         Start 122: t81_isa_type_alias_io_test
 2026-02-15T03:18:34.2173830Z 
-2026-02-15T03:18:34.2174120Z 122: Test command: /Users/runner/work/t81-foundation/t81-foundation/build/t81_tisc_type_alias_io_test
+2026-02-15T03:18:34.2174120Z 122: Test command: /Users/runner/work/t81-foundation/t81-foundation/build/t81_isa_type_alias_io_test
 2026-02-15T03:18:34.2174700Z 122: Working Directory: /Users/runner/work/t81-foundation/t81-foundation/build
 2026-02-15T03:18:34.2175170Z 122: Test timeout computed to be: 10000000
 2026-02-15T03:18:34.2175470Z 122: TypeAliasIoTest test_type_alias_io_roundtrip passed!
-2026-02-15T03:18:34.2175850Z 122/201 Test #122: t81_tisc_type_alias_io_test ........................   Passed    0.00 sec
+2026-02-15T03:18:34.2175850Z 122/201 Test #122: t81_isa_type_alias_io_test ........................   Passed    0.00 sec
 2026-02-15T03:18:34.2176170Z test 123
-2026-02-15T03:18:34.2176350Z         Start 123: t81_tisc_binary_io_determinism_test
+2026-02-15T03:18:34.2176350Z         Start 123: t81_isa_binary_io_determinism_test
 2026-02-15T03:18:34.2176510Z 
-2026-02-15T03:18:34.2178020Z 123: Test command: /Users/runner/work/t81-foundation/t81-foundation/build/t81_tisc_binary_io_determinism_test
+2026-02-15T03:18:34.2178020Z 123: Test command: /Users/runner/work/t81-foundation/t81-foundation/build/t81_isa_binary_io_determinism_test
 2026-02-15T03:18:34.2178540Z 123: Working Directory: /Users/runner/work/t81-foundation/t81-foundation/build
 2026-02-15T03:18:34.2178860Z 123: Test timeout computed to be: 10000000
 2026-02-15T03:18:34.2179630Z 123: tisc binary io determinism test passed!
-2026-02-15T03:18:34.2179980Z 123/201 Test #123: t81_tisc_binary_io_determinism_test ................   Passed    0.00 sec
+2026-02-15T03:18:34.2179980Z 123/201 Test #123: t81_isa_binary_io_determinism_test ................   Passed    0.00 sec
 2026-02-15T03:18:34.2180300Z test 124
-2026-02-15T03:18:34.2180500Z         Start 124: t81_tisc_binary_metadata_roundtrip_property_test
+2026-02-15T03:18:34.2180500Z         Start 124: t81_isa_binary_metadata_roundtrip_property_test
 2026-02-15T03:18:34.2180710Z 
-2026-02-15T03:18:34.2181070Z 124: Test command: /Users/runner/work/t81-foundation/t81-foundation/build/t81_tisc_binary_metadata_roundtrip_property_test
+2026-02-15T03:18:34.2181070Z 124: Test command: /Users/runner/work/t81-foundation/t81-foundation/build/t81_isa_binary_metadata_roundtrip_property_test
 2026-02-15T03:18:34.2181720Z 124: Working Directory: /Users/runner/work/t81-foundation/t81-foundation/build
 2026-02-15T03:18:34.2182680Z 124: Test timeout computed to be: 10000000
-2026-02-15T03:18:34.2539700Z 124/201 Test #124: t81_tisc_binary_metadata_roundtrip_property_test ...   Passed    0.04 sec
+2026-02-15T03:18:34.2539700Z 124/201 Test #124: t81_isa_binary_metadata_roundtrip_property_test ...   Passed    0.04 sec
 2026-02-15T03:18:34.2540130Z test 125
 2026-02-15T03:18:34.2540330Z         Start 125: e2e_option_result_test
 2026-02-15T03:18:34.2540590Z 

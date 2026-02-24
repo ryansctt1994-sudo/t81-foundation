@@ -25,9 +25,9 @@ The following conditions are assumed to be true for the system to maintain its d
 ### 2.2 Component Dependencies
 The T81 stack is a strictly ordered hierarchy. Circular dependencies are forbidden.
 -   **Core (Dependency Root):** `t81_core` (Arithmetic, Axion, CanonFS).
--   **Representation:** `t81_tisc` depends on `t81_core` for serialization primitives.
--   **Frontend:** `t81_frontend` depends on `t81_tisc` to emit IR.
--   **Execution:** `t81_vm` depends on `t81_core` (for the Axion engine) and `t81_tisc` (for instruction decoding).
+-   **Representation:** `t81_isa` depends on `t81_core` for serialization primitives.
+-   **Frontend:** `t81_frontend` depends on `t81_isa` to emit IR.
+-   **Execution:** `t81_vm` depends on `t81_core` (for the Axion engine) and `t81_isa` (for instruction decoding).
 
 ### 2.3 Interaction Patterns: The Supervision Loop
 The interaction between HanoiVM (Execution) and Axion (Governance) follows a synchronous **Supervision Loop**:

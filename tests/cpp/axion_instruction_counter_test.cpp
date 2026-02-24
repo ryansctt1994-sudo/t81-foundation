@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "t81/axion/engine.hpp"
-#include "t81/tisc/program.hpp"
+#include "t81/isa/program.hpp"
 #include "t81/vm/vm.hpp"
 
 void test_instruction_counter_axion_engine() {

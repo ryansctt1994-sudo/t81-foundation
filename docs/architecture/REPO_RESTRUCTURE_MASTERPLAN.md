@@ -53,7 +53,7 @@ This layout reflects the conceptual architecture of the T81 Foundation stack.
 | `src/data_types/**`             | `core/types/**`         | Mostly docs/tests currently |
 | `src/core/**`                   | `core/types/**`         | Core numerics implementation (BigInt, Fraction) |
 | `include/t81/core/**`           | `include/t81/types/**`  | Public headers for core types |
-| `src/tisc/**`                   | `core/isa/**`           | |
+| `core/isa/**`                   | `core/isa/**`           | |
 | `src/vm/**`                     | `core/vm/**`            | Interpreter core |
 | `src/axion/**`                  | `kernel/axion/**`       | |
 | `src/canonfs/**`                | `core/serialization/**` | CanonFS drivers |
@@ -107,9 +107,9 @@ This layout reflects the conceptual architecture of the T81 Foundation stack.
   6. Update CMake targets.
 
 ### Phase 2: ISA (TISC) Module
-* **Goal**: Move `src/tisc` to `core/isa`.
+* **Goal**: Move `core/isa` to `core/isa`.
 * **Steps**:
-  1. `git mv src/tisc core/isa`
+  1. `git mv core/isa core/isa`
   2. Update includes.
 
 ### Phase 3: VM Core

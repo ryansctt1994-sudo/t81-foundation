@@ -58,7 +58,7 @@ Para embeber T81 en una aplicación host (ej. un motor de juegos o un nodo distr
 
 ```cpp
 #include <t81/vm/vm.hpp>
-#include <t81/tisc/program.hpp>
+#include <t81/isa/program.hpp>
 
 int main() {
     // 1. Crear VM

@@ -6,7 +6,7 @@
 #include "t81/axion/ethics.hpp"
 #include "t81/axion/policy.hpp"
 #include "t81/config.hpp"
-#include "t81/tisc/opcodes.hpp"
+#include "t81/isa/opcodes.hpp"
 
 using namespace t81::axion;
 using namespace t81::tisc;

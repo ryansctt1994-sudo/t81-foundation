@@ -3,7 +3,7 @@
 #include "t81/frontend/ir_generator.hpp"
 #include "t81/frontend/lexer.hpp"
 #include "t81/frontend/parser.hpp"
-#include "t81/tisc/binary_emitter.hpp"
+#include "t81/isa/binary_emitter.hpp"
 #include "t81/vm/vm.hpp"
 #include "test_runtime_check.hpp"
 

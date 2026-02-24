@@ -10,7 +10,7 @@ This document provides a rigorous trace of every "Verified" determinism surface 
 
 | Surface | Spec Ref | Code Ref | Test Ref | CI Job | Freeze Scope | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **TISC Opcode Semantics** | `spec/tisc-spec.md` | `src/vm/`, `src/tisc/` | `tests/cpp/vm_determinism_property_test.cpp`<br>`tests/cpp/test_tritwise_backend_equivalence.cpp` | `ci.yml` | TISC ISA | **Verified** |
+| **TISC Opcode Semantics** | `spec/tisc-spec.md` | `src/vm/`, `core/isa/` | `tests/cpp/vm_determinism_property_test.cpp`<br>`tests/cpp/test_tritwise_backend_equivalence.cpp` | `ci.yml` | TISC ISA | **Verified** |
 | **VM Interpreter Execution** | `spec/t81vm-spec.md` | `src/vm/` | `tests/cpp/vm_trace_test.cpp`<br>`tests/cpp/vm_determinism_property_test.cpp` | `ci.yml` | TISC ISA<br>Determinism Guarantees | **Verified** |
 | **Data Type Canonical Encoding** | `spec/t81-data-types.md` | `src/data_types/` | `tests/cpp/v1_canonical_numeric_contract_test.cpp`<br>`tests/cpp/tisc_binary_io_determinism_test.cpp` | `ci.yml` | Data Types | **Verified** |
 | **Soft-Float Deterministic Math** | `spec/t81-data-types.md` | `src/data_types/` | `tests/cpp/test_T81Float_arithmetic.cpp`<br>`tests/cpp/test_T81Float_rounding.cpp` | `ci.yml` | Determinism Guarantees | **Verified** |

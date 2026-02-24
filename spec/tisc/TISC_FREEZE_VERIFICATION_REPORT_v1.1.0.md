@@ -12,7 +12,7 @@ Confirm the ISA freeze is internally consistent across specifications, implement
 | Check | Result | Evidence |
 | :--- | :--- | :--- |
 | **Canonical Opcodes = 174** | **PASS** | `spec/tisc/opcode-registry.md` lists opcodes 0 through 173. |
-| **No Duplicate Values** | **PASS** | `spec/tisc/opcode-registry.md` and `include/t81/tisc/opcodes.hpp` show unique assignments. |
+| **No Duplicate Values** | **PASS** | `spec/tisc/opcode-registry.md` and `include/t81/isa/opcodes.hpp` show unique assignments. |
 | **Contiguous Range** | **PASS** | Range 0–173 is fully occupied. |
 | **Reserved Range** | **PASS** | Opcodes 174 (0xAE) through 255 (0xFF) are reserved. |
 
@@ -52,7 +52,7 @@ The following opcodes are confirmed as functional stubs or placeholders in `src/
 
 ## 7. Findings & Remediation
 
-*   **Toolchain Gap**: The `PrettyPrinter` and `BinaryEmitter` in `src/tisc/` do not yet support the new bitwise opcodes. This is documented in the Toolchain Sync Audit (Workstream 5).
+*   **Toolchain Gap**: The `PrettyPrinter` and `BinaryEmitter` in `core/isa/` do not yet support the new bitwise opcodes. This is documented in the Toolchain Sync Audit (Workstream 5).
 *   **Recommendation**: Proceed with freeze lock-in; schedule toolchain update as immediate follow-up.
 
 ## 8. Conclusion

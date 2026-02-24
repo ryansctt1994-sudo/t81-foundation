@@ -9,7 +9,7 @@ This guide covers new low-level helpers used to harden determinism and safety ch
 
 ## TISC Opcode Contract Helpers
 
-Header: `include/t81/tisc/opcodes.hpp`
+Header: `include/t81/isa/opcodes.hpp`
 
 Added helpers:
 
@@ -23,7 +23,7 @@ Typical use cases:
 - Centralized decode validation.
 - Stable opcode name rendering in logs and tooling.
 
-`src/tisc/encoding.cpp` now uses `is_valid_opcode(...)` so decode acceptance tracks the full enum range through `MetaRefine`.
+`core/isa/encoding.cpp` now uses `is_valid_opcode(...)` so decode acceptance tracks the full enum range through `MetaRefine`.
 
 ## VM Safety Counters
 

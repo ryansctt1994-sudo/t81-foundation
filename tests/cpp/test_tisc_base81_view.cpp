@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
-#include "t81/tisc/base81_view.hpp"
+#include "t81/isa/base81_view.hpp"
 
 using namespace t81::tisc;
 
