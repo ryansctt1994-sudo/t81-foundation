@@ -38,43 +38,43 @@ graph TD
 
 ### Data Types
 *   **Responsibility**: Core ternary data representation (`Trit`, `Tryte`) and base-81 arithmetic.
-*   **Spec**: [t81-data-types.md](../spec/t81-data-types.md)
+*   **Spec**: [t81-data-types.md](../../spec/t81-data-types.md)
 *   **Code**: `src/data_types`
 *   **Status**: **Implemented** (Frozen)
 
 ### TISC ISA
 *   **Responsibility**: The Ternary Instruction Set Computer architecture. Defines the opcodes and register file.
-*   **Spec**: [tisc-spec.md](../spec/tisc-spec.md)
+*   **Spec**: [tisc-spec.md](../../spec/tisc-spec.md)
 *   **Code**: `src/tisc`, `src/vm`
 *   **Status**: **Implemented** (Frozen)
 
 ### T81VM
 *   **Responsibility**: The virtual machine runtime for executing TISC bytecode. Handles dispatch, memory, and IO.
-*   **Spec**: [t81vm-spec.md](../spec/t81vm-spec.md)
+*   **Spec**: [t81vm-spec.md](../../spec/t81vm-spec.md)
 *   **Code**: `src/vm`
 *   **Status**: **Partial** (Beta)
 
 ### T81Lang
 *   **Responsibility**: The high-level language compiler and standard library.
-*   **Spec**: [t81lang-spec.md](../spec/t81lang-spec.md)
+*   **Spec**: [t81lang-spec.md](../../spec/t81lang-spec.md)
 *   **Code**: `src/lang`
 *   **Status**: **Stubbed** (Experimental)
 
 ### Axion Kernel
 *   **Responsibility**: Safety, policy enforcement, and resource management kernel.
-*   **Spec**: [axion-kernel.md](../spec/axion-kernel.md)
+*   **Spec**: [axion-kernel.md](../../spec/axion-kernel.md)
 *   **Code**: `src/axion`
 *   **Status**: **Partial** (Alpha)
 
 ### Cognitive Tiers
 *   **Responsibility**: Recursive execution models for scaling intelligence.
-*   **Spec**: [cognitive-tiers.md](../spec/cognitive-tiers.md)
+*   **Spec**: [cognitive-tiers.md](../../spec/cognitive-tiers.md)
 *   **Code**: `src/tiers`
 *   **Status**: **Stubbed** (Concept)
 
 ### Hanoi VM
 *   **Responsibility**: High-level virtual machine layer for recursive operations.
-*   **Spec**: [hanoi-kernel-spec.md](../spec/hanoi-kernel-spec.md)
+*   **Spec**: [hanoi-kernel-spec.md](../../spec/hanoi-kernel-spec.md)
 *   **Code**: `src/hanoi`
 *   **Status**: **Concept**
 
