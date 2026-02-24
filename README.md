@@ -92,7 +92,7 @@ Breaking these boundaries requires a MAJOR version bump and formal change record
 
 Determinism guarantees apply to **verified surfaces only**, as documented in `docs/architecture/OVERVIEW.md`.
 
-Breaking determinism on a verified surface is treated as a critical defect.
+Breaking determinism on a verified surface is treated as a critical defect and must not be merged unresolved.
 
 ### Non-Goals
 
