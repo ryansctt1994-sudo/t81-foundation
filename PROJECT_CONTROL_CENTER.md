@@ -10,13 +10,8 @@
 
 ## 2. Metrics Dashboard
 
-| Metric | Value | Status | Target |
-| :--- | :--- | :--- | :--- |
-| **Spec Coverage** | 40% | 🟡 | 80% |
-| **Impl Coverage** | 60% | 🟢 | 90% |
-| **Doc Freshness** | Low | 🔴 | High |
-| **Determinism** | Verified | 🟢 | 100% |
-| **CI Pass Rate** | 95% | 🟢 | 99% |
+Governance Metrics:
+See CI artifact: `governance-metrics.json`
 
 ## 3. Active Gates & Risks
 
