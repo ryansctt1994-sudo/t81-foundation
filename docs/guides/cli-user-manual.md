@@ -33,7 +33,7 @@ t81 compile [options] <source>.t81 -o <output>.tisc
 
 Key options:
 
-- `-P policy/<name>.axion`: embed an Axion policy (see `policy/guards.axion`).
+- `-P docs/governance/archive/policy/<name>.axion`: embed an Axion policy (see `docs/governance/archive/policy/guards.axion`).
 - `--verbose`: prints loop/match metadata, guard events, and Axion trace strings (useful for auditors).
 - `--trace-match`: records match metadata even for structural matches that normally skip logging.
 - `--include <dir>`: add include paths for `import` statements.
@@ -74,7 +74,7 @@ t81 lint <source>.t81
 Launch the interactive prompt:
 
 ```
-t81 repl [--policy policy/axion-pkg.axion]
+t81 repl [--policy docs/governance/archive/policy/axion-pkg.axion]
 ```
 
 At the REPL, after executing guard-heavy code, type `:trace` to dump the current `State::axion_log`. This command prints the same `verdict.reason` strings seen during compilation and regression runs, proving the runtime and Axion trace infrastructure agree.
@@ -88,7 +88,7 @@ The CLI exposes two helper targets:
 - `axion_policy_trace` (built via `cmake --build build --target axion_policy_trace`): runs a program that touches stack, heap, tensor, and meta segments while emitting Axion events. Look for lines such as `opcode=22 reason="AxRead guard segment=stack addr=5"`.
 - `axion_policy_runner` (see `examples/axion_policy_runner.cpp`): enforces `(require-match-guard ...)` and `(require-segment-event ...)` clauses while printing `build/artifacts/axion_policy_runner.log`. Use `scripts/capture-axion-trace.sh` to rerun it and capture the deterministic artifact mentioned in section 6 of `docs/guides/axion-trace.md`.
 
-When compiling with `-P policy/guards.axion`, the CLI output matches RFC-0009/0013/0019 expectations. Pair this with `--verbose` to confirm the guard strings before Axion policy enforcement occurs.
+When compiling with `-P docs/governance/archive/policy/guards.axion`, the CLI output matches RFC-0009/0013/0019 expectations. Pair this with `--verbose` to confirm the guard strings before Axion policy enforcement occurs.
 
 ## 5. Debugging & automation
 
@@ -108,7 +108,7 @@ Include the following in release notes to preserve canonical log snippets:
 
 1. `./scripts/capture-axion-trace.sh` (produces `build/artifacts/axion_policy_runner.log` with policy strings).
 2. `ctest --test-dir build -R axion_segment_trace_test --output-on-failure` snippet (records `bounds fault …` and segment `verdict.reason` strings).
-3. `t81 compile --verbose match_guard.t81 -P policy/guards.axion` transcript (records guard trace strings such as `enum=Option …`).
+3. `t81 compile --verbose match_guard.t81 -P docs/governance/archive/policy/guards.axion` transcript (records guard trace strings such as `enum=Option …`).
 
 These samples ensure auditors can audit Axion traces without reading the VM code or rerunning the entire suite.
 

@@ -19,7 +19,7 @@
 | `logs/` | Generated Artifact | Medium (Should not be in repo) | Add to .gitignore |
 | `notebooks/` | Experimental | Low | No |
 | `pdf/` | Generated Artifact | Low | No |
-| `policy/` | Governance | Medium | Merge into docs/governance |
+| `docs/governance/archive/policy/` | Governance | Medium | Merge into docs/governance |
 | `scripts/` | Canonical Source | Medium (CI/Build) | No |
 | `spec/` | Canonical Specification | High (Source of Truth) | No |
 | `src/` | Canonical Source | High (Core Impl) | No |
@@ -38,7 +38,7 @@
 | `CODEOWNERS` | Governance | High | No |
 | `CODE_OF_CONDUCT.md` | Governance | Medium | Move to docs/governance? |
 | `CONTRIBUTING.md` | Governance | Medium | Move to docs/governance? |
-| `HANOIVM_OPCODE_REFERENCE.md` | Canonical Documentation | Low | Move to docs/spec |
+| `docs/spec/vm/opcode_reference.md` | Canonical Documentation | Low | Move to docs/spec |
 | `LICENSE` | Legal | High | No |
 | `README.es.md` | Canonical Documentation | Medium (Translation) | Apply Policy |
 | `README.md` | Canonical Documentation | High (Entry Point) | Keep |

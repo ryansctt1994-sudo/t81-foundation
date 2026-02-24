@@ -15579,9 +15579,8 @@ pdf/metadata.yaml
 pdf/output
 pdf/output/test.md
 pdf/template.tex
-policy
-policy/guards.axion
-policy/tier4_alignment.axion
+docs/governance/archive/policy/guards.axion
+docs/governance/archive/policy/tier4_alignment.axion
 pyproject.toml
 scripts
 scripts/capture-axion-trace.sh
