@@ -6,6 +6,11 @@
 
 This document defines the strict enforcement rules for "Frozen" subsystems within the T81 Foundation codebase. It translates the high-level governance model into concrete versioning rules and break procedures.
 
+**Related Governance:**
+*   `docs/spec/DETERMINISTIC_CORE_PROFILE_v1.md` (What is frozen)
+*   `docs/governance/SPEC_DRIFT_POLICY.md` (Code/Spec divergence)
+*   `docs/status/VERIFIED_SURFACE_AUDIT.md` (Verification status)
+
 ---
 
 ## 1. Freeze Boundaries

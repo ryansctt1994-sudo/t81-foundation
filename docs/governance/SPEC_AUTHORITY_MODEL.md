@@ -33,35 +33,13 @@ The T81 documentation ecosystem is stratified by authority. In the event of a co
 
 ## 3. Freeze Boundaries
 
-## 3. Freeze Boundaries
+Freeze boundaries are defined exclusively in `FREEZE_ENFORCEMENT.md` and itemized in the **Deterministic Core Profile**.
 
-Freeze boundaries are defined exclusively in `FREEZE_ENFORCEMENT.md`.
+*   **Enforcement**: `docs/governance/FREEZE_ENFORCEMENT.md`
+*   **Profile**: `docs/spec/DETERMINISTIC_CORE_PROFILE_v1.md`
+*   **Audit**: `docs/status/VERIFIED_SURFACE_AUDIT.md`
 
-This document establishes authority hierarchy.
-`FREEZE_ENFORCEMENT.md` defines versioning discipline and break procedures.
-
-Certain subsystems are designated as **Frozen**. Changes to these areas are restricted to preserve stability and determinism.
-
-### A. Data Types
-*   **Scope**: `src/data_types/` and `spec/t81-data-types.md`.
-*   **State**: **Frozen**.
-*   **Guarantee**: Bit-exact binary representation for `Trit`, `Tryte`, and `T81Float`.
-
-### B. TISC ISA
-*   **Scope**: `src/tisc/`, `src/vm/` (dispatch loop), and `spec/tisc-spec.md`.
-*   **State**: **Frozen**.
-*   **Guarantee**: Opcode values and execution semantics are immutable for a given major version.
-
-### C. Determinism Guarantees
-*   **Scope**: Execution traces, floating-point math (`dmath`), and serialization.
-*   **State**: **Frozen**.
-*   **Guarantee**: Bit-exact reproducibility across x86-64 and ARM64 (Linux/macOS).
-*   **Audit**: See `docs/status/VERIFIED_SURFACE_AUDIT.md`.
-
-### D. Public API Surface
-*   **Scope**: `include/t81/` headers.
-*   **State**: **Versioning**.
-*   **Guarantee**: Semantic Versioning (SemVer) compliance.
+Changes to "Frozen" subsystems (as defined in the Core Profile) are restricted to preserve stability and determinism.
 
 ---
 
