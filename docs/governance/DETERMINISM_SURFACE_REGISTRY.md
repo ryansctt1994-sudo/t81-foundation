@@ -18,7 +18,7 @@ Reference:
 
 A determinism surface is:
 
-> A subsystem boundary for which identical input and configuration must produce bit-identical output across supported architectures.
+> A subsystem boundary for which identical input and configuration must produce bit-identical output across supported architectures. “Supported architectures” are defined by the platforms listed in the root README under Compatibility for the current major version.
 
 Clarify:
 
