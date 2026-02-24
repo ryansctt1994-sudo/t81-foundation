@@ -66,5 +66,5 @@ Regressions such as `axion_segment_trace_test` and `vm_memory_test` assert those
 When packaging a release, include:  
 1. The Axion log (`build/artifacts/axion_policy_runner.log`, `axion_policy_trace` output).  
 2. The `ctest -R axion_segment_trace_test` snippet showing segment and bounds fault strings.  
-3. The `t81 compile --verbose` transcript verifying guard strings exist (matches `policy/guards.axion`).  
+3. The `t81 compile --verbose` transcript verifying guard strings exist (matches `docs/governance/archive/policy/guards.axion`).
 These artifacts complement the manuals already referenced in `docs/guides/cli-user-manual.md`, `axion-trace` references, and the policy manual.

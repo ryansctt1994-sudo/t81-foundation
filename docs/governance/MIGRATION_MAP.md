@@ -7,7 +7,7 @@ This document outlines the planned movement of files and directories to achieve 
 | `/benchmarks/` | `/benchmarks/` | Retain, but strictly for harness code. |
 | `/benchmark_*.txt` | `/benchmarks/results/archive/` | Move raw artifacts out of root. |
 | `/dummy.*` | `(Delete or Ignore)` | Generated artifacts should not be committed. |
-| `/policy/` | `/docs/governance/archive/` | Consolidate governance docs. |
+| `/policy/` | `/docs/governance/archive/policy/` | Consolidate governance docs. |
 | `/HANOIVM_OPCODE_REFERENCE.md` | `/docs/spec/vm/opcode_reference.md` | Canonical spec location. |
 | `/README.*.md` | `/book/book-*/README.md` | (Optional) Can stay at root if policy allows, but preferably mirrored. |
 | `/CODE_OF_CONDUCT.md` | `/docs/governance/CODE_OF_CONDUCT.md` | Centralize governance. |

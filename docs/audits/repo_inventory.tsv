@@ -467,8 +467,8 @@ pdf/build.sh	pdf_asset	reference/marketing	optional	Aspirational/reference docs
 pdf/metadata.yaml	pdf_asset	reference/marketing	optional	Aspirational/reference docs
 pdf/output/test.md	pdf_asset	reference/marketing	optional	Aspirational/reference docs
 pdf/template.tex	pdf_asset	reference/marketing	optional	Aspirational/reference docs
-policy/guards.axion	misc	support	optional	
-policy/tier4_alignment.axion	misc	support	optional	
+docs/governance/archive/policy/guards.axion	misc	support	optional
+docs/governance/archive/policy/tier4_alignment.axion	misc	support	optional
 pyproject.toml	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
 scripts/capture-axion-trace.sh	tooling_script	automation	essential	Build/test/repro tooling
 scripts/check-runtime-contract-sync.py	tooling_script	automation	essential	Build/test/repro tooling

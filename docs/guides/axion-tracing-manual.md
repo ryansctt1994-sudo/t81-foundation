@@ -47,7 +47,7 @@ enum payload enum=Option variant=Some payload=i32
 ### 3.1 Compile-time tracing
 
 ```
-t81 compile --verbose match_guard.t81 -P policy/guards.axion
+t81 compile --verbose match_guard.t81 -P docs/governance/archive/policy/guards.axion
 ```
 
 The CLI prints each trace string before running the policy, so you can verify the emitted `enum=Option variant=Some match=pass guard=pass payload=i32` line matches the canonical string in RFC-0019.

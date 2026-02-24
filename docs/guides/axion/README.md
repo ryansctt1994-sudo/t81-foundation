@@ -9,7 +9,7 @@ This folder gathers every Axion-focused reference that lives under [`docs/guides
 
 ## How to read them
 - Start with [`axion-trace.md`](axion-trace.md) when you need to interpret a log emitted by any `t81` command (`run`, `compile`, `weights import`, etc.).
-- Use [`axion-policy-manual.md`](axion-policy-manual.md) when you edit or audit policy files (`policy/*.axion`). Pair it with [`policy/README`](../../policy/README) and [`spec/axion-kernel.md`](../../spec/axion-kernel.md) for normative semantics.
+- Use [`axion-policy-manual.md`](axion-policy-manual.md) when you edit or audit policy files (`docs/governance/archive/policy/*.axion`). Pair it with [`policy/README`](../../governance/archive/policy/README) and [`spec/axion-kernel.md`](../../spec/axion-kernel.md) for normative semantics.
 - Refer to [`axion-tracing-manual.md`](axion-tracing-manual.md) and [`runtime-observability-manual.md`](runtime-observability-manual.md) before running long trace captures; they remind you to keep Axion logs (`build/artifacts/*axion*.log`) alongside the artifacts you ship.
 
 ## Keeping it tidy

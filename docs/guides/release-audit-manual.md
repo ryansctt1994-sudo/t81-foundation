@@ -8,7 +8,7 @@ Each release (CI run, patch release, or proof submission) should publish:
 
 1. **Binary & policy artifacts**
    - `build/t81` and helper targets (`axion_policy_runner`, `axion_policy_trace`) built from `cmake --build build --parallel`.
-   - `policy/guards.axion` (or your custom policy) stored alongside the release so policy tests can be rerun.
+   - `docs/governance/archive/policy/guards.axion` (or your custom policy) stored alongside the release so policy tests can be rerun.
 2. **Axion logs**
    - Run `./scripts/capture-axion-trace.sh` (or `build/axion_policy_runner` directly) to produce `build/artifacts/axion_policy_runner.log`.
    - Ensure `canonfs_axion_trace_test` executes inside the script so `build/artifacts/canonfs_axion_trace.log` captures the persistent meta slot strings before persisted writes; include that file with other Axion logs in the release bundle.
@@ -17,7 +17,7 @@ Each release (CI run, patch release, or proof submission) should publish:
    - Capture the `ctest --test-dir build -R axion_segment_trace_test --output-on-failure` block (includes `bounds fault ...` strings).
    - Include the `axion_policy_match_guard_test`/`axion_policy_segment_event_test` pass logs so reviewers know the guard/segment requirements were satisfied.
 4. **CLI transcripts**
-   - Save `t81 compile --verbose match_guard.t81 -P policy/guards.axion` output showing the guard/segment `verdict.reason` lines.
+   - Save `t81 compile --verbose match_guard.t81 -P docs/governance/archive/policy/guards.axion` output showing the guard/segment `verdict.reason` lines.
    - Record the `t81 repl :trace` output if the release needs REPL verification.
 
 ## 2. Automated capture scripts
@@ -44,12 +44,12 @@ Reference the RFCs (RFC-0009, RFC-0020, RFC-0019) and manuals in the release not
 1. Download the release artifacts and rerun `cmake --build build --parallel` (optional).  
 2. Reexecute `./scripts/capture-axion-trace.sh` and compare the produced log with the archived `axion_policy_runner.log`. They should match line-for-line in terms of `verdict.reason` strings.  
 3. Rerun the `axion_policy_*` tests (`ctest --test-dir build -R axion_policy_match_guard_test`) and ensure they pass; failure indicates policy strings changed.  
-4. Confirm the release note references `policy/guards.axion`, RFC-0009/0020/0019, and the manuals so future reviewers understand what each artifact guarantees.
+4. Confirm the release note references `docs/governance/archive/policy/guards.axion`, RFC-0009/0020/0019, and the manuals so future reviewers understand what each artifact guarantees.
 
 ## 5. CanonFS & Axion policy runner
 
 - CanonFS writes occur through `AXSET`, meaning Axion can validate metadata before writing; include the corresponding trace strings (`meta slot axion event segment=meta`, `loop hint ...`) in your release artifacts.  
-- The policy runner and CLI `t81 compile --verbose` outputs should align (use `policy/guards.axion` or your policy file) so auditors can verify `require-match-guard`/`require-segment-event` constraints without delving into the VM code.
+- The policy runner and CLI `t81 compile --verbose` outputs should align (use `docs/governance/archive/policy/guards.axion` or your policy file) so auditors can verify `require-match-guard`/`require-segment-event` constraints without delving into the VM code.
 
 ## 6. Cross-reference matrix
 
@@ -62,7 +62,7 @@ Reference the RFCs (RFC-0009, RFC-0020, RFC-0019) and manuals in the release not
 | `canonfs_axion_trace_test` | Runs against the persistent CanonFS driver, proving `meta slot axion event segment=meta ... action=Write/Read` strings fire before disk writes | RFC-0020 |
 | `t81 compile --verbose` transcript | Guard metadata and match payload strings | RFC-0019 |
 | `State::axion_log` from REPL `:trace` | Runtime trace accessible from CLI | docs/guides/runtime-observability-manual.md |
-| `policy/guards.axion` | Source policy showing requirements | docs/guides/axion-policy-manual.md |
+| `docs/governance/archive/policy/guards.axion` | Source policy showing requirements | docs/guides/axion-policy-manual.md |
 | `axion_policy_gc_trace_test` | Validates GC trace string `interval stack_frames=...` via `(require-axion-event ...)` | RFC-0009, RFC-0020 |
 
 Include this matrix in release artifacts or append it to release notes to help auditors cross-check each entry quickly.

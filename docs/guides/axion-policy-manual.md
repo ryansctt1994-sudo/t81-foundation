@@ -1,6 +1,6 @@
 # Axion Policy Authoring Manual
 
-This guide covers how to write, embed, and debug Axion Policy Language (APL) policies so your programs stay compliant with **RFC-0009**, **RFC-0020**, and **RFC-0019**. It explains each `require-*` predicate, shows diagnostics from policy regressions, and links to the provided sample files such as `policy/guards.axion`.
+This guide covers how to write, embed, and debug Axion Policy Language (APL) policies so your programs stay compliant with **RFC-0009**, **RFC-0020**, and **RFC-0019**. It explains each `require-*` predicate, shows diagnostics from policy regressions, and links to the provided sample files such as `docs/governance/archive/policy/guards.axion`.
 
 ## 1. APL policy anatomy
 
@@ -27,7 +27,7 @@ Include other clauses like `max-stack`, `allow-opcode`, `deny-shape`, and `requi
 
 ## 2. Sample policy files
 
-Use the shipped `policy/guards.axion` to begin. Its contents mirror the regressions:
+Use the shipped `docs/governance/archive/policy/guards.axion` to begin. Its contents mirror the regressions:
 
 ```
 (policy
@@ -45,7 +45,7 @@ Use the shipped `policy/guards.axion` to begin. Its contents mirror the regressi
     (action "AxRead guard")))
 ```
 
-It demands the guard string `enum=Option variant=Some match=pass guard=pass payload=i32` and the segment strings recorded by RFC-0020 (`stack frame allocated` and `AxRead guard`). Embed this policy via `-P policy/guards.axion` during `t81 compile` or run `axion_policy_runner` directly; the policy engine will automatically reject the program if the strings are missing.
+It demands the guard string `enum=Option variant=Some match=pass guard=pass payload=i32` and the segment strings recorded by RFC-0020 (`stack frame allocated` and `AxRead guard`). Embed this policy via `-P docs/governance/archive/policy/guards.axion` during `t81 compile` or run `axion_policy_runner` directly; the policy engine will automatically reject the program if the strings are missing.
 
 ### 2.1 `require-axion-event` for GC/trace verification
 
@@ -96,7 +96,7 @@ This clause performs a substring match on each `AxionEvent.verdict.reason`; it l
 ### 3.1 `t81 compile`
 
 ```
-t81 compile --verbose --axion-policy policy/guards.axion match_guard.t81 -o match_guard.tisc
+t81 compile --verbose --axion-policy docs/governance/archive/policy/guards.axion match_guard.t81 -o match_guard.tisc
 ```
 
 The CLI prints the `verdict.reason` strings before Axion enforces the policy, making it easy to verify the emitted strings match the policy clauses. Use `--axion-policy-text` to inline the s-expression if you prefer not to have a file.

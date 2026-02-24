@@ -145,17 +145,17 @@ before the program halts. `axion_policy_runner` and
 reuse the same commands locally:
 
 ```
-$ t81 compile --verbose match_guard.t81 -P policy/guards.axion
+$ t81 compile --verbose match_guard.t81 -P docs/governance/archive/policy/guards.axion
 verdict.reason="enum=Option variant=Some match=pass guard=pass payload=i32"
 verdict.reason="stack frame allocated stack addr=243 size=16"
 ```
 
-The `policy/guards.axion` snippet should include the `(require-match-guard ...)`
+The `docs/governance/archive/policy/guards.axion` snippet should include the `(require-match-guard ...)`
 and `(require-segment-event ...)` s-expressions from `[RFC-0009](../../spec/rfcs/RFC-0009-axion-policy-language.md)` so the CLI output matches the strings recorded by the regressions and the CanonFS audit logs.
 
 ### 3.3 Reference policy file
 
-Use the bundled `policy/guards.axion` to reproduce the CLI sample without
+Use the bundled `docs/governance/archive/policy/guards.axion` to reproduce the CLI sample without
 manually typing policy clauses. The file mirrors the regression requirements:
 
 ```
@@ -175,7 +175,7 @@ manually typing policy clauses. The file mirrors the regression requirements:
 )
 ```
 
-Running `t81 compile --verbose match_guard.t81 -P policy/guards.axion` or
+Running `t81 compile --verbose match_guard.t81 -P docs/governance/archive/policy/guards.axion` or
 `axion_policy_runner` produces the same `enum guard` / `segment trace` strings
 that RFC-0009 and RFC-0020 mandate. Auditors can inspect this file to confirm
 the CLI output matches the trace snippets collected by the regressions.
@@ -263,7 +263,7 @@ strings to match against the `require-segment-event` predicates.
 CI pipelines should run `scripts/capture-axion-trace.sh` after building to
 ensure `build/artifacts/axion_policy_runner.log` contains the canonical Axion
 trace covering both `require-match-guard` and `require-segment-event`
-strings. Because `axion_policy_runner` runs with `policy/guards.axion`, the log
+strings. Because `axion_policy_runner` runs with `docs/governance/archive/policy/guards.axion`, the log
 now records the same guard-heavy `verdict.reason` strings (`enum=Option ...`,
 `stack frame allocated ...`, `AxRead guard ...`) that RFC-0009/RFC-0020 expect.
 Archive that log alongside the `ctest` output so auditors can compare the
@@ -286,7 +286,7 @@ can replay the canonical `verdict.reason` strings without reading the VM code:
    into the release bundle or CI artifact store alongside the `ctest` logs.
 2. Store the `ctest --test-dir build -R axion_segment_trace_test --output-on-failure`
    block (prints the bounds/segment `verdict.reason` snippet) in the same artifact so segment coverage can be audited.
-3. Include the CLI sample (`t81 compile --verbose ... -P policy/guards.axion`) transcript and the guard-heavy `match_guard.t81` source so reviewers can reproduce the `enum=Option ...` strings without rebuilding the VM.
+3. Include the CLI sample (`t81 compile --verbose ... -P docs/governance/archive/policy/guards.axion`) transcript and the guard-heavy `match_guard.t81` source so reviewers can reproduce the `enum=Option ...` strings without rebuilding the VM.
 
 Together these extracts document every guard, segment, and policy trace string that RFC-0009/0013/0019 cite, delivering a deterministic artifact that auditors can inspect before diving into the codebase.
 ## 4. Copyrighted
