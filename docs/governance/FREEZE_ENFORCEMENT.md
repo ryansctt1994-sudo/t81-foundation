@@ -28,13 +28,14 @@ The following subsystems are designated as **Frozen**. Modifications to these ar
     *   Instruction semantics (state transitions).
     *   Fault conditions and error codes.
 *   **Forbidden:** Renumbering opcodes, changing operand ordering, altering fault behavior.
-*   **Allowed:** Adding *new* opcodes (via extension RFC) if they do not conflict with existing encoding space.
+*   **Allowed:** Adding *new* opcodes (via extension RFC) if they do not conflict with existing encoding space. New opcodes must not alter decoding or semantics of any existing opcode.
 
 ### C. Determinism Guarantees
 *   **Scope:** Execution traces, Floating-point math (`dmath`), Serialization.
 *   **Frozen Surface:**
     *   Bit-exact output across supported architectures (x86-64, ARM64).
     *   Cross-platform consistency of `T81Float` operations.
+    *   "Supported architectures” are those listed in the root README under Supported Platforms for the current major version.
 *   **Forbidden:** Any change that causes a regression in cross-platform reproducibility.
 
 ### D. Public C++ API Surface
