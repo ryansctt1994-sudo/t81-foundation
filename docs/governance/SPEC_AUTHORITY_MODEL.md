@@ -33,6 +33,8 @@ The T81 documentation ecosystem is stratified by authority. In the event of a co
 
 ## 3. Freeze Boundaries
 
+Freeze boundaries are defined in `FREEZE_ENFORCEMENT.md`.
+
 Certain subsystems are designated as **Frozen**. Changes to these areas are restricted to preserve stability and determinism.
 
 ### A. Data Types
