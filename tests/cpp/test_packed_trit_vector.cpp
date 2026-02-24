@@ -464,8 +464,10 @@ void test_neon_explicit() {
 
     // Call NEON kernels
     ComputeTritVector::kernel_not_neon(v1.data().data(), out_not.data(), v1.data().size());
-    ComputeTritVector::kernel_and_neon(v1.data().data(), v2.data().data(), out_and.data(), v1.data().size());
-    ComputeTritVector::kernel_or_neon(v1.data().data(), v2.data().data(), out_or.data(), v1.data().size());
+    ComputeTritVector::kernel_and_neon(v1.data().data(), v2.data().data(), out_and.data(),
+                                       v1.data().size());
+    ComputeTritVector::kernel_or_neon(v1.data().data(), v2.data().data(), out_or.data(),
+                                      v1.data().size());
 
     // Compare with SWAR
     auto not_swar = v1.t_not_swar().value();
