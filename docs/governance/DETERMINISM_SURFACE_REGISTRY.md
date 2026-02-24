@@ -10,10 +10,11 @@ Threat modeling for these surfaces is documented in `DETERMINISM_THREAT_MODEL.md
 
 Reference:
 
-* `docs/architecture/OVERVIEW.md`
-* `docs/governance/FREEZE_ENFORCEMENT.md`
-* `docs/governance/SPEC_AUTHORITY_MODEL.md`
+* `docs/spec/DETERMINISTIC_CORE_PROFILE_v1.md` (Core Definitions)
+* `docs/governance/FREEZE_ENFORCEMENT.md` (Break Protocols)
+* `docs/governance/SPEC_AUTHORITY_MODEL.md` (Hierarchy)
 * `docs/status/VERIFIED_SURFACE_AUDIT.md` (Traceability Audit)
+* `docs/spec/JIT_EQUIVALENCE_PLAN.md` (Future Roadmap)
 
 ---
 

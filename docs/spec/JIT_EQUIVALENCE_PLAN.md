@@ -1,59 +1,70 @@
 # JIT Equivalence Plan
 
-**Status:** Experimental / Planned
-**Category:** Determinism Extension
-**Scope:** T81VM Trace-JIT
+**Status:** **Experimental / Planned**
+**Reference:** `docs/spec/t81vm-spec.md`
+**Objective:** Formalize the criteria for adopting Just-In-Time compilation into the Verified Core.
 
-## 1. Objective
+This document defines the rigorous equivalence requirements that any JIT implementation (e.g., Trace JIT, Method JIT) MUST satisfy before being enabled by default or considered "stable".
 
-To introduce Just-In-Time (JIT) compilation to the T81VM while preserving strict bit-exact determinism. This document defines the formal equivalence contract that the JIT compiler must satisfy to be considered a verified surface.
+## 1. Formal Equivalence Requirement
 
-## 2. Equivalence Definition
+The JIT is considered **equivalent** to the Interpreter if and only if:
 
-The JIT compiler is correct if and only if, for any initial state $S_0$ and input $I$, the state transition sequence produced by the JIT execution is bit-identical to that produced by the reference interpreter.
+For every valid TISC program $P$ and initial state $S_0$:
+$$ Trace(Interpreter(P, S_0)) \equiv Trace(JIT(P, S_0)) $$
 
-$$ \forall S_0, I : \text{Interpreter}(S_0, I) \xrightarrow{n} S_n \iff \text{JIT}(S_0, I) \xrightarrow{n} S_n $$
+Where:
+*   $Trace$ is the sequence of user-visible side effects (memory writes, register updates, faults).
+*   $\equiv$ denotes **bit-exact identity** of all state values.
 
-Where $S_n$ includes:
-*   Register values ($R_0 \dots R_{80}$)
-*   Memory content (Stack, Heap, Tensor, Meta)
-*   Axion trace events
-*   Fault conditions
+**Constraint:** The JIT MUST NOT introduce any observable nondeterminism (e.g., from speculation, optimization reordering, or hardware flags).
 
-## 3. Canonical Trace Hashing Model
+## 2. State Transition Equality
 
-To verify equivalence without comparing entire state dumps at every step, the JIT must emit a **Canonical Trace Hash** that aggregates the execution history.
+A single instruction execution $S_i \to S_{i+1}$ is equivalent if:
+1.  **Register State**: `R[0..80]` are identical.
+2.  **Memory State**: `MEM` contents are identical.
+3.  **Flags**: `FLAGS` register is identical.
+4.  **Faults**: Any fault raised is identical in type and code.
 
-### Mechanism
-1.  **Checkpointing:** At every basic block boundary or Axion event, the JIT updates a running hash of the architectural state.
-    $$ H_{t+1} = \text{Hash}(H_t || \text{Opcode} || \text{Operands} || \text{Result}) $$
-2.  **Verification:** This hash $H_{final}$ is compared against the reference interpreter's hash for the same execution path.
+## 3. Verification Strategy: Hash-Based Equivalence
 
-### Constraints
-*   The hashing mechanism itself must be deterministic and platform-independent.
-*   Float operations in the JIT must match the soft-float behavior of the interpreter exactly.
+To verify equivalence without storing full traces:
 
-## 4. Required Test Expansion
+1.  **Canonical State Hashing**:
+    Define a hash function $H(S)$ that uniquely fingerprints the VM state.
 
-To upgrade the JIT status from "Experimental" to "Verified", the following test coverage is required:
+    $$ H(S_i) = \text{Hash}(R, PC, SP, FLAGS, \text{ModifiedMemory}) $$
 
-1.  **Opcode Exhaustion:** Every TISC opcode compiled by the JIT must be fuzz-tested against the interpreter with random inputs.
-2.  **Edge Cases:**
-    *   Stack overflow/underflow boundaries.
-    *   Self-modifying code attempts (must fault identically).
-    *   Axion instruction interception.
-    *   Floating-point singularities (NaN, Inf handling, if applicable).
-3.  **Cross-Platform Parity:** The JIT must produce identical trace hashes on x86-64 and ARM64.
+2.  **Checkpoint Verification**:
+    At regular intervals (e.g., every basic block or function call), both Interpreter and JIT compute $H(S_i)$.
 
-## 5. Known Risks
+    The JIT is valid if:
+    $$ \forall i, H_{Interp}(S_i) == H_{JIT}(S_i) $$
 
-*   **Host FPU Divergence:** Using native FPU instructions instead of soft-float libraries will break determinism. The JIT must either emit calls to the soft-float library or use SIMD instructions that guarantee bit-exact compliance with `T81Float`.
-*   **Optimization Drift:** Reordering instructions (e.g., dead code elimination, loop unrolling) might alter the sequence of Axion trace events or fault timing.
-    *   *Mitigation:* The JIT is forbidden from optimizing across "Observable Boundaries" (Axion calls, memory IO).
+3.  **Divergence Detection**:
+    If $H_{Interp} \neq H_{JIT}$, the JIT MUST abort and fall back to the interpreter (Deoptimization), or fault if in a strict verification mode.
 
-## 6. Preconditions for "Verified" Status
+## 4. Required Future Tests
 
-The JIT surface will remain **Experimental** until:
-1.  The `JIT(S) == Interpreter(S)` property is formally verified for all implemented opcodes.
-2.  The `repro-ledger.yml` CI workflow includes JIT-enabled runs in the determinism matrix.
-3.  A "JIT Compliance Audit" is successfully completed and signed off by maintainers.
+Before JIT can be marked **Verified**:
+
+1.  **Fuzzing Campaign**:
+    Differential fuzzing between Interpreter and JIT on 1 billion random valid instruction sequences.
+
+2.  **Corner Case Suite**:
+    Explicit tests for:
+    *   Self-modifying code (should be impossible/fault).
+    *   Precise exception handling (faults must occur at exact instruction boundary).
+    *   Floating-point edge cases (NaN payloads, denormals).
+
+3.  **Hardware Diversity**:
+    Verify equivalence on x86-64 (AVX2/AVX512) and ARM64 (NEON).
+
+## 5. Preconditions for Stabilization
+
+The JIT will transition from **Experimental** to **Stable** only when:
+
+1.  Equivalence is formally proven via the Hash-Based strategy in CI.
+2.  No regression in determinism is observed across platforms.
+3.  The performance benefit is >2x (otherwise complexity cost is unjustified).

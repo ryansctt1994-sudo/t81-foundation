@@ -70,43 +70,30 @@ Key directories:
 
 ---
 
-## Compatibility & Determinism Scope
-
-### Guarantees
-
-* **TISC ISA**: Frozen within major versions.
-* **Verified Determinism Surfaces**: Bit-exact behavior where explicitly tested and gated.
-* **Compiler Reproducibility**: Enforced via reproducibility scripts in CI.
-
-Determinism surfaces and their verification status are formally enumerated in
-[DETERMINISM_SURFACE_REGISTRY.md](docs/governance/DETERMINISM_SURFACE_REGISTRY.md).
-
-Determinism threat analysis is documented in
-[DETERMINISM_THREAT_MODEL.md](docs/governance/DETERMINISM_THREAT_MODEL.md).
-
-### Freeze Enforcement
-
-Frozen components (ISA, Data Types, Determinism surfaces) are governed by
-`docs/governance/FREEZE_ENFORCEMENT.md`.
-
-Breaking these boundaries requires a MAJOR version bump and formal change record.
-
-### Clarification
-
-Determinism guarantees apply to **verified surfaces only**, as documented in `docs/architecture/OVERVIEW.md`.
-
-Breaking determinism on a verified surface is treated as a critical defect and must not be merged unresolved.
-
-### Non-Goals
-
-* Sacrificing determinism for hardware-specific fast-math optimizations.
-* Serving as a general-purpose replacement for C++ or Python.
-
 ## Deterministic Core Profile
 
 Reference: [`docs/spec/DETERMINISTIC_CORE_PROFILE_v1.md`](docs/spec/DETERMINISTIC_CORE_PROFILE_v1.md)
 
-The Deterministic Core Profile defines the minimal frozen and verified subset of the system. Experimental components are outside this profile.
+The Deterministic Core Profile defines the minimal frozen and verified subset of the system. Only components explicitly listed in this profile are guaranteed to be bit-exact reproducible.
+
+## Governance & Verification
+
+The project is governed by a strict set of verification and enforcement documents:
+
+*   **[Surface Registry](docs/governance/DETERMINISM_SURFACE_REGISTRY.md)** — Enumerates what is and isn't deterministic.
+*   **[Threat Model](docs/governance/DETERMINISM_THREAT_MODEL.md)** — Analysis of determinism risks and mitigations.
+*   **[Freeze Enforcement](docs/governance/FREEZE_ENFORCEMENT.md)** — Strict versioning and break protocols for frozen surfaces.
+*   **[Spec Authority Model](docs/governance/SPEC_AUTHORITY_MODEL.md)** — Hierarchy of truth (Spec > Docs > Code).
+
+### Clarification
+
+Determinism guarantees apply **only** to surfaces marked "Verified" in the Registry.
+Breaking determinism on a verified surface is treated as a **Critical Defect**.
+
+### Non-Goals
+
+*   Sacrificing determinism for hardware-specific fast-math optimizations.
+*   Serving as a general-purpose replacement for C++ or Python.
 
 ---
 

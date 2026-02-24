@@ -1,42 +1,36 @@
 # Deterministic Core Profile v1
 
-**Version:** 1.0
-**Status:** Frozen / Active
-**Reference:** `docs/governance/FREEZE_ENFORCEMENT.md`
+**Version:** 1.0 (Frozen)
+**Status:** **Active**
+**Reference:** `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`
 
-## 1. Definition
+This document defines the **Minimal Deterministic Core** of the T81 ecosystem.
+Only components explicitly listed here as "Included" are guaranteed to be bit-exact reproducible across supported architectures.
 
-The **Deterministic Core Profile (DCP)** defines the minimal subset of the T81 system that is guaranteed to be bit-exact reproducible across all supported architectures (x86-64, ARM64) and operating systems (Linux, macOS).
+## 1. Core Profile Definition
 
-Components within this profile are subject to strict **Freeze Enforcement**. Components outside this profile are considered "Extended" or "Experimental" and do not carry the same determinism guarantees.
-
-## 2. Core Components
-
-The following table defines the boundaries of the DCP.
+The "Deterministic Core" is the set of subsystems required to execute TISC bytecode with bit-exact state transitions.
 
 | Component | Included | Frozen | Verified | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| **TISC ISA** | Yes | Yes | Yes | Opcode semantics, fault behavior. |
-| **Data Types** | Yes | Yes | Yes | `Trit`, `Tryte`, `T81Float` (soft-float), `T81BigInt`. |
-| **Interpreter** | Yes | Yes | Yes | Standard dispatch loop (`src/vm`). |
-| **Soft-Float** | Yes | Yes | Yes | `dmath` library (no native FPU). |
-| **Canonical Serialization** | Yes | Yes | Yes | Binary format for types and tensors. |
-| **Trace-JIT** | No | No | No | Experimental. See `JIT_EQUIVALENCE_PLAN.md`. |
-| **Cognitive Tiers** | No | No | No | Higher-level AI reasoning (Tiers 1-5). |
-| **Distributed Compute** | No | No | No | Networked execution. |
-| **External Tooling** | No | No | No | `t3k` quantization (Partial), CLI tools. |
-| **Experimental Extensions** | No | No | No | Anything in `src/experimental`. |
+| :--- | :---: | :---: | :---: | :--- |
+| **TISC ISA** | ✅ | ✅ | ✅ | Defined in `spec/tisc-spec.md`. Bit-exact opcodes. |
+| **Data Types** | ✅ | ✅ | ✅ | `Trit`, `Tryte`, `T81BigInt`. Canonical encoding. |
+| **Soft-Float (dmath)** | ✅ | ✅ | ✅ | `T81Float` arithmetic (no hardware FPU). |
+| **Interpreter Execution** | ✅ | ✅ | ✅ | The reference `t81::vm::Interpreter`. |
+| **Canonical Serialization** | ✅ | ✅ | ✅ | `CanonFS` binary format. |
+| **JIT Compiler** | ❌ | ❌ | ❌ | Experimental. No equivalence guarantee yet. |
+| **Cognitive Tiers** | ❌ | ❌ | ❌ | Higher-order logic (Axion/Hanoi) is evolving. |
+| **Distributed Compute** | ❌ | ❌ | ❌ | Network timing/ordering is non-deterministic. |
+| **Model Tooling** | ❌ | ❌ | ⚠️ | Quantization is verified, but tooling is auxiliary. |
+| **Experimental Subsystems** | ❌ | ❌ | ❌ | Anything in `src/experimental/`. |
 
-## 3. Guarantees
+## 2. Invariants
 
-For any component marked **Included**:
+1.  **Bit-Exactness**: All "Included" components MUST produce identical bitstreams for outputs on x86-64 and ARM64.
+2.  **No Hardware Float**: The core MUST NOT use native hardware floating-point instructions for `T81Float` operations.
+3.  **No Native I/O**: The core execution loop MUST be isolated from wall-clock time, network, or random OS events (entropy must be injected).
 
-1.  **Bit-Exactness:** Output must match bit-for-bit on Reference (Zen4) and Apple Silicon (M2).
-2.  **Long-Term Stability:** Semantics will not change within Major Version 1.x.
-3.  **Audit Trail:** Verification is tracked in `docs/status/VERIFIED_SURFACE_AUDIT.md`.
+## 3. Stability Guarantee
 
-## 4. Usage
-
-*   **Compiler Targets:** Compilers targeting T81 should default to the DCP instruction set.
-*   **Verification:** Auditors should focus primarily on the DCP surface.
-*   **Porting:** New platform ports must verify the DCP first using `repro-ledger.yml`.
+The components marked **Frozen** are subject to the strict change control defined in `docs/governance/FREEZE_ENFORCEMENT.md`.
+Any change to their behavior requires a **Major Version Bump**.
