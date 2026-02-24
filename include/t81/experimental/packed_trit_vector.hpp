@@ -448,10 +448,9 @@ public:
 
   Result<bool> t_and_inplace(const ComputeTritVector& other) {
     if (count_ != other.count_) {
-      return Result<bool>::failure(
-          T81Symbol::intern("LENGTH_MISMATCH"),
-          T81String("Vectors must have same length for binary operation"),
-          T81Symbol::intern("ComputeTritVector"));
+      return Result<bool>::failure(T81Symbol::intern("LENGTH_MISMATCH"),
+                                   T81String("Vectors must have same length for binary operation"),
+                                   T81Symbol::intern("ComputeTritVector"));
     }
     kernel_and(data_.data(), other.data_.data(), data_.data(), data_.size());
     if (count_ % 4 != 0 && !data_.empty()) {
@@ -462,10 +461,9 @@ public:
 
   Result<bool> t_or_inplace(const ComputeTritVector& other) {
     if (count_ != other.count_) {
-      return Result<bool>::failure(
-          T81Symbol::intern("LENGTH_MISMATCH"),
-          T81String("Vectors must have same length for binary operation"),
-          T81Symbol::intern("ComputeTritVector"));
+      return Result<bool>::failure(T81Symbol::intern("LENGTH_MISMATCH"),
+                                   T81String("Vectors must have same length for binary operation"),
+                                   T81Symbol::intern("ComputeTritVector"));
     }
     kernel_or(data_.data(), other.data_.data(), data_.data(), data_.size());
     if (count_ % 4 != 0 && !data_.empty()) {
@@ -515,9 +513,7 @@ private:
   ComputeTritVector(std::vector<uint8_t> data, size_t count)
       : data_(std::move(data)), count_(count) {}
 
-  static size_t bytes_for_trits(size_t trit_count) {
-    return (trit_count + 3) / 4;
-  }
+  static size_t bytes_for_trits(size_t trit_count) { return (trit_count + 3) / 4; }
 
   static void mask_trailing(uint8_t& byte, size_t used_trits) {
     size_t used_bits = used_trits * 2;
@@ -632,7 +628,7 @@ private:
   }
 
 #if defined(__aarch64__) && defined(__ARM_NEON)
-  #include <arm_neon.h>
+#include <arm_neon.h>
   static void kernel_not_neon(const uint8_t* src, uint8_t* dst, size_t n) {
     // TODO: Implement NEON kernel
     kernel_not_swar(src, dst, n);

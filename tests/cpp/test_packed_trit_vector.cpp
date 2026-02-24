@@ -360,7 +360,7 @@ void test_inplace_apis() {
 
   // Test t_not_inplace
   {
-    auto v = ComputeTritVector::from_trits(t1_data).value(); // Copy
+    auto v = ComputeTritVector::from_trits(t1_data).value();  // Copy
     assert(v.t_not_inplace().is_ok());
     auto expected = v1.t_not().value();
     assert(check_vec(v.to_trits().value(), expected.to_trits().value()));
@@ -371,7 +371,7 @@ void test_inplace_apis() {
 
   // Test t_and_inplace
   {
-    auto v = ComputeTritVector::from_trits(t1_data).value(); // Copy
+    auto v = ComputeTritVector::from_trits(t1_data).value();  // Copy
     assert(v.t_and_inplace(v2).is_ok());
     auto expected = v1.t_and(v2).value();
     assert(check_vec(v.to_trits().value(), expected.to_trits().value()));
@@ -379,7 +379,7 @@ void test_inplace_apis() {
 
   // Test t_or_inplace
   {
-    auto v = ComputeTritVector::from_trits(t1_data).value(); // Copy
+    auto v = ComputeTritVector::from_trits(t1_data).value();  // Copy
     assert(v.t_or_inplace(v2).is_ok());
     auto expected = v1.t_or(v2).value();
     assert(check_vec(v.to_trits().value(), expected.to_trits().value()));
@@ -389,7 +389,7 @@ void test_inplace_apis() {
   {
     // AND with self -> self
     auto v = ComputeTritVector::from_trits(t1_data).value();
-    assert(v.t_and_inplace(v).is_ok()); // aliasing
+    assert(v.t_and_inplace(v).is_ok());  // aliasing
     assert(check_vec(v.to_trits().value(), v1_orig));
 
     // OR with self -> self

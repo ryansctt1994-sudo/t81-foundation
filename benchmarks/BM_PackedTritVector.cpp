@@ -262,16 +262,15 @@ static void BM_ComputeTAnd_Phase2D_InPlace(benchmark::State& state) {
     // Copy for destructive op? Or just overwrite?
     // In real usage we might overwrite. To benchmark API overhead correctly vs alloc:
     // If we copy inside loop, we measure copy cost + op.
-    // If we don't, we just measure op but data changes. Since AND is idempotent-ish (not really), let's copy to a reusable buffer.
-    // Ideally we want to measure "op cost without allocation".
-    // We can use a temp vector and copy back?
-    // Or just run it. The data changes but validity (-1,0,1) is preserved.
+    // If we don't, we just measure op but data changes. Since AND is idempotent-ish (not really),
+    // let's copy to a reusable buffer. Ideally we want to measure "op cost without allocation". We
+    // can use a temp vector and copy back? Or just run it. The data changes but validity (-1,0,1)
+    // is preserved.
     p1.t_and_inplace(p2);
     benchmark::DoNotOptimize(p1.data().data());
   }
 }
 BENCHMARK(BM_ComputeTAnd_Phase2D_InPlace)->Range(16, 4096);
-
 
 static void BM_ComputeTOr_Phase2C_SWAR(benchmark::State& state) {
   size_t len = state.range(0);
@@ -330,7 +329,6 @@ static void BM_ComputeTOr_Phase2D_InPlace(benchmark::State& state) {
 }
 BENCHMARK(BM_ComputeTOr_Phase2D_InPlace)->Range(16, 4096);
 
-
 // Phase 2C: TXor remains LUT
 static void BM_ComputeTXor_Phase2C(benchmark::State& state) {
   size_t len = state.range(0);
@@ -345,7 +343,7 @@ static void BM_ComputeTXor_Phase2C(benchmark::State& state) {
   auto p2 = ComputeTritVector::from_trits(t2).value();
 
   for (auto _ : state) {
-    auto res = p1.t_xor(p2).value(); // Fallback
+    auto res = p1.t_xor(p2).value();  // Fallback
     benchmark::DoNotOptimize(res.data().data());
   }
 }
