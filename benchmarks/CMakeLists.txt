@@ -36,6 +36,8 @@ set(BENCHMARK_SUITE_SOURCES
     BM_Lexer.cpp
     BM_PackedTritVector.cpp
     BM_TritwiseWorkloads.cpp
+    BM_DispatchOverhead.cpp
+    BM_VMSimulation.cpp
 )
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
     list(APPEND BENCHMARK_SUITE_SOURCES BM_Base81SIMD.cpp)
