@@ -234,6 +234,8 @@ T81 defines determinism as:
 
 > For a given source input and configuration, emitted TISC bytecode and verified execution traces must be bit-identical across supported platforms.
 
+See `../governance/DETERMINISM_SURFACE_REGISTRY.md` for formal surface enumeration.
+
 ### Determinism Surfaces
 
 | Surface                         | Guarantee                 | Status       | Evidence                                |
