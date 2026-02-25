@@ -195,6 +195,7 @@ determinism claim scope.
 2. Publish section-level semantic coverage index tied to section 2/5 rule
    anchors and existing test assets. Completed (A1B-CODE-02, 2026-02-25).
 3. Refresh matrix/audit notes after follow-on evidence updates are applied.
+   Completed (A1B-CODE-03, 2026-02-25).
 
 ## Risks and Controls
 
