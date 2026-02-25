@@ -79,9 +79,9 @@ Key directories:
 
 ## Deterministic Core Profile
 
-Reference: [`docs/spec/DETERMINISTIC_CORE_PROFILE_v1.md`](docs/spec/DETERMINISTIC_CORE_PROFILE_v1.md)
+Reference: [`docs/product/DETERMINISTIC_CORE_PROFILE.md`](docs/product/DETERMINISTIC_CORE_PROFILE.md)
 
-The Deterministic Core Profile defines the minimal frozen and verified subset of the system. Only components explicitly listed in this profile are guaranteed to be bit-exact reproducible.
+T81 is the full platform. The Deterministic Core Profile (DCP) is the stable certified subset with versioned reproducibility guarantees. Only DCP-listed surfaces are guaranteed bit-exact.
 
 ## Governance & Verification
 
