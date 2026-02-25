@@ -371,11 +371,24 @@ std::vector<t81::tisc::EnumMetadata> collect_enum_metadata(
     const t81::frontend::SemanticAnalyzer& analyzer) {
   std::vector<t81::tisc::EnumMetadata> enums;
   const auto& definitions = analyzer.enum_definitions();
-  enums.reserve(definitions.size());
+  std::vector<std::pair<std::string, const t81::frontend::EnumInfo*>> ordered_definitions;
+  ordered_definitions.reserve(definitions.size());
   for (const auto& [name, info] : definitions) {
-    if (info.id < 0) {
-      continue;
+    if (info.id >= 0) {
+      ordered_definitions.emplace_back(name, &info);
     }
+  }
+  std::sort(ordered_definitions.begin(), ordered_definitions.end(),
+            [](const auto& lhs, const auto& rhs) {
+              if (lhs.second->id != rhs.second->id) {
+                return lhs.second->id < rhs.second->id;
+              }
+              return lhs.first < rhs.first;
+            });
+
+  enums.reserve(ordered_definitions.size());
+  for (const auto& [name, info_ptr] : ordered_definitions) {
+    const auto& info = *info_ptr;
     t81::tisc::EnumMetadata entry;
     entry.enum_id = info.id;
     entry.name = name;
