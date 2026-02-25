@@ -3,14 +3,14 @@
 Review Date (UTC): 2026-02-25
 Reviewer: @t81dev
 Cadence Source: `docs/governance/MONTHLY_GOVERNANCE_REVIEW_CHECKLIST.md`
-Status: Completed with exceptions
+Status: Completed
 
 ## Summary
 
 - Governance baseline remains intact.
 - No freeze-boundary relaxations were introduced in this cycle.
 - Determinism and release governance artifacts were refreshed and cross-linked.
-- One tooling exception was identified in the legacy-path scan coverage scope.
+- Legacy-path scanner coverage exception was remediated in-cycle.
 
 ## Checklist Results
 
@@ -38,7 +38,7 @@ Status: Completed with exceptions
 
 6. Documentation hygiene
    - [x] Root documentation/artifact hygiene improved (test logs moved to records archive).
-   - [ ] Legacy path scan script excludes are incomplete for records inventories.
+   - [x] Legacy path scan script excludes include records inventories historical artifacts.
 
 ## Exceptions
 
@@ -58,9 +58,12 @@ Status: Completed with exceptions
 - Planned Remediation:
   - Extend legacy-path scanner historical exclusions to include
     `docs/records/inventories/**` (while preserving active-scope checks).
+- Resolution:
+  - `scripts/architecture/check_legacy_paths.sh` updated to exclude
+    `docs/records/inventories/**`.
+  - Verification rerun on 2026-02-25: legacy path scan PASS.
 
 ## Actions
 
 1. Prepare consolidated release-readiness packet for current governance cycle.
-2. Close EX-2026-02-01 by adjusting historical exclusion scope in legacy-path tooling.
-3. Re-run governance checklist after exception remediation.
+2. Maintain monthly governance review cadence and evidence packet refresh.

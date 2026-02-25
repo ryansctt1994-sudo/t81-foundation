@@ -26,6 +26,7 @@ search_roots=(README*.md docs scripts tools examples include core kernel lang ru
 
 globs=(
   '!docs/records/audits/**'
+  '!docs/records/inventories/**'
   '!book/**'
   '!legacy/**'
   '!notebooks/**'
