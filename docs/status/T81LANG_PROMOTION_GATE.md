@@ -43,6 +43,18 @@ determinism claim scope.
 | TG-05 | Matrix and governance artifacts explicitly reflect current promotion posture | `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/records/audits/2026-03-governance-review.md` | Pass |
 | TG-06 | Determinism claims remain bounded to verified registry surfaces (no overclaim) | `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`, `docs/product/DETERMINISTIC_CORE_PROFILE.md` | Pass |
 
+## Rerunnable Snapshot Procedure
+
+Run:
+
+`python3 scripts/governance/t81lang_promotion_gate_snapshot.py`
+
+Generated artifact:
+
+- `docs/status/T81LANG_PROMOTION_GATE_SNAPSHOT.md`
+
+The command returns non-zero when any gate criterion fails.
+
 ## Current Gate Snapshot (2026-02-25)
 
 | Criterion | Status | Notes |
@@ -50,28 +62,26 @@ determinism claim scope.
 | TG-01 | Pass | A1 through A1G queues and synchronization entries are closed and cross-linked. |
 | TG-02 | Pass | Repro gate and compile determinism checks are passing in current cycle snapshots. |
 | TG-03 | Pass | Current mapped semantic/conformance suites are green for tracked surfaces. |
-| TG-04 | In Progress | Ranked engineering backlog is defined; implementation sprint execution is pending. |
+| TG-04 | Pass | BG-01 through BG-05 are completed in the ranked engineering backlog. |
 | TG-05 | Pass | Matrix + audit artifacts are synchronized with current closure evidence. |
 | TG-06 | Pass | Registry-bounded determinism language remains intact in status/governance artifacts. |
 
 Promotion readiness decision:
 
-- Result: Not Ready (as of 2026-02-25)
-- Blocking criterion(s): TG-04
+- Result: Ready for Beta-candidate review (as of 2026-02-25)
+- Blocking criterion(s): None
 
 ## Blocking Items (for Beta-candidate review)
 
-1. Complete prioritized engineering backlog items in
-   `docs/status/T81LANG_ENGINEERING_BACKLOG_2026-03.md`.
-2. Re-run gate snapshot and set result to either:
-   - Ready for Beta-candidate review, or
-   - Not Ready with updated blockers.
+1. Re-run the snapshot procedure before governance decision events.
+2. Keep matrix/audit snapshots synchronized with any new blocker.
 
 ## Cross-References
 
 - `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`
 - `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`
 - `docs/status/T81LANG_ENGINEERING_BACKLOG_2026-03.md`
+- `docs/status/T81LANG_PROMOTION_GATE_SNAPSHOT.md`
 - `docs/status/IMPLEMENTATION_MATRIX.md`
 - `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`
 - `docs/product/DETERMINISTIC_CORE_PROFILE.md`

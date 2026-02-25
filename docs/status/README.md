@@ -19,6 +19,7 @@ specification authority, freeze boundaries, or determinism claim scope.
 - EXECUTION_PLAN_2026-03.md
 - SYSTEM_STATUS.md
 - T81LANG_PROMOTION_GATE.md
+- T81LANG_PROMOTION_GATE_SNAPSHOT.md
 - T81LANG_ENGINEERING_BACKLOG_2026-03.md
 - PROGRAM_CHECKPOINT_2026-02-25.md
 

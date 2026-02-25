@@ -252,6 +252,9 @@ Pre-close dry-run results (2026-02-25):
 
 - `python3 scripts/governance/check_docs_governance_hygiene.py`: passed.
 - Link-target sweep across status/governance/product/audits: no missing targets.
+- `python3 scripts/governance/t81lang_promotion_gate_snapshot.py`: passed
+  (snapshot written to `docs/status/T81LANG_PROMOTION_GATE_SNAPSHOT.md`,
+  result `READY`).
 
 ## Checklist Exceptions
 
@@ -259,7 +262,11 @@ Pre-close dry-run results (2026-02-25):
 
 ## Remediation Actions
 
-1. Re-validate monthly checklist at March window close and stamp final outcome.
+1. Re-run `scripts/governance/t81lang_promotion_gate_snapshot.py` at each
+   promotion-related checkpoint and record status deltas in this review file.
+   Owner: @t81dev
+   Due Date: Ongoing
+2. Re-validate monthly checklist at March window close and stamp final outcome.
    Owner: @t81dev
    Due Date: 2026-03-31
 
