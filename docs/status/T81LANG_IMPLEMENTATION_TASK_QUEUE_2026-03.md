@@ -61,6 +61,14 @@ spec anchors, code paths, and validation tests.
 | A1F-CODE-02 | Publish section 5 compilation-profile maintenance evidence addendum tied to reproducibility gate artifacts | `spec/t81lang-spec.md` section 5 | reproducibility and compile-determinism evidence surfaces (mapping only) | `scripts/ci/t81lang_repro_gate.py`, `tests/cpp/e2e_compile_determinism_test.cpp`, `tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp`, `tests/cpp/t81lang_conformance_baseline_test.cpp` | 2026-04-16 | Completed (2026-02-25) |
 | A1F-CODE-03 | Sync matrix and governance evidence after A1F updates | `spec/t81lang-spec.md` cross-section | status/audit artifacts | `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/records/audits/2026-03-governance-review.md`, `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md` | 2026-04-18 | Completed (2026-02-25) |
 
+## Post-A1F Queue (A1G Seed)
+
+| Task ID | Work Item | Spec Anchor | Code Surface | Validation Target | Target Date | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| A1G-CODE-01 | Publish section 2/6 structural-type control-flow traceability addendum using existing Option/Result and match conformance suites | `spec/t81lang-spec.md` sections 2 and 6 | structural-type and control-flow evidence surfaces (mapping only) | `tests/cpp/semantic_analyzer_option_result_test.cpp`, `tests/cpp/e2e_option_result_test.cpp`, `tests/cpp/e2e_option_result_function_test.cpp`, `tests/cpp/e2e_match_expression_test.cpp` | 2026-04-21 | Planned |
+| A1G-CODE-02 | Publish section 5 reproducibility-hash maintenance addendum tied to fixture-hash continuity artifacts | `spec/t81lang-spec.md` section 5 | reproducibility fixture/hash evidence surfaces (mapping only) | `scripts/ci/t81lang_repro_gate.py`, `tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt`, `tests/fixtures/t81lang_determinism/t81lang_ast_ir_repro_hash.txt`, `tests/cpp/e2e_compile_determinism_test.cpp` | 2026-04-23 | Planned |
+| A1G-CODE-03 | Sync matrix and governance evidence after A1G updates | `spec/t81lang-spec.md` cross-section | status/audit artifacts | `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/records/audits/2026-03-governance-review.md`, `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md` | 2026-04-25 | Planned |
+
 ## Execution Rule
 
 Tasks in this queue must not alter freeze boundaries, determinism claim scope,

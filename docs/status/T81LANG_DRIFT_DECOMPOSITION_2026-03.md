@@ -311,6 +311,18 @@ semantics, determinism scope, or freeze boundaries.
 3. Sync matrix/governance artifacts after A1F evidence updates.
    Completed (A1F-CODE-03, 2026-02-25).
 
+## Post-A1F Candidate Deltas (A1G Seed)
+
+These planned deltas continue bounded, evidence-only maintenance for residual
+traceability consistency without changing runtime semantics, determinism scope,
+or freeze boundaries.
+
+1. Publish section 2/6 structural-type control-flow traceability addendum using
+   existing Option/Result and match conformance suites.
+2. Publish section 5 reproducibility-hash maintenance addendum tied to current
+   fixture-hash artifact continuity.
+3. Sync matrix/governance artifacts after A1G evidence updates.
+
 ## Risks and Controls
 
 - Risk: Overclaiming deterministic guarantees for T81Lang surfaces.

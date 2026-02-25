@@ -95,6 +95,9 @@ Post-A1 follow-on planning state:
   in `docs/status/IMPLEMENTATION_MATRIX.md`,
   `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`, and
   `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`.
+- Post-A1F queue `A1G-CODE-01..03` is opened for bounded section 2/6
+  structural-type control-flow traceability maintenance, section 5
+  reproducibility-hash maintenance evidence addendum, and synchronization.
 
 Evidence updates applied:
 

@@ -169,6 +169,7 @@ This plan covers three priority tracks:
 5. Execute final C2 month-close checklist confirmation on 2026-03-31 and stamp governance review final outcome.
 6. Maintain A2 closure state and explicit open-scope boundaries in matrix/governance artifacts through March close.
 7. Maintain A1F closure state in matrix/governance artifacts through March close without expanding deterministic claim scope.
+8. Execute post-A1F drift-reduction queue (`A1G-CODE-01..03`) under existing cycle-gate controls without expanding deterministic claim scope.
 
 ## Versioning Statement
 
