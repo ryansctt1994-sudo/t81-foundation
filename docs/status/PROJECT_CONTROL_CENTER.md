@@ -66,6 +66,10 @@ Authority remains:
      5 reproducibility-hash addenda with matrix/governance synchronization)
    - Program decision (2026-02-25): hold A1-series at A1G in the current March
      window and prioritize C2 month-close finalization on 2026-03-31
+   - Promotion-readiness artifacts initialized for T81Lang Draft -> Beta
+     pathway:
+     `docs/status/T81LANG_PROMOTION_GATE.md` and
+     `docs/status/T81LANG_ENGINEERING_BACKLOG_2026-03.md`
 4. Documentation lifecycle control
    - prevent root-level doc sprawl and stale governance artifacts
 

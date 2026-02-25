@@ -16,7 +16,7 @@ status boundaries.
 | **TISC ISA** | Stable | Frozen boundary enforced | Tests + freeze governance docs |
 | **T81VM** | Beta | Controlled under spec and determinism policy | Tests + status audits |
 | **Axion Kernel** | Alpha | Partial implementation against draft surfaces | Tests + implementation matrix + `docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md` |
-| **T81Lang** | Experimental | Active drift risk relative to draft scope | Determinism and conformance checks |
+| **T81Lang** | Experimental | Active drift risk relative to draft scope; promotion gate initialized | Determinism and conformance checks + `docs/status/T81LANG_PROMOTION_GATE.md` + `docs/status/T81LANG_ENGINEERING_BACKLOG_2026-03.md` |
 | **Cognitive Tiers** | Concept / Experimental | Experimental / non-DCP / non-verified unless promoted through governance | `docs/status/EXPERIMENTAL_SURFACE_INVENTORY.md`, `spec/cognitive-tiers.md` |
 | **Hanoi VM** | Concept | Experimental / non-DCP / non-verified unless promoted through governance | Experimental inventory and specs |
 
@@ -31,6 +31,7 @@ status boundaries.
 - `docs/status/PROJECT_CONTROL_CENTER.md`
 - `docs/status/IMPLEMENTATION_MATRIX.md`
 - `docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md`
+- `docs/status/T81LANG_PROMOTION_GATE.md`
 - `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`
 - `docs/product/DETERMINISTIC_CORE_PROFILE.md`
 
