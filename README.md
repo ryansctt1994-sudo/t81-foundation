@@ -60,6 +60,7 @@ Key directories:
 * **`core/`** — Core runtime modules (`types`, `isa`, `vm`).
 * **`kernel/`** — Kernel modules (Axion policy subsystem).
 * **`runtime/`** — Runtime instrumentation and optimization modules (`tracing`, `jit`).
+* **`experimental/`** — Experimental modules (`tiers`, `hanoi`, `distributed`) outside deterministic core profile.
 * **`lang/`** — Language modules (`frontend`, `stdlib`).
 * **`tooling/`** — Tooling modules (`cli`, `model`).
 * **`src/`** — Remaining implementation modules not yet migrated.

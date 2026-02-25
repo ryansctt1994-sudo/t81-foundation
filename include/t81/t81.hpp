@@ -92,9 +92,9 @@
 #include "t81/canonfs/canon_types.hpp"
 
 // ---------- Hanoi microkernel ----------
-#include "t81/hanoi/error.hpp"
-#include "t81/hanoi/kernel.hpp"
-#include "t81/hanoi/types.hpp"
+#include "t81/experimental/hanoi/error.hpp"
+#include "t81/experimental/hanoi/kernel.hpp"
+#include "t81/experimental/hanoi/types.hpp"
 
 #include "t81/axion/context.hpp"
 #include "t81/axion/engine.hpp"
@@ -103,6 +103,6 @@
 #include "t81/native.hpp"
 
 // ---------- Cognitive tiers ----------
-#include "t81/cog/metrics.hpp"
-#include "t81/cog/promotion.hpp"
-#include "t81/cog/tier.hpp"
+#include "t81/experimental/cog/metrics.hpp"
+#include "t81/experimental/cog/promotion.hpp"
+#include "t81/experimental/cog/tier.hpp"

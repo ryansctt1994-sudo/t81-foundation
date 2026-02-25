@@ -70,15 +70,15 @@ add_library(t81_core STATIC
   core/isa/encoding.cpp
   src/canonfs/in_memory_driver.cpp
   src/canonfs/persistent_driver.cpp
-  src/hanoi/error.cpp
-  src/hanoi/in_memory_kernel.cpp        # ← fixed path
-  src/cog/promotion.cpp
-  src/cog/tier1/symbolic.cpp
-  src/cog/tier2/reflective.cpp
-  src/cog/tier3/recursive.cpp
-  src/cog/tier4/tier4_loop.cpp
-  src/cog/tier4/distributed.cpp
-  src/cog/tier5/infinite.cpp
+  experimental/hanoi/error.cpp
+  experimental/hanoi/in_memory_kernel.cpp
+  experimental/tiers/cog/promotion.cpp
+  experimental/tiers/cog/tier1/symbolic.cpp
+  experimental/tiers/cog/tier2/reflective.cpp
+  experimental/tiers/cog/tier3/recursive.cpp
+  experimental/tiers/cog/tier4/tier4_loop.cpp
+  experimental/distributed/distributed.cpp
+  experimental/tiers/cog/tier5/infinite.cpp
   src/codec/base243.cpp
   src/codec/base81.cpp
   src/codec/base81_balanced.cpp

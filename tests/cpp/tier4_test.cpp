@@ -2,9 +2,9 @@
 #include <iostream>
 #include "t81/axion/engine.hpp"
 #include "t81/axion/policy_engine.hpp"
-#include "t81/cog/promotion.hpp"
-#include "t81/cog/tier4/planner.hpp"
-#include "t81/cog/tier4/tier4_loop.hpp"
+#include "t81/experimental/cog/promotion.hpp"
+#include "t81/experimental/cog/tier4/planner.hpp"
+#include "t81/experimental/cog/tier4/tier4_loop.hpp"
 
 int main() {
   [[maybe_unused]] auto engine = t81::axion::make_policy_engine(std::nullopt);

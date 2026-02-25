@@ -4,7 +4,7 @@
 #include <string_view>
 #include <vector>
 #include "t81/axion/policy.hpp"
-#include "t81/hanoi/types.hpp"
+#include "t81/experimental/hanoi/types.hpp"
 #include "t81/isa/opcodes.hpp"
 
 namespace t81::axion {

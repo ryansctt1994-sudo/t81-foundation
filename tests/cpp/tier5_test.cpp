@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 
-#include "t81/cog/tier5/infinite.hpp"
+#include "t81/experimental/cog/tier5/infinite.hpp"
 #include "t81/fraction.hpp"
 
 using t81::T81BigInt;

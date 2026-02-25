@@ -170,7 +170,7 @@ Higher-level recursive or agentic execution constructs.
 [`/spec/cognitive-tiers.md`](../../spec/cognitive-tiers.md)
 
 **Code**
-`src/tiers/`
+`experimental/tiers/`
 
 **Status**
 **Stubbed** (Concept)
@@ -186,7 +186,7 @@ Higher-level VM abstraction for recursive operations and tier coordination.
 [`/spec/hanoi-kernel-spec.md`](../../spec/hanoi-kernel-spec.md)
 
 **Code**
-`src/hanoi/`
+`experimental/hanoi/`
 
 **Status**
 **Concept**

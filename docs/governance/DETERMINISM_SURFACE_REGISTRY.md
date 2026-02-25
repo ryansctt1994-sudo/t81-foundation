@@ -61,7 +61,7 @@ Explicitly list areas that are:
 
 **Experimental / Planned:**
 
-* **Distributed Cognitive Tiers**: Consensus determinism is planned but not verified.
+* **Distributed Cognitive Tiers** (`experimental/tiers/`, `experimental/distributed/`): Consensus determinism is planned but not verified.
 * **JIT Optimizations**: Trace-JIT equivalence is planned but currently stubbed.
 * **External Hardware Accelerators**: Behavior on non-CPU devices is currently undefined.
 

@@ -1,7 +1,7 @@
 # Experimental Surface Inventory
 
 **Status:** Active Inventory
-**Last Updated:** 2026-02-24
+**Last Updated:** 2026-02-25
 **Reference:** `docs/spec/DETERMINISTIC_CORE_PROFILE_v1.md`
 
 This document lists all components, features, and subsystems that are **NOT** part of the frozen, verified core.
@@ -11,10 +11,10 @@ These areas are subject to change without notice and carry no determinism guaran
 
 | Component | Location | Freeze Scope | Determinism Scope | Stability |
 | :--- | :--- | :--- | :--- | :--- |
-| **Cognitive Tiers** | `src/cog/`, `src/tiers/` | None (Evolving) | None (Planned) | **Experimental** |
-| **Hanoi VM Kernel** | `src/hanoi/` | None (Evolving) | None (Planned) | **Experimental** |
+| **Cognitive Tiers** | `experimental/tiers/cog/`, `experimental/tiers/` | None (Evolving) | None (Planned) | **Experimental** |
+| **Hanoi VM Kernel** | `experimental/hanoi/` | None (Evolving) | None (Planned) | **Experimental** |
 | **JIT Compiler** | `runtime/jit/jit_compiler.cpp` | None (Experimental) | Verified per Plan | **Alpha / Stub** |
-| **Distributed Compute** | `src/cog/tier4/` | None (Network) | None (Nondeterministic) | **Experimental** |
+| **Distributed Compute** | `experimental/distributed/` | None (Network) | None (Nondeterministic) | **Experimental** |
 | **Experimental Headers** | `include/t81/experimental/` | None | None | **Experimental** |
 | **Notebooks** | `notebooks/` | None | None | **Example Only** |
 | **Examples** | `examples/` | None | None | **Example Only** |
@@ -27,14 +27,18 @@ These areas are subject to change without notice and carry no determinism guaran
 *   **Risk**: High determinism risk if enabled.
 
 ### 2. Cognitive Tiers (Axion/Hanoi)
-*   **Status**: Partially implemented in `src/cog/` and `src/hanoi/`.
+*   **Status**: Partially implemented in `experimental/tiers/cog/` and `experimental/hanoi/`.
 *   **Isolation**: Separate namespace `t81::cog`, `t81::hanoi`.
 *   **Risk**: Low impact on core VM unless invoked.
 
 ### 3. Distributed Compute
-*   **Status**: Headers exist (`tier4/distributed.hpp`), implementation stubbed.
+*   **Status**: Headers exist (`include/t81/experimental/distributed/distributed.hpp`), implementation stubbed.
 *   **Isolation**: Dependent on network libraries not linked in core.
 *   **Risk**: None (compile-time isolation).
+
+## Deterministic Core Boundary
+
+The modules in this document are explicitly **out of deterministic core profile scope** (`docs/spec/DETERMINISTIC_CORE_PROFILE_v1.md`).
 
 ## Governance Rule
 
