@@ -11,6 +11,7 @@ This directory is the canonical documentation surface below `/spec` and
 - [Determinism Surface Registry](governance/DETERMINISM_SURFACE_REGISTRY.md)
 - [Determinism Threat Model](governance/DETERMINISM_THREAT_MODEL.md)
 - [System Status](status/SYSTEM_STATUS.md)
+- [Project Control Center](status/PROJECT_CONTROL_CENTER.md)
 - [Implementation Matrix](status/IMPLEMENTATION_MATRIX.md)
 - [Spec Index](spec/INDEX.md)
 
