@@ -157,8 +157,11 @@ Milestone snapshot:
 
 Planning completion state:
 
-- A2 alignment-plan deliverable completed on 2026-02-25.
-- Matrix and system status references updated to include bounded A2 milestones.
+- A2 alignment-plan artifact published on 2026-02-25.
+- Matrix and system status references were updated to include bounded A2
+  milestones.
+- Milestone execution remains active in March (`M1` through `M4` currently
+  planned per target dates).
 
 ## A3 Tracking — Experimental Tiers Boundary Clarification
 

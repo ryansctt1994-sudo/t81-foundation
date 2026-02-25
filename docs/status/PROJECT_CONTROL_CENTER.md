@@ -54,16 +54,13 @@ Authority remains:
 3. Spec-implementation alignment
    - A1 closure complete; continue high-drift reduction beyond current
      decomposition baseline
-   - A1B closure complete; A1C next-cycle queue opened for section 3/6 and
-     section 7 evidence-index hardening
-   - A1C closure complete with matrix/governance synchronization; next queue
-     definition remains active
-   - A1D queue seeded for residual section 5 IR/lowering and section 8 stdlib
-     evidence-index closure
-   - A1D closure complete with matrix/governance synchronization; next queue
-     definition remains active
-   - A1E queue seeded for residual section 4 and section 3/6 evidence-addendum
-     closure
+   - A1B closure complete (section-level parser/semantic evidence deltas closed)
+   - A1C closure complete (section 3/6 and section 7 evidence indexes closed)
+   - A1D closure complete (section 5 IR/lowering and section 8 stdlib evidence
+     indexes closed)
+   - A1E closure complete (section 4 and residual section 3/6 evidence addenda
+     with matrix/governance synchronization)
+   - Next drift-reduction cycle definition remains pending governance scheduling
 4. Documentation lifecycle control
    - prevent root-level doc sprawl and stale governance artifacts
 

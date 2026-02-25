@@ -35,7 +35,7 @@ This plan covers three priority tracks:
 | A1C. T81Lang Next-Cycle Evidence Closure | Completed | `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`, `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`, `docs/records/audits/2026-03-governance-review.md`, `docs/status/IMPLEMENTATION_MATRIX.md` | A1C-CODE-01..03 completed on 2026-02-25; section 3/6 and section 7 evidence indexes plus matrix/governance synchronization are closed. |
 | A1D. T81Lang Post-A1C Evidence Closure | Completed | `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`, `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`, `docs/records/audits/2026-03-governance-review.md`, `docs/status/IMPLEMENTATION_MATRIX.md` | A1D-CODE-01..03 completed on 2026-02-25; section 5 and section 8 evidence indexes plus matrix/governance synchronization are closed. |
 | A1E. T81Lang Post-A1D Evidence Closure | Completed | `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`, `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`, `docs/records/audits/2026-03-governance-review.md`, `docs/status/IMPLEMENTATION_MATRIX.md` | A1E-CODE-01..03 completed on 2026-02-25; section 4 and residual section 3/6 evidence addenda plus matrix/governance synchronization are closed. |
-| A2. Axion Partial-Coverage Alignment Plan | Completed | `docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md`, `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/status/SYSTEM_STATUS.md` | Bounded milestones and dated next actions are now recorded and cross-linked. |
+| A2. Axion Partial-Coverage Alignment Plan | In Progress | `docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md`, `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/status/SYSTEM_STATUS.md` | Planning artifact and milestone framework are published; milestone execution (M1-M4) remains active in March window. |
 | A3. Experimental Tiers Boundary Clarification | Completed | `docs/product/DETERMINISTIC_CORE_PROFILE.md`, `docs/status/EXPERIMENTAL_SURFACE_INVENTORY.md`, `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/status/SYSTEM_STATUS.md` | Terminology normalized: experimental tiers are non-DCP and non-verified unless promoted through governance and registry update. |
 | B1. Required-Checks Release Gating Procedure | Completed | `docs/status/RELEASE_DISCIPLINE_CHECKLIST.md`, `docs/status/RELEASE_READINESS_PACKET_2026-02.md` | Procedure and decision gate are now explicit and evidence-backed. |
 | B2. Release Decision Lifecycle Standardization | Completed | `docs/status/RELEASE_READINESS_PACKET_2026-02.md`, `docs/status/RELEASE_READINESS_PACKET_2026-03.md` | Decision-stamp continuity validated across consecutive packet cycles (`Decision (UTC)`, `Approver`, `Decision`) with GO/HOLD rule preserved. |
@@ -166,6 +166,7 @@ This plan covers three priority tracks:
 3. Maintain C3 link-target integrity status through month close and record any newly introduced stale references.
 4. Maintain A1E closure state in matrix/governance artifacts through March close without expanding deterministic claim scope.
 5. Execute final C2 month-close checklist confirmation on 2026-03-31 and stamp governance review final outcome.
+6. Advance A2 milestone execution starting with M1 draft scope segmentation.
 
 ## Versioning Statement
 
