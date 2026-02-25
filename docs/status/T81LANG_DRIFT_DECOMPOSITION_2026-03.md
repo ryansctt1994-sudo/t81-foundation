@@ -191,6 +191,13 @@ Bounded gap closure scope:
 | `spec/t81lang-spec.md` section 6.2 (Match) | Match-arm/guard semantic constraints and edge behavior | Covered | `tests/cpp/semantic_analyzer_match_test.cpp`, `tests/cpp/t81lang_conformance_edge_semantics_test.cpp`, `tests/cpp/e2e_match_expression_test.cpp` |
 | `spec/t81lang-spec.md` section 6.3 (Loop) | Loop boundedness requirements and guard-condition semantic constraints | Covered | `tests/cpp/semantic_analyzer_loop_test.cpp`, `tests/cpp/t81lang_conformance_edge_semantics_test.cpp` |
 
+## Section 7 Axion Integration Evidence Index (A1C-CODE-02)
+
+| Spec Anchor | Rule/Surface | Coverage Status | Evidence |
+| :--- | :--- | :--- | :--- |
+| `spec/t81lang-spec.md` section 7.1 (Tier Metadata) | Tier metadata emission and trace integration from frontend to runtime surfaces | Covered | `tests/cpp/axion_loop_metadata_test.cpp`, `tests/cpp/axion_match_metadata_test.cpp`, `tests/cpp/e2e_axion_trace_test.cpp` |
+| `spec/t81lang-spec.md` section 7.2 (Safety Hooks) | Axion policy hook behavior over match/control-flow operations and guard metadata | Covered | `tests/cpp/axion_policy_match_guard_test.cpp`, `tests/cpp/e2e_axion_trace_test.cpp` |
+
 ## Executable Code Task Queue
 
 - `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`
@@ -216,7 +223,7 @@ runtime semantics, determinism scope, or freeze boundaries.
    semantic anchors using existing conformance/semantic suites.
    Completed (A1C-CODE-01, 2026-02-25).
 2. Publish section 7 Axion-integration metadata evidence index tied to existing
-   metadata and e2e trace tests.
+   metadata and e2e trace tests. Completed (A1C-CODE-02, 2026-02-25).
 3. Sync matrix/governance artifacts after A1C evidence updates.
 
 ## Risks and Controls
