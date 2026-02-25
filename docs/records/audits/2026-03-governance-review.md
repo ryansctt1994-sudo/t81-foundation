@@ -108,6 +108,9 @@ Post-A1 follow-on planning state:
   in `docs/status/IMPLEMENTATION_MATRIX.md`,
   `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`, and
   `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`.
+- Program decision recorded on 2026-02-25: hold A1-series at A1G and do not
+  seed A1H in the current March window; prioritize C2 month-close finalization
+  on 2026-03-31.
 
 Evidence updates applied:
 

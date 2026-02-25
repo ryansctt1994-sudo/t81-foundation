@@ -60,7 +60,12 @@ Authority remains:
      indexes closed)
    - A1E closure complete (section 4 and residual section 3/6 evidence addenda
      with matrix/governance synchronization)
-   - Next drift-reduction cycle definition remains pending governance scheduling
+   - A1F closure complete (section 7 guard/segment and section 5 maintenance
+     addenda with matrix/governance synchronization)
+   - A1G closure complete (section 2/6 structural-type control-flow and section
+     5 reproducibility-hash addenda with matrix/governance synchronization)
+   - Program decision (2026-02-25): hold A1-series at A1G in the current March
+     window and prioritize C2 month-close finalization on 2026-03-31
 4. Documentation lifecycle control
    - prevent root-level doc sprawl and stale governance artifacts
 

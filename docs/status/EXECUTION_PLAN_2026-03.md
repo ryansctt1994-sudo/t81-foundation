@@ -171,6 +171,7 @@ This plan covers three priority tracks:
 6. Maintain A2 closure state and explicit open-scope boundaries in matrix/governance artifacts through March close.
 7. Maintain A1F closure state in matrix/governance artifacts through March close without expanding deterministic claim scope.
 8. Maintain A1G closure state in matrix/governance artifacts through March close without expanding deterministic claim scope.
+9. Hold A1-series at A1G (no A1H seed in current window) and prioritize C2 month-close finalization on 2026-03-31.
 
 ## Versioning Statement
 
