@@ -1,6 +1,6 @@
 # Axion Partial-Coverage Alignment Plan (2026-03)
 
-Status: Active
+Status: Completed (Planning Milestone Closed)
 Owner: @t81dev
 Last Updated: 2026-02-25
 Target Completion: 2026-03-19 (A2 planning milestone)
@@ -90,6 +90,8 @@ Status: Completed (2026-02-25)
   - `docs/status/IMPLEMENTATION_MATRIX.md`
   - `docs/records/audits/2026-03-governance-review.md`
 
+Status: Completed (2026-02-25)
+
 ## Bounded Next Actions
 
 | Action ID | Action | Owner | Target Date | Status |
@@ -97,7 +99,7 @@ Status: Completed (2026-02-25)
 | A2-N1 | Publish segmented scope table for draft Axion surfaces | @t81dev | 2026-03-05 | Completed (2026-02-25) |
 | A2-N2 | Prioritize top 3 partial/missing segments with dated targets | @t81dev | 2026-03-10 | Completed (2026-02-25) |
 | A2-N3 | Attach evidence paths for each prioritized segment | @t81dev | 2026-03-14 | Completed (2026-02-25) |
-| A2-N4 | Sync matrix and governance review with A2 snapshot | @t81dev | 2026-03-19 | Planned |
+| A2-N4 | Sync matrix and governance review with A2 snapshot | @t81dev | 2026-03-19 | Completed (2026-02-25) |
 
 ## M1 Scope Segmentation Table
 
