@@ -330,6 +330,36 @@ hash against the tracked golden file
 (`tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt`) on both Linux
 `x86_64` and Linux `arm64` runners.
 
+### Deterministic Compilation Profile (Traceability)
+
+This subsection defines bounded traceability invariants for compiler bytecode
+emission. It does not expand language semantics beyond this specification.
+
+1. Source-stability invariant:
+   - For a fixed source program and fixed compiler configuration, repeated
+     compilation MUST produce byte-identical TISC output.
+2. Pipeline determinism invariant:
+   - Stage 1 through Stage 7 outputs MUST be deterministic functions of source
+     input and explicit configuration only.
+3. Literal-pool determinism invariant:
+   - Lowering MUST emit and reference literal pools deterministically; no
+     host-order or nondeterministic insertion effects are allowed.
+4. Control-flow lowering determinism invariant:
+   - Branch labels, arm selection lowering, and short-circuit lowering MUST be
+     stable for equivalent AST/IR input.
+
+Acceptance evidence for this profile is anchored to existing verification
+surfaces:
+
+- `tests/cpp/e2e_compile_determinism_test.cpp`
+- `tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp`
+- `scripts/ci/t81lang_repro_gate.py`
+- `tests/fixtures/t81lang_determinism/`
+
+Determinism guarantees remain bounded by
+`docs/governance/DETERMINISM_SURFACE_REGISTRY.md` and
+`docs/product/DETERMINISTIC_CORE_PROFILE.md`.
+
 ### Stage 1 — Lexing
 
 Produces a canonical stream of tokens.

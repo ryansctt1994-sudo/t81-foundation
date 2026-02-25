@@ -1,7 +1,7 @@
 # Verified Surface Audit
 
 **Status:** Active Audit
-**Last Updated:** 2026-02-24
+**Last Updated:** 2026-02-25
 **Reference:** `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`
 
 This document provides a rigorous trace of every "Verified" determinism surface to its specification, implementation, verification tests, and enforcement mechanism.
@@ -22,12 +22,8 @@ This document provides a rigorous trace of every "Verified" determinism surface 
 The following surfaces have gaps in their verification chain:
 
 *   **Compiler Bytecode Emission**:
-    *   **Spec Gap**: `spec/t81lang-spec.md` section 5 defines deterministic compilation stages, but does not yet carry a bounded, profile-style statement that maps deterministic bytecode-emission invariants to explicit acceptance criteria and evidence artifacts.
-    *   **Action Required**: Add deterministic compilation-profile trace language anchored to section 5 (no semantic expansion), and bind it to existing evidence paths:
-        - `tests/cpp/e2e_compile_determinism_test.cpp`
-        - `tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp`
-        - `scripts/ci/t81lang_repro_gate.py`
-        - `tests/fixtures/t81lang_determinism/`
+    *   **Status Update**: Bounded deterministic compilation-profile trace language is now present in `spec/t81lang-spec.md` section 5 ("Deterministic Compilation Profile (Traceability)"), with explicit invariants and acceptance-evidence references.
+    *   **Residual Scope**: Surface remains **Partial Traceability** until registry promotion criteria move this compiler surface from partial to verified.
 
 *   **T3K Quantization**:
     *   **Spec Gap**: No formal specification document exists for the T3K quantization format or the `t81 weights quantize` command behavior, though implementation and tests are verified.

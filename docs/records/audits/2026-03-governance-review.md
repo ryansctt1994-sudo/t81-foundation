@@ -33,6 +33,9 @@ Planned evidence updates:
   coverage evidence)
 - `tests/cpp/semantic_analyzer_stage3_rules_test.cpp` (A1-CODE-02 semantic
   Stage 3 rule coverage evidence)
+- `spec/t81lang-spec.md` section 5 deterministic compilation-profile
+  traceability subsection + `docs/status/VERIFIED_SURFACE_AUDIT.md`
+  update (A1-CODE-03 evidence)
 
 ## A2 Tracking — Axion Partial-Coverage Alignment
 
