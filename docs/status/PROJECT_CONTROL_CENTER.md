@@ -54,6 +54,8 @@ Authority remains:
 3. Spec-implementation alignment
    - A1 closure complete; continue high-drift reduction beyond current
      decomposition baseline
+   - A1B closure complete; A1C next-cycle queue opened for section 3/6 and
+     section 7 evidence-index hardening
 4. Documentation lifecycle control
    - prevent root-level doc sprawl and stale governance artifacts
 

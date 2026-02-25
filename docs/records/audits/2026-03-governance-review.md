@@ -43,6 +43,8 @@ Post-A1 follow-on planning state:
   synchronization in `docs/status/IMPLEMENTATION_MATRIX.md`,
   `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`, and
   `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`.
+- Next-cycle queue `A1C-CODE-01..03` is opened for bounded section 3/6 and
+  section 7 evidence-index closure plus matrix/governance synchronization.
 
 Evidence updates applied:
 

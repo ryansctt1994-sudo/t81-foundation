@@ -29,6 +29,14 @@ spec anchors, code paths, and validation tests.
 | A1B-CODE-02 | Publish section-level semantic coverage index for section 2/5 rule anchors using existing conformance and semantic suites | `spec/t81lang-spec.md` sections 2 and 5 | `lang/frontend/semantic_analyzer.cpp` (evidence mapping only) | `tests/cpp/semantic_analyzer_*`, `tests/cpp/t81lang_conformance_baseline_test.cpp`, `tests/cpp/semantic_analyzer_stage3_rules_test.cpp` | 2026-03-22 | Completed (2026-02-25) |
 | A1B-CODE-03 | Sync matrix and governance evidence after post-A1 follow-on updates | `spec/t81lang-spec.md` cross-section | status/audit artifacts | `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/records/audits/2026-03-governance-review.md`, `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md` | 2026-03-25 | Completed (2026-02-25) |
 
+## Next-Cycle Queue (Post-A1/A1B)
+
+| Task ID | Work Item | Spec Anchor | Code Surface | Validation Target | Target Date | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| A1C-CODE-01 | Publish section-level purity/control-flow semantic coverage index for sections 3 and 6 using existing semantic/conformance tests | `spec/t81lang-spec.md` sections 3 and 6 | `lang/frontend/semantic_analyzer.cpp` (evidence mapping only) | `tests/cpp/t81lang_conformance_edge_semantics_test.cpp`, `tests/cpp/semantic_analyzer_loop_test.cpp`, `tests/cpp/semantic_analyzer_match_test.cpp`, `tests/cpp/e2e_match_expression_test.cpp` | 2026-03-28 | Planned |
+| A1C-CODE-02 | Publish section 7 Axion integration metadata evidence index using existing metadata and trace tests | `spec/t81lang-spec.md` section 7 | Axion metadata surfaces (evidence mapping only) | `tests/cpp/axion_loop_metadata_test.cpp`, `tests/cpp/axion_match_metadata_test.cpp`, `tests/cpp/e2e_axion_trace_test.cpp`, `tests/cpp/axion_policy_match_guard_test.cpp` | 2026-03-30 | Planned |
+| A1C-CODE-03 | Sync matrix and governance evidence after A1C updates | `spec/t81lang-spec.md` cross-section | status/audit artifacts | `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/records/audits/2026-03-governance-review.md`, `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md` | 2026-03-31 | Planned |
+
 ## Execution Rule
 
 Tasks in this queue must not alter freeze boundaries, determinism claim scope,

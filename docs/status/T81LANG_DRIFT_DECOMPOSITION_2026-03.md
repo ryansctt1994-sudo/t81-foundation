@@ -147,8 +147,8 @@ Bounded gap closure scope:
 
 | Drift Category | Primary Check(s) | Scope Signal | Open Gap |
 | :--- | :--- | :--- | :--- |
-| Grammar/parsing | `frontend_parser_*`, `test_parser_regression_audit.cpp` | Operator precedence and legacy syntax rejection tested | Need explicit section-level matrix for spec Appendix production rules |
-| Semantic typing | `semantic_analyzer_*`, `t81lang_conformance_baseline_test.cpp` | Numeric widening, Option/Result, diagnostics covered | Coverage granularity by spec subsection not yet declared |
+| Grammar/parsing | `frontend_parser_*`, `test_parser_regression_audit.cpp` | Operator precedence and legacy syntax rejection tested | Closed for current cycle via Appendix A coverage matrix evidence (`A1-CODE-01`, `A1B-CODE-01`) |
+| Semantic typing | `semantic_analyzer_*`, `t81lang_conformance_baseline_test.cpp` | Numeric widening, Option/Result, diagnostics covered | Closed for current cycle via section-level semantic index (`A1B-CODE-02`) |
 | IR/lowering determinism | `frontend_ir_generator_*`, `e2e_*`, `test_frontend_logical_lowering.cpp` | Deterministic lowering behaviors tested | Compile-profile trace statement now anchored in `spec/t81lang-spec.md` section 5; residual state follows registry status |
 | Compile reproducibility | `scripts/ci/t81lang_repro_gate.py`, `tests/fixtures/t81lang_determinism/` | Two-pass byte identity + aggregate hash gate active | Fixture pack expanded to 16 canonical programs; repro and AST/IR hash references refreshed |
 
@@ -196,6 +196,17 @@ determinism claim scope.
    anchors and existing test assets. Completed (A1B-CODE-02, 2026-02-25).
 3. Refresh matrix/audit notes after follow-on evidence updates are applied.
    Completed (A1B-CODE-03, 2026-02-25).
+
+## Next-Cycle Candidate Deltas (A1C Seed)
+
+These planned deltas extend drift-reduction evidence coverage without changing
+runtime semantics, determinism scope, or freeze boundaries.
+
+1. Publish section-level coverage index for section 3/6 purity and control-flow
+   semantic anchors using existing conformance/semantic suites.
+2. Publish section 7 Axion-integration metadata evidence index tied to existing
+   metadata and e2e trace tests.
+3. Sync matrix/governance artifacts after A1C evidence updates.
 
 ## Risks and Controls
 
