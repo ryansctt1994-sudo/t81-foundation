@@ -219,6 +219,13 @@ Bounded gap closure scope:
 | `spec/t81lang-spec.md` section 4 (Name Resolution) | Diagnostic precision for unresolved/ambiguous symbol scenarios and scope-bound failures | Covered | `tests/cpp/semantic_analyzer_diagnostic_precision_test.cpp`, `tests/cpp/t81lang_conformance_baseline_test.cpp` |
 | `spec/t81lang-spec.md` section 4 (Name Resolution) | Stable diagnostic location reporting for resolution and scoping errors | Covered | `tests/cpp/semantic_analyzer_diagnostic_location_test.cpp`, `tests/cpp/semantic_analyzer_cascade_suppression_test.cpp` |
 
+## Residual Section 3/6 Alignment Evidence Addendum (A1E-CODE-02)
+
+| Spec Anchor | Rule/Surface | Coverage Status | Evidence |
+| :--- | :--- | :--- | :--- |
+| `spec/t81lang-spec.md` section 3.2 (Effectful Functions) | Effect metadata traceability through semantic control-flow checks in loop/match-heavy paths | Covered | `tests/cpp/t81lang_conformance_edge_semantics_test.cpp`, `tests/cpp/semantic_analyzer_loop_test.cpp`, `tests/cpp/semantic_analyzer_match_test.cpp` |
+| `spec/t81lang-spec.md` section 6.2 (Match) and section 6.3 (Loop) | Residual control-flow alignment for guard and boundedness metadata behavior in frontend and e2e surfaces | Covered | `tests/cpp/semantic_analyzer_match_test.cpp`, `tests/cpp/semantic_analyzer_loop_test.cpp`, `tests/cpp/e2e_match_expression_test.cpp` |
+
 ## Executable Code Task Queue
 
 - `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`
@@ -271,7 +278,7 @@ or freeze boundaries.
 1. Publish section 4 name-resolution/scoping evidence index tied to existing
    diagnostics and conformance checks. Completed (A1E-CODE-01, 2026-02-25).
 2. Publish residual section 3/6 alignment evidence addendum focused on
-   purity/effects metadata traceability.
+   purity/effects metadata traceability. Completed (A1E-CODE-02, 2026-02-25).
 3. Sync matrix/governance artifacts after A1E evidence updates.
 
 ## Risks and Controls

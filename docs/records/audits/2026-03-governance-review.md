@@ -73,6 +73,9 @@ Post-A1 follow-on planning state:
 - A1E-CODE-01 completed on 2026-02-25 with section 4 name-resolution/scoping
   evidence-index publication in
   `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`.
+- A1E-CODE-02 completed on 2026-02-25 with residual section 3/6
+  purity/effects metadata traceability evidence addendum publication in
+  `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`.
 
 Evidence updates applied:
 
