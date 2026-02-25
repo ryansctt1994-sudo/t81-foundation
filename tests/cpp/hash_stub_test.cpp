@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "t81/hash/base81.hpp"
-#include "t81/hash/canonhash.hpp"
+#include "t81/tracing/base81.hpp"
+#include "t81/tracing/canonhash.hpp"
 
 int main() {
   using namespace t81;

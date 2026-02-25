@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <span>
 #include "t81/crypto/sha3.hpp"
-#include "t81/hash/canonhash.hpp"
+#include "t81/tracing/canonhash.hpp"
 
 namespace t81::hash {
 

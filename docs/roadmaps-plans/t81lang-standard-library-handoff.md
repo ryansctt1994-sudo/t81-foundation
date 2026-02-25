@@ -36,7 +36,7 @@ Generic function work now supported:
 
 Core implementation:
 - `core/vm/vm.cpp`
-- `core/vm/jit_compiler.cpp`
+- `runtime/jit/jit_compiler.cpp`
 - `include/t81/vm/state.hpp`
 
 Coverage:

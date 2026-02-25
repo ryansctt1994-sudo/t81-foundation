@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
-#include "t81/hash/canonhash.hpp"
+#include "t81/tracing/canonhash.hpp"
 
 namespace t81 {
 

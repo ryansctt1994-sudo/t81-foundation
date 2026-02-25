@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <t81/canonfs/canon_driver.hpp>
-#include <t81/hash/canonhash.hpp>
+#include <t81/tracing/canonhash.hpp>
 #include <vector>
 
 int main() {

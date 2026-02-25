@@ -85,7 +85,6 @@ add_library(t81_core STATIC
   src/codec/base81_packed.cpp
   src/codec/metadata.cpp
   src/codec/trit_packing.cpp
-  src/hash/canonhash81.cpp
   src/crypto/sha3.cpp
   src/setun/bridge.cpp
 )
@@ -95,6 +94,16 @@ target_include_directories(t81_core PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
+
+add_library(t81_tracing OBJECT
+  runtime/tracing/canonhash81.cpp
+)
+target_compile_features(t81_tracing PUBLIC ${T81_CXX_STD_FEATURE})
+target_include_directories(t81_tracing PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+target_sources(t81_core PRIVATE $<TARGET_OBJECTS:t81_tracing>)
+
 if(T81_IS_X86_64)
   set(T81_AVX2_SOURCE src/simd/base81_digits_avx2.cpp)
   target_sources(t81_core PRIVATE ${T81_AVX2_SOURCE})
@@ -172,12 +181,19 @@ target_include_directories(t81_isa PUBLIC
 
 add_library(t81_vm STATIC
   core/vm/vm.cpp
-  core/vm/jit_compiler.cpp
 )
 target_include_directories(t81_vm PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
+add_library(t81_jit OBJECT
+  runtime/jit/jit_compiler.cpp
+)
+target_compile_features(t81_jit PUBLIC ${T81_CXX_STD_FEATURE})
+target_include_directories(t81_jit PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+target_sources(t81_vm PRIVATE $<TARGET_OBJECTS:t81_jit>)
 target_link_libraries(t81_vm PUBLIC t81_core t81_isa t81_axion)
 
 add_library(t81_llvm INTERFACE)

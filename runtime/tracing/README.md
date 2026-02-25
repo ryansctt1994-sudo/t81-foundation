@@ -1,4 +1,4 @@
-# `src/hash`
+# `runtime/tracing`
 
 Directory documentation for `src/hash`.
 

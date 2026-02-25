@@ -19,7 +19,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "t81/hash/canonhash.hpp"
+#include "t81/tracing/canonhash.hpp"
 
 namespace std {
 template <>

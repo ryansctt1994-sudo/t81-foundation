@@ -70,7 +70,7 @@ ______________________________________________________________________
 ## Phase 2 — IO & Codec Surfaces (**DONE**)
 
 - ✅ Tensor text IO → `include/t81/io/tensor_loader.hpp` + `src/io/tensor_loader.cpp` + `tensor_loader_test.cpp`
-- ✅ Base-81 & CanonHash stubs → `include/t81/hash/{base81,canonhash}.hpp`
+- ✅ Base-81 & CanonHash stubs → `include/t81/tracing/{base81,canonhash}.hpp`
 - ✅ Base-243 codec surface (stub) → `include/t81/codec/base243.hpp` + `codec_base243_test.cpp`
 
 > Note: Base-81 and Base-243 are deterministic **stubs**. Swap with canonical codecs without changing call sites.

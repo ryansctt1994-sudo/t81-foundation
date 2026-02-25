@@ -13,7 +13,7 @@ These areas are subject to change without notice and carry no determinism guaran
 | :--- | :--- | :--- | :--- | :--- |
 | **Cognitive Tiers** | `src/cog/`, `src/tiers/` | None (Evolving) | None (Planned) | **Experimental** |
 | **Hanoi VM Kernel** | `src/hanoi/` | None (Evolving) | None (Planned) | **Experimental** |
-| **JIT Compiler** | `core/vm/jit_compiler.cpp` | None (Experimental) | Verified per Plan | **Alpha / Stub** |
+| **JIT Compiler** | `runtime/jit/jit_compiler.cpp` | None (Experimental) | Verified per Plan | **Alpha / Stub** |
 | **Distributed Compute** | `src/cog/tier4/` | None (Network) | None (Nondeterministic) | **Experimental** |
 | **Experimental Headers** | `include/t81/experimental/` | None | None | **Experimental** |
 | **Notebooks** | `notebooks/` | None | None | **Example Only** |
@@ -22,7 +22,7 @@ These areas are subject to change without notice and carry no determinism guaran
 ## Isolation Status
 
 ### 1. JIT Compiler
-*   **Status**: Present in `core/vm/jit_compiler.cpp` but disabled by default.
+*   **Status**: Present in `runtime/jit/jit_compiler.cpp` but disabled by default.
 *   **Isolation**: Must be explicitly enabled via build flag or runtime config.
 *   **Risk**: High determinism risk if enabled.
 

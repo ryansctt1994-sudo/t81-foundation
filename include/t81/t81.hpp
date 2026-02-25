@@ -40,8 +40,8 @@
 
 // ---------- Hash/codec stubs (replace with canonical impls later) ----------
 #include "t81/codec/base243.hpp"
-#include "t81/hash/base81.hpp"
-#include "t81/hash/canonhash.hpp"
+#include "t81/tracing/base81.hpp"
+#include "t81/tracing/canonhash.hpp"
 
 // ---------- IR surface ----------
 #include "t81/ir/encoding.hpp"

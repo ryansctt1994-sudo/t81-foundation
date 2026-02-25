@@ -55,7 +55,7 @@
 - [x] Deterministic fault injection points (see `IVirtualMachine::set_fault_injections`)
   - [x] For testing Axion enforcement (overflow, illegal access, etc.)
 - [x] Axion trap hooks (overflow, illegal access, recursion guard) (see `include/t81/axion/api.hpp`)
-- [x] Bytecode format & decoder (see `core/vm/jit_compiler.cpp`)
+- [x] Bytecode format & decoder (see `runtime/jit/jit_compiler.cpp`)
 - [x] JIT compilation (Research/Experimental)
 - [x] Cognitive Tier Opcodes (Registered)
   - [x] Full Logic Implementation (Symbolic, Reflective, etc.)

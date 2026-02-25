@@ -28,6 +28,6 @@ The prototype will target a subset of TISC:
 - Registers: `R0-R242`.
 
 ## 5. Implementation Roadmap
-- `include/t81/vm/jit.hpp`: JIT interface.
-- `core/vm/jit_compiler.cpp`: Trace recorder and basic emitter.
+- `include/t81/jit/jit.hpp`: JIT interface.
+- `runtime/jit/jit_compiler.cpp`: Trace recorder and basic emitter.
 - `t81 debug --jit`: Debugger support for JIT-compiled regions.

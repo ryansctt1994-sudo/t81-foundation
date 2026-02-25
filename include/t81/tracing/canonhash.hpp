@@ -8,7 +8,7 @@
 #include <string_view>
 #include <vector>
 
-#include "t81/hash/base81.hpp"
+#include "t81/tracing/base81.hpp"
 
 namespace t81::hash {
 

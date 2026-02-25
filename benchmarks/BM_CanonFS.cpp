@@ -7,7 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <map>
-#include "t81/hash/canonhash.hpp"
+#include "t81/tracing/canonhash.hpp"
 #include "t81/canonfs/rs_repair.hpp"
 
 using namespace t81::canonfs;

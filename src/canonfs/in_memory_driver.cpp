@@ -7,7 +7,7 @@
 #include <optional>
 #include <string>
 #include <t81/canonfs/rs_repair.hpp>
-#include <t81/hash/canonhash.hpp>
+#include <t81/tracing/canonhash.hpp>
 #include <vector>
 
 namespace t81::canonfs {

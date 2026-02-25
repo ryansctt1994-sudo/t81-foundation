@@ -4,7 +4,7 @@
 #include <vector>
 #include "t81/canonfs/axion_hook.hpp"
 #include "t81/canonfs/canon_driver.hpp"
-#include "t81/hash/canonhash.hpp"
+#include "t81/tracing/canonhash.hpp"
 
 int main() {
   std::cout << "--- CanonFS Axion Trace Persistence Demo ---\n";

@@ -69,7 +69,7 @@ This layout reflects the conceptual architecture of the T81 Foundation stack.
 | `src/python/**`                 | `tooling/python/**`     | Python bindings |
 | `src/c_api/**`                  | `core/api/**`           | C API implementation |
 | `src/crypto/**`                 | `core/crypto/**`        | |
-| `src/hash/**`                   | `core/crypto/hash/**`   | |
+| `src/hash/**`                   | `runtime/tracing/**`    | |
 | `src/simd/**`                   | `core/types/simd/**`    | Optimized primitives |
 | `src/tensor/**`                 | `core/types/tensor/**`  | Tensor implementation |
 | `include/t81/**`                | `include/t81/**`        | Stays, but subdirs reorganized (e.g. `core` -> `types`) |

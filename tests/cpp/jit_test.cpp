@@ -1,4 +1,4 @@
-#include "t81/vm/jit.hpp"
+#include "t81/jit/jit.hpp"
 #include <iostream>
 #include <string>
 #include "t81/isa/program.hpp"

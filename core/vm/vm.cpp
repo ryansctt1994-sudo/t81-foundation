@@ -23,7 +23,7 @@
 #include "t81/canonfs/canon_types.hpp"
 #include "t81/cog/promotion.hpp"
 #include "t81/enum_meta.hpp"
-#include "t81/vm/jit.hpp"
+#include "t81/jit/jit.hpp"
 #include "t81/vm/vm.hpp"
 
 namespace t81::vm {

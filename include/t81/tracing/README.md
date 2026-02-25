@@ -1,4 +1,4 @@
-# t81/hash — Canonical Base-81 & CanonHash
+# t81/tracing — Canonical Base-81 & CanonHash
 
 This directory provides the canonical implementations for hashing and Base-81 encoding.
 

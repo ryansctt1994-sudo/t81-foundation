@@ -14,7 +14,7 @@ This document tracks immediate, actionable tasks for the T81 project.
 - [ ] **Infinite (Tier 5):** Implement `InfiniteCanonicalForm` lazy expansion logic.
 
 ### Core Runtime
-- [ ] **JIT:** Advance `src/jit` from experimental research to prototype backend.
+- [ ] **JIT:** Advance `runtime/jit` from experimental research to prototype backend.
 - [ ] **CanonFS:** Optimize `PersistentDriver` for high-throughput tensor I/O.
 - [ ] **Float:** Complete "Partial Polyfill" remediation for full float division determinism (software implementation).
 
