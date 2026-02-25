@@ -13,6 +13,10 @@
   <a href="https://en.cppreference.com/w/cpp/23"><img src="https://img.shields.io/badge/Language-C%2B%2B23-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white" alt="Language: C++23"></a>
 </p>
 
+<p align="center">
+  <img src="assets/banner.png" alt="T81 Foundation architecture banner">
+</p>
+
 > **T81 is a deterministic computing platform with a formally frozen ISA and verifiable reproducibility guarantees for defined surfaces.**
 
 ---
