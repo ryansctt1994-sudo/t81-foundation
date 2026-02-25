@@ -71,6 +71,21 @@ void test_result_match_guard_and_payload_success() {
                "t81lang_edge_result_match_guard_success");
 }
 
+void test_match_guard_requires_unguarded_fallback() {
+  constexpr const char* source = R"(
+    fn main() -> i32 {
+      let maybe: Option[i32] = Some(5);
+      let out: i32 = match (maybe) {
+        Some(v) if v > 0 => v,
+        None => 0
+      };
+      return out;
+    }
+  )";
+  require_true(fails_parse_or_semantic(source, "t81lang_edge_match_guard_requires_fallback"),
+               "t81lang_edge_match_guard_requires_fallback");
+}
+
 void test_loop_missing_bounded_annotation_fails() {
   constexpr const char* source = R"(
     fn main() -> i32 {
@@ -126,6 +141,7 @@ void test_nested_loop_match_with_annotations_success() {
 int main() {
   test_match_guard_non_bool_fails();
   test_result_match_guard_and_payload_success();
+  test_match_guard_requires_unguarded_fallback();
   test_loop_missing_bounded_annotation_fails();
   test_guarded_loop_non_bool_guard_fails();
   test_nested_loop_match_with_annotations_success();

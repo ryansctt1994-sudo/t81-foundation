@@ -3847,6 +3847,11 @@ std::any SemanticAnalyzer::visit(const MatchExpr& expr) {
     if (seen_variants.find(required) == seen_variants.end()) {
       error(scrutinee_token, describe_missing_arm(required) + ".");
       structural_error = true;
+      continue;
+    }
+    if (variants_with_no_guard.find(required) == variants_with_no_guard.end()) {
+      error(scrutinee_token, describe_missing_arm(required) + " without a guard.");
+      structural_error = true;
     }
   }
 

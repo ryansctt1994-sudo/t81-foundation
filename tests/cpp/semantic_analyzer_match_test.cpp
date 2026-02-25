@@ -282,11 +282,24 @@ int main() {
             let maybe: Option[i32] = Some(5);
             return match (maybe) {
                 Some(v) if v > 0 => v;
+                Some(_) => 0;
                 None => 0;
             };
         }
     )";
   expect_semantic_success(guard_success, "match_guard_success");
+
+  const std::string guard_requires_fallback = R"(
+        fn main() -> i32 {
+            let maybe: Option[i32] = Some(5);
+            return match (maybe) {
+                Some(v) if v > 0 => v;
+                None => 0;
+            };
+        }
+    )";
+  expect_semantic_failure(guard_requires_fallback, "match_guard_requires_fallback",
+                          "requires 'Some' arm without a guard");
 
   const std::string guard_failure = R"(
         fn main() -> i32 {
