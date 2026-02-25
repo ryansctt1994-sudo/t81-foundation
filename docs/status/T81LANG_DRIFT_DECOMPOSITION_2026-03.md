@@ -86,15 +86,54 @@ It does not redefine T81Lang semantics, freeze boundaries, or DCP scope.
   - `docs/status/IMPLEMENTATION_MATRIX.md`
   - `docs/records/audits/2026-03-governance-review.md`
 
-## Decomposition Table (Initial)
+## Milestone Status Snapshot
 
-| Area | Spec Anchor | Current Signal | Status Category | Evidence |
+- M1 Drift Surface Inventory Lock: Completed (2026-02-25)
+- M2 Deterministic Compilation Profile Gap Plan: Completed (2026-02-25)
+- M3 Conformance and Repro Evidence Mapping: Completed (2026-02-25)
+- M4 Matrix and Governance Sync Update: In Progress
+
+## Decomposition Table (M1 Inventory Lock)
+
+| Area | Spec Anchor | Implementation/Surface | Coverage Category | Evidence |
 | :--- | :--- | :--- | :--- | :--- |
-| Grammar and syntax definition | `spec/t81lang-spec.md` section 1 | Spec present; implementation parity not fully declared | Partial | Frontend parser/lexer tests |
-| Type-system surface | `spec/t81lang-spec.md` section 2 | Draft scope exceeds currently asserted status guarantees | Partial | Semantic analyzer test families |
-| Deterministic bytecode emission profile | Gap noted in verified audit | Explicit audit gap | Missing (doc specificity gap) | `docs/status/VERIFIED_SURFACE_AUDIT.md` |
-| Reproducibility fixture gate | Compiler repro row in registry | Active fixture hash gate | Implemented evidence path (partial registry status) | `scripts/ci/t81lang_repro_gate.py` |
-| Conformance baseline | T81Lang conformance test | Active baseline test exists | Partial | `tests/cpp/t81lang_conformance_baseline_test.cpp` |
+| Core grammar and precedence | `spec/t81lang-spec.md` section 1 and Appendix A | `lang/frontend/lexer.cpp`, `lang/frontend/parser.cpp` | Partial | `tests/cpp/frontend_lexer_test.cpp`, `tests/cpp/frontend_parser_test.cpp`, `tests/cpp/test_parser_regression_audit.cpp` |
+| Type system and generic syntax | `spec/t81lang-spec.md` section 2 | `lang/frontend/semantic_analyzer.cpp` | Partial | `tests/cpp/semantic_analyzer_generic_test.cpp`, `tests/cpp/frontend_parser_generics_test.cpp`, `tests/cpp/frontend_parser_legacy_rejection_test.cpp` |
+| Structural types (`Option` / `Result`) | `spec/t81lang-spec.md` section 2.5 and section 6.2 | parser/semantic/IR frontend surfaces | Implemented (bounded) | `tests/cpp/semantic_analyzer_option_result_test.cpp`, `tests/cpp/e2e_option_result_test.cpp`, `tests/cpp/e2e_option_result_function_test.cpp` |
+| Purity/effects and tier annotations | `spec/t81lang-spec.md` section 3 | parser + semantic metadata surfaces | Partial | `tests/cpp/t81lang_conformance_baseline_test.cpp`, `tests/cpp/semantic_analyzer_loop_test.cpp` |
+| Name resolution and scoping | `spec/t81lang-spec.md` section 4 | `lang/frontend/symbol_table.cpp`, semantic analyzer | Partial | `tests/cpp/semantic_analyzer_diagnostic_precision_test.cpp`, `tests/cpp/semantic_analyzer_diagnostic_location_test.cpp` |
+| Deterministic compile pipeline and lowering | `spec/t81lang-spec.md` section 5 | parser/semantic/IR generator + CLI compile path | Partial (traceability gap remains) | `tests/cpp/frontend_ir_generator_test.cpp`, `tests/cpp/e2e_compile_determinism_test.cpp`, `scripts/ci/t81lang_repro_gate.py` |
+| Control flow (`if`/`match`/`loop`) | `spec/t81lang-spec.md` section 6 | parser/semantic/IR control-flow handling | Partial | `tests/cpp/e2e_if_statement_test.cpp`, `tests/cpp/e2e_match_expression_test.cpp`, `tests/cpp/e2e_loop_statement_test.cpp`, `tests/cpp/semantic_analyzer_match_test.cpp` |
+| Axion integration metadata | `spec/t81lang-spec.md` section 7 | metadata and policy-related frontend paths | Partial | `tests/cpp/axion_loop_metadata_test.cpp`, `tests/cpp/axion_match_metadata_test.cpp`, `tests/cpp/e2e_axion_trace_test.cpp` |
+| Stdlib surface alignment | `spec/t81lang-spec.md` section 8 | `lang/stdlib/std/*.t81` + CLI fixtures | Partial | `tests/cpp/cli_std_text_fixtures_test.cpp`, `tests/cpp/cli_std_bytes_fixtures_test.cpp`, `tests/cpp/cli_std_collections_fixtures_test.cpp`, `tests/cpp/cli_std_tensor_fixtures_test.cpp`, `tests/cpp/cli_std_runtime_fixtures_test.cpp`, `tests/cpp/cli_std_symbol_fixtures_test.cpp` |
+
+## M2 Deterministic Compilation Profile Gap Plan
+
+Planned section target in `spec/t81lang-spec.md`:
+
+- Section 5 ("Compilation Pipeline"), with profile-level constraints for
+  bytecode emission determinism (no semantic expansion).
+
+Bounded gap closure scope:
+
+1. Document deterministic emission invariants already implied by existing
+   lowering and reproducibility gate behavior.
+2. Map each invariant to existing evidence paths (IR tests, e2e compile
+   determinism, fixture-hash gate).
+3. Keep determinism guarantees bounded to registry status and DCP scope.
+
+## M3 Conformance and Repro Evidence Mapping
+
+| Drift Category | Primary Check(s) | Scope Signal | Open Gap |
+| :--- | :--- | :--- | :--- |
+| Grammar/parsing | `frontend_parser_*`, `test_parser_regression_audit.cpp` | Operator precedence and legacy syntax rejection tested | Need explicit section-level matrix for spec Appendix production rules |
+| Semantic typing | `semantic_analyzer_*`, `t81lang_conformance_baseline_test.cpp` | Numeric widening, Option/Result, diagnostics covered | Coverage granularity by spec subsection not yet declared |
+| IR/lowering determinism | `frontend_ir_generator_*`, `e2e_*`, `test_frontend_logical_lowering.cpp` | Deterministic lowering behaviors tested | Missing single normative compile-profile statement tied to emitted bytecode invariants |
+| Compile reproducibility | `scripts/ci/t81lang_repro_gate.py`, `tests/fixtures/t81lang_determinism/` | Two-pass byte identity + aggregate hash gate active | Fixture-pack scope can expand as high-drift features stabilize |
+
+## Executable Code Task Queue
+
+- `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`
 
 ## Risks and Controls
 

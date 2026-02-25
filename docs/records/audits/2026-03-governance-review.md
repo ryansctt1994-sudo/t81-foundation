@@ -18,16 +18,17 @@ Reference decomposition artifact:
 
 Milestone snapshot:
 
-- M1 Drift Surface Inventory Lock: Not Started
-- M2 Deterministic Compilation Profile Gap Plan: Not Started
-- M3 Conformance and Repro Evidence Mapping: Not Started
-- M4 Matrix and Governance Sync Update: Not Started
+- M1 Drift Surface Inventory Lock: Completed (2026-02-25)
+- M2 Deterministic Compilation Profile Gap Plan: Completed (2026-02-25)
+- M3 Conformance and Repro Evidence Mapping: Completed (2026-02-25)
+- M4 Matrix and Governance Sync Update: In Progress
 
 Planned evidence updates:
 
 - `docs/status/IMPLEMENTATION_MATRIX.md`
 - `docs/status/VERIFIED_SURFACE_AUDIT.md` (gap-plan traceability section updates
   when ready)
+- `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`
 
 ## A2 Tracking — Axion Partial-Coverage Alignment
 
