@@ -15,6 +15,7 @@ int main() {
             match (Color.Blue(42)) {
                 Red => 0;
                 Blue(v) if v > 10 => v;
+                Blue(_) => 0;
             };
             return 0;
         }
