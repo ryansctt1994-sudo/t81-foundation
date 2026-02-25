@@ -255,6 +255,18 @@ freeze boundaries.
 3. Sync matrix/governance artifacts after A1D evidence updates.
    Completed (A1D-CODE-03, 2026-02-25).
 
+## Post-A1D Candidate Deltas (A1E Seed)
+
+These planned deltas continue bounded evidence-index closure for residual
+partial-alignment areas without changing runtime semantics, determinism scope,
+or freeze boundaries.
+
+1. Publish section 4 name-resolution/scoping evidence index tied to existing
+   diagnostics and conformance checks.
+2. Publish residual section 3/6 alignment evidence addendum focused on
+   purity/effects metadata traceability.
+3. Sync matrix/governance artifacts after A1E evidence updates.
+
 ## Risks and Controls
 
 - Risk: Overclaiming deterministic guarantees for T81Lang surfaces.

@@ -45,6 +45,14 @@ spec anchors, code paths, and validation tests.
 | A1D-CODE-02 | Publish section 8 stdlib alignment evidence index using existing CLI std fixture suites | `spec/t81lang-spec.md` section 8 | `lang/stdlib/std/` and CLI fixture evidence surfaces | `tests/cpp/cli_std_text_fixtures_test.cpp`, `tests/cpp/cli_std_bytes_fixtures_test.cpp`, `tests/cpp/cli_std_collections_fixtures_test.cpp`, `tests/cpp/cli_std_tensor_fixtures_test.cpp`, `tests/cpp/cli_std_runtime_fixtures_test.cpp`, `tests/cpp/cli_std_symbol_fixtures_test.cpp` | 2026-04-04 | Completed (2026-02-25) |
 | A1D-CODE-03 | Sync matrix and governance evidence after A1D updates | `spec/t81lang-spec.md` cross-section | status/audit artifacts | `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/records/audits/2026-03-governance-review.md`, `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md` | 2026-04-05 | Completed (2026-02-25) |
 
+## Post-A1D Queue (A1E Seed)
+
+| Task ID | Work Item | Spec Anchor | Code Surface | Validation Target | Target Date | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| A1E-CODE-01 | Publish section 4 name-resolution/scoping evidence index for residual partial alignment surfaces | `spec/t81lang-spec.md` section 4 | frontend symbol and semantic surfaces (evidence mapping only) | `tests/cpp/semantic_analyzer_diagnostic_precision_test.cpp`, `tests/cpp/semantic_analyzer_diagnostic_location_test.cpp`, `tests/cpp/semantic_analyzer_cascade_suppression_test.cpp`, `tests/cpp/t81lang_conformance_baseline_test.cpp` | 2026-04-08 | Planned |
+| A1E-CODE-02 | Publish residual section 3/6 alignment evidence addendum focusing on purity/effects metadata traceability | `spec/t81lang-spec.md` sections 3 and 6 | frontend semantic/control-flow surfaces (evidence mapping only) | `tests/cpp/t81lang_conformance_edge_semantics_test.cpp`, `tests/cpp/semantic_analyzer_loop_test.cpp`, `tests/cpp/semantic_analyzer_match_test.cpp`, `tests/cpp/e2e_match_expression_test.cpp` | 2026-04-10 | Planned |
+| A1E-CODE-03 | Sync matrix and governance evidence after A1E updates | `spec/t81lang-spec.md` cross-section | status/audit artifacts | `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/records/audits/2026-03-governance-review.md`, `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md` | 2026-04-11 | Planned |
+
 ## Execution Rule
 
 Tasks in this queue must not alter freeze boundaries, determinism claim scope,

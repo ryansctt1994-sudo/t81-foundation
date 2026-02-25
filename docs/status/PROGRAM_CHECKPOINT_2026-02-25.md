@@ -24,7 +24,7 @@ navigation hardening.
 
 ## Intentionally Deferred
 
-1. No new drift-reduction queue beyond A1C is opened yet.
+1. No new drift-reduction queue beyond A1D is executed yet (`A1E` is seeded).
 2. CI integration for governance hygiene script is deferred by design in this
    cycle (script added for local/manual use only).
 3. Additional README coverage for low-value or churn-heavy leaf directories
@@ -32,8 +32,8 @@ navigation hardening.
 
 ## Next Two Executable Items
 
-1. Define and publish the post-A1D candidate queue (`A1E-*`) only if cycle
-   closure gate conditions remain satisfied in status/audit artifacts.
+1. Execute `A1E-CODE-01` (section 4 name-resolution/scoping evidence index)
+   from `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`.
 2. Run `python3 scripts/governance/check_docs_governance_hygiene.py` and apply
    any required cleanup before the next status refresh commit.
 

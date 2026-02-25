@@ -62,6 +62,8 @@ Authority remains:
      evidence-index closure
    - A1D closure complete with matrix/governance synchronization; next queue
      definition remains active
+   - A1E queue seeded for residual section 4 and section 3/6 evidence-addendum
+     closure
 4. Documentation lifecycle control
    - prevent root-level doc sprawl and stale governance artifacts
 
