@@ -205,6 +205,13 @@ Bounded gap closure scope:
 | `spec/t81lang-spec.md` section 5 (Deterministic Compilation Profile traceability) | End-to-end compile byte-identity and deterministic artifact behavior across repeated compilation passes | Covered | `tests/cpp/e2e_compile_determinism_test.cpp`, `tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp`, `scripts/ci/t81lang_repro_gate.py` |
 | `spec/t81lang-spec.md` section 5 stage 6/7 (IR + TISC lowering) | Frontend IR generation and lowering path determinism evidence for stable compilation profile surfaces | Covered | `tests/cpp/frontend_ir_generator_test.cpp`, `tests/cpp/e2e_compile_determinism_test.cpp`, `tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp` |
 
+## Section 8 Stdlib Alignment Evidence Index (A1D-CODE-02)
+
+| Spec Anchor | Rule/Surface | Coverage Status | Evidence |
+| :--- | :--- | :--- | :--- |
+| `spec/t81lang-spec.md` section 8 (Interoperability Summary) | Standard library fixture behavior alignment across text, bytes, symbol, and collection surfaces | Covered | `tests/cpp/cli_std_text_fixtures_test.cpp`, `tests/cpp/cli_std_bytes_fixtures_test.cpp`, `tests/cpp/cli_std_symbol_fixtures_test.cpp`, `tests/cpp/cli_std_collections_fixtures_test.cpp` |
+| `spec/t81lang-spec.md` section 8 (Interoperability Summary) | Standard library fixture behavior alignment across tensor/runtime surfaces | Covered | `tests/cpp/cli_std_tensor_fixtures_test.cpp`, `tests/cpp/cli_std_runtime_fixtures_test.cpp` |
+
 ## Executable Code Task Queue
 
 - `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`
@@ -244,7 +251,7 @@ freeze boundaries.
    frontend IR and e2e determinism/repro checks.
    Completed (A1D-CODE-01, 2026-02-25).
 2. Publish section 8 stdlib alignment evidence index tied to existing CLI std
-   fixture suites.
+   fixture suites. Completed (A1D-CODE-02, 2026-02-25).
 3. Sync matrix/governance artifacts after A1D evidence updates.
 
 ## Risks and Controls

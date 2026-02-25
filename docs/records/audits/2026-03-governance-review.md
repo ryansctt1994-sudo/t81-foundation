@@ -61,6 +61,9 @@ Post-A1 follow-on planning state:
 - A1D-CODE-01 completed on 2026-02-25 with section 5 IR/lowering determinism
   evidence-index publication in
   `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`.
+- A1D-CODE-02 completed on 2026-02-25 with section 8 stdlib alignment
+  evidence-index publication in
+  `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`.
 
 Evidence updates applied:
 
