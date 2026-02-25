@@ -212,6 +212,13 @@ Bounded gap closure scope:
 | `spec/t81lang-spec.md` section 5 (Deterministic Compilation Profile traceability) | End-to-end compile byte-identity and deterministic artifact behavior across repeated compilation passes | Covered | `tests/cpp/e2e_compile_determinism_test.cpp`, `tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp`, `scripts/ci/t81lang_repro_gate.py` |
 | `spec/t81lang-spec.md` section 5 stage 6/7 (IR + TISC lowering) | Frontend IR generation and lowering path determinism evidence for stable compilation profile surfaces | Covered | `tests/cpp/frontend_ir_generator_test.cpp`, `tests/cpp/e2e_compile_determinism_test.cpp`, `tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp` |
 
+## Section 5 Compilation-Profile Maintenance Evidence Addendum (A1F-CODE-02)
+
+| Spec Anchor | Rule/Surface | Coverage Status | Evidence |
+| :--- | :--- | :--- | :--- |
+| `spec/t81lang-spec.md` section 5 (Deterministic Compilation Profile maintenance) | Reproducibility-gate continuity for compile artifacts across repeated runs and fixture sets | Covered | `scripts/ci/t81lang_repro_gate.py`, `tests/cpp/e2e_compile_determinism_test.cpp`, `tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp` |
+| `spec/t81lang-spec.md` section 5 (Conformance-scope maintenance linkage) | Compilation-profile evidence remains bounded to current conformance baseline without guarantee expansion | Covered | `tests/cpp/t81lang_conformance_baseline_test.cpp`, `tests/cpp/e2e_compile_determinism_test.cpp` |
+
 ## Section 8 Stdlib Alignment Evidence Index (A1D-CODE-02)
 
 | Spec Anchor | Rule/Surface | Coverage Status | Evidence |
@@ -300,6 +307,7 @@ semantics, determinism scope, or freeze boundaries.
    Completed (A1F-CODE-01, 2026-02-25).
 2. Publish section 5 compilation-profile maintenance evidence addendum tying
    reproducibility gate artifacts to current conformance scope language.
+   Completed (A1F-CODE-02, 2026-02-25).
 3. Sync matrix/governance artifacts after A1F evidence updates.
 
 ## Risks and Controls
