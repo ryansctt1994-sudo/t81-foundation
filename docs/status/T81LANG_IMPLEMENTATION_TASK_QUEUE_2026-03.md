@@ -53,6 +53,14 @@ spec anchors, code paths, and validation tests.
 | A1E-CODE-02 | Publish residual section 3/6 alignment evidence addendum focusing on purity/effects metadata traceability | `spec/t81lang-spec.md` sections 3 and 6 | frontend semantic/control-flow surfaces (evidence mapping only) | `tests/cpp/t81lang_conformance_edge_semantics_test.cpp`, `tests/cpp/semantic_analyzer_loop_test.cpp`, `tests/cpp/semantic_analyzer_match_test.cpp`, `tests/cpp/e2e_match_expression_test.cpp` | 2026-04-10 | Completed (2026-02-25) |
 | A1E-CODE-03 | Sync matrix and governance evidence after A1E updates | `spec/t81lang-spec.md` cross-section | status/audit artifacts | `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/records/audits/2026-03-governance-review.md`, `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md` | 2026-04-11 | Completed (2026-02-25) |
 
+## Post-A1E Queue (A1F Seed)
+
+| Task ID | Work Item | Spec Anchor | Code Surface | Validation Target | Target Date | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| A1F-CODE-01 | Publish section 7 guard/segment metadata traceability addendum for language-origin metadata surfaces | `spec/t81lang-spec.md` section 7 | Axion policy/metadata evidence surfaces (mapping only) | `tests/cpp/axion_policy_match_guard_test.cpp`, `tests/cpp/axion_policy_segment_event_test.cpp`, `tests/cpp/axion_segment_trace_test.cpp`, `tests/cpp/e2e_axion_trace_test.cpp` | 2026-04-14 | Planned |
+| A1F-CODE-02 | Publish section 5 compilation-profile maintenance evidence addendum tied to reproducibility gate artifacts | `spec/t81lang-spec.md` section 5 | reproducibility and compile-determinism evidence surfaces (mapping only) | `scripts/ci/t81lang_repro_gate.py`, `tests/cpp/e2e_compile_determinism_test.cpp`, `tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp`, `tests/cpp/t81lang_conformance_baseline_test.cpp` | 2026-04-16 | Planned |
+| A1F-CODE-03 | Sync matrix and governance evidence after A1F updates | `spec/t81lang-spec.md` cross-section | status/audit artifacts | `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/records/audits/2026-03-governance-review.md`, `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md` | 2026-04-18 | Planned |
+
 ## Execution Rule
 
 Tasks in this queue must not alter freeze boundaries, determinism claim scope,

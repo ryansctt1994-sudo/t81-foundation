@@ -282,6 +282,18 @@ or freeze boundaries.
 3. Sync matrix/governance artifacts after A1E evidence updates.
    Completed (A1E-CODE-03, 2026-02-25).
 
+## Post-A1E Candidate Deltas (A1F Seed)
+
+These planned deltas continue bounded, evidence-only drift reduction for
+remaining language/runtime traceability seams without changing runtime
+semantics, determinism scope, or freeze boundaries.
+
+1. Publish section 7 guard/segment metadata traceability addendum aligned to
+   existing Axion policy/trace tests for language-origin metadata surfaces.
+2. Publish section 5 compilation-profile maintenance evidence addendum tying
+   reproducibility gate artifacts to current conformance scope language.
+3. Sync matrix/governance artifacts after A1F evidence updates.
+
 ## Risks and Controls
 
 - Risk: Overclaiming deterministic guarantees for T81Lang surfaces.
