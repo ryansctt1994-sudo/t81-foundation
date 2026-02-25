@@ -44,6 +44,8 @@ Authority remains:
 - Last local gate snapshot: `ctest` passed (`247` tests, `0` failures).
 - A1 T81Lang drift decomposition execution track is closed (M1-M4, 2026-02-25)
   with synchronized matrix and governance evidence artifacts.
+- C2 month-close execution runbook prepared:
+  `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md`.
 
 ## 4. Active Workstreams
 
@@ -107,6 +109,8 @@ Authority remains:
 ### 90 Days (Institutionalization)
 
 - Establish repeatable monthly governance review checkpoint.
+- Execute C2 month-close runbook on 2026-03-31 and stamp final governance
+  review outcome fields.
 - Produce release-readiness evidence packet from existing governance artifacts.
 - Confirm backlog decomposition aligns with DCP and freeze boundaries.
 

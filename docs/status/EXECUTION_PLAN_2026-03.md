@@ -43,7 +43,7 @@ This plan covers three priority tracks:
 | B2. Release Decision Lifecycle Standardization | Completed | `docs/status/RELEASE_READINESS_PACKET_2026-02.md`, `docs/status/RELEASE_READINESS_PACKET_2026-03.md` | Decision-stamp continuity validated across consecutive packet cycles (`Decision (UTC)`, `Approver`, `Decision`) with GO/HOLD rule preserved. |
 | B3. Non-Required Workflow Failure Handling Rule | Completed | `docs/product/RELEASE_DISCIPLINE.md`, `docs/status/RELEASE_DISCIPLINE_CHECKLIST.md` | Non-required failure classification and waiver recording rules are now codified. |
 | C1. Root Hygiene Guard Review | Completed | `docs/records/audits/2026-03-governance-review.md` | Root artifact cleanup completed and audited. |
-| C2. Records Cadence Enforcement | In Progress | `docs/records/audits/2026-03-governance-review.md`, `docs/README.md` | March artifact published; checklist outcomes/reviewer metadata/remediation actions are recorded; pre-close dry-run checks passed on 2026-02-25; final cadence confirmation remains scheduled for 2026-03-31. |
+| C2. Records Cadence Enforcement | In Progress | `docs/records/audits/2026-03-governance-review.md`, `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md`, `docs/README.md` | March artifact published; checklist outcomes/reviewer metadata/remediation actions are recorded; pre-close dry-run checks passed on 2026-02-25; month-close runbook prepared; final cadence confirmation remains scheduled for 2026-03-31. |
 | C3. Status Cross-Link Integrity Sweep | Completed | `docs/records/audits/2026-03-governance-review.md` | Completed on 2026-02-25; no missing markdown link targets and no stale superseded-path references in status/governance/product scope. |
 
 ## Track A — Spec/Implementation Drift Reduction
@@ -142,6 +142,7 @@ This plan covers three priority tracks:
   - Records inventory and audit references remain navigable from docs index.
 - Evidence Artifact:
   - `docs/records/audits/2026-03-governance-review.md`
+  - `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md`
   - `docs/README.md`
 
 ### C3. Status Cross-Link Integrity Sweep
@@ -173,6 +174,7 @@ This plan covers three priority tracks:
 8. Maintain A1G closure state in matrix/governance artifacts through March close without expanding deterministic claim scope.
 9. Hold A1-series at A1G (no A1H seed in current window) and prioritize C2 month-close finalization on 2026-03-31.
 10. Use `docs/status/T81LANG_PROMOTION_GATE.md` and `docs/status/T81LANG_ENGINEERING_BACKLOG_2026-03.md` as the post-C2 transition path from documentation hardening to implementation sprint planning.
+11. Execute `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md` on 2026-03-31 and stamp final C2 outcome fields in `docs/records/audits/2026-03-governance-review.md`.
 
 ## Versioning Statement
 

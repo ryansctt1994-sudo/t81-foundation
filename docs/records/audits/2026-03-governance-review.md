@@ -223,6 +223,8 @@ Execution state:
   structure are in place as of 2026-02-25.
 - Pre-close dry-run verification executed on 2026-02-25; final confirmation and
   status stamp remain scheduled for 2026-03-31.
+- Month-close runbook prepared at
+  `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md`.
 
 Cadence and navigation checks:
 
@@ -278,15 +280,8 @@ Scheduled execution date:
 
 Required finalization steps:
 
-1. Re-run `python3 scripts/governance/check_docs_governance_hygiene.py`.
-2. Re-run markdown link-target sweep for:
-   - `docs/status/**/*.md`
-   - `docs/governance/**/*.md`
-   - `docs/product/**/*.md`
-   - `docs/records/audits/**/*.md`
-3. Re-confirm checklist outcomes against
-   `docs/governance/MONTHLY_GOVERNANCE_REVIEW_CHECKLIST.md`.
-4. Stamp final outcome fields:
+1. Execute `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md` in order.
+2. Stamp final outcome fields:
    - `Status: Final`
    - `Finalized Date (UTC): <date>`
    - `Finalized By: <reviewer>`
