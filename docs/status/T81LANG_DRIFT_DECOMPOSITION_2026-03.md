@@ -154,6 +154,16 @@ Bounded gap closure scope:
 | Assignment/call/return widening rules (`int` to `T81Float`/`T81Fraction`) | Covered | `tests/cpp/semantic_analyzer_stage3_rules_test.cpp`, `tests/cpp/t81lang_conformance_baseline_test.cpp` |
 | Implicit narrowing rejection (call/return mismatch) | Covered | `tests/cpp/semantic_analyzer_stage3_rules_test.cpp`, `tests/cpp/t81lang_conformance_baseline_test.cpp` |
 
+## Control-Flow Edge Conformance Coverage (A1-CODE-05)
+
+| Rule Area (`spec/t81lang-spec.md` sections 3 and 6) | Coverage Status | Evidence |
+| :--- | :--- | :--- |
+| Match guard must be boolean | Covered | `tests/cpp/t81lang_conformance_edge_semantics_test.cpp`, `tests/cpp/semantic_analyzer_match_test.cpp` |
+| Result/Option match payload and guard edge handling | Covered | `tests/cpp/t81lang_conformance_edge_semantics_test.cpp`, `tests/cpp/e2e_option_result_test.cpp` |
+| Loop annotation required (`@bounded`) | Covered | `tests/cpp/t81lang_conformance_edge_semantics_test.cpp`, `tests/cpp/semantic_analyzer_loop_test.cpp` |
+| Guarded loop condition must be boolean | Covered | `tests/cpp/t81lang_conformance_edge_semantics_test.cpp`, `tests/cpp/semantic_analyzer_loop_test.cpp` |
+| Tier annotation + bounded loop + match interaction | Covered | `tests/cpp/t81lang_conformance_edge_semantics_test.cpp` |
+
 ## Executable Code Task Queue
 
 - `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`

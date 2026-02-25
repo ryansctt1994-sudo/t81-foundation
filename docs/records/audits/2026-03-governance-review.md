@@ -42,6 +42,8 @@ Planned evidence updates:
 - `tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt` and
   `tests/fixtures/t81lang_determinism/t81lang_ast_ir_repro_hash.txt`
   refresh (A1-CODE-04 evidence)
+- `tests/cpp/t81lang_conformance_edge_semantics_test.cpp`
+  (A1-CODE-05 match/loop/annotation edge conformance evidence)
 
 ## A2 Tracking — Axion Partial-Coverage Alignment
 

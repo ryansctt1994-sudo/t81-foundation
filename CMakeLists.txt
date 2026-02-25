@@ -490,6 +490,12 @@ if(T81_BUILD_TESTS)
   add_executable(t81lang_conformance_baseline_test tests/cpp/t81lang_conformance_baseline_test.cpp)
   target_link_libraries(t81lang_conformance_baseline_test PRIVATE t81_lang_frontend)
 
+  add_executable(t81lang_conformance_edge_semantics_test
+                 tests/cpp/t81lang_conformance_edge_semantics_test.cpp)
+  target_link_libraries(t81lang_conformance_edge_semantics_test PRIVATE t81_lang_frontend)
+  add_test(NAME t81lang_conformance_edge_semantics_test
+           COMMAND t81lang_conformance_edge_semantics_test)
+
   add_executable(t81_numeric_format_test tests/cpp/t81_numeric_format_test.cpp)
   target_link_libraries(t81_numeric_format_test PRIVATE t81_core)
 
