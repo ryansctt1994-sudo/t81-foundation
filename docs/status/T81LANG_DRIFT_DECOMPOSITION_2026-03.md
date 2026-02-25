@@ -198,6 +198,13 @@ Bounded gap closure scope:
 | `spec/t81lang-spec.md` section 7.1 (Tier Metadata) | Tier metadata emission and trace integration from frontend to runtime surfaces | Covered | `tests/cpp/axion_loop_metadata_test.cpp`, `tests/cpp/axion_match_metadata_test.cpp`, `tests/cpp/e2e_axion_trace_test.cpp` |
 | `spec/t81lang-spec.md` section 7.2 (Safety Hooks) | Axion policy hook behavior over match/control-flow operations and guard metadata | Covered | `tests/cpp/axion_policy_match_guard_test.cpp`, `tests/cpp/e2e_axion_trace_test.cpp` |
 
+## Section 7 Guard/Segment Metadata Traceability Addendum (A1F-CODE-01)
+
+| Spec Anchor | Rule/Surface | Coverage Status | Evidence |
+| :--- | :--- | :--- | :--- |
+| `spec/t81lang-spec.md` section 7.1 (Tier Metadata) | Language-origin guard metadata traceability through Axion policy verdict paths | Covered | `tests/cpp/axion_policy_match_guard_test.cpp`, `tests/cpp/e2e_axion_trace_test.cpp` |
+| `spec/t81lang-spec.md` section 7.2 (Safety Hooks) | Segment-event metadata traceability for policy-required guard/segment reasons | Covered | `tests/cpp/axion_policy_segment_event_test.cpp`, `tests/cpp/axion_segment_trace_test.cpp`, `tests/cpp/e2e_axion_trace_test.cpp` |
+
 ## Section 5 IR/Lowering Determinism Evidence Index (A1D-CODE-01)
 
 | Spec Anchor | Rule/Surface | Coverage Status | Evidence |
@@ -290,6 +297,7 @@ semantics, determinism scope, or freeze boundaries.
 
 1. Publish section 7 guard/segment metadata traceability addendum aligned to
    existing Axion policy/trace tests for language-origin metadata surfaces.
+   Completed (A1F-CODE-01, 2026-02-25).
 2. Publish section 5 compilation-profile maintenance evidence addendum tying
    reproducibility gate artifacts to current conformance scope language.
 3. Sync matrix/governance artifacts after A1F evidence updates.
