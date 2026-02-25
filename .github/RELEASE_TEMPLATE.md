@@ -19,6 +19,25 @@
 - `docs/status/STRUCTURAL_INTEGRITY_REPORT.md` reviewed: [ ] yes [ ] no
 - Required structural checks pass: [ ] yes [ ] no
 
+## Required-Context Verification
+
+- Release candidate SHA: `<commit-sha>`
+- Required contexts (from branch protection):
+  - [ ] `quality gate / required`
+  - [ ] `Analyze (cpp)`
+- Context verification command executed:
+  - `gh api repos/t81dev/t81-foundation/commits/<sha>/check-runs`
+- Result:
+  - [ ] all required contexts completed + successful
+  - [ ] one or more required contexts not successful
+
+## Release Decision Gate
+
+- Decision: [ ] GO [ ] HOLD
+- Approver:
+- Decision timestamp (UTC):
+- Blocking reasons (if HOLD):
+
 ## Experimental Changes Summary
 
 - Experimental modules touched: [ ] none [ ] yes (list below)

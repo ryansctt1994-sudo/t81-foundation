@@ -36,6 +36,45 @@ duplicate or redefine their versioning policy.
 - [ ] No open Severity 2/3 determinism incidents
 - [ ] Release notes include determinism hash summary and experimental delta
 
+## Required-Context Verification Procedure
+
+1. Resolve release-candidate commit SHA:
+
+```bash
+git rev-parse HEAD
+```
+
+2. Query required branch-protection contexts:
+
+```bash
+gh api repos/t81dev/t81-foundation/branches/main/protection --jq '.required_status_checks.contexts'
+```
+
+3. Query check runs for release-candidate SHA:
+
+```bash
+sha=$(git rev-parse HEAD)
+gh api repos/t81dev/t81-foundation/commits/$sha/check-runs \
+  --jq '.check_runs[] | {name:.name,status:.status,conclusion:.conclusion,details_url:.details_url}'
+```
+
+4. Verify that every required context is present for the SHA and has:
+   - `status=completed`
+   - `conclusion=success`
+
+5. Record context-level evidence in the active release-readiness packet.
+
+## Release Decision Gate
+
+Decision is **GO** only when all are true:
+
+1. All required branch-protection contexts are successful for the release SHA.
+2. No open `freeze-exception` blockers for release scope.
+3. No unresolved Severity 2/3 determinism incidents.
+4. DCP and determinism evidence artifacts are current.
+
+If any condition fails, decision is **HOLD**.
+
 ## Required Release Artifacts
 
 1. Source package for tagged commit.

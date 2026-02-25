@@ -48,6 +48,18 @@ state and repository label state remain release-manager checklist items.
     - `Format Check` (failed)
     - `Documentation` workflow contains failed job (`Generate Sidebar`)
 
+## Required-Context Verification (Procedure Alignment)
+
+- Required contexts (branch protection):
+  - `quality gate / required`
+  - `Analyze (cpp)`
+- Verification method:
+  - `gh api repos/t81dev/t81-foundation/branches/main/protection --jq '.required_status_checks.contexts'`
+  - `gh api repos/t81dev/t81-foundation/commits/<sha>/check-runs`
+- Decision rule:
+  - GO only when all required contexts are `completed` and `success`.
+  - Otherwise HOLD.
+
 ## Open Blocking Items
 
 1. Wait for required branch-protection contexts to complete and reach success.
