@@ -42,6 +42,8 @@ Authority remains:
 
 - Full configure/build and full test sweep completed in current cycle.
 - Last local gate snapshot: `ctest` passed (`247` tests, `0` failures).
+- A1 T81Lang drift decomposition execution track is closed (M1-M4, 2026-02-25)
+  with synchronized matrix and governance evidence artifacts.
 
 ## 4. Active Workstreams
 
@@ -50,7 +52,8 @@ Authority remains:
 2. Determinism assurance continuity
    - maintain verified-surface evidence and corpus hash discipline
 3. Spec-implementation alignment
-   - reduce high-drift areas highlighted in status matrix
+   - A1 closure complete; continue high-drift reduction beyond current
+     decomposition baseline
 4. Documentation lifecycle control
    - prevent root-level doc sprawl and stale governance artifacts
 

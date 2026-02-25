@@ -91,7 +91,14 @@ It does not redefine T81Lang semantics, freeze boundaries, or DCP scope.
 - M1 Drift Surface Inventory Lock: Completed (2026-02-25, refreshed 2026-02-25 with Appendix A parser coverage matrix)
 - M2 Deterministic Compilation Profile Gap Plan: Completed (2026-02-25)
 - M3 Conformance and Repro Evidence Mapping: Completed (2026-02-25)
-- M4 Matrix and Governance Sync Update: In Progress
+- M4 Matrix and Governance Sync Update: Completed (2026-02-25)
+
+## A1 Closure State (A1-CODE-06)
+
+Matrix and governance synchronization for this decomposition are complete as of
+2026-02-25. The implementation queue, matrix notes, and March governance review
+snapshot now reflect M1-M4 closure status without changing spec authority or
+determinism claim boundaries.
 
 ## Decomposition Table (M1 Inventory Lock)
 

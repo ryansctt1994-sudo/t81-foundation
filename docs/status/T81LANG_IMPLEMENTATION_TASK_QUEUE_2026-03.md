@@ -19,7 +19,7 @@ spec anchors, code paths, and validation tests.
 | A1-CODE-03 | Codify deterministic compilation-profile invariants in status/spec trace docs (no runtime changes) | `spec/t81lang-spec.md` section 5 | `docs/status/VERIFIED_SURFACE_AUDIT.md`, related spec references | `tests/cpp/e2e_compile_determinism_test.cpp`, `tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp`, `scripts/ci/t81lang_repro_gate.py` | 2026-03-06 | Completed (2026-02-25) |
 | A1-CODE-04 | Expand reproducibility fixture coverage for currently high-drift grammar/semantic cases | `spec/t81lang-spec.md` sections 1, 2, 6 | `tests/fixtures/t81lang_determinism/` | `scripts/ci/t81lang_repro_gate.py`, `tests/cpp/e2e_compile_determinism_test.cpp`, `tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp` | 2026-03-09 | Completed (2026-02-25) |
 | A1-CODE-05 | Add conformance tests for uncovered match/loop/annotation edge semantics identified by matrix | `spec/t81lang-spec.md` sections 3 and 6 | frontend parser/semantic/IR paths | `tests/cpp/semantic_analyzer_match_test.cpp`, `tests/cpp/semantic_analyzer_loop_test.cpp`, `tests/cpp/e2e_match_expression_test.cpp`, `tests/cpp/t81lang_conformance_edge_semantics_test.cpp` | 2026-03-12 | Completed (2026-02-25) |
-| A1-CODE-06 | Sync matrix and governance evidence after task closures | `spec/t81lang-spec.md` cross-section | status/audit artifacts | `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/records/audits/2026-03-governance-review.md` | 2026-03-12 | Planned |
+| A1-CODE-06 | Sync matrix and governance evidence after task closures | `spec/t81lang-spec.md` cross-section | status/audit artifacts | `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/records/audits/2026-03-governance-review.md` | 2026-03-12 | Completed (2026-02-25) |
 
 ## Execution Rule
 

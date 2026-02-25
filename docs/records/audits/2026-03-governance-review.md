@@ -21,9 +21,15 @@ Milestone snapshot:
 - M1 Drift Surface Inventory Lock: Completed (2026-02-25)
 - M2 Deterministic Compilation Profile Gap Plan: Completed (2026-02-25)
 - M3 Conformance and Repro Evidence Mapping: Completed (2026-02-25)
-- M4 Matrix and Governance Sync Update: In Progress
+- M4 Matrix and Governance Sync Update: Completed (2026-02-25)
 
-Planned evidence updates:
+A1 completion state:
+
+- A1-CODE-01 through A1-CODE-06 completed on 2026-02-25.
+- Matrix/decomposition/task-queue artifacts are synchronized for current A1
+  closure evidence.
+
+Evidence updates applied:
 
 - `docs/status/IMPLEMENTATION_MATRIX.md`
 - `docs/status/VERIFIED_SURFACE_AUDIT.md` (gap-plan traceability section updates
