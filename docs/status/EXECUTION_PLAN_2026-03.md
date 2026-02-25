@@ -38,6 +38,7 @@ This plan covers three priority tracks:
   - Milestones linked to `IMPLEMENTATION_MATRIX.md` row and March review note.
 - Evidence Artifact:
   - `docs/status/IMPLEMENTATION_MATRIX.md`
+  - `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`
   - `docs/records/audits/2026-03-governance-review.md`
 
 ### A2. Axion Partial-Coverage Alignment Plan

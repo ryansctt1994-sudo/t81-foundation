@@ -16,7 +16,7 @@ risk explicit for planning and governance review.
 | **Data Types** | `spec/t81-data-types.md` (Frozen) | Implemented | High | Low | @t81dev | N/A (maintain) | Frozen deterministic core surface. |
 | **TISC ISA** | `spec/tisc-spec.md` (Frozen) | Implemented | High | Low | @t81dev | N/A (maintain) | Frozen deterministic core surface. |
 | **T81VM** | `spec/t81vm-spec.md` (Beta) | Partial | Medium | Medium | @t81dev | 2026-04-15 | Beta surface under active verification. |
-| **T81Lang** | `spec/t81lang-spec.md` (Draft) | Experimental | Low | High | @t81dev | 2026-05-15 | Draft scope and implementation remain non-parity. |
+| **T81Lang** | `spec/t81lang-spec.md` (Draft) | Experimental | Low | High | @t81dev | 2026-05-15 | Drift decomposition tracked in `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md` with March milestones and governance review linkage. |
 | **Axion Kernel** | `spec/axion-kernel.md` (Draft) | Partial | Medium | Medium | @t81dev | 2026-04-30 | Coverage remains partial against full draft scope. |
 | **Cognitive Tiers** | `spec/cognitive-tiers.md` (Draft) | Concept / Experimental | Low | High | @t81dev | 2026-06-15 | Experimental, non-DCP surface. |
 
