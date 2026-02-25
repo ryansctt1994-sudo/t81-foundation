@@ -684,6 +684,12 @@ if(T81_BUILD_TESTS)
   add_executable(t81_semantic_analyzer_numeric_test tests/cpp/semantic_analyzer_numeric_test.cpp)
   target_link_libraries(t81_semantic_analyzer_numeric_test PRIVATE t81_lang_frontend)
 
+  add_executable(t81_semantic_analyzer_stage3_rules_test
+                 tests/cpp/semantic_analyzer_stage3_rules_test.cpp)
+  target_link_libraries(t81_semantic_analyzer_stage3_rules_test PRIVATE t81_lang_frontend)
+  add_test(NAME t81_semantic_analyzer_stage3_rules_test
+           COMMAND t81_semantic_analyzer_stage3_rules_test)
+
   add_executable(t81_semantic_analyzer_diagnostic_location_test tests/cpp/semantic_analyzer_diagnostic_location_test.cpp)
   target_link_libraries(t81_semantic_analyzer_diagnostic_location_test PRIVATE t81_lang_frontend)
 

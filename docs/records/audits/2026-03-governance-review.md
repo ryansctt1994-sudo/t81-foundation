@@ -31,6 +31,8 @@ Planned evidence updates:
 - `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`
 - `tests/cpp/frontend_parser_appendix_coverage_test.cpp` (A1-CODE-01 parser
   coverage evidence)
+- `tests/cpp/semantic_analyzer_stage3_rules_test.cpp` (A1-CODE-02 semantic
+  Stage 3 rule coverage evidence)
 
 ## A2 Tracking — Axion Partial-Coverage Alignment
 

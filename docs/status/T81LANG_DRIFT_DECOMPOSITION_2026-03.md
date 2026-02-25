@@ -145,6 +145,15 @@ Bounded gap closure scope:
 | IR/lowering determinism | `frontend_ir_generator_*`, `e2e_*`, `test_frontend_logical_lowering.cpp` | Deterministic lowering behaviors tested | Missing single normative compile-profile statement tied to emitted bytecode invariants |
 | Compile reproducibility | `scripts/ci/t81lang_repro_gate.py`, `tests/fixtures/t81lang_determinism/` | Two-pass byte identity + aggregate hash gate active | Fixture-pack scope can expand as high-drift features stabilize |
 
+## Stage 3 Semantic Coverage Tightening (A1-CODE-02)
+
+| Rule Area (`spec/t81lang-spec.md` section 5, Stage 3) | Coverage Status | Evidence |
+| :--- | :--- | :--- |
+| Modulo restricted to integer operands | Covered | `tests/cpp/semantic_analyzer_stage3_rules_test.cpp`, `tests/cpp/semantic_analyzer_option_result_test.cpp` |
+| Comparison constraints for non-numeric types (`Symbol` relational rejection; equality handling) | Covered | `tests/cpp/semantic_analyzer_stage3_rules_test.cpp`, `tests/cpp/spec_compliance_test.cpp` |
+| Assignment/call/return widening rules (`int` to `T81Float`/`T81Fraction`) | Covered | `tests/cpp/semantic_analyzer_stage3_rules_test.cpp`, `tests/cpp/t81lang_conformance_baseline_test.cpp` |
+| Implicit narrowing rejection (call/return mismatch) | Covered | `tests/cpp/semantic_analyzer_stage3_rules_test.cpp`, `tests/cpp/t81lang_conformance_baseline_test.cpp` |
+
 ## Executable Code Task Queue
 
 - `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`
