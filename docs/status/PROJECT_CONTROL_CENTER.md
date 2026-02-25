@@ -56,6 +56,8 @@ Authority remains:
      decomposition baseline
    - A1B closure complete; A1C next-cycle queue opened for section 3/6 and
      section 7 evidence-index hardening
+   - A1C closure complete with matrix/governance synchronization; next queue
+     definition remains active
 4. Documentation lifecycle control
    - prevent root-level doc sprawl and stale governance artifacts
 

@@ -32,6 +32,7 @@ This plan covers three priority tracks:
 | :--- | :--- | :--- | :--- |
 | A1. T81Lang Drift Decomposition | Completed | `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`, `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`, `docs/records/audits/2026-03-governance-review.md` | M1-M4 completed on 2026-02-25; execution queue A1-CODE-01..06 closed with matrix/governance synchronization. |
 | A1B. T81Lang Follow-On Evidence Closure | Completed | `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`, `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`, `docs/records/audits/2026-03-governance-review.md` | A1B-CODE-01..03 completed on 2026-02-25; parser/semantic evidence deltas and post-follow-on sync are closed. |
+| A1C. T81Lang Next-Cycle Evidence Closure | Completed | `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`, `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`, `docs/records/audits/2026-03-governance-review.md`, `docs/status/IMPLEMENTATION_MATRIX.md` | A1C-CODE-01..03 completed on 2026-02-25; section 3/6 and section 7 evidence indexes plus matrix/governance synchronization are closed. |
 | A2. Axion Partial-Coverage Alignment Plan | Completed | `docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md`, `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/status/SYSTEM_STATUS.md` | Bounded milestones and dated next actions are now recorded and cross-linked. |
 | A3. Experimental Tiers Boundary Clarification | Completed | `docs/product/DETERMINISTIC_CORE_PROFILE.md`, `docs/status/EXPERIMENTAL_SURFACE_INVENTORY.md`, `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/status/SYSTEM_STATUS.md` | Terminology normalized: experimental tiers are non-DCP and non-verified unless promoted through governance and registry update. |
 | B1. Required-Checks Release Gating Procedure | Completed | `docs/status/RELEASE_DISCIPLINE_CHECKLIST.md`, `docs/status/RELEASE_READINESS_PACKET_2026-02.md` | Procedure and decision gate are now explicit and evidence-backed. |
@@ -161,7 +162,7 @@ This plan covers three priority tracks:
 1. Complete B2 continuity by applying standardized decision stamping to the next release-readiness packet cycle.
 2. Maintain A1 closure state in matrix and monthly governance review artifacts through March close.
 3. Execute C3 link-target integrity sweep at month-end after remaining status updates land.
-4. Execute next-cycle T81Lang drift-reduction queue (`A1C-CODE-01..03`) and roll outcomes into matrix/governance artifacts without expanding deterministic claim scope.
+4. Define the next post-A1C drift-reduction candidate queue and schedule it for the next status refresh checkpoint without expanding deterministic claim scope.
 
 ## Versioning Statement
 
