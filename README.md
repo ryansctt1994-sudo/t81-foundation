@@ -96,6 +96,7 @@ The project is governed by a strict set of verification and enforcement document
 
 Determinism guarantees apply **only** to surfaces marked "Verified" in the Registry.
 Breaking determinism on a verified surface is treated as a **Critical Defect**.
+Structural invariants are automatically checked in CI.
 
 ### Non-Goals
 

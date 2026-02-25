@@ -38,6 +38,7 @@ exclude_globs=(
   '!docs/governance/MIGRATION_MAP.md'
   '!scripts/restructure/phase1_scan.sh'
   '!scripts/restructure/verify_restructure_clean.sh'
+  '!scripts/architecture/check_legacy_paths.sh'
 )
 
 search_roots=(README*.md docs scripts tools examples include core kernel lang runtime tooling tests spec pdf)

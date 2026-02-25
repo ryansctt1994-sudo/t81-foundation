@@ -90,6 +90,96 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   ############################################################################
+  # JOB: architecture-invariants (informational)
+  ############################################################################
+  architecture-invariants:
+    name: " architecture / invariants (informational) "
+    needs: spec-and-docs
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Run dependency firewall check
+        run: python3 scripts/architecture/check_dependency_firewall.py
+
+      - name: Run legacy path check
+        run: scripts/architecture/check_legacy_paths.sh
+
+      - name: Run restructure verification (optional invariant)
+        run: scripts/restructure/verify_restructure_clean.sh
+
+  ############################################################################
+  # JOB: deterministic-core-profile-check (informational)
+  ############################################################################
+  deterministic-core-profile-check:
+    name: " product / dcp integrity (informational) "
+    needs: spec-and-docs
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Verify DCP and governance documents exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f docs/product/DETERMINISTIC_CORE_PROFILE.md
+          test -f docs/governance/DETERMINISM_SURFACE_REGISTRY.md
+          test -f docs/governance/FREEZE_ENFORCEMENT.md
+
+      - name: Verify DCP/registry surface alignment
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          dcp = Path("docs/product/DETERMINISTIC_CORE_PROFILE.md").read_text(encoding="utf-8")
+          reg = Path("docs/governance/DETERMINISM_SURFACE_REGISTRY.md").read_text(encoding="utf-8")
+
+          required = [
+              "Core Data Types",
+              "TISC ISA",
+              "T81VM Interpreter",
+              "Soft-float",
+              "Canonical serialization",
+          ]
+
+          missing_dcp = [s for s in required if s not in dcp]
+          if missing_dcp:
+              raise SystemExit(f"Missing required DCP surface labels: {missing_dcp}")
+
+          registry_markers = [
+              "TISC Opcode Semantics",
+              "VM Interpreter Execution",
+              "Data Type Canonical Encoding",
+              "Soft-Float Deterministic Math",
+          ]
+          missing_registry = [s for s in registry_markers if s not in reg]
+          if missing_registry:
+              raise SystemExit(f"Missing required registry markers: {missing_registry}")
+
+          print("DCP and determinism registry contain required surface markers.")
+          PY
+
+      - name: Verify public headers are under include/t81 only
+        shell: bash
+        run: |
+          set -euo pipefail
+          bad="$(find include -type f \( -name '*.h' -o -name '*.hh' -o -name '*.hpp' -o -name '*.hxx' \) | grep -v '^include/t81/' || true)"
+          if [ -n "$bad" ]; then
+            echo "::error::Found non-public header paths under include/:"
+            echo "$bad"
+            exit 1
+          fi
+          echo "Public header root check passed."
+
+  ############################################################################
   # JOB: governance-metrics
   ############################################################################
   governance-metrics:

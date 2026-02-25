@@ -64,3 +64,10 @@ The following scripts enforce this firewall:
 - `scripts/architecture/check_legacy_paths.sh`
 
 Both scripts must pass before merge for structural changes.
+
+## Enforcement Escalation Plan
+
+- Phase A: Informational (current).
+- Phase B: Blocking on PRs.
+- Phase C: Blocking on main branch only.
+- Phase D: Blocking + required review.
