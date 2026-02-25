@@ -70,6 +70,9 @@ Post-A1 follow-on planning state:
   `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`.
 - Post-A1D queue `A1E-CODE-01..03` is opened for residual section 4 and
   section 3/6 evidence-addendum closure plus matrix/governance synchronization.
+- A1E-CODE-01 completed on 2026-02-25 with section 4 name-resolution/scoping
+  evidence-index publication in
+  `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`.
 
 Evidence updates applied:
 

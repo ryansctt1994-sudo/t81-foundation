@@ -212,6 +212,13 @@ Bounded gap closure scope:
 | `spec/t81lang-spec.md` section 8 (Interoperability Summary) | Standard library fixture behavior alignment across text, bytes, symbol, and collection surfaces | Covered | `tests/cpp/cli_std_text_fixtures_test.cpp`, `tests/cpp/cli_std_bytes_fixtures_test.cpp`, `tests/cpp/cli_std_symbol_fixtures_test.cpp`, `tests/cpp/cli_std_collections_fixtures_test.cpp` |
 | `spec/t81lang-spec.md` section 8 (Interoperability Summary) | Standard library fixture behavior alignment across tensor/runtime surfaces | Covered | `tests/cpp/cli_std_tensor_fixtures_test.cpp`, `tests/cpp/cli_std_runtime_fixtures_test.cpp` |
 
+## Section 4 Name-Resolution/Scoping Evidence Index (A1E-CODE-01)
+
+| Spec Anchor | Rule/Surface | Coverage Status | Evidence |
+| :--- | :--- | :--- | :--- |
+| `spec/t81lang-spec.md` section 4 (Name Resolution) | Diagnostic precision for unresolved/ambiguous symbol scenarios and scope-bound failures | Covered | `tests/cpp/semantic_analyzer_diagnostic_precision_test.cpp`, `tests/cpp/t81lang_conformance_baseline_test.cpp` |
+| `spec/t81lang-spec.md` section 4 (Name Resolution) | Stable diagnostic location reporting for resolution and scoping errors | Covered | `tests/cpp/semantic_analyzer_diagnostic_location_test.cpp`, `tests/cpp/semantic_analyzer_cascade_suppression_test.cpp` |
+
 ## Executable Code Task Queue
 
 - `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`
@@ -262,7 +269,7 @@ partial-alignment areas without changing runtime semantics, determinism scope,
 or freeze boundaries.
 
 1. Publish section 4 name-resolution/scoping evidence index tied to existing
-   diagnostics and conformance checks.
+   diagnostics and conformance checks. Completed (A1E-CODE-01, 2026-02-25).
 2. Publish residual section 3/6 alignment evidence addendum focused on
    purity/effects metadata traceability.
 3. Sync matrix/governance artifacts after A1E evidence updates.
