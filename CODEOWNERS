@@ -1,9 +1,0 @@
-# Global default owner
-* @t81dev
-
-# Core surfaces
-/include/t81/ @t81dev
-/src/ @t81dev
-/tests/ @t81dev
-/spec/ @t81dev
-/.github/workflows/ @t81dev

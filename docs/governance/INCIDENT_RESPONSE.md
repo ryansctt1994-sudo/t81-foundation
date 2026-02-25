@@ -1,0 +1,110 @@
+# Determinism & Security Incident Response Plan
+
+Status: Active
+Version: 1.0.0
+Owner: Governance/Security
+Last Updated: 2026-02-25
+
+## Purpose
+
+Define incident classification and response protocol for determinism and
+freeze-boundary breaches.
+
+## Scope
+
+Applies to determinism, freeze, and governance-impacting incidents across
+verified and frozen surfaces.
+
+## Definitions
+
+- Determinism breach: Any confirmed mismatch on a verified surface where equal
+  input/configuration does not produce bit-identical output across supported
+  architectures.
+- Structural incident: Breach requiring architecture/governance boundary update.
+
+## 1. Determinism Breach Definition
+
+Determinism and verification scope are defined by:
+
+- `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`
+- `docs/governance/DETERMINISM_THREAT_MODEL.md`
+
+Severity levels:
+
+- Severity 0: Cosmetic issue with no verified-surface impact.
+- Severity 1: Spec drift or documentation/process mismatch without confirmed
+  verified-surface regression.
+- Severity 2: Determinism regression on a verified surface.
+- Severity 3: Freeze violation affecting frozen boundary semantics or public API
+  compatibility guarantees.
+
+## 2. Immediate Actions
+
+For Severity 2 and Severity 3 incidents:
+
+1. Freeze `main` merges for impacted scope until containment is validated.
+2. Create hotfix branch for incident remediation.
+3. Open ADR when structural boundary or policy interpretation changes.
+4. Publish advisory note with scope, impact, and temporary mitigations.
+
+## 3. Disclosure Policy
+
+1. Public transparency window:
+   - Initial acknowledgement within 48 hours of confirmed Severity 2+ incident.
+2. Patch publication timeline:
+   - Target patch publication within 7 calendar days for Severity 2.
+   - Immediate stabilization and release planning for Severity 3 under freeze
+     governance.
+3. Registry and governance updates:
+   - Update `docs/governance/DETERMINISM_SURFACE_REGISTRY.md` status where
+     affected.
+   - Update relevant release status and audit docs before closure.
+
+## 4. Postmortem Template
+
+Use the following template for every Severity 2+ incident.
+
+### Incident ID
+
+`INC-YYYYMMDD-<slug>`
+
+### Summary
+
+- Detection time (UTC):
+- Severity:
+- Affected surfaces:
+- User/release impact:
+
+### Timeline
+
+- Detection:
+- Containment:
+- Root-cause confirmation:
+- Remediation:
+- Verification:
+- Closure:
+
+### Root Cause
+
+- Primary fault:
+- Contributing factors:
+- Why existing controls did not prevent this:
+
+### Corrective Actions
+
+- Code/process changes:
+- Added regression coverage:
+- Registry/governance updates:
+- Follow-up owners and due dates:
+
+## Cross-References
+
+- `docs/governance/FREEZE_ENFORCEMENT.md`
+- `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`
+- `docs/governance/DETERMINISM_THREAT_MODEL.md`
+- `docs/product/RELEASE_DISCIPLINE.md`
+
+## Versioning Statement
+
+This response plan is versioned governance policy. Changes to severity handling
+or disclosure obligations require explicit review and ADR traceability.

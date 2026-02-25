@@ -92,6 +92,14 @@ The project is governed by a strict set of verification and enforcement document
 *   **[Freeze Enforcement](docs/governance/FREEZE_ENFORCEMENT.md)** — Strict versioning and break protocols for frozen surfaces.
 *   **[Spec Authority Model](docs/governance/SPEC_AUTHORITY_MODEL.md)** — Hierarchy of truth (Spec > Docs > Code).
 
+## Governance & Institutional Hardening
+
+*   **[Module Ownership Charter](docs/governance/MODULE_OWNERSHIP_CHARTER.md)** — Module taxonomy, approval thresholds, and freeze escalation.
+*   **[Architecture Decision Records](docs/architecture/adr/)** — Permanent architectural/governance decision history.
+*   **[Release Discipline Manifest](docs/product/RELEASE_DISCIPLINE.md)** — Release preconditions, SemVer rules, and release evidence requirements.
+*   **[Incident Response Plan](docs/governance/INCIDENT_RESPONSE.md)** — Determinism/security incident classification and response protocol.
+*   **[Deterministic Corpus Manifest](docs/status/DETERMINISTIC_CORPUS_MANIFEST.md)** — Canonical determinism corpus and hash-reference tracking.
+
 ### Clarification
 
 Determinism guarantees apply **only** to surfaces marked "Verified" in the Registry.

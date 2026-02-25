@@ -1,0 +1,23 @@
+# Global default owner
+* @t81dev
+
+# Module ownership boundaries
+/core/types/ @t81dev
+/core/isa/ @t81dev
+/core/vm/ @t81dev
+/kernel/axion/ @t81dev
+/runtime/tracing/ @t81dev
+/runtime/jit/ @t81dev
+/experimental/ @t81dev
+/tools/ @t81dev
+/include/t81/ @t81dev
+
+# Governance and specifications
+/docs/governance/ @t81dev
+/docs/architecture/ @t81dev
+/docs/product/ @t81dev
+/spec/ @t81dev
+
+# Test and release evidence surfaces
+/tests/ @t81dev
+/docs/status/ @t81dev

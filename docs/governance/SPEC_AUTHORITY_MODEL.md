@@ -82,7 +82,29 @@ All changes must adhere to the following protocols based on their nature.
 
 ---
 
-## 5. Directory Ownership
+## 5. Architecture Decision Records (ADR) Protocol
+
+Architecture and governance decisions with boundary impact must be recorded under:
+
+* `docs/architecture/adr/`
+
+Use:
+
+* `docs/architecture/adr/ADR_TEMPLATE.md`
+
+Required when decisions affect:
+
+* Freeze boundaries
+* Determinism surface classification
+* Public API boundary interpretation
+* Release discipline requirements
+
+ADR records are descriptive artifacts under `/docs` authority and do not
+override normative `/spec` definitions.
+
+---
+
+## 6. Directory Ownership
 
 Subsystems own specific directories. New files must be placed accordingly.
 

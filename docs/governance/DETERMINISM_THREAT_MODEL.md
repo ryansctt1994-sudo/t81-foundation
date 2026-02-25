@@ -9,6 +9,7 @@ This document defines the threat landscape for T81's determinism guarantees. It 
 * `DETERMINISM_SURFACE_REGISTRY.md` (Defines verified surfaces)
 * `FREEZE_ENFORCEMENT.md` (Governs immutable components)
 * `SPEC_AUTHORITY_MODEL.md` (Establishes source of truth)
+* `INCIDENT_RESPONSE.md` (Defines incident handling protocol)
 
 **Clarification:**
 Determinism guarantees apply exclusively to surfaces explicitly listed as **Verified** in the [Determinism Surface Registry](DETERMINISM_SURFACE_REGISTRY.md).
@@ -144,3 +145,4 @@ Breaches of determinism are classified by severity and required response.
 * **Release Review:** This threat model must be reviewed and approved before any Major or Minor release.
 * **New Surfaces:** Any addition to `DETERMINISM_SURFACE_REGISTRY.md` triggers a requirement to update this threat analysis.
 * **Breaking Changes:** Any breaking change proposal (RFC) must include an impact analysis referencing this document.
+* **Incident Linkage:** Severity 2/3 determinism incidents must be handled under `docs/governance/INCIDENT_RESPONSE.md`.

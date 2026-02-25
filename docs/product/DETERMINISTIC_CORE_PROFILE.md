@@ -15,6 +15,7 @@ Normative references:
 - `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`
 - `docs/governance/FREEZE_ENFORCEMENT.md`
 - `docs/governance/DETERMINISM_THREAT_MODEL.md`
+- `docs/product/RELEASE_DISCIPLINE.md`
 - `docs/status/STRUCTURAL_INTEGRITY_REPORT.md`
 
 ## A. Included in DCP (v1.x)
@@ -71,4 +72,4 @@ A release claiming DCP compliance must include:
 - Determinism Surface Registry status snapshot.
 - Determinism verification hash summary (repro gate outputs/artifacts).
 - Structural integrity status from `docs/status/STRUCTURAL_INTEGRITY_REPORT.md`.
-
+- Release discipline conformance from `docs/product/RELEASE_DISCIPLINE.md`.

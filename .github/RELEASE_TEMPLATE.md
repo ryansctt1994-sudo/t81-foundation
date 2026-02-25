@@ -1,42 +1,32 @@
-# Release Checklist
+# Release Summary
 
-## Release Metadata
+## DCP Compliance Summary
 
-- Version: 
-- Date: 
-- Target Branch/Tag: 
+- DCP scope reviewed: [ ] yes [ ] no
+- Determinism Surface Registry state reviewed: [ ] yes [ ] no
+- Freeze exceptions open for release scope: [ ] none [ ] present (must be resolved)
 
-## DCP Compliance
+## Determinism Hash Summary
 
-- DCP claim for this release: `Yes` / `No`
-- DCP reference: `docs/product/DETERMINISTIC_CORE_PROFILE.md`
-- Determinism Surface Registry reviewed: `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`
-- Freeze enforcement reviewed: `docs/governance/FREEZE_ENFORCEMENT.md`
-
-## Determinism Verification Hash Summary
-
-Provide reproducibility evidence summary (hash outputs/artifacts) from:
-
-- `scripts/ci/run_determinism_slice.sh`
-- `scripts/ci/t81lang_repro_gate.py`
-- `scripts/ci/t3k_repro_gate.py` (if applicable)
-
-Summary:
-
-- Hash set/version:
-- Evidence artifact locations:
-- Any deviations:
+- Repro gate run command: `python3 scripts/ci/t81lang_repro_gate.py`
+- Hash reference files:
+  - `tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt`
+  - `tests/fixtures/t81lang_determinism/t81lang_ast_ir_repro_hash.txt`
+- Result: [ ] match [ ] mismatch
 
 ## Structural Integrity Status
 
-- Structural report: `docs/status/STRUCTURAL_INTEGRITY_REPORT.md`
-- Dependency firewall check status: Pass / Fail
-- Legacy path scan status: Pass / Fail
-- Waivers in effect (if any):
+- `docs/status/STRUCTURAL_INTEGRITY_REPORT.md` reviewed: [ ] yes [ ] no
+- Required structural checks pass: [ ] yes [ ] no
 
-## Notes
+## Experimental Changes Summary
 
-- Breaking changes:
-- Migration notes:
-- Follow-up actions:
+- Experimental modules touched: [ ] none [ ] yes (list below)
+- Notes:
 
+## Cross-References
+
+- `docs/product/RELEASE_DISCIPLINE.md`
+- `docs/product/DETERMINISTIC_CORE_PROFILE.md`
+- `docs/governance/FREEZE_ENFORCEMENT.md`
+- `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`

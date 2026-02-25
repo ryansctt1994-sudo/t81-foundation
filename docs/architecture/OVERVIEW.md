@@ -10,6 +10,18 @@ In case of conflict, this document supersedes README summaries and narrative mat
 
 ---
 
+## Architecture Decisions (ADRs)
+
+Persistent architecture decisions are recorded in `docs/architecture/adr/`.
+
+- `docs/architecture/adr/ADR_TEMPLATE.md`
+- `docs/architecture/adr/ADR-0001-dependency-firewall.md`
+- `docs/architecture/adr/ADR-0002-deterministic-core-profile.md`
+- `docs/architecture/adr/ADR-0003-public-api-boundary.md`
+- `docs/architecture/adr/ADR-0004-determinism-surface-registry.md`
+
+---
+
 ## 2. System Layers
 
 The T81 stack is organized into vertical layers, from foundational data representation to higher-level execution models.
