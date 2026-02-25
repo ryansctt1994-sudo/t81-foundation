@@ -1,8 +1,6 @@
-# T81 Foundation
+# T81 Foundation - Deterministic Ternary-Based Architecture for Governed AGI
 
-<p align="center">
-  <strong>Deterministic ternary-native computing stack featuring base-81 data types, TISC instruction set, T81VM, T81Lang, Axion policy engine, and recursive cognition tiers.</strong>
-</p>
+
 
 <p align="center">
   <a href="https://github.com/t81dev/t81-foundation/stargazers"><img src="https://img.shields.io/github/stars/t81dev/t81-foundation?style=for-the-badge&logo=github&color=blue" alt="Stars"></a>
@@ -17,7 +15,10 @@
   <img src="assets/banner.png" alt="T81 Foundation architecture banner">
 </p>
 
-> **T81 is a deterministic computing platform with a formally frozen ISA and verifiable reproducibility guarantees for defined surfaces.**
+<p align="center">
+  <strong>Deterministic ternary-native computing stack featuring base-81 data types, TISC instruction set, T81VM, T81Lang, Axion policy engine, and recursive cognition tiers. T81 is a deterministic computing platform with a formally frozen ISA and verifiable reproducibility guarantees for defined surfaces.
+</strong>
+</p>
 
 ---
 
