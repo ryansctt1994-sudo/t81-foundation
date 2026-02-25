@@ -79,8 +79,8 @@ fn expressions() -> i32 {
   let rep: Vector[T81Int] = [1; 3];
   let x: i32 = 1;
   let y: i32 = { let z: i32 = 7; z + 1 };
-  let if_expr: i32 = if x > 0 { 10 } else { 20 };
-  let if_chain: i32 = if x > 1 { 30 } else if x == 1 { 40 } else { 50 };
+  let if_expr: i32 = if (x > 0) { 10 } else { 20 };
+  let if_chain: i32 = if (x > 1) { 30 } else if (x == 1) { 40 } else { 50 };
   let m: Option[i32] = Some(3);
   let out: i32 = match (m) {
     Some(n) if n > 0 => n,
