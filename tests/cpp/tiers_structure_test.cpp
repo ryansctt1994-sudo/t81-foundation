@@ -4,8 +4,8 @@
 #include "t81/experimental/cog/tier1/symbolic.hpp"
 #include "t81/experimental/cog/tier2/reflective.hpp"
 #include "t81/experimental/cog/tier3/recursive.hpp"
-#include "t81/experimental/distributed/distributed.hpp"
 #include "t81/experimental/cog/tier5/infinite.hpp"
+#include "t81/experimental/distributed/distributed.hpp"
 
 // Simple test to ensure all tier structures can be instantiated and basic methods called.
 int main() {

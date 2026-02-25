@@ -1,7 +1,7 @@
 #pragma once
 
-#include "t81/types/Result.hpp"
 #include "t81/experimental/packed_trit_vector.hpp"
+#include "t81/types/Result.hpp"
 
 namespace t81::tritwise {
 

@@ -10,8 +10,8 @@
 
 #include <string>
 #include <utility>
-#include "t81/types/bigint.hpp"
 #include "t81/fraction.hpp"
+#include "t81/types/bigint.hpp"
 
 namespace t81::core {
 // Rational compatibility type backed by canonical formatting semantics.

@@ -1,9 +1,9 @@
 #include <cassert>
 #include <iostream>
 
+#include "t81/fraction.hpp"
 #include "t81/types/bigint.hpp"
 #include "t81/types/fraction.hpp"
-#include "t81/fraction.hpp"
 
 int main() {
   using t81::core::BigInt;

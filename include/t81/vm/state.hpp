@@ -15,11 +15,11 @@
 #include "t81/experimental/cog/tier1/symbolic.hpp"
 #include "t81/experimental/cog/tier2/reflective.hpp"
 #include "t81/experimental/cog/tier3/recursive.hpp"
-#include "t81/experimental/distributed/distributed.hpp"
 #include "t81/experimental/cog/tier5/infinite.hpp"
+#include "t81/experimental/distributed/distributed.hpp"
 #include "t81/fraction.hpp"
-#include "t81/tensor.hpp"
 #include "t81/isa/program.hpp"
+#include "t81/tensor.hpp"
 #include "t81/vm/traps.hpp"
 #include "t81/weights.hpp"
 

@@ -1,8 +1,8 @@
 #include "t81/fraction.hpp"
-#include "t81/tensor.hpp"
 #include "t81/isa/binary_io.hpp"
 #include "t81/isa/program.hpp"
 #include "t81/isa/type_alias.hpp"
+#include "t81/tensor.hpp"
 
 #include <cstdint>
 #include <filesystem>

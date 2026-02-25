@@ -58,12 +58,12 @@
 #include "t81/canonical.hpp"
 
 // ---------- Modern core (spec-driven, canonical for new code) ----------
+#include "t81/support/expected.hpp"
 #include "t81/types/base81.hpp"
 #include "t81/types/bigint.hpp"
 #include "t81/types/fraction.hpp"
 #include "t81/types/ids.hpp"
 #include "t81/types/tensor.hpp"
-#include "t81/support/expected.hpp"
 
 // NOTE:
 // New code should prefer canonical numeric headers (`t81/bigint.hpp`,

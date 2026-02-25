@@ -11,6 +11,7 @@
  */
 #pragma once
 
+#include "t81/tensor.hpp"
 #include "t81/types/T81Entropy.hpp"
 #include "t81/types/T81Int.hpp"
 #include "t81/types/T81List.hpp"
@@ -21,7 +22,6 @@
 #include "t81/types/T81String.hpp"
 #include "t81/types/T81Symbol.hpp"
 #include "t81/types/T81Tree.hpp"
-#include "t81/tensor.hpp"
 
 #include <functional>
 #include <optional>

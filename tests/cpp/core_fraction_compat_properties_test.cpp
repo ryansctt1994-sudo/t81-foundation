@@ -4,8 +4,8 @@
 #include <random>
 #include <string>
 
-#include "t81/types/fraction.hpp"
 #include "t81/fraction.hpp"
+#include "t81/types/fraction.hpp"
 
 int main() {
   using t81::T81BigInt;

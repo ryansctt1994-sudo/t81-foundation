@@ -1,5 +1,5 @@
-#include "t81/tensor.hpp"
 #include "t81/isa/program.hpp"
+#include "t81/tensor.hpp"
 #include "t81/vm/vm.hpp"
 
 #include <cmath>

@@ -6,9 +6,9 @@
 #include <utility>
 #include <variant>
 #include <vector>
-#include "t81/tensor.hpp"
 #include "t81/isa/program.hpp"
 #include "t81/isa/type_alias.hpp"
+#include "t81/tensor.hpp"
 
 namespace t81 {
 namespace tisc {

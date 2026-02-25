@@ -2,9 +2,9 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
-#include "t81/types/T81Float.hpp"
 #include "t81/std/math.hpp"
 #include "t81/std/string.hpp"
+#include "t81/types/T81Float.hpp"
 
 using F = t81::T81Float<27, 9>;
 

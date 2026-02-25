@@ -5,8 +5,8 @@
 #include <optional>
 #include <string>
 #include <vector>
-#include "t81/types/base81.hpp"
 #include "t81/tracing/canonhash.hpp"
+#include "t81/types/base81.hpp"
 
 namespace t81::canonfs {
 struct CanonHash {

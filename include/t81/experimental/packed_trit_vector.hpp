@@ -17,9 +17,9 @@
 #endif
 
 #include "t81/codec/trit_packing.hpp"
+#include "t81/tritwise/profiling.hpp"
 #include "t81/types/Result.hpp"
 #include "t81/types/T81Int.hpp"
-#include "t81/tritwise/profiling.hpp"
 
 namespace t81::experimental {
 

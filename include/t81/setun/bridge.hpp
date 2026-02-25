@@ -4,8 +4,8 @@
 #include <string_view>
 #include <utility>
 
-#include "t81/support/expected.hpp"
 #include "t81/isa/program.hpp"
+#include "t81/support/expected.hpp"
 
 namespace t81::setun {
 

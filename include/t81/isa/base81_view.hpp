@@ -2,8 +2,8 @@
 
 #include <string>
 #include <vector>
-#include "t81/types/Result.hpp"
 #include "t81/isa/program.hpp"
+#include "t81/types/Result.hpp"
 
 namespace t81::tisc::base81_view {
 
