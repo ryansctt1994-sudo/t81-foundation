@@ -4434,7 +4434,7 @@ bool SemanticAnalyzer::bind_pattern_payload(const MatchPattern& pattern, const T
   switch (pattern.kind) {
     case MatchPattern::Kind::Identifier:
       if (!pattern.binding_is_wildcard) {
-        bind_pattern_symbol(pattern.identifier, payload_type);
+        return bind_pattern_symbol(pattern.identifier, payload_type);
       }
       return true;
     case MatchPattern::Kind::Tuple: {
@@ -4450,10 +4450,11 @@ bool SemanticAnalyzer::bind_pattern_payload(const MatchPattern& pattern, const T
                            std::to_string(payload_type.params.size()) + ".");
         return false;
       }
+      bool ok = true;
       for (size_t i = 0; i < expected_fields; ++i) {
-        bind_pattern_symbol(pattern.tuple_bindings[i], payload_type.params[i]);
+        ok = bind_pattern_symbol(pattern.tuple_bindings[i], payload_type.params[i]) && ok;
       }
-      return true;
+      return ok;
     }
     case MatchPattern::Kind::Record: {
       if (payload_type.kind != Type::Kind::Custom || payload_type.custom_name.empty()) {
@@ -4478,7 +4479,7 @@ bool SemanticAnalyzer::bind_pattern_payload(const MatchPattern& pattern, const T
           ok = false;
           continue;
         }
-        bind_pattern_symbol(binding.second, field_it->second);
+        ok = bind_pattern_symbol(binding.second, field_it->second) && ok;
       }
       return ok;
     }
@@ -4523,14 +4524,20 @@ bool SemanticAnalyzer::analyze_nested_variant(const MatchPattern& pattern,
                               pattern.variant_name);
 }
 
-void SemanticAnalyzer::bind_pattern_symbol(const Token& name, const Type& type) {
+bool SemanticAnalyzer::bind_pattern_symbol(const Token& name, const Type& type) {
   if (std::string_view{name.lexeme} == "_") {
-    return;
+    return true;
+  }
+  if (is_defined_in_current_scope(std::string(name.lexeme))) {
+    error(name, "Pattern binding '" + std::string(name.lexeme) +
+                    "' is already defined in this match arm.");
+    return false;
   }
   define_symbol(name, SymbolKind::Variable, false);
   if (auto* symbol = resolve_symbol(name)) {
     symbol->type = type;
   }
+  return true;
 }
 
 bool SemanticAnalyzer::is_mutable_lvalue(const Expr& expr) {

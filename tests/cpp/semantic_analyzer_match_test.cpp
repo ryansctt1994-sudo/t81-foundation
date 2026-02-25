@@ -492,6 +492,47 @@ int main() {
   expect_semantic_failure(tuple_pattern_mismatch, "match_tuple_mismatch",
                           "Tuple pattern for variant 'Tup' lacks payload type information.");
 
+  const std::string tuple_pattern_duplicate_binding = R"(
+        enum Pair {
+            Tup(Tuple[i32, i32]);
+            Empty;
+        };
+
+        fn main() -> i32 {
+            var pair: Pair;
+            match (pair) {
+                Tup(x, x) => x;
+                Empty => 0;
+            };
+            return 0;
+        }
+    )";
+  expect_semantic_failure(tuple_pattern_duplicate_binding, "match_tuple_duplicate_binding",
+                          "Pattern binding 'x' is already defined in this match arm");
+
+  const std::string record_pattern_duplicate_binding = R"(
+        record Point2D {
+            x: i32;
+            y: i32;
+        };
+
+        enum Shape {
+            At(Point2D);
+            Empty;
+        };
+
+        fn main() -> i32 {
+            var shape: Shape;
+            match (shape) {
+                At({x: v, y: v}) => v;
+                Empty => 0;
+            };
+            return 0;
+        }
+    )";
+  expect_semantic_failure(record_pattern_duplicate_binding, "match_record_duplicate_binding",
+                          "Pattern binding 'v' is already defined in this match arm");
+
   std::cout << "Semantic analyzer match tests passed!" << std::endl;
   return 0;
 #endif

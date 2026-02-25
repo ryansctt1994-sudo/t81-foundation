@@ -302,7 +302,7 @@ private:
   bool bind_pattern_payload(const MatchPattern& pattern, const Type& payload_type,
                             const Token& keyword);
   bool analyze_nested_variant(const MatchPattern& pattern, const Type& payload_type);
-  void bind_pattern_symbol(const Token& name, const Type& type);
+  bool bind_pattern_symbol(const Token& name, const Type& type);
   bool is_mutable_lvalue(const Expr& expr);
 };
 

@@ -275,5 +275,29 @@ fn main() -> i32 {
     return 1;
   }
 
+  const std::string duplicate_binding_source = R"(
+enum Pair {
+  Tup(Tuple[i32, i32]);
+  Empty;
+};
+
+fn main() -> i32 {
+  var pair: Pair;
+  match (pair) {
+    Tup(x, x) => x;
+    Empty => 0;
+  };
+  return 0;
+}
+)";
+
+  const auto duplicate_binding_diags =
+      analyze_source(duplicate_binding_source, "match_duplicate_binding_precision");
+  if (!expect(has_message(duplicate_binding_diags,
+                          "Pattern binding 'x' is already defined in this match arm."),
+              "missing precise duplicate-pattern-binding diagnostic")) {
+    return 1;
+  }
+
   return 0;
 }
