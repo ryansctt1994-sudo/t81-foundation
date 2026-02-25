@@ -1,0 +1,10 @@
+fn main() -> i32 {
+  let r: Result[i32, T81String] = Ok(9);
+  let out: i32 = match (r) {
+    Ok(v) if v > 5 => v,
+    Ok(_) => 0,
+    Err(_) => -1
+  };
+  print(out);
+  return 0;
+}

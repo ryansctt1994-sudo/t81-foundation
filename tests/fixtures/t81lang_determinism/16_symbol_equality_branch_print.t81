@@ -1,0 +1,12 @@
+fn main() -> i32 {
+  let a: Symbol = :alpha;
+  let b: Symbol = :alpha;
+  var out: i32 = 0;
+  if (a == b) {
+    out = 81;
+  } else {
+    out = 0;
+  }
+  print(out);
+  return 0;
+}

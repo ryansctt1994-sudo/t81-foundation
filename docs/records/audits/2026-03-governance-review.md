@@ -36,6 +36,12 @@ Planned evidence updates:
 - `spec/t81lang-spec.md` section 5 deterministic compilation-profile
   traceability subsection + `docs/status/VERIFIED_SURFACE_AUDIT.md`
   update (A1-CODE-03 evidence)
+- `tests/fixtures/t81lang_determinism/14_result_match_guard_print.t81`
+- `tests/fixtures/t81lang_determinism/15_bitwise_shift_chain_print.t81`
+- `tests/fixtures/t81lang_determinism/16_symbol_equality_branch_print.t81`
+- `tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt` and
+  `tests/fixtures/t81lang_determinism/t81lang_ast_ir_repro_hash.txt`
+  refresh (A1-CODE-04 evidence)
 
 ## A2 Tracking — Axion Partial-Coverage Alignment
 

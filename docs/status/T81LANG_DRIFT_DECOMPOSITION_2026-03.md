@@ -143,7 +143,7 @@ Bounded gap closure scope:
 | Grammar/parsing | `frontend_parser_*`, `test_parser_regression_audit.cpp` | Operator precedence and legacy syntax rejection tested | Need explicit section-level matrix for spec Appendix production rules |
 | Semantic typing | `semantic_analyzer_*`, `t81lang_conformance_baseline_test.cpp` | Numeric widening, Option/Result, diagnostics covered | Coverage granularity by spec subsection not yet declared |
 | IR/lowering determinism | `frontend_ir_generator_*`, `e2e_*`, `test_frontend_logical_lowering.cpp` | Deterministic lowering behaviors tested | Compile-profile trace statement now anchored in `spec/t81lang-spec.md` section 5; residual state follows registry status |
-| Compile reproducibility | `scripts/ci/t81lang_repro_gate.py`, `tests/fixtures/t81lang_determinism/` | Two-pass byte identity + aggregate hash gate active | Fixture-pack scope can expand as high-drift features stabilize |
+| Compile reproducibility | `scripts/ci/t81lang_repro_gate.py`, `tests/fixtures/t81lang_determinism/` | Two-pass byte identity + aggregate hash gate active | Fixture pack expanded to 16 canonical programs; repro and AST/IR hash references refreshed |
 
 ## Stage 3 Semantic Coverage Tightening (A1-CODE-02)
 

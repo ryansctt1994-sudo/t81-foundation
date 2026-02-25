@@ -32,6 +32,9 @@ Program corpus:
 - `tests/fixtures/t81lang_determinism/11_match_option_some_print.t81`
 - `tests/fixtures/t81lang_determinism/12_match_option_guard_print.t81`
 - `tests/fixtures/t81lang_determinism/13_match_enum_payload_guard_print.t81`
+- `tests/fixtures/t81lang_determinism/14_result_match_guard_print.t81`
+- `tests/fixtures/t81lang_determinism/15_bitwise_shift_chain_print.t81`
+- `tests/fixtures/t81lang_determinism/16_symbol_equality_branch_print.t81`
 
 Expected hash references:
 
