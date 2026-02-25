@@ -76,6 +76,8 @@ Status: Completed (2026-02-25)
   - This file
   - `tests/` (relevant Axion-related test surfaces)
 
+Status: Completed (2026-02-25)
+
 ### M4 — Matrix and Review Synchronization
 
 - Target Date: 2026-03-19
@@ -94,7 +96,7 @@ Status: Completed (2026-02-25)
 | :--- | :--- | :--- | :--- | :--- |
 | A2-N1 | Publish segmented scope table for draft Axion surfaces | @t81dev | 2026-03-05 | Completed (2026-02-25) |
 | A2-N2 | Prioritize top 3 partial/missing segments with dated targets | @t81dev | 2026-03-10 | Completed (2026-02-25) |
-| A2-N3 | Attach evidence paths for each prioritized segment | @t81dev | 2026-03-14 | Planned |
+| A2-N3 | Attach evidence paths for each prioritized segment | @t81dev | 2026-03-14 | Completed (2026-02-25) |
 | A2-N4 | Sync matrix and governance review with A2 snapshot | @t81dev | 2026-03-19 | Planned |
 
 ## M1 Scope Segmentation Table
@@ -122,6 +124,25 @@ Deferred note:
 
 - 2.5 Tier Transition Subsystem remains deferred and non-DCP/non-verified unless
   promoted through governance and determinism-registry update.
+
+## M3 Evidence Mapping for Prioritized Segments
+
+| Priority | Segment | Evidence Path | Coverage Signal | Open/Uncovered Scope |
+| :--- | :--- | :--- | :--- | :--- |
+| P1 | 1.1 Determinism Stewardship | `tests/cpp/axion_log_determinism_test.cpp`, `tests/cpp/axion_heap_compaction_trace_test.cpp`, `tests/cpp/vm_trace_test.cpp` | Deterministic trace behavior and selected canonical trace events are covered in existing test surfaces | Full canonical-memory post-GC/compaction enforcement evidence mapping across all Axion-visible transitions remains open |
+| P2 | 1.10 CanonFS Observability | `kernel/axion/canonfs_hook.cpp`, `tests/cpp/canonfs_axion_trace_test.cpp`, `tests/cpp/axion_segment_trace_test.cpp`, `tests/cpp/axion_policy_segment_event_test.cpp` | CanonFS policy hook integration and deterministic segment-event trace coverage are present | End-to-end persistence lifecycle audit closure (beyond current hook + trace checks) remains open |
+| P3 | 1.3 Complexity Measurement | `kernel/axion/policy_engine.cpp`, `kernel/axion/engine.cpp`, `tests/cpp/axion_instruction_counter_test.cpp`, `tests/cpp/test_axion_recursion_limit_ext.cpp` | Instruction and recursion limit controls are covered with deterministic verdict behavior | Call-graph complexity and branch/path-divergence evidence remain open in this cycle |
+
+Uncovered segments explicitly open:
+
+1. 1.1 Determinism Stewardship:
+   complete canonical-memory enforcement traceability across all Axion-visible
+   transitions.
+2. 1.10 CanonFS Observability:
+   persistence lifecycle closure evidence beyond current policy-hook and
+   segment-event trace checks.
+3. 1.3 Complexity Measurement:
+   call-graph/path-divergence measurement evidence mapping.
 
 ## Cross-References
 

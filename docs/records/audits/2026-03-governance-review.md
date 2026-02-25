@@ -152,7 +152,7 @@ Milestone snapshot:
 
 - M1 Draft Scope Segmentation: Completed (2026-02-25)
 - M2 Coverage Gap Prioritization: Completed (2026-02-25)
-- M3 Evidence Mapping: Planned (target 2026-03-14)
+- M3 Evidence Mapping: Completed (2026-02-25)
 - M4 Matrix and Review Synchronization: Planned (target 2026-03-19)
 
 Planning completion state:
@@ -162,10 +162,13 @@ Planning completion state:
   `docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md`.
 - A2-N2 prioritized top-3 partial/missing segment queue published on
   2026-02-25 in `docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md`.
+- A2-N3 evidence mapping for prioritized segments (including explicit uncovered
+  scope list) published on 2026-02-25 in
+  `docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md`.
 - Matrix and system status references were updated to include bounded A2
   milestones.
 - Milestone execution remains active in March (`M1` through `M4` currently
-  progressing with M3-M4 pending per target dates).
+  progressing with M4 pending per target dates).
 
 ## A3 Tracking — Experimental Tiers Boundary Clarification
 
