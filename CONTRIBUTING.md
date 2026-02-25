@@ -67,6 +67,8 @@ ______________________________________________________________________
 - Implementation: `src/`
 - Tests: `tests/cpp/`
 - Docs: `docs/`
+- Root-file policy: new root-level files are prohibited without explicit approval (see `docs/governance/SPEC_AUTHORITY_MODEL.md`).
+- Records/archive policy: operational reports and snapshots belong under `docs/records/` rather than repository root.
 
 When changing code:
 - update tests,

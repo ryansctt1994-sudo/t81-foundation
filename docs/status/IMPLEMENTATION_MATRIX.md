@@ -1,17 +1,41 @@
 # Implementation vs. Specification Matrix
 
-| Subsystem | Specification Status | Implementation Status | Spec-Code Alignment | Drift Risk | Notes |
+Status: Active
+Last Updated: 2026-02-25
+Owner: Status / Engineering
+
+## Purpose
+
+Track implementation maturity relative to specification surfaces and make drift
+risk explicit for planning and governance review.
+
+## Matrix
+
+| Subsystem | Specification Surface | Implementation Maturity | Alignment | Drift Risk | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Data Types** | `spec/t81-data-types.md` (Frozen) | **Implemented** | High | Low | Core types (`Trit`, `Tryte`) are fully supported in `core/types`. |
-| **TISC ISA** | `spec/tisc-spec.md` (Frozen) | **Implemented** | High | Low | Full opcode coverage in `core/isa` and `core/vm`. |
-| **T81VM** | `spec/t81vm-spec.md` (Beta) | **Partial** | Medium | Medium | Dispatch loop is solid; IO and memory model are still evolving. |
-| **T81Lang** | `spec/t81lang-spec.md` (Draft) | **Stubbed** | Low | High | `lang/stdlib` is largely empty (`std/` exists, but compiler core is missing). |
-| **Axion Kernel** | `spec/axion-kernel.md` (Draft) | **Partial** | Medium | Medium | Basic policy engine exists (`kernel/axion`), but kernel features are incomplete. |
-| **Cognitive Tiers** | `spec/cognitive-tiers.md` (Draft) | **Stubbed** | None | High | `experimental/tiers` contains only documentation placeholders. |
+| **Data Types** | `spec/t81-data-types.md` (Frozen) | Implemented | High | Low | Frozen deterministic core surface. |
+| **TISC ISA** | `spec/tisc-spec.md` (Frozen) | Implemented | High | Low | Frozen deterministic core surface. |
+| **T81VM** | `spec/t81vm-spec.md` (Beta) | Partial | Medium | Medium | Beta surface under active verification. |
+| **T81Lang** | `spec/t81lang-spec.md` (Draft) | Experimental | Low | High | Draft scope and implementation remain non-parity. |
+| **Axion Kernel** | `spec/axion-kernel.md` (Draft) | Partial | Medium | Medium | Coverage remains partial against full draft scope. |
+| **Cognitive Tiers** | `spec/cognitive-tiers.md` (Draft) | Concept / Experimental | Low | High | Experimental, non-DCP surface. |
 
-## Recommendation Actions
+## Planning Actions
 
-1.  **Spec-Lock**: Freeze `T81VM` spec for v1.0.
-2.  **Implementation Focus**: Prioritize `T81Lang` compiler implementation to match the spec.
-3.  **Cleanup**: Remove or properly mark stubbed implementations in `experimental/tiers` to avoid confusion.
-4.  **CI Enforcement**: Add "Spec Coverage" metrics to CI pipeline.
+1. Prioritize high-drift subsystem decomposition into measurable milestones.
+2. Keep deterministic-core surfaces stable under freeze and DCP discipline.
+3. Tie matrix refresh to monthly governance review cadence.
+4. Record boundary-impacting alignment decisions in ADRs.
+
+## Cross-References
+
+- `docs/status/PROJECT_CONTROL_CENTER.md`
+- `docs/status/SYSTEM_STATUS.md`
+- `docs/governance/SPEC_AUTHORITY_MODEL.md`
+- `docs/governance/FREEZE_ENFORCEMENT.md`
+- `docs/architecture/adr/`
+
+## Versioning Statement
+
+This matrix is a descriptive control artifact; it does not override `/spec` or
+freeze policy.
