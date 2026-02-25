@@ -47,6 +47,21 @@ Planning completion state:
 - A2 alignment-plan deliverable completed on 2026-02-25.
 - Matrix and system status references updated to include bounded A2 milestones.
 
+## A3 Tracking — Experimental Tiers Boundary Clarification
+
+Boundary normalization scope:
+
+- `docs/product/DETERMINISTIC_CORE_PROFILE.md`
+- `docs/status/EXPERIMENTAL_SURFACE_INVENTORY.md`
+- `docs/status/IMPLEMENTATION_MATRIX.md`
+- `docs/status/SYSTEM_STATUS.md`
+
+Completion state:
+
+- A3 boundary-terminology sweep completed on 2026-02-25.
+- Experimental tiers are consistently described as non-DCP and non-verified
+  unless promoted through governance and determinism registry update.
+
 ## Checklist Outcome Placeholder
 
 To be populated at month close per:

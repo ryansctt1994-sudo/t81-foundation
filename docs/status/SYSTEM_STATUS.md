@@ -17,7 +17,8 @@ status boundaries.
 | **T81VM** | Beta | Controlled under spec and determinism policy | Tests + status audits |
 | **Axion Kernel** | Alpha | Partial implementation against draft surfaces | Tests + implementation matrix + `docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md` |
 | **T81Lang** | Experimental | Active drift risk relative to draft scope | Determinism and conformance checks |
-| **Hanoi VM** | Concept | Experimental / non-DCP | Experimental inventory and specs |
+| **Cognitive Tiers** | Concept / Experimental | Experimental / non-DCP / non-verified unless promoted through governance | `docs/status/EXPERIMENTAL_SURFACE_INVENTORY.md`, `spec/cognitive-tiers.md` |
+| **Hanoi VM** | Concept | Experimental / non-DCP / non-verified unless promoted through governance | Experimental inventory and specs |
 
 ## Program Risks (Current)
 

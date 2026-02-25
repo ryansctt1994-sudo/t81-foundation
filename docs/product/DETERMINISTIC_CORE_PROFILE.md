@@ -38,7 +38,7 @@ DCP inclusion is controlled by the Determinism Surface Registry status. If a sur
 The following are out of DCP scope unless explicitly upgraded via verified equivalence work and governance approval.
 
 - Trace-JIT (`runtime/jit/`) unless equivalence is proven and registry status is upgraded.
-- Experimental tiers (`experimental/tiers/`).
+- Experimental tiers (`experimental/tiers/`, including cognitive-tier surfaces) are non-DCP and non-verified unless promoted through governance and registry status upgrade.
 - Hanoi VM and related experimental kernel surfaces (`experimental/hanoi/`).
 - Distributed compute surfaces (`experimental/distributed/`).
 - Research hardware/accelerator paths not covered by verified deterministic contracts.

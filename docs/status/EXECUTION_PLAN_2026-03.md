@@ -32,7 +32,7 @@ This plan covers three priority tracks:
 | :--- | :--- | :--- | :--- |
 | A1. T81Lang Drift Decomposition | In Progress | `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md` | Milestones defined and linked; implementation closure remains open. |
 | A2. Axion Partial-Coverage Alignment Plan | Completed | `docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md`, `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/status/SYSTEM_STATUS.md` | Bounded milestones and dated next actions are now recorded and cross-linked. |
-| A3. Experimental Tiers Boundary Clarification | Pending | `docs/status/IMPLEMENTATION_MATRIX.md` | Boundary wording must be normalized across status/product docs. |
+| A3. Experimental Tiers Boundary Clarification | Completed | `docs/product/DETERMINISTIC_CORE_PROFILE.md`, `docs/status/EXPERIMENTAL_SURFACE_INVENTORY.md`, `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/status/SYSTEM_STATUS.md` | Terminology normalized: experimental tiers are non-DCP and non-verified unless promoted through governance and registry update. |
 | B1. Required-Checks Release Gating Procedure | Completed | `docs/status/RELEASE_DISCIPLINE_CHECKLIST.md`, `docs/status/RELEASE_READINESS_PACKET_2026-02.md` | Procedure and decision gate are now explicit and evidence-backed. |
 | B2. Release Decision Lifecycle Standardization | In Progress | `docs/status/RELEASE_READINESS_PACKET_2026-02.md` | Decision fields are present in current packet; continuity must be validated on next packet cycle. |
 | B3. Non-Required Workflow Failure Handling Rule | Completed | `docs/product/RELEASE_DISCIPLINE.md`, `docs/status/RELEASE_DISCIPLINE_CHECKLIST.md` | Non-required failure classification and waiver recording rules are now codified. |
@@ -156,9 +156,9 @@ This plan covers three priority tracks:
 
 ## Immediate Next Actions
 
-1. Complete A3 by normalizing experimental-tier boundary language across status and product docs, then recording the sweep in March audit notes.
-2. Complete B2 continuity by applying standardized decision stamping to the next release-readiness packet cycle.
-3. Continue A1 milestone progression and update matrix/audit status at each milestone close.
+1. Complete B2 continuity by applying standardized decision stamping to the next release-readiness packet cycle.
+2. Continue A1 milestone progression and update matrix/audit status at each milestone close.
+3. Execute C3 link-target integrity sweep at month-end after remaining status updates land.
 
 ## Versioning Statement
 

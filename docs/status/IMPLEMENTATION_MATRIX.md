@@ -18,7 +18,7 @@ risk explicit for planning and governance review.
 | **T81VM** | `spec/t81vm-spec.md` (Beta) | Partial | Medium | Medium | @t81dev | 2026-04-15 | Beta surface under active verification. |
 | **T81Lang** | `spec/t81lang-spec.md` (Draft) | Experimental | Low | High | @t81dev | 2026-05-15 | Drift decomposition tracked in `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md` with March milestones and governance review linkage. |
 | **Axion Kernel** | `spec/axion-kernel.md` (Draft) | Partial | Medium | Medium | @t81dev | 2026-04-30 | Partial-coverage alignment tracked in `docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md` with bounded milestones (M1-M4) and dated status targets. |
-| **Cognitive Tiers** | `spec/cognitive-tiers.md` (Draft) | Concept / Experimental | Low | High | @t81dev | 2026-06-15 | Experimental, non-DCP surface. |
+| **Cognitive Tiers** | `spec/cognitive-tiers.md` (Draft) | Concept / Experimental | Low | High | @t81dev | 2026-06-15 | Experimental, non-DCP, non-verified unless promoted through governance and determinism registry update. |
 
 ## Planning Actions
 
