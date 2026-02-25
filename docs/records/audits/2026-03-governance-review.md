@@ -103,6 +103,26 @@ Evidence updates applied:
 - `tests/cpp/t81lang_conformance_edge_semantics_test.cpp`
   (A1-CODE-05 match/loop/annotation edge conformance evidence)
 
+## C3 Tracking — Status Cross-Link Integrity Sweep
+
+Execution state:
+
+- C3 completed on 2026-02-25.
+
+Verification scope:
+
+- `docs/status/**/*.md`
+- `docs/governance/**/*.md`
+- `docs/product/**/*.md`
+
+Verification results:
+
+- Markdown relative-link target sweep: no missing targets.
+- Stale old-path reference sweep (`docs/_includes`, `docs/_layouts`,
+  `docs/_config.yml|yaml`, `docs/assets`, `docs/audits`, `docs/archive`):
+  no matches in status/governance/product audit scope.
+- `python3 scripts/governance/check_docs_governance_hygiene.py`: passed.
+
 ## A2 Tracking — Axion Partial-Coverage Alignment
 
 Reference alignment artifact:

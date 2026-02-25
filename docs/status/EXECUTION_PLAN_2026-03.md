@@ -42,7 +42,7 @@ This plan covers three priority tracks:
 | B3. Non-Required Workflow Failure Handling Rule | Completed | `docs/product/RELEASE_DISCIPLINE.md`, `docs/status/RELEASE_DISCIPLINE_CHECKLIST.md` | Non-required failure classification and waiver recording rules are now codified. |
 | C1. Root Hygiene Guard Review | Completed | `docs/records/audits/2026-03-governance-review.md` | Root artifact cleanup completed and audited. |
 | C2. Records Cadence Enforcement | In Progress | `docs/records/audits/2026-03-governance-review.md`, `docs/README.md` | March artifact exists; cadence verification remains active through month close. |
-| C3. Status Cross-Link Integrity Sweep | Pending | `docs/records/audits/2026-03-governance-review.md` | Execute at month-end after remaining doc updates land. |
+| C3. Status Cross-Link Integrity Sweep | Completed | `docs/records/audits/2026-03-governance-review.md` | Completed on 2026-02-25; no missing markdown link targets and no stale superseded-path references in status/governance/product scope. |
 
 ## Track A — Spec/Implementation Drift Reduction
 
@@ -163,7 +163,7 @@ This plan covers three priority tracks:
 
 1. Complete B2 continuity by applying standardized decision stamping to the next release-readiness packet cycle.
 2. Maintain A1 closure state in matrix and monthly governance review artifacts through March close.
-3. Execute C3 link-target integrity sweep at month-end after remaining status updates land.
+3. Maintain C3 link-target integrity status through month close and record any newly introduced stale references.
 4. Maintain A1E closure state in matrix/governance artifacts through March close without expanding deterministic claim scope.
 
 ## Versioning Statement
