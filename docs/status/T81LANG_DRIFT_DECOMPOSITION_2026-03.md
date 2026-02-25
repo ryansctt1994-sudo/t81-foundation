@@ -219,6 +219,13 @@ Bounded gap closure scope:
 | `spec/t81lang-spec.md` section 5 (Deterministic Compilation Profile maintenance) | Reproducibility-gate continuity for compile artifacts across repeated runs and fixture sets | Covered | `scripts/ci/t81lang_repro_gate.py`, `tests/cpp/e2e_compile_determinism_test.cpp`, `tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp` |
 | `spec/t81lang-spec.md` section 5 (Conformance-scope maintenance linkage) | Compilation-profile evidence remains bounded to current conformance baseline without guarantee expansion | Covered | `tests/cpp/t81lang_conformance_baseline_test.cpp`, `tests/cpp/e2e_compile_determinism_test.cpp` |
 
+## Section 5 Reproducibility-Hash Maintenance Addendum (A1G-CODE-02)
+
+| Spec Anchor | Rule/Surface | Coverage Status | Evidence |
+| :--- | :--- | :--- | :--- |
+| `spec/t81lang-spec.md` section 5 (Reproducibility hash continuity) | Fixture-hash continuity maintenance for reproducibility gate outputs and canonical hash artifacts | Covered | `scripts/ci/t81lang_repro_gate.py`, `tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt`, `tests/fixtures/t81lang_determinism/t81lang_ast_ir_repro_hash.txt` |
+| `spec/t81lang-spec.md` section 5 (Compile determinism continuity) | Reproducibility-hash maintenance remains aligned with compile determinism checks and current fixture scope | Covered | `tests/cpp/e2e_compile_determinism_test.cpp`, `scripts/ci/t81lang_repro_gate.py` |
+
 ## Section 8 Stdlib Alignment Evidence Index (A1D-CODE-02)
 
 | Spec Anchor | Rule/Surface | Coverage Status | Evidence |
@@ -329,6 +336,7 @@ or freeze boundaries.
    Completed (A1G-CODE-01, 2026-02-25).
 2. Publish section 5 reproducibility-hash maintenance addendum tied to current
    fixture-hash artifact continuity.
+   Completed (A1G-CODE-02, 2026-02-25).
 3. Sync matrix/governance artifacts after A1G evidence updates.
 
 ## Risks and Controls

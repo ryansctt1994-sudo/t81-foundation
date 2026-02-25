@@ -101,6 +101,9 @@ Post-A1 follow-on planning state:
 - A1G-CODE-01 completed on 2026-02-25 with section 2/6 structural-type
   control-flow traceability addendum publication in
   `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`.
+- A1G-CODE-02 completed on 2026-02-25 with section 5 reproducibility-hash
+  maintenance addendum publication in
+  `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`.
 
 Evidence updates applied:
 
