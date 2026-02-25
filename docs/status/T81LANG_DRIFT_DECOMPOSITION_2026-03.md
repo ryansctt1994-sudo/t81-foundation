@@ -338,6 +338,7 @@ or freeze boundaries.
    fixture-hash artifact continuity.
    Completed (A1G-CODE-02, 2026-02-25).
 3. Sync matrix/governance artifacts after A1G evidence updates.
+   Completed (A1G-CODE-03, 2026-02-25).
 
 ## Risks and Controls
 
