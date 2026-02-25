@@ -181,6 +181,16 @@ Bounded gap closure scope:
 | Guarded loop condition must be boolean | Covered | `tests/cpp/t81lang_conformance_edge_semantics_test.cpp`, `tests/cpp/semantic_analyzer_loop_test.cpp` |
 | Tier annotation + bounded loop + match interaction | Covered | `tests/cpp/t81lang_conformance_edge_semantics_test.cpp` |
 
+## Section-Level Purity/Control-Flow Coverage Index (A1C-CODE-01)
+
+| Spec Anchor | Rule/Surface | Coverage Status | Evidence |
+| :--- | :--- | :--- | :--- |
+| `spec/t81lang-spec.md` section 3.1 (Pure Functions) | Pure/default function behavior and deterministic evaluation expectations in frontend conformance paths | Covered | `tests/cpp/t81lang_conformance_baseline_test.cpp`, `tests/cpp/e2e_match_expression_test.cpp` |
+| `spec/t81lang-spec.md` section 3.2 (Effectful Functions) | Effect/annotation-aware semantic checks and boundary behavior in control-flow paths | Covered | `tests/cpp/t81lang_conformance_edge_semantics_test.cpp`, `tests/cpp/semantic_analyzer_loop_test.cpp` |
+| `spec/t81lang-spec.md` section 3.3 (Tiered Purity) | Tier annotation handling and bounded-loop interaction behavior | Covered | `tests/cpp/t81lang_conformance_edge_semantics_test.cpp`, `tests/cpp/semantic_analyzer_loop_test.cpp` |
+| `spec/t81lang-spec.md` section 6.2 (Match) | Match-arm/guard semantic constraints and edge behavior | Covered | `tests/cpp/semantic_analyzer_match_test.cpp`, `tests/cpp/t81lang_conformance_edge_semantics_test.cpp`, `tests/cpp/e2e_match_expression_test.cpp` |
+| `spec/t81lang-spec.md` section 6.3 (Loop) | Loop boundedness requirements and guard-condition semantic constraints | Covered | `tests/cpp/semantic_analyzer_loop_test.cpp`, `tests/cpp/t81lang_conformance_edge_semantics_test.cpp` |
+
 ## Executable Code Task Queue
 
 - `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`
@@ -204,6 +214,7 @@ runtime semantics, determinism scope, or freeze boundaries.
 
 1. Publish section-level coverage index for section 3/6 purity and control-flow
    semantic anchors using existing conformance/semantic suites.
+   Completed (A1C-CODE-01, 2026-02-25).
 2. Publish section 7 Axion-integration metadata evidence index tied to existing
    metadata and e2e trace tests.
 3. Sync matrix/governance artifacts after A1C evidence updates.

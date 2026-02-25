@@ -45,6 +45,9 @@ Post-A1 follow-on planning state:
   `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`.
 - Next-cycle queue `A1C-CODE-01..03` is opened for bounded section 3/6 and
   section 7 evidence-index closure plus matrix/governance synchronization.
+- A1C-CODE-01 completed on 2026-02-25 with section-level purity/control-flow
+  coverage index publication in
+  `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`.
 
 Evidence updates applied:
 
