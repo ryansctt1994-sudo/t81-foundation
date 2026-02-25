@@ -109,6 +109,7 @@ Authority remains:
 - `docs/product/RELEASE_DISCIPLINE.md`
 - `docs/status/IMPLEMENTATION_MATRIX.md`
 - `docs/status/SYSTEM_STATUS.md`
+- `docs/status/EXECUTION_PLAN_2026-03.md`
 
 ## 9. Versioning Statement
 
