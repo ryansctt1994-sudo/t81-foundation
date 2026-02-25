@@ -1,4 +1,4 @@
-# t81/detail — Internal Utilities
+# internal/support — Internal Utilities
 
 Small, header-only helpers used across the library. These are not part of the
 stable public API; treat them as implementation details.

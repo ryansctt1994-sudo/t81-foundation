@@ -47,6 +47,7 @@ For a concise summary of frozen vs. experimental components, see the [Determinis
 
 ### D. Public C++ API Surface
 *   **Scope:** `include/t81/`
+*   **Clarification:** “Public C++ API surface” refers specifically to headers under `include/t81/**` only.
 *   **Frozen Surface:**
     *   Class/Struct memory layouts.
     *   Function signatures and symbol names.

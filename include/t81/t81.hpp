@@ -52,8 +52,6 @@
 #include "t81/axion/api.hpp"
 
 // ---------- Utilities ----------
-#include "t81/detail/assert.hpp"
-#include "t81/detail/bitops.hpp"
 #include "t81/entropy.hpp"
 
 // ---------- Canonical v1.1 surface ----------

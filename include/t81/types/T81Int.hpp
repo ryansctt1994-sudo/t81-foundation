@@ -22,7 +22,6 @@
 #include <type_traits>
 #include <utility>
 #include "t81/axion/api.hpp"
-#include "t81/detail/msvc_compat.hpp"
 
 namespace t81 {
 

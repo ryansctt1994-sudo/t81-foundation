@@ -65,6 +65,7 @@ Key directories:
 * **`tooling/`** — Tooling modules (`cli`, `model`).
 * **`src/`** — Remaining implementation modules not yet migrated.
 * **`include/t81/`** — Public headers.
+  Public API note: only headers under `include/t81/**` are supported as stable C++ API surface.
 * **`spec/`** — Normative technical specifications (authoritative).
 * **`docs/`** — Architecture, governance, status tracking.
 * **`book/`** — Narrative technical monograph (non-normative).

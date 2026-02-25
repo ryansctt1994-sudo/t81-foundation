@@ -30,7 +30,7 @@
 #endif
 
 #include "t81/cli/driver.hpp"
-#include "t81/cli/logging.hpp"
+#include "internal/tooling/logging.hpp"
 #include "t81/frontend/ir_generator.hpp"
 #include "t81/frontend/lexer.hpp"
 #include "t81/frontend/parser.hpp"
