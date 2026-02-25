@@ -11,7 +11,7 @@ Legacy/minimal language front-end interfaces and canonical numeric formatting he
 
 ## Positioning
 - This namespace provides lightweight language interfaces.
-- Mainline C++ frontend pipeline lives under `include/t81/frontend` and `src/frontend`.
+- Mainline C++ frontend pipeline lives under `include/t81/frontend` and `lang/frontend`.
 
 ## Notes
 - Keep canonical format output stable for reproducibility gates.

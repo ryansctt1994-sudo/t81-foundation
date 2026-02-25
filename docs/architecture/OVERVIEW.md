@@ -117,7 +117,7 @@ High-level language frontend and compiler targeting TISC bytecode.
 [`/spec/t81lang-spec.md`](../../spec/t81lang-spec.md)
 
 **Code**
-`src/lang/`
+`lang/frontend/`, `lang/stdlib/`
 
 **Compiler Pipeline Components**
 

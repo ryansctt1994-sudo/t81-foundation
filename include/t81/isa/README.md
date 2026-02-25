@@ -1,4 +1,4 @@
-# `include/t81/tisc`
+# `include/t81/isa`
 
 Public interfaces for TISC IR and binary program handling.
 
@@ -12,9 +12,9 @@ Public interfaces for TISC IR and binary program handling.
 - `encoding.hpp`: encoding-related constants/helpers.
 
 ## Consumers
-- Frontend IR generation (`src/frontend`)
+- Frontend IR generation (`lang/frontend`)
 - Emitter/IO implementation (`core/isa`)
-- VM loading/execution (`src/vm`)
+- VM loading/execution (`core/vm`)
 
 ## Compatibility
 - Preserve deterministic serialization guarantees.

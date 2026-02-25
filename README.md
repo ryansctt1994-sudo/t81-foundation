@@ -57,7 +57,11 @@ In case of conflict:
 
 Key directories:
 
-* **`src/`** — Core C++ implementation (VM, Axion, TISC).
+* **`core/`** — Core runtime modules (`types`, `isa`, `vm`).
+* **`kernel/`** — Kernel modules (Axion policy subsystem).
+* **`lang/`** — Language modules (`frontend`, `stdlib`).
+* **`tooling/`** — Tooling modules (`cli`, `model`).
+* **`src/`** — Remaining implementation modules not yet migrated.
 * **`include/t81/`** — Public headers.
 * **`spec/`** — Normative technical specifications (authoritative).
 * **`docs/`** — Architecture, governance, status tracking.

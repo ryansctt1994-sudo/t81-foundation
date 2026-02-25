@@ -72,8 +72,6 @@ add_library(t81_core STATIC
   src/canonfs/persistent_driver.cpp
   src/hanoi/error.cpp
   src/hanoi/in_memory_kernel.cpp        # ← fixed path
-  src/tools/weights.cpp
-  src/tools/weights_t81w_emitter.cpp
   src/cog/promotion.cpp
   src/cog/tier1/symbolic.cpp
   src/cog/tier2/reflective.cpp
@@ -91,6 +89,7 @@ add_library(t81_core STATIC
   src/crypto/sha3.cpp
   src/setun/bridge.cpp
 )
+add_library(t81_types ALIAS t81_core)
 target_compile_features(t81_core PUBLIC ${T81_CXX_STD_FEATURE})
 target_include_directories(t81_core PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -137,14 +136,24 @@ target_include_directories(t81_c_api
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_library(t81_frontend STATIC
-  src/frontend/lexer.cpp
-  src/frontend/parser.cpp
-  src/frontend/semantic_analyzer.cpp
-  src/frontend/symbol_table.cpp
+add_library(t81_tool_model STATIC
+  tooling/model/weights.cpp
+  tooling/model/weights_t81w_emitter.cpp
 )
-target_link_libraries(t81_frontend PUBLIC t81_core)
-target_include_directories(t81_frontend PUBLIC
+target_link_libraries(t81_tool_model PUBLIC t81_core)
+target_include_directories(t81_tool_model PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+add_library(t81_lang_frontend STATIC
+  lang/frontend/lexer.cpp
+  lang/frontend/parser.cpp
+  lang/frontend/semantic_analyzer.cpp
+  lang/frontend/symbol_table.cpp
+)
+target_link_libraries(t81_lang_frontend PUBLIC t81_core)
+target_include_directories(t81_lang_frontend PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
@@ -181,19 +190,19 @@ target_link_libraries(t81_llvm INTERFACE t81_core)
 # =============================================================================
 # CLI & Examples
 # =============================================================================
-add_library(t81_cli_driver STATIC
-  src/cli/driver.cpp
-  src/cli/debugger.cpp
-  src/cli/canonize_tensor.cpp
+add_library(t81_tool_cli STATIC
+  tooling/cli/driver.cpp
+  tooling/cli/debugger.cpp
+  tooling/cli/canonize_tensor.cpp
 )
-target_link_libraries(t81_cli_driver PUBLIC t81_frontend t81_isa t81_vm)
-target_include_directories(t81_cli_driver PUBLIC
+target_link_libraries(t81_tool_cli PUBLIC t81_lang_frontend t81_isa t81_vm t81_tool_model)
+target_include_directories(t81_tool_cli PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-add_executable(t81 src/cli/main.cpp)
-target_link_libraries(t81 PRIVATE t81_frontend t81_isa t81_vm t81_cli_driver)
+add_executable(t81 tooling/cli/main.cpp)
+target_link_libraries(t81 PRIVATE t81_lang_frontend t81_isa t81_vm t81_tool_cli)
 
 if(T81_BUILD_EXAMPLES)
 add_executable(t81_demo examples/demo.cpp)
@@ -209,28 +218,28 @@ add_executable(axion_demo examples/axion_demo.cpp)
 target_link_libraries(axion_demo PRIVATE t81_core t81_axion)
 
 add_executable(axion_guard_trace examples/axion_guard_trace.cpp)
-target_link_libraries(axion_guard_trace PRIVATE t81_cli_driver t81_vm)
+target_link_libraries(axion_guard_trace PRIVATE t81_tool_cli t81_vm)
 
 add_executable(axion_policy_trace examples/axion_policy_trace.cpp)
-target_link_libraries(axion_policy_trace PRIVATE t81_cli_driver t81_vm)
+target_link_libraries(axion_policy_trace PRIVATE t81_tool_cli t81_vm)
 
 add_executable(axion_heap_compaction_trace_test tests/cpp/axion_heap_compaction_trace_test.cpp)
-target_link_libraries(axion_heap_compaction_trace_test PRIVATE t81_cli_driver t81_isa t81_vm)
+target_link_libraries(axion_heap_compaction_trace_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
 add_executable(axion_policy_runner examples/axion_policy_runner.cpp)
-target_link_libraries(axion_policy_runner PRIVATE t81_cli_driver t81_vm)
+target_link_libraries(axion_policy_runner PRIVATE t81_tool_cli t81_vm)
 
 add_executable(llama32_demo examples/llama32_demo.cpp)
-target_link_libraries(llama32_demo PRIVATE t81_cli_driver t81_vm)
+target_link_libraries(llama32_demo PRIVATE t81_tool_cli t81_vm)
 
 add_executable(canonfs_trace_demo examples/canonfs_trace_demo.cpp)
 target_link_libraries(canonfs_trace_demo PRIVATE t81_core t81_axion)
 
 add_executable(axion_nested_guard_test tests/cpp/axion_nested_guard_test.cpp)
-target_link_libraries(axion_nested_guard_test PRIVATE t81_cli_driver t81_vm)
+target_link_libraries(axion_nested_guard_test PRIVATE t81_tool_cli t81_vm)
 
 add_executable(e2e_axion_trace_test tests/cpp/e2e_axion_trace_test.cpp)
-target_link_libraries(e2e_axion_trace_test PRIVATE t81_cli_driver t81_vm)
+target_link_libraries(e2e_axion_trace_test PRIVATE t81_tool_cli t81_vm)
 
 add_executable(complex_demo examples/complex_demo.cpp)
 target_link_libraries(complex_demo PRIVATE t81_core asio)
@@ -334,7 +343,7 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_tensor_loader_test PRIVATE t81_io)
 
   add_executable(t81_weights_quantize_test tests/cpp/weights_quantize_test.cpp)
-  target_link_libraries(t81_weights_quantize_test PRIVATE t81_core)
+  target_link_libraries(t81_weights_quantize_test PRIVATE t81_core t81_tool_model)
 
   add_executable(t81_canonfs_io_test tests/cpp/canonfs_io_test.cpp)
   target_link_libraries(t81_canonfs_io_test PRIVATE t81_core)
@@ -389,7 +398,7 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_reflection_non_interference_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_weights_load_test tests/cpp/weights_load_test.cpp)
-  target_link_libraries(t81_weights_load_test PRIVATE t81_vm t81_core)
+  target_link_libraries(t81_weights_load_test PRIVATE t81_vm t81_core t81_tool_model)
 
   add_executable(t81_hash_stub_test tests/cpp/hash_stub_test.cpp)
   target_link_libraries(t81_hash_stub_test PRIVATE t81_core)
@@ -457,7 +466,7 @@ if(T81_BUILD_TESTS)
   target_link_libraries(tisc_opcode_matrix_test PRIVATE t81_isa)
 
   add_executable(t81lang_conformance_baseline_test tests/cpp/t81lang_conformance_baseline_test.cpp)
-  target_link_libraries(t81lang_conformance_baseline_test PRIVATE t81_frontend)
+  target_link_libraries(t81lang_conformance_baseline_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_numeric_format_test tests/cpp/t81_numeric_format_test.cpp)
   target_link_libraries(t81_numeric_format_test PRIVATE t81_core)
@@ -490,11 +499,11 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_entropy_test PRIVATE t81_core)
 
   add_executable(t81_ethics_test tests/cpp/test_ethics.cpp)
-  target_link_libraries(t81_ethics_test PRIVATE t81_core)
+  target_link_libraries(t81_ethics_test PRIVATE t81_core t81_axion)
   add_test(NAME t81_ethics_test COMMAND t81_ethics_test)
 
   add_executable(t81_ethics_invariants_test tests/cpp/test_ethics_invariants.cpp)
-  target_link_libraries(t81_ethics_invariants_test PRIVATE t81_core)
+  target_link_libraries(t81_ethics_invariants_test PRIVATE t81_core t81_axion)
   add_test(NAME t81_ethics_invariants_test COMMAND t81_ethics_invariants_test)
 
   add_executable(test_resource_monitoring tests/cpp/test_resource_monitoring.cpp)
@@ -527,7 +536,7 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_neural_primitives_test PRIVATE t81_core)
 
   add_executable(t81_frontend_neural_test tests/cpp/test_frontend_neural.cpp)
-  target_link_libraries(t81_frontend_neural_test PRIVATE t81_frontend t81_core)
+  target_link_libraries(t81_frontend_neural_test PRIVATE t81_lang_frontend t81_core)
 
   add_executable(t81_c_api_bigint_test tests/cpp/c_api_bigint_test.c)
   target_link_libraries(t81_c_api_bigint_test PRIVATE t81_c_api)
@@ -586,75 +595,75 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_vm_print_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_frontend_lexer_test tests/cpp/frontend_lexer_test.cpp)
-  target_link_libraries(t81_frontend_lexer_test PRIVATE t81_frontend)
+  target_link_libraries(t81_frontend_lexer_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_frontend_parser_test tests/cpp/frontend_parser_test.cpp)
-  target_link_libraries(t81_frontend_parser_test PRIVATE t81_frontend)
+  target_link_libraries(t81_frontend_parser_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_parser_regression_audit_test tests/cpp/test_parser_regression_audit.cpp)
-  target_link_libraries(t81_parser_regression_audit_test PRIVATE t81_frontend)
+  target_link_libraries(t81_parser_regression_audit_test PRIVATE t81_lang_frontend)
   add_test(NAME t81_parser_regression_audit_test COMMAND t81_parser_regression_audit_test)
 
   add_executable(t81_spec_compliance_test tests/cpp/spec_compliance_test.cpp)
-  target_link_libraries(t81_spec_compliance_test PRIVATE t81_frontend)
+  target_link_libraries(t81_spec_compliance_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_frontend_expression_features_test tests/cpp/frontend_expression_features_test.cpp)
-  target_link_libraries(t81_frontend_expression_features_test PRIVATE t81_frontend t81_isa)
+  target_link_libraries(t81_frontend_expression_features_test PRIVATE t81_lang_frontend t81_isa)
 
   add_executable(t81_frontend_parser_generics_test tests/cpp/frontend_parser_generics_test.cpp)
-  target_link_libraries(t81_frontend_parser_generics_test PRIVATE t81_frontend)
+  target_link_libraries(t81_frontend_parser_generics_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_frontend_parser_recovery_test tests/cpp/frontend_parser_recovery_test.cpp)
-  target_link_libraries(t81_frontend_parser_recovery_test PRIVATE t81_frontend)
+  target_link_libraries(t81_frontend_parser_recovery_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_frontend_parser_legacy_rejection_test tests/cpp/frontend_parser_legacy_rejection_test.cpp)
-  target_link_libraries(t81_frontend_parser_legacy_rejection_test PRIVATE t81_frontend)
+  target_link_libraries(t81_frontend_parser_legacy_rejection_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_frontend_ir_generator_test tests/cpp/frontend_ir_generator_test.cpp)
-  target_link_libraries(t81_frontend_ir_generator_test PRIVATE t81_frontend t81_isa)
+  target_link_libraries(t81_frontend_ir_generator_test PRIVATE t81_lang_frontend t81_isa)
 
   add_executable(t81_frontend_logical_lowering_test tests/cpp/test_frontend_logical_lowering.cpp)
-  target_link_libraries(t81_frontend_logical_lowering_test PRIVATE t81_frontend t81_isa)
+  target_link_libraries(t81_frontend_logical_lowering_test PRIVATE t81_lang_frontend t81_isa)
 
   add_executable(t81_ir_snapshot_audit_test tests/cpp/test_ir_snapshot_audit.cpp)
-  target_link_libraries(t81_ir_snapshot_audit_test PRIVATE t81_frontend t81_isa)
+  target_link_libraries(t81_ir_snapshot_audit_test PRIVATE t81_lang_frontend t81_isa)
   add_test(NAME t81_ir_snapshot_audit_test COMMAND t81_ir_snapshot_audit_test)
 
   add_executable(t81_semantic_analyzer_option_result_test tests/cpp/semantic_analyzer_option_result_test.cpp)
-  target_link_libraries(t81_semantic_analyzer_option_result_test PRIVATE t81_frontend)
+  target_link_libraries(t81_semantic_analyzer_option_result_test PRIVATE t81_lang_frontend)
 
   add_executable(test_std_option_result tests/cpp/test_std_option_result.cpp)
-  target_link_libraries(test_std_option_result PRIVATE t81_frontend t81_isa)
+  target_link_libraries(test_std_option_result PRIVATE t81_lang_frontend t81_isa)
 
   add_executable(t81_semantic_analyzer_match_test tests/cpp/semantic_analyzer_match_test.cpp)
-  target_link_libraries(t81_semantic_analyzer_match_test PRIVATE t81_frontend)
+  target_link_libraries(t81_semantic_analyzer_match_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_semantic_analyzer_generic_test tests/cpp/semantic_analyzer_generic_test.cpp)
-  target_link_libraries(t81_semantic_analyzer_generic_test PRIVATE t81_frontend)
+  target_link_libraries(t81_semantic_analyzer_generic_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_semantic_analyzer_indexing_test tests/cpp/semantic_analyzer_indexing_test.cpp)
-  target_link_libraries(t81_semantic_analyzer_indexing_test PRIVATE t81_frontend)
+  target_link_libraries(t81_semantic_analyzer_indexing_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_semantic_analyzer_vector_literal_test tests/cpp/semantic_analyzer_vector_literal_test.cpp)
-  target_link_libraries(t81_semantic_analyzer_vector_literal_test PRIVATE t81_frontend)
+  target_link_libraries(t81_semantic_analyzer_vector_literal_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_semantic_analyzer_record_enum_test tests/cpp/semantic_analyzer_record_enum_test.cpp)
-  target_link_libraries(t81_semantic_analyzer_record_enum_test PRIVATE t81_frontend)
+  target_link_libraries(t81_semantic_analyzer_record_enum_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_semantic_analyzer_equality_test tests/cpp/semantic_analyzer_equality_test.cpp)
-  target_link_libraries(t81_semantic_analyzer_equality_test PRIVATE t81_frontend)
+  target_link_libraries(t81_semantic_analyzer_equality_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_semantic_analyzer_numeric_test tests/cpp/semantic_analyzer_numeric_test.cpp)
-  target_link_libraries(t81_semantic_analyzer_numeric_test PRIVATE t81_frontend)
+  target_link_libraries(t81_semantic_analyzer_numeric_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_semantic_analyzer_diagnostic_location_test tests/cpp/semantic_analyzer_diagnostic_location_test.cpp)
-  target_link_libraries(t81_semantic_analyzer_diagnostic_location_test PRIVATE t81_frontend)
+  target_link_libraries(t81_semantic_analyzer_diagnostic_location_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_semantic_analyzer_cascade_suppression_test tests/cpp/semantic_analyzer_cascade_suppression_test.cpp)
-  target_link_libraries(t81_semantic_analyzer_cascade_suppression_test PRIVATE t81_frontend)
+  target_link_libraries(t81_semantic_analyzer_cascade_suppression_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_semantic_analyzer_diagnostic_precision_test tests/cpp/semantic_analyzer_diagnostic_precision_test.cpp)
-  target_link_libraries(t81_semantic_analyzer_diagnostic_precision_test PRIVATE t81_frontend)
+  target_link_libraries(t81_semantic_analyzer_diagnostic_precision_test PRIVATE t81_lang_frontend)
 
   add_executable(t81_isa_binary_emitter_test tests/cpp/tisc_binary_emitter_test.cpp)
   target_link_libraries(t81_isa_binary_emitter_test PRIVATE t81_isa)
@@ -668,85 +677,85 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_isa_binary_metadata_roundtrip_property_test PRIVATE t81_isa t81_core)
 
   add_executable(t81_semantic_analyzer_loop_test tests/cpp/semantic_analyzer_loop_test.cpp)
-  target_link_libraries(t81_semantic_analyzer_loop_test PRIVATE t81_frontend)
+  target_link_libraries(t81_semantic_analyzer_loop_test PRIVATE t81_lang_frontend)
 
   add_executable(ir_inspector tools/ir_inspector.cpp)
-  target_link_libraries(ir_inspector PRIVATE t81_frontend)
+  target_link_libraries(ir_inspector PRIVATE t81_lang_frontend)
 
   add_executable(e2e_let_statement_test tests/cpp/e2e_let_statement_test.cpp)
-  target_link_libraries(e2e_let_statement_test PRIVATE t81_frontend t81_isa t81_vm)
+  target_link_libraries(e2e_let_statement_test PRIVATE t81_lang_frontend t81_isa t81_vm)
 
   add_executable(e2e_arithmetic_test tests/cpp/e2e_arithmetic_test.cpp)
-  target_link_libraries(e2e_arithmetic_test PRIVATE t81_frontend t81_isa t81_vm)
+  target_link_libraries(e2e_arithmetic_test PRIVATE t81_lang_frontend t81_isa t81_vm)
 
   add_executable(e2e_if_statement_test tests/cpp/e2e_if_statement_test.cpp)
-  target_link_libraries(e2e_if_statement_test PRIVATE t81_frontend t81_isa t81_vm)
+  target_link_libraries(e2e_if_statement_test PRIVATE t81_lang_frontend t81_isa t81_vm)
 
   add_executable(e2e_option_result_test tests/cpp/e2e_option_result_test.cpp)
-  target_link_libraries(e2e_option_result_test PRIVATE t81_frontend t81_isa t81_vm)
+  target_link_libraries(e2e_option_result_test PRIVATE t81_lang_frontend t81_isa t81_vm)
 
   add_executable(e2e_option_type_test tests/cpp/e2e_option_type_test.cpp)
-  target_link_libraries(e2e_option_type_test PRIVATE t81_frontend t81_isa t81_vm)
+  target_link_libraries(e2e_option_type_test PRIVATE t81_lang_frontend t81_isa t81_vm)
 
   add_executable(e2e_option_result_function_test tests/cpp/e2e_option_result_function_test.cpp)
-  target_link_libraries(e2e_option_result_function_test PRIVATE t81_frontend t81_isa t81_vm)
+  target_link_libraries(e2e_option_result_function_test PRIVATE t81_lang_frontend t81_isa t81_vm)
 
   add_executable(t81_cli_check_test tests/cpp/cli_check_test.cpp)
-  target_link_libraries(t81_cli_check_test PRIVATE t81_cli_driver)
+  target_link_libraries(t81_cli_check_test PRIVATE t81_tool_cli)
 
   add_executable(security_package_init_test tests/cpp/security_package_init_test.cpp)
-  target_link_libraries(security_package_init_test PRIVATE t81_cli_driver)
+  target_link_libraries(security_package_init_test PRIVATE t81_tool_cli)
 
   add_executable(t81_cli_pipeline_test tests/cpp/cli_pipeline_test.cpp)
-  target_link_libraries(t81_cli_pipeline_test PRIVATE t81_cli_driver)
+  target_link_libraries(t81_cli_pipeline_test PRIVATE t81_tool_cli)
 
   add_executable(t81_cli_disasm_test tests/cpp/cli_disasm_test.cpp)
-  target_link_libraries(t81_cli_disasm_test PRIVATE t81_cli_driver)
+  target_link_libraries(t81_cli_disasm_test PRIVATE t81_tool_cli)
 
   add_executable(t81_cli_debugger_test tests/cpp/cli_debugger_test.cpp)
-  target_link_libraries(t81_cli_debugger_test PRIVATE t81_cli_driver t81_isa)
+  target_link_libraries(t81_cli_debugger_test PRIVATE t81_tool_cli t81_isa)
 
   add_executable(t81_cli_option_result_test tests/cpp/cli_option_result_test.cpp)
-  target_link_libraries(t81_cli_option_result_test PRIVATE t81_cli_driver t81_isa t81_vm)
+  target_link_libraries(t81_cli_option_result_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
   add_executable(t81_cli_diagnostic_context_test tests/cpp/cli_diagnostic_context_test.cpp)
-  target_link_libraries(t81_cli_diagnostic_context_test PRIVATE t81_cli_driver t81_frontend t81_isa t81_vm)
+  target_link_libraries(t81_cli_diagnostic_context_test PRIVATE t81_tool_cli t81_lang_frontend t81_isa t81_vm)
 
   add_executable(t81_cli_structural_types_test tests/cpp/cli_structural_types_test.cpp)
-  target_link_libraries(t81_cli_structural_types_test PRIVATE t81_cli_driver t81_isa t81_vm)
+  target_link_libraries(t81_cli_structural_types_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
   add_executable(t81_cli_repl_test tests/cpp/cli_repl_test.cpp)
-  target_link_libraries(t81_cli_repl_test PRIVATE t81_cli_driver t81_isa t81_vm)
+  target_link_libraries(t81_cli_repl_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
   add_executable(cli_canonize_tensor_test tests/cpp/cli_canonize_tensor_test.cpp)
-  target_link_libraries(cli_canonize_tensor_test PRIVATE t81_cli_driver t81_core)
+  target_link_libraries(cli_canonize_tensor_test PRIVATE t81_tool_cli t81_core)
 
   add_executable(cli_repro_hash_test tests/cpp/cli_repro_hash_test.cpp)
   target_compile_features(cli_repro_hash_test PRIVATE ${T81_CXX_STD_FEATURE})
 
   add_executable(cli_std_text_fixtures_test tests/cpp/cli_std_text_fixtures_test.cpp)
-  target_link_libraries(cli_std_text_fixtures_test PRIVATE t81_cli_driver t81_isa t81_vm)
+  target_link_libraries(cli_std_text_fixtures_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
   add_executable(cli_std_bytes_fixtures_test tests/cpp/cli_std_bytes_fixtures_test.cpp)
-  target_link_libraries(cli_std_bytes_fixtures_test PRIVATE t81_cli_driver t81_isa t81_vm)
+  target_link_libraries(cli_std_bytes_fixtures_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
   add_executable(cli_std_symbol_fixtures_test tests/cpp/cli_std_symbol_fixtures_test.cpp)
-  target_link_libraries(cli_std_symbol_fixtures_test PRIVATE t81_cli_driver t81_isa t81_vm)
+  target_link_libraries(cli_std_symbol_fixtures_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
   add_executable(cli_std_collections_fixtures_test tests/cpp/cli_std_collections_fixtures_test.cpp)
-  target_link_libraries(cli_std_collections_fixtures_test PRIVATE t81_cli_driver t81_isa t81_vm)
+  target_link_libraries(cli_std_collections_fixtures_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
   add_executable(cli_std_tensor_fixtures_test tests/cpp/cli_std_tensor_fixtures_test.cpp)
-  target_link_libraries(cli_std_tensor_fixtures_test PRIVATE t81_cli_driver t81_isa t81_vm)
+  target_link_libraries(cli_std_tensor_fixtures_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
   add_executable(cli_std_runtime_fixtures_test tests/cpp/cli_std_runtime_fixtures_test.cpp)
-  target_link_libraries(cli_std_runtime_fixtures_test PRIVATE t81_cli_driver t81_isa t81_vm)
+  target_link_libraries(cli_std_runtime_fixtures_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
   add_executable(t81_cli_record_enum_test tests/cpp/cli_record_enum_test.cpp)
-  target_link_libraries(t81_cli_record_enum_test PRIVATE t81_cli_driver t81_isa t81_vm)
+  target_link_libraries(t81_cli_record_enum_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
   add_executable(t81_tier4_test tests/cpp/tier4_test.cpp)
-  target_link_libraries(t81_tier4_test PRIVATE t81_core)
+  target_link_libraries(t81_tier4_test PRIVATE t81_core t81_axion)
 
   add_executable(t81_tier5_test tests/cpp/tier5_test.cpp)
   target_link_libraries(t81_tier5_test PRIVATE t81_core)
@@ -767,19 +776,19 @@ if(T81_BUILD_TESTS)
   target_link_libraries(jit_tensor_trace_equivalence_test PRIVATE t81_vm)
 
   add_executable(axion_loop_metadata_test tests/cpp/axion_loop_metadata_test.cpp)
-  target_link_libraries(axion_loop_metadata_test PRIVATE t81_cli_driver t81_isa t81_vm)
+  target_link_libraries(axion_loop_metadata_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
   add_executable(axion_match_metadata_test tests/cpp/axion_match_metadata_test.cpp)
-  target_link_libraries(axion_match_metadata_test PRIVATE t81_cli_driver t81_isa t81_vm)
+  target_link_libraries(axion_match_metadata_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
   add_executable(axion_enum_guard_test tests/cpp/axion_enum_guard_test.cpp)
-  target_link_libraries(axion_enum_guard_test PRIVATE t81_cli_driver t81_isa t81_vm)
+  target_link_libraries(axion_enum_guard_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
 add_executable(axion_policy_match_guard_test tests/cpp/axion_policy_match_guard_test.cpp)
-target_link_libraries(axion_policy_match_guard_test PRIVATE t81_cli_driver t81_isa t81_vm)
+target_link_libraries(axion_policy_match_guard_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
 add_executable(axion_policy_gc_trace_test tests/cpp/axion_policy_gc_trace_test.cpp)
-target_link_libraries(axion_policy_gc_trace_test PRIVATE t81_cli_driver t81_isa t81_vm)
+target_link_libraries(axion_policy_gc_trace_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
   add_executable(axion_policy_bytecode_test tests/cpp/axion_policy_bytecode_test.cpp)
   target_link_libraries(axion_policy_bytecode_test PRIVATE t81_core t81_axion)
@@ -791,32 +800,32 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
   target_link_libraries(axion_instruction_counter_test PRIVATE t81_core t81_vm)
 
   add_executable(e2e_match_expression_test tests/cpp/e2e_match_expression_test.cpp)
-  target_link_libraries(e2e_match_expression_test PRIVATE t81_frontend t81_isa t81_vm)
+  target_link_libraries(e2e_match_expression_test PRIVATE t81_lang_frontend t81_isa t81_vm)
 
   add_executable(e2e_loop_statement_test tests/cpp/e2e_loop_statement_test.cpp)
-  target_link_libraries(e2e_loop_statement_test PRIVATE t81_frontend t81_isa t81_vm)
+  target_link_libraries(e2e_loop_statement_test PRIVATE t81_lang_frontend t81_isa t81_vm)
 
   add_executable(e2e_advanced_features_test tests/cpp/e2e_advanced_features_test.cpp)
-  target_link_libraries(e2e_advanced_features_test PRIVATE t81_frontend t81_isa t81_vm)
+  target_link_libraries(e2e_advanced_features_test PRIVATE t81_lang_frontend t81_isa t81_vm)
 
   add_executable(e2e_print_runtime_test tests/cpp/e2e_print_runtime_test.cpp)
-  target_link_libraries(e2e_print_runtime_test PRIVATE t81_frontend t81_isa t81_vm)
+  target_link_libraries(e2e_print_runtime_test PRIVATE t81_lang_frontend t81_isa t81_vm)
 
   add_executable(e2e_compile_determinism_test tests/cpp/e2e_compile_determinism_test.cpp)
-  target_link_libraries(e2e_compile_determinism_test PRIVATE t81_cli_driver t81_isa t81_vm t81_core)
+  target_link_libraries(e2e_compile_determinism_test PRIVATE t81_tool_cli t81_isa t81_vm t81_core)
 
   add_executable(e2e_match_metadata_determinism_test tests/cpp/e2e_match_metadata_determinism_test.cpp)
-  target_link_libraries(e2e_match_metadata_determinism_test PRIVATE t81_cli_driver t81_vm)
+  target_link_libraries(e2e_match_metadata_determinism_test PRIVATE t81_tool_cli t81_vm)
 
   add_executable(e2e_ast_ir_canonical_determinism_test tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp)
-  target_link_libraries(e2e_ast_ir_canonical_determinism_test PRIVATE t81_frontend t81_core)
+  target_link_libraries(e2e_ast_ir_canonical_determinism_test PRIVATE t81_lang_frontend t81_core)
 
   add_executable(cli_e2e_test tests/cpp/cli_e2e_test.cpp)
-  target_link_libraries(cli_e2e_test PRIVATE t81_cli_driver)
+  target_link_libraries(cli_e2e_test PRIVATE t81_tool_cli)
 
   if(T81_BUILD_FUZZ_TESTS)
     add_executable(t81_frontend_fuzz_test tests/cpp/frontend_fuzz_test.cpp)
-    target_link_libraries(t81_frontend_fuzz_test PRIVATE t81_frontend)
+    target_link_libraries(t81_frontend_fuzz_test PRIVATE t81_lang_frontend)
   endif()
 
   add_executable(t81_t81int_test tests/cpp/test_t81int.cpp)
@@ -959,7 +968,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
   target_link_libraries(test_T81Tensor_transpose PRIVATE t81_core)
 
   add_executable(performance_advancements_test tests/cpp/performance_advancements_test.cpp)
-  target_link_libraries(performance_advancements_test PRIVATE t81_core)
+  target_link_libraries(performance_advancements_test PRIVATE t81_core t81_axion)
 
   add_executable(t81_distributed_tensor_test tests/cpp/distributed_tensor_test.cpp)
   target_link_libraries(t81_distributed_tensor_test PRIVATE t81_core)
@@ -1239,7 +1248,7 @@ if(pybind11_DIR)
   find_package(Python REQUIRED COMPONENTS Interpreter Development)
   find_package(pybind11 REQUIRED)
   pybind11_add_module(t81_python src/python/t81_python.cpp)
-  target_link_libraries(t81_python PRIVATE t81_core t81_frontend t81_isa t81_vm)
+  target_link_libraries(t81_python PRIVATE t81_core t81_lang_frontend t81_isa t81_vm)
 endif()
 
 # =============================================================================
@@ -1397,13 +1406,15 @@ include(CMakePackageConfigHelpers)
 # Install targets and export them
 install(TARGETS
     t81_core
+    t81_axion
+    t81_tool_model
     t81_io
     t81_c_api
-    t81_frontend
+    t81_lang_frontend
     t81_isa
     t81_vm
     t81_llvm
-    t81_cli_driver
+    t81_tool_cli
     t81
   EXPORT T81Targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
