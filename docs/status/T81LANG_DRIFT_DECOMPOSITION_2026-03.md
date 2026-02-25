@@ -235,6 +235,21 @@ runtime semantics, determinism scope, or freeze boundaries.
 - Risk: Planning drift without evidence updates.
   - Control: Each milestone requires artifact-level evidence.
 
+## Cycle Closure Gate
+
+The next drift-reduction cycle may be seeded only after the current cycle is
+closed under all of the following conditions:
+
+1. All queue tasks for the cycle are marked `Completed` in
+   `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`.
+2. `docs/status/IMPLEMENTATION_MATRIX.md` reflects cycle closure status.
+3. `docs/records/audits/2026-03-governance-review.md` records closure evidence.
+4. `docs/status/EXECUTION_PLAN_2026-03.md` immediate-next-action text no longer
+   targets the closed cycle.
+
+Any override requires governance-audit documentation in the current month
+artifact.
+
 ## Cross-References
 
 - `docs/status/EXECUTION_PLAN_2026-03.md`

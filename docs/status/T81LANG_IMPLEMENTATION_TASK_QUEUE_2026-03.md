@@ -42,6 +42,18 @@ spec anchors, code paths, and validation tests.
 Tasks in this queue must not alter freeze boundaries, determinism claim scope,
 or CI policy. Any boundary-impacting change requires ADR/governance escalation.
 
+## Cycle Progression Gate
+
+No new T81Lang drift-reduction cycle queue (for example `A1D-*`) may be opened
+until all tasks in the active cycle are marked `Completed` and the following
+artifacts are synchronized:
+
+1. `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`
+2. `docs/status/IMPLEMENTATION_MATRIX.md`
+3. `docs/records/audits/2026-03-governance-review.md`
+
+Exceptions require explicit governance recording in the monthly audit artifact.
+
 ## Cross-References
 
 - `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`

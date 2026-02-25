@@ -18,6 +18,7 @@ specification authority, freeze boundaries, or determinism claim scope.
 - IMPLEMENTATION_MATRIX.md
 - EXECUTION_PLAN_2026-03.md
 - SYSTEM_STATUS.md
+- PROGRAM_CHECKPOINT_2026-02-25.md
 
 ## Versioning Statement
 
