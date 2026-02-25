@@ -58,6 +58,9 @@ Post-A1 follow-on planning state:
 - Post-A1C queue `A1D-CODE-01..03` is opened for residual section 5
   IR/lowering and section 8 stdlib evidence-index closure plus matrix/governance
   synchronization.
+- A1D-CODE-01 completed on 2026-02-25 with section 5 IR/lowering determinism
+  evidence-index publication in
+  `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`.
 
 Evidence updates applied:
 

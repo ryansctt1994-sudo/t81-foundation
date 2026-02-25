@@ -198,6 +198,13 @@ Bounded gap closure scope:
 | `spec/t81lang-spec.md` section 7.1 (Tier Metadata) | Tier metadata emission and trace integration from frontend to runtime surfaces | Covered | `tests/cpp/axion_loop_metadata_test.cpp`, `tests/cpp/axion_match_metadata_test.cpp`, `tests/cpp/e2e_axion_trace_test.cpp` |
 | `spec/t81lang-spec.md` section 7.2 (Safety Hooks) | Axion policy hook behavior over match/control-flow operations and guard metadata | Covered | `tests/cpp/axion_policy_match_guard_test.cpp`, `tests/cpp/e2e_axion_trace_test.cpp` |
 
+## Section 5 IR/Lowering Determinism Evidence Index (A1D-CODE-01)
+
+| Spec Anchor | Rule/Surface | Coverage Status | Evidence |
+| :--- | :--- | :--- | :--- |
+| `spec/t81lang-spec.md` section 5 (Deterministic Compilation Profile traceability) | End-to-end compile byte-identity and deterministic artifact behavior across repeated compilation passes | Covered | `tests/cpp/e2e_compile_determinism_test.cpp`, `tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp`, `scripts/ci/t81lang_repro_gate.py` |
+| `spec/t81lang-spec.md` section 5 stage 6/7 (IR + TISC lowering) | Frontend IR generation and lowering path determinism evidence for stable compilation profile surfaces | Covered | `tests/cpp/frontend_ir_generator_test.cpp`, `tests/cpp/e2e_compile_determinism_test.cpp`, `tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp` |
+
 ## Executable Code Task Queue
 
 - `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`
@@ -235,6 +242,7 @@ freeze boundaries.
 
 1. Publish section 5 IR/lowering determinism evidence index tied to existing
    frontend IR and e2e determinism/repro checks.
+   Completed (A1D-CODE-01, 2026-02-25).
 2. Publish section 8 stdlib alignment evidence index tied to existing CLI std
    fixture suites.
 3. Sync matrix/governance artifacts after A1D evidence updates.
