@@ -160,7 +160,7 @@ This plan covers three priority tracks:
 1. Complete B2 continuity by applying standardized decision stamping to the next release-readiness packet cycle.
 2. Maintain A1 closure state in matrix and monthly governance review artifacts through March close.
 3. Execute C3 link-target integrity sweep at month-end after remaining status updates land.
-4. Begin next drift-reduction execution cycle for T81Lang based on post-A1 evidence deltas (without expanding deterministic claim scope).
+4. Execute post-A1 follow-on queue (`A1B-CODE-01..03`) from `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md` without expanding deterministic claim scope.
 
 ## Versioning Statement
 

@@ -29,6 +29,12 @@ A1 completion state:
 - Matrix/decomposition/task-queue artifacts are synchronized for current A1
   closure evidence.
 
+Post-A1 follow-on planning state:
+
+- Follow-on queue `A1B-CODE-01..03` is opened in
+  `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md` for bounded
+  evidence-gap reduction in the current March cycle.
+
 Evidence updates applied:
 
 - `docs/status/IMPLEMENTATION_MATRIX.md`

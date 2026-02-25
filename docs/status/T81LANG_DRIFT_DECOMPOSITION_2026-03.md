@@ -124,7 +124,7 @@ determinism claim boundaries.
 | A.3 vector literals (list and repeat forms) | Covered | `tests/cpp/frontend_parser_appendix_coverage_test.cpp`, `tests/cpp/semantic_analyzer_vector_literal_test.cpp` |
 | A.3 `match_expression` and arm guards | Covered | `tests/cpp/frontend_parser_appendix_coverage_test.cpp`, `tests/cpp/frontend_parser_recovery_test.cpp`, `tests/cpp/semantic_analyzer_match_test.cpp` |
 | A.3 block expressions | Covered | `tests/cpp/frontend_parser_appendix_coverage_test.cpp` |
-| A.3 if expressions | Partial | `tests/cpp/e2e_if_statement_test.cpp` (statement-form evidence); expression-form parser coverage remains queued under A1-CODE-05 |
+| A.3 if expressions | Partial | `tests/cpp/e2e_if_statement_test.cpp` (statement-form evidence); expression-form parser coverage deferred to post-A1 follow-on queue |
 | A.4 statements (`let`, `var`, expression, return, if, loop, block`) | Covered | `tests/cpp/frontend_parser_test.cpp`, `tests/cpp/frontend_parser_appendix_coverage_test.cpp`, `tests/cpp/frontend_parser_recovery_test.cpp` |
 | A.5 top-level declarations (`fn`, `type`, `record`, `enum`) | Covered | `tests/cpp/frontend_parser_appendix_coverage_test.cpp`, `tests/cpp/t81lang_conformance_baseline_test.cpp` |
 
@@ -174,6 +174,17 @@ Bounded gap closure scope:
 ## Executable Code Task Queue
 
 - `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`
+
+## Post-A1 Evidence Deltas (Next Cycle Inputs)
+
+These deltas are bounded follow-on items derived from current decomposition
+tables and open-gap notes. They do not change semantics, freeze boundaries, or
+determinism claim scope.
+
+1. Add explicit parser coverage evidence for expression-form `if` grammar paths.
+2. Publish section-level semantic coverage index tied to section 2/5 rule
+   anchors and existing test assets.
+3. Refresh matrix/audit notes after follow-on evidence updates are applied.
 
 ## Risks and Controls
 
