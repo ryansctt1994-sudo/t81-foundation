@@ -26,6 +26,20 @@ This plan covers three priority tracks:
 - `docs/governance/MONTHLY_GOVERNANCE_REVIEW_CHECKLIST.md`
 - `docs/status/RELEASE_READINESS_PACKET_2026-02.md`
 
+## Execution Status Ledger (as of 2026-02-25)
+
+| Item | Status | Evidence | Notes |
+| :--- | :--- | :--- | :--- |
+| A1. T81Lang Drift Decomposition | In Progress | `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md` | Milestones defined and linked; implementation closure remains open. |
+| A2. Axion Partial-Coverage Alignment Plan | Pending | `docs/status/IMPLEMENTATION_MATRIX.md` | Next update should convert partial-coverage note into bounded action plan. |
+| A3. Experimental Tiers Boundary Clarification | Pending | `docs/status/IMPLEMENTATION_MATRIX.md` | Boundary wording must be normalized across status/product docs. |
+| B1. Required-Checks Release Gating Procedure | Completed | `docs/status/RELEASE_DISCIPLINE_CHECKLIST.md`, `docs/status/RELEASE_READINESS_PACKET_2026-02.md` | Procedure and decision gate are now explicit and evidence-backed. |
+| B2. Release Decision Lifecycle Standardization | In Progress | `docs/status/RELEASE_READINESS_PACKET_2026-02.md` | Decision fields are present in current packet; continuity must be validated on next packet cycle. |
+| B3. Non-Required Workflow Failure Handling Rule | Completed | `docs/product/RELEASE_DISCIPLINE.md`, `docs/status/RELEASE_DISCIPLINE_CHECKLIST.md` | Non-required failure classification and waiver recording rules are now codified. |
+| C1. Root Hygiene Guard Review | Completed | `docs/records/audits/2026-03-governance-review.md` | Root artifact cleanup completed and audited. |
+| C2. Records Cadence Enforcement | In Progress | `docs/records/audits/2026-03-governance-review.md`, `docs/README.md` | March artifact exists; cadence verification remains active through month close. |
+| C3. Status Cross-Link Integrity Sweep | Pending | `docs/records/audits/2026-03-governance-review.md` | Execute at month-end after remaining doc updates land. |
+
 ## Track A — Spec/Implementation Drift Reduction
 
 ### A1. T81Lang Drift Decomposition
@@ -138,6 +152,12 @@ This plan covers three priority tracks:
 - 100% of release packets include explicit GO/HOLD decision basis.
 - 0 unauthorized root-level doc/artifact additions.
 - 1 monthly governance review artifact published for March.
+
+## Immediate Next Actions
+
+1. Complete A2 by expanding Axion row notes into a bounded alignment plan with dated milestones in status artifacts.
+2. Complete A3 by normalizing experimental-tier boundary language across status and product docs, then recording the sweep in March audit notes.
+3. Complete B2 continuity by applying standardized decision stamping to the next release-readiness packet cycle.
 
 ## Versioning Statement
 

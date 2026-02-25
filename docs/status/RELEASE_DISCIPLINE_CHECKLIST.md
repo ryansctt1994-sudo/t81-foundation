@@ -75,6 +75,24 @@ Decision is **GO** only when all are true:
 
 If any condition fails, decision is **HOLD**.
 
+## Non-Required Workflow Failure Rule
+
+1. Enumerate all failed non-required workflows/jobs for release SHA.
+2. Classify each as:
+   - release-impacting (must be fixed before GO), or
+   - non-release-impacting (waiver allowed).
+3. Waiver record is mandatory for non-release-impacting failures and must
+   include:
+   - workflow/job name,
+   - SHA,
+   - rationale,
+   - owner,
+   - remediation target date.
+4. Failures affecting DCP, verified determinism surfaces, freeze boundaries, or
+   public API contract are release-impacting by default.
+5. Record disposition in the release-readiness packet before final GO/HOLD
+   stamp.
+
 ## Required Release Artifacts
 
 1. Source package for tagged commit.

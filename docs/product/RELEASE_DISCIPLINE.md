@@ -56,6 +56,25 @@ SemVer mapping:
 - [ ] No open determinism incident at Severity 2 or Severity 3
 - [ ] Release notes include determinism hash summary and experimental delta summary
 
+## 4. Non-Required Workflow Failure Handling
+
+Non-required workflow failures do not automatically block release, but they
+must be dispositioned before release decision:
+
+1. Classify failure as one of:
+   - release-impacting (blocks GO until fixed), or
+   - non-release-impacting (eligible for explicit waiver).
+2. For waived failures, document:
+   - workflow/job name,
+   - commit SHA,
+   - rationale for non-release impact,
+   - owner and target remediation date.
+3. Record classification and waiver evidence in the active release-readiness
+   packet.
+4. If failure intersects DCP, verified determinism surfaces, freeze boundaries,
+   or public API contract, it is release-impacting by default and may not be
+   waived without governance escalation.
+
 ## Cross-References
 
 - `docs/governance/SPEC_AUTHORITY_MODEL.md`
