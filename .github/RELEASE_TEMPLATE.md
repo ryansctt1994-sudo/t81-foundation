@@ -43,9 +43,19 @@
 - Experimental modules touched: [ ] none [ ] yes (list below)
 - Notes:
 
+## Surface Boundary Classification
+
+- DCP-certified surfaces touched (list):
+- Governed non-DCP surfaces touched (list):
+- Experimental surfaces touched (list):
+- Classification validated against:
+  - `docs/governance/DETERMINISM_SURFACE_REGISTRY.md` [ ] yes [ ] no
+  - `docs/status/GOVERNED_AGI_PROMOTION_PIPELINE.md` [ ] yes [ ] no
+
 ## Cross-References
 
 - `docs/product/RELEASE_DISCIPLINE.md`
 - `docs/product/DETERMINISTIC_CORE_PROFILE.md`
 - `docs/governance/FREEZE_ENFORCEMENT.md`
 - `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`
+- `docs/status/GOVERNED_AGI_PROMOTION_PIPELINE.md`

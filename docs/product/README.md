@@ -16,6 +16,8 @@ specification authority, freeze boundaries, or determinism claim scope.
 
 - DETERMINISTIC_CORE_PROFILE.md
 - RELEASE_DISCIPLINE.md
+- STRATEGIC_DIRECTION.md
+- ../status/GOVERNED_AGI_PROMOTION_PIPELINE.md
 - ../governance/
 
 ## Versioning Statement

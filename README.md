@@ -120,6 +120,23 @@ Only headers under `include/t81/**` are supported as stable C++ API surface.
 
 ---
 
+## Governed AGI Direction
+
+T81 is oriented toward a deterministic ternary-based architecture for governed
+AGI workloads, with strict boundary controls:
+
+* Determinism guarantees remain bounded to registry-verified surfaces and DCP.
+* AGI-facing and cognitive-tier surfaces are non-DCP unless explicitly
+  promoted.
+* Promotion to stronger guarantees follows an explicit governance pipeline.
+
+References:
+
+* [Strategic Direction](docs/product/STRATEGIC_DIRECTION.md)
+* [Governed AGI Promotion Pipeline](docs/status/GOVERNED_AGI_PROMOTION_PIPELINE.md)
+
+---
+
 ## Governance & Enforcement Model
 
 * [Specification Authority Model](docs/governance/SPEC_AUTHORITY_MODEL.md) — Source-of-truth hierarchy and conflict resolution.
@@ -204,7 +221,7 @@ Contribution guide:
 * **Architecture** — [docs/architecture/OVERVIEW.md](docs/architecture/OVERVIEW.md)
 * **Governance** — [docs/governance/](docs/governance/)
 * **Status** — [docs/status/](docs/status/)
-* **Product** — [docs/product/](docs/product/)
+* **Product** — [docs/product/](docs/product/) (includes [Strategic Direction](docs/product/STRATEGIC_DIRECTION.md))
 * **Book (non-normative narrative)** — [book/book-en/README.md](book/book-en/README.md)
 
 ---

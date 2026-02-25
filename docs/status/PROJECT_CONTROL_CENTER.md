@@ -35,6 +35,9 @@ Authority remains:
   - release discipline manifest
   - incident response plan
   - deterministic corpus manifest
+- Strategic orientation is codified:
+  - deterministic ternary-based architecture for governed AGI workloads
+  - bounded by determinism registry and DCP guarantees
 - Root-level artifact hygiene updated:
   - historical test logs moved to `docs/records/archive/`
 
@@ -74,6 +77,9 @@ Authority remains:
      `docs/status/T81LANG_ENGINEERING_BACKLOG_2026-03.md`
 4. Documentation lifecycle control
    - prevent root-level doc sprawl and stale governance artifacts
+5. Governed AGI boundary control
+   - enforce promotion pipeline and boundary classification for AGI-facing
+     surfaces
 
 ## 5. Risk Register
 
@@ -86,11 +92,13 @@ Authority remains:
 
 - Multilingual synchronization lag against English canonical content.
 - Single-owner concentration for critical governance and release decisions.
+- AGI-facing surface growth outpacing promotion-gate evidence closure.
 
 ### 5.3 Monitoring
 
 - Benchmark noise due to environment variability.
 - Experimental surface growth without promotion/retirement discipline.
+- Release-boundary misclassification risk for AGI-facing changes.
 
 ## 6. 30/60/90 Day Plan
 

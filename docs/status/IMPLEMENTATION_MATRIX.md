@@ -20,12 +20,26 @@ risk explicit for planning and governance review.
 | **Axion Kernel** | `spec/axion-kernel.md` (Draft) | Partial | Medium | Medium | @t81dev | 2026-04-30 | Partial-coverage alignment tracked in `docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md`; planning milestones M1-M4 synchronized/closed on 2026-02-25 with explicit open-scope boundaries retained. |
 | **Cognitive Tiers** | `spec/cognitive-tiers.md` (Draft) | Concept / Experimental | Low | High | @t81dev | 2026-06-15 | Experimental, non-DCP, non-verified unless promoted through governance and determinism registry update. |
 
+## Governed AGI Surface Taxonomy
+
+| Layer | Representative Paths | Determinism Status | Promotion State | Governance Gate |
+| :--- | :--- | :--- | :--- | :--- |
+| Deterministic Substrate | `core/types`, `core/isa`, `core/vm`, `include/t81/**` | DCP/registry bounded | Verified (where registry says Verified) | Freeze enforcement + DCP release discipline |
+| Governance Kernel | `kernel/axion` | Partially verified, scope-bounded | Experimental/Verified Candidate by surface | Incident response + threat-model linkage |
+| AGI-Oriented Runtime/Research | `runtime/tracing`, `experimental/*`, cognitive tiers | Non-DCP unless promoted | Experimental by default | Governed AGI promotion pipeline |
+
+Promotion policy reference:
+
+- `docs/status/GOVERNED_AGI_PROMOTION_PIPELINE.md`
+
 ## Planning Actions
 
 1. Prioritize high-drift subsystem decomposition into measurable milestones.
 2. Keep deterministic-core surfaces stable under freeze and DCP discipline.
 3. Tie matrix refresh to monthly governance review cadence.
 4. Record boundary-impacting alignment decisions in ADRs.
+5. Maintain AGI-surface promotion state and determinism-status mapping per the
+   governed AGI promotion pipeline.
 
 ## Cross-References
 

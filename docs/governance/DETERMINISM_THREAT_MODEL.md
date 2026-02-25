@@ -116,6 +116,22 @@ The following are excluded from this specific threat model:
 
 ---
 
+### F. Governed AGI Control Threats
+
+**Risks:**
+* **Policy Bypass Paths:** AGI-facing logic executes without expected Axion policy checks.
+* **Nondeterministic Decision Leakage:** AGI behavior depends on unverified nondeterministic surfaces while presented as deterministic.
+* **Unsafe Autonomy Escalation:** Experimental cognitive-tier behavior is exposed without explicit governance boundary classification.
+* **Audit Blind Spots:** Missing trace metadata prevents post-incident reconstruction of AGI-related actions.
+
+**Mitigations:**
+* **Boundary Classification:** Every AGI-facing release change is classified as DCP, governed non-DCP, or experimental.
+* **Governed Promotion Pipeline:** AGI-oriented surfaces must pass ADR, threat-model, registry, and incident-readiness gates before guarantee expansion.
+* **Traceability Controls:** Policy/segment/guard metadata tests must remain green for language-to-Axion paths.
+* **Incident Trigger Signals:** Severity escalation when policy bypass or deterministic-boundary misrepresentation is detected.
+
+---
+
 ## 4. Known Residual Risks
 
 The following risks are acknowledged but not fully mitigated:
@@ -146,3 +162,6 @@ Breaches of determinism are classified by severity and required response.
 * **New Surfaces:** Any addition to `DETERMINISM_SURFACE_REGISTRY.md` triggers a requirement to update this threat analysis.
 * **Breaking Changes:** Any breaking change proposal (RFC) must include an impact analysis referencing this document.
 * **Incident Linkage:** Severity 2/3 determinism incidents must be handled under `docs/governance/INCIDENT_RESPONSE.md`.
+* **Governed AGI Linkage:** AGI-facing surface promotions must reference
+  `docs/status/GOVERNED_AGI_PROMOTION_PIPELINE.md` and include explicit risk
+  treatment updates in this document.

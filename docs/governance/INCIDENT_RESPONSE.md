@@ -60,6 +60,25 @@ For Severity 2 and Severity 3 incidents:
      affected.
    - Update relevant release status and audit docs before closure.
 
+## 3A. Governed AGI Incident Triggers
+
+Treat as Severity 2 minimum when any of the following is confirmed on an
+AGI-facing path:
+
+1. Policy bypass: execution path bypasses required Axion policy checks.
+2. Boundary misrepresentation: release or docs claim deterministic guarantees
+   for non-verified AGI-oriented surfaces.
+3. Audit failure: trace metadata is insufficient to reconstruct safety-relevant
+   AGI behavior for a reported incident.
+
+Additional actions for AGI-triggered Severity 2+ incidents:
+
+1. Reclassify affected surface in release notes as experimental/non-DCP until
+   revalidation completes.
+2. Re-run governed AGI promotion gates before restoring prior status.
+3. Record remediation linkage to
+   `docs/status/GOVERNED_AGI_PROMOTION_PIPELINE.md`.
+
 ## 4. Postmortem Template
 
 Use the following template for every Severity 2+ incident.
@@ -103,6 +122,7 @@ Use the following template for every Severity 2+ incident.
 - `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`
 - `docs/governance/DETERMINISM_THREAT_MODEL.md`
 - `docs/product/RELEASE_DISCIPLINE.md`
+- `docs/status/GOVERNED_AGI_PROMOTION_PIPELINE.md`
 
 ## Versioning Statement
 

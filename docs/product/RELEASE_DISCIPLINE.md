@@ -54,7 +54,29 @@ SemVer mapping:
       `docs/status/VERIFIED_SURFACE_AUDIT.md`
 - [ ] No open freeze exception labels for target release scope
 - [ ] No open determinism incident at Severity 2 or Severity 3
+- [ ] Release boundary classification completed for all touched surfaces:
+      DCP-certified / governed non-DCP / experimental
 - [ ] Release notes include determinism hash summary and experimental delta summary
+
+## 3A. Release Boundary Classification Policy
+
+Every release candidate must classify touched surfaces into exactly one class:
+
+1. DCP-certified:
+   - Surface is within DCP and remains Verified in determinism registry.
+2. Governed non-DCP:
+   - Surface is governed by policy/incident controls but not DCP-certified.
+3. Experimental:
+   - Surface is explicitly non-DCP and carries no deterministic release
+     guarantee claims.
+
+Classification requirements:
+
+1. Classification is recorded in release packet/template.
+2. Any AGI-facing surface may not be classified as DCP-certified without
+   registry + promotion-gate evidence.
+3. If classification is ambiguous, default to Experimental until governance
+   approval resolves status.
 
 ## 4. Non-Required Workflow Failure Handling
 
@@ -83,6 +105,7 @@ must be dispositioned before release decision:
 - `docs/governance/DETERMINISM_THREAT_MODEL.md`
 - `docs/governance/INCIDENT_RESPONSE.md`
 - `docs/product/DETERMINISTIC_CORE_PROFILE.md`
+- `docs/status/GOVERNED_AGI_PROMOTION_PIPELINE.md`
 
 ## Versioning Statement
 

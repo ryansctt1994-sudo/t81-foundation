@@ -13,11 +13,12 @@ artifacts.
 
 ## Scope
 
-This plan covers three priority tracks:
+This plan covers four priority tracks:
 
 1. Spec/implementation drift reduction
 2. Release-governance hardening
 3. Documentation lifecycle enforcement
+4. Governed AGI orientation hardening
 
 ## Inputs
 
@@ -45,6 +46,7 @@ This plan covers three priority tracks:
 | C1. Root Hygiene Guard Review | Completed | `docs/records/audits/2026-03-governance-review.md` | Root artifact cleanup completed and audited. |
 | C2. Records Cadence Enforcement | In Progress | `docs/records/audits/2026-03-governance-review.md`, `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md`, `docs/README.md` | March artifact published; checklist outcomes/reviewer metadata/remediation actions are recorded; pre-close dry-run checks passed on 2026-02-25; month-close runbook prepared; final cadence confirmation remains scheduled for 2026-03-31. |
 | C3. Status Cross-Link Integrity Sweep | Completed | `docs/records/audits/2026-03-governance-review.md` | Completed on 2026-02-25; no missing markdown link targets and no stale superseded-path references in status/governance/product scope. |
+| D1. Governed AGI Strategy Orientation | Completed | `docs/product/STRATEGIC_DIRECTION.md`, `docs/status/GOVERNED_AGI_PROMOTION_PIPELINE.md`, `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/governance/DETERMINISM_THREAT_MODEL.md`, `docs/governance/INCIDENT_RESPONSE.md`, `docs/product/RELEASE_DISCIPLINE.md` | Strategy, promotion pipeline, risk model, incident triggers, and release boundary classification are synchronized for bounded AGI-oriented direction. |
 
 ## Track A — Spec/Implementation Drift Reduction
 
@@ -133,6 +135,25 @@ This plan covers three priority tracks:
 - Evidence Artifact:
   - `docs/records/audits/2026-03-governance-review.md`
 
+## Track D — Governed AGI Orientation Hardening
+
+### D1. Bounded AGI Direction + Promotion Controls
+
+- Owner: @t81dev
+- Due Date: 2026-03-31
+- Acceptance Criteria:
+  - Strategic direction is documented without determinism overclaim.
+  - AGI-facing surface promotion states and mandatory gates are codified.
+  - Threat/incident/release policies include AGI-boundary control language.
+- Evidence Artifact:
+  - `docs/product/STRATEGIC_DIRECTION.md`
+  - `docs/status/GOVERNED_AGI_PROMOTION_PIPELINE.md`
+  - `docs/status/IMPLEMENTATION_MATRIX.md`
+  - `docs/governance/DETERMINISM_THREAT_MODEL.md`
+  - `docs/governance/INCIDENT_RESPONSE.md`
+  - `docs/product/RELEASE_DISCIPLINE.md`
+  - `.github/RELEASE_TEMPLATE.md`
+
 ### C2. Records Cadence Enforcement
 
 - Owner: @t81dev
@@ -161,6 +182,9 @@ This plan covers three priority tracks:
 - 100% of release packets include explicit GO/HOLD decision basis.
 - 0 unauthorized root-level doc/artifact additions.
 - 1 monthly governance review artifact published for March.
+- 100% of AGI-facing release changes carry boundary classification
+  (DCP-certified / governed non-DCP / experimental).
+- 100% of AGI-facing promotions reference promotion-pipeline gate evidence.
 
 ## Immediate Next Actions
 
@@ -175,6 +199,7 @@ This plan covers three priority tracks:
 9. Hold A1-series at A1G (no A1H seed in current window) and prioritize C2 month-close finalization on 2026-03-31.
 10. Use `docs/status/T81LANG_PROMOTION_GATE.md` and `docs/status/T81LANG_ENGINEERING_BACKLOG_2026-03.md` as the post-C2 transition path from documentation hardening to implementation sprint planning.
 11. Execute `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md` on 2026-03-31 and stamp final C2 outcome fields in `docs/records/audits/2026-03-governance-review.md`.
+12. Maintain governed-AGI boundary discipline via `docs/product/STRATEGIC_DIRECTION.md` and `docs/status/GOVERNED_AGI_PROMOTION_PIPELINE.md` for all promotion/release decisions.
 
 ## Versioning Statement
 

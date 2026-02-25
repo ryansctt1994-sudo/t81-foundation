@@ -215,6 +215,22 @@ Completion state:
 - Experimental tiers are consistently described as non-DCP and non-verified
   unless promoted through governance and determinism registry update.
 
+## D1 Tracking — Governed AGI Orientation Hardening
+
+Execution state:
+
+- D1 completed on 2026-02-25.
+
+Evidence updates:
+
+- `docs/product/STRATEGIC_DIRECTION.md`
+- `docs/status/GOVERNED_AGI_PROMOTION_PIPELINE.md`
+- `docs/status/IMPLEMENTATION_MATRIX.md`
+- `docs/governance/DETERMINISM_THREAT_MODEL.md`
+- `docs/governance/INCIDENT_RESPONSE.md`
+- `docs/product/RELEASE_DISCIPLINE.md`
+- `.github/RELEASE_TEMPLATE.md`
+
 ## C2 Tracking — Records Cadence Enforcement
 
 Execution state:
