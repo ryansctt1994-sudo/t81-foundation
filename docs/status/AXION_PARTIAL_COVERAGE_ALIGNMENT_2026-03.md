@@ -61,6 +61,8 @@ Status: Completed (2026-02-25)
   - This file
   - `docs/status/SYSTEM_STATUS.md`
 
+Status: Completed (2026-02-25)
+
 ### M3 — Evidence Mapping
 
 - Target Date: 2026-03-14
@@ -91,7 +93,7 @@ Status: Completed (2026-02-25)
 | Action ID | Action | Owner | Target Date | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | A2-N1 | Publish segmented scope table for draft Axion surfaces | @t81dev | 2026-03-05 | Completed (2026-02-25) |
-| A2-N2 | Prioritize top 3 partial/missing segments with dated targets | @t81dev | 2026-03-10 | Planned |
+| A2-N2 | Prioritize top 3 partial/missing segments with dated targets | @t81dev | 2026-03-10 | Completed (2026-02-25) |
 | A2-N3 | Attach evidence paths for each prioritized segment | @t81dev | 2026-03-14 | Planned |
 | A2-N4 | Sync matrix and governance review with A2 snapshot | @t81dev | 2026-03-19 | Planned |
 
@@ -107,6 +109,19 @@ Status: Completed (2026-02-25)
 | 1.2 Safety & Ethics Enforcement | Partial | Ethics principle checks and guardrail verdicts exist; full policy-surface closure remains in-progress under M2/M3 evidence mapping | `kernel/axion/ethics.cpp`, `include/t81/axion/ethics.hpp`, `tests/cpp/axion_recursion_guardrails_test.cpp` |
 | 1.1 Determinism Stewardship (end-to-end canonical trace stewardship) | Missing (mapped evidence gap) | Deterministic trace evidence exists for selected events, but complete stewardship coverage and canonical-memory enforcement evidence are not yet fully mapped in this plan cycle | `tests/cpp/axion_log_determinism_test.cpp`, `tests/cpp/axion_heap_compaction_trace_test.cpp`, `tests/cpp/vm_trace_test.cpp` |
 | 2.5 Tier Transition Subsystem (full transitions across cognitive tiers) | Deferred | Tier-transition orchestration beyond current policy ceilings remains outside this plan cycle and is governed alongside experimental cognitive-tier maturation | `spec/cognitive-tiers.md`, `docs/status/EXPERIMENTAL_SURFACE_INVENTORY.md` |
+
+## M2 Prioritized Gap Queue (Top 3)
+
+| Priority | Segment | Coverage Bucket | Rationale | Constraints | Owner | Target Date |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| P1 | 1.1 Determinism Stewardship (canonical trace stewardship and deterministic memory/canonicalization evidence closure) | Missing (mapped evidence gap) | Highest governance risk because determinism overclaim risk increases if stewardship evidence stays partial in status artifacts | Evidence-only closure; no runtime semantics, CI policy, freeze, or DCP scope changes | @t81dev | 2026-03-10 |
+| P2 | 1.10 CanonFS Observability (persistence/audit lifecycle traceability) | Partial | High audit value: CanonFS persistence path is a primary observability surface for Axion verdict reasons | Keep claims bounded to current verified surfaces; map evidence without expanding guarantees | @t81dev | 2026-03-12 |
+| P3 | 1.3 Complexity Measurement (call-path/branching coverage traceability) | Partial | Needed to justify tier/safety posture statements and reduce medium drift in Axion status row | Prioritize existing tests/surfaces; defer new instrumentation outside current planning cycle | @t81dev | 2026-03-14 |
+
+Deferred note:
+
+- 2.5 Tier Transition Subsystem remains deferred and non-DCP/non-verified unless
+  promoted through governance and determinism-registry update.
 
 ## Cross-References
 
