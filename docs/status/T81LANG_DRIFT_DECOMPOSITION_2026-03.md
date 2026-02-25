@@ -227,6 +227,18 @@ runtime semantics, determinism scope, or freeze boundaries.
 3. Sync matrix/governance artifacts after A1C evidence updates.
    Completed (A1C-CODE-03, 2026-02-25).
 
+## Post-A1C Candidate Deltas (A1D Seed)
+
+These planned deltas continue evidence-driven drift reduction for remaining
+traceability surfaces without changing runtime semantics, determinism scope, or
+freeze boundaries.
+
+1. Publish section 5 IR/lowering determinism evidence index tied to existing
+   frontend IR and e2e determinism/repro checks.
+2. Publish section 8 stdlib alignment evidence index tied to existing CLI std
+   fixture suites.
+3. Sync matrix/governance artifacts after A1D evidence updates.
+
 ## Risks and Controls
 
 - Risk: Overclaiming deterministic guarantees for T81Lang surfaces.

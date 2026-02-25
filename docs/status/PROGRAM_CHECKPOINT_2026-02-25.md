@@ -31,10 +31,10 @@ navigation hardening.
 
 ## Next Two Executable Items
 
-1. Define and publish the post-A1C candidate queue (`A1D-*`) only if cycle
-   closure gate conditions remain satisfied in status/audit artifacts.
+1. Execute `A1D-CODE-01` (section 5 IR/lowering evidence index) from
+   `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`.
 2. Run `python3 scripts/governance/check_docs_governance_hygiene.py` and apply
-   any required cleanup before the next status refresh commit.
+   any required cleanup before A1D synchronization closure.
 
 ## Versioning Statement
 

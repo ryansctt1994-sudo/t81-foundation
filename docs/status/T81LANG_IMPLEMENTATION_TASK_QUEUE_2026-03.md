@@ -37,6 +37,14 @@ spec anchors, code paths, and validation tests.
 | A1C-CODE-02 | Publish section 7 Axion integration metadata evidence index using existing metadata and trace tests | `spec/t81lang-spec.md` section 7 | Axion metadata surfaces (evidence mapping only) | `tests/cpp/axion_loop_metadata_test.cpp`, `tests/cpp/axion_match_metadata_test.cpp`, `tests/cpp/e2e_axion_trace_test.cpp`, `tests/cpp/axion_policy_match_guard_test.cpp` | 2026-03-30 | Completed (2026-02-25) |
 | A1C-CODE-03 | Sync matrix and governance evidence after A1C updates | `spec/t81lang-spec.md` cross-section | status/audit artifacts | `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/records/audits/2026-03-governance-review.md`, `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md` | 2026-03-31 | Completed (2026-02-25) |
 
+## Post-A1C Queue (A1D Seed)
+
+| Task ID | Work Item | Spec Anchor | Code Surface | Validation Target | Target Date | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| A1D-CODE-01 | Publish section 5 IR/lowering determinism evidence index for residual traceability gaps using existing frontend/e2e determinism suites | `spec/t81lang-spec.md` section 5 | frontend IR/lowering surfaces (evidence mapping only) | `tests/cpp/frontend_ir_generator_test.cpp`, `tests/cpp/e2e_compile_determinism_test.cpp`, `tests/cpp/e2e_ast_ir_canonical_determinism_test.cpp`, `scripts/ci/t81lang_repro_gate.py` | 2026-04-02 | Planned |
+| A1D-CODE-02 | Publish section 8 stdlib alignment evidence index using existing CLI std fixture suites | `spec/t81lang-spec.md` section 8 | `lang/stdlib/std/` and CLI fixture evidence surfaces | `tests/cpp/cli_std_text_fixtures_test.cpp`, `tests/cpp/cli_std_bytes_fixtures_test.cpp`, `tests/cpp/cli_std_collections_fixtures_test.cpp`, `tests/cpp/cli_std_tensor_fixtures_test.cpp`, `tests/cpp/cli_std_runtime_fixtures_test.cpp`, `tests/cpp/cli_std_symbol_fixtures_test.cpp` | 2026-04-04 | Planned |
+| A1D-CODE-03 | Sync matrix and governance evidence after A1D updates | `spec/t81lang-spec.md` cross-section | status/audit artifacts | `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/records/audits/2026-03-governance-review.md`, `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md` | 2026-04-05 | Planned |
+
 ## Execution Rule
 
 Tasks in this queue must not alter freeze boundaries, determinism claim scope,

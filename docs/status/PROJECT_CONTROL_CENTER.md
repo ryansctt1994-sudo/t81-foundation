@@ -58,6 +58,8 @@ Authority remains:
      section 7 evidence-index hardening
    - A1C closure complete with matrix/governance synchronization; next queue
      definition remains active
+   - A1D queue seeded for residual section 5 IR/lowering and section 8 stdlib
+     evidence-index closure
 4. Documentation lifecycle control
    - prevent root-level doc sprawl and stale governance artifacts
 
