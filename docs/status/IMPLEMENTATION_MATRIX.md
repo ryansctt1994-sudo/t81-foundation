@@ -11,14 +11,14 @@ risk explicit for planning and governance review.
 
 ## Matrix
 
-| Subsystem | Specification Surface | Implementation Maturity | Alignment | Drift Risk | Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Data Types** | `spec/t81-data-types.md` (Frozen) | Implemented | High | Low | Frozen deterministic core surface. |
-| **TISC ISA** | `spec/tisc-spec.md` (Frozen) | Implemented | High | Low | Frozen deterministic core surface. |
-| **T81VM** | `spec/t81vm-spec.md` (Beta) | Partial | Medium | Medium | Beta surface under active verification. |
-| **T81Lang** | `spec/t81lang-spec.md` (Draft) | Experimental | Low | High | Draft scope and implementation remain non-parity. |
-| **Axion Kernel** | `spec/axion-kernel.md` (Draft) | Partial | Medium | Medium | Coverage remains partial against full draft scope. |
-| **Cognitive Tiers** | `spec/cognitive-tiers.md` (Draft) | Concept / Experimental | Low | High | Experimental, non-DCP surface. |
+| Subsystem | Specification Surface | Implementation Maturity | Alignment | Drift Risk | Owner | Target Date | Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Data Types** | `spec/t81-data-types.md` (Frozen) | Implemented | High | Low | @t81dev | N/A (maintain) | Frozen deterministic core surface. |
+| **TISC ISA** | `spec/tisc-spec.md` (Frozen) | Implemented | High | Low | @t81dev | N/A (maintain) | Frozen deterministic core surface. |
+| **T81VM** | `spec/t81vm-spec.md` (Beta) | Partial | Medium | Medium | @t81dev | 2026-04-15 | Beta surface under active verification. |
+| **T81Lang** | `spec/t81lang-spec.md` (Draft) | Experimental | Low | High | @t81dev | 2026-05-15 | Draft scope and implementation remain non-parity. |
+| **Axion Kernel** | `spec/axion-kernel.md` (Draft) | Partial | Medium | Medium | @t81dev | 2026-04-30 | Coverage remains partial against full draft scope. |
+| **Cognitive Tiers** | `spec/cognitive-tiers.md` (Draft) | Concept / Experimental | Low | High | @t81dev | 2026-06-15 | Experimental, non-DCP surface. |
 
 ## Planning Actions
 
