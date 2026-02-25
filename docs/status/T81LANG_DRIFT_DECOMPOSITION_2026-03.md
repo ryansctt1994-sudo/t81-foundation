@@ -161,6 +161,16 @@ Bounded gap closure scope:
 | Assignment/call/return widening rules (`int` to `T81Float`/`T81Fraction`) | Covered | `tests/cpp/semantic_analyzer_stage3_rules_test.cpp`, `tests/cpp/t81lang_conformance_baseline_test.cpp` |
 | Implicit narrowing rejection (call/return mismatch) | Covered | `tests/cpp/semantic_analyzer_stage3_rules_test.cpp`, `tests/cpp/t81lang_conformance_baseline_test.cpp` |
 
+## Section-Level Semantic Coverage Index (A1B-CODE-02)
+
+| Spec Anchor | Rule/Surface | Coverage Status | Evidence |
+| :--- | :--- | :--- | :--- |
+| `spec/t81lang-spec.md` section 2.1 | Generic type syntax acceptance/rejection in semantic flow | Covered | `tests/cpp/semantic_analyzer_generic_test.cpp`, `tests/cpp/frontend_parser_generics_test.cpp`, `tests/cpp/frontend_parser_legacy_rejection_test.cpp` |
+| `spec/t81lang-spec.md` section 2.5 (Structural Types) | `Option[T]` / `Result[T, E]` typing and payload constraints | Covered | `tests/cpp/semantic_analyzer_option_result_test.cpp`, `tests/cpp/e2e_option_result_test.cpp`, `tests/cpp/e2e_option_result_function_test.cpp` |
+| `spec/t81lang-spec.md` section 2.5 (Numeric Widening) | Widening acceptance and narrowing rejection across call/return/assignment surfaces | Covered | `tests/cpp/semantic_analyzer_numeric_test.cpp`, `tests/cpp/semantic_analyzer_stage3_rules_test.cpp`, `tests/cpp/t81lang_conformance_baseline_test.cpp` |
+| `spec/t81lang-spec.md` section 5 Stage 3 | Modulo/comparison/type-compatibility semantic rules | Covered | `tests/cpp/semantic_analyzer_stage3_rules_test.cpp`, `tests/cpp/spec_compliance_test.cpp` |
+| `spec/t81lang-spec.md` section 5 Stage 3 diagnostics | Diagnostic location and precision behavior for semantic failures | Covered | `tests/cpp/semantic_analyzer_diagnostic_location_test.cpp`, `tests/cpp/semantic_analyzer_diagnostic_precision_test.cpp`, `tests/cpp/semantic_analyzer_cascade_suppression_test.cpp` |
+
 ## Control-Flow Edge Conformance Coverage (A1-CODE-05)
 
 | Rule Area (`spec/t81lang-spec.md` sections 3 and 6) | Coverage Status | Evidence |
@@ -183,7 +193,7 @@ determinism claim scope.
 
 1. Add explicit parser coverage evidence for expression-form `if` grammar paths. Completed (A1B-CODE-01, 2026-02-25).
 2. Publish section-level semantic coverage index tied to section 2/5 rule
-   anchors and existing test assets.
+   anchors and existing test assets. Completed (A1B-CODE-02, 2026-02-25).
 3. Refresh matrix/audit notes after follow-on evidence updates are applied.
 
 ## Risks and Controls
