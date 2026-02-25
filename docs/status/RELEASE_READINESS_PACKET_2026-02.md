@@ -4,7 +4,7 @@ Status: Hold (Decisioned)
 Date (UTC): 2026-02-25
 Owner: Release / Governance
 
-Decision (UTC): 2026-02-25 18:03:00Z
+Decision (UTC): 2026-02-25 18:12:00Z
 Approver: @t81dev
 Decision: HOLD
 
@@ -40,14 +40,19 @@ state and repository label state remain release-manager checklist items.
 - Freeze-exception blockers:
   - Open PRs with `freeze-exception`: none
   - Open issues with `freeze-exception`: none
-- CI required checks at current HEAD (`866c65aeb265d1822ebf8e616692092909cc5b9e`):
-  - No remote workflow runs found for this commit yet.
-  - Required-check green state therefore cannot be confirmed.
+- CI state at current HEAD (`3c054dfe63e69e716e93a81ecf747e698473b71b`):
+  - Remote workflow runs exist and are in progress.
+  - Required branch-protection contexts (`quality gate / required`,
+    `Analyze (cpp)`) are not yet successful/confirmed.
+  - Additional non-required failures currently observed:
+    - `Format Check` (failed)
+    - `Documentation` workflow contains failed job (`Generate Sidebar`)
 
 ## Open Blocking Items
 
-1. Push current HEAD and obtain completed required CI workflow runs.
-2. Confirm required checks are green for the exact release-candidate commit.
+1. Wait for required branch-protection contexts to complete and reach success.
+2. Resolve failing non-required workflows or explicitly waive their impact for
+   release governance.
 
 ## Release Manager Checklist Pointers
 
