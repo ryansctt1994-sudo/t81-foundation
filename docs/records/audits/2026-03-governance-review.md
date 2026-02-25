@@ -29,6 +29,24 @@ Planned evidence updates:
 - `docs/status/VERIFIED_SURFACE_AUDIT.md` (gap-plan traceability section updates
   when ready)
 
+## A2 Tracking — Axion Partial-Coverage Alignment
+
+Reference alignment artifact:
+
+- `docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md`
+
+Milestone snapshot:
+
+- M1 Draft Scope Segmentation: Planned (target 2026-03-05)
+- M2 Coverage Gap Prioritization: Planned (target 2026-03-10)
+- M3 Evidence Mapping: Planned (target 2026-03-14)
+- M4 Matrix and Review Synchronization: Planned (target 2026-03-19)
+
+Planning completion state:
+
+- A2 alignment-plan deliverable completed on 2026-02-25.
+- Matrix and system status references updated to include bounded A2 milestones.
+
 ## Checklist Outcome Placeholder
 
 To be populated at month close per:
