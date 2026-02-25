@@ -4,7 +4,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]  # repo root
 DOCS = ROOT / "docs"
-INCLUDE = DOCS / "_includes" / "sidebar.html"
+INCLUDE = DOCS / "site" / "_includes" / "sidebar.html"
 
 SECTIONS = {
     "Specifications": DOCS / "spec",
@@ -45,6 +45,7 @@ def generate_sidebar():
 
 def main():
     sidebar = generate_sidebar()
+    INCLUDE.parent.mkdir(parents=True, exist_ok=True)
     INCLUDE.write_text(sidebar)
     print("Sidebar generated at:", INCLUDE)
 
