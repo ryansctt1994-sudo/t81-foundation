@@ -1455,6 +1455,14 @@ install(EXPORT T81Targets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/T81
 )
 
+# Provide a second export namespace root for external consumers using
+# the package name "T81Foundation".
+install(EXPORT T81Targets
+  FILE T81FoundationTargets.cmake
+  NAMESPACE T81::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/T81Foundation
+)
+
 # Generate config file
 configure_package_config_file(
   cmake/T81Config.cmake.in
@@ -1468,10 +1476,28 @@ write_basic_package_version_file(
   COMPATIBILITY SameMajorVersion
 )
 
+configure_package_config_file(
+  cmake/T81FoundationConfig.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/T81FoundationConfig.cmake"
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/T81Foundation
+)
+
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/T81FoundationConfigVersion.cmake"
+  VERSION 1.1.0
+  COMPATIBILITY SameMajorVersion
+)
+
 install(FILES
   "${CMAKE_CURRENT_BINARY_DIR}/T81Config.cmake"
   "${CMAKE_CURRENT_BINARY_DIR}/T81ConfigVersion.cmake"
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/T81
+)
+
+install(FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/T81FoundationConfig.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/T81FoundationConfigVersion.cmake"
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/T81Foundation
 )
 
 if(T81_BUILD_TESTS)
