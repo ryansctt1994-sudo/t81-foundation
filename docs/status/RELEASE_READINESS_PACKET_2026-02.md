@@ -1,8 +1,12 @@
 # Release Readiness Packet (2026-02)
 
-Status: Draft Readiness Snapshot
+Status: Hold (Decisioned)
 Date (UTC): 2026-02-25
 Owner: Release / Governance
+
+Decision (UTC): 2026-02-25 18:03:00Z
+Approver: @t81dev
+Decision: HOLD
 
 ## Purpose
 
@@ -31,9 +35,19 @@ state and repository label state remain release-manager checklist items.
 - Determinism claims remain bounded to verified registry surfaces.
 - Freeze model remains unchanged.
 
+## Decision Basis
+
+- Freeze-exception blockers:
+  - Open PRs with `freeze-exception`: none
+  - Open issues with `freeze-exception`: none
+- CI required checks at current HEAD (`866c65aeb265d1822ebf8e616692092909cc5b9e`):
+  - No remote workflow runs found for this commit yet.
+  - Required-check green state therefore cannot be confirmed.
+
 ## Open Blocking Items
 
-1. Confirm CI-green and freeze-exception label status at release cut time.
+1. Push current HEAD and obtain completed required CI workflow runs.
+2. Confirm required checks are green for the exact release-candidate commit.
 
 ## Release Manager Checklist Pointers
 
