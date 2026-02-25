@@ -123,6 +123,23 @@ Verification results:
   no matches in status/governance/product audit scope.
 - `python3 scripts/governance/check_docs_governance_hygiene.py`: passed.
 
+## B2 Tracking — Release Decision Lifecycle Standardization
+
+Execution state:
+
+- B2 completed on 2026-02-25.
+
+Verification results:
+
+- Standardized decision fields are present in both packet cycles:
+  - `docs/status/RELEASE_READINESS_PACKET_2026-02.md`
+  - `docs/status/RELEASE_READINESS_PACKET_2026-03.md`
+- Fields preserved:
+  - `Decision (UTC)`
+  - `Approver`
+  - `Decision` (`GO`/`HOLD`)
+- Required-context decision rule remains explicit and unchanged.
+
 ## A2 Tracking — Axion Partial-Coverage Alignment
 
 Reference alignment artifact:
