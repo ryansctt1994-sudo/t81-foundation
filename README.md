@@ -1,7 +1,7 @@
 # T81 Foundation
 
 <p align="center">
-  <strong>Deterministic ternary-native computing stack featuring base-81 data types, TISC instruction set, T81VM, T81Lang, Axion policy engine, and recursive cognition tiers — built for bit-exact, auditable execution across supported platforms.</strong>
+  <strong>Deterministic ternary-native computing stack featuring base-81 data types, TISC instruction set, T81VM, T81Lang, Axion policy engine, and recursive cognition tiers.</strong>
 </p>
 
 <p align="center">
@@ -13,131 +13,139 @@
   <a href="https://en.cppreference.com/w/cpp/23"><img src="https://img.shields.io/badge/Language-C%2B%2B23-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white" alt="Language: C++23"></a>
 </p>
 
----
+## Languages
 
-T81 is a deterministic computing stack designed to eliminate floating-point nondeterminism and enable auditable execution. By leveraging **balanced ternary logic** and **base-81 data types**, T81 provides **bit-exact reproducibility for verified surfaces** across supported architectures (x86/ARM, macOS/Linux).
+- [English](README.md)
+- [Español](README.es.md)
+- [Português (Brasil)](README.pt-BR.md)
+- [Русский](README.ru.md)
+- [简体中文](README.zh-CN.md)
 
-> 💡 In safety-critical domains such as AI, finance, and cryptography, reproducibility is a prerequisite for trust. T81 prioritizes deterministic behavior where formally defined and verified.
+## What T81 Is
 
----
+T81 is a deterministic computing platform built around balanced ternary and base-81 data representations, a frozen TISC ISA boundary, and governance-enforced reproducibility for verified determinism surfaces. Bit-exact guarantees are scoped to documented verified surfaces and the Deterministic Core Profile (DCP), not to all repository modules.
 
-## Authority
+## What T81 Is Not
 
-This project follows a strict [Specification Authority Model](docs/governance/SPEC_AUTHORITY_MODEL.md).
+- Not a replacement for general-purpose language ecosystems.
+- Not a platform that permits fast-math shortcuts on deterministic surfaces.
+- Not a claim of determinism outside surfaces marked **Verified** in the registry.
+- Not a claim that experimental modules are release-certified deterministic.
 
-* **[Architecture Overview](docs/architecture/OVERVIEW.md)** — System boundaries and invariants.
-* **[`/spec/`](spec/)** — Normative technical definitions.
-* **[Authority Model](docs/governance/SPEC_AUTHORITY_MODEL.md)** — Conflict resolution and freeze rules.
+## Quick Start
 
-In case of conflict:
+```bash
+# Configure and build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel 1
 
-* `/spec/` supersedes `/docs/`
-* `docs/architecture/OVERVIEW.md` supersedes README summaries
-* `/docs/` supersedes `/book/`
+# Run tests
+ctest --test-dir build --output-on-failure -j1
 
----
+# Verify determinism gate inputs/hashes
+python3 scripts/ci/t81lang_repro_gate.py
+```
 
-## Features
+## Determinism Scope
 
-| Feature                     | Status          | Description                                                        |
-| :-------------------------- | :-------------- | :----------------------------------------------------------------- |
-| **Deterministic Execution** | ✨ Stable        | Bit-exact results for verified VM and data type surfaces.          |
-| **Ternary-Native Types**    | ✨ Stable        | Base-81 balanced ternary integers & deterministic soft-float math. |
-| **T81VM & TISC**            | ✨ Stable        | Deterministic interpreter for frozen TISC ISA.                     |
-| **Axion Engine**            | 🚧 Alpha        | Policy enforcement and trace instrumentation (partial coverage).   |
-| **Model Tooling**           | ✨ Stable        | Import/inspect SafeTensors, GGUF, T81W.                            |
-| **Reproducibility Gate**    | ✨ Stable        | CI-enforced compiler reproducibility checks.                       |
-| **Cognitive Tiers**         | 🚧 Experimental | Recursive execution layers (spec-defined, partially implemented).  |
-| **Trace-JIT**               | 🚧 Experimental | Determinism-preserving JIT (spec-defined, not fully verified).     |
-| **Multilingual Docs**       | 📚 Live         | Documentation available in multiple languages.                     |
+Determinism guarantees apply only to surfaces marked **Verified** in the registry.
 
----
+- The stable, release-certified subset is defined by the Deterministic Core Profile.
+- Experimental modules are out of deterministic release guarantees unless explicitly promoted.
+- JIT is excluded from deterministic guarantees unless registry status is upgraded to Verified.
 
-## Repository Map
+References:
 
-Key directories:
+- [Deterministic Core Profile](docs/product/DETERMINISTIC_CORE_PROFILE.md)
+- [Determinism Surface Registry](docs/governance/DETERMINISM_SURFACE_REGISTRY.md)
+- [Determinism Threat Model](docs/governance/DETERMINISM_THREAT_MODEL.md)
 
-* **`core/`** — Core runtime modules (`types`, `isa`, `vm`).
-* **`kernel/`** — Kernel modules (Axion policy subsystem).
-* **`runtime/`** — Runtime instrumentation and optimization modules (`tracing`, `jit`).
-* **`experimental/`** — Experimental modules (`tiers`, `hanoi`, `distributed`) outside deterministic core profile.
-* **`lang/`** — Language modules (`frontend`, `stdlib`).
-* **`tooling/`** — Tooling modules (`cli`, `model`).
-* **`src/`** — Remaining implementation modules not yet migrated.
-* **`include/t81/`** — Public headers.
-  Public API note: only headers under `include/t81/**` are supported as stable C++ API surface.
-* **`spec/`** — Normative technical specifications (authoritative).
-* **`docs/`** — Architecture, governance, status tracking.
-* **`book/`** — Narrative technical monograph (non-normative).
-* **`scripts/ci/`** — Determinism and verification gates.
-* **`tests/`** — Unit and integration test suite.
-* **`examples/`** — Sample programs.
-* **`tools/`** — Utilities.
-* **`artifacts/`** — Generated outputs (ignored from version control).
+## Architectural Overview
 
----
+High-level layers:
 
-## Deterministic Core Profile
+- Foundation: core types, ISA, VM execution semantics.
+- Kernel: Axion policy and capability enforcement surfaces.
+- Runtime: tracing and JIT-related runtime paths.
+- Higher-level and research surfaces: language frontend, experimental tiers, distributed modules.
 
-Reference: [`docs/product/DETERMINISTIC_CORE_PROFILE.md`](docs/product/DETERMINISTIC_CORE_PROFILE.md)
+Architecture reference: [docs/architecture/OVERVIEW.md](docs/architecture/OVERVIEW.md)
 
-T81 is the full platform. The Deterministic Core Profile (DCP) is the stable certified subset with versioned reproducibility guarantees. Only DCP-listed surfaces are guaranteed bit-exact.
+Authority note: README is a summary. Normative definitions are in [`/spec`](spec/) under the authority model.
 
-## Governance & Verification
+## Repository Structure
 
-The project is governed by a strict set of verification and enforcement documents:
+- **Core**: `core/types`, `core/isa`, `core/vm`
+- **Kernel**: `kernel/axion`
+- **Runtime**: `runtime/tracing`, `runtime/jit`
+- **Experimental**: `experimental/*` (tiers, hanoi, distributed and related research surfaces)
+- **Language & Tooling**: `lang/`, `tooling/`, `tools/`
+- **Public API**: `include/t81/**`
+- **Governance**: `docs/governance/`
+- **Specification**: `spec/`
+- **Book (narrative, non-normative)**: `book/`
 
-*   **[Surface Registry](docs/governance/DETERMINISM_SURFACE_REGISTRY.md)** — Enumerates what is and isn't deterministic.
-*   **[Threat Model](docs/governance/DETERMINISM_THREAT_MODEL.md)** — Analysis of determinism risks and mitigations.
-*   **[Freeze Enforcement](docs/governance/FREEZE_ENFORCEMENT.md)** — Strict versioning and break protocols for frozen surfaces.
-*   **[Spec Authority Model](docs/governance/SPEC_AUTHORITY_MODEL.md)** — Hierarchy of truth (Spec > Docs > Code).
+Public API contract: only headers under `include/t81/**` are supported as stable API surface.
 
-## Governance & Institutional Hardening
+## Governance & Enforcement Model
 
-*   **[Module Ownership Charter](docs/governance/MODULE_OWNERSHIP_CHARTER.md)** — Module taxonomy, approval thresholds, and freeze escalation.
-*   **[Architecture Decision Records](docs/architecture/adr/)** — Permanent architectural/governance decision history.
-*   **[Release Discipline Manifest](docs/product/RELEASE_DISCIPLINE.md)** — Release preconditions, SemVer rules, and release evidence requirements.
-*   **[Incident Response Plan](docs/governance/INCIDENT_RESPONSE.md)** — Determinism/security incident classification and response protocol.
-*   **[Deterministic Corpus Manifest](docs/status/DETERMINISTIC_CORPUS_MANIFEST.md)** — Canonical determinism corpus and hash-reference tracking.
+- [Specification Authority Model](docs/governance/SPEC_AUTHORITY_MODEL.md): defines source-of-truth hierarchy and conflict resolution.
+- [Freeze Enforcement](docs/governance/FREEZE_ENFORCEMENT.md): defines frozen boundaries and break discipline.
+- [Determinism Surface Registry](docs/governance/DETERMINISM_SURFACE_REGISTRY.md): enumerates deterministic claims and verification status.
+- [Determinism Threat Model](docs/governance/DETERMINISM_THREAT_MODEL.md): documents determinism risk classes and mitigations.
+- [Incident Response Plan](docs/governance/INCIDENT_RESPONSE.md): defines severity model and determinism/security incident handling.
+- [Release Discipline Manifest](docs/product/RELEASE_DISCIPLINE.md): defines release preconditions, SemVer discipline, and release evidence.
+- [Dependency Firewall](docs/architecture/DEPENDENCY_FIREWALL.md): defines dependency-boundary controls for architecture integrity.
 
-### Clarification
+## Deterministic Core Profile (DCP)
 
-Determinism guarantees apply **only** to surfaces marked "Verified" in the Registry.
-Breaking determinism on a verified surface is treated as a **Critical Defect**.
-Structural invariants are automatically checked in CI.
+DCP is the product boundary for stable deterministic guarantees and release certification.
 
-### Non-Goals
+- DCP conformance is defined in product and governance docs.
+- Release classification follows SemVer discipline aligned with freeze enforcement:
+  - MAJOR: frozen boundary violation or incompatible change
+  - MINOR: backward-compatible feature addition
+  - PATCH: bugfix-only release scope
 
-*   Sacrificing determinism for hardware-specific fast-math optimizations.
-*   Serving as a general-purpose replacement for C++ or Python.
+Reference: [docs/product/DETERMINISTIC_CORE_PROFILE.md](docs/product/DETERMINISTIC_CORE_PROFILE.md)
 
----
+## Supported Platforms
 
-## The Narrative Technical Monograph
+All listed platforms pass Determinism Gate for DCP surfaces.
 
-The extended technical exposition for T81 is maintained under:
-
-📚 **`/book/`**
-
-The Book provides formal explanations, research context, and extended proofs.
-It is descriptive and educational, not normative.
-
-Read it here:
-→ [book/book-en/README.md](book/book-en/README.md)
-
----
+| Platform | Architecture | Status |
+| :--- | :--- | :--- |
+| Ubuntu 22.04+ | x86-64 | Supported |
+| macOS (Apple Silicon) | ARM64 | Supported |
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions must satisfy institutional controls:
 
-All contributions must:
+- Spec-first: normative behavior changes must be anchored in `/spec`.
+- Freeze compliance: frozen boundaries require freeze discipline and approvals.
+- ADR discipline: architecture/governance boundary decisions require ADR entries.
+- Determinism discipline: determinism-affecting changes must pass determinism gates.
+- Public API boundary: changes under `include/t81/**` are compatibility-sensitive and require strict review.
 
-* Align with a normative spec in `/spec/`
-* Respect freeze boundaries
-* Pass determinism gates where applicable
+Contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md)
 
----
+## Non-Goals
+
+- Guaranteeing determinism outside verified surfaces.
+- Guaranteeing deterministic wall-clock performance.
+- Guaranteeing network timing determinism.
+- Treating experimental modules as DCP-certified by default.
+- Relaxing frozen ISA/data-type boundaries without formal governance process.
+
+## Documentation Map
+
+- **Normative Specs**: [`/spec`](spec/)
+- **Architecture**: [docs/architecture/OVERVIEW.md](docs/architecture/OVERVIEW.md)
+- **Governance**: [docs/governance/](docs/governance/)
+- **Status**: [docs/status/](docs/status/)
+- **Product**: [docs/product/](docs/product/)
+- **Book (non-normative narrative)**: [book/book-en/README.md](book/book-en/README.md)
 
 ## License
 
