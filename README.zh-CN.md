@@ -332,7 +332,7 @@ t81 weights quantize model.safetensors --to-gguf model.gguf
 - **伦理：** 编码为运行时约束的原则。
 - **优化：** 热点追踪和 JIT 阈值。
 
-查看 `src/axion/` 了解实现细节或运行 `axion_policy_runner` 示例。
+查看 `kernel/axion/` 了解实现细节或运行 `axion_policy_runner` 示例。
 
 ## 贡献
 

@@ -23,7 +23,7 @@ flowchart LR
         Exec --> Axion
     end
 
-    subgraph Governance [src/axion]
+    subgraph Governance [kernel/axion]
         Axion --> Ethics{Ethics Check}
         Ethics -- Pass --> Commit[Commit State]
         Ethics -- Fail --> Trap[Trap / Halt]
@@ -75,7 +75,7 @@ The Cognitive Tier model defines the capabilities available to the runtime, esca
 
 ```mermaid
 flowchart TD
-    subgraph Tiers [Cognitive Tiers  src/cog ]
+    subgraph Tiers [Cognitive Tiers  experimental/tiers/cog ]
         T1[Tier 1: Symbolic]
         T2[Tier 2: Reflective]
         T3[Tier 3: Recursive]

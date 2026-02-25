@@ -88,11 +88,11 @@ Subsystems own specific directories. New files must be placed accordingly.
 
 | Subsystem | Owner Directory | Implementation | Specification |
 | :--- | :--- | :--- | :--- |
-| **Core Types** | `src/data_types/` | `src/data_types/` | `spec/t81-data-types.md` |
+| **Core Types** | `core/types/` | `core/types/` | `spec/t81-data-types.md` |
 | **TISC ISA** | `core/isa/` | `core/isa/` | `spec/tisc-spec.md` |
 | **VM** | `core/vm/` | `core/vm/` | `spec/t81vm-spec.md` |
-| **Language** | `src/lang/` | `src/lang/` | `spec/t81lang-spec.md` |
-| **Axion** | `src/axion/` | `src/axion/` | `spec/axion-kernel.md` |
+| **Language** | `lang/stdlib/` | `lang/stdlib/` | `spec/t81lang-spec.md` |
+| **Axion** | `kernel/axion/` | `kernel/axion/` | `spec/axion-kernel.md` |
 | **Docs** | `docs/` | N/A | `docs/spec/INDEX.md` |
 | **Book** | `book/` | N/A | N/A |
 

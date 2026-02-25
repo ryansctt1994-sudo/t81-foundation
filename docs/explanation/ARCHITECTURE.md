@@ -179,7 +179,7 @@ Operational sources:
 | Legacy numeric include policy gate | Block new includes of compatibility-only `t81/core/{bigint,fraction}.hpp` | `../../scripts/ci/check_legacy_core_numeric_includes.py` |
 | Legacy numeric type-usage policy gate | Block new source-level use of compatibility-only `t81::core::{BigInt,Fraction}` | `../../scripts/ci/check_legacy_core_numeric_type_usage.py` |
 | Legacy v1 implementation include policy gate | Block new includes of migration-only `t81/core/{T81BigInt,T81Fraction}.hpp` | `../../scripts/ci/check_legacy_v1_numeric_includes.py` |
-| Core wrapper thinness policy gate | Keep `../../src/core/{bigint,fraction}.cpp` adapter-only and block arithmetic implementation tokens | `../../scripts/ci/check_core_numeric_wrapper_thinness.py` |
+| Core wrapper thinness policy gate | Keep `../../core/types/{bigint,fraction}.cpp` adapter-only and block arithmetic implementation tokens | `../../scripts/ci/check_core_numeric_wrapper_thinness.py` |
 | Runtime contract sync gate | Verify runtime boundary pin and policy coherence | `../../scripts/check-runtime-contract-sync.py` |
 
 ______________________________________________________________________
@@ -285,11 +285,11 @@ ______________________________________________________________________
 
 | Component | Directory | Primary Maintainers | Spec Authority |
 | :--- | :--- | :--- | :--- |
-| **T81Lang** | `../../src/frontend/`, `../../include/t81/frontend/` | @t81dev | `../../spec/lang/` |
+| **T81Lang** | `../../lang/frontend/`, `../../include/t81/frontend/` | @t81dev | `../../spec/lang/` |
 | **TISC** | `../../core/isa/`, `../../include/t81/isa/` | @t81dev | `../../spec/tisc/` |
 | **HanoiVM** | `../../core/vm/`, `../../include/t81/vm/` | @t81dev | `../../spec/vm/` |
-| **Axion** | `../../src/axion/`, `../../include/t81/axion/` | @t81dev | `../../spec/axion/` |
+| **Axion** | `../../kernel/axion/`, `../../include/t81/axion/` | @t81dev | `../../spec/axion/` |
 | **CanonFS** | `../../src/canonfs/`, `../../include/t81/canonfs/` | @t81dev | `../../spec/canonfs/` |
-| **Cognitive** | `../../src/cog/`, `../../include/t81/cog/` | @t81dev | `../../spec/spec/t81-spec.md` |
-| **Numerics** | `../../src/core/`, `../../include/t81/core/` | @t81dev | `../../spec/numerics/` |
+| **Cognitive** | `../../experimental/tiers/cog/`, `../../include/t81/cog/` | @t81dev | `../../spec/spec/t81-spec.md` |
+| **Numerics** | `../../core/types/`, `../../include/t81/types/` | @t81dev | `../../spec/numerics/` |
 | **CI/Scripts** | `../../.github/`, `../../scripts/` | @t81dev | `../reference/ci.md` |

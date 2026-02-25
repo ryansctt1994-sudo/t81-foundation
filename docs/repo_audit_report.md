@@ -22,7 +22,7 @@
 | `docs/governance/archive/policy/` | Governance | Medium | Merge into docs/governance |
 | `scripts/` | Canonical Source | Medium (CI/Build) | No |
 | `spec/` | Canonical Specification | High (Source of Truth) | No |
-| `src/` | Canonical Source | High (Core Impl) | No |
+| `src/` | Transitional Source | Medium (Remaining modules pending migration) | Track in restructure checklist |
 | `tests/` | Canonical Source | High (Quality Gate) | No |
 | `tools/` | Canonical Source | Low | No |
 | `.clang-format` | Build/Config | Low | No |

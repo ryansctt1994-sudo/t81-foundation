@@ -1,6 +1,6 @@
-# `src/core`
+# `core/types`
 
-Directory documentation for `src/core`.
+Directory documentation for `core/types`.
 
 ## Purpose
 - Describe what this module/folder owns.

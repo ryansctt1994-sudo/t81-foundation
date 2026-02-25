@@ -37,7 +37,7 @@ Variant bindings that lack a payload or expect the wrong shape now produce diagn
 
 ## CLI metadata for Axion traces
 
-The CLI prints Axion metadata that reflects these richer match arms. The formatter uses the public `SemanticAnalyzer::match_metadata()` API and `type_name()` helper (see `src/cli/driver.cpp`) so Axion traces include each arm's pattern kind (`Variant`, `Record`, `Tuple`, `Identifier`) plus payload types.
+The CLI prints Axion metadata that reflects these richer match arms. The formatter uses the public `SemanticAnalyzer::match_metadata()` API and `type_name()` helper (see `tooling/cli/driver.cpp`) so Axion traces include each arm's pattern kind (`Variant`, `Record`, `Tuple`, `Identifier`) plus payload types.
 
 When you enable Axion match metadata you will see output similar to:
 

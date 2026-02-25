@@ -1,4 +1,4 @@
-# `src/cli`
+# `tooling/cli`
 
 Command-line entry points and interactive debugger implementation.
 

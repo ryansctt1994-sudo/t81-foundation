@@ -1,4 +1,4 @@
-// src/lang/std/symbol.t81
+// lang/stdlib/std/symbol.t81
 // Deterministic symbol helpers.
 // NOTE: T81Lang currently represents symbol values as interned T81String handles.
 

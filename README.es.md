@@ -332,7 +332,7 @@ El motor **Axion** impone políticas en tiempo de ejecución. La configuración 
 - **Ética:** Principios codificados como restricciones de tiempo de ejecución.
 - **Optimización:** Rastreo de puntos calientes y umbrales JIT.
 
-Ver `src/axion/` para detalles de implementación o ejecutar ejemplos de `axion_policy_runner`.
+Ver `kernel/axion/` para detalles de implementación o ejecutar ejemplos de `axion_policy_runner`.
 
 ## Contribuyendo
 

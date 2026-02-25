@@ -7,8 +7,8 @@ This plan outlines the minimal set of changes required to enforce the **Strict D
 **Objective:** Prevent inadvertent use of host-dependent floating-point operations in strict mode.
 
 *   **Files:**
-    *   `include/t81/core/t81_float.hpp`
-    *   `src/core/t81_float.cpp`
+    *   `include/t81/types/t81_float.hpp`
+    *   `core/types/t81_float.cpp`
 *   **Change Scope:**
     *   Introduce `bool strict_mode = false;` thread-local or context flag.
     *   In `operator/`, `sin`, `cos`, `tan`, `log`, `exp`, `sqrt`:
@@ -41,7 +41,7 @@ This plan outlines the minimal set of changes required to enforce the **Strict D
 
 *   **Files:**
     *   `include/t81/axion/policy.hpp`
-    *   `src/axion/policy.cpp`
+    *   `kernel/axion/policy.cpp`
 *   **Change Scope:**
     *   Add field `bool require_strict_determinism` to `Policy` struct.
     *   In `Policy::validate_op`, check against forbidden operations (e.g., `Opcode::TIME`, `Opcode::RANDOM`) if strict mode is set.
@@ -54,8 +54,8 @@ This plan outlines the minimal set of changes required to enforce the **Strict D
 **Objective:** Enforce content-addressing and hide runtime IDs.
 
 *   **Files:**
-    *   `include/t81/core/symbol.hpp`
-    *   `src/core/symbol.cpp`
+    *   `include/t81/types/symbol.hpp`
+    *   `core/types/symbol.cpp`
 *   **Change Scope:**
     *   Modify `Symbol::operator==` to check `hash_` instead of `id_` when strict mode is active.
     *   Modify `Symbol::id()` to trap or return a dummy value in strict mode (to prevent ID dependency).
@@ -68,8 +68,8 @@ This plan outlines the minimal set of changes required to enforce the **Strict D
 **Objective:** Convert errors to canonical value types.
 
 *   **Files:**
-    *   `include/t81/core/error.hpp`
-    *   `src/core/error.cpp`
+    *   `include/t81/types/error.hpp`
+    *   `core/types/error.cpp`
 *   **Change Scope:**
     *   Ensure `T81Error` (or equivalent) does not capture `std::chrono::system_clock` or thread IDs in its constructor.
     *   Remove `std::exception` inheritance if it leaks host vtable pointers or non-deterministic `what()` strings.

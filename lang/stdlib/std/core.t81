@@ -1,4 +1,4 @@
-// src/lang/std/core.t81
+// lang/stdlib/std/core.t81
 // Core definitions and utilities for T81Lang.
 
 // Basic assertion

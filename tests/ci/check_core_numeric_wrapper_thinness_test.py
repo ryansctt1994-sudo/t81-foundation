@@ -31,13 +31,13 @@ def main() -> int:
 
         # Thin delegation-only wrappers should pass.
         write(
-            scan_root / "src/core/bigint.cpp",
-            '#include "t81/core/bigint.hpp"\n'
+            scan_root / "core/types/bigint.cpp",
+            '#include "t81/types/bigint.hpp"\n'
             "namespace t81::core { std::string BigInt::to_string() const { return impl_.to_string(); } }\n",
         )
         write(
-            scan_root / "src/core/fraction.cpp",
-            '#include "t81/core/fraction.hpp"\n'
+            scan_root / "core/types/fraction.cpp",
+            '#include "t81/types/fraction.hpp"\n'
             '#include "t81/fraction.hpp"\n'
             "namespace t81::core { std::string Fraction::to_string() const { return numerator.to_string() + \"/\" + denominator.to_string(); } }\n",
         )
@@ -50,8 +50,8 @@ def main() -> int:
 
         # Arithmetic implementation token in wrapper should fail.
         write(
-            scan_root / "src/core/fraction.cpp",
-            '#include "t81/core/fraction.hpp"\n'
+            scan_root / "core/types/fraction.cpp",
+            '#include "t81/types/fraction.hpp"\n'
             '#include "t81/fraction.hpp"\n'
             "namespace t81::core { std::string Fraction::to_string() const { auto x = t81::T81BigInt::mul(numerator.canonical(), denominator.canonical()); (void)x; return \"0/1\"; } }\n",
         )
@@ -61,7 +61,7 @@ def main() -> int:
             print(fail_run.stdout)
             print(fail_run.stderr)
             return 1
-        if "src/core/fraction.cpp:3" not in fail_run.stdout:
+        if "core/types/fraction.cpp:3" not in fail_run.stdout:
             print("checker failure output missing violating file path/line")
             print(fail_run.stdout)
             return 1

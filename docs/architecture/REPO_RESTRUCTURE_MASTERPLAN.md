@@ -107,9 +107,9 @@ This layout reflects the conceptual architecture of the T81 Foundation stack.
   6. Update CMake targets.
 
 ### Phase 2: ISA (TISC) Module
-* **Goal**: Move `core/isa` to `core/isa`.
+* **Goal**: Move `src/tisc` to `core/isa`.
 * **Steps**:
-  1. `git mv core/isa core/isa`
+  1. `git mv src/tisc core/isa`
   2. Update includes.
 
 ### Phase 3: VM Core

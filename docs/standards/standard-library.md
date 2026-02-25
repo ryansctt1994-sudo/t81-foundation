@@ -1,7 +1,7 @@
 # T81Lang Standard Library
 
 This document describes the standard library modules available in T81Lang.
-These modules are located in `src/lang/std/`.
+These modules are located in `lang/stdlib/std/`.
 
 ## Generic Call Syntax
 

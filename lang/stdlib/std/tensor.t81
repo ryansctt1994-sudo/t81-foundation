@@ -1,4 +1,4 @@
-// src/lang/std/tensor.t81
+// lang/stdlib/std/tensor.t81
 // Tensor operations.
 
 // NOTE: std.tensor.load currently requires a string literal argument at the callsite,

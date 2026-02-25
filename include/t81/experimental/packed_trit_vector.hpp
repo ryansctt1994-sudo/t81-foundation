@@ -81,7 +81,7 @@ public:
 
   static int8_t scalar_or(int8_t a, int8_t b) { return std::max(a, b); }
 
-  // TXor semantics: Defined as (a - b) wrapped, per src/vm/vm.cpp implementation of Opcode::TXor.
+  // TXor semantics: Defined as (a - b) wrapped, per core/vm/vm.cpp implementation of Opcode::TXor.
   // Note: This operation is non-commutative (Difference), despite the name "Xor".
   static int8_t scalar_xor(int8_t a, int8_t b) {
     int result = a - b;

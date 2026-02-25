@@ -4,7 +4,7 @@ This document summarizes the implementation status of the T81 runtime, based on 
 
 ## 1. Implemented
 
-The following components are fully implemented in the modern C++ runtime (`include/t81/core`, `src/core`, `include/t81/nn`):
+The following components are fully implemented in the modern C++ runtime (`include/t81/types`, `core/types`, `include/t81/nn`):
 
 ### Core T81 Data Types (Base-81)
 - **T81Int**: Fixed-width balanced ternary integers (e.g., `T81Int<81>`).
@@ -26,7 +26,7 @@ The following components are fully implemented in the modern C++ runtime (`inclu
 - **Ternary Neural Primitives**: Native neural network layers (`Linear`, `Conv2d`) and activation functions (`ReLU`, `GELU`, `Softmax`) in `t81::nn` (see `include/t81/nn/T81NN.hpp`).
 - **T81Symbolic**: Advanced symbolic algebra including differentiation, simplification, and polynomial integration/roots.
 - **Semantic Graph Features**: Extensions to `T81Graph` supporting node lookup by semantic label and transitive inference.
-- **Tier 5 (Infinite) Skeleton**: Initial implementation of the "Infinite" cognitive tier, including `collapse()` logic and `CollapseSignature` generation (see `src/cog/tier5/infinite.cpp`).
+- **Tier 5 (Infinite) Skeleton**: Initial implementation of the "Infinite" cognitive tier, including `collapse()` logic and `CollapseSignature` generation (see `experimental/tiers/cog/tier5/infinite.cpp`).
 
 ### Virtual Machine & System Features
 - **VM Opcodes**: Includes `TLOADHASH` (content-addressed loading) and `SymLoad` (symbolic register loading).

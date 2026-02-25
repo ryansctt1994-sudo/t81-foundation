@@ -216,7 +216,7 @@ Use `scripts/run-demos.sh` (which now runs match, primitive, fraction, tensor, b
 
 ## Blueprint: Handle-heavy Types (Streams / Promises / Agents)
 
-The core handles in `include/t81/core` (notably `T81IOStream`, `T81Promise<T>`, and `T81Agent`) require future language bindings. Here is what a T81Lang demo *could* look like once these constructs are available:
+The core handles in `include/t81/types` (notably `T81IOStream`, `T81Promise<T>`, and `T81Agent`) require future language bindings. Here is what a T81Lang demo *could* look like once these constructs are available:
 
 ```t81
 fn stream_log() {

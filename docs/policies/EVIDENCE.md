@@ -32,7 +32,7 @@ We guarantee the following artifacts are bit-identical across all supported plat
 ## 3. Coverage Analysis
 
 Our testing strategy covers:
-- **Unit:** 100% of public numeric API (`include/t81/core/`).
+- **Unit:** 100% of public numeric API (`include/t81/types/`).
 - **Integration:** End-to-end CLI workflows (`compile` -> `run` -> `trace`).
 - **Property:** Ring properties for `T81BigInt`, `T81Float`, `T81Prob`.
 - **Fuzzing:** Frontend parser and TISC decoder resilience.

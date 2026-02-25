@@ -38,8 +38,8 @@ with open(vm_hpp_path, 'w') as f:
     f.write(vm_hpp_content)
 print(f"Fixed {vm_hpp_path}")
 
-# Fix src/vm/vm.cpp
-vm_cpp_path = 'src/vm/vm.cpp'
+# Fix core/vm/vm.cpp
+vm_cpp_path = 'core/vm/vm.cpp'
 with open(vm_cpp_path, 'r') as f:
     lines = f.readlines()
 

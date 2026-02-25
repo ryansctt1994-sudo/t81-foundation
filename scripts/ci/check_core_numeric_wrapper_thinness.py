@@ -2,7 +2,7 @@
 """Enforce thin-wrapper discipline for legacy core numeric adapters.
 
 Policy:
-- `src/core/{bigint,fraction}.cpp` should remain compatibility adapters and
+- `core/types/{bigint,fraction}.cpp` should remain compatibility adapters and
   must not introduce direct arithmetic implementation logic.
 - New arithmetic work belongs in canonical paths (`t81::v1` / canonical headers).
 """
@@ -15,8 +15,8 @@ from pathlib import Path
 
 
 TARGETS = (
-    "src/core/bigint.cpp",
-    "src/core/fraction.cpp",
+    "core/types/bigint.cpp",
+    "core/types/fraction.cpp",
 )
 
 # Tokens indicating arithmetic implementation work drifting into wrappers.

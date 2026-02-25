@@ -1,4 +1,4 @@
-// src/lang/std/math.t81
+// lang/stdlib/std/math.t81
 // Mathematical constants and functions.
 
 // Constants (registers initialized at startup)

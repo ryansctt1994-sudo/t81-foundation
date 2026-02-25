@@ -1,4 +1,4 @@
-// src/lang/std/collections.t81
+// lang/stdlib/std/collections.t81
 // Collection utilities.
 
 // Deterministic Vector helpers.

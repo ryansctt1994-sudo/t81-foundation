@@ -52,7 +52,7 @@ ______________________________________________________________________
    - `python3 ../../scripts/ci/check_legacy_core_numeric_includes.py` to enforce the compatibility-shim policy (no new includes of `t81/core/{bigint,fraction}.hpp` outside allowlisted files).
    - `python3 ../../scripts/ci/check_legacy_core_numeric_type_usage.py` to enforce the compatibility-shim policy (no new `core::BigInt` / `core::Fraction` type usage outside allowlisted files).
    - `python3 ../../scripts/ci/check_legacy_v1_numeric_includes.py` to enforce consolidation policy (no new includes of migration-only `t81/core/{T81BigInt,T81Fraction}.hpp` outside allowlisted files).
-   - `python3 ../../scripts/ci/check_core_numeric_wrapper_thinness.py` to enforce thin-wrapper discipline in `../../src/core/{bigint,fraction}.cpp` (no arithmetic implementation tokens in compatibility adapter files).
+   - `python3 ../../scripts/ci/check_core_numeric_wrapper_thinness.py` to enforce thin-wrapper discipline in `../../core/types/{bigint,fraction}.cpp` (no arithmetic implementation tokens in compatibility adapter files).
    - `python3 ../../scripts/ci/check_v1_canonical_numeric_alias_usage.py` to enforce alias-based migration style in `../../tests/cpp/v1*_*.cpp` (use `t81::v1::CanonicalBigInt` / `t81::v1::CanonicalFraction`, avoid direct `t81::T81BigInt` / `t81::T81Fraction` there).
    - `../../scripts/ci/run_workflow_audits.sh` or `make audit-governance` to run the governance audit bundle (workflow pinning, workflow permissions, and legacy numeric compatibility policy checks) in strict mode with one command.
    - `make cmake-ritual` to run the single-threaded local build/test ritual end-to-end.

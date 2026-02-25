@@ -1,4 +1,4 @@
-// src/lang/std/async.t81
+// lang/stdlib/std/async.t81
 // Deterministic concurrency primitives.
 
 fn yield() -> void {

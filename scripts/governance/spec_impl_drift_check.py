@@ -13,19 +13,19 @@ SRC_DIR = REPO_ROOT / "src"
 
 # Spec -> Implementation Mapping
 SPEC_MAP = {
-    "tisc-spec.md": "src/tisc",
-    "t81vm-spec.md": "src/vm",
-    "t81-data-types.md": "src/data_types",
-    "t81lang-spec.md": "src/lang",
-    "axion-kernel.md": "src/axion",
-    "cognitive-tiers.md": "src/cog", # Assumption
+    "tisc-spec.md": "core/isa",
+    "t81vm-spec.md": "core/vm",
+    "t81-data-types.md": "core/types",
+    "t81lang-spec.md": "lang/frontend",
+    "axion-kernel.md": "kernel/axion",
+    "cognitive-tiers.md": "experimental/tiers/cog", # Assumption
 }
 
 def check_opcode_drift():
     print("Checking for Opcode Drift...")
 
     # 1. Extract from Code
-    opcodes_hpp = INCLUDE_DIR / "tisc/opcodes.hpp"
+    opcodes_hpp = INCLUDE_DIR / "isa/opcodes.hpp"
     if not opcodes_hpp.exists():
         print(f"ERROR: Cannot find {opcodes_hpp}")
         return False

@@ -20,7 +20,7 @@ The following subsystems are designated as **Frozen**. Modifications to these ar
 For a concise summary of frozen vs. experimental components, see the [Deterministic Core Profile](../spec/DETERMINISTIC_CORE_PROFILE_v1.md).
 
 ### A. Data Types
-*   **Scope:** `src/data_types/`, `spec/t81-data-types.md`
+*   **Scope:** `core/types/`, `spec/t81-data-types.md`
 *   **Frozen Surface:**
     *   Binary representation of `Trit`, `Tryte`, `T81Float`, `T81Fraction`.
     *   Canonicalization rules for all composite types.

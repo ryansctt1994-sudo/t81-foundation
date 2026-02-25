@@ -1,4 +1,4 @@
-// src/lang/std/agent.t81
+// lang/stdlib/std/agent.t81
 // Agent abstractions.
 
 fn self_reflect() -> void {

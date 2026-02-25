@@ -1,6 +1,6 @@
-# `src/lang`
+# `lang/stdlib`
 
-Directory documentation for `src/lang`.
+Directory documentation for `lang/stdlib`.
 
 ## Purpose
 - Describe what this module/folder owns.

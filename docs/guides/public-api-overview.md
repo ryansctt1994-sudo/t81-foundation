@@ -11,10 +11,10 @@ title: Public API Overview
 
 - [T81 Foundation: Public API Overview](#t81-foundation-public-api-overview)
   - [1. Where to Look](#1-where-to-look)
-  - [2. Core Numerics (`include/t81/core`, `include/t81/tensor`, `include/t81/ternary`)](#2-core-numerics-`includet81core`-`includet81tensor`-`includet81ternary`)
+  - [2. Core Numerics (`include/t81/types`, `include/t81/tensor`, `include/t81/ternary`)](#2-core-numerics-`includet81core`-`includet81tensor`-`includet81ternary`)
   - [3. Frontend (`include/t81/frontend`)](#3-frontend-`includet81frontend`)
   - [4. TISC & VM (`include/t81/tisc`, `include/t81/vm`)](#4-tisc-&-vm-`includet81tisc`-`includet81vm`)
-  - [5. Weights & Tooling (`include/t81/weights`, `src/tools`)](#5-weights-&-tooling-`includet81weights`-`srctools`)
+  - [5. Weights & Tooling (`include/t81/weights`, `tooling/model`)](#5-weights-&-tooling-`includet81weights`-`srctools`)
   - [6. CanonFS & Axion Entrypoints (`include/t81/canonfs`, `include/t81/axion`)](#6-canonfs-&-axion-entrypoints-`includet81canonfs`-`includet81axion`)
   - [7. Targeted Coverage Notes](#7-targeted-coverage-notes)
 
@@ -30,7 +30,7 @@ ______________________________________________________________________
 - **Namespace promise:** we expose `t81::...` (and nested namespaces such as `t81::core`, `t81::frontend`, `t81::lang`, `t81::vm`, `t81::weights`). Respect the `t81::v1` inline namespace alias for future ABI compatibility.
 - **Versioning:** the public API snapshot may evolve only when the semantic version increments; breaking exports require RFC sign-off.
 
-## 2. Core Numerics (`include/t81/core`, `include/t81/tensor`, `include/t81/ternary`)
+## 2. Core Numerics (`include/t81/types`, `include/t81/tensor`, `include/t81/ternary`)
 
 - **Purpose:** exact balanced-ternary arithmetic, tensors, containers, and the binary-to-ternary helpers.  
 - **Key headers:** `T81Int.hpp`, `T81Float.hpp`, `T81Tensor.hpp`, `T81Matrix.hpp`, `T81List.hpp`, `T81Set.hpp`, `T81Map.hpp`, `T81Result.hpp`, `T81Maybe.hpp`.  
@@ -57,7 +57,7 @@ ______________________________________________________________________
 - **Thread Safety:** the VM is single-threaded; use per-`t81::vm::State` instances or guard access via your scheduler to prevent concurrent mutation.  
 - **Error Handling:** traps (Axion events) are communicated via `vm::AxionEvent`; invalid instructions throw `std::runtime_error`/`AxionTrap`. Memory faults wrap the `t81::vm::AxionEvent::type` enum.
 
-## 5. Weights & Tooling (`include/t81/weights`, `src/tools`)
+## 5. Weights & Tooling (`include/t81/weights`, `tooling/model`)
 
 - **Purpose:** import/export quantized weights, metadata, canonical blobs. The CLI uses these helpers for `t81 weights ...` commands.  
 - **Thread Safety / Error Handling:** operations are I/O-bound and return `t81::support::expected` results; disk concurrency control is handled by the caller (e.g., the CLI). Unexpected formats result in descriptive diagnostics rather than crashes.

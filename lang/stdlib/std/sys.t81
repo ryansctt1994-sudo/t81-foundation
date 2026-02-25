@@ -1,4 +1,4 @@
-// src/lang/std/sys.t81
+// lang/stdlib/std/sys.t81
 // System interactions.
 
 fn exit(code: i32) -> void {

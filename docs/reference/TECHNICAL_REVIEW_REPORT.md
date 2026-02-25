@@ -1,7 +1,7 @@
 # T81 Foundation Technical Review Report
 
 ## 1. CODE IMPLEMENTATION ANALYSIS
-- **Core Types:** `T81Int` (packed 2-bit storage), `T81Float` (canonical storage, host-dependent math), `T81Fraction` (exact rational), and `T81BigInt` are fully implemented in `include/t81/core`.
+- **Core Types:** `T81Int` (packed 2-bit storage), `T81Float` (canonical storage, host-dependent math), `T81Fraction` (exact rational), and `T81BigInt` are fully implemented in `include/t81/types`.
 - **VM:** A complete interpreter (`core/vm/vm.cpp`) exists with JIT capabilities (`runtime/jit/jit_compiler.cpp`), stack/heap management, and Axion policy integration.
 - **Graph:** `T81Graph` implements a hybrid stack/heap storage model to prevent stack overflows for large graphs, supporting algorithms like PageRank and BFS.
 - **Compiler:** The `frontend` and `tisc` directories contain a working lexer, parser, semantic analyzer, and binary emitter.

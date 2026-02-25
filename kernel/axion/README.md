@@ -1,4 +1,4 @@
-# `src/axion`
+# `kernel/axion`
 
 Implementation of Axion runtime/policy plumbing.
 

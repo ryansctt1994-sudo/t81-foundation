@@ -1,4 +1,4 @@
-// src/lang/std/io.t81
+// lang/stdlib/std/io.t81
 // Input/Output.
 
 fn println(msg: T81String) -> void {

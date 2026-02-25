@@ -80,7 +80,7 @@ t81 weights import <safetensors|gguf> [...]
 
 1. **Pick a target:** For example, `tests/cpp/t81_tensor_*` exercises tensors; fixes here have fast feedback loops.
 2. **Reproduce:** Build `t81_tensor_matmul_test` and confirm failure with `ctest -R tensor_matmul`.
-3. **Code change:** Modify headers under `include/t81/core` or `src/core` keeping RAII/no-exceptions rules.
+3. **Code change:** Modify headers under `include/t81/types` or `core/types` keeping RAII/no-exceptions rules.
 4. **Add regression test:** Every semantics change needs a test addition under `tests/cpp/`.
 5. **Docs touch:** Update `docs/how-to/tensor-guide.md` or relevant doc to describe new behavior.
 6. **Verify:** `cmake --build build --target t81_tensor_matmul_test` plus `ctest -R tensor_matmul` and rerun `cmake --build build --target docs`.

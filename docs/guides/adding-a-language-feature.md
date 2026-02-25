@@ -171,7 +171,7 @@ This guide provides a step-by-step walkthrough for adding a new feature to the T
 - **Architecture:** [`ARCHITECTURE.md`](../../docs/explanation/ARCHITECTURE.md)
 - **Key Source Files:**
     - `include/t81/frontend/lexer.hpp`, `parser.hpp`, `ir_generator.hpp`
-    - `src/frontend/lexer.cpp`, `parser.cpp`, `ir_generator.cpp`
+    - `lang/frontend/lexer.cpp`, `parser.cpp`, `ir_generator.cpp`
 - **Tests:** `tests/cpp/t81_frontend_*_test.cpp`, `tests/cpp/e2e_*_test.cpp`
 
 ______________________________________________________________________
@@ -206,7 +206,7 @@ Plus, Minus, Star, Slash, Percent, // <-- Add Percent
 
 ### 2.2 Recognize the Lexeme
 
-In `src/frontend/lexer.cpp`, find the `next_token()` method and add a case for the `%` character in the `switch` statement.
+In `lang/frontend/lexer.cpp`, find the `next_token()` method and add a case for the `%` character in the `switch` statement.
 
 ```cpp
 // in Lexer::next_token()
@@ -225,7 +225,7 @@ Next, update the parser to understand the operator's precedence. The modulo oper
 
 ### 3.1 Update the Grammar Rule
 
-In `src/frontend/parser.cpp`, find the `factor()` method. Update the `while` loop to include `TokenType::Percent`.
+In `lang/frontend/parser.cpp`, find the `factor()` method. Update the `while` loop to include `TokenType::Percent`.
 
 ```cpp
 // in Parser::factor()
@@ -250,7 +250,7 @@ Finally, teach the IR generator how to convert the new AST node into a TISC inst
 
 ### 4.1 Implement the Visitor Logic
 
-In `src/frontend/ir_generator.cpp`, find the `visit(const BinaryExpr& expr)` method. Add a `case` for `TokenType::Percent`.
+In `lang/frontend/ir_generator.cpp`, find the `visit(const BinaryExpr& expr)` method. Add a `case` for `TokenType::Percent`.
 
 ```cpp
 // in IRGenerator::visit(const BinaryExpr& expr)

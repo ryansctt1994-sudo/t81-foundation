@@ -140,7 +140,7 @@ Deferred: host-float math determinism and content-addressable symbol identity.
 
 | Component | Stub Feature | Location | Status | Action |
 | :--- | :--- | :--- | :--- | :--- |
-| `AxionPolicy` | `CheckTier` Opcode | `src/axion/policy_engine.cpp` | **DONE** | Implemented tier check logic against `SyscallContext`. |
+| `AxionPolicy` | `CheckTier` Opcode | `kernel/axion/policy_engine.cpp` | **DONE** | Implemented tier check logic against `SyscallContext`. |
 | `VM` | `AxCheck`, `AxReport` | `core/vm/vm.cpp` | **DONE** | Implemented functional logging behavior. |
 | `VM` | `AxSign`, `AxCanon`, etc. | `core/vm/vm.cpp` | **Pending** | Currently stubs logging "Cognitive Opcode Stub Execution". |
 | `VM` | Networking (`NSend`, `NRecv`) | `core/vm/vm.cpp` | **Pending** | Placeholders returning dummy values. |

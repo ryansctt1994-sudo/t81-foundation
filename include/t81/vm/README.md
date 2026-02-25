@@ -8,7 +8,7 @@ Public VM interfaces for HanoiVM.
 - `traps.hpp`: trap/fault enums and helpers.
 
 ## Consumers
-- Runtime implementation in `src/vm`
+- Runtime implementation in `core/vm`
 - CLI/run flows that embed VM execution
 - Unit/integration tests validating opcode behavior
 

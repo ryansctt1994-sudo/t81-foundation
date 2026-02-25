@@ -1,6 +1,6 @@
 # `runtime/tracing`
 
-Directory documentation for `src/hash`.
+Directory documentation for `runtime/tracing`.
 
 ## Purpose
 - Describe what this module/folder owns.

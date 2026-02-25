@@ -1,4 +1,4 @@
-# `src/frontend`
+# `lang/frontend`
 
 Implementation of the T81Lang frontend pipeline.
 

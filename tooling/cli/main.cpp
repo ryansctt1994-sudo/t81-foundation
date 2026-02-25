@@ -193,7 +193,7 @@ Diagnostics:
 // ──────────────────────────────────────────────────────────────
 // Core Commands
 // ──────────────────────────────────────────────────────────────
-// Implemented in src/cli/driver.cpp
+// Implemented in tooling/cli/driver.cpp
 
 std::string shell_escape(std::string_view arg) {
   if (arg.empty()) {

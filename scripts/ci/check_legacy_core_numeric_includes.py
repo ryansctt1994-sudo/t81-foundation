@@ -24,9 +24,9 @@ FORBIDDEN = {
 # Paths are repository-relative (POSIX style).
 ALLOWLIST = {
     "include/t81/t81.hpp",
-    "include/t81/core/fraction.hpp",
-    "src/core/bigint.cpp",
-    "src/core/fraction.cpp",
+    "include/t81/types/fraction.hpp",
+    "core/types/bigint.cpp",
+    "core/types/fraction.cpp",
     "tests/cpp/core_numeric_compat_test.cpp",
     "tests/cpp/core_bigint_compat_properties_test.cpp",
     "tests/cpp/core_fraction_compat_properties_test.cpp",

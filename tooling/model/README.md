@@ -1,6 +1,6 @@
-# `src/tools`
+# `tooling/model`
 
-Directory documentation for `src/tools`.
+Directory documentation for `tooling/model`.
 
 ## Purpose
 - Describe what this module/folder owns.

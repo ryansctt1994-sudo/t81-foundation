@@ -1,4 +1,4 @@
-// src/lang/std/text.t81
+// lang/stdlib/std/text.t81
 // String manipulation.
 
 fn str_len(s: T81String) -> i32 {

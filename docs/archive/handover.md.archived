@@ -172,7 +172,7 @@ ______________________________________________________________________
 1. **Read the Constitution:** Read the primary documents in this order: `README.md`, `AGENTS.md`, and `spec/index.md`.
 2. **Build and Test:** Follow the local dev setup instructions to build the project and run the test suite. A green test run is the baseline for any change.
 3. **Explore the Examples:** Examine the code in `/examples` to see how the core `t81` library is used in practice.
-4. **Start with the Frontend:** A good place to start contributing would be the new C++ toolchain, specifically by adding a new language feature to the parser (`src/frontend/parser.cpp`) and a corresponding test case in `tests/cpp/frontend_parser_test.cpp`.
+4. **Start with the Frontend:** A good place to start contributing would be the new C++ toolchain, specifically by adding a new language feature to the parser (`lang/frontend/parser.cpp`) and a corresponding test case in `tests/cpp/frontend_parser_test.cpp`.
 
 ______________________________________________________________________
 

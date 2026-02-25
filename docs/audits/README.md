@@ -5,6 +5,7 @@ Audit artifacts and reproducibility evidence snapshots.
 ## Contents
 - Workflow/security/tooling audit reports.
 - Repository inventory snapshots used for governance checks.
+- Historical snapshots may contain legacy paths as recorded at capture time.
 
 ## Regeneration
 Run from repo root:

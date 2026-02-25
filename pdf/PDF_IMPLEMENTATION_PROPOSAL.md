@@ -5,13 +5,13 @@ This document outlines a proposal for future implementation work based on the as
 ## 1. Priority: Recursive AGI Codex (TΩNARY)
 
 **Source:** `TΩNARY – T81Recursive AGI Codex.pdf`
-**Current Status:** Skeleton implementation in `src/cog/tier5/` (Infinite Tier).
+**Current Status:** Skeleton implementation in `experimental/tiers/cog/tier5/` (Infinite Tier).
 
 The "Codex" represents the self-modifying, recursive core of the AGI system. While the `Infinite` tier skeleton exists, it currently lacks the logic to meaningfully "collapse" infinite recursion into finite execution.
 
 ### Proposed Actions:
 1.  **Implement Infinite Convergence Logic**:
-    - Replace the placeholder `collapse()` in `src/cog/tier5/infinite.cpp` with actual convergence detection (e.g., detecting fixed points in recursive functional streams).
+    - Replace the placeholder `collapse()` in `experimental/tiers/cog/tier5/infinite.cpp` with actual convergence detection (e.g., detecting fixed points in recursive functional streams).
     - Implement `CollapseSignature` generation based on the structural hash of the recursive pattern, not just a dummy string.
 2.  **Codex Persistence**:
     - Use **CanonFS** to store the "Codex" as a content-addressed Merkle DAG of `T81Symbol`s and `T81Tensor`s.

@@ -1,4 +1,4 @@
-// src/lang/std/bytes.t81
+// lang/stdlib/std/bytes.t81
 // Deterministic bytes helpers.
 // NOTE: T81Bytes values are created via T81Bytes("...") conversion calls.
 

@@ -51,7 +51,7 @@ Core ternary data representation (`Trit`, `Tryte`) and base-81 arithmetic.
 [`/spec/t81-data-types.md`](../../spec/t81-data-types.md)
 
 **Code**
-`src/data_types/`
+`core/types/`
 
 **Verification Surfaces**
 
@@ -146,7 +146,7 @@ Policy enforcement, capability control, and runtime governance.
 [`/spec/axion-kernel.md`](../../spec/axion-kernel.md)
 
 **Code**
-`src/axion/`
+`kernel/axion/`
 
 **Verification Surfaces**
 
