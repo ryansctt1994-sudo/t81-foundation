@@ -34,6 +34,9 @@ Post-A1 follow-on planning state:
 - Follow-on queue `A1B-CODE-01..03` is opened in
   `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md` for bounded
   evidence-gap reduction in the current March cycle.
+- A1B-CODE-01 completed on 2026-02-25 with explicit Appendix A
+  `if_expression` parser coverage evidence in
+  `tests/cpp/frontend_parser_appendix_coverage_test.cpp`.
 
 Evidence updates applied:
 

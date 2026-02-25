@@ -79,13 +79,15 @@ fn expressions() -> i32 {
   let rep: Vector[T81Int] = [1; 3];
   let x: i32 = 1;
   let y: i32 = { let z: i32 = 7; z + 1 };
+  let if_expr: i32 = if x > 0 { 10 } else { 20 };
+  let if_chain: i32 = if x > 1 { 30 } else if x == 1 { 40 } else { 50 };
   let m: Option[i32] = Some(3);
   let out: i32 = match (m) {
     Some(n) if n > 0 => n,
     None => 0,
   };
   foo(1, 2)[0].bar;
-  return ((out + x + y) << 1) >>> 1;
+  return ((out + x + y + if_expr + if_chain) << 1) >>> 1;
 }
 )";
   return expect_parse_ok(source, "appendix_expression_forms");
