@@ -1,10 +1,10 @@
 # Documentation Assets
 
-This folder holds the static assets used by the generated documentation site (`docs/api`, `docs/search`, etc.).
+This folder holds the static assets used by the generated documentation site (`docs/api`, `docs/site/search`, etc.).
 
 ## Contents
-- `css/` – stylesheets for the static site. Keep them synchronized with the theme in `docs/_layouts` (especially if you regenerate via `cmake --build build --target docs`).  
-- `js/` – support scripts for search widgets, navigation helpers, and interactive front-end behavior. Avoid editing them unless you know the site-builder pipeline (check `docs/_layouts/default.html`).  
+- `css/` – stylesheets for the static site. Keep them synchronized with the theme in `docs/site/_layouts` (especially if you regenerate via `cmake --build build --target docs`).  
+- `js/` – support scripts for search widgets, navigation helpers, and interactive front-end behavior. Avoid editing them unless you know the site-builder pipeline (check `docs/site/_layouts/default.html`).  
 - `img/` – shared images, icons, and diagrams referenced by `docs/` markdown. When adding new assets, update `docs/navigation.md` or the relevant guide to document their purpose.
 
 ## Maintenance notes

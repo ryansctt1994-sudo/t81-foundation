@@ -12,4 +12,4 @@ Contributor-facing policy docs for repository hygiene and contribution expectati
 ## Related Docs
 - Root `README.md`
 - `CONTRIBUTING.md`
-- `docs/audits/README.md`
+- `docs/records/audits/README.md`

@@ -9,7 +9,7 @@
     "test": "tests"
   },
   "scripts": {
-    "docs:search": "node docs/search/build_index.js"
+    "docs:search": "node docs/site/search/build_index.js"
   },
   "repository": {
     "type": "git",

@@ -1,4 +1,4 @@
-# `docs/audits`
+# `docs/records/audits`
 
 Audit artifacts and reproducibility evidence snapshots.
 
@@ -11,9 +11,9 @@ Audit artifacts and reproducibility evidence snapshots.
 Run from repo root:
 
 ```bash
-find . -path ./.git -prune -o -print | sed 's#^\./##' | sort > docs/audits/repo_tree_expanded.txt
-find . -path ./.git -prune -o -type d -print | sed 's#^\./##' | sort > docs/audits/repo_tree.txt
-python3 scripts/ci/audit_workflow_actions.py --markdown-out docs/audits/2026-02-workflow-action-audit.md
+find . -path ./.git -prune -o -print | sed 's#^\./##' | sort > docs/records/inventories/repo_tree_expanded.txt
+find . -path ./.git -prune -o -type d -print | sed 's#^\./##' | sort > docs/records/inventories/repo_tree.txt
+python3 scripts/ci/audit_workflow_actions.py --markdown-out docs/records/audits/2026-02-workflow-action-audit.md
 ```
 
 ## Rules

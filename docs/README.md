@@ -1,22 +1,20 @@
 # T81 Foundation Documentation
 
-This directory contains the canonical documentation for the T81 Foundation project.
+This directory is the canonical documentation surface below `/spec` and
+`docs/architecture/OVERVIEW.md`.
 
-## Structure
+## Canonical Entry Points
 
-*   **[Architecture](architecture/OVERVIEW.md)**: High-level system design and component interactions.
-*   **[Specification](spec/INDEX.md)**: Detailed technical specifications for T81 subsystems (TISC, Axion, Hanoi, etc.).
-*   **[Governance](governance/CAPABILITY_CONTRACT.md)**: Project policies, [authority model](governance/SPEC_AUTHORITY_MODEL.md), capability contracts, and multilingual guidelines.
-*   **[Roadmap](roadmap/MASTER_ROADMAP.md)**: Future plans and milestones.
-*   **[Status](status/SYSTEM_STATUS.md)**: Current implementation status and health metrics.
-*   **[Benchmarks](benchmarks/BENCHMARK_METHODOLOGY.md)**: Performance methodologies and results.
+- [Architecture Overview](architecture/OVERVIEW.md)
+- [Specification Authority Model](governance/SPEC_AUTHORITY_MODEL.md)
+- [Freeze Enforcement](governance/FREEZE_ENFORCEMENT.md)
+- [Determinism Surface Registry](governance/DETERMINISM_SURFACE_REGISTRY.md)
+- [Determinism Threat Model](governance/DETERMINISM_THREAT_MODEL.md)
+- [System Status](status/SYSTEM_STATUS.md)
+- [Implementation Matrix](status/IMPLEMENTATION_MATRIX.md)
+- [Spec Index](spec/INDEX.md)
 
-## Legacy Documentation
-*   [Tutorials](tutorials/)
-*   [How-to Guides](how-to/)
-*   [Explanation](explanation/)
-*   [Reference](reference/)
+## Records and Site Build
 
-## Contributing
-
-Please refer to `CONTRIBUTING.md` in the root directory for guidelines on how to contribute to this documentation.
+- [Records](records/) contains audits, inventories, and archive artifacts.
+- [Site Build Machinery](site/) contains static-site build templates, config, and assets only.

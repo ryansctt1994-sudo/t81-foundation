@@ -24,7 +24,7 @@ path	category	relevance	essentiality	note
 .pre-commit-config.yaml	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
 AGENTS.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
 ANALYSIS.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
-docs/archive/analysis.md.archived	archived	historical	redundant_candidate	Archived superseded doc
+docs/records/archive/analysis.md.archived	archived	historical	redundant_candidate	Archived superseded doc
 ARCHITECTURE.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
 CHANGELOG.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
 CLAUDE.md	repo_root_control	governance/build/docs	essential	Repository control/entrypoint file
@@ -69,22 +69,22 @@ benchmarks/runner/roundtrip_accuracy.cpp	benchmark	performance	optional	Perf mea
 benchmarks/runner/t81lang_compile.cpp	benchmark	performance	optional	Perf measurement tooling
 contracts/runtime-contract.json	runtime_contract	cross-repo boundary	essential	Runtime compatibility contract
 docs/.bundle/config	documentation	narrative	optional	Developer/user docs
-docs/T81_Foundation_Paper.tex	documentation	narrative	optional	Developer/user docs
-docs/_config.yml	documentation	narrative	optional	Developer/user docs
-docs/_includes/sidebar.html	documentation	narrative	optional	Developer/user docs
-docs/_includes/topnav.html	documentation	narrative	optional	Developer/user docs
-docs/_layouts/default.html	documentation	narrative	optional	Developer/user docs
-docs/_layouts/page.html	documentation	narrative	optional	Developer/user docs
-docs/_layouts/spec.html	documentation	narrative	optional	Developer/user docs
+docs/records/archive/T81_Foundation_Paper.tex	documentation	narrative	optional	Developer/user docs
+docs/site/_config.yml	documentation	narrative	optional	Developer/user docs
+docs/site/_includes/sidebar.html	documentation	narrative	optional	Developer/user docs
+docs/site/_includes/topnav.html	documentation	narrative	optional	Developer/user docs
+docs/site/_layouts/default.html	documentation	narrative	optional	Developer/user docs
+docs/site/_layouts/page.html	documentation	narrative	optional	Developer/user docs
+docs/site/_layouts/spec.html	documentation	narrative	optional	Developer/user docs
 docs/ai-quickstart.md	documentation	narrative	optional	Developer/user docs
 docs/alignment-policy.md	documentation	narrative	optional	Developer/user docs
-docs/archive/developer-guide.md.archived	documentation	narrative	optional	Developer/user docs
-docs/archive/handover.md.archived	documentation	narrative	optional	Developer/user docs
-docs/archive/tensor-guide.md.archived	documentation	narrative	optional	Developer/user docs
-docs/assets/README.md	documentation	narrative	optional	Developer/user docs
-docs/assets/css/main.css	documentation	narrative	optional	Developer/user docs
-docs/assets/img/banner.png	documentation	narrative	optional	Developer/user docs
-docs/assets/js/lunr.min.js	documentation	narrative	optional	Developer/user docs
+docs/records/archive/developer-guide.md.archived	documentation	narrative	optional	Developer/user docs
+docs/records/archive/handover.md.archived	documentation	narrative	optional	Developer/user docs
+docs/records/archive/tensor-guide.md.archived	documentation	narrative	optional	Developer/user docs
+docs/site/assets/README.md	documentation	narrative	optional	Developer/user docs
+docs/site/assets/css/main.css	documentation	narrative	optional	Developer/user docs
+docs/site/assets/img/banner.png	documentation	narrative	optional	Developer/user docs
+docs/site/assets/js/lunr.min.js	documentation	narrative	optional	Developer/user docs
 docs/benchmarks.md	documentation	narrative	optional	Developer/user docs
 docs/ci.md	documentation	narrative	optional	Developer/user docs
 docs/contributing/generated-artifacts.md	documentation	narrative	optional	Developer/user docs
@@ -130,11 +130,11 @@ docs/proposals/t81lang-implementation-plan.md	documentation	narrative	optional	D
 docs/release.md	documentation	narrative	optional	Developer/user docs
 docs/research-guide.md	documentation	narrative	optional	Developer/user docs
 docs/runtime-semantics-boundary.md	documentation	narrative	optional	Developer/user docs
-docs/search/README.md	documentation	narrative	optional	Developer/user docs
-docs/search/build_index.js	documentation	narrative	optional	Developer/user docs
-docs/search/search.css	documentation	narrative	optional	Developer/user docs
-docs/search/search.js	documentation	narrative	optional	Developer/user docs
-docs/search/search_index.json	documentation	narrative	optional	Developer/user docs
+docs/site/search/README.md	documentation	narrative	optional	Developer/user docs
+docs/site/search/build_index.js	documentation	narrative	optional	Developer/user docs
+docs/site/search/search.css	documentation	narrative	optional	Developer/user docs
+docs/site/search/search.js	documentation	narrative	optional	Developer/user docs
+docs/site/search/search_index.json	documentation	narrative	optional	Developer/user docs
 docs/spec	documentation	narrative	optional	Developer/user docs
 docs/system-status.md	documentation	narrative	optional	Developer/user docs
 docs/tensor-guide.md	documentation	narrative	optional	Developer/user docs

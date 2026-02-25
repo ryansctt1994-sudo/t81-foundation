@@ -141,7 +141,7 @@ jobs:
         run: |
           {
             echo "### Sidebar auto-updated"
-            echo "- File: docs/_includes/sidebar.html"
+            echo "- File: docs/site/_includes/sidebar.html"
             echo "- Trigger: ${{ github.event_name }}"
             echo "- PR outcome: ${{ steps.cpr.outcome }}"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -165,8 +165,8 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install Cheerio & Lunr (in docs/search)
-        working-directory: docs/search
+      - name: Install Cheerio & Lunr (in docs/site/search)
+        working-directory: docs/site/search
         run: |
           if [ -f package-lock.json ]; then
             npm ci
@@ -175,7 +175,7 @@ jobs:
           fi
 
       - name: Build search index
-        working-directory: docs/search
+        working-directory: docs/site/search
         run: node build_index.js
 
       - name: Create Pull Request with updated index
@@ -187,7 +187,7 @@ jobs:
           branch: auto/search-index
           delete-branch: true
           title: 'chore(docs): regenerate search index'
-          body: 'Automated run of `docs/search/build_index.js`'
+          body: 'Automated run of `docs/site/search/build_index.js`'
           commit-message: 'chore(docs): update search_index.json [ci skip]'
           labels: documentation,automated
 

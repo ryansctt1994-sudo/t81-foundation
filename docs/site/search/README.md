@@ -1,6 +1,6 @@
 # Documentation Search Index
 
-The `docs/search/` directory contains the search index and related helpers generated when you build the docs site (`cmake --build build --target docs`). Treat this README as the entry point before touching the generated files.
+The `docs/site/search/` directory contains the search index and related helpers generated when you build the docs site (`cmake --build build --target docs`). Treat this README as the entry point before touching the generated files.
 
 ## Key files
 - `index.html` – the front-end that presents the search box. Link to it from `docs/navigation.md` when describing how to discover content.  

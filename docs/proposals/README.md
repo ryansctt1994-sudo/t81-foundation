@@ -15,4 +15,4 @@ Design proposals and pre-RFC working documents.
 
 ## Lifecycle
 - Promote accepted proposals into `spec/` and implementation tasks.
-- Move superseded material to `docs/archive/`.
+- Move superseded material to `docs/records/archive/`.

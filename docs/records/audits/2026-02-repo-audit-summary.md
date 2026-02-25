@@ -1,10 +1,10 @@
 # Repository Audit Summary (2026-02)
 
-This report summarizes the current full-repository audit artifacts in this folder:
+This report summarizes the current full-repository audit artifacts:
 
-- `repo_tree.txt`
-- `repo_tree_expanded.txt`
-- `repo_inventory.tsv`
+- `docs/records/inventories/repo_tree.txt`
+- `docs/records/inventories/repo_tree_expanded.txt`
+- `docs/records/inventories/repo_inventory.tsv`
 - `2026-02-workflow-action-audit.md`
 - `2026-02-workflow-permissions-audit.md`
 
@@ -13,7 +13,7 @@ The intent is to keep an auditable snapshot of repository composition and conver
 ## Scope and Method
 
 - Enumerated all tracked repository paths into tree snapshots.
-- Classified files by category, relevance, and essentiality in `repo_inventory.tsv`.
+- Classified files by category, relevance, and essentiality in `docs/records/inventories/repo_inventory.tsv`.
 - Cross-checked architecture/build documentation against active CMake targets via:
   - `scripts/ci/check_architecture_targets.py`
 
@@ -58,7 +58,7 @@ The intent is to keep an auditable snapshot of repository composition and conver
 ## Prioritized Actions
 
 1. **P0: Preserve audit trail in-repo**
-   - Keep this `docs/audits/` folder versioned as the periodic audit snapshot.
+   - Keep this `docs/records/audits/` folder versioned as the periodic audit snapshot.
    - Refresh snapshots on meaningful repo topology changes.
 
 2. **P1: Keep documentation ownership crisp**
@@ -70,7 +70,7 @@ The intent is to keep an auditable snapshot of repository composition and conver
 4. **P2: Add periodic audit cadence**
    - Recommended cadence: monthly or milestone-based snapshot refresh.
    - Suggested naming convention for future summaries:
-     - `docs/audits/YYYY-MM-repo-audit-summary.md`
+     - `docs/records/audits/YYYY-MM-repo-audit-summary.md`
 
 ## Validation Snapshot
 

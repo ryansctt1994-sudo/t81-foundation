@@ -25,7 +25,7 @@ patterns=(
 search_roots=(README*.md docs scripts tools examples include core kernel lang runtime tooling tests spec pdf)
 
 globs=(
-  '!docs/audits/**'
+  '!docs/records/audits/**'
   '!book/**'
   '!legacy/**'
   '!notebooks/**'

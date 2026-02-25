@@ -4,7 +4,7 @@ Audit GitHub workflow `uses:` references for pinning hygiene.
 
 Usage:
   python3 scripts/ci/audit_workflow_actions.py
-  python3 scripts/ci/audit_workflow_actions.py --markdown-out docs/audits/2026-02-workflow-action-audit.md
+  python3 scripts/ci/audit_workflow_actions.py --markdown-out docs/records/audits/2026-02-workflow-action-audit.md
 """
 
 from __future__ import annotations

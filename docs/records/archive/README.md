@@ -1,4 +1,4 @@
-# `docs/archive`
+# `docs/records/archive`
 
 Archived documentation retained for historical context.
 

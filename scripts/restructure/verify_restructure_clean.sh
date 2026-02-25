@@ -27,7 +27,7 @@ patterns=(
 
 # Historical artifacts intentionally preserve pre-restructure paths.
 exclude_globs=(
-  '!docs/audits/**'
+  '!docs/records/audits/**'
   '!book/**'
   '!legacy/**'
   '!notebooks/**'
