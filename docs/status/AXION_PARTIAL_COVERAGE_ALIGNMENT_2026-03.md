@@ -45,6 +45,8 @@ scope, or DCP guarantees.
   - This file
   - `docs/status/IMPLEMENTATION_MATRIX.md`
 
+Status: Completed (2026-02-25)
+
 ### M2 — Coverage Gap Prioritization
 
 - Target Date: 2026-03-10
@@ -88,10 +90,23 @@ scope, or DCP guarantees.
 
 | Action ID | Action | Owner | Target Date | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| A2-N1 | Publish segmented scope table for draft Axion surfaces | @t81dev | 2026-03-05 | Planned |
+| A2-N1 | Publish segmented scope table for draft Axion surfaces | @t81dev | 2026-03-05 | Completed (2026-02-25) |
 | A2-N2 | Prioritize top 3 partial/missing segments with dated targets | @t81dev | 2026-03-10 | Planned |
 | A2-N3 | Attach evidence paths for each prioritized segment | @t81dev | 2026-03-14 | Planned |
 | A2-N4 | Sync matrix and governance review with A2 snapshot | @t81dev | 2026-03-19 | Planned |
+
+## M1 Scope Segmentation Table
+
+| Spec Area | Coverage Bucket | Current Surface | Evidence |
+| :--- | :--- | :--- | :--- |
+| 1.6 Privileged Instruction Arbitration (`AXREAD`/`AXSET`/`AXVERIFY`) | Implemented (bounded) | Axion policy evaluation path and opcode-level arbitration hooks are present in policy engine and API plumbing | `kernel/axion/policy_engine.cpp`, `kernel/axion/axion_api.cpp`, `tests/cpp/test_axion_opcodes.cpp`, `tests/cpp/axion_policy_bytecode_test.cpp` |
+| 1.9 Axion API & Policy Enforcement | Implemented (bounded) | Policy parser, bytecode serialization, and deterministic verdict path are implemented for guard and trace requirements | `include/t81/axion/policy.hpp`, `kernel/axion/policy_serialization.cpp`, `tests/cpp/axion_policy_match_guard_test.cpp`, `tests/cpp/axion_policy_segment_event_test.cpp` |
+| 1.10 CanonFS Observability | Partial | CanonFS hook and trace reason capture exist; broader persistence/audit lifecycle remains tied to downstream integration surfaces | `kernel/axion/canonfs_hook.cpp`, `tests/cpp/canonfs_axion_trace_test.cpp`, `tests/cpp/axion_segment_trace_test.cpp` |
+| 1.3 Complexity Measurement | Partial | Instruction/recursion-bound checks are implemented; full call-graph/path-divergence instrumentation is not yet mapped in this cycle | `kernel/axion/policy_engine.cpp`, `kernel/axion/engine.cpp`, `tests/cpp/axion_instruction_counter_test.cpp`, `tests/cpp/test_axion_recursion_limit_ext.cpp` |
+| 1.4 Tier Supervision | Partial | Tier ceiling checks are implemented in policy path; broader promotion/demotion orchestration remains outside mapped Axion kernel evidence in this cycle | `kernel/axion/policy_engine.cpp`, `tests/cpp/axion_stub_test.cpp` |
+| 1.2 Safety & Ethics Enforcement | Partial | Ethics principle checks and guardrail verdicts exist; full policy-surface closure remains in-progress under M2/M3 evidence mapping | `kernel/axion/ethics.cpp`, `include/t81/axion/ethics.hpp`, `tests/cpp/axion_recursion_guardrails_test.cpp` |
+| 1.1 Determinism Stewardship (end-to-end canonical trace stewardship) | Missing (mapped evidence gap) | Deterministic trace evidence exists for selected events, but complete stewardship coverage and canonical-memory enforcement evidence are not yet fully mapped in this plan cycle | `tests/cpp/axion_log_determinism_test.cpp`, `tests/cpp/axion_heap_compaction_trace_test.cpp`, `tests/cpp/vm_trace_test.cpp` |
+| 2.5 Tier Transition Subsystem (full transitions across cognitive tiers) | Deferred | Tier-transition orchestration beyond current policy ceilings remains outside this plan cycle and is governed alongside experimental cognitive-tier maturation | `spec/cognitive-tiers.md`, `docs/status/EXPERIMENTAL_SURFACE_INVENTORY.md` |
 
 ## Cross-References
 
