@@ -221,6 +221,8 @@ Execution state:
 
 - C2 remains in progress through month close; monthly artifact and checklist
   structure are in place as of 2026-02-25.
+- Pre-close dry-run verification executed on 2026-02-25; final confirmation and
+  status stamp remain scheduled for 2026-03-31.
 
 Cadence and navigation checks:
 
@@ -245,6 +247,11 @@ Reference checklist:
 Month-close confirmation pending:
 
 - Re-run checklist against final March document set before window close.
+
+Pre-close dry-run results (2026-02-25):
+
+- `python3 scripts/governance/check_docs_governance_hygiene.py`: passed.
+- Link-target sweep across status/governance/product/audits: no missing targets.
 
 ## Checklist Exceptions
 
