@@ -635,6 +635,12 @@ if(T81_BUILD_TESTS)
   add_executable(t81_frontend_parser_generics_test tests/cpp/frontend_parser_generics_test.cpp)
   target_link_libraries(t81_frontend_parser_generics_test PRIVATE t81_lang_frontend)
 
+  add_executable(t81_frontend_parser_appendix_coverage_test
+                 tests/cpp/frontend_parser_appendix_coverage_test.cpp)
+  target_link_libraries(t81_frontend_parser_appendix_coverage_test PRIVATE t81_lang_frontend)
+  add_test(NAME t81_frontend_parser_appendix_coverage_test
+           COMMAND t81_frontend_parser_appendix_coverage_test)
+
   add_executable(t81_frontend_parser_recovery_test tests/cpp/frontend_parser_recovery_test.cpp)
   target_link_libraries(t81_frontend_parser_recovery_test PRIVATE t81_lang_frontend)
 

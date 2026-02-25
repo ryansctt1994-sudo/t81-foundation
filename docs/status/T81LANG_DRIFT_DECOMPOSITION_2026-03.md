@@ -88,7 +88,7 @@ It does not redefine T81Lang semantics, freeze boundaries, or DCP scope.
 
 ## Milestone Status Snapshot
 
-- M1 Drift Surface Inventory Lock: Completed (2026-02-25)
+- M1 Drift Surface Inventory Lock: Completed (2026-02-25, refreshed 2026-02-25 with Appendix A parser coverage matrix)
 - M2 Deterministic Compilation Profile Gap Plan: Completed (2026-02-25)
 - M3 Conformance and Repro Evidence Mapping: Completed (2026-02-25)
 - M4 Matrix and Governance Sync Update: In Progress
@@ -106,6 +106,20 @@ It does not redefine T81Lang semantics, freeze boundaries, or DCP scope.
 | Control flow (`if`/`match`/`loop`) | `spec/t81lang-spec.md` section 6 | parser/semantic/IR control-flow handling | Partial | `tests/cpp/e2e_if_statement_test.cpp`, `tests/cpp/e2e_match_expression_test.cpp`, `tests/cpp/e2e_loop_statement_test.cpp`, `tests/cpp/semantic_analyzer_match_test.cpp` |
 | Axion integration metadata | `spec/t81lang-spec.md` section 7 | metadata and policy-related frontend paths | Partial | `tests/cpp/axion_loop_metadata_test.cpp`, `tests/cpp/axion_match_metadata_test.cpp`, `tests/cpp/e2e_axion_trace_test.cpp` |
 | Stdlib surface alignment | `spec/t81lang-spec.md` section 8 | `lang/stdlib/std/*.t81` + CLI fixtures | Partial | `tests/cpp/cli_std_text_fixtures_test.cpp`, `tests/cpp/cli_std_bytes_fixtures_test.cpp`, `tests/cpp/cli_std_collections_fixtures_test.cpp`, `tests/cpp/cli_std_tensor_fixtures_test.cpp`, `tests/cpp/cli_std_runtime_fixtures_test.cpp`, `tests/cpp/cli_std_symbol_fixtures_test.cpp` |
+
+## Appendix A Parser Coverage Matrix (A1-CODE-01)
+
+| Appendix Production Area | Parser Coverage Status | Evidence |
+| :--- | :--- | :--- |
+| A.1 lexical elements (`identifier`, integer/float/string literals, comments) | Covered | `tests/cpp/frontend_lexer_test.cpp`, `tests/cpp/frontend_parser_appendix_coverage_test.cpp` |
+| A.2 types (`primitive_type`, `generic_type`, `type_parameter_list`) | Covered | `tests/cpp/frontend_parser_generics_test.cpp`, `tests/cpp/frontend_parser_legacy_rejection_test.cpp`, `tests/cpp/frontend_parser_appendix_coverage_test.cpp` |
+| A.3 expressions (assignment/logical/bitwise/shift/term/factor/exponent/unary/call/primary) | Covered | `tests/cpp/test_parser_regression_audit.cpp`, `tests/cpp/frontend_expression_features_test.cpp`, `tests/cpp/frontend_parser_appendix_coverage_test.cpp` |
+| A.3 vector literals (list and repeat forms) | Covered | `tests/cpp/frontend_parser_appendix_coverage_test.cpp`, `tests/cpp/semantic_analyzer_vector_literal_test.cpp` |
+| A.3 `match_expression` and arm guards | Covered | `tests/cpp/frontend_parser_appendix_coverage_test.cpp`, `tests/cpp/frontend_parser_recovery_test.cpp`, `tests/cpp/semantic_analyzer_match_test.cpp` |
+| A.3 block expressions | Covered | `tests/cpp/frontend_parser_appendix_coverage_test.cpp` |
+| A.3 if expressions | Partial | `tests/cpp/e2e_if_statement_test.cpp` (statement-form evidence); expression-form parser coverage remains queued under A1-CODE-05 |
+| A.4 statements (`let`, `var`, expression, return, if, loop, block`) | Covered | `tests/cpp/frontend_parser_test.cpp`, `tests/cpp/frontend_parser_appendix_coverage_test.cpp`, `tests/cpp/frontend_parser_recovery_test.cpp` |
+| A.5 top-level declarations (`fn`, `type`, `record`, `enum`) | Covered | `tests/cpp/frontend_parser_appendix_coverage_test.cpp`, `tests/cpp/t81lang_conformance_baseline_test.cpp` |
 
 ## M2 Deterministic Compilation Profile Gap Plan
 

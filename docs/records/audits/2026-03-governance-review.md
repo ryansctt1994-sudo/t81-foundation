@@ -29,6 +29,8 @@ Planned evidence updates:
 - `docs/status/VERIFIED_SURFACE_AUDIT.md` (gap-plan traceability section updates
   when ready)
 - `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`
+- `tests/cpp/frontend_parser_appendix_coverage_test.cpp` (A1-CODE-01 parser
+  coverage evidence)
 
 ## A2 Tracking — Axion Partial-Coverage Alignment
 
