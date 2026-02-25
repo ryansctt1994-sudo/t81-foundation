@@ -165,7 +165,7 @@ This plan covers three priority tracks:
 2. Maintain A1 closure state in matrix and monthly governance review artifacts through March close.
 3. Maintain C3 link-target integrity status through month close and record any newly introduced stale references.
 4. Maintain A1E closure state in matrix/governance artifacts through March close without expanding deterministic claim scope.
-5. Execute final C2 month-close checklist confirmation and stamp governance review final outcome.
+5. Execute final C2 month-close checklist confirmation on 2026-03-31 and stamp governance review final outcome.
 
 ## Versioning Statement
 

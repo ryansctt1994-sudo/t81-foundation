@@ -215,3 +215,24 @@ Month-close confirmation pending:
 1. Re-validate monthly checklist at March window close and stamp final outcome.
    Owner: @t81dev
    Due Date: 2026-03-31
+
+## Month-Close Finalization Gate (Scheduled)
+
+Scheduled execution date:
+
+- 2026-03-31 (or later within March close window)
+
+Required finalization steps:
+
+1. Re-run `python3 scripts/governance/check_docs_governance_hygiene.py`.
+2. Re-run markdown link-target sweep for:
+   - `docs/status/**/*.md`
+   - `docs/governance/**/*.md`
+   - `docs/product/**/*.md`
+   - `docs/records/audits/**/*.md`
+3. Re-confirm checklist outcomes against
+   `docs/governance/MONTHLY_GOVERNANCE_REVIEW_CHECKLIST.md`.
+4. Stamp final outcome fields:
+   - `Status: Final`
+   - `Finalized Date (UTC): <date>`
+   - `Finalized By: <reviewer>`
