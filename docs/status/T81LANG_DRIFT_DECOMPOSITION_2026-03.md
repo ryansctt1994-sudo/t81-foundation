@@ -253,6 +253,7 @@ freeze boundaries.
 2. Publish section 8 stdlib alignment evidence index tied to existing CLI std
    fixture suites. Completed (A1D-CODE-02, 2026-02-25).
 3. Sync matrix/governance artifacts after A1D evidence updates.
+   Completed (A1D-CODE-03, 2026-02-25).
 
 ## Risks and Controls
 
