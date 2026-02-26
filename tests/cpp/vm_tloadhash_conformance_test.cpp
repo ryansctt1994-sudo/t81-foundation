@@ -144,6 +144,45 @@ void run_tloadhash_ambiguous_payload_fail_closed_case() {
   T81_TEST_CHECK(result.error() == t81::vm::Trap::DecodeFault);
 }
 
+void run_tloadhash_canonfs_miss_case() {
+  t81::weights::NativeTensor tensor;
+  tensor.format = t81::weights::NativeFormat::BalancedTernary;
+  tensor.shape = {2, 2};
+  tensor.trits = 4;
+  tensor.data = {40};
+
+  // Write to an external CanonFS store so the hash exists but not in VM's store.
+  auto source_driver =
+      t81::canonfs::make_persistent_driver(std::filesystem::current_path() / "source_canonfs");
+  auto serialized = serialize_tensor(tensor);
+  auto write = source_driver->write_object(
+      t81::canonfs::ObjectType::CanonTensor,
+      std::span<const std::byte>(serialized.data(), serialized.size()));
+  T81_TEST_CHECK(write.has_value());
+
+  std::string hash_symbol = "sha3-256:" + write->hash.h.to_string();
+  auto program = make_tloadhash_program(hash_symbol);
+  program.axion_policy_text =
+      "(policy (tier 1) (allowed-tensor-hashes [\"" + hash_symbol + "\"]))";
+
+  auto vm = t81::vm::make_interpreter_vm();
+  vm->load_program(program);
+  auto result = vm->run_to_halt();
+  T81_TEST_CHECK(!result.has_value());
+  T81_TEST_CHECK(result.error() == t81::vm::Trap::BoundsFault);
+}
+
+void run_tloadhash_policy_deny_case() {
+  auto program = make_tloadhash_program("sha3-256:invalid-placeholder");
+  program.axion_policy_text = "(policy (tier 1) (allowed-tensor-hashes []))";
+
+  auto vm = t81::vm::make_interpreter_vm();
+  vm->load_program(program);
+  auto result = vm->run_to_halt();
+  T81_TEST_CHECK(!result.has_value());
+  T81_TEST_CHECK(result.error() == t81::vm::Trap::SecurityFault);
+}
+
 }  // namespace
 
 int main() {
@@ -155,6 +194,8 @@ int main() {
   std::filesystem::create_directories(workdir / ".t81_canonfs");
   std::filesystem::current_path(workdir);
 
+  run_tloadhash_canonfs_miss_case();
+  run_tloadhash_policy_deny_case();
   run_tloadhash_success_case();
   run_tloadhash_decode_fault_case();
   run_tloadhash_ambiguous_payload_fail_closed_case();

@@ -123,7 +123,7 @@ Publish explicit dual profile contract:
 ### 5.3 Missing Enforcement Surfaces
 - Behavioral spec-code conformance now includes new executable invariant suites, but remains incomplete at full subsystem and workload breadth.
 - Policy behavior coverage now includes a clause matrix suite (`axion_policy_conformance_matrix_test`) in addition to fail-closed parser/invariant tests.
-- VM behavioral coverage now includes explicit `TLOADHASH` conformance checks for CanonFS tensor-load success and malformed-object decode-fault paths (`t81_vm_tloadhash_conformance_test`).
+- VM behavioral coverage now includes explicit `TLOADHASH` conformance checks for policy deny (`SecurityFault`), CanonFS miss (`BoundsFault`), tensor-load success, and malformed-object decode-fault paths (`t81_vm_tloadhash_conformance_test`).
 - `TLOADHASH` ambiguous payload-layout handling now fails closed (`DecodeFault`) instead of silently no-oping on shape/payload-equal objects.
 - Formal proof depth for governance/security invariants is incomplete.
 - Host-level containment remains intentionally out-of-scope.
