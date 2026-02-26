@@ -210,6 +210,43 @@ jobs:
           path: artifacts/ci_reports/governance_metrics.json
 
   ############################################################################
+  # JOB: benchmark-workload-gate
+  ############################################################################
+  benchmark-workload-gate:
+    name: " benchmark / vm workload gate "
+    needs: spec-and-docs
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Install Dependencies
+        run: |
+          set -eo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends build-essential cmake ninja-build
+
+      - name: Configure CMake (bench-enabled)
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DT81_BUILD_BENCHMARKS=ON
+
+      - name: Build benchmark runner
+        run: cmake --build build --target benchmark_runner --parallel
+
+      - name: Run VM workload benchmark slice
+        run: |
+          ./build/benchmarks/benchmark_runner \
+            --benchmark_filter='BM_VMSimulation_Dispatch|BM_NativeCall_Loop' \
+            --benchmark_min_time=0.02s \
+            --benchmark_format=json \
+            --benchmark_out=bench-vm-workload.json
+
+      - name: Enforce VM workload benchmark guardrail
+        run: |
+          python3 scripts/ci/check_vm_workload_benchmark_regression.py bench-vm-workload.json
+
+  ############################################################################
   # JOB: build-and-test
   ############################################################################
   build-and-test:

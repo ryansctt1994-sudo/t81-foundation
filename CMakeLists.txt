@@ -689,6 +689,10 @@ if(T81_BUILD_TESTS)
                  tests/cpp/vm_state_transition_invariants_test.cpp)
   target_link_libraries(t81_vm_state_transition_invariants_test PRIVATE t81_vm t81_core)
 
+  add_executable(t81_vm_state_transition_conformance_matrix_test
+                 tests/cpp/vm_state_transition_conformance_matrix_test.cpp)
+  target_link_libraries(t81_vm_state_transition_conformance_matrix_test PRIVATE t81_vm t81_core)
+
   add_executable(t81_vm_workload_determinism_test tests/cpp/vm_workload_determinism_test.cpp)
   target_link_libraries(t81_vm_workload_determinism_test PRIVATE t81_vm t81_core)
 
@@ -974,6 +978,10 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
 
   add_executable(axion_policy_invariants_test tests/cpp/axion_policy_invariants_test.cpp)
   target_link_libraries(axion_policy_invariants_test PRIVATE t81_vm t81_core)
+
+  add_executable(axion_policy_allow_deny_determinism_test
+                 tests/cpp/axion_policy_allow_deny_determinism_test.cpp)
+  target_link_libraries(axion_policy_allow_deny_determinism_test PRIVATE t81_vm t81_core)
 
   add_executable(axion_policy_conformance_matrix_test
                  tests/cpp/axion_policy_conformance_matrix_test.cpp)
@@ -1288,6 +1296,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     t81_vm_trace_test
     t81_vm_determinism_property_test
     t81_vm_state_transition_invariants_test
+    t81_vm_state_transition_conformance_matrix_test
     t81_vm_workload_determinism_test
     t81_vm_workload_determinism_tiers_test
     t81_vm_policy_parse_fail_closed_test
@@ -1361,6 +1370,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     axion_policy_match_guard_test
     axion_policy_segment_event_test
     axion_policy_invariants_test
+    axion_policy_allow_deny_determinism_test
     axion_policy_conformance_matrix_test
     axion_loop_metadata_test
     axion_match_metadata_test

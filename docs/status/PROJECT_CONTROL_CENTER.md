@@ -51,6 +51,12 @@ Authority remains:
   - implementation maturity: Beta (`docs/status/T81LANG_PROMOTION_GATE.md`)
 - A1 through A1G closure tracks are complete and synchronized.
 - Governed llama.cpp integration backlog items are complete.
+- Behavioral Conformance Expansion Sprint (2026-02-26) is complete:
+  - VM/Axion conformance matrix suites expanded.
+  - CanonFS integrity matrix expanded (truncate/append/default-read-verify).
+  - Workload determinism tiers expanded (policy-heavy + tensor-access).
+  - Translation semantic gate upgraded with required section-heading parity checks.
+  - CI benchmark gate expanded with VM workload dispatch/native ratio guardrail.
 - Experimental backlog implementation items are complete:
   - Cognitive Tier 1..5 closures
   - Runtime JIT prototype backend uplift
@@ -114,6 +120,7 @@ Authority remains:
 ## 9. Cross-References
 
 - `docs/roadmaps-plans/TASKS.md`
+- `docs/status/BEHAVIORAL_CONFORMANCE_EXPANSION_SPRINT_2026-02-26.md`
 - `docs/status/RELEASE_READINESS_PACKET_2026-03.md`
 - `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md`
 - `docs/status/C2_MONTH_CLOSE_CHECK_2026-03-31.md`

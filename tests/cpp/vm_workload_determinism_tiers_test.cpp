@@ -47,6 +47,12 @@ std::uint64_t signature_for_program(const t81::tisc::Program& p, bool* ok) {
   for (const auto& line : st.printed_output) {
     for (unsigned char c : line) sig = mix(sig, c);
   }
+  for (const auto& ev : st.axion_log) {
+    sig = mix(sig, static_cast<std::uint64_t>(ev.opcode));
+    sig = mix(sig, static_cast<std::uint64_t>(ev.tag));
+    sig = mix(sig, static_cast<std::uint64_t>(ev.value));
+    for (unsigned char c : ev.verdict.reason) sig = mix(sig, c);
+  }
   return sig;
 }
 
@@ -92,6 +98,33 @@ t81::tisc::Program mixed_program() {
   return p;
 }
 
+t81::tisc::Program policy_heavy_program() {
+  t81::tisc::Program p;
+  p.axion_policy_text =
+      "(policy (tier 1) (max-instructions 2048) (max-stack 128) (max-meta-writes 64))";
+  p.insns.push_back({t81::tisc::Opcode::LoadImm, 40, 12, 0});
+  p.insns.push_back({t81::tisc::Opcode::LoadImm, 41, 5, 0});
+  p.insns.push_back({t81::tisc::Opcode::Add, 42, 40, 41});
+  p.insns.push_back({t81::tisc::Opcode::Push, 42, 0, 0});
+  p.insns.push_back({t81::tisc::Opcode::Pop, 43, 0, 0});
+  p.insns.push_back({t81::tisc::Opcode::AxReport, 43, 9, 0});
+  p.insns.push_back({t81::tisc::Opcode::Halt, 0, 0, 0});
+  return p;
+}
+
+t81::tisc::Program tensor_access_program() {
+  t81::tisc::Program p;
+  p.insns.push_back({t81::tisc::Opcode::LoadImm, 40, 4, 0});
+  p.insns.push_back({t81::tisc::Opcode::TNew, 41, 40, 0});
+  p.insns.push_back({t81::tisc::Opcode::LoadImm, 42, 2, 0});
+  p.insns.push_back({t81::tisc::Opcode::LoadImm, 43, 9, 0});
+  p.insns.push_back({t81::tisc::Opcode::TSet, 41, 42, 43});
+  p.insns.push_back({t81::tisc::Opcode::TGet, 44, 41, 42});
+  p.insns.push_back({t81::tisc::Opcode::Print, 44, 0, 0});
+  p.insns.push_back({t81::tisc::Opcode::Halt, 0, 0, 0});
+  return p;
+}
+
 bool validate_tier(const std::string& tier_id, const t81::tisc::Program& p, std::ofstream& out) {
   bool ok = false;
   const std::uint64_t baseline = signature_for_program(p, &ok);
@@ -117,6 +150,8 @@ int main() {
   if (!validate_tier("micro", micro_program(), log)) return 1;
   if (!validate_tier("meso", meso_program(), log)) return 1;
   if (!validate_tier("mixed", mixed_program(), log)) return 1;
+  if (!validate_tier("policy-heavy", policy_heavy_program(), log)) return 1;
+  if (!validate_tier("tensor-access", tensor_access_program(), log)) return 1;
 
   log.flush();
   return 0;

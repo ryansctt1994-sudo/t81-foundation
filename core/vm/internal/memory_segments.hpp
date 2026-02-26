@@ -17,5 +17,6 @@ std::optional<std::size_t> pop_stack_word(const State& state, ThreadContext& ctx
                                           ValueTag& tag);
 
 std::size_t align_block81(std::size_t size);
+MemorySegmentKind segment_for_address(const State& state, std::size_t addr);
 
 }  // namespace t81::vm::internal

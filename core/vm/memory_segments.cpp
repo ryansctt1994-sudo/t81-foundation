@@ -46,4 +46,21 @@ std::size_t align_block81(std::size_t size) {
   return size;
 }
 
+MemorySegmentKind segment_for_address(const State& state, std::size_t addr) {
+  const auto& layout = state.layout;
+  if (layout.stack.contains(addr)) {
+    return MemorySegmentKind::Stack;
+  }
+  if (layout.heap.contains(addr)) {
+    return MemorySegmentKind::Heap;
+  }
+  if (layout.tensor.contains(addr)) {
+    return MemorySegmentKind::Tensor;
+  }
+  if (layout.meta.contains(addr)) {
+    return MemorySegmentKind::Meta;
+  }
+  return MemorySegmentKind::Unknown;
+}
+
 }  // namespace t81::vm::internal

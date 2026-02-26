@@ -29,6 +29,8 @@ cmake --build . --target benchmarks
 We enforce a "Zero Regression Policy" on specific "Hot Path" benchmarks:
 *   **Threshold**: Any regression > 5% on 3 consecutive runs triggers a CI failure.
 *   **Environment**: Benchmarks must be run on pinned hardware (Reference Node) for official gating.
+*   **Workload-level VM gate**: CI now enforces `BM_VMSimulation_Dispatch` vs `BM_NativeCall_Loop`
+    ratio guardrails (`scripts/ci/check_vm_workload_benchmark_regression.py`) for args `32` and `256`.
 
 ## 5. Artifact Retention
 Raw benchmark outputs (`.json` or `.txt`) are stored in `benchmarks/results/` and committed if they represent a release baseline.

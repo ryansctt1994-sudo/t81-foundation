@@ -9,7 +9,7 @@ The repository is a substantial implemented system, not a paper design: compiler
 
 Determinism claims are defensible for bounded, registry/DCP-defined surfaces. They are not defensible as universal guarantees across all runtime/backend surfaces. Tensor/backend and other non-DCP paths remain explicitly outside cross-platform bit-exact scope. CanonFS now re-verifies hash identity on read by default, reducing storage tamper exposure.
 
-Architectural drift is reduced but not eliminated. The primary residual drift class is documentation consistency depth: major surfaces are aligned, but full section-level semantic parity across all multilingual and non-normative docs is not fully machine-proved. Complexity concentration in VM core remains a maintenance risk.
+Architectural drift is reduced but not eliminated. The primary residual drift class is documentation consistency depth: root multilingual README section-level parity is now machine-checked, but full semantic parity across all multilingual/non-normative docs is not fully machine-proved. Complexity concentration in VM core remains a maintenance risk.
 
 Current classification remains **Deterministic Runtime Candidate**. The system is stronger than a research prototype and has credible governance/test discipline, but does not yet meet pre-production infrastructure standards due to remaining assurance-depth and boundary-hardening gaps.
 
@@ -48,7 +48,7 @@ Current classification remains **Deterministic Runtime Candidate**. The system i
 
 ### 2.2 Failure Surface Analysis
 - Bit-exact guarantees are enforced on selected surfaces via CI repro gates (`t81lang`, `t3k`, determinism slice).
-- Workload-level determinism now includes micro/meso/mixed signature tiers with reproducible log artifact output (`build/artifacts/vm_workload_determinism_signatures.log`).
+- Workload-level determinism now includes micro/meso/mixed/policy-heavy/tensor-access signature tiers with reproducible log artifact output (`build/artifacts/vm_workload_determinism_signatures.log`).
 - Trace mode now enforces policy per instruction (prior boundary-only gap closed).
 - Float path hardening improved: strict deterministic float profile is defaulted (`T81_STRICT_DETERMINISTIC_FLOAT=ON` -> `T81_DETERMINISTIC`).
 - Non-deterministic APIs/surfaces still exist by contract (time, scheduler, allocator addresses, non-DCP tensor/backend).
@@ -149,7 +149,7 @@ Publish explicit dual profile contract:
 - Root README claim posture was normalized to bounded determinism language.
 - Release note caveat language was updated to current fail-closed and strict-float default posture.
 - Active doc overclaim reintroduction is now CI-guarded.
-- Multilingual alignment is now checked for naming, metadata, staleness, and root semantic markers; full deep semantic equivalence remains **Indeterminate**.
+- Multilingual alignment is now checked for naming, metadata, staleness, root semantic markers, and required root README section headings; full deep semantic equivalence remains **Indeterminate**.
 
 ### 6.2 Documentation Credibility Score
 
@@ -158,7 +158,7 @@ Publish explicit dual profile contract:
 | Documentation Credibility | 8.2 |
 
 ### 6.3 Required Corrections
-1. Extend multilingual semantic checks beyond root README markers into broader section-level parity across doc sets.
+1. Extend multilingual semantic checks beyond root README heading parity into deeper section/body semantic equivalence across doc sets.
 2. Continue reducing duplicated/parallel claim surfaces where equivalent contract statements appear in multiple docs.
 
 ---
@@ -169,7 +169,7 @@ Publish explicit dual profile contract:
 - Build/test/toolchain discipline is strong and actively enforced.
 - CI quality gate requires key jobs (spec/docs, build/test, determinism slice, static analysis, sanitizers, fuzzing, benchmarks, tritwise determinism).
 - Test inventory is broad (270 tests currently discovered by CTest).
-- Benchmark regression gating is now required in CI (SIMD-focused).
+- Benchmark regression gating is now required in CI and now includes a VM workload dispatch/native ratio guardrail in addition to SIMD-focused checks.
 - Static analysis coverage improved but not full-repo exhaustive.
 
 ### 7.2 Deliverables
@@ -208,8 +208,8 @@ A technically serious deterministic runtime platform with unusually strong gover
 1. Non-DCP tensor/backend surfaces remain outside universal bit-exact guarantees.
 2. VM core complexity concentration increases regression and maintainability risk.
 3. Spec-code assurance is still baseline-oriented, not full behavioral conformance coverage.
-4. Multilingual semantic parity is partially machine-checked but not full-depth across all docs.
-5. Workload-level determinism validation breadth is still narrower than full production workload space.
+4. Multilingual semantic parity is machine-checked at root section depth, but not yet full-depth across all docs.
+5. Workload-level determinism validation breadth improved but remains narrower than full production workload space.
 
 ### 9.2 Most Valuable Strengths (Top 5)
 1. High-rigor CI with hard-fail governance and determinism gates.
@@ -232,7 +232,8 @@ Execute **Behavioral Conformance Expansion Sprint (Phase 2)**: extend newly adde
 - VM decomposition plan baseline: `docs/status/VM_MONOLITH_DECOMPOSITION_PLAN_2026-02-26.md`
 - Freeze integrity gate: `scripts/ci/check_tisc_freeze_integrity.py`
 - Translation governance: `scripts/governance/check_translation_*.py`
-- Test inventory: `ctest --test-dir build -N` (269 tests)
+- Workload benchmark gate: `scripts/ci/check_vm_workload_benchmark_regression.py`
+- Test inventory: `ctest --test-dir build -N` (276 tests)
 
 ## Audit Notes
 - Items with insufficient direct evidence are explicitly marked **Indeterminate**.

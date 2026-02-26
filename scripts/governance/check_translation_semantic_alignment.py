@@ -29,6 +29,14 @@ def main() -> int:
             "banned_regex": [
                 r"eliminar el no determinismo de punto flotante",
             ],
+            "required_headings": [
+                "## Características",
+                "## Arquitectura",
+                "## Inicio Rápido",
+                "## Plataformas Soportadas",
+                "## Ejemplos CLI",
+                "## Mapa de Autoridad Documental",
+            ],
         },
         "README.pt-BR.md": {
             "required": [
@@ -46,6 +54,14 @@ def main() -> int:
             ],
             "banned_regex": [
                 r"eliminar o não-determinismo de ponto flutuante",
+            ],
+            "required_headings": [
+                "## Recursos",
+                "## Arquitetura",
+                "## Início Rápido",
+                "## Plataformas Suportadas",
+                "## Exemplos CLI",
+                "## Mapa de Autoridade Documental",
             ],
         },
         "README.ru.md": {
@@ -65,6 +81,14 @@ def main() -> int:
             "banned_regex": [
                 r"устранения недетерминизма плавающей запятой",
             ],
+            "required_headings": [
+                "## Возможности",
+                "## Архитектура",
+                "## Быстрый Старт",
+                "## Поддерживаемые Платформы",
+                "## Примеры CLI",
+                "## Карта Авторитетной Документации",
+            ],
         },
         "README.zh-CN.md": {
             "required": [
@@ -83,6 +107,14 @@ def main() -> int:
             "banned_regex": [
                 r"消除浮点非确定性",
             ],
+            "required_headings": [
+                "## 特性",
+                "## 架构",
+                "## 快速开始",
+                "## 支持平台",
+                "## CLI 示例",
+                "## 文档权威地图",
+            ],
         },
     }
 
@@ -98,6 +130,9 @@ def main() -> int:
         for pat in cfg["banned_regex"]:
             if re.search(pat, text, flags=re.IGNORECASE):
                 issues.append(f"{rel}: contains banned over-strong phrase /{pat}/")
+        for heading in cfg.get("required_headings", []):
+            if heading not in text:
+                issues.append(f"{rel}: missing required section heading: {heading}")
 
     if issues:
         print("translation semantic alignment check FAILED")

@@ -1211,7 +1211,8 @@ public:
         std::size_t addr = static_cast<std::size_t>(insn.b);
         ctx.registers[insn.a] = state_.memory[addr];
         ctx.register_tags[insn.a] = state_.memory_tags[addr];
-        log_memory_segment_access(insn.opcode, segment_for_address(addr), addr, 1,
+        log_memory_segment_access(
+            insn.opcode, t81::vm::internal::segment_for_address(state_, addr), addr, 1,
                                   t81::axion::reasons::kMemLoad);
         update_flags(ctx.registers[insn.a]);
         break;
@@ -1779,7 +1780,8 @@ public:
         std::size_t addr = static_cast<std::size_t>(insn.a);
         state_.memory[addr] = ctx.registers[insn.b];
         state_.memory_tags[addr] = ctx.register_tags[insn.b];
-        log_memory_segment_access(insn.opcode, segment_for_address(addr), addr, 1,
+        log_memory_segment_access(
+            insn.opcode, t81::vm::internal::segment_for_address(state_, addr), addr, 1,
                                   t81::axion::reasons::kMemStore);
         break;
       }
@@ -2231,7 +2233,7 @@ public:
         }
         auto verdict = eval_axion_call(t81::axion::reasons::kAxRead, current_pc, insn.opcode);
         auto guard_addr = static_cast<std::size_t>(insn.b);
-        auto guard_kind = segment_for_address(guard_addr);
+        auto guard_kind = t81::vm::internal::segment_for_address(state_, guard_addr);
         t81::vm::internal::apply_segment_reason(verdict, "AxRead guard", guard_kind, guard_addr);
         if (verdict.kind == t81::axion::VerdictKind::Deny) {
           record_axion_event(insn.opcode, insn.b, 0, verdict);
@@ -2255,7 +2257,7 @@ public:
         MemorySegmentKind guard_kind = MemorySegmentKind::Unknown;
         if (ctx.registers[insn.a] >= 0) {
           guard_addr = static_cast<std::size_t>(ctx.registers[insn.a]);
-          guard_kind = segment_for_address(guard_addr);
+          guard_kind = t81::vm::internal::segment_for_address(state_, guard_addr);
         }
         t81::vm::internal::apply_segment_reason(verdict, "AxSet guard", guard_kind, guard_addr);
         record_axion_event(insn.opcode, insn.a, value, verdict);
@@ -3821,7 +3823,9 @@ public:
           state_.memory_tags[addr + i] = ValueTag::Int;
         }
         if (trap == Trap::None) {
-          log_memory_segment_access(insn.opcode, segment_for_address(addr), addr, size, "MemZero");
+          log_memory_segment_access(
+              insn.opcode, t81::vm::internal::segment_for_address(state_, addr), addr, size,
+              "MemZero");
         }
         break;
       }
@@ -3847,7 +3851,8 @@ public:
             state_.memory[dst + i] = state_.memory[src + i];
             state_.memory_tags[dst + i] = state_.memory_tags[src + i];
           }
-          log_memory_segment_access(insn.opcode, segment_for_address(dst), dst, size, "Copy");
+          log_memory_segment_access(
+              insn.opcode, t81::vm::internal::segment_for_address(state_, dst), dst, size, "Copy");
         }
         break;
       }
@@ -4886,23 +4891,6 @@ private:
     return nullptr;
   }
 
-  MemorySegmentKind segment_for_address(std::size_t addr) const {
-    const auto& layout = state_.layout;
-    if (layout.stack.contains(addr)) {
-      return MemorySegmentKind::Stack;
-    }
-    if (layout.heap.contains(addr)) {
-      return MemorySegmentKind::Heap;
-    }
-    if (layout.tensor.contains(addr)) {
-      return MemorySegmentKind::Tensor;
-    }
-    if (layout.meta.contains(addr)) {
-      return MemorySegmentKind::Meta;
-    }
-    return MemorySegmentKind::Unknown;
-  }
-
   void log_memory_segment_access(t81::tisc::Opcode opcode, MemorySegmentKind kind, std::size_t addr,
                                  std::size_t size, std::string_view action) {
     t81::axion::Verdict verdict;
@@ -4924,7 +4912,7 @@ private:
   void log_bounds_fault(t81::tisc::Opcode opcode, int addr, std::string_view action) {
     MemorySegmentKind kind = MemorySegmentKind::Unknown;
     if (addr >= 0) {
-      kind = segment_for_address(static_cast<std::size_t>(addr));
+      kind = t81::vm::internal::segment_for_address(state_, static_cast<std::size_t>(addr));
     }
     log_bounds_fault(opcode, kind, addr, action);
   }

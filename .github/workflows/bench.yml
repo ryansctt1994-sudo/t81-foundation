@@ -57,6 +57,9 @@ jobs:
       - name: Run benchmarks
         run: ./build/benchmarks/benchmark_runner --benchmark_format=json --benchmark_out=bench.json
 
+      - name: Enforce VM workload benchmark guardrail
+        run: python3 scripts/ci/check_vm_workload_benchmark_regression.py bench.json
+
       - name: Upload benchmark artifacts
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0

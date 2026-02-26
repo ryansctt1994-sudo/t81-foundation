@@ -52,7 +52,7 @@ Purpose: cognitive-tier limit/threshold helpers.
  - Completed: shared native tensor decode path (`WeightsTensorHandle` promotion + `TLoadHash` decode) extracted to `tensor_helpers`; CanonFS tensor-object parsing, decode-or-fail gate, hash-ref parsing, and CanonFS fetch/decode status classification moved out of `vm.cpp`; tensor compute paths (`TSqrt`, `TExp`, `TSiLU`, `TSoftmax`, `TVecAdd/TVecMul`, `TTranspose`, `TMatMul`, `TTenDot`, `TRMSNorm`, `TRoPE`) now call helper modules; `TGet/TSet/TNew/TID` core operations and tensor shape-compatibility predicates are helper-centralized.
 6. Phase F: Final dispatch slimming
 - Reduce `vm.cpp` to dispatch integration and module wiring.
- - Completed: tensor checked trap-routing (`TVec*`, `TTranspose`, `TMatMul`, `TTenDot`, `TGet`, `TSet`) now helper-driven; system-register/signature computations extracted to `runtime_state_helpers`; GC mark/sweep and heap compaction extracted to `gc_helpers`; Axion event push/meta-slot/structured-recording extracted to `policy_trace_bridge`.
+ - Completed: tensor checked trap-routing (`TVec*`, `TTranspose`, `TMatMul`, `TTenDot`, `TGet`, `TSet`) now helper-driven; system-register/signature computations extracted to `runtime_state_helpers`; GC mark/sweep and heap compaction extracted to `gc_helpers`; Axion event push/meta-slot/structured-recording extracted to `policy_trace_bridge`; segment-kind resolution moved to `memory_segments` helper.
 
 ## Verification Gates Per Phase
 - `ctest --test-dir build -R "t81_vm_.*|vm_.*|axion_.*|jit_.*|determinism.*|canonfs_.*"`
