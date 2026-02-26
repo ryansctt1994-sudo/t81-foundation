@@ -14,6 +14,7 @@ specification authority, freeze boundaries, or determinism claim scope.
 
 ## Navigation
 
+- llama-governed-repro.md
 - ../guides/
 - ../reference/
 - ../status/

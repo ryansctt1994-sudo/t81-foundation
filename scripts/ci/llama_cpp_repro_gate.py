@@ -16,7 +16,7 @@ PROMPT_HASH_RE = re.compile(r"^prompt_hash:\s*(\S+)\s*$", re.MULTILINE)
 
 def run_once(
     t81_bin: Path,
-    model: Path,
+    model: str,
     policy: Path,
     prompt: str,
     max_tokens: int,
@@ -30,7 +30,7 @@ def run_once(
     cmd = [
         str(t81_bin),
         "llama-run",
-        str(model),
+        model,
         prompt,
         "--policy",
         str(policy),
@@ -82,14 +82,16 @@ def main() -> int:
     args = ap.parse_args()
 
     t81_bin = Path(args.t81_bin)
-    model = Path(args.model)
+    model_spec = args.model
     policy = Path(args.policy)
     hash_out = Path(args.hash_out)
 
     if not t81_bin.exists():
         raise RuntimeError(f"missing t81 binary: {t81_bin}")
-    if not model.exists():
-        raise RuntimeError(f"missing model: {model}")
+    if not model_spec.startswith("sha3-256:"):
+        model = Path(model_spec)
+        if not model.exists():
+            raise RuntimeError(f"missing model: {model}")
     if not policy.exists():
         raise RuntimeError(f"missing policy: {policy}")
     if args.runs < 2:
@@ -99,7 +101,7 @@ def main() -> int:
     for _ in range(args.runs):
         out = run_once(
             t81_bin=t81_bin,
-            model=model,
+            model=model_spec,
             policy=policy,
             prompt=args.prompt,
             max_tokens=args.max_tokens,

@@ -36,22 +36,28 @@ architecture direction, while classifying this surface as governed non-DCP.
    - `t81 llama-run <model.gguf> <prompt> --policy <policy.apl> [options]`
    - deterministic defaults: `temperature=0`, `top_k=1`, `top_p=1`, `threads=1`, `seed=0`
    - emits `token_ids_csv` for reproducibility checks
+   - now accepts CanonFS model hash input: `sha3-256:<hash>`
+   - new option: `--canonfs-root <path>` for hash-based model loading
 
-6. Reproducibility gate script added:
+6. New raw CanonFS ingestion command:
+   - `t81 canonize-file <file> [--canonfs-root <path>]`
+   - stores raw file bytes in CanonFS and prints `sha3-256:<hash>`
+
+7. Reproducibility gate script added:
    - `scripts/ci/llama_cpp_repro_gate.py`
    - runs `t81 llama-run` repeatedly and fails on drift in:
      - `model_hash`
      - `prompt_hash`
      - `token_ids_csv`
 
-7. Optional CTest hook added:
+8. Optional CTest hook added:
    - `llama_cpp_repro_gate_test`
    - only registered when all three are set at configure time:
      - `T81_LLAMA_REPRO_MODEL`
      - `T81_LLAMA_REPRO_POLICY`
      - `T81_LLAMA_REPRO_PROMPT`
 
-8. Governance docs updated:
+9. Governance docs updated:
    - new pin file: `docs/governance/EXTERNAL_DEPENDENCY_PINS.md`
    - governance index updated to include dependency pin doc
 
@@ -69,10 +75,9 @@ All commands above succeeded in this workspace.
 
 ## Known Gaps vs AGI How-To Intent
 
-1. CanonFS-first model loading path is not yet implemented for `llama-run`.
-2. This is practical reproducibility, not DCP-level cross-platform determinism.
-3. `t81_llama_adapter` is currently build-only (not exported/installed target).
-4. No checked-in real model/policy fixture pair yet for automated gate execution in CI.
+1. This is practical reproducibility, not DCP-level cross-platform determinism.
+2. `t81_llama_adapter` is currently build-only (not exported/installed target).
+3. No checked-in real model/policy fixture pair yet for automated gate execution in CI.
 
 ## Current Working Tree Impact
 
@@ -95,10 +100,9 @@ Untracked dependency directory:
 
 ## Recommended Next Pickup Steps
 
-1. Add CanonFS hash input mode to `llama-run` (model by canonical hash, not path only).
-2. Add one sanctioned model/policy fixture pair for local/CI reproducibility gate.
-3. Decide whether `t81_llama_adapter` should be exported as package target or remain internal.
-4. Add short how-to documenting exact `llama-run` governance workflow.
+1. Add one sanctioned model/policy fixture pair for local/CI reproducibility gate.
+2. Decide whether `t81_llama_adapter` should be exported as package target or remain internal.
+3. Extend CI workflow(s) with guarded llama repro execution when fixtures are available.
 
 ## Versioning Statement
 

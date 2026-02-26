@@ -33,6 +33,8 @@
 
 #include "t81/cli/driver.hpp"
 #include "internal/tooling/logging.hpp"
+#include "t81/canonfs/canon_driver.hpp"
+#include "t81/canonfs/canon_types.hpp"
 #include "t81/frontend/ir_generator.hpp"
 #include "t81/frontend/lexer.hpp"
 #include "t81/frontend/parser.hpp"
@@ -40,6 +42,7 @@
 #include "t81/isa/binary_emitter.hpp"
 #include "t81/isa/binary_io.hpp"
 #include "t81/isa/program.hpp"
+#include "t81/tracing/canonhash.hpp"
 #include "t81/vm/vm.hpp"
 #include "t81/weights.hpp"
 #if defined(T81_HAS_LLAMA_CPP)
@@ -99,6 +102,45 @@ struct TempTiscFile {
   }
 };
 
+struct TempBinaryFile {
+  fs::path path;
+
+  explicit TempBinaryFile(const std::string& hint, const std::string& ext = ".bin") {
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
+    std::uniform_int_distribution<uint64_t> dist;
+
+    while (true) {
+      path = fs::temp_directory_path() / ("t81-" + hint + "-" + std::to_string(dist(gen)) + ext);
+
+      std::string path_str = path.string();
+#if defined(_WIN32)
+      int fd =
+          _open(path_str.c_str(), _O_CREAT | _O_EXCL | _O_RDWR | _O_BINARY, _S_IREAD | _S_IWRITE);
+#else
+      int fd = open(path_str.c_str(), O_CREAT | O_EXCL | O_RDWR, 0600);
+#endif
+      if (fd != -1) {
+#if defined(_WIN32)
+        _close(fd);
+#else
+        close(fd);
+#endif
+        break;
+      }
+      if (errno != EEXIST) {
+        throw std::runtime_error("Failed to create temporary file: " + path_str +
+                                 " (errno: " + std::to_string(errno) + ")");
+      }
+    }
+  }
+
+  ~TempBinaryFile() {
+    std::error_code ec;
+    fs::remove(path, ec);
+  }
+};
+
 // ──────────────────────────────────────────────────────────────
 // Version & Help
 // ──────────────────────────────────────────────────────────────
@@ -149,9 +191,17 @@ Subcommands:
 )";
 }
 
+void print_help_canonize_file() {
+  std::cerr << R"(
+Usage: t81 canonize-file <file> [--canonfs-root <path>]
+
+Writes raw file bytes into CanonFS and prints `sha3-256:<hash>`.
+)";
+}
+
 void print_help_llama_run() {
   std::cerr << R"(
-Usage: t81 llama-run <model.gguf> <prompt> --policy <policy.apl> [options]
+Usage: t81 llama-run <model.gguf|sha3-256:hash> <prompt> --policy <policy.apl> [options]
 
 Options:
   --max-tokens <n>          Maximum generated tokens (default: 64)
@@ -161,6 +211,7 @@ Options:
   --top-k <n>               Top-k (default: 1)
   --top-p <x>               Top-p (default: 1.0)
   --expected-model-hash <h> Enforce exact model hash before inference
+  --canonfs-root <path>     CanonFS root for hash-based model loading (default: ./.t81_canonfs)
 
 Notes:
   - This surface is experimental and non-DCP.
@@ -186,6 +237,7 @@ Commands:
   check   <file.t81>                   Syntax-check only
   repro-hash [fixtures_dir]            Run T81Lang determinism fixture hash gate
   canonize-tensor <file>               Canonize tensor file to CanonFS store
+  canonize-file <file>                 Canonize raw file bytes to CanonFS (prints sha3-256 hash)
   init    <project_name>               Scaffold a new T81 project
   pkg     <command> [args]             T81 package manager (init, check)
   lint    <file.t81>                   Alias for check; performs semantic analysis
@@ -356,7 +408,7 @@ Args parse_args(int argc, char* argv[]) {
       } else if (a.command == "weights" || a.command == "init" || a.command == "pkg" ||
                  a.command == "repro-hash" || a.command == "policy" || a.command == "trace" ||
                  a.command == "llama-run" ||
-                 a.command == "canonize-tensor") {
+                 a.command == "canonize-tensor" || a.command == "canonize-file") {
         a.command_args.emplace_back(argv[i]);
       } else {
         error("Unknown option: " + std::string(arg));
@@ -368,7 +420,7 @@ Args parse_args(int argc, char* argv[]) {
       } else if (a.command == "weights" || a.command == "init" || a.command == "pkg" ||
                  a.command == "repro-hash" || a.command == "policy" || a.command == "trace" ||
                  a.command == "llama-run" ||
-                 a.command == "canonize-tensor") {
+                 a.command == "canonize-tensor" || a.command == "canonize-file") {
         a.command_args.emplace_back(argv[i]);
       } else {
         if (!a.input.empty()) {
@@ -706,6 +758,51 @@ int run_repro_hash(const char* command_name, const Args& args) {
   return 0;
 }
 
+int run_canonize_file(const Args& args) {
+  if (args.command_args.empty()) {
+    error("canonize-file requires an input file");
+    return 1;
+  }
+
+  fs::path input = args.command_args[0];
+  fs::path canon_root = fs::current_path() / ".t81_canonfs";
+  for (size_t i = 1; i < args.command_args.size(); ++i) {
+    const std::string& token = args.command_args[i];
+    if (token == "--canonfs-root") {
+      if (++i >= args.command_args.size()) {
+        error("canonize-file: missing value for --canonfs-root");
+        return 1;
+      }
+      canon_root = fs::path(args.command_args[i]);
+    } else {
+      error("canonize-file: unknown argument '" + token + "'");
+      return 1;
+    }
+  }
+
+  std::ifstream in(input, std::ios::binary);
+  if (!in) {
+    error("Could not open input file: " + input.string());
+    return 1;
+  }
+  std::vector<char> raw((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+  std::vector<std::byte> bytes;
+  bytes.reserve(raw.size());
+  for (char c : raw) {
+    bytes.push_back(static_cast<std::byte>(static_cast<unsigned char>(c)));
+  }
+
+  auto driver = t81::canonfs::make_persistent_driver(canon_root);
+  auto write_res = driver->write_object(t81::canonfs::ObjectType::RawBlock, bytes);
+  if (!write_res) {
+    error("canonize-file: failed to write CanonFS object");
+    return 1;
+  }
+
+  std::cout << "sha3-256:" << write_res->hash.h.to_string() << "\n";
+  return 0;
+}
+
 int parse_int_arg(const std::string& text, const char* flag, int min_value, int max_value) {
   int value = 0;
   auto begin = text.data();
@@ -743,6 +840,7 @@ int run_llama_run(const Args& args) {
   float top_p = 1.0f;
   float temperature = 0.0f;
   std::string expected_model_hash;
+  fs::path canonfs_root = fs::current_path() / ".t81_canonfs";
 
   for (size_t i = 0; i < args.command_args.size(); ++i) {
     const std::string& token = args.command_args[i];
@@ -788,6 +886,12 @@ int run_llama_run(const Args& args) {
         return 1;
       }
       expected_model_hash = args.command_args[i];
+    } else if (token == "--canonfs-root") {
+      if (++i >= args.command_args.size()) {
+        error("llama-run: missing value for --canonfs-root");
+        return 1;
+      }
+      canonfs_root = fs::path(args.command_args[i]);
     } else if (!token.empty() && token.front() == '-') {
       error("llama-run: unknown option '" + token + "'");
       return 1;
@@ -809,7 +913,42 @@ int run_llama_run(const Args& args) {
   std::string policy_text((std::istreambuf_iterator<char>(policy_stream)),
                           std::istreambuf_iterator<char>());
 
-  auto adapter = t81::experimental::LlamaCppAdapter::create(positional[0], policy_text);
+  fs::path model_path = positional[0];
+  std::optional<TempBinaryFile> temp_model_file;
+  if (positional[0].rfind("sha3-256:", 0) == 0) {
+    std::string stripped = positional[0].substr(std::string("sha3-256:").size());
+    t81::canonfs::CanonHash hash;
+    try {
+      hash.h = t81::hash::CanonHash81::from_string(stripped);
+    } catch (...) {
+      error("llama-run: invalid canonical hash: " + positional[0]);
+      return 1;
+    }
+
+    auto driver = t81::canonfs::make_persistent_driver(canonfs_root);
+    t81::canonfs::CanonRef ref{hash};
+    auto read_res = driver->read_object_bytes(ref);
+    if (!read_res) {
+      error("llama-run: CanonFS model hash not found under " + canonfs_root.string());
+      return 1;
+    }
+
+    temp_model_file.emplace("llama-model", ".gguf");
+    std::ofstream out(temp_model_file->path, std::ios::binary | std::ios::trunc);
+    if (!out) {
+      error("llama-run: failed to create temporary model file");
+      return 1;
+    }
+    const auto& bytes = read_res.value();
+    out.write(reinterpret_cast<const char*>(bytes.data()), static_cast<std::streamsize>(bytes.size()));
+    if (!out.good()) {
+      error("llama-run: failed writing temporary model bytes");
+      return 1;
+    }
+    model_path = temp_model_file->path;
+  }
+
+  auto adapter = t81::experimental::LlamaCppAdapter::create(model_path, policy_text);
   if (!adapter.has_value()) {
     error("llama-run: adapter init failed: " + adapter.error());
     return 1;
@@ -877,6 +1016,8 @@ int main(int argc, char* argv[]) {
           print_help_policy();
         else if (sub == "trace")
           print_help_trace();
+        else if (sub == "canonize-file")
+          print_help_canonize_file();
         else if (sub == "llama-run")
           print_help_llama_run();
         else {
@@ -984,6 +1125,9 @@ int main(int argc, char* argv[]) {
         return 1;
       }
       return t81::cli::canonize_tensor(args.command_args[0]);
+
+    } else if (args.command == "canonize-file") {
+      return run_canonize_file(args);
 
     } else if (args.command == "init") {
       if (args.command_args.empty()) {
