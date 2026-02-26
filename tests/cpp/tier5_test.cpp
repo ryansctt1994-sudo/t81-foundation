@@ -78,6 +78,28 @@ void test_unknown_type() {
   std::cout << "Unknown Type: Passed (Stub behavior)\n";
 }
 
+void test_lazy_geometric_expansion() {
+  InfiniteCanonicalForm form;
+  form.type = SeriesType::Geometric;
+  form.first_term = T81Fraction::from_int(1);
+  form.ratio = T81Fraction(T81BigInt::from_int64(1), T81BigInt::from_int64(2));  // 1/2
+
+  form.seed_lazy_prefix();
+  [[maybe_unused]] bool expanded = form.expand_lazy(3);
+  assert(expanded);
+  assert(form.lazy_terms.size() == 4);
+
+  T81Fraction half(T81BigInt::from_int64(1), T81BigInt::from_int64(2));
+  T81Fraction quarter(T81BigInt::from_int64(1), T81BigInt::from_int64(4));
+  T81Fraction eighth(T81BigInt::from_int64(1), T81BigInt::from_int64(8));
+
+  assert(t81::T81Fraction::cmp(form.lazy_terms[0], T81Fraction::from_int(1)) == 0);
+  assert(t81::T81Fraction::cmp(form.lazy_terms[1], half) == 0);
+  assert(t81::T81Fraction::cmp(form.lazy_terms[2], quarter) == 0);
+  assert(t81::T81Fraction::cmp(form.lazy_terms[3], eighth) == 0);
+  std::cout << "Lazy Geometric Expansion: Passed\n";
+}
+
 int main() {
   std::cout << "Running Tier 5 Infinite Series Tests...\n";
 
@@ -85,6 +107,7 @@ int main() {
   test_geometric_divergent();
   test_geometric_divergent_neg();
   test_unknown_type();
+  test_lazy_geometric_expansion();
 
   std::cout << "All Tier 5 tests passed!\n";
   return 0;

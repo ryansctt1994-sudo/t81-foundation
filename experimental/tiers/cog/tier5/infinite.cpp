@@ -4,7 +4,30 @@
 
 namespace t81::cog::v5 {
 
+void InfiniteCanonicalForm::seed_lazy_prefix() {
+  if (!lazy_terms.empty()) {
+    return;
+  }
+  lazy_terms.push_back(first_term);
+}
+
+bool InfiniteCanonicalForm::expand_lazy(std::size_t steps) {
+  if (type != SeriesType::Geometric) {
+    return false;
+  }
+  if (steps == 0) {
+    return true;
+  }
+  seed_lazy_prefix();
+  for (std::size_t i = 0; i < steps; ++i) {
+    const t81::T81Fraction next = t81::T81Fraction::mul(lazy_terms.back(), ratio);
+    lazy_terms.push_back(next);
+  }
+  return true;
+}
+
 void InfiniteCanonicalForm::collapse() {
+  seed_lazy_prefix();
   if (type == SeriesType::Geometric) {
     // Geometric series sum: S = a / (1 - r)
     // Converges if |r| < 1 (i.e., -1 < r < 1)

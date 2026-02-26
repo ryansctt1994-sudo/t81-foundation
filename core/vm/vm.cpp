@@ -4313,6 +4313,7 @@ public:
         t81::cog::v5::InfiniteCanonicalForm form;
         form.first_term = start_val;
         form.type = t81::cog::v5::SeriesType::Geometric;
+        form.seed_lazy_prefix();
 
         auto res = alloc_infinite_form(std::move(form));
         if (!res) {
@@ -4353,6 +4354,7 @@ public:
         }
 
         form->ratio = ratio_val;
+        form->expand_lazy(1);
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "InfExpand"};
         record_axion_event(insn.opcode, 0, ctx.registers[insn.a], verdict);

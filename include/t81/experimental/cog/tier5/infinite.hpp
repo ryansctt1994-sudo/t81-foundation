@@ -19,7 +19,10 @@ struct InfiniteCanonicalForm {
   t81::T81Fraction first_term;  // a
   t81::T81Fraction ratio;       // r
   t81::T81Fraction sum;         // S = a / (1 - r)
+  std::vector<t81::T81Fraction> lazy_terms;
 
+  void seed_lazy_prefix();
+  bool expand_lazy(std::size_t steps = 1);
   void collapse();
 };
 
