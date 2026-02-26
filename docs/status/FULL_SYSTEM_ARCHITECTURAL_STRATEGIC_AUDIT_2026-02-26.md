@@ -126,6 +126,7 @@ Publish explicit dual profile contract:
 - VM behavioral coverage now includes explicit `TLOADHASH` conformance checks for policy deny (`SecurityFault`), CanonFS miss (`BoundsFault`), tensor-load success, and malformed-object decode-fault paths (`t81_vm_tloadhash_conformance_test`).
 - `TLOADHASH` ambiguous payload-layout handling now fails closed (`DecodeFault`) instead of silently no-oping on shape/payload-equal objects.
 - VM Phase-E decomposition advanced further: CanonFS tensor object parse+decode gate for `TLOADHASH` is now encapsulated in tensor helpers instead of inline in `vm.cpp`.
+- `TLOADHASH` hash normalization/CanonRef parsing is now encapsulated in tensor helpers, reducing VM dispatch-path parsing logic concentration.
 - Formal proof depth for governance/security invariants is incomplete.
 - Host-level containment remains intentionally out-of-scope.
 

@@ -1252,23 +1252,13 @@ public:
           break;
         }
 
-        std::string stripped;
-        if (hash_str.starts_with("sha3-256:")) {
-          stripped = hash_str.substr(9);
-        } else {
-          stripped = hash_str;
-        }
-
-        t81::canonfs::CanonHash ch;
-        try {
-          ch.h = t81::hash::CanonHash81::from_string(stripped);
-        } catch (...) {
+        auto ref = t81::vm::internal::parse_canon_tensor_ref(hash_str);
+        if (!ref.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
 
-        t81::canonfs::CanonRef ref{ch};
-        auto obj_res = canonfs_driver_->read_object_bytes(ref);
+        auto obj_res = canonfs_driver_->read_object_bytes(*ref);
         if (!obj_res) {
           t81::axion::Verdict miss_verdict;
           miss_verdict.kind = t81::axion::VerdictKind::Allow;

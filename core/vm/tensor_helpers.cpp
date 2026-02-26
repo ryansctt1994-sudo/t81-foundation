@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <cstring>
 
+#include "t81/tracing/canonhash.hpp"
+
 namespace t81::vm::internal {
 
 std::size_t tensor_shape_complexity(const t81::T729DynamicTensor& tensor) {
@@ -203,6 +205,21 @@ std::optional<t81::T729DynamicTensor> decode_canon_tensor_object(
   }
 
   return decode_native_tensor(*native, TensorDecodeMode::Lenient);
+}
+
+std::optional<t81::canonfs::CanonRef> parse_canon_tensor_ref(std::string_view hash_text) {
+  std::string stripped(hash_text);
+  if (stripped.rfind("sha3-256:", 0) == 0) {
+    stripped = stripped.substr(9);
+  }
+
+  t81::canonfs::CanonHash ch;
+  try {
+    ch.h = t81::hash::CanonHash81::from_string(stripped);
+  } catch (...) {
+    return std::nullopt;
+  }
+  return t81::canonfs::CanonRef{ch};
 }
 
 }  // namespace t81::vm::internal

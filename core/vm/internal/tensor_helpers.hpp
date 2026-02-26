@@ -2,8 +2,10 @@
 
 #include <cstddef>
 #include <optional>
+#include <string_view>
 #include <vector>
 
+#include "t81/canonfs/canon_types.hpp"
 #include "t81/weights.hpp"
 #include "t81/vm/state.hpp"
 
@@ -36,5 +38,7 @@ std::optional<t81::weights::NativeTensor> parse_canon_tensor_object(
 
 std::optional<t81::T729DynamicTensor> decode_canon_tensor_object(
     const std::vector<std::byte>& bytes);
+
+std::optional<t81::canonfs::CanonRef> parse_canon_tensor_ref(std::string_view hash_text);
 
 }  // namespace t81::vm::internal
