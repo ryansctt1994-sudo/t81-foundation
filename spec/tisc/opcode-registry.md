@@ -116,9 +116,9 @@ Source of Truth: VM + opcode headers
 | Trap | 28 (0x1C) | A, B, C | Raise Trap | Yes | core/vm/vm.cpp |
 | Assert | 132 (0x84) | A, B, C | Runtime Assertion | Yes | core/vm/vm.cpp |
 | AxCheck | 158 (0x9E) | A, B, C | Axion Check (Stub) | Yes | core/vm/vm.cpp |
-| AxSign | 159 (0x9F) | A, B, C | Axion Sign (Stub) | Yes | core/vm/vm.cpp |
-| AxLineage | 160 (0xA0) | A, B, C | Axion Lineage (Stub) | Yes | core/vm/vm.cpp |
-| AxCanon | 161 (0xA1) | A, B, C | Axion Canon (Stub) | Yes | core/vm/vm.cpp |
+| AxSign | 159 (0x9F) | A, B, C | Axion Sign (Unimplemented; fail-closed) | Yes | core/vm/vm.cpp |
+| AxLineage | 160 (0xA0) | A, B, C | Axion Lineage (Unimplemented; fail-closed) | Yes | core/vm/vm.cpp |
+| AxCanon | 161 (0xA1) | A, B, C | Axion Canon (Unimplemented; fail-closed) | Yes | core/vm/vm.cpp |
 | AxReport | 162 (0xA2) | A, B, C | Axion Report (Stub) | Yes | core/vm/vm.cpp |
 
 ### 2.8 Tensor / Neural

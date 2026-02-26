@@ -248,9 +248,9 @@ Shift amounts are masked with `0x3F` (AND 63) to ensure deterministic execution 
 | `0x18` | `AXVERIFY` | `A: Dest` | - | Returns Axion policy verification status (Allow/Deny). | SecurityFault |
 | `0x83` | `AXHALT` | - | - | Emergency halt triggered by Axion. | SecurityFault |
 | `0x9E` | `AXCHECK` | - | - | Stub: Explicit Axion Policy Check. | Axion Event |
-| `0x9F` | `AXSIGN` | - | - | Stub: Signs execution state. | Axion Event |
-| `0xA0` | `AXLINEAGE` | - | - | Stub: Records lineage event. | Axion Event |
-| `0xA1` | `AXCANON` | - | - | Stub: Enforces canonicalization policy. | Axion Event |
+| `0x9F` | `AXSIGN` | - | - | Unimplemented privileged opcode; VM must fail closed. | SecurityFault |
+| `0xA0` | `AXLINEAGE` | - | - | Unimplemented privileged opcode; VM must fail closed. | SecurityFault |
+| `0xA1` | `AXCANON` | - | - | Unimplemented privileged opcode; VM must fail closed. | SecurityFault |
 | `0xA2` | `AXREPORT` | - | - | Stub: Generates safety report. | Axion Event |
 
 ---

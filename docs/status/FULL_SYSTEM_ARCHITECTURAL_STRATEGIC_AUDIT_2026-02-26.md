@@ -106,7 +106,7 @@ Then reconcile encoding/register semantics into one normative source.
 | Risk Classification | Medium-High |
 
 ### 5.3 Missing Enforcement Surfaces
-- Stronger gating around stub privileged/cognitive opcode surfaces.
+- Remaining hardening for broader stub cognitive surfaces (after privileged Axion-opcode fail-closed remediation).
 - Full sync between governance matrix and actual CI-enforced checks.
 
 ## 6. Documentation vs Reality
@@ -124,7 +124,7 @@ Then reconcile encoding/register semantics into one normative source.
 ### 6.3 Required Corrections
 1. Resolve register and encoding contradictions in normative docs.
 2. Normalize secondary docs (how-to/spec aggregations) to current bounded determinism and process-level isolation language.
-3. Continue Axion enforcement hardening around stub privileged/cognitive opcode surfaces.
+3. Continue Axion enforcement hardening for remaining non-privileged cognitive stub opcode surfaces.
 
 ## 7. Code Quality & Engineering Discipline
 
@@ -132,7 +132,7 @@ Then reconcile encoding/register semantics into one normative source.
 - Build/test matrix is broad and active; local CTest inventory shows 254 tests.
 - Static analysis scope in CI is narrowed to `src/**` compile units, omitting large implementation domains.
 - Governance enforcement matrix references many missing scripts/checks.
-- Workflow pinning policy fails under strict thresholds due to remaining tag-based action refs.
+- Workflow action pinning now passes strict thresholds (`tagged=0`, `unknown=0`) after SHA pinning remediation.
 
 ### 7.2 Maturity & Refactor Priority
 
@@ -241,6 +241,14 @@ Then make CI fail on any doc/status/translation drift from that contract.
   - deterministic/lossless transcoding to canonical 13-byte interchange
   - explicit profile identifiers at artifact boundaries
   - unchanged opcode semantics and `R0–R80` architectural contract across profiles
+
+### 2026-02-26 (R12)
+- Hardened privileged stub opcode behavior in `core/vm/vm.cpp`:
+  - `AXSIGN`, `AXLINEAGE`, and `AXCANON` now fail closed with deterministic `SecurityFault` and explicit deny-log reasons.
+- Added regression test coverage in `tests/cpp/vm_stubbed_privileged_opcode_fail_closed_test.cpp` and wired it into `CMakeLists.txt`.
+- Updated ISA reference docs for consistency:
+  - `spec/tisc/opcode-semantics.md`
+  - `spec/tisc/opcode-registry.md`
 
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.

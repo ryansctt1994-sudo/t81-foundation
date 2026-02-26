@@ -4865,12 +4865,11 @@ public:
       case t81::tisc::Opcode::AxSign:
       case t81::tisc::Opcode::AxLineage:
       case t81::tisc::Opcode::AxCanon: {
-        // Generic handler for unimplemented/stubbed cognitive opcodes
-        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow,
-                                    "Cognitive Opcode Stub Execution"};
+        // Fail closed for unimplemented privileged Axion opcodes.
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
+                                    "Blocked: unimplemented privileged Axion opcode"};
         record_axion_event(insn.opcode, 0, 0, verdict);
-        // For now, treat as NOP but logged.
-        // In strict mode or future, this might be Unimplemented trap.
+        trap = Trap::SecurityFault;
         break;
       }
       case t81::tisc::Opcode::TNeuralFwd: {
