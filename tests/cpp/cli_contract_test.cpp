@@ -316,6 +316,17 @@ int main(int argc, char* argv[]) {
     T81_TEST_CHECK(contains(json_result.stdout_text, "\"schema\": \"t81.fmt.v1\""));
     T81_TEST_CHECK(contains(json_result.stdout_text, "\"formatter_version\": \"t81-fmt 0.2.0\""));
 
+    const fs::path bad_file = temp_dir / "invalid.t81";
+    {
+      std::ofstream out(bad_file);
+      out << "fn main() -> i32 {\n"
+             "  let x = ;\n"
+             "}\n";
+    }
+    const auto bad_result = run_cli(t81_bin, {"fmt", bad_file.string()});
+    T81_TEST_CHECK(bad_result.exit_code == 1);
+    T81_TEST_CHECK(contains(bad_result.stderr_text, "Invalid .t81 input (cannot safely format)"));
+
     fs::remove_all(temp_dir, ignore_ec);
   }
 
@@ -323,6 +334,13 @@ int main(int argc, char* argv[]) {
     const auto result = run_cli(t81_bin, {"weights", "info"});
     T81_TEST_CHECK(result.exit_code == 1);
     T81_TEST_CHECK(contains(result.stderr_text, "Run 't81 help weights info'"));
+  }
+
+  {
+    const auto result = run_cli(t81_bin, {"weights", "info", "does-not-exist.t81w", "--json"});
+    T81_TEST_CHECK(result.exit_code == 1);
+    T81_TEST_CHECK(contains(result.stdout_text, "\"schema\": \"t81.weights-info.v1\""));
+    T81_TEST_CHECK(contains(result.stdout_text, "\"ok\": false"));
   }
 
   {

@@ -231,7 +231,8 @@ t81 fmt --json <file...>
 t81 fmt --version
 ```
 
-Normalizes whitespace and applies basic `.t81` indentation formatting.
+Normalizes whitespace and applies parser-aware `.t81` indentation formatting.
+For `.t81`, formatting runs syntax validation before and after rewrite and enforces idempotence.
 `--json` uses schema `t81.fmt.v1`.
 
 ### 4.14 `pkg` (labs)
@@ -264,7 +265,8 @@ t81 weights quantize <input> --to-gguf <out>
 ```
 
 Weight import/info/quantization helpers.
-`weights info --json` uses schema `t81.weights-info.v1`.
+`weights info --json` uses schema `t81.weights-info.v1` and returns `ok: false` with
+an `error` field on load failures.
 
 ### 4.17 `policy`
 
@@ -376,6 +378,7 @@ Command-specific non-zero exits:
 | `test` | `2` | `ctest` not available, build metadata missing, or tests failed |
 | `doctor` | `2` | one or more readiness checks failed |
 | `fmt --check` | `2` | formatting drift detected |
+| `fmt` | `1` | invalid input or formatter write/read failures |
 | `pkg check` | `2` | manifest invalid |
 | `trace export` | `1` | invalid args/format/path |
 | `weights info` | `1` | usage or file-loading failure |

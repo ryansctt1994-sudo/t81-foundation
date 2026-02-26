@@ -58,9 +58,13 @@ def main() -> int:
 
     failures: list[str] = []
 
-    def check_object_schema(cmd: list[str], expected_schema: str, context: str) -> None:
+    def check_object_schema(
+        cmd: list[str], expected_schema: str, context: str, allowed_exits: set[int] | None = None
+    ) -> None:
+        if allowed_exits is None:
+            allowed_exits = {0, 2}
         proc = run_cmd([str(t81_bin), *cmd], cwd=repo_root)
-        if proc.returncode not in {0, 2}:
+        if proc.returncode not in allowed_exits:
             failures.append(f"{context}: unexpected exit={proc.returncode}")
             return
         try:
@@ -117,6 +121,14 @@ def main() -> int:
             )
         else:
             failures.append("policy run --json: missing examples/system_integration.apl")
+
+        # weights info (error-path contract for schema stability)
+        check_object_schema(
+            ["weights", "info", str(temp_path / "missing_fixture.t81w"), "--json"],
+            "t81.weights-info.v1",
+            "weights info --json",
+            allowed_exits={1},
+        )
 
         # trace export
         trace_file = temp_path / "trace.txt"

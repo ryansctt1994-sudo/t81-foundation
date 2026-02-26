@@ -1180,11 +1180,41 @@ int run_weights_info(const Args& args) {
     error("weights info requires a .t81w file path. Run 't81 help weights info'.");
     return 1;
   }
+  auto emit_json_error = [&](std::string_view message) {
+    auto escape = [](std::string_view text) {
+      std::string out;
+      out.reserve(text.size() + 8);
+      for (char c : text) {
+        if (c == '\\' || c == '"') out.push_back('\\');
+        if (c == '\n') {
+          out += "\\n";
+          continue;
+        }
+        if (c == '\r') {
+          out += "\\r";
+          continue;
+        }
+        if (c == '\t') {
+          out += "\\t";
+          continue;
+        }
+        out.push_back(c);
+      }
+      return out;
+    };
+    std::cout << "{\n";
+    std::cout << "  \"schema\": \"t81.weights-info.v1\",\n";
+    std::cout << "  \"ok\": false,\n";
+    std::cout << "  \"model\": \"" << escape(path.string()) << "\",\n";
+    std::cout << "  \"error\": \"" << escape(message) << "\"\n";
+    std::cout << "}\n";
+  };
   try {
     auto mf = t81::weights::load_t81w(path);
     if (as_json) {
       std::cout << "{\n";
       std::cout << "  \"schema\": \"t81.weights-info.v1\",\n";
+      std::cout << "  \"ok\": true,\n";
       std::cout << "  \"model\": \"" << path.string() << "\",\n";
       std::cout << "  \"parameters\": " << mf.total_parameters << ",\n";
       std::cout << "  \"trits\": " << mf.total_trits << ",\n";
@@ -1209,6 +1239,10 @@ int run_weights_info(const Args& args) {
       std::cout << "Checksum:     sha3-512:" << mf.checksum << " (CanonFS-ready)\n";
     }
   } catch (const std::exception& e) {
+    if (as_json) {
+      emit_json_error(e.what());
+      return 1;
+    }
     error(e.what());
     return 1;
   }
@@ -1986,6 +2020,40 @@ std::string format_t81_content(std::string_view input) {
   return formatted;
 }
 
+bool validate_t81_source(std::string_view source, std::string_view diag_name, std::string& reason) {
+  std::random_device rd;
+  std::mt19937_64 gen(rd());
+  std::uniform_int_distribution<uint64_t> dist;
+  fs::path tmp_path =
+      fs::temp_directory_path() / ("t81-fmt-validate-" + std::to_string(dist(gen)) + ".t81");
+  {
+    std::ofstream out(tmp_path, std::ios::binary | std::ios::trunc);
+    if (!out) {
+      reason = "validator temp file write failed";
+      return false;
+    }
+    out << source;
+    if (!out.good()) {
+      reason = "validator temp file write failed";
+      return false;
+    }
+  }
+
+  const bool old_quiet = g_flags.quiet;
+  g_flags.quiet = true;
+  const int rc = t81::cli::check_syntax(tmp_path);
+  g_flags.quiet = old_quiet;
+
+  std::error_code ignore_ec;
+  fs::remove(tmp_path, ignore_ec);
+  (void)diag_name;
+  if (rc != 0) {
+    reason = "parse/semantic errors";
+    return false;
+  }
+  return true;
+}
+
 int run_fmt_command(const Args& args) {
   bool check_only = false;
   bool as_json = false;
@@ -2032,7 +2100,22 @@ int run_fmt_command(const Args& args) {
     std::string formatted = normalized;
     const std::string ext = path.extension().string();
     if (ext == ".t81") {
+      std::string parse_reason;
+      if (!validate_t81_source(normalized, path.string(), parse_reason)) {
+        failures.push_back("Invalid .t81 input (cannot safely format): " + path.string() + " (" +
+                           parse_reason + ")");
+        continue;
+      }
       formatted = format_t81_content(normalized);
+      if (format_t81_content(formatted) != formatted) {
+        failures.push_back("Formatter idempotence check failed: " + path.string());
+        continue;
+      }
+      if (!validate_t81_source(formatted, path.string(), parse_reason)) {
+        failures.push_back("Formatter produced invalid .t81 output: " + path.string() + " (" +
+                           parse_reason + ")");
+        continue;
+      }
     }
     if (formatted != original) {
       changed.push_back(path.string());
