@@ -136,6 +136,7 @@ Publish explicit dual profile contract:
 - Tensor shape-compatibility checks for `TVec*`, `TMatMul`, `TRMSNorm`, and `TRoPE` are now helper-centralized, reducing branch-complexity concentration in VM dispatch.
 - VM tensor trap conformance now includes explicit fault expectations for `TSoftmax`, `TTranspose`, `TRoPE`, `TRMSNorm`, `TVecAdd`, `TMatMul`, `TTenDot`, `TGet`, and `TSet` mismatch/OOB/type paths (`t81_vm_tensor_shape_faults_test`).
 - Tensor helper compatibility predicates now have direct regression coverage (`t81_vm_tensor_helper_predicates_test`) to lock shape/compatibility contract behavior independent of dispatch wiring.
+- `TGet`/`TSet` success-path and type-behavior conformance is now explicitly covered (`t81_vm_tensor_get_set_conformance_test`) in addition to fault-path coverage.
 - Formal proof depth for governance/security invariants is incomplete.
 - Host-level containment remains intentionally out-of-scope.
 
