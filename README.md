@@ -28,7 +28,7 @@
 
 ---
 
-# T81 Foundation - Deterministic Ternary-Based Architecture for Governed AGI
+# T81 Foundation - Deterministic Ternary-Based Architecture for Governed AI
 
 ## What T81 Is
 T81 is a deterministic computing platform built around balanced ternary and base-81 data representations, a frozen TISC ISA boundary, and governance-enforced reproducibility for verified determinism surfaces. Bit-exact guarantees are scoped to documented verified surfaces and the Deterministic Core Profile (DCP), not to all repository modules.
