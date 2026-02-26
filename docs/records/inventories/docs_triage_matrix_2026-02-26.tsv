@@ -1,0 +1,272 @@
+path	type	status	last_updated	inbound_links	recommendation	reason
+docs/.DS_Store	none			0	keep	non-markdown artifact
+docs/.bundle/config	none			0	keep	non-markdown artifact
+docs/README.md	md			0	keep	index/readme document
+docs/architecture/ARCHITECTURE_DOC_STANDARD.md	md	Active	2026-02-26	0	update	no inbound docs links detected
+docs/architecture/DEPENDENCY_FIREWALL.md	md			1	keep	active doc or support artifact
+docs/architecture/OVERVIEW.md	md	Active	2026-02-26	1	keep	active doc or support artifact
+docs/architecture/README.md	md	Active	2026-02-26	0	keep	index/readme document
+docs/architecture/adr/ADR-0001-dependency-firewall.md	md	Accepted	2026-02-25	0	update	no inbound docs links detected
+docs/architecture/adr/ADR-0002-deterministic-core-profile.md	md	Accepted	2026-02-25	0	update	no inbound docs links detected
+docs/architecture/adr/ADR-0003-public-api-boundary.md	md	Accepted	2026-02-25	0	update	no inbound docs links detected
+docs/architecture/adr/ADR-0004-determinism-surface-registry.md	md	Accepted	2026-02-25	0	update	no inbound docs links detected
+docs/architecture/adr/ADR_TEMPLATE.md	md	Proposed | Accepted | Superseded	YYYY-MM-DD	0	update	no inbound docs links detected
+docs/architecture/cross-cutting/README.md	md	Active	2026-02-26	0	keep	index/readme document
+docs/architecture/cross-cutting/capability-boundaries.md	md	Active	2026-02-26	0	update	no inbound docs links detected
+docs/architecture/cross-cutting/determinism.md	md	Active	2026-02-26	0	update	no inbound docs links detected
+docs/architecture/cross-cutting/execution-model.md	md	Active	2026-02-26	0	update	no inbound docs links detected
+docs/architecture/cross-cutting/governance-axion.md	md	Active	2026-02-26	0	update	no inbound docs links detected
+docs/architecture/diagrams/README.md	md	Active	2026-02-26	0	keep	index/readme document
+docs/architecture/diagrams/axion-enforcement-flow.mmd	mmd			1	keep	non-markdown artifact
+docs/architecture/diagrams/canonfs-dataflow.mmd	mmd			1	keep	non-markdown artifact
+docs/architecture/diagrams/capability-boundaries.mmd	mmd			1	keep	non-markdown artifact
+docs/architecture/diagrams/data-types-stack.mmd	mmd			1	keep	non-markdown artifact
+docs/architecture/diagrams/determinism-boundary.mmd	mmd			1	keep	non-markdown artifact
+docs/architecture/diagrams/execution-model-flow.mmd	mmd			1	keep	non-markdown artifact
+docs/architecture/diagrams/experimental-tiers-structure.mmd	mmd			1	keep	non-markdown artifact
+docs/architecture/diagrams/governance-axion-sequence.mmd	mmd			2	keep	non-markdown artifact
+docs/architecture/diagrams/overview-layer-cake.mmd	mmd			1	keep	non-markdown artifact
+docs/architecture/diagrams/tisc-isa-structure.mmd	mmd			1	keep	non-markdown artifact
+docs/architecture/diagrams/vm-dispatch-flow.mmd	mmd			1	keep	non-markdown artifact
+docs/architecture/diagrams/vm-internal-structure.mmd	mmd			1	keep	non-markdown artifact
+docs/architecture/layers/README.md	md	Active	2026-02-26	0	keep	index/readme document
+docs/architecture/layers/axion.md	md	Active	2026-02-26	0	update	no inbound docs links detected
+docs/architecture/layers/canonfs.md	md	Active	2026-02-26	0	update	no inbound docs links detected
+docs/architecture/layers/data-types.md	md	Active	2026-02-26	0	update	no inbound docs links detected
+docs/architecture/layers/experimental-tiers.md	md	Active	2026-02-26	0	update	no inbound docs links detected
+docs/architecture/layers/tisc-isa.md	md	Active	2026-02-26	0	update	no inbound docs links detected
+docs/architecture/layers/vm.md	md	Active	2026-02-26	0	update	no inbound docs links detected
+docs/benchmarks/BENCHMARK_METHODOLOGY.md	md			0	update	no inbound docs links detected
+docs/benchmarks/LATEST_RESULTS.md	md			0	update	no inbound docs links detected
+docs/benchmarks/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/contributing/README.md	md			0	keep	index/readme document
+docs/contributing/generated-artifacts.md	md			0	update	no inbound docs links detected
+docs/explanation/ANALYSIS.md	md			0	update	no inbound docs links detected
+docs/explanation/ARCHITECTURE.md	md			4	keep	active doc or support artifact
+docs/explanation/CROSSROADS.md	md			0	update	no inbound docs links detected
+docs/explanation/DESIGN.md	md			1	keep	active doc or support artifact
+docs/explanation/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/explanation/WHITEPAPER.md	md			0	update	no inbound docs links detected
+docs/explanation/ecosystem.md	md			0	update	no inbound docs links detected
+docs/explanation/performance-strategy.md	md			0	update	no inbound docs links detected
+docs/explanation/runtime-semantics-boundary.md	md			2	keep	active doc or support artifact
+docs/governance/CAPABILITY_CONTRACT.md	md			0	update	no inbound docs links detected
+docs/governance/DEPENDENCY_POLICY.md	md			0	update	no inbound docs links detected
+docs/governance/DETERMINISM_SURFACE_REGISTRY.md	md			9	keep	active doc or support artifact
+docs/governance/DETERMINISM_THREAT_MODEL.md	md			2	keep	active doc or support artifact
+docs/governance/ENFORCEMENT_MATRIX.md	md			0	update	no inbound docs links detected
+docs/governance/EXTERNAL_DEPENDENCY_PINS.md	md	Active	2026-02-25	0	update	no inbound docs links detected
+docs/governance/FREEZE_ENFORCEMENT.md	md			2	update	contains draft/wip markers; verify current posture
+docs/governance/GOVERNANCE_AUTOMATION_ROADMAP.md	md			0	update	no inbound docs links detected
+docs/governance/INCIDENT_RESPONSE.md	md	Active	2026-02-25	0	update	no inbound docs links detected
+docs/governance/MIGRATION_MAP.md	md			0	update	no inbound docs links detected
+docs/governance/MODULE_OWNERSHIP_CHARTER.md	md	Active	2026-02-25	0	update	no inbound docs links detected
+docs/governance/MONTHLY_GOVERNANCE_REVIEW_CHECKLIST.md	md	Active	2026-02-25	0	update	no inbound docs links detected
+docs/governance/MULTILINGUAL_POLICY.md	md			0	update	no inbound docs links detected
+docs/governance/PUBLIC_API_LOCK.json	json			0	keep	non-markdown artifact
+docs/governance/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/governance/SPEC_AUTHORITY_MODEL.md	md			1	update	contains draft/wip markers; verify current posture
+docs/governance/SPEC_DRIFT_POLICY.md	md			0	update	contains draft/wip markers; verify current posture
+docs/governance/STDLIB_CHANGE_POLICY.md	md	Active Governance Policy	2026-02-26	0	update	no inbound docs links detected
+docs/governance/archive/policy/README.md	md			0	keep	index/readme document
+docs/governance/archive/policy/guards.axion	axion			0	keep	non-markdown artifact
+docs/governance/archive/policy/tier4_alignment.axion	axion			0	keep	non-markdown artifact
+docs/guides/CONSUMING_T81_CMAKE.md	md			0	update	no inbound docs links detected
+docs/guides/README.md	md			1	keep	index/readme document
+docs/guides/adding-a-language-feature.md	md			1	keep	active doc or support artifact
+docs/guides/axion/README.md	md			0	keep	index/readme document
+docs/guides/axion-policy-manual.md	md			0	update	no inbound docs links detected
+docs/guides/axion-trace.md	md			1	keep	active doc or support artifact
+docs/guides/axion-tracing-manual.md	md			0	update	no inbound docs links detected
+docs/guides/base81-codecs.md	md			0	update	no inbound docs links detected
+docs/guides/cli-toolkit.md	md			0	update	no inbound docs links detected
+docs/guides/cli-user-manual.md	md			0	update	no inbound docs links detected
+docs/guides/data-types-overview.md	md			2	keep	active doc or support artifact
+docs/guides/demo-gallery.md	md			2	keep	active doc or support artifact
+docs/guides/match-example.md	md			2	keep	active doc or support artifact
+docs/guides/match-patterns.md	md			0	update	no inbound docs links detected
+docs/guides/public-api-overview.md	md			1	keep	active doc or support artifact
+docs/guides/record-enum.md	md			0	update	no inbound docs links detected
+docs/guides/release-audit-manual.md	md			0	update	no inbound docs links detected
+docs/guides/repro-ledger.md	md			0	update	no inbound docs links detected
+docs/guides/runtime-contract-helpers.md	md			1	keep	active doc or support artifact
+docs/guides/runtime-observability-manual.md	md			0	update	no inbound docs links detected
+docs/guides/secure-deployment-tutorial.md	md			1	keep	active doc or support artifact
+docs/guides/setun-bridge.md	md			1	keep	active doc or support artifact
+docs/guides/t81lang-determinism-gates.md	md			0	update	no inbound docs links detected
+docs/guides/t81lang-print-runtime.md	md			0	update	no inbound docs links detected
+docs/guides/tier4-execution-contract.md	md			0	update	no inbound docs links detected
+docs/guides/vector-literals.md	md			0	update	no inbound docs links detected
+docs/guides/vm-opcodes.md	md			2	keep	active doc or support artifact
+docs/guides/weights-integration.md	md			1	keep	active doc or support artifact
+docs/how-to/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/how-to/debugger-guide.md	md			0	update	no inbound docs links detected
+docs/how-to/llama-governed-repro.md	md	Active	2026-02-25	0	update	no inbound docs links detected
+docs/how-to/research-guide.md	md			1	keep	active doc or support artifact
+docs/how-to/system-integration.md	md			0	update	no inbound docs links detected
+docs/how-to/systems-integration-agi.md	md			0	update	no inbound docs links detected
+docs/how-to/tensor-guide.md	md			1	keep	active doc or support artifact
+docs/index.md	md			0	update	no inbound docs links detected
+docs/migration/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/migration/TISC_v1.1.0_Bitwise_Ops_Migration.md	md			0	update	no inbound docs links detected
+docs/navigation.md	md			1	keep	active doc or support artifact
+docs/policies/AGENTS.md	md			0	update	no inbound docs links detected
+docs/policies/EVIDENCE.md	md			0	update	no inbound docs links detected
+docs/policies/GOVERNANCE.md	md			1	update	contains draft/wip markers; verify current posture
+docs/policies/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/policies/RISKS.md	md			0	update	no inbound docs links detected
+docs/policies/alignment-policy.md	md			0	update	no inbound docs links detected
+docs/policies/terminology-alignment.md	md			1	keep	active doc or support artifact
+docs/product/DETERMINISTIC_CORE_PROFILE.md	md	Active		8	keep	active doc or support artifact
+docs/product/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/product/RELEASE_DISCIPLINE.md	md	Active	2026-02-25	1	keep	active doc or support artifact
+docs/product/STRATEGIC_DIRECTION.md	md	Active	2026-02-25	0	update	no inbound docs links detected
+docs/proposals/README.md	md			0	keep	index/readme document
+docs/proposals/jit-design.md	md			0	update	no inbound docs links detected
+docs/proposals/packed_trit_vector_phase2e_proposal.md	md			0	update	no inbound docs links detected
+docs/proposals/t81lang-implementation-plan.md	md			0	update	no inbound docs links detected
+docs/records/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/records/archive/README.md	md			0	keep-archived	already in archive/history location
+docs/records/archive/T81_Foundation_Paper.tex	tex			0	keep-archived	already in archive/history location
+docs/records/archive/analysis.md.archived	archived			0	keep-archived	already in archive/history location
+docs/records/archive/architecture/DOCS_IA_MIGRATION_MAP.md	md			0	keep-archived	already in archive/history location
+docs/records/archive/architecture/REPO_RESTRUCTURE_MASTERPLAN.md	md			0	keep-archived	already in archive/history location
+docs/records/archive/architecture/RESTRUCTURE_COMPLETION_CHECKLIST.md	md			0	keep-archived	already in archive/history location
+docs/records/archive/architecture/RESTRUCTURE_PHASE1_PREFLIGHT.md	md			0	keep-archived	already in archive/history location
+docs/records/archive/developer-guide.md.archived	archived			0	keep-archived	already in archive/history location
+docs/records/archive/handover.md.archived	archived			0	keep-archived	already in archive/history location
+docs/records/archive/reference/README.md	md	Active Archive	2026-02-26	0	keep-archived	already in archive/history location
+docs/records/archive/reference/architecture.md	md			0	keep-archived	already in archive/history location
+docs/records/archive/reference/cognitive_tiers.md	md			0	keep-archived	already in archive/history location
+docs/records/archive/reference/data_types_map.md	md			0	keep-archived	already in archive/history location
+docs/records/archive/reference/language_reference.md	md			0	keep-archived	already in archive/history location
+docs/records/archive/tensor-guide.md.archived	archived			0	keep-archived	already in archive/history location
+docs/records/archive/test_output.txt	txt			0	keep-archived	already in archive/history location
+docs/records/archive/test_result.log	log			0	keep-archived	already in archive/history location
+docs/records/audits/2026-02-documentation-audit.md	md			0	update	contains draft/wip markers; verify current posture
+docs/records/audits/2026-02-governance-review.md	md	Completed		0	keep	active doc or support artifact
+docs/records/audits/2026-02-repo-audit-summary.md	md			0	update	contains draft/wip markers; verify current posture
+docs/records/audits/2026-02-workflow-action-audit.md	md			0	keep	active doc or support artifact
+docs/records/audits/2026-02-workflow-permissions-audit.md	md			0	keep	active doc or support artifact
+docs/records/audits/2026-03-governance-review.md	md	Draft (In Progress)	2026-02-26	0	update	contains draft/wip markers; verify current posture
+docs/records/audits/DOCS_REFRESH_REPORT.md	md			0	keep	active doc or support artifact
+docs/records/audits/README.md	md			0	keep	index/readme document
+docs/records/audits/T81Lang_bitwise_followup_spec_and_ir_audit.md	md			0	keep	active doc or support artifact
+docs/records/audits/T81Lang_logical_operator_lowering_implementation_report.md	md			0	keep	active doc or support artifact
+docs/records/audits/T81Lang_parser_regression_audit_bitwise_precedence.md	md			0	keep	active doc or support artifact
+docs/records/audits/packed_trit_vector_phase2d_implementation_report.md	md			0	keep	active doc or support artifact
+docs/records/audits/packed_trit_vector_phase2e_compliance.md	md			0	update	contains draft/wip markers; verify current posture
+docs/records/audits/packed_trit_vector_prototype_phase1_report.md	md			0	keep	active doc or support artifact
+docs/records/audits/packed_trit_vector_prototype_phase2a_report.md	md			0	keep	active doc or support artifact
+docs/records/audits/packed_trit_vector_prototype_phase2b_report.md	md			0	keep	active doc or support artifact
+docs/records/audits/packed_trit_vector_prototype_phase2c_report.md	md			0	keep	active doc or support artifact
+docs/records/inventories/README.md	md	Active	2026-02-25	0	update	inventory snapshot should be regenerated when doc tree changes
+docs/records/inventories/docs_refresh_manifest.tsv	tsv			0	update	inventory snapshot should be regenerated when doc tree changes
+docs/records/inventories/docs_triage_matrix_2026-02-26.tsv	tsv			0	update	inventory snapshot should be regenerated when doc tree changes
+docs/records/inventories/repo_inventory.tsv	tsv			0	update	inventory snapshot should be regenerated when doc tree changes
+docs/records/inventories/repo_tree.txt	txt			0	update	inventory snapshot should be regenerated when doc tree changes
+docs/records/inventories/repo_tree_expanded.txt	txt			0	update	inventory snapshot should be regenerated when doc tree changes
+docs/records/status-history/BEHAVIORAL_CONFORMANCE_EXPANSION_SPRINT_2026-02-26.md	md	Completed	2026-02-26	0	keep-archived	already in archive/history location
+docs/records/status-history/COGNITIVE_TIERS_SPEC_COMPLIANCE_2026-02-26.md	md	Substantial Compliance (Runtime/Frontend Closures Applied)		0	keep-archived	already in archive/history location
+docs/records/status-history/COHESION_ARCHITECTURE_PLAN_2026-02-26.md	md			0	keep-archived	already in archive/history location
+docs/records/status-history/LLAMA_CPP_GOVERNED_INFERENCE_PROGRESS_2026-02-25.md	md	In Progress	2026-02-26	0	keep-archived	already in archive/history location
+docs/records/status-history/PROGRAM_CHECKPOINT_2026-02-25.md	md	Active	2026-02-25	0	keep-archived	already in archive/history location
+docs/records/status-history/README.md	md	Active Archive	2026-02-26	0	keep-archived	already in archive/history location
+docs/records/status-history/RELEASE_READINESS_PACKET_2026-02.md	md	Hold (Decisioned)		0	keep-archived	already in archive/history location
+docs/records/status-history/VM_MONOLITH_DECOMPOSITION_PLAN_2026-02-26.md	md	Completed (Phase A+B+C+D+E+F complete)	2026-02-26	0	keep-archived	already in archive/history location
+docs/reference/CAPABILITY_CONTRACT.md	md			0	update	no inbound docs links detected
+docs/reference/CHANGELOG.md	md			2	update	contains draft/wip markers; verify current posture
+docs/reference/Doxyfile	none			0	keep	non-markdown artifact
+docs/reference/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/reference/REPRODUCIBILITY.md	md			1	keep	active doc or support artifact
+docs/reference/STATUS.md	md			2	update	contains draft/wip markers; verify current posture
+docs/reference/SUPPORT.md	md			0	update	no inbound docs links detected
+docs/reference/T81LANG_STDLIB_REFERENCE.md	md	Active	2026-02-26	0	update	no inbound docs links detected
+docs/reference/TECHNICAL_REVIEW_REPORT.md	md			0	update	contains draft/wip markers; verify current posture
+docs/reference/TESTING.md	md			1	keep	active doc or support artifact
+docs/reference/VERSIONING.md	md			0	update	no inbound docs links detected
+docs/reference/benchmarks.md	md			1	keep	active doc or support artifact
+docs/reference/benchmarks_engineering.md	md			0	update	no inbound docs links detected
+docs/reference/ci.md	md			0	update	no inbound docs links detected
+docs/reference/system-status.md	md	Active	2026-02-26	2	keep	active doc or support artifact
+docs/releases/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/releases/TISC_v1.1.0_Canonical_Freeze.md	md			0	update	no inbound docs links detected
+docs/repo_audit_report.md	md			0	update	no inbound docs links detected
+docs/research/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/research/formal-verification.md	md			0	update	no inbound docs links detected
+docs/research/jit-research.md	md			0	update	no inbound docs links detected
+docs/research/llama-demo-story.md	md			0	update	no inbound docs links detected
+docs/rfcs/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/rfcs/rfc-tritwise-extension-gate-evidence.md	md			0	update	no inbound docs links detected
+docs/roadmaps-plans/DETERMINISM_IMPLEMENTATION_PLAN.md	md			0	update	no inbound docs links detected
+docs/roadmaps-plans/MAINTAINERS.md	md			0	update	no inbound docs links detected
+docs/roadmaps-plans/MASTER_ROADMAP.md	md			0	update	no inbound docs links detected
+docs/roadmaps-plans/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/roadmaps-plans/RELEASING.md	md			0	update	no inbound docs links detected
+docs/roadmaps-plans/ROADMAP.md	md			3	keep	active doc or support artifact
+docs/roadmaps-plans/T81_REMEDIATION_PLAN.md	md			0	update	contains draft/wip markers; verify current posture
+docs/roadmaps-plans/TASKS-t81-spec.md	md			0	update	no inbound docs links detected
+docs/roadmaps-plans/TASKS.md	md			2	keep	active doc or support artifact
+docs/roadmaps-plans/cpp-migration-roadmap.md	md			0	update	contains draft/wip markers; verify current posture
+docs/roadmaps-plans/deterministic-ai-inference.md	md			0	update	no inbound docs links detected
+docs/roadmaps-plans/hardware-roadmap.md	md			0	update	no inbound docs links detected
+docs/roadmaps-plans/packed_trit_vector_phase2d_plan.md	md			0	update	no inbound docs links detected
+docs/roadmaps-plans/t81lang-standard-library-handoff.md	md			0	update	no inbound docs links detected
+docs/roadmaps-plans/t81lang-standard-library-plan.md	md			0	update	no inbound docs links detected
+docs/site/README.md	md			0	keep	site-build machinery
+docs/site/_config.yaml	yaml			0	keep	site-build machinery
+docs/site/_config.yml	yml			0	keep	site-build machinery
+docs/site/_includes/sidebar.html	html			0	keep	site-build machinery
+docs/site/_includes/topnav.html	html			0	keep	site-build machinery
+docs/site/_layouts/default.html	html			0	keep	site-build machinery
+docs/site/_layouts/page.html	html			0	keep	site-build machinery
+docs/site/_layouts/spec.html	html			0	keep	site-build machinery
+docs/site/assets/README.md	md			0	keep	site-build machinery
+docs/site/assets/css/main.css	css			0	keep	site-build machinery
+docs/site/assets/img/banner.png	png			0	keep	site-build machinery
+docs/site/assets/js/lunr.min.js	js			0	keep	site-build machinery
+docs/site/search/README.md	md			0	keep	site-build machinery
+docs/site/search/build_index.js	js			0	keep	site-build machinery
+docs/site/search/search.css	css			0	keep	site-build machinery
+docs/site/search/search.js	js			0	keep	site-build machinery
+docs/site/search/search_index.json	json			0	keep	site-build machinery
+docs/spec/DETERMINISTIC_CORE_PROFILE_v1.md	md			1	keep	active doc or support artifact
+docs/spec/INDEX.md	md			1	keep	active doc or support artifact
+docs/spec/JIT_EQUIVALENCE_PLAN.md	md			0	update	no inbound docs links detected
+docs/spec/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/spec/vm/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/spec/vm/opcode_reference.md	md			1	keep	active doc or support artifact
+docs/standards/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/standards/T81_Core_Type_Capability_Constraint_Profile.md	md			0	update	no inbound docs links detected
+docs/standards/standard-library.md	md			0	update	no inbound docs links detected
+docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md	md	Completed (Planning Milestone Closed)	2026-02-25	0	update	contains draft/wip markers; verify current posture
+docs/status/BEHAVIORAL_CONFORMANCE_EXPANSION_PHASE3_2026-02-26.md	md	In progress	2026-02-26	0	update	no inbound docs links detected
+docs/status/C2_MONTH_CLOSE_CHECK_2026-03-31.md	md			0	update	no inbound docs links detected
+docs/status/C2_MONTH_CLOSE_PREFLIGHT_2026-03-31.md	md			0	update	no inbound docs links detected
+docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md	md	Scheduled		0	update	no inbound docs links detected
+docs/status/DETERMINISTIC_CORPUS_MANIFEST.md	md	Active	2026-02-25	0	update	no inbound docs links detected
+docs/status/DOCS_TRIAGE_REPORT_2026-02-26.md	md	Active		0	update	no inbound docs links detected
+docs/status/EXECUTION_PLAN_2026-03.md	md	Active	2026-02-25	2	keep	active doc or support artifact
+docs/status/EXPERIMENTAL_SURFACE_INVENTORY.md	md			0	update	no inbound docs links detected
+docs/status/FULL_SYSTEM_ARCHITECTURAL_STRATEGIC_AUDIT_2026-02-26.md	md		2026-02-26	0	update	no inbound docs links detected
+docs/status/GOVERNED_AGI_PROMOTION_PIPELINE.md	md	Active	2026-02-25	0	update	no inbound docs links detected
+docs/status/IMPLEMENTATION_MATRIX.md	md	Active	2026-02-26	2	update	contains draft/wip markers; verify current posture
+docs/status/PROJECT_CONTROL_CENTER.md	md	Active Program Management	2026-02-26	2	update	contains draft/wip markers; verify current posture
+docs/status/README.md	md	Active	2026-02-26	0	keep	index/readme document
+docs/status/RELEASE_DISCIPLINE_CHECKLIST.md	md	Active	2026-02-25	0	update	no inbound docs links detected
+docs/status/RELEASE_READINESS_PACKET_2026-03.md	md	Hold (Decisioned)		1	keep	active doc or support artifact
+docs/status/STDLIB_PROMOTION_SNAPSHOT_2026-03.md	md	Active Snapshot	2026-02-26	0	update	no inbound docs links detected
+docs/status/STDLIB_STABILIZATION_PLAN_2026-03.md	md	Sprint 1 Completed	2026-02-26	0	update	no inbound docs links detected
+docs/status/STRUCTURAL_INTEGRITY_REPORT.md	md		2026-02-25	0	update	no inbound docs links detected
+docs/status/SYSTEM_STATUS.md	md	Active	2026-02-26	2	update	contains draft/wip markers; verify current posture
+docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md	md	Active	2026-02-25	0	update	no inbound docs links detected
+docs/status/T81LANG_ENGINEERING_BACKLOG_2026-03.md	md	Active	2026-02-25	0	update	contains draft/wip markers; verify current posture
+docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md	md	Active	2026-02-25	0	update	no inbound docs links detected
+docs/status/T81LANG_PROMOTION_GATE.md	md	Active	2026-02-26	0	update	contains draft/wip markers; verify current posture
+docs/status/T81LANG_PROMOTION_GATE_SNAPSHOT.md	md			0	update	no inbound docs links detected
+docs/status/VERIFIED_SURFACE_AUDIT.md	md			0	update	contains draft/wip markers; verify current posture
+docs/tutorials/README.md	md	Active	2026-02-25	0	keep	index/readme document
+docs/tutorials/ai-quickstart.md	md			0	update	no inbound docs links detected
+docs/tutorials/cpp-quickstart.md	md			1	keep	active doc or support artifact
+docs/tutorials/onboarding.md	md			1	keep	active doc or support artifact
+docs/tutorials/user-manual.md	md			0	update	no inbound docs links detected

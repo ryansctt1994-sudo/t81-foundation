@@ -12,10 +12,10 @@ If you are new to the project, start here. These documents provide the high-leve
   - A hands-on guide to cloning, building, and running the core tests and demos. The fastest way to get the code working.
 
 - **[System Status Report](reference/system-status.md)**
-  - A dashboard of the current implementation status of each major component, measured against its formal specification.
+  - Stable pointer to current status surfaces under `docs/status/` and `docs/reference/STATUS.md`.
 
-- **[Architecture Overview](explanation/ARCHITECTURE.md)**
-  - A high-level description of the system's structure, libraries, and data flow, from T81Lang source code to VM execution.
+- **[Architecture Overview](architecture/OVERVIEW.md)**
+  - Canonical architecture summary with layer boundaries, maturity labels, and evidence links.
 
 - **[Researcher's Guide](how-to/research-guide.md)**
   - An in-depth exploration of the mathematical foundations of balanced ternary and the five cognitive tiers of execution.
@@ -28,6 +28,9 @@ These documents are the "constitution" of the T81 Foundation. They define the no
 
 - **[Master Specification Index](../spec/index.md)**
   - The root index that links to all formal specification documents (TISC ISA, VM, T81Lang, Data Types, etc.).
+
+- **[Project Control Center](status/PROJECT_CONTROL_CENTER.md)**
+  - At-a-glance program governance, blockers, and next decision points.
 
 - **[Design Principles](explanation/DESIGN.md)**
   - The core design philosophy, including balanced ternary, spec-first development, and deterministic semantics.

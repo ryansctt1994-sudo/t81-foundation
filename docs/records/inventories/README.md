@@ -1,7 +1,7 @@
 # Inventory records index
 
 Status: Active
-Last Updated: 2026-02-25
+Last Updated: 2026-02-26
 
 ## Purpose
 
@@ -17,6 +17,9 @@ specification authority, freeze boundaries, or determinism claim scope.
 - ../audits/
 - ../archive/
 - ../../status/
+- docs_triage_matrix_2026-02-26.tsv
+- repo_tree.txt
+- repo_tree_expanded.txt
 
 ## Versioning Statement
 

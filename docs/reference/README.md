@@ -17,7 +17,19 @@ specification authority, freeze boundaries, or determinism claim scope.
 - ../spec/
 - ../governance/
 - ../status/
+- STATUS.md
+- system-status.md
+- benchmarks.md
 - T81LANG_STDLIB_REFERENCE.md
+
+## Archived Reference Docs
+
+Moved to `docs/records/archive/reference/`:
+
+- architecture.md
+- language_reference.md
+- cognitive_tiers.md
+- data_types_map.md
 
 ## Versioning Statement
 

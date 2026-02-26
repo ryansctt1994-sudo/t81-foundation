@@ -5,6 +5,7 @@ Archived documentation retained for historical context.
 ## What Goes Here
 - Superseded guides, proposals, and snapshots that should remain discoverable.
 - Content no longer authoritative but still useful for provenance.
+- Sub-archives by topic (for example `architecture/` and `reference/`).
 
 ## Rules
 - Mark archived docs clearly as non-current.

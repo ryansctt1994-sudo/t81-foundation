@@ -70,7 +70,10 @@ ctest --test-dir build --output-on-failure -j1
 
 ## 6. Source-of-Truth Links
 
-- Architecture: `../explanation/ARCHITECTURE.md`
+- Architecture: `../architecture/OVERVIEW.md`
+- Control center: `../status/PROJECT_CONTROL_CENTER.md`
+- Operational status: `../status/SYSTEM_STATUS.md`
+- Implementation matrix: `../status/IMPLEMENTATION_MATRIX.md`
 - Conformance analysis: `../explanation/ANALYSIS.md`
 - Near-term tasks: `../roadmaps-plans/TASKS.md`
 - CI/gates: `ci.md`

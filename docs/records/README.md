@@ -17,6 +17,7 @@ specification authority, freeze boundaries, or determinism claim scope.
 - audits/
 - archive/
 - inventories/
+- status-history/
 
 ## Versioning Statement
 
