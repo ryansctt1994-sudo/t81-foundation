@@ -57,6 +57,9 @@ Authority remains:
   - Workload determinism tiers expanded (policy-heavy + tensor-access).
   - Translation semantic gate upgraded with required section-heading parity checks.
   - CI benchmark gate expanded with VM workload dispatch/native ratio guardrail.
+- Behavioral Conformance Expansion Phase 3 is in progress:
+  - deterministic VM trap-family matrix coverage added
+  - CanonFS read-verify env-contract matrix coverage added
 - Experimental backlog implementation items are complete:
   - Cognitive Tier 1..5 closures
   - Runtime JIT prototype backend uplift
@@ -121,6 +124,7 @@ Authority remains:
 
 - `docs/roadmaps-plans/TASKS.md`
 - `docs/status/BEHAVIORAL_CONFORMANCE_EXPANSION_SPRINT_2026-02-26.md`
+- `docs/status/BEHAVIORAL_CONFORMANCE_EXPANSION_PHASE3_2026-02-26.md`
 - `docs/status/RELEASE_READINESS_PACKET_2026-03.md`
 - `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md`
 - `docs/status/C2_MONTH_CLOSE_CHECK_2026-03-31.md`

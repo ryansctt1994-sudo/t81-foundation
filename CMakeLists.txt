@@ -438,6 +438,10 @@ if(T81_BUILD_TESTS)
   add_executable(canonfs_read_verify_test tests/cpp/canonfs_read_verify_test.cpp)
   target_link_libraries(canonfs_read_verify_test PRIVATE t81_core t81_axion)
 
+  add_executable(canonfs_read_verify_env_contract_test
+                 tests/cpp/canonfs_read_verify_env_contract_test.cpp)
+  target_link_libraries(canonfs_read_verify_env_contract_test PRIVATE t81_core t81_axion)
+
   add_executable(canonfs_integrity_matrix_test tests/cpp/canonfs_integrity_matrix_test.cpp)
   target_link_libraries(canonfs_integrity_matrix_test PRIVATE t81_core t81_axion)
 
@@ -474,6 +478,10 @@ if(T81_BUILD_TESTS)
 
   add_executable(t81_vm_deterministic_fault_test tests/cpp/test_vm_deterministic_fault.cpp)
   target_link_libraries(t81_vm_deterministic_fault_test PRIVATE t81_vm t81_core)
+
+  add_executable(t81_vm_fault_family_determinism_matrix_test
+                 tests/cpp/vm_fault_family_determinism_matrix_test.cpp)
+  target_link_libraries(t81_vm_fault_family_determinism_matrix_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_vm_new_opcodes_test tests/cpp/vm_new_opcodes_test.cpp)
   target_link_libraries(t81_vm_new_opcodes_test PRIVATE t81_vm t81_core)
@@ -1238,6 +1246,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     t81_tensor_loader_test
     t81_canonfs_io_test
     canonfs_read_verify_test
+    canonfs_read_verify_env_contract_test
     canonfs_integrity_matrix_test
     t81_ir_encoding_test
     t81_isa_encoding_test
@@ -1288,6 +1297,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     t81_vm_predispatch_policy_deny_logging_test
     t81_vm_fault_test
     t81_vm_deterministic_fault_test
+    t81_vm_fault_family_determinism_matrix_test
     t81_vm_memory_test
     t81_axion_log_determinism_test
     t81_reflection_non_interference_test
