@@ -144,6 +144,51 @@ void run_tloadhash_ambiguous_payload_fail_closed_case() {
   T81_TEST_CHECK(result.error() == t81::vm::Trap::DecodeFault);
 }
 
+void run_tloadhash_invalid_header_cases() {
+  t81::weights::NativeTensor base;
+  base.format = t81::weights::NativeFormat::BalancedTernary;
+  base.shape = {2, 2};
+  base.trits = 4;
+  base.data = {40};
+
+  auto malformed_format = serialize_tensor(base);
+  malformed_format[2] = std::byte{0x7F};
+
+  auto malformed_rank = serialize_tensor(base);
+  malformed_rank[3] = std::byte{9};
+
+  auto driver =
+      t81::canonfs::make_persistent_driver(std::filesystem::current_path() / ".t81_canonfs");
+
+  {
+    auto write = driver->write_object(
+        t81::canonfs::ObjectType::CanonTensor,
+        std::span<const std::byte>(malformed_format.data(), malformed_format.size()));
+    T81_TEST_CHECK(write.has_value());
+    std::string hash_symbol = "sha3-256:" + write->hash.h.to_string();
+    auto program = make_tloadhash_program(hash_symbol);
+    auto vm = t81::vm::make_interpreter_vm();
+    vm->load_program(program);
+    auto result = vm->run_to_halt();
+    T81_TEST_CHECK(!result.has_value());
+    T81_TEST_CHECK(result.error() == t81::vm::Trap::DecodeFault);
+  }
+
+  {
+    auto write = driver->write_object(
+        t81::canonfs::ObjectType::CanonTensor,
+        std::span<const std::byte>(malformed_rank.data(), malformed_rank.size()));
+    T81_TEST_CHECK(write.has_value());
+    std::string hash_symbol = "sha3-256:" + write->hash.h.to_string();
+    auto program = make_tloadhash_program(hash_symbol);
+    auto vm = t81::vm::make_interpreter_vm();
+    vm->load_program(program);
+    auto result = vm->run_to_halt();
+    T81_TEST_CHECK(!result.has_value());
+    T81_TEST_CHECK(result.error() == t81::vm::Trap::DecodeFault);
+  }
+}
+
 void run_tloadhash_canonfs_miss_case() {
   t81::weights::NativeTensor tensor;
   tensor.format = t81::weights::NativeFormat::BalancedTernary;
@@ -252,6 +297,7 @@ int main() {
   run_tloadhash_success_case();
   run_tloadhash_decode_fault_case();
   run_tloadhash_ambiguous_payload_fail_closed_case();
+  run_tloadhash_invalid_header_cases();
 
   std::filesystem::current_path(old_cwd);
   std::filesystem::remove_all(workdir);
