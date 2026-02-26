@@ -1,0 +1,12 @@
+flowchart TD
+    P[Loaded Program] --> I[Interpreter step loop]
+    I --> H[Hotspot counter]
+    H --> T{threshold reached}
+    T -- no --> I
+    T -- yes --> J[JitCompiler trace recording]
+    J --> C[Compile JitTrace]
+    C --> X[Trace execute with policy hook]
+    X --> D{deopt/policy deny}
+    D -- deopt --> I
+    D -- deny --> F[SecurityFault]
+    D -- completed --> I

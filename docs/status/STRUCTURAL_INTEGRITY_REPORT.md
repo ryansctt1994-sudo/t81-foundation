@@ -27,8 +27,8 @@ Scope: Phase 10 structural invariants enforcement
 - Script: `scripts/architecture/check_legacy_paths.sh`
 - Result: PASS
 - Legacy path patterns (for active scope) are absent, with historical exceptions explicitly excluded:
-  - `docs/architecture/REPO_RESTRUCTURE_MASTERPLAN.md`
-  - `docs/architecture/RESTRUCTURE_PHASE1_PREFLIGHT.md`
+  - `docs/records/archive/architecture/REPO_RESTRUCTURE_MASTERPLAN.md`
+  - `docs/records/archive/architecture/RESTRUCTURE_PHASE1_PREFLIGHT.md`
   - `scripts/restructure/phase1_scan.sh`
   - audit/history directories
 

@@ -1,0 +1,6 @@
+flowchart LR
+    FE[T81Lang frontend/emitter] --> P[Program + Insn]
+    P --> BIN[core/isa encoding/binary IO]
+    P --> VM[VM dispatch switch]
+    OP[Opcode enum freeze] --> VM
+    OP --> FE

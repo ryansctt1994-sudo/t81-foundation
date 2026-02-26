@@ -1,0 +1,12 @@
+flowchart TD
+    W[write_object] --> H[hash/canonical ref]
+    H --> AX{Axion hook}
+    AX -- allow --> P[persist object/capability state]
+    AX -- deny --> E[CapabilityError / rejected op]
+
+    R[read_object_bytes] --> L[load bytes]
+    L --> V{read verify enabled?}
+    V -- yes --> RH[re-hash and compare CanonRef]
+    RH -- mismatch --> D[DecodeError]
+    RH -- match --> OUT[return bytes]
+    V -- no --> OUT

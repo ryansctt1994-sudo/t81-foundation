@@ -1,0 +1,9 @@
+flowchart LR
+    DCP[DCP Boundary]
+    REG[Determinism Registry Status]
+    REL[Release Discipline]
+    EXP[Experimental Surfaces]
+
+    DCP --> REL
+    REG --> DCP
+    EXP -. requires explicit promotion .-> DCP

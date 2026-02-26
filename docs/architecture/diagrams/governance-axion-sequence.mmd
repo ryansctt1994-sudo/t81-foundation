@@ -1,0 +1,11 @@
+sequenceDiagram
+    participant GOV as Governance Docs/Policy
+    participant VM as VM Dispatch
+    participant AX as Axion Engine
+    participant LOG as Axion Event Log
+
+    GOV->>VM: policy text embedded in Program
+    VM->>AX: evaluate syscall context
+    AX-->>VM: Verdict (Allow/Warn/Deny + reason)
+    VM->>LOG: record canonical event reason
+    VM-->>VM: continue or SecurityFault

@@ -1,0 +1,5 @@
+flowchart TD
+    T[Tier0..Tier5 status/model] --> VM[VM tier checks/integration paths]
+    COG[experimental/tiers/cog/*] --> VM
+    HAN[experimental/hanoi/*] -. historical/experimental .-> VM
+    AX[Axion policy engine] --> VM

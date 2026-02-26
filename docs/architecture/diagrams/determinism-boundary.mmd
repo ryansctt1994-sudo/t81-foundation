@@ -1,0 +1,8 @@
+flowchart LR
+    DCP[DCP Included Surfaces]
+    REG[Determinism Surface Registry]
+    CI[CI + Repro Gates]
+    N[Nondeterministic / Experimental Surfaces]
+
+    DCP --> REG --> CI
+    N -. excluded from DCP by default .-> REG

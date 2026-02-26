@@ -1,0 +1,22 @@
+flowchart TD
+    A[step()] --> B{halted or no runnable context?}
+    B -- yes --> Z[return]
+    B -- no --> C[deterministic fault injection check]
+    C --> D{compiled trace at PC?}
+    D -- yes --> E[Axion check: trace enter]
+    E --> F[execute trace with per-insn policy callback]
+    F --> G[Axion check: trace exit/deopt]
+    G --> H{deopt?}
+    H -- yes --> I[invalidate trace, continue interpreter]
+    H -- no --> Z
+    D -- no --> J[fetch insn, increment counters]
+    I --> J
+    J --> K[hotspot accounting + optional trace compile]
+    K --> L[Axion step check]
+    L --> M{verdict deny?}
+    M -- yes --> N[record event -> SecurityFault]
+    M -- no --> O[switch(opcode)]
+    O --> P{trap?}
+    P -- yes --> Q[log trace+event -> return trap]
+    P -- no --> R[sync system registers, rotate context]
+    R --> Z

@@ -1,0 +1,11 @@
+flowchart TD
+    L[T81Lang Frontend/Stdlib]
+    I[TISC ISA]
+    V[T81VM Interpreter]
+    A[Axion Policy Engine]
+    C[CanonFS]
+    X[Experimental: Cognitive Tiers + Hanoi Concepts]
+
+    L --> I --> V --> A --> C
+    X -. optional / non-DCP .-> V
+    X -. optional / non-DCP .-> A

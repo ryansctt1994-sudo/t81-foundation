@@ -28,13 +28,13 @@ patterns=(
 # Historical artifacts intentionally preserve pre-restructure paths.
 exclude_globs=(
   '!docs/records/audits/**'
+  '!docs/records/inventories/**'
+  '!docs/records/archive/architecture/**'
   '!book/**'
   '!legacy/**'
   '!notebooks/**'
   '!build/**'
   '!.git/**'
-  '!docs/architecture/REPO_RESTRUCTURE_MASTERPLAN.md'
-  '!docs/architecture/RESTRUCTURE_PHASE1_PREFLIGHT.md'
   '!docs/governance/MIGRATION_MAP.md'
   '!scripts/restructure/phase1_scan.sh'
   '!scripts/restructure/verify_restructure_clean.sh'

@@ -1,0 +1,8 @@
+flowchart TD
+    VM[VM syscall context] --> E[Engine::evaluate]
+    E --> P{Policy loaded?}
+    P -- no --> A[default allow path]
+    P -- yes --> B[PolicyEngine::evaluate_internal]
+    B --> C[limits checks]
+    C --> D[trace/segment/match requirements]
+    D --> R[Verdict Allow/Warn/Deny + reason]

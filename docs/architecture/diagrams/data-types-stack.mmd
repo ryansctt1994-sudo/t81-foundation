@@ -1,0 +1,8 @@
+flowchart TD
+    I[T81Int / limbs] --> B[T81BigInt]
+    I --> F[T81Float]
+    I --> R[T81Fraction]
+    B --> R
+    F --> C[Composite numeric types]
+    R --> C
+    C --> VM[VM values/handles]
