@@ -30,6 +30,7 @@
 #include "internal/tier_limits.hpp"
 #include "internal/value_ops.hpp"
 #include "internal/memory_segments.hpp"
+#include "internal/policy_trace_bridge.hpp"
 #include "t81/vm/vm.hpp"
 
 namespace t81::vm {
@@ -5185,32 +5186,9 @@ private:
     if (syscall == t81::axion::reasons::kMetaRead) {
       // Internal MetaRead check could go here
     }
-    t81::axion::SyscallContext sys_ctx;
-    sys_ctx.caller = "t81vm";
-    sys_ctx.syscall.assign(syscall);
-    sys_ctx.payload = std::string(payload);
-    sys_ctx.pc = prog_counter;
-    sys_ctx.next_opcode = opcode;
-    sys_ctx.instruction_count = instruction_count_override.value_or(instruction_count_);
-
-    if (!state_.contexts.empty()) {
-      auto& tctx = state_.contexts[state_.current_context];
-      sys_ctx.recursion_depth = std::max(tctx.stack_frames.size(), tctx.call_depth);
-      sys_ctx.stack_usage = tctx.stack_base - tctx.sp;
-      sys_ctx.current_tier = static_cast<int>(tctx.tier_status.current);
-    } else {
-      sys_ctx.recursion_depth = 0;
-      sys_ctx.stack_usage = 0;
-      sys_ctx.current_tier = 0;
-    }
-
-    sys_ctx.reflection_count = state_.reflection_count;
-    sys_ctx.meta_write_count = state_.meta_write_count;
-    sys_ctx.policy = state_.policy ? &*state_.policy : nullptr;
-    sys_ctx.trace_reasons.reserve(state_.axion_log.size());
-    for (const auto& entry : state_.axion_log) {
-      sys_ctx.trace_reasons.push_back(entry.verdict.reason);
-    }
+    auto sys_ctx = t81::vm::internal::make_syscall_context(
+        state_, state_.current_context, "t81vm", syscall, payload, prog_counter, opcode,
+        instruction_count_, instruction_count_override);
     return axion_engine_->evaluate(sys_ctx);
   }
 
@@ -5256,16 +5234,7 @@ private:
                                  std::size_t size, std::string_view action) {
     t81::axion::Verdict verdict;
     verdict.kind = t81::axion::VerdictKind::Allow;
-    std::ostringstream reason;
-    // Format: '[action] [segment] addr=[address] size=[size]'
-    reason << action << " " << to_string(kind) << " addr=" << addr;
-    if (kind == MemorySegmentKind::Stack || action.find("allocated") != std::string_view::npos ||
-        action.find("freed") != std::string_view::npos) {
-      reason << " size=" << size;
-    } else if (size > 1) {
-      reason << " size=" << size;
-    }
-    verdict.reason = reason.str();
+    verdict.reason = t81::vm::internal::format_memory_access_reason(kind, addr, size, action);
     record_axion_event(opcode, static_cast<std::int32_t>(kind), static_cast<std::int64_t>(addr),
                        verdict);
   }
@@ -5274,10 +5243,7 @@ private:
                         std::string_view action) {
     t81::axion::Verdict verdict;
     verdict.kind = t81::axion::VerdictKind::Allow;
-    std::ostringstream reason;
-    reason << t81::axion::reasons::kBoundsFault << " segment=" << to_string(kind)
-           << " addr=" << addr << " action=" << action;
-    verdict.reason = reason.str();
+    verdict.reason = t81::vm::internal::format_bounds_fault_reason(kind, addr, action);
     record_axion_event(opcode, static_cast<std::int32_t>(kind), static_cast<std::int64_t>(addr),
                        verdict);
   }
@@ -5323,12 +5289,7 @@ private:
 
   static void apply_segment_reason(t81::axion::Verdict& verdict, const char* action,
                                    MemorySegmentKind kind, std::size_t addr) {
-    std::ostringstream reason_stream;
-    reason_stream << action << " segment=" << to_string(kind) << " addr=" << addr;
-    if (!verdict.reason.empty()) {
-      reason_stream << " " << verdict.reason;
-    }
-    verdict.reason = reason_stream.str();
+    verdict.reason = t81::vm::internal::append_segment_reason(action, kind, addr, verdict.reason);
   }
 
   void record_axion_event(t81::tisc::Opcode opcode, std::int32_t tag_val, std::int64_t val_data,

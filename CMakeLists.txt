@@ -227,6 +227,7 @@ add_library(t81_vm STATIC
   core/vm/tier_limits.cpp
   core/vm/value_ops.cpp
   core/vm/memory_segments.cpp
+  core/vm/policy_trace_bridge.cpp
 )
 target_include_directories(t81_vm PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
