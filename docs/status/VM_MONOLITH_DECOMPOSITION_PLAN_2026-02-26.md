@@ -2,7 +2,7 @@
 
 Date: 2026-02-26  
 Scope: `core/vm/vm.cpp`  
-Status: In progress (Phase A+B+C completed; Phase D started: policy/trace bridge helpers extracted to `core/vm/policy_trace_bridge.cpp`)
+Status: In progress (Phase A+B+C+D completed; Phase E started: tensor allocation/policy helpers extracted to `core/vm/tensor_helpers.cpp`)
 
 ## Objective
 Reduce regression blast radius and improve assurance depth by decomposing `core/vm/vm.cpp` into testable modules while preserving byte-for-byte runtime behavior on DCP surfaces.

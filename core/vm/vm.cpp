@@ -31,6 +31,7 @@
 #include "internal/value_ops.hpp"
 #include "internal/memory_segments.hpp"
 #include "internal/policy_trace_bridge.hpp"
+#include "internal/tensor_helpers.hpp"
 #include "t81/vm/vm.hpp"
 
 namespace t81::vm {
@@ -64,17 +65,6 @@ using t81::vm::internal::max_tensor_rank_for_tier;
 using t81::vm::internal::recursion_limit_for_tier;
 using t81::vm::internal::tier_from_rank;
 using t81::vm::internal::tier_rank;
-
-constexpr std::size_t shape_complexity(const t81::T729DynamicTensor& tensor) {
-  std::size_t product = 1;
-  for (int dim : tensor.shape()) {
-    if (dim <= 0) {
-      return 0;
-    }
-    product *= static_cast<std::size_t>(dim);
-  }
-  return product * static_cast<std::size_t>(tensor.rank());
-}
 
 t81::T81Fraction fraction_from_double(double x) {
   if (x == 0.0) {
@@ -208,8 +198,8 @@ public:
     instruction_count_ = 0;
     for (const auto& t : state_.tensors) {
       if (!t.has_value()) continue;
-      tier_telemetry_[0].max_shape_complexity =
-          std::max(tier_telemetry_[0].max_shape_complexity, shape_complexity(*t));
+      tier_telemetry_[0].max_shape_complexity = std::max(
+          tier_telemetry_[0].max_shape_complexity, t81::vm::internal::tensor_shape_complexity(*t));
       tier_telemetry_[0].max_tensor_rank =
           std::max(tier_telemetry_[0].max_tensor_rank, static_cast<std::size_t>(t->rank()));
     }
@@ -502,24 +492,21 @@ public:
     auto alloc_tensor = [this, current_pc, &telemetry](
                             t81::T729DynamicTensor tensor) -> std::expected<std::int64_t, Trap> {
       const std::size_t tensor_elements = tensor.data().size();
-      const std::size_t tensor_shape_complexity = shape_complexity(tensor);
+      const std::size_t tensor_shape_complexity =
+          t81::vm::internal::tensor_shape_complexity(tensor);
       const std::size_t tensor_rank = static_cast<std::size_t>(tensor.rank());
-      if (state_.policy) {
-        std::size_t active_tensors = state_.tensors.size() - state_.free_tensor_indices.size();
-        if (state_.policy->max_tensors &&
-            active_tensors >= static_cast<std::size_t>(*state_.policy->max_tensors)) {
-          record_axion_event(program_.insns[current_pc].opcode, 0, 0,
-                             {t81::axion::VerdictKind::Deny, "Policy: max-tensors limit exceeded"});
-          return t81::unexpected(Trap::SecurityFault);
-        }
-        if (state_.policy->max_tensor_elements &&
-            state_.total_tensor_elements + tensor_elements >
-                static_cast<std::size_t>(*state_.policy->max_tensor_elements)) {
-          record_axion_event(
-              program_.insns[current_pc].opcode, 0, 0,
-              {t81::axion::VerdictKind::Deny, "Policy: max-tensor-elements limit exceeded"});
-          return t81::unexpected(Trap::SecurityFault);
-        }
+      const auto tensor_policy =
+          t81::vm::internal::evaluate_tensor_alloc_policy(state_, tensor_elements);
+      if (tensor_policy == t81::vm::internal::TensorAllocPolicyResult::MaxTensorsExceeded) {
+        record_axion_event(program_.insns[current_pc].opcode, 0, 0,
+                           {t81::axion::VerdictKind::Deny, "Policy: max-tensors limit exceeded"});
+        return t81::unexpected(Trap::SecurityFault);
+      }
+      if (tensor_policy == t81::vm::internal::TensorAllocPolicyResult::MaxTensorElementsExceeded) {
+        record_axion_event(
+            program_.insns[current_pc].opcode, 0, 0,
+            {t81::axion::VerdictKind::Deny, "Policy: max-tensor-elements limit exceeded"});
+        return t81::unexpected(Trap::SecurityFault);
       }
 
       state_.total_tensor_elements += tensor_elements;
@@ -4844,7 +4831,8 @@ public:
       std::size_t observed_tensor_rank = telemetry.max_tensor_rank;
       for (const auto& tensor : state_.tensors) {
         if (!tensor.has_value()) continue;
-        observed_shape_complexity = std::max(observed_shape_complexity, shape_complexity(*tensor));
+        observed_shape_complexity = std::max(
+            observed_shape_complexity, t81::vm::internal::tensor_shape_complexity(*tensor));
         observed_tensor_rank =
             std::max(observed_tensor_rank, static_cast<std::size_t>(tensor->rank()));
       }
