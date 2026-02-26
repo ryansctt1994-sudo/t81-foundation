@@ -27,7 +27,7 @@ This document tracks immediate, actionable tasks for the T81 project.
 - [x] **Runtime JIT:** Advance `runtime/jit` from experimental research to prototype backend. (Completed 2026-02-26: added JIT trace execution/recording support for bitwise ops (`BitAnd/Or/Xor/Not/Shl/Shr/UShr`) with deterministic parity, and extended JIT equivalence coverage to include hot-loop bitwise traces and boundary logging.)
 - [x] **CanonFS:** Optimize `PersistentDriver` for high-throughput tensor I/O. (Completed 2026-02-26: replaced `exists()+fopen/fwrite` with single `open(O_CREAT|O_EXCL)+write` fast path, added robust full-write handling, and enabled write-through object-cache insertion for hot rereads; validated CanonFS driver/persistent/axion-trace tests.)
 - [x] **CLI Tooling:** Add `t81 trace export` for Axion logs (JSON/CSV). (Completed 2026-02-26: added `trace export` subcommand with `--format json|csv` and `-o/--out` support, parsing canonical trace lines into structured records with raw fallback; covered by `t81_cli_trace_export_test`.)
-- [ ] **Debugger Tooling:** Extend `t81 debug` with cognitive tier state inspection.
+- [x] **Debugger Tooling:** Extend `t81 debug` with cognitive tier state inspection. (Completed 2026-02-26: added debugger command `t [1|2|3|4|5|all]` to inspect cognitive tier state including active tier, Tier 1 symbolic graph counts, Tier 2 reflective frame status, Tier 3 recursion depth/proofs, Tier 4 distributed tick/queues, and Tier 5 infinite-form summaries; validated via `t81_cli_debugger_test`.)
 
 ______________________________________________________________________
 

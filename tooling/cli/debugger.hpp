@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <optional>
 #include <set>
 #include <string>
 #include "t81/isa/program.hpp"
@@ -20,6 +21,7 @@ private:
   void print_current_instruction();
   void print_list();
   void print_memory(std::size_t addr);
+  void print_tier_state(std::optional<int> tier_filter);
 
   std::unique_ptr<t81::vm::IVirtualMachine> vm_;
   t81::tisc::Program program_;

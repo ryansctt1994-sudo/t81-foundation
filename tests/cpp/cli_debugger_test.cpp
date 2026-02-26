@@ -68,6 +68,8 @@ void test_basic() {
   input << "s\n";  // Step LoadImm (PC=0 -> PC=1)
   input << "s\n";  // Step LoadImm (PC=1 -> PC=2)
   input << "s\n";  // Step Add     (PC=2 -> PC=3)
+  input << "t\n";  // Inspect all cognitive tiers
+  input << "t 2\n";
   input << "r\n";  // Check registers
   input << "l\n";  // List instructions
   input << "q\n";  // Quit
@@ -86,6 +88,12 @@ void test_basic() {
   assert(out_str.find("Add 3, 1, 2") != std::string::npos);
   assert(out_str.find("R3: 3") != std::string::npos);
   assert(out_str.find("-> [   3] Halt") != std::string::npos);
+  assert(out_str.find("Cognitive tier state:") != std::string::npos);
+  assert(out_str.find("Tier1 symbolic:") != std::string::npos);
+  assert(out_str.find("Tier2 reflective:") != std::string::npos);
+  assert(out_str.find("Tier3 recursive:") != std::string::npos);
+  assert(out_str.find("Tier4 distributed:") != std::string::npos);
+  assert(out_str.find("Tier5 infinite:") != std::string::npos);
 
   fs::remove(tisc_path);
 }

@@ -8,6 +8,30 @@
 
 namespace t81::cli {
 
+namespace {
+const char* tier_id_name(t81::cog::TierId tier) {
+  switch (tier) {
+    case t81::cog::TierId::Tier0:
+      return "Tier0";
+    case t81::cog::TierId::Tier1:
+      return "Tier1";
+    case t81::cog::TierId::Tier2:
+      return "Tier2";
+    case t81::cog::TierId::Tier3:
+      return "Tier3";
+    case t81::cog::TierId::Tier4:
+      return "Tier4";
+    case t81::cog::TierId::Tier5:
+      return "Tier5";
+  }
+  return "Unknown";
+}
+
+bool should_print_tier(std::optional<int> filter, int tier) {
+  return !filter.has_value() || *filter == tier;
+}
+}  // namespace
+
 Debugger::Debugger(std::unique_ptr<t81::vm::IVirtualMachine> vm, t81::tisc::Program program)
     : vm_(std::move(vm)), program_(std::move(program)) {}
 
@@ -130,6 +154,26 @@ void Debugger::run() {
       case 'l':
         print_list();
         break;
+      case 't': {
+        std::string arg;
+        if (!(iss >> arg) || arg == "all") {
+          print_tier_state(std::nullopt);
+          break;
+        }
+        int tier = 0;
+        try {
+          tier = std::stoi(arg);
+        } catch (...) {
+          error("Usage: t [1|2|3|4|5|all]");
+          break;
+        }
+        if (tier < 1 || tier > 5) {
+          error("Usage: t [1|2|3|4|5|all]");
+          break;
+        }
+        print_tier_state(tier);
+        break;
+      }
       case 'q':
         quit_ = true;
         break;
@@ -153,6 +197,7 @@ void Debugger::print_help() {
             << "  r          Print registers\n"
             << "  k          Print stack\n"
             << "  m <addr>   Print memory at address\n"
+            << "  t [tier]   Inspect cognitive tiers (1-5 or all)\n"
             << "  l          List surrounding instructions\n"
             << "  h          Show this help\n"
             << "  q          Quit debugger\n";
@@ -239,6 +284,53 @@ void Debugger::print_memory(std::size_t addr) {
     return;
   }
   std::cout << "Memory[" << addr << "]: " << state.memory[addr] << "\n";
+}
+
+void Debugger::print_tier_state(std::optional<int> tier_filter) {
+  const auto& state = vm_->state();
+  const auto& ctx = state.contexts[0];
+  std::cout << "Cognitive tier state:\n";
+  std::cout << "  Active tier: " << tier_id_name(ctx.tier_status.current);
+  if (!ctx.tier_status.label.empty()) {
+    std::cout << " (" << ctx.tier_status.label << ")";
+  }
+  std::cout << "\n";
+
+  if (should_print_tier(tier_filter, 1)) {
+    std::cout << "  Tier1 symbolic: graphs=" << state.symbolic_graphs.size()
+              << ", total_nodes=" << state.total_symbolic_nodes << "\n";
+  }
+  if (should_print_tier(tier_filter, 2)) {
+    std::size_t sealed = 0;
+    for (const auto& frame : ctx.tier2_frames) {
+      if (frame.sealed) ++sealed;
+    }
+    std::cout << "  Tier2 reflective: frames=" << ctx.tier2_frames.size()
+              << ", sealed=" << sealed << "\n";
+  }
+  if (should_print_tier(tier_filter, 3)) {
+    std::cout << "  Tier3 recursive: depth=" << ctx.tier3_recursor.current_depth << "/"
+              << ctx.tier3_recursor.max_depth
+              << ", proofs=" << ctx.tier3_recursor.proofs.size() << "\n";
+  }
+  if (should_print_tier(tier_filter, 4)) {
+    std::cout << "  Tier4 distributed: tick=" << state.tier4_state.vector.global_tick
+              << ", inbox=" << state.tier4_state.inbox.size()
+              << ", outbox=" << state.tier4_state.outbox.size() << "\n";
+  }
+  if (should_print_tier(tier_filter, 5)) {
+    std::size_t active_forms = 0;
+    std::size_t convergent = 0;
+    std::size_t lazy_terms = 0;
+    for (const auto& form : state.infinite_forms) {
+      if (!form.has_value()) continue;
+      ++active_forms;
+      if (form->is_convergent) ++convergent;
+      lazy_terms += form->lazy_terms.size();
+    }
+    std::cout << "  Tier5 infinite: forms=" << active_forms << ", convergent=" << convergent
+              << ", lazy_terms=" << lazy_terms << "\n";
+  }
 }
 
 }  // namespace t81::cli
