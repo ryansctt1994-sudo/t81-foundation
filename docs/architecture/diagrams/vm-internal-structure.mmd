@@ -1,16 +1,17 @@
 flowchart TD
-    VM[Interpreter]
-    STEP[step()]
-    LOAD[load_program()]
-    RUN[run_to_halt()]
-    STATE[State + ThreadContext]
-    AX[Axion Engine]
-    JIT[JitCompiler + compiled_traces]
-    HELP[internal helpers]
+    VM["Interpreter"]
+    LOAD["load_program()"]
+    STEP["step()"]
+    RUN["run_to_halt()"]
+    STATE["State / ThreadContext"]
+    AX["Axion Engine"]
+    JIT["JitCompiler / compiled traces"]
+    HELP["Internal helpers"]
 
     VM --> LOAD
     VM --> STEP
     VM --> RUN
+
     LOAD --> STATE
     STEP --> STATE
     STEP --> AX
