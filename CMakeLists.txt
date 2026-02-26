@@ -224,6 +224,7 @@ target_include_directories(t81_isa PUBLIC
 
 add_library(t81_vm STATIC
   core/vm/vm.cpp
+  core/vm/tier_limits.cpp
 )
 target_include_directories(t81_vm PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

@@ -27,6 +27,7 @@
 #include "t81/enum_meta.hpp"
 #include "t81/jit/jit.hpp"
 #include "t81/types/T81Float.hpp"
+#include "internal/tier_limits.hpp"
 #include "t81/vm/vm.hpp"
 
 namespace t81::vm {
@@ -53,128 +54,13 @@ std::unique_ptr<t81::axion::Engine> make_deny_with_reason_engine(std::string rea
   return std::make_unique<DenyWithReasonEngine>(std::move(reason));
 }
 
-constexpr int tier_rank(t81::cog::TierId tier) {
-  switch (tier) {
-    case t81::cog::TierId::Tier0:
-      return 0;
-    case t81::cog::TierId::Tier1:
-      return 1;
-    case t81::cog::TierId::Tier2:
-      return 2;
-    case t81::cog::TierId::Tier3:
-      return 3;
-    case t81::cog::TierId::Tier4:
-      return 4;
-    case t81::cog::TierId::Tier5:
-      return 5;
-  }
-  return 0;
-}
-
-constexpr std::size_t recursion_limit_for_tier(t81::cog::TierId tier) {
-  switch (tier) {
-    case t81::cog::TierId::Tier0:
-      return 0;
-    case t81::cog::TierId::Tier1:
-      return 1;
-    case t81::cog::TierId::Tier2:
-      return 10;
-    case t81::cog::TierId::Tier3:
-      return 81;
-    case t81::cog::TierId::Tier4:
-      return 243;
-    case t81::cog::TierId::Tier5:
-      return 729;
-  }
-  return 0;
-}
-
-constexpr t81::cog::TierId tier_from_rank(int rank) {
-  switch (rank) {
-    case 0:
-      return t81::cog::TierId::Tier0;
-    case 1:
-      return t81::cog::TierId::Tier1;
-    case 2:
-      return t81::cog::TierId::Tier2;
-    case 3:
-      return t81::cog::TierId::Tier3;
-    case 4:
-      return t81::cog::TierId::Tier4;
-    case 5:
-      return t81::cog::TierId::Tier5;
-    default:
-      return rank < 1 ? t81::cog::TierId::Tier0 : t81::cog::TierId::Tier5;
-  }
-}
-
-constexpr std::size_t max_shape_complexity_for_tier(t81::cog::TierId tier) {
-  switch (tier) {
-    case t81::cog::TierId::Tier0:
-    case t81::cog::TierId::Tier1:
-      return 81;
-    case t81::cog::TierId::Tier2:
-      return 81 * 81 * 3;
-    case t81::cog::TierId::Tier3:
-      return 81 * 81 * 5;
-    case t81::cog::TierId::Tier4:
-      return 81 * 81 * 7;
-    case t81::cog::TierId::Tier5:
-      return 81 * 81 * 9;
-  }
-  return 81;
-}
-
-constexpr int max_tensor_rank_for_tier(t81::cog::TierId tier) {
-  switch (tier) {
-    case t81::cog::TierId::Tier0:
-    case t81::cog::TierId::Tier1:
-      return 1;
-    case t81::cog::TierId::Tier2:
-      return 3;
-    case t81::cog::TierId::Tier3:
-      return 5;
-    case t81::cog::TierId::Tier4:
-      return 7;
-    case t81::cog::TierId::Tier5:
-      return 9;
-  }
-  return 1;
-}
-
-constexpr std::size_t max_symbolic_complexity_for_tier(t81::cog::TierId tier) {
-  switch (tier) {
-    case t81::cog::TierId::Tier0:
-    case t81::cog::TierId::Tier1:
-      return 81;
-    case t81::cog::TierId::Tier2:
-      return 243;
-    case t81::cog::TierId::Tier3:
-      return 729;
-    case t81::cog::TierId::Tier4:
-      return 2187;
-    case t81::cog::TierId::Tier5:
-      return 6561;
-  }
-  return 81;
-}
-
-constexpr double max_branch_entropy_for_tier(t81::cog::TierId tier) {
-  switch (tier) {
-    case t81::cog::TierId::Tier0:
-    case t81::cog::TierId::Tier1:
-      return 16.0;
-    case t81::cog::TierId::Tier2:
-      return 64.0;
-    case t81::cog::TierId::Tier3:
-      return 162.0;
-    case t81::cog::TierId::Tier4:
-      return 243.0;
-    case t81::cog::TierId::Tier5:
-      return 324.0;
-  }
-  return 16.0;
-}
+using t81::vm::internal::max_branch_entropy_for_tier;
+using t81::vm::internal::max_shape_complexity_for_tier;
+using t81::vm::internal::max_symbolic_complexity_for_tier;
+using t81::vm::internal::max_tensor_rank_for_tier;
+using t81::vm::internal::recursion_limit_for_tier;
+using t81::vm::internal::tier_from_rank;
+using t81::vm::internal::tier_rank;
 
 constexpr std::size_t shape_complexity(const t81::T729DynamicTensor& tensor) {
   std::size_t product = 1;
