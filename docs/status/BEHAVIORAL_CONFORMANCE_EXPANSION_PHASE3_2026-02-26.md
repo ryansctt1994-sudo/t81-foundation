@@ -40,9 +40,13 @@ Completed in this slice:
 8. Expanded mixed workload conformance with deterministic deny-path branch coverage:
    - `tests/cpp/vm_mixed_workload_conformance_matrix_test.cpp`
    - Added low instruction-budget policy case to force deterministic deny during branch loop.
+9. Expanded Axion clause-combination conformance invariants:
+   - `tests/cpp/axion_policy_conformance_matrix_test.cpp`
+   - Added clause-ordering equivalence checks for allow and deny policy sets.
+   - Added deterministic Axion-event signature checks to detect order-dependent drift.
 
 ## Next Planned Slice
 
 1. Continue VM integration extraction with opcode-family dispatch splitting to reduce `core/vm/vm.cpp` control concentration.
 2. Expand workload-level determinism/conformance cases toward longer multi-op mixes with bounded fault-injection checkpoints.
-3. Extend Axion conformance matrices with clause-combination invariants across allow/deny interaction orderings.
+3. Expand Axion conformance matrices from clause-ordering checks into multi-requirement interaction invariants (segment + axion-event + alignment combinations).

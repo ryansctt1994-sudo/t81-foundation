@@ -64,6 +64,7 @@ Authority remains:
   - deterministic `TLOADHASH` status classification matrix expanded (`InvalidHash`/`CanonFsMiss`/`DecodeFault`)
   - mixed workload conformance matrix (policy+tensor+memory+branch) added
   - mixed workload matrix now includes deterministic policy-deny branch-path case
+  - Axion conformance matrix now includes clause-ordering equivalence invariants with deterministic Axion-event signatures
   - VM trace/log helper extraction advanced in policy-trace bridge
 - Experimental backlog implementation items are complete:
   - Cognitive Tier 1..5 closures

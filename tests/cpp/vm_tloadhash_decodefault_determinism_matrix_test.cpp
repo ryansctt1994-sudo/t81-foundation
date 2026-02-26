@@ -127,6 +127,8 @@ int main() {
       std::span<const std::byte>(malformed_rank.data(), malformed_rank.size()));
   if (!expect(write_rank.has_value(), "write malformed rank tensor failed")) return 1;
   const std::string malformed_rank_hash = "sha3-256:" + write_rank->hash.h.to_string();
+  const std::string invalid_long_hash =
+      "sha3-256:" + write_short->hash.h.to_string() + write_rank->hash.h.to_string();
 
   t81::weights::NativeTensor miss_tensor;
   miss_tensor.format = t81::weights::NativeFormat::BalancedTernary;
@@ -153,7 +155,7 @@ int main() {
   };
   std::vector<MatrixCase> cases;
   cases.push_back({"invalid-hash-string",
-                   make_tloadhash_program("sha3-256:not-a-valid-canon-hash"),
+                   make_tloadhash_program(invalid_long_hash),
                    t81::vm::Trap::DecodeFault,
                    false});
   cases.push_back(
