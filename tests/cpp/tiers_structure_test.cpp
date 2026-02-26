@@ -11,11 +11,23 @@
 int main() {
   // Tier 1: Symbolic
   {
-    t81::cog::v1::SymbolicAtom atom = t81::cog::v1::SymbolicAtom::create("test_atom");
-    assert(atom.label == "test_atom");
     t81::cog::v1::SymbolicGraph graph;
-    graph.add_node(atom);
-    assert(graph.nodes.size() == 1);
+    auto atom_a = t81::cog::v1::SymbolicAtom::create("test_atom_a");
+    auto atom_b = t81::cog::v1::SymbolicAtom::create("test_atom_b");
+    auto atom_c = t81::cog::v1::SymbolicAtom::create("test_atom_c");
+    graph.add_node(atom_a);
+    graph.add_node(atom_b);
+    graph.add_node(atom_c);
+    assert(graph.nodes.size() == 3);
+
+    graph.add_edge(atom_a.id, atom_b.id, "rewrite");
+    graph.add_edge(atom_a.id, atom_c.id, "rewrite");
+    assert(!graph.is_confluent());
+
+    graph.apply_rewrite({atom_c.id, atom_b.id});
+    assert(graph.is_confluent());
+    assert(graph.nodes.size() == 2);
+
     std::cout << "Tier 1 (Symbolic) test passed." << std::endl;
   }
 

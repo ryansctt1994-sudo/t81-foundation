@@ -19,7 +19,7 @@ This document tracks immediate, actionable tasks for the T81 project.
 - [x] **Boundary Classification:** Keep llama integration explicitly classified as governed non-DCP in status/release artifacts. (Completed 2026-02-26; explicit classification added in `docs/status/RELEASE_READINESS_PACKET_2026-03.md` and `docs/status/IMPLEMENTATION_MATRIX.md`.)
 
 ### Experimental Implementation Backlog (Post-C2 Pickup)
-- [ ] **Cognitive Tier 1:** Implement `SymbolicGraph::rewrite` and `is_confluent`.
+- [x] **Cognitive Tier 1:** Implement `SymbolicGraph::rewrite` and `is_confluent`. (Completed 2026-02-26: deterministic rewrite now updates nodes/edges with canonicalization, and confluence now checks unique nodes, valid edge endpoints, and deterministic `(from,label)->to` transitions; validated via `tiers_structure_test`.)
 - [ ] **Cognitive Tier 2:** Connect `ReflectiveFrame` to Axion trace events.
 - [ ] **Cognitive Tier 3:** Implement `Recursor` evaluation loop and depth proof verification.
 - [ ] **Cognitive Tier 4:** Implement `NodeState` synchronization and gossip protocol logic.
