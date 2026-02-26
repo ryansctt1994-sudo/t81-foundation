@@ -26,7 +26,7 @@
 
 ## What is T81?
 
-**T81** is a sovereign computing stack built from the ground up for **determinism** and **ternary logic**. It eliminates the non-determinism of modern floating-point arithmetic and provides a mathematically rigorous foundation for high-stakes AI, cryptography, and scientific modeling.
+**T81** is a sovereign computing stack built from the ground up for **determinism** and **ternary logic**. It reduces non-determinism on explicitly verified surfaces and provides a mathematically rigorous foundation for high-stakes AI, cryptography, and scientific modeling.
 
 Where traditional systems drift across architectures, T81 targets bit-exact reproducibility on explicitly verified surfaces, with guarantees bounded by the determinism registry and core profile.
 
@@ -34,7 +34,7 @@ Where traditional systems drift across architectures, T81 targets bit-exact repr
 
 | Feature | The Problem (Binary/IEEE 754) | The T81 Solution |
 | :--- | :--- | :--- |
-| **Arithmetic** | Floating-point drift across CPU/GPU architectures. | **Deterministic Soft-Float:** Bit-exact math on x86, ARM, & RISC-V. |
+| **Arithmetic** | Floating-point drift across CPU/GPU architectures. | **Deterministic Soft-Float (bounded):** Bit-exact behavior on explicitly verified surfaces under the determinism registry/core profile. |
 | **Logic** | Boolean (True/False) loses nuance. | **Balanced Ternary:** {-1, 0, +1} logic for efficient, drift-free decision trees. |
 | **Safety** | AI models are black boxes with no runtime guarantees. | **Axion Kernel:** Enforceable, audit-grade governance policies at the opcode level. |
 | **Stability** | Constant breaking changes and dependency hell. | **Frozen Specs:** The TISC ISA and Data Types are immutable standards. |

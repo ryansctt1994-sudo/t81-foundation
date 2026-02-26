@@ -25,22 +25,22 @@ Seven new bitwise instructions have been added to the Core ISA to support intege
 
 **Determinism Guarantee:** Shift amounts are strictly masked with `& 0x3F` (63) before execution. This ensures consistent behavior regardless of host architecture or undefined C++ behavior for out-of-range shifts.
 
-### 2. Neural & Axion Primitives
-The following opcodes are frozen as **Functional Stubs** or **Identity Operations** to reserve their encoding space while allowing the runtime to evolve:
+### 2. Neural, Axion, and Async/Network Primitives
+The following opcodes are frozen in encoding while current runtime semantics are intentionally **fail-closed** until fully implemented and promoted:
 
-*   **Neural**: `TNeuralFwd` (Identity/Pass-through), `TNeuralBwd` (Log-only).
-*   **Axion**: `AxSign`, `AxLineage`, `AxCanon` (Log-only events).
-*   **Network**: `NSend`, `NRecv`, `VWait`, `VYield` (Simulation stubs).
+*   **Neural**: `TNeuralFwd`, `TNeuralBwd` (unimplemented; deterministic `SecurityFault`).
+*   **Axion Privileged**: `AxSign`, `AxLineage`, `AxCanon` (unimplemented; deterministic `SecurityFault`).
+*   **Async/Network**: `NSend`, `NRecv`, `VWait`, `VYield` (unimplemented; deterministic `SecurityFault`).
 
 ### 3. Reserved Range
 The opcode range **174 (0xAE) to 255 (0xFF)** is explicitly reserved for future standardization. Implementations MUST NOT assign custom semantics to these values.
 
 ## Determinism Caveats
 
-While integer and control-flow operations are bit-exact deterministic, **floating-point transcendental functions** (e.g., `FSin`, `FExp`) currently rely on the host `libm` for performance.
+While integer and control-flow operations are bit-exact deterministic, float/tensor determinism remains profile-bounded.
 
-*   **Strict Determinism**: Requires building with `-DT81_DETERMINISTIC=ON`, which engages software-defined math libraries (slower but bit-exact).
-*   **Default Behavior**: Uses hardware/host instructions.
+*   **Strict Determinism Profile**: The build now defaults to `T81_STRICT_DETERMINISTIC_FLOAT=ON`, defining `T81_DETERMINISTIC` for deterministic float math paths where available.
+*   **Non-DCP / Backend Caveat**: Tensor/backend and other explicitly non-DCP surfaces remain outside universal cross-platform bit-exact guarantees.
 
 ## Deferred Extensions
 

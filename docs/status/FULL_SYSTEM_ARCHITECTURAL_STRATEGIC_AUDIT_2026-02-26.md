@@ -385,6 +385,13 @@ Then make CI fail on any doc/status/translation drift from that contract.
   - benchmark performance regression gating
   - overclaim/cognitive-tier boundary documentation guardrails
 
+### 2026-02-26 (R35)
+- Normalized top-level claim wording in `README.md` to deterministic-surface-bounded language (removed universal phrasing around eliminating floating-point nondeterminism).
+- Updated `docs/releases/TISC_v1.1.0_Canonical_Freeze.md` to reflect current runtime semantics:
+  - unimplemented neural/privileged/async-network opcode surfaces are fail-closed (`SecurityFault`)
+  - strict deterministic float profile is defaulted via `T81_STRICT_DETERMINISTIC_FLOAT=ON` / `T81_DETERMINISTIC`
+  - non-DCP backend caveat remains explicit
+
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
 - This report is descriptive and evidence-based; it does not override normative `/spec` authority.
