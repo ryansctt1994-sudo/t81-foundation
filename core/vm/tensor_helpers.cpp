@@ -265,6 +265,10 @@ bool tensor_elementwise_compatible(const t81::T729DynamicTensor& lhs,
   return lhs.data().size() == rhs.data().size();
 }
 
+bool tensor_softmax_compatible(const t81::T729DynamicTensor& tensor) {
+  return tensor.rank() != 0;
+}
+
 t81::T729DynamicTensor tensor_matmul_2d(const t81::T729DynamicTensor& lhs,
                                         const t81::T729DynamicTensor& rhs) {
   return t81::ops::matmul(lhs, rhs);
@@ -289,6 +293,10 @@ t81::T729DynamicTensor tensor_binary_elementwise(const t81::T729DynamicTensor& l
     }
   }
   return t81::T729DynamicTensor(lhs.shape(), std::move(data));
+}
+
+bool tensor_transpose_2d_compatible(const t81::T729DynamicTensor& tensor) {
+  return tensor.rank() == 2;
 }
 
 t81::T729DynamicTensor tensor_transpose_2d(const t81::T729DynamicTensor& tensor) {

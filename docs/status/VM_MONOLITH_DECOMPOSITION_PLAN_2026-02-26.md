@@ -70,3 +70,4 @@ Mitigation: benchmark after each major phase and keep hot helpers inline where n
 - No regressions in determinism and governance gate suites.
 - Updated architecture docs reflect new module boundaries with evidence links.
 - Pre-dispatch deny-path observability remains locked by explicit VM tests.
+- Tensor shape-fault behavior remains locked by explicit VM trap-conformance tests.

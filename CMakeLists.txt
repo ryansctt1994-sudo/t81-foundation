@@ -451,6 +451,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_tloadhash_conformance_test tests/cpp/vm_tloadhash_conformance_test.cpp)
   target_link_libraries(t81_vm_tloadhash_conformance_test PRIVATE t81_vm t81_core)
 
+  add_executable(t81_vm_tensor_shape_faults_test tests/cpp/vm_tensor_shape_faults_test.cpp)
+  target_link_libraries(t81_vm_tensor_shape_faults_test PRIVATE t81_vm t81_core)
+
   add_executable(t81_vm_predispatch_policy_deny_logging_test
                  tests/cpp/vm_predispatch_policy_deny_logging_test.cpp)
   target_link_libraries(t81_vm_predispatch_policy_deny_logging_test PRIVATE t81_vm t81_core)
@@ -1260,6 +1263,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     t81_vm_bounds_test
     t81_vm_tensor_test
     t81_vm_tloadhash_conformance_test
+    t81_vm_tensor_shape_faults_test
     t81_vm_predispatch_policy_deny_logging_test
     t81_vm_fault_test
     t81_vm_deterministic_fault_test

@@ -62,6 +62,7 @@ t81::T729DynamicTensor tensor_unary_silu(const t81::T729DynamicTensor& tensor);
 t81::T729DynamicTensor tensor_unary_softmax(const t81::T729DynamicTensor& tensor);
 bool tensor_elementwise_compatible(const t81::T729DynamicTensor& lhs,
                                    const t81::T729DynamicTensor& rhs);
+bool tensor_softmax_compatible(const t81::T729DynamicTensor& tensor);
 t81::T729DynamicTensor tensor_matmul_2d(const t81::T729DynamicTensor& lhs,
                                         const t81::T729DynamicTensor& rhs);
 bool tensor_matmul_compatible(const t81::T729DynamicTensor& lhs,
@@ -69,6 +70,7 @@ bool tensor_matmul_compatible(const t81::T729DynamicTensor& lhs,
 t81::T729DynamicTensor tensor_binary_elementwise(const t81::T729DynamicTensor& lhs,
                                                  const t81::T729DynamicTensor& rhs,
                                                  bool multiply);
+bool tensor_transpose_2d_compatible(const t81::T729DynamicTensor& tensor);
 t81::T729DynamicTensor tensor_transpose_2d(const t81::T729DynamicTensor& tensor);
 std::optional<t81::T729DynamicTensor> tensor_contract_dot(const t81::T729DynamicTensor& lhs,
                                                           const t81::T729DynamicTensor& rhs);

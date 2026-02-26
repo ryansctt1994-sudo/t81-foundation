@@ -1687,7 +1687,7 @@ public:
           break;
         }
         auto* tensor = tensor_ptr(ctx.registers[insn.b]);
-        if (tensor == nullptr || tensor->rank() == 0) {
+        if (tensor == nullptr || !t81::vm::internal::tensor_softmax_compatible(*tensor)) {
           trap = Trap::DecodeFault;
           break;
         }
@@ -3485,7 +3485,7 @@ public:
           break;
         }
         auto* tensor = tensor_ptr(ctx.registers[insn.b]);
-        if (tensor == nullptr || tensor->rank() != 2) {
+        if (tensor == nullptr || !t81::vm::internal::tensor_transpose_2d_compatible(*tensor)) {
           trap = Trap::ShapeFault;
           break;
         }
