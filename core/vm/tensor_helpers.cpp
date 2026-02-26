@@ -222,4 +222,23 @@ std::optional<t81::canonfs::CanonRef> parse_canon_tensor_ref(std::string_view ha
   return t81::canonfs::CanonRef{ch};
 }
 
+TensorLoadHashResult load_canon_tensor_by_hash(t81::canonfs::Driver& driver,
+                                               std::string_view hash_text) {
+  auto ref = parse_canon_tensor_ref(hash_text);
+  if (!ref.has_value()) {
+    return {TensorLoadHashStatus::InvalidHash, std::nullopt};
+  }
+
+  auto obj_res = driver.read_object_bytes(*ref);
+  if (!obj_res.has_value()) {
+    return {TensorLoadHashStatus::CanonFsMiss, std::nullopt};
+  }
+
+  auto decoded = decode_canon_tensor_object(obj_res.value());
+  if (!decoded.has_value()) {
+    return {TensorLoadHashStatus::DecodeFault, std::nullopt};
+  }
+  return {TensorLoadHashStatus::Ok, std::move(decoded)};
+}
+
 }  // namespace t81::vm::internal

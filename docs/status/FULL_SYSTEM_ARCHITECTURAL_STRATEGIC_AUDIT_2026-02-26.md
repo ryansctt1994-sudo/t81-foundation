@@ -127,6 +127,7 @@ Publish explicit dual profile contract:
 - `TLOADHASH` ambiguous payload-layout handling now fails closed (`DecodeFault`) instead of silently no-oping on shape/payload-equal objects.
 - VM Phase-E decomposition advanced further: CanonFS tensor object parse+decode gate for `TLOADHASH` is now encapsulated in tensor helpers instead of inline in `vm.cpp`.
 - `TLOADHASH` hash normalization/CanonRef parsing is now encapsulated in tensor helpers, reducing VM dispatch-path parsing logic concentration.
+- `TLOADHASH` CanonFS fetch/decode result classification (invalid hash vs miss vs decode fault) is now centralized in helper code, leaving VM dispatch focused on trap/event mapping.
 - Formal proof depth for governance/security invariants is incomplete.
 - Host-level containment remains intentionally out-of-scope.
 

@@ -1252,14 +1252,13 @@ public:
           break;
         }
 
-        auto ref = t81::vm::internal::parse_canon_tensor_ref(hash_str);
-        if (!ref.has_value()) {
+        auto load_res =
+            t81::vm::internal::load_canon_tensor_by_hash(*canonfs_driver_, hash_str);
+        if (load_res.status == t81::vm::internal::TensorLoadHashStatus::InvalidHash) {
           trap = Trap::DecodeFault;
           break;
         }
-
-        auto obj_res = canonfs_driver_->read_object_bytes(*ref);
-        if (!obj_res) {
+        if (load_res.status == t81::vm::internal::TensorLoadHashStatus::CanonFsMiss) {
           t81::axion::Verdict miss_verdict;
           miss_verdict.kind = t81::axion::VerdictKind::Allow;
           miss_verdict.reason = "TLOADHASH canonfs_miss hash=" + hash_str;
@@ -1267,13 +1266,12 @@ public:
           trap = Trap::BoundsFault;
           break;
         }
-
-        auto loaded_tensor = t81::vm::internal::decode_canon_tensor_object(obj_res.value());
-        if (!loaded_tensor.has_value()) {
+        if (load_res.status != t81::vm::internal::TensorLoadHashStatus::Ok ||
+            !load_res.tensor.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
-        auto res = alloc_tensor(std::move(*loaded_tensor));
+        auto res = alloc_tensor(std::move(*load_res.tensor));
         if (!res) {
           trap = res.error();
           break;
