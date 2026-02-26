@@ -44,9 +44,13 @@ Completed in this slice:
    - `tests/cpp/axion_policy_conformance_matrix_test.cpp`
    - Added clause-ordering equivalence checks for allow and deny policy sets.
    - Added deterministic Axion-event signature checks to detect order-dependent drift.
+10. Reduced VM dispatch concentration for Axion-report/check opcode family:
+   - `core/vm/vm.cpp`
+   - Extracted `AxCheck`/`AxReport`/blocked-privileged-Axion handling into dedicated dispatch lambdas.
+   - Preserved fail-closed trap and event semantics while reducing switch-body control density.
 
 ## Next Planned Slice
 
-1. Continue VM integration extraction with opcode-family dispatch splitting to reduce `core/vm/vm.cpp` control concentration.
+1. Continue VM integration extraction with additional opcode-family dispatch splitting to reduce `core/vm/vm.cpp` control concentration.
 2. Expand workload-level determinism/conformance cases toward longer multi-op mixes with bounded fault-injection checkpoints.
 3. Expand Axion conformance matrices from clause-ordering checks into multi-requirement interaction invariants (segment + axion-event + alignment combinations).

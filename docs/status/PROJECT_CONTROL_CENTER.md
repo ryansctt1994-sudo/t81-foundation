@@ -65,6 +65,7 @@ Authority remains:
   - mixed workload conformance matrix (policy+tensor+memory+branch) added
   - mixed workload matrix now includes deterministic policy-deny branch-path case
   - Axion conformance matrix now includes clause-ordering equivalence invariants with deterministic Axion-event signatures
+  - Axion opcode dispatch concentration reduced in VM via extracted `AxCheck`/`AxReport` helper paths
   - VM trace/log helper extraction advanced in policy-trace bridge
 - Experimental backlog implementation items are complete:
   - Cognitive Tier 1..5 closures

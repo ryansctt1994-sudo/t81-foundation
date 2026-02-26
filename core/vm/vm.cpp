@@ -1076,6 +1076,59 @@ public:
       return std::nullopt;
     };
 
+    auto handle_axcheck = [&]() -> std::optional<Trap> {
+      if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+        return Trap::DecodeFault;
+      }
+      const bool ok = ctx.registers[insn.a] != 0;
+      auto msg = symbol_like_text(ctx.register_tags[insn.b], ctx.registers[insn.b]);
+      std::string text = msg.has_value() ? std::string(*msg) : "Check";
+
+      t81::axion::Verdict verdict;
+      if (!ok) {
+        verdict.kind = t81::axion::VerdictKind::Deny;
+        verdict.reason = "AxCheck: " + text;
+      } else {
+        verdict = eval_axion_call(t81::axion::reasons::kAxCheck, current_pc, insn.opcode);
+        if (verdict.kind == t81::axion::VerdictKind::Allow ||
+            verdict.kind == t81::axion::VerdictKind::Warn) {
+          verdict.reason = "AxCheck: " + text;
+        }
+      }
+      record_axion_event(insn.opcode, 0, ok ? 1 : 0, verdict);
+      if (verdict.kind == t81::axion::VerdictKind::Deny) {
+        return Trap::SecurityFault;
+      }
+      return std::nullopt;
+    };
+
+    auto handle_axreport = [&]() -> std::optional<Trap> {
+      if (!reg_ok(insn.a)) {
+        return Trap::DecodeFault;
+      }
+      auto msg = symbol_like_text(ctx.register_tags[insn.a], ctx.registers[insn.a]);
+      std::string text = msg.has_value() ? std::string(*msg) : "Report";
+
+      t81::axion::Verdict verdict =
+          eval_axion_call(t81::axion::reasons::kAxReport, current_pc, insn.opcode);
+      if (verdict.kind == t81::axion::VerdictKind::Allow ||
+          verdict.kind == t81::axion::VerdictKind::Warn) {
+        verdict.reason = "AxReport: " + text;
+      }
+      record_axion_event(insn.opcode, 0, 0, verdict);
+      if (verdict.kind == t81::axion::VerdictKind::Deny) {
+        return Trap::SecurityFault;
+      }
+      return std::nullopt;
+    };
+
+    auto handle_blocked_privileged_axion_opcode = [&](t81::tisc::Opcode opcode) {
+      t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
+                                  "Blocked: unimplemented privileged Axion opcode"};
+      record_axion_event(opcode, 0, 0, verdict);
+      return Trap::SecurityFault;
+    };
+
     Trap trap = Trap::None;
     switch (insn.opcode) {
       case t81::tisc::Opcode::Nop: {
@@ -4476,59 +4529,21 @@ public:
         break;
       }
       case t81::tisc::Opcode::AxCheck: {
-        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
-          trap = Trap::DecodeFault;
-          break;
-        }
-        bool ok = ctx.registers[insn.a] != 0;
-        auto msg = symbol_like_text(ctx.register_tags[insn.b], ctx.registers[insn.b]);
-        std::string text = msg.has_value() ? std::string(*msg) : "Check";
-
-        t81::axion::Verdict verdict;
-        if (!ok) {
-          verdict.kind = t81::axion::VerdictKind::Deny;
-          verdict.reason = "AxCheck: " + text;
-        } else {
-          verdict = eval_axion_call(t81::axion::reasons::kAxCheck, current_pc, insn.opcode);
-          if (verdict.kind == t81::axion::VerdictKind::Allow ||
-              verdict.kind == t81::axion::VerdictKind::Warn) {
-            verdict.reason = "AxCheck: " + text;
-          }
-        }
-        record_axion_event(insn.opcode, 0, ok ? 1 : 0, verdict);
-        if (verdict.kind == t81::axion::VerdictKind::Deny) {
-          trap = Trap::SecurityFault;
+        if (auto ax_trap = handle_axcheck(); ax_trap.has_value()) {
+          trap = *ax_trap;
         }
         break;
       }
       case t81::tisc::Opcode::AxReport: {
-        if (!reg_ok(insn.a)) {
-          trap = Trap::DecodeFault;
-          break;
-        }
-        auto msg = symbol_like_text(ctx.register_tags[insn.a], ctx.registers[insn.a]);
-        std::string text = msg.has_value() ? std::string(*msg) : "Report";
-
-        t81::axion::Verdict verdict =
-            eval_axion_call(t81::axion::reasons::kAxReport, current_pc, insn.opcode);
-        if (verdict.kind == t81::axion::VerdictKind::Allow ||
-            verdict.kind == t81::axion::VerdictKind::Warn) {
-          verdict.reason = "AxReport: " + text;
-        }
-        record_axion_event(insn.opcode, 0, 0, verdict);
-        if (verdict.kind == t81::axion::VerdictKind::Deny) {
-          trap = Trap::SecurityFault;
+        if (auto ax_trap = handle_axreport(); ax_trap.has_value()) {
+          trap = *ax_trap;
         }
         break;
       }
       case t81::tisc::Opcode::AxSign:
       case t81::tisc::Opcode::AxLineage:
       case t81::tisc::Opcode::AxCanon: {
-        // Fail closed for unimplemented privileged Axion opcodes.
-        t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
-                                    "Blocked: unimplemented privileged Axion opcode"};
-        record_axion_event(insn.opcode, 0, 0, verdict);
-        trap = Trap::SecurityFault;
+        trap = handle_blocked_privileged_axion_opcode(insn.opcode);
         break;
       }
       case t81::tisc::Opcode::TNeuralFwd: {
