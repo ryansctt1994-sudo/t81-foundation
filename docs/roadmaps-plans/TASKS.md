@@ -25,7 +25,7 @@ This document tracks immediate, actionable tasks for the T81 project.
 - [x] **Cognitive Tier 4:** Implement `NodeState` synchronization and gossip protocol logic. (Completed 2026-02-26: implemented bounded-coherence checks, monotonic gossip tick propagation, deterministic newest-first merge ordering with duplicate collapse, activated `t81_tier4_distributed_test`, and validated Tier 4 VM/distributed paths.)
 - [x] **Cognitive Tier 5:** Implement `InfiniteCanonicalForm` lazy expansion logic. (Completed 2026-02-26: added lazy prefix seeding/expansion APIs on `InfiniteCanonicalForm`, wired VM `InfSeed/InfExpand` to deterministic lazy term growth, enabled `t81_infinite_opcodes_test`, and validated Tier 5 convergence/opcode paths.)
 - [x] **Runtime JIT:** Advance `runtime/jit` from experimental research to prototype backend. (Completed 2026-02-26: added JIT trace execution/recording support for bitwise ops (`BitAnd/Or/Xor/Not/Shl/Shr/UShr`) with deterministic parity, and extended JIT equivalence coverage to include hot-loop bitwise traces and boundary logging.)
-- [ ] **CanonFS:** Optimize `PersistentDriver` for high-throughput tensor I/O.
+- [x] **CanonFS:** Optimize `PersistentDriver` for high-throughput tensor I/O. (Completed 2026-02-26: replaced `exists()+fopen/fwrite` with single `open(O_CREAT|O_EXCL)+write` fast path, added robust full-write handling, and enabled write-through object-cache insertion for hot rereads; validated CanonFS driver/persistent/axion-trace tests.)
 - [ ] **CLI Tooling:** Add `t81 trace export` for Axion logs (JSON/CSV).
 - [ ] **Debugger Tooling:** Extend `t81 debug` with cognitive tier state inspection.
 

@@ -1,6 +1,7 @@
 #include "t81/canonfs/canon_driver.hpp"
 
 #include <cstddef>
+#include <cerrno>
 #include <filesystem>
 #include <fstream>
 #include <istream>
@@ -67,6 +68,23 @@ bool write_capability(const std::filesystem::path& path, uint16_t perms) {
   return static_cast<bool>(out);
 }
 
+bool write_all_fd(int fd, const std::byte* data, std::size_t size) {
+  const std::byte* cursor = data;
+  std::size_t remaining = size;
+  while (remaining > 0) {
+    const ssize_t wrote = ::write(fd, cursor, remaining);
+    if (wrote < 0) {
+      if (errno == EINTR) {
+        continue;
+      }
+      return false;
+    }
+    cursor += static_cast<std::size_t>(wrote);
+    remaining -= static_cast<std::size_t>(wrote);
+  }
+  return true;
+}
+
 class PersistentDriver final : public Driver {
 public:
   explicit PersistentDriver(std::filesystem::path root)
@@ -98,16 +116,33 @@ public:
       return Result<CanonRef>(t81::unexpect, Error::CapabilityError);
     }
 
-    // Check if already exists to avoid redundant writes
     auto target = object_path(root_, ref.hash);
-    if (std::filesystem::exists(target)) return ref;
+    const int fd = ::open(target.string().c_str(), O_WRONLY | O_CREAT | O_EXCL, 0644);
+    if (fd < 0) {
+      if (errno == EEXIST) {
+        return ref;
+      }
+      return Result<CanonRef>(t81::unexpect, Error::DecodeError);
+    }
 
-    FILE* f = fopen(target.c_str(), "wb");
-    if (!f) return Result<CanonRef>(t81::unexpect, Error::DecodeError);
-    size_t written = fwrite(bytes.data(), 1, bytes.size(), f);
-    fclose(f);
+    const bool ok = write_all_fd(fd, bytes.data(), bytes.size());
+    ::close(fd);
+    if (!ok) {
+      std::error_code ec;
+      std::filesystem::remove(target, ec);
+      return Result<CanonRef>(t81::unexpect, Error::DecodeError);
+    }
 
-    if (written != bytes.size()) return Result<CanonRef>(t81::unexpect, Error::DecodeError);
+    // Write-through cache for hot re-reads.
+    if (object_cache_.size() >= kMaxCacheSize) {
+      auto last = lru_list_.back();
+      object_cache_.erase(last);
+      lru_list_.pop_back();
+    }
+    std::vector<std::byte> cached(bytes.begin(), bytes.end());
+    lru_list_.push_front(ref.hash);
+    object_cache_[ref.hash] = {std::move(cached), lru_list_.begin()};
+
     return ref;
   }
 
