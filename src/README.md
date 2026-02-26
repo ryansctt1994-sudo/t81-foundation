@@ -3,17 +3,20 @@
 Implementation tree for the T81 runtime, compiler/tooling pipeline, and supporting subsystems.
 
 ## Structure
-- `frontend/`: lexer, parser, semantic analyzer
-- `tisc/`: IR representation, binary encoding/IO, disassembly plumbing
-- `vm/`: HanoiVM interpreter, trace-JIT, execution state/traps
-- `axion/`: policy engine, verdicts, runtime safety hooks
-- `tensor/`, `simd/`, `bigint/`: numeric and kernel implementations
-- `canonfs/`, `codec/`, `hash/`, `crypto/`, `io/`: storage/encoding/support layers
-- `cli/`: command orchestration and diagnostics surfaces
+- `c_api/`: C-language API bridge surface
+- `canonfs/`: CanonFS runtime/storage integration
+- `codec/`: canonical encoding/decoding utilities
+- `crypto/`: cryptographic support utilities
+- `io/`: runtime I/O helpers and adapters
+- `python/`: Python binding module sources
+- `setun/`: set/union support primitives
+- `simd/`: SIMD helper implementations
+- `tensor/`: tensor runtime operations and helpers
+- `main.c`, `t81_core.h`: entry/header integration stubs used by specific build targets
 - `c_api/`, `python/`: external language bindings
 
 ## Design constraints
-- Preserve deterministic semantics across interpreter and JIT paths.
+- Preserve deterministic semantics across runtime paths.
 - Keep policy and trace behavior equivalent across optimization paths.
 - Route public contracts through headers in `include/t81/`.
 
