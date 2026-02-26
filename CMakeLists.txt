@@ -16,6 +16,10 @@ option(T81_ENABLE_ASAN "Enable AddressSanitizer for supported compilers" OFF)
 option(T81_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer for supported compilers" OFF)
 option(T81_USE_CXX23 "Build with C++23 language mode (fallback: C++20)" ON)
 option(T81_TRITWISE_PROFILE "Enable profiling for tritwise operations" OFF)
+option(T81_ENABLE_LLAMA_CPP "Enable experimental llama.cpp adapter (non-DCP)" OFF)
+set(T81_LLAMA_REPRO_MODEL "" CACHE FILEPATH "Model path for llama.cpp reproducibility gate")
+set(T81_LLAMA_REPRO_POLICY "" CACHE FILEPATH "Policy path for llama.cpp reproducibility gate")
+set(T81_LLAMA_REPRO_PROMPT "" CACHE STRING "Prompt for llama.cpp reproducibility gate")
 
 if(T81_TRITWISE_PROFILE)
   add_compile_definitions(T81_TRITWISE_PROFILE)
@@ -25,6 +29,24 @@ if(T81_USE_CXX23)
   set(T81_CXX_STD_FEATURE cxx_std_23)
 else()
   set(T81_CXX_STD_FEATURE cxx_std_20)
+endif()
+
+if(T81_ENABLE_LLAMA_CPP)
+  set(T81_LLAMA_CPP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/llama.cpp")
+  if(NOT EXISTS "${T81_LLAMA_CPP_DIR}/CMakeLists.txt")
+    message(FATAL_ERROR
+      "T81_ENABLE_LLAMA_CPP=ON but llama.cpp was not found at ${T81_LLAMA_CPP_DIR}. "
+      "Clone https://github.com/ggml-org/llama.cpp.git into third_party/llama.cpp.")
+  endif()
+
+  # Keep the embedded dependency minimal and deterministic: library-only build.
+  set(LLAMA_BUILD_COMMON OFF CACHE BOOL "llama.cpp common helpers" FORCE)
+  set(LLAMA_BUILD_TESTS OFF CACHE BOOL "llama.cpp tests" FORCE)
+  set(LLAMA_BUILD_TOOLS OFF CACHE BOOL "llama.cpp tools" FORCE)
+  set(LLAMA_BUILD_EXAMPLES OFF CACHE BOOL "llama.cpp examples" FORCE)
+  set(LLAMA_BUILD_SERVER OFF CACHE BOOL "llama.cpp server" FORCE)
+  add_subdirectory("${T81_LLAMA_CPP_DIR}" "${CMAKE_BINARY_DIR}/third_party/llama.cpp" EXCLUDE_FROM_ALL)
+  message(STATUS "T81_ENABLE_LLAMA_CPP=ON (using ${T81_LLAMA_CPP_DIR})")
 endif()
 
 # CPU feature gating used for SIMD source/flags.
@@ -155,6 +177,19 @@ target_include_directories(t81_tool_model PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+if(T81_ENABLE_LLAMA_CPP)
+  add_library(t81_llama_adapter STATIC
+    tooling/model/llama_cpp_adapter.cpp
+  )
+  target_compile_features(t81_llama_adapter PUBLIC ${T81_CXX_STD_FEATURE})
+  target_include_directories(t81_llama_adapter PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  )
+  target_link_libraries(t81_llama_adapter PUBLIC t81_core t81_axion llama)
+  target_compile_definitions(t81_llama_adapter PUBLIC T81_HAS_LLAMA_CPP=1)
+endif()
+
 add_library(t81_lang_frontend STATIC
   lang/frontend/lexer.cpp
   lang/frontend/parser.cpp
@@ -225,6 +260,10 @@ target_link_libraries(t81 PRIVATE t81_lang_frontend t81_isa t81_vm t81_tool_cli)
 target_include_directories(t81 PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
+if(T81_ENABLE_LLAMA_CPP)
+  target_link_libraries(t81 PRIVATE t81_llama_adapter)
+  target_compile_definitions(t81 PRIVATE T81_HAS_LLAMA_CPP=1)
+endif()
 
 if(T81_BUILD_EXAMPLES)
 add_executable(t81_demo examples/demo.cpp)
@@ -253,6 +292,11 @@ target_link_libraries(axion_policy_runner PRIVATE t81_tool_cli t81_vm)
 
 add_executable(llama32_demo examples/llama32_demo.cpp)
 target_link_libraries(llama32_demo PRIVATE t81_tool_cli t81_vm)
+
+if(T81_ENABLE_LLAMA_CPP)
+add_executable(llama_cpp_governed_demo examples/llama_cpp_governed_demo.cpp)
+target_link_libraries(llama_cpp_governed_demo PRIVATE t81_llama_adapter)
+endif()
 
 add_executable(canonfs_trace_demo examples/canonfs_trace_demo.cpp)
 target_link_libraries(canonfs_trace_demo PRIVATE t81_core t81_axion)
@@ -1439,6 +1483,32 @@ if(T81_BUILD_TESTS)
   add_executable(test_concurrency tests/cpp/test_concurrency.cpp)
   target_link_libraries(test_concurrency PRIVATE t81_core t81_isa t81_vm)
   add_test(NAME test_concurrency COMMAND test_concurrency)
+
+  if(T81_ENABLE_LLAMA_CPP)
+    find_package(Python3 COMPONENTS Interpreter REQUIRED)
+    if(T81_LLAMA_REPRO_MODEL AND T81_LLAMA_REPRO_POLICY AND T81_LLAMA_REPRO_PROMPT)
+      add_test(
+        NAME llama_cpp_repro_gate_test
+        COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/ci/llama_cpp_repro_gate.py
+          --t81-bin $<TARGET_FILE:t81>
+          --model ${T81_LLAMA_REPRO_MODEL}
+          --policy ${T81_LLAMA_REPRO_POLICY}
+          --prompt ${T81_LLAMA_REPRO_PROMPT}
+          --runs 3
+          --max-tokens 64
+          --seed 0
+          --threads 1
+          --top-k 1
+          --top-p 1.0
+          --temperature 0.0
+          --hash-out ${CMAKE_BINARY_DIR}/llama_cpp_repro_hash.txt
+      )
+    else()
+      message(STATUS
+        "llama_cpp_repro_gate_test not added (set T81_LLAMA_REPRO_MODEL, "
+        "T81_LLAMA_REPRO_POLICY, and T81_LLAMA_REPRO_PROMPT to enable).")
+    endif()
+  endif()
 endif()
 
 # =============================================================================
@@ -1448,18 +1518,24 @@ include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
 # Install targets and export them
-install(TARGETS
-    t81_core
-    t81_axion
-    t81_tool_model
-    t81_io
-    t81_c_api
-    t81_lang_frontend
-    t81_isa
-    t81_vm
-    t81_llvm
-    t81_tool_cli
-    t81
+set(T81_INSTALL_TARGETS
+  t81_core
+  t81_axion
+  t81_tool_model
+  t81_io
+  t81_c_api
+  t81_lang_frontend
+  t81_isa
+  t81_vm
+  t81_llvm
+  t81_tool_cli
+  t81
+)
+if(T81_ENABLE_LLAMA_CPP)
+  message(STATUS "t81_llama_adapter is build-only and not exported in install targets")
+endif()
+
+install(TARGETS ${T81_INSTALL_TARGETS}
   EXPORT T81Targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

@@ -10,6 +10,8 @@
 #include <sys/stat.h>
 #include <cctype>
 #include <cerrno>
+#include <charconv>
+#include <climits>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -40,6 +42,9 @@
 #include "t81/isa/program.hpp"
 #include "t81/vm/vm.hpp"
 #include "t81/weights.hpp"
+#if defined(T81_HAS_LLAMA_CPP)
+#include "t81/experimental/llama_cpp_adapter.hpp"
+#endif
 
 namespace fs = std::filesystem;
 
@@ -144,6 +149,25 @@ Subcommands:
 )";
 }
 
+void print_help_llama_run() {
+  std::cerr << R"(
+Usage: t81 llama-run <model.gguf> <prompt> --policy <policy.apl> [options]
+
+Options:
+  --max-tokens <n>          Maximum generated tokens (default: 64)
+  --seed <n>                Sampler seed (default: 0)
+  --threads <n>             Threads for prompt/decode (default: 1)
+  --temperature <x>         Sampling temperature (default: 0.0)
+  --top-k <n>               Top-k (default: 1)
+  --top-p <x>               Top-p (default: 1.0)
+  --expected-model-hash <h> Enforce exact model hash before inference
+
+Notes:
+  - This surface is experimental and non-DCP.
+  - --policy is required and must include allowed-tensor-hashes for model authorization.
+)";
+}
+
 void print_usage(const char* prog) {
   std::cerr << R"(T81 Foundation - Ternary-Native Computing Stack
 Version )" << T81_VERSION
@@ -171,6 +195,7 @@ Commands:
   weights <subcommand> [args]          Manage model weights (import, info, quantize)
   policy <subcommand> [args]           Axion policy tools (compile, run)
   trace <subcommand> [args]            Trace analysis tools (show, diff, replay)
+  llama-run <model.gguf> <prompt>      Governed llama.cpp inference (experimental, non-DCP)
   help [command]                       Show this message or help for a specific command
 
 
@@ -330,6 +355,7 @@ Args parse_args(int argc, char* argv[]) {
         a.benchmark_args.emplace_back(argv[i]);
       } else if (a.command == "weights" || a.command == "init" || a.command == "pkg" ||
                  a.command == "repro-hash" || a.command == "policy" || a.command == "trace" ||
+                 a.command == "llama-run" ||
                  a.command == "canonize-tensor") {
         a.command_args.emplace_back(argv[i]);
       } else {
@@ -341,6 +367,7 @@ Args parse_args(int argc, char* argv[]) {
         a.benchmark_args.emplace_back(argv[i]);
       } else if (a.command == "weights" || a.command == "init" || a.command == "pkg" ||
                  a.command == "repro-hash" || a.command == "policy" || a.command == "trace" ||
+                 a.command == "llama-run" ||
                  a.command == "canonize-tensor") {
         a.command_args.emplace_back(argv[i]);
       } else {
@@ -679,6 +706,150 @@ int run_repro_hash(const char* command_name, const Args& args) {
   return 0;
 }
 
+int parse_int_arg(const std::string& text, const char* flag, int min_value, int max_value) {
+  int value = 0;
+  auto begin = text.data();
+  auto end = text.data() + text.size();
+  auto [ptr, ec] = std::from_chars(begin, end, value);
+  if (ec != std::errc() || ptr != end || value < min_value || value > max_value) {
+    error(std::string("invalid value for ") + flag + ": " + text);
+    throw std::runtime_error("invalid numeric argument");
+  }
+  return value;
+}
+
+float parse_float_arg(const std::string& text, const char* flag, float min_value, float max_value) {
+  char* tail = nullptr;
+  const float value = std::strtof(text.c_str(), &tail);
+  if (tail == text.c_str() || *tail != '\0' || value < min_value || value > max_value) {
+    error(std::string("invalid value for ") + flag + ": " + text);
+    throw std::runtime_error("invalid numeric argument");
+  }
+  return value;
+}
+
+int run_llama_run(const Args& args) {
+#if defined(T81_HAS_LLAMA_CPP)
+  if (!args.policy) {
+    error("llama-run requires --policy <policy.apl>");
+    return 1;
+  }
+
+  std::vector<std::string> positional;
+  int max_tokens = 64;
+  uint32_t seed = 0;
+  int n_threads = 1;
+  int top_k = 1;
+  float top_p = 1.0f;
+  float temperature = 0.0f;
+  std::string expected_model_hash;
+
+  for (size_t i = 0; i < args.command_args.size(); ++i) {
+    const std::string& token = args.command_args[i];
+    if (token == "--max-tokens") {
+      if (++i >= args.command_args.size()) {
+        error("llama-run: missing value for --max-tokens");
+        return 1;
+      }
+      max_tokens = parse_int_arg(args.command_args[i], "--max-tokens", 1, 1000000);
+    } else if (token == "--seed") {
+      if (++i >= args.command_args.size()) {
+        error("llama-run: missing value for --seed");
+        return 1;
+      }
+      seed = static_cast<uint32_t>(parse_int_arg(args.command_args[i], "--seed", 0, INT32_MAX));
+    } else if (token == "--threads") {
+      if (++i >= args.command_args.size()) {
+        error("llama-run: missing value for --threads");
+        return 1;
+      }
+      n_threads = parse_int_arg(args.command_args[i], "--threads", 1, 4096);
+    } else if (token == "--temperature") {
+      if (++i >= args.command_args.size()) {
+        error("llama-run: missing value for --temperature");
+        return 1;
+      }
+      temperature = parse_float_arg(args.command_args[i], "--temperature", 0.0f, 10.0f);
+    } else if (token == "--top-k") {
+      if (++i >= args.command_args.size()) {
+        error("llama-run: missing value for --top-k");
+        return 1;
+      }
+      top_k = parse_int_arg(args.command_args[i], "--top-k", 1, INT32_MAX);
+    } else if (token == "--top-p") {
+      if (++i >= args.command_args.size()) {
+        error("llama-run: missing value for --top-p");
+        return 1;
+      }
+      top_p = parse_float_arg(args.command_args[i], "--top-p", 0.0f, 1.0f);
+    } else if (token == "--expected-model-hash") {
+      if (++i >= args.command_args.size()) {
+        error("llama-run: missing value for --expected-model-hash");
+        return 1;
+      }
+      expected_model_hash = args.command_args[i];
+    } else if (!token.empty() && token.front() == '-') {
+      error("llama-run: unknown option '" + token + "'");
+      return 1;
+    } else {
+      positional.push_back(token);
+    }
+  }
+
+  if (positional.size() != 2) {
+    error("llama-run requires exactly: <model.gguf> <prompt>");
+    return 1;
+  }
+
+  std::ifstream policy_stream(*args.policy);
+  if (!policy_stream) {
+    error("Could not open policy file: " + args.policy->string());
+    return 1;
+  }
+  std::string policy_text((std::istreambuf_iterator<char>(policy_stream)),
+                          std::istreambuf_iterator<char>());
+
+  auto adapter = t81::experimental::LlamaCppAdapter::create(positional[0], policy_text);
+  if (!adapter.has_value()) {
+    error("llama-run: adapter init failed: " + adapter.error());
+    return 1;
+  }
+
+  t81::experimental::LlamaCppInferenceRequest req;
+  req.prompt = positional[1];
+  req.expected_model_hash = expected_model_hash;
+  req.seed = seed;
+  req.max_tokens = max_tokens;
+  req.top_k = top_k;
+  req.top_p = top_p;
+  req.temperature = temperature;
+  req.n_threads = n_threads;
+
+  auto receipt = adapter.value()->infer(req);
+  if (!receipt.has_value()) {
+    error("llama-run: inference failed: " + receipt.error());
+    return 1;
+  }
+
+  std::cout << "model_hash: " << receipt->model_hash << "\n";
+  std::cout << "prompt_hash: " << receipt->prompt_hash << "\n";
+  std::cout << "policy_reason: " << receipt->policy_reason << "\n";
+  std::cout << "generated_tokens: " << receipt->token_ids.size() << "\n";
+  std::cout << "token_ids_csv:";
+  for (size_t i = 0; i < receipt->token_ids.size(); ++i) {
+    if (i != 0) std::cout << ",";
+    std::cout << receipt->token_ids[i];
+  }
+  std::cout << "\n";
+  std::cout << receipt->text << "\n";
+  return 0;
+#else
+  (void)args;
+  error("llama-run is unavailable in this build (reconfigure with -DT81_ENABLE_LLAMA_CPP=ON)");
+  return 1;
+#endif
+}
+
 // ──────────────────────────────────────────────────────────────
 // Main
 // ──────────────────────────────────────────────────────────────
@@ -706,6 +877,8 @@ int main(int argc, char* argv[]) {
           print_help_policy();
         else if (sub == "trace")
           print_help_trace();
+        else if (sub == "llama-run")
+          print_help_llama_run();
         else {
           print_usage(argv[0]);
           std::cerr << "\nUnknown help topic: " << sub << "\n";
@@ -853,6 +1026,9 @@ int main(int argc, char* argv[]) {
           ta.args.push_back(args.command_args[i]);
       }
       return t81::cli::run_trace(ta);
+
+    } else if (args.command == "llama-run") {
+      return run_llama_run(args);
 
     } else {
       error("Unknown command: " + args.command);

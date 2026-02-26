@@ -24,6 +24,7 @@ specification authority, freeze boundaries, or determinism claim scope.
 - T81LANG_PROMOTION_GATE_SNAPSHOT.md
 - T81LANG_ENGINEERING_BACKLOG_2026-03.md
 - PROGRAM_CHECKPOINT_2026-02-25.md
+- LLAMA_CPP_GOVERNED_INFERENCE_PROGRESS_2026-02-25.md
 
 ## Versioning Statement
 

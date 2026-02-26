@@ -18,6 +18,8 @@ specification authority, freeze boundaries, or determinism claim scope.
 - FREEZE_ENFORCEMENT.md
 - DETERMINISM_SURFACE_REGISTRY.md
 - INCIDENT_RESPONSE.md
+- DEPENDENCY_POLICY.md
+- EXTERNAL_DEPENDENCY_PINS.md
 
 ## Versioning Statement
 
