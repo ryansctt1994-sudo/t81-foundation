@@ -15,6 +15,7 @@
 #include <cmath>
 #include <cctype>
 #include <cstdlib>
+#include <cstring>
 
 struct BenchmarkResult {
     std::string name;
@@ -1011,66 +1012,56 @@ void GenerateMarkdownReport() {
         r.analysis = BuildAnalysis(r);
     }
 
-    std::cout << std::left << std::setw(25) << "Benchmark"
-              << std::setw(20) << "T81 Result"
-              << std::setw(16) << "T81 Iter Time"
-              << std::setw(20) << "Binary Result"
-              << std::setw(16) << "Binary Iter"
-              << std::setw(18) << "Thru Ratio"
-              << std::setw(18) << "Lat Speedup"
-              << std::setw(18) << "NThru Ratio"
-              << std::setw(18) << "NLat Speedup"
-              << std::setw(25) << "T81 Advantage"
-              << "Notes\n";
-    std::cout << std::string(176, '-') << "\n";
-    for (auto const& [name, r] : final_results) {
-        const std::string t81_result_cell = ResolveT81ClassicResultCell(r);
-        const std::string t81_latency_cell = ResolveT81ClassicLatencyCell(r);
-        const std::string binary_result_cell = ResolveBinaryResultCell(r);
-        const std::string binary_latency_cell = ResolveBinaryLatencyCell(r);
-        const std::string throughput_ratio_cell = ResolveThroughputRatioCell(r);
-        const std::string latency_speedup_cell = ResolveLatencySpeedupCell(r);
-        const std::string native_throughput_ratio_cell = ResolveNativeThroughputRatioCell(r);
-        const std::string native_latency_speedup_cell = ResolveNativeLatencySpeedupCell(r);
-        const std::string advantage_display = BuildT81AdvantageDisplay(r);
-        const std::string notes_display = BuildNotesDisplay(r);
-        std::cout << std::left << std::setw(25) << r.name
-                  << std::setw(20) << DisplayValue(t81_result_cell)
-                  << std::setw(16) << DisplayValue(t81_latency_cell)
-                  << std::setw(20) << DisplayValue(binary_result_cell)
-                  << std::setw(16) << DisplayValue(binary_latency_cell)
-                  << std::setw(18) << DisplayValue(throughput_ratio_cell)
-                  << std::setw(18) << DisplayValue(latency_speedup_cell)
-                  << std::setw(18) << DisplayValue(native_throughput_ratio_cell)
-                  << std::setw(18) << DisplayValue(native_latency_speedup_cell)
-                  << std::setw(25) << DisplayValue(advantage_display)
-                  << DisplayValue(notes_display) << "\n";
-    }
-
-    std::ofstream md_file("docs/reference/benchmarks.md");
-    if (!md_file.is_open()) {
-        std::cerr << "Error: Could not open docs/reference/benchmarks.md for writing.\n";
-        return;
+    const bool verbose_console = []() {
+        if (const char* v = std::getenv("T81_BENCHMARK_VERBOSE_CONSOLE")) {
+            return std::strcmp(v, "0") != 0;
+        }
+        return false;
+    }();
+    if (verbose_console) {
+        std::cout << std::left << std::setw(25) << "Benchmark"
+                  << std::setw(20) << "T81 Result"
+                  << std::setw(16) << "T81 Iter Time"
+                  << std::setw(20) << "Binary Result"
+                  << std::setw(16) << "Binary Iter"
+                  << std::setw(18) << "Thru Ratio"
+                  << std::setw(18) << "Lat Speedup"
+                  << std::setw(18) << "NThru Ratio"
+                  << std::setw(18) << "NLat Speedup"
+                  << std::setw(25) << "T81 Advantage"
+                  << "Notes\n";
+        std::cout << std::string(176, '-') << "\n";
+        for (auto const& [name, r] : final_results) {
+            const std::string t81_result_cell = ResolveT81ClassicResultCell(r);
+            const std::string t81_latency_cell = ResolveT81ClassicLatencyCell(r);
+            const std::string binary_result_cell = ResolveBinaryResultCell(r);
+            const std::string binary_latency_cell = ResolveBinaryLatencyCell(r);
+            const std::string throughput_ratio_cell = ResolveThroughputRatioCell(r);
+            const std::string latency_speedup_cell = ResolveLatencySpeedupCell(r);
+            const std::string native_throughput_ratio_cell = ResolveNativeThroughputRatioCell(r);
+            const std::string native_latency_speedup_cell = ResolveNativeLatencySpeedupCell(r);
+            const std::string advantage_display = BuildT81AdvantageDisplay(r);
+            const std::string notes_display = BuildNotesDisplay(r);
+            std::cout << std::left << std::setw(25) << r.name
+                      << std::setw(20) << DisplayValue(t81_result_cell)
+                      << std::setw(16) << DisplayValue(t81_latency_cell)
+                      << std::setw(20) << DisplayValue(binary_result_cell)
+                      << std::setw(16) << DisplayValue(binary_latency_cell)
+                      << std::setw(18) << DisplayValue(throughput_ratio_cell)
+                      << std::setw(18) << DisplayValue(latency_speedup_cell)
+                      << std::setw(18) << DisplayValue(native_throughput_ratio_cell)
+                      << std::setw(18) << DisplayValue(native_latency_speedup_cell)
+                      << std::setw(25) << DisplayValue(advantage_display)
+                      << DisplayValue(notes_display) << "\n";
+        }
+    } else {
+        std::cout << "Benchmark console table suppressed (set T81_BENCHMARK_VERBOSE_CONSOLE=1 to enable).\n";
     }
 
     const auto git_branch = RunCommand("git rev-parse --abbrev-ref HEAD");
     const auto git_sha = RunCommand("git rev-parse --short HEAD");
+    const std::string timestamp = get_current_timestamp();
 
-    md_file << "# TCB-Core v0.1: Official T81 Foundation Core Benchmarks\n\n";
-    md_file << "This document is auto-generated by the `benchmark_runner`.\n\n";
-    md_file << "*Last Updated: " << get_current_timestamp() << "*  ";
-    if (!git_branch.empty()) {
-        md_file << "*Branch: " << git_branch << "*  ";
-    }
-    if (!git_sha.empty()) {
-        md_file << "*Commit: " << git_sha << "*";
-    }
-    md_file << "\n\n";
-    md_file << "## Run Metadata\n\n";
-    md_file << "- " << SIMDCapabilityLine() << "\n";
-    md_file << "- Native benchmark mode: SIMD acceleration may fall back to scalar when unsupported by target/features.\n";
-    md_file << "- CanonFS in-memory binary read baseline is pinned to `baseline=map-read` for cross-run comparability.\n";
-    md_file << "- CanonFS persistent rows are labeled `comparison=pipeline-advantage` (systems-path comparison, not strict microkernel fairness).\n\n";
     struct UserRow {
         std::string name;
         std::string category;
@@ -1132,9 +1123,6 @@ void GenerateMarkdownReport() {
     double best_binary_ratio = 1.0;
     std::string best_name;
     std::string worst_name;
-    int t81_wins = 0;
-    int binary_wins = 0;
-    int ties = 0;
     int missing_baseline = 0;
     int semantic_mismatch = 0;
     int defect_rows = 0;
@@ -1166,13 +1154,10 @@ void GenerateMarkdownReport() {
         if (r.throughput_ratio_computed) {
             if (r.throughput_ratio_val > 1.05) {
                 row.verdict = "T81 wins";
-                ++t81_wins;
             } else if (r.throughput_ratio_val < 0.95) {
                 row.verdict = "Binary wins";
-                ++binary_wins;
             } else {
                 row.verdict = "Comparable";
-                ++ties;
             }
             row.impact = std::abs(std::log(r.throughput_ratio_val));
             if (r.throughput_ratio_val > 1.0 && r.throughput_ratio_val > best_t81_ratio) {
@@ -1203,58 +1188,121 @@ void GenerateMarkdownReport() {
     std::sort(comparable_rows.begin(), comparable_rows.end(),
               [](const UserRow& a, const UserRow& b) { return a.impact > b.impact; });
 
-    md_file << "## Executive Summary\n\n";
-    md_file << "- Comparable benchmark rows (ratio computed): " << comparable_rows.size()
+    auto category_counts_for = [](const std::vector<UserRow>& source) {
+        std::map<std::string, std::array<int, 4>> counts_map;
+        for (const auto& row : source) {
+            auto& counts = counts_map[row.category];
+            counts[0] += 1;
+            if (row.verdict == "T81 wins") counts[1] += 1;
+            else if (row.verdict == "Binary wins") counts[2] += 1;
+            else counts[3] += 1;
+        }
+        return counts_map;
+    };
+
+    const auto full_category_counts = category_counts_for(comparable_rows);
+
+    auto is_product_relevant = [](const UserRow& row) {
+        return NameContains(row.name, "Llama") ||
+               NameContains(row.name, "CanonFS") ||
+               row.name == "BM_T81LangCompile" ||
+               row.name == "BM_Lexer_AllTokens" ||
+               row.name == "BM_TensorMatMul_Naive";
+    };
+
+    std::vector<UserRow> public_rows;
+    for (const auto& row : comparable_rows) {
+        if (is_product_relevant(row)) public_rows.push_back(row);
+    }
+    const auto public_category_counts = category_counts_for(public_rows);
+
+    auto write_header_and_metadata = [&](std::ofstream& out, const std::string& title) {
+        out << "# " << title << "\n\n";
+        out << "This document is auto-generated by the `benchmark_runner`.\n\n";
+        out << "*Last Updated: " << timestamp << "*  ";
+        if (!git_branch.empty()) {
+            out << "*Branch: " << git_branch << "*  ";
+        }
+        if (!git_sha.empty()) {
+            out << "*Commit: " << git_sha << "*";
+        }
+        out << "\n\n";
+        out << "## Run Metadata\n\n";
+        out << "- " << SIMDCapabilityLine() << "\n";
+        out << "- Native benchmark mode: SIMD acceleration may fall back to scalar when unsupported by target/features.\n";
+        out << "- CanonFS in-memory binary read baseline is pinned to `baseline=map-read` for cross-run comparability.\n";
+        out << "- CanonFS persistent rows are labeled `comparison=pipeline-advantage` (systems-path comparison, not strict microkernel fairness).\n\n";
+    };
+
+    auto write_decision_tables = [&](std::ofstream& out,
+                                     const std::vector<UserRow>& report_rows,
+                                     const std::map<std::string, std::array<int, 4>>& category_counts,
+                                     size_t top_n,
+                                     bool include_full_appendix,
+                                     bool include_known_gaps) {
+        int report_t81_wins = 0;
+        int report_binary_wins = 0;
+        int report_ties = 0;
+        double report_best_t81_ratio = 1.0;
+        double report_best_binary_ratio = 1.0;
+        std::string report_best_name;
+        std::string report_worst_name;
+        for (const auto& row : report_rows) {
+            if (row.verdict == "T81 wins") ++report_t81_wins;
+            else if (row.verdict == "Binary wins") ++report_binary_wins;
+            else ++report_ties;
+            if (row.ratio_val > 1.0 && row.ratio_val > report_best_t81_ratio) {
+                report_best_t81_ratio = row.ratio_val;
+                report_best_name = row.name;
+            }
+            if (row.ratio_val < 1.0 && row.ratio_val < report_best_binary_ratio) {
+                report_best_binary_ratio = row.ratio_val;
+                report_worst_name = row.name;
+            }
+        }
+
+        out << "## Executive Summary\n\n";
+        out << "- Comparable benchmark rows (ratio computed): " << report_rows.size()
             << " / " << rows.size() << "\n";
-    md_file << "- Verdict split (comparable rows): T81 wins " << t81_wins
-            << ", Binary wins " << binary_wins << ", Comparable " << ties << "\n";
-    md_file << "- Data quality: missing baseline " << missing_baseline
+        out << "- Verdict split (comparable rows): T81 wins " << report_t81_wins
+            << ", Binary wins " << report_binary_wins << ", Comparable " << report_ties << "\n";
+        out << "- Data quality: missing baseline " << missing_baseline
             << ", semantic mismatch " << semantic_mismatch
             << ", defect rows " << defect_rows << "\n";
-    if (!best_name.empty()) {
-        md_file << "- Largest T81 advantage: `" << best_name << "` (" << FormatRatio(best_t81_ratio) << ")\n";
-    }
-    if (!worst_name.empty() && best_binary_ratio < 1.0) {
-        md_file << "- Largest binary advantage: `" << worst_name << "` (" << FormatRatio(best_binary_ratio) << ")\n";
-    }
-    md_file << "\n";
-
-    md_file << "## What To Use Today\n\n";
-    md_file << "| Category | Comparable Rows | T81 Wins | Binary Wins | Comparable | Recommendation |\n";
-    md_file << "|---|---:|---:|---:|---:|---|\n";
-
-    std::map<std::string, std::array<int, 4>> category_counts;
-    for (const auto& row : rows) {
-        auto& counts = category_counts[row.category];
-        if (!row.ratio_computed) continue;
-        counts[0] += 1;
-        if (row.verdict == "T81 wins") counts[1] += 1;
-        else if (row.verdict == "Binary wins") counts[2] += 1;
-        else counts[3] += 1;
-    }
-    for (const auto& [category, counts] : category_counts) {
-        std::string recommendation = "Mixed; benchmark workload path";
-        if (counts[1] >= 2 && counts[1] > counts[2]) {
-            recommendation = "Prefer T81 on this host";
-        } else if (counts[2] >= 2 && counts[2] > counts[1]) {
-            recommendation = "Prefer binary for throughput-critical path";
+        if (!report_best_name.empty()) {
+            out << "- Largest T81 advantage: `" << report_best_name << "` (" << FormatRatio(report_best_t81_ratio) << ")\n";
         }
-        md_file << "| " << category
+        if (!report_worst_name.empty() && report_best_binary_ratio < 1.0) {
+            out << "- Largest binary advantage: `" << report_worst_name << "` (" << FormatRatio(report_best_binary_ratio) << ")\n";
+        }
+        out << "\n";
+
+        out << "## What To Use Today\n\n";
+        out << "| Category | Comparable Rows | T81 Wins | Binary Wins | Comparable | Recommendation |\n";
+        out << "|---|---:|---:|---:|---:|---|\n";
+        for (const auto& [category, counts] : category_counts) {
+            std::string recommendation = "Mixed; benchmark workload path";
+            if (counts[1] >= 2 && counts[1] > counts[2]) {
+                recommendation = "Prefer T81 on this host";
+            } else if (counts[2] >= 2 && counts[2] > counts[1]) {
+                recommendation = "Prefer binary for throughput-critical path";
+            }
+            out << "| " << category
                 << " | " << counts[0]
                 << " | " << counts[1]
                 << " | " << counts[2]
                 << " | " << counts[3]
                 << " | " << recommendation << " |\n";
-    }
-    md_file << "\n";
+        }
+        out << "\n";
 
-    md_file << "## Top Signal Rows\n\n";
-    md_file << "| Benchmark | Category | T81 Iteration | Binary Iteration | Throughput Ratio | Verdict | Fairness | Confidence |\n";
-    md_file << "|---|---|---|---|---:|---|---|---|\n";
-    const size_t top_n = std::min<size_t>(12, comparable_rows.size());
-    for (size_t i = 0; i < top_n; ++i) {
-        const auto& row = comparable_rows[i];
-        md_file << "| " << row.name
+        out << "## Top Signal Rows\n\n";
+        out << "| Benchmark | Category | T81 Iteration | Binary Iteration | Throughput Ratio | Verdict | Fairness | Confidence |\n";
+        out << "|---|---|---|---|---:|---|---|---|\n";
+        const size_t max_rows = std::min(top_n, report_rows.size());
+        for (size_t i = 0; i < max_rows; ++i) {
+            const auto& row = report_rows[i];
+            out << "| " << row.name
                 << " | " << row.category
                 << " | " << DisplayValue(row.t81_iter)
                 << " | " << DisplayValue(row.binary_iter)
@@ -1262,48 +1310,78 @@ void GenerateMarkdownReport() {
                 << " | " << row.verdict
                 << " | " << row.fairness
                 << " | " << row.confidence << " |\n";
-    }
+        }
 
-    md_file << "\n## Category Detail\n\n";
-    for (const auto& [category, counts] : category_counts) {
-        if (counts[0] == 0) continue;
-        md_file << "### " << category << "\n\n";
-        md_file << "| Benchmark | T81 Iteration | Binary Iteration | Throughput Ratio | Verdict | Fairness |\n";
-        md_file << "|---|---|---|---:|---|---|\n";
-        int emitted = 0;
-        for (const auto& row : comparable_rows) {
-            if (row.category != category) continue;
-            md_file << "| " << row.name
+        out << "\n## Category Detail\n\n";
+        for (const auto& [category, counts] : category_counts) {
+            if (counts[0] == 0) continue;
+            out << "### " << category << "\n\n";
+            out << "| Benchmark | T81 Iteration | Binary Iteration | Throughput Ratio | Verdict | Fairness |\n";
+            out << "|---|---|---|---:|---|---|\n";
+            int emitted = 0;
+            for (const auto& row : report_rows) {
+                if (row.category != category) continue;
+                out << "| " << row.name
                     << " | " << DisplayValue(row.t81_iter)
                     << " | " << DisplayValue(row.binary_iter)
                     << " | " << DisplayValue(row.ratio)
                     << " | " << row.verdict
                     << " | " << row.fairness << " |\n";
-            emitted++;
-            if (emitted >= 8) break;
+                emitted++;
+                if (emitted >= 8) break;
+            }
+            out << "\n";
         }
-        md_file << "\n";
-    }
 
-    md_file << "## Appendix: Full Raw Rows\n\n";
-    md_file << "| Benchmark | Category | T81 Result | T81 Iteration | Binary Result | Binary Iteration | Throughput Ratio | Verdict | Fairness | Confidence | Notes |\n";
-    md_file << "|---|---|---|---|---|---|---:|---|---|---|---|\n";
-    std::sort(rows.begin(), rows.end(),
-              [](const UserRow& a, const UserRow& b) { return a.name < b.name; });
-    for (const auto& row : rows) {
-        md_file << "| " << row.name
-                << " | " << row.category
-                << " | " << DisplayValue(EscapePipes(row.t81_result))
-                << " | " << DisplayValue(EscapePipes(row.t81_iter))
-                << " | " << DisplayValue(EscapePipes(row.binary_result))
-                << " | " << DisplayValue(EscapePipes(row.binary_iter))
-                << " | " << DisplayValue(EscapePipes(row.ratio))
-                << " | " << row.verdict
-                << " | " << row.fairness
-                << " | " << row.confidence
-                << " | " << DisplayValue(EscapePipes(row.notes)) << " |\n";
-    }
+        if (include_known_gaps) {
+            out << "## Known Gaps\n\n";
+            out << "- Rows hidden from this public view: " << (rows.size() - report_rows.size()) << "\n";
+            out << "- Missing baseline rows: " << missing_baseline << "\n";
+            out << "- Semantic mismatch rows: " << semantic_mismatch << "\n";
+            out << "- Defect rows: " << defect_rows << "\n\n";
+        }
 
-    md_file.close();
+        if (include_full_appendix) {
+            out << "## Appendix: Full Raw Rows\n\n";
+            out << "| Benchmark | Category | T81 Result | T81 Iteration | Binary Result | Binary Iteration | Throughput Ratio | Verdict | Fairness | Confidence | Notes |\n";
+            out << "|---|---|---|---|---|---|---:|---|---|---|---|\n";
+            std::vector<UserRow> sorted_rows = rows;
+            std::sort(sorted_rows.begin(), sorted_rows.end(),
+                      [](const UserRow& a, const UserRow& b) { return a.name < b.name; });
+            for (const auto& row : sorted_rows) {
+                out << "| " << row.name
+                    << " | " << row.category
+                    << " | " << DisplayValue(EscapePipes(row.t81_result))
+                    << " | " << DisplayValue(EscapePipes(row.t81_iter))
+                    << " | " << DisplayValue(EscapePipes(row.binary_result))
+                    << " | " << DisplayValue(EscapePipes(row.binary_iter))
+                    << " | " << DisplayValue(EscapePipes(row.ratio))
+                    << " | " << row.verdict
+                    << " | " << row.fairness
+                    << " | " << row.confidence
+                    << " | " << DisplayValue(EscapePipes(row.notes)) << " |\n";
+            }
+        }
+    };
+
+    std::ofstream public_file("docs/reference/benchmarks.md");
+    if (!public_file.is_open()) {
+        std::cerr << "Error: Could not open docs/reference/benchmarks.md for writing.\n";
+        return;
+    }
+    write_header_and_metadata(public_file, "TCB-Core v0.1: Public T81 Benchmark Report");
+    write_decision_tables(public_file, public_rows, public_category_counts, 10, false, true);
+    public_file.close();
+
+    std::ofstream engineering_file("docs/reference/benchmarks_engineering.md");
+    if (!engineering_file.is_open()) {
+        std::cerr << "Error: Could not open docs/reference/benchmarks_engineering.md for writing.\n";
+        return;
+    }
+    write_header_and_metadata(engineering_file, "TCB-Core v0.1: Engineering Benchmark Report");
+    write_decision_tables(engineering_file, comparable_rows, full_category_counts, 12, true, false);
+    engineering_file.close();
+
     std::cout << "Successfully wrote report to docs/reference/benchmarks.md\n";
+    std::cout << "Successfully wrote report to docs/reference/benchmarks_engineering.md\n";
 }
