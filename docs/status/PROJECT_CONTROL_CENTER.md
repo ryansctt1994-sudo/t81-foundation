@@ -9,12 +9,12 @@ Version: 2.1.0
 
 | Item | Status |
 | :--- | :--- |
-| Sprint Focus | March governance close + governed inference hardening |
+| Sprint Focus | March governance close + governed inference hardening + stdlib stabilization |
 | Overall Program Health | Green with one scheduled governance gate pending |
 | Release Readiness Decision | HOLD (decision stamp: 2026-02-26) |
 | Primary Blocker | Required contexts not yet fully satisfied for selected main candidate (`quality gate / required`, `Analyze (cpp)`) |
 | Next Hard Date | C2 month-close execution on 2026-03-31 (UTC) |
-| Open Task Count (`docs/roadmaps-plans/TASKS.md`) | 1 (`C2 Month-Close`) |
+| Open Task Count (`docs/roadmaps-plans/TASKS.md`) | 4 (`C2 Month-Close` + 3 stdlib stabilization tasks) |
 
 ## 2. Purpose
 
@@ -68,6 +68,9 @@ Authority remains:
   - Axion opcode dispatch concentration reduced in VM via extracted `AxCheck`/`AxReport` helper paths
   - blocked-neural and bitwise opcode-family dispatch concentration reduced via extracted helper paths
   - VM trace/log helper extraction advanced in policy-trace bridge
+- T81Lang stdlib stabilization track is active:
+  - governed stabilization plan published (`docs/status/STDLIB_STABILIZATION_PLAN_2026-03.md`)
+  - stdlib surface baseline CI/governance gate added (`scripts/governance/check_stdlib_surface_baseline.py`)
 - Experimental backlog implementation items are complete:
   - Cognitive Tier 1..5 closures
   - Runtime JIT prototype backend uplift
@@ -133,6 +136,7 @@ Authority remains:
 - `docs/roadmaps-plans/TASKS.md`
 - `docs/status/BEHAVIORAL_CONFORMANCE_EXPANSION_SPRINT_2026-02-26.md`
 - `docs/status/BEHAVIORAL_CONFORMANCE_EXPANSION_PHASE3_2026-02-26.md`
+- `docs/status/STDLIB_STABILIZATION_PLAN_2026-03.md`
 - `docs/status/RELEASE_READINESS_PACKET_2026-03.md`
 - `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md`
 - `docs/status/C2_MONTH_CLOSE_CHECK_2026-03-31.md`

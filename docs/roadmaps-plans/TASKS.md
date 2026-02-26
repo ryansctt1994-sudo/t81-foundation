@@ -18,6 +18,13 @@ This document tracks immediate, actionable tasks for the T81 project.
 - [x] **Packaging Decision:** Decide whether `t81_llama_adapter` remains internal or is exported as a package target. (Completed 2026-02-26: remains internal/build-only; codified by `T81_EXPORT_LLAMA_ADAPTER` guard in `CMakeLists.txt` with explicit unsupported-error path.)
 - [x] **Boundary Classification:** Keep llama integration explicitly classified as governed non-DCP in status/release artifacts. (Completed 2026-02-26; explicit classification added in `docs/status/RELEASE_READINESS_PACKET_2026-03.md` and `docs/status/IMPLEMENTATION_MATRIX.md`.)
 
+### T81Lang Standard Library Stabilization (New Sprint Track)
+- [x] **Surface Baseline Gate:** Add machine-checkable stdlib module-surface baseline check and wire it to CI/governance checks. (Completed 2026-02-26: `scripts/governance/check_stdlib_surface_baseline.py` added and wired into `.github/workflows/ci.yml` + `check_docs_governance_hygiene.py`.)
+- [x] **Stabilization Plan:** Publish governed execution plan with bounded determinism posture and acceptance gates. (Completed 2026-02-26: `docs/status/STDLIB_STABILIZATION_PLAN_2026-03.md`.)
+- [ ] **Module Invariant Expansion:** Add/expand conformance fixtures for under-covered stdlib behaviors (`std.math`, `std.core`) with deterministic observable outputs.
+- [ ] **Stdlib Change Policy:** Define stdlib semver/change taxonomy (breaking/non-breaking/experimental) and required evidence per change class.
+- [ ] **Stdlib Promotion Snapshot:** Produce a stabilization snapshot artifact mapping each `std.*` module to status (`stable`, `bounded`, `experimental`) and evidence.
+
 ### Experimental Implementation Backlog (Post-C2 Pickup)
 - [x] **Cognitive Tier 1:** Implement `SymbolicGraph::rewrite` and `is_confluent`. (Completed 2026-02-26: deterministic rewrite now updates nodes/edges with canonicalization, and confluence now checks unique nodes, valid edge endpoints, and deterministic `(from,label)->to` transitions; validated via `tiers_structure_test`.)
 - [x] **Cognitive Tier 2:** Connect `ReflectiveFrame` to Axion trace events. (Completed 2026-02-26: added canonical Tier 2 reason channel `cog:tier2:reflect`, wired `ReflCap/ReflJustify/ReflTrace/ReflSeal` to emit reflective Axion event reasons, and validated via `vm_reflection_tier2_test`.)
