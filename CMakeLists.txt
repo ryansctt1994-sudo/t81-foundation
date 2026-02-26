@@ -850,6 +850,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_tier4_vm_test tests/cpp/tier4_vm_test.cpp)
   target_link_libraries(t81_tier4_vm_test PRIVATE t81_vm t81_core)
 
+  add_executable(t81_tier4_distributed_test tests/cpp/test_tier4_distributed.cpp)
+  target_link_libraries(t81_tier4_distributed_test PRIVATE t81_vm t81_core)
+
   add_executable(tiers_structure_test tests/cpp/tiers_structure_test.cpp)
   target_link_libraries(tiers_structure_test PRIVATE t81_core)
 
@@ -1258,6 +1261,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     t81_tier4_test
     t81_tier5_test
     t81_tier4_vm_test
+    t81_tier4_distributed_test
     t81_jit_test
     jit_trace_equivalence_test
     jit_tensor_trace_equivalence_test

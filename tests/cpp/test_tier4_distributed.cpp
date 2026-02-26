@@ -29,7 +29,7 @@ void test_gossip() {
     exit(1);
   }
 
-  const auto& state = vm->state();
+  [[maybe_unused]] const auto& state = vm->state();
   assert(!state.tier4_state.outbox.empty());
   assert(state.tier4_state.outbox.back().payload == 42);
   std::cout << "Gossip OK" << std::endl;
@@ -75,7 +75,7 @@ void test_merge() {
   // Verify content of option
   int64_t handle = state.contexts[0].registers[1];
   assert(handle > 0);
-  const auto& opt = state.options[handle - 1];
+  [[maybe_unused]] const auto& opt = state.options[handle - 1];
   assert(opt.has_value);
   assert(opt.payload == 123);
   assert(opt.payload_tag == t81::vm::ValueTag::Int);
@@ -119,15 +119,63 @@ void test_sync() {
     exit(1);
   }
 
-  const auto& state = vm->state();
+  [[maybe_unused]] const auto& state = vm->state();
   assert(state.tier4_state.vector.global_tick >= 500);
 
   std::cout << "Sync OK" << std::endl;
+}
+
+void test_merge_prefers_newest_tick() {
+  std::cout << "Testing Merge newest-tick selection..." << std::endl;
+  auto vm = t81::vm::make_interpreter_vm(nullptr);
+
+  t81::tisc::Program prog;
+  t81::tisc::Insn merge_insn;
+  merge_insn.opcode = t81::tisc::Opcode::Merge;
+  merge_insn.a = 1;
+  prog.insns.push_back(merge_insn);
+  prog.insns.push_back({t81::tisc::Opcode::Halt, 0, 0, 0});
+  vm->load_program(prog);
+
+  auto& mutable_state = const_cast<t81::vm::State&>(vm->state());
+  mutable_state.tier4_state.inbox.push_back(
+      {111, static_cast<int32_t>(t81::vm::ValueTag::Int), 10, "node-a"});
+  mutable_state.tier4_state.inbox.push_back(
+      {222, static_cast<int32_t>(t81::vm::ValueTag::Int), 20, "node-b"});
+
+  auto res = vm->run_to_halt(10);
+  if (!res) {
+    std::cerr << "VM Error: " << (int)res.error() << std::endl;
+    exit(1);
+  }
+
+  const auto& state = vm->state();
+  int64_t handle = state.contexts[0].registers[1];
+  assert(handle > 0);
+  [[maybe_unused]] const auto& opt = state.options[handle - 1];
+  assert(opt.has_value);
+  assert(opt.payload == 222);
+  std::cout << "Merge newest-tick OK" << std::endl;
+}
+
+void test_merge_deduplicates_identical_messages() {
+  std::cout << "Testing Merge deduplication..." << std::endl;
+  t81::cog::v4::NodeState node;
+  node.inbox.push_back({7, static_cast<int32_t>(t81::vm::ValueTag::Int), 9, "peer"});
+  node.inbox.push_back({7, static_cast<int32_t>(t81::vm::ValueTag::Int), 9, "peer"});
+
+  auto first = node.merge();
+  assert(first.has_value());
+  auto second = node.merge();
+  assert(!second.has_value());
+  std::cout << "Merge deduplication OK" << std::endl;
 }
 
 int main() {
   test_gossip();
   test_merge();
   test_sync();
+  test_merge_prefers_newest_tick();
+  test_merge_deduplicates_identical_messages();
   return 0;
 }
