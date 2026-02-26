@@ -1,6 +1,6 @@
 # `include/t81/vm`
 
-Public VM interfaces for HanoiVM.
+Public VM interfaces for T81VM.
 
 ## Key Headers
 - `vm.hpp`: VM interface and constructors.

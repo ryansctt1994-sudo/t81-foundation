@@ -30,7 +30,7 @@ The T81 stack is organized into vertical layers, from foundational data represen
 graph TD
     subgraph "Cognitive Layer"
         F[Cognitive Tiers]
-        G[Hanoi VM]
+        G[Hanoi Kernel Concept]
     end
     subgraph "Kernel Layer"
         E[Axion Kernel]
@@ -145,7 +145,7 @@ High-level language frontend and compiler targeting TISC bytecode.
 * Reproducibility gate (e.g., `t81lang_repro_gate.py`)
 
 **Status**
-**Stubbed** (Experimental)
+**Beta Implementation** (Spec Draft)
 
 ---
 
@@ -189,19 +189,16 @@ Higher-level recursive or agentic execution constructs.
 
 ---
 
-### Hanoi VM
+### Hanoi Kernel Concept
 
 **Responsibility**
-Higher-level VM abstraction for recursive operations and tier coordination.
+Historical experimental kernel concept retained as design reference.
 
 **Normative Spec**
 [`/spec/hanoi-kernel-spec.md`](../../spec/hanoi-kernel-spec.md)
 
-**Code**
-`experimental/hanoi/`
-
 **Status**
-**Concept**
+**Archived Concept**
 
 ---
 

@@ -8,7 +8,7 @@ Source: Promotion-gate blocking scope and residual high-drift surfaces
 ## Purpose
 
 Define a ranked, implementation-oriented backlog to reduce T81Lang residual
-drift from Draft/Experimental posture toward Beta-candidate readiness.
+drift from Draft-spec/Beta-implementation posture and sustain Beta readiness.
 
 ## Scope
 

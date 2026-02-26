@@ -1,6 +1,6 @@
 # `core/vm`
 
-Implementation of the HanoiVM runtime.
+Implementation of the T81VM runtime.
 
 ## Scope
 - Instruction execution loop

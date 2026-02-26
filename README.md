@@ -153,11 +153,11 @@ The T81 ecosystem is documented across several authority levels.
 | :--- | :--- | :--- |
 | **TISC ISA** | 🧊 **Frozen** | The instruction set is verified and immutable (v1). |
 | **Data Types** | 🧊 **Frozen** | Core arithmetic types are stable and bit-exact. |
-| **T81VM** | ✅ **Stable** | The interpreter is fully functional and governed. |
-| **Axion** | 🚧 **Beta** | Policy engine is active but evolving. |
-| **T81Lang** | 🚧 **Beta** | The high-level language compiler is functional. |
+| **T81VM** | 🚧 **Beta** | Runtime surface is active and under continued verification. |
+| **Axion** | ⚠️ **Alpha** | Policy engine is active with partial draft-surface coverage. |
+| **T81Lang** | 🚧 **Beta** | Implementation maturity is Beta; normative language spec remains Draft. |
 | **Trace-JIT** | 🧪 **Experimental** | JIT compilation for speed (opt-in). |
-| **Hanoi VM** | 🧪 **Concept** | Recursive distributed compute layer. |
+| **Hanoi Kernel** | 🗃️ **Archived Concept** | Historical experimental concept retained for design reference only. |
 
 > **Note:** "Frozen" components are contractually guaranteed not to change without a major version bump (e.g., 2.0).
 

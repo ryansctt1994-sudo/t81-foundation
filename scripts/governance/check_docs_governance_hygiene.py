@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -107,6 +108,25 @@ def main() -> int:
                             f"stale planned marker for completed task {task_id}: {rel}:{idx}"
                         )
 
+    # 4) Cross-document status label coherence check.
+    coherence_check = REPO_ROOT / "scripts/governance/check_status_label_coherence.py"
+    if not coherence_check.exists():
+      issues.append("missing status coherence check script: scripts/governance/check_status_label_coherence.py")
+    else:
+      result = subprocess.run(
+          [sys.executable, str(coherence_check)],
+          cwd=REPO_ROOT,
+          capture_output=True,
+          text=True,
+          check=False,
+      )
+      if result.returncode != 0:
+          issues.append("status label coherence check failed")
+          output = (result.stdout + "\n" + result.stderr).strip()
+          if output:
+              for line in output.splitlines():
+                  issues.append(f"coherence: {line}")
+
     if issues:
         print("governance hygiene check FAILED:")
         for issue in issues:
@@ -117,6 +137,7 @@ def main() -> int:
     print(f"- required README coverage checked: {len(REQUIRED_READMES)} paths")
     print("- task-queue status consistency checked")
     print("- stale planned markers checked for completed tasks")
+    print("- status label coherence checked")
     return 0
 
 

@@ -46,6 +46,9 @@ Authority remains:
 
 ### 4.2 Delivery Progress
 
+- T81Lang posture is synchronized as:
+  - spec authority: Draft (`spec/t81lang-spec.md`)
+  - implementation maturity: Beta (`docs/status/T81LANG_PROMOTION_GATE.md`)
 - A1 through A1G closure tracks are complete and synchronized.
 - Governed llama.cpp integration backlog items are complete.
 - Experimental backlog implementation items are complete:

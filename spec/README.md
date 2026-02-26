@@ -19,13 +19,13 @@ The key words **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHALL NOT**, **
 ### Languages & Formats
 - **[t81lang-spec.md](t81lang-spec.md):** T81Lang syntax and semantics.
 - **[tisc-spec.md](tisc-spec.md):** Ternary Instruction Set Architecture (ISA).
-- **[t81vm-spec.md](t81vm-spec.md):** HanoiVM execution model.
+- **[t81vm-spec.md](t81vm-spec.md):** T81VM execution model.
 - **[cpp-mapping.md](cpp-mapping.md):** Language bindings for C++.
 
 ### System Components
 - **[axion-kernel.md](axion-kernel.md):** Axion safety kernel and policy enforcement.
 - **[axion-policy-grammar.md](axion-policy-grammar.md):** Grammar for defining Axion policies.
-- **[hanoi-kernel-spec.md](hanoi-kernel-spec.md):** Hanoi kernel (OS-level) specification.
+- **[hanoi-kernel-spec.md](hanoi-kernel-spec.md):** Hanoi kernel archived reference (supplemental, non-normative).
 - **[canonfs-spec.md](canonfs-spec.md):** CanonFS deterministic filesystem.
 
 ## 3. RFC Process (Change Management)
