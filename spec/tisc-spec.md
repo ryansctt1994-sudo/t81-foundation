@@ -63,7 +63,7 @@ The abstract TISC machine state is:
 STATE = (R, PC, SP, FLAGS, MEM, META)
 ```
 
-- `R` — Register file (27 general-purpose registers)
+- `R` — Register file (mandatory architectural window `R0–R80`, with optional implementation-defined extension banks)
 - `PC` — Program counter
 - `SP` — Stack pointer
 - `FLAGS` — Condition flags and ternary status

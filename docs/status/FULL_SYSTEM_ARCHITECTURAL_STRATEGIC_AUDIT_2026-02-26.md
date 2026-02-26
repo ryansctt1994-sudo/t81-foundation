@@ -224,6 +224,10 @@ Then make CI fail on any doc/status/translation drift from that contract.
   - `docs/how-to/systems-integration-agi.md`
 - Replaced global replay/native-code claims with bounded determinism and current threaded-trace execution wording.
 
+### 2026-02-26 (R9)
+- Removed stale register-model wording in `spec/tisc-spec.md` section 1 (`27 general-purpose registers`) and aligned it to the mandatory `R0–R80` architectural window with optional implementation-defined extensions.
+- Replaced stale native-code JIT wording in `spec/t81vm-spec.md` with deterministic threaded trace mode terminology to match current runtime capability contracts.
+
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
 - This report is descriptive and evidence-based; it does not override normative `/spec` authority.

@@ -51,9 +51,9 @@ T81VM MUST support at least one of the following execution modes; both are recom
    - Directly applies the semantic rules in the TISC specification.
    - Serves as the reference implementation.
 
-2. **Deterministic JIT Mode**
+2. **Deterministic Trace Mode (Trace-JIT)**
 
-   - Translates blocks of TISC instructions into native code.
+   - Executes optimized threaded traces of TISC instruction blocks.
    - MUST preserve the exact observable semantics of the interpreter.
    - Any optimization MUST NOT change:
      - register and memory values
@@ -62,7 +62,7 @@ T81VM MUST support at least one of the following execution modes; both are recom
 
 ### 1.1 Mode Selection
 
-- Mode selection (interpreter vs JIT) MAY be static or dynamic.
+- Mode selection (interpreter vs trace mode) MAY be static or dynamic.
 - The choice of mode MUST NOT change observable program behavior.
 - Axion MUST be able to query which mode is active.
 
