@@ -448,6 +448,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_tensor_test tests/cpp/vm_tensor_test.cpp)
   target_link_libraries(t81_vm_tensor_test PRIVATE t81_vm t81_core)
 
+  add_executable(t81_vm_tloadhash_conformance_test tests/cpp/vm_tloadhash_conformance_test.cpp)
+  target_link_libraries(t81_vm_tloadhash_conformance_test PRIVATE t81_vm t81_core)
+
   add_executable(t81_vm_fault_test tests/cpp/vm_fault_test.cpp)
   target_link_libraries(t81_vm_fault_test PRIVATE t81_vm t81_core)
 
@@ -1252,6 +1255,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     t81_vm_illegal_test
     t81_vm_bounds_test
     t81_vm_tensor_test
+    t81_vm_tloadhash_conformance_test
     t81_vm_fault_test
     t81_vm_deterministic_fault_test
     t81_vm_memory_test

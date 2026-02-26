@@ -123,6 +123,7 @@ Publish explicit dual profile contract:
 ### 5.3 Missing Enforcement Surfaces
 - Behavioral spec-code conformance now includes new executable invariant suites, but remains incomplete at full subsystem and workload breadth.
 - Policy behavior coverage now includes a clause matrix suite (`axion_policy_conformance_matrix_test`) in addition to fail-closed parser/invariant tests.
+- VM behavioral coverage now includes explicit `TLOADHASH` conformance checks for CanonFS tensor-load success and malformed-object decode-fault paths (`t81_vm_tloadhash_conformance_test`).
 - Formal proof depth for governance/security invariants is incomplete.
 - Host-level containment remains intentionally out-of-scope.
 
@@ -153,7 +154,7 @@ Publish explicit dual profile contract:
 ### 7.1 Findings
 - Build/test/toolchain discipline is strong and actively enforced.
 - CI quality gate requires key jobs (spec/docs, build/test, determinism slice, static analysis, sanitizers, fuzzing, benchmarks, tritwise determinism).
-- Test inventory is broad (269 tests currently discovered by CTest).
+- Test inventory is broad (270 tests currently discovered by CTest).
 - Benchmark regression gating is now required in CI (SIMD-focused).
 - Static analysis coverage improved but not full-repo exhaustive.
 
