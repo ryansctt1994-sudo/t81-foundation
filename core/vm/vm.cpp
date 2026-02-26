@@ -1718,8 +1718,8 @@ public:
         }
         auto* tensor = tensor_ptr(ctx.registers[insn.b]);
         auto* w = tensor_ptr(ctx.registers[insn.c]);
-        if (tensor == nullptr || w == nullptr || tensor->rank() == 0 || w->rank() != 1 ||
-            w->shape()[0] != tensor->shape().back()) {
+        if (tensor == nullptr || w == nullptr ||
+            !t81::vm::internal::tensor_rmsnorm_compatible(*tensor, *w)) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, 0, "TRMSNorm shape mismatch");
           trap = Trap::ShapeFault;
           break;
@@ -1746,7 +1746,7 @@ public:
           break;
         }
         auto* tensor = tensor_ptr(ctx.registers[insn.b]);
-        if (tensor == nullptr || tensor->rank() < 2) {
+        if (tensor == nullptr || !t81::vm::internal::tensor_rope_compatible(*tensor)) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, 0, "TRoPE shape mismatch");
           trap = Trap::ShapeFault;
           break;
@@ -3453,7 +3453,7 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (tensor_a->data().size() != tensor_b->data().size()) {
+        if (!t81::vm::internal::tensor_elementwise_compatible(*tensor_a, *tensor_b)) {
           trap = Trap::ShapeFault;
           break;
         }
@@ -3528,15 +3528,8 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (tensor_a->rank() != 2 || tensor_b->rank() != 2) {
-          log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, 0, "TMatMul rank mismatch");
-          trap = Trap::ShapeFault;
-          break;
-        }
-        int k_dim = tensor_a->shape()[1];
-        if (tensor_b->shape()[0] != k_dim) {
-          log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, 0,
-                           "TMatMul inner dimension mismatch");
+        if (!t81::vm::internal::tensor_matmul_compatible(*tensor_a, *tensor_b)) {
+          log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, 0, "TMatMul shape mismatch");
           trap = Trap::ShapeFault;
           break;
         }

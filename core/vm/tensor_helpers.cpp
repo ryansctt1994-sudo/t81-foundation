@@ -260,6 +260,21 @@ t81::T729DynamicTensor tensor_unary_softmax(const t81::T729DynamicTensor& tensor
   return t81::ops::softmax(tensor);
 }
 
+bool tensor_elementwise_compatible(const t81::T729DynamicTensor& lhs,
+                                   const t81::T729DynamicTensor& rhs) {
+  return lhs.data().size() == rhs.data().size();
+}
+
+t81::T729DynamicTensor tensor_matmul_2d(const t81::T729DynamicTensor& lhs,
+                                        const t81::T729DynamicTensor& rhs) {
+  return t81::ops::matmul(lhs, rhs);
+}
+
+bool tensor_matmul_compatible(const t81::T729DynamicTensor& lhs,
+                              const t81::T729DynamicTensor& rhs) {
+  return lhs.rank() == 2 && rhs.rank() == 2 && rhs.shape()[0] == lhs.shape()[1];
+}
+
 t81::T729DynamicTensor tensor_binary_elementwise(const t81::T729DynamicTensor& lhs,
                                                  const t81::T729DynamicTensor& rhs,
                                                  bool multiply) {
@@ -280,11 +295,6 @@ t81::T729DynamicTensor tensor_transpose_2d(const t81::T729DynamicTensor& tensor)
   return tensor.transpose2d();
 }
 
-t81::T729DynamicTensor tensor_matmul_2d(const t81::T729DynamicTensor& lhs,
-                                        const t81::T729DynamicTensor& rhs) {
-  return t81::ops::matmul(lhs, rhs);
-}
-
 std::optional<t81::T729DynamicTensor> tensor_contract_dot(const t81::T729DynamicTensor& lhs,
                                                           const t81::T729DynamicTensor& rhs) {
   try {
@@ -299,8 +309,17 @@ t81::T729DynamicTensor tensor_rmsnorm(const t81::T729DynamicTensor& tensor,
   return t81::ops::rmsnorm(tensor, weights);
 }
 
+bool tensor_rmsnorm_compatible(const t81::T729DynamicTensor& tensor,
+                               const t81::T729DynamicTensor& weights) {
+  return tensor.rank() != 0 && weights.rank() == 1 && weights.shape()[0] == tensor.shape().back();
+}
+
 t81::T729DynamicTensor tensor_rope(const t81::T729DynamicTensor& tensor, int pos) {
   return t81::ops::rope(tensor, pos);
+}
+
+bool tensor_rope_compatible(const t81::T729DynamicTensor& tensor) {
+  return tensor.rank() >= 2;
 }
 
 }  // namespace t81::vm::internal
