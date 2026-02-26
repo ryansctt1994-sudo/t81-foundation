@@ -509,21 +509,8 @@ public:
         return t81::unexpected(Trap::SecurityFault);
       }
 
-      state_.total_tensor_elements += tensor_elements;
-
-      std::size_t idx_handle;
-      if (!state_.free_tensor_indices.empty()) {
-        auto raw_idx = state_.free_tensor_indices.back();
-        state_.free_tensor_indices.pop_back();
-        state_.tensors[raw_idx] = std::move(tensor);
-        idx_handle = raw_idx + 1;
-      } else {
-        state_.tensors.push_back(std::move(tensor));
-        idx_handle = state_.tensors.size();
-      }
-
-      state_.metrics.total_tensors++;
-      state_.metrics.total_tensor_elements += tensor_elements;
+      t81::vm::internal::account_tensor_allocation(state_, tensor_elements);
+      const std::size_t idx_handle = t81::vm::internal::store_tensor_slot(state_, std::move(tensor));
       telemetry.max_shape_complexity = std::max(telemetry.max_shape_complexity, tensor_shape_complexity);
       telemetry.max_tensor_rank = std::max(telemetry.max_tensor_rank, tensor_rank);
 
