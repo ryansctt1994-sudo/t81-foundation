@@ -218,6 +218,12 @@ Then make CI fail on any doc/status/translation drift from that contract.
 - Reconciled capability-contract sandbox language by updating `docs/governance/CAPABILITY_CONTRACT.md` to match process-level enforcement limits and explicit non-guarantee of OS/hardware sandboxing.
 - Added explicit contract-authority pointer from governance summary to `docs/reference/CAPABILITY_CONTRACT.md`.
 
+### 2026-02-26 (R8)
+- Normalized over-strong determinism/sandbox/JIT wording in high-visibility integration guides:
+  - `docs/how-to/system-integration.md`
+  - `docs/how-to/systems-integration-agi.md`
+- Replaced global replay/native-code claims with bounded determinism and current threaded-trace execution wording.
+
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
 - This report is descriptive and evidence-based; it does not override normative `/spec` authority.

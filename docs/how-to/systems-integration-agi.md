@@ -55,9 +55,9 @@ This document provides a comprehensive specification of how the T81 Foundation s
 
 ## 1. The Vision: AGI via Reproducible Logic
 
-The T81 stack is not merely a collection of libraries; it is a vertical integration designed to treat **nondeterminism as an engineering attack surface**. In the pursuit of Artificial General Intelligence (AGI), this philosophy is paramount. The goal is to ensure that a program's cognitive behavior is identical regardless of the host architecture, toolchain version, or execution environment. This is achieved by enforcing strict boundaries and deterministic contracts at every layer of the stack, expressed through a unified set of ternary primitives.
+The T81 stack is not merely a collection of libraries; it is a vertical integration designed to treat **nondeterminism as an engineering attack surface**. In the pursuit of Artificial General Intelligence (AGI), this philosophy is paramount. The goal is to maximize reproducible cognitive behavior on verified surfaces while explicitly tracking host- and toolchain-dependent boundaries. This is achieved by enforcing strict boundaries and deterministic contracts at every layer of the stack, expressed through a unified set of ternary primitives.
 
-In a T81-based AGI system, "intelligence" is not a black box, but a mathematically verifiable and replayable trace of every cognitive state transition. By eliminating silent failure modes like floating-point drift in neural weights, memory corruption in agent state, and un-governed self-modification of core logic, T81 creates a foundation for high-assurance AGI. This enables "auditable autonomous intelligence" that can be verified by anyone, anywhere, providing a path toward alignment that is rooted in logical transparency. The stack is designed to survive decades of technological drift while maintaining bit-identical replay guarantees, making it suitable for long-horizon archival intelligence and mission-critical decision systems.
+In a T81-based AGI system, "intelligence" is not a black box, but a traceable and replayable sequence of governed state transitions. By reducing silent failure modes like floating-point drift in selected paths, memory corruption in agent state, and un-governed self-modification of core logic, T81 creates a foundation for high-assurance AGI research. This enables "auditable autonomous intelligence" with explicit determinism scope and policy controls, providing a path toward alignment rooted in logical transparency.
 
 ---
 
@@ -127,7 +127,7 @@ The T81 architecture is organized into five functional layers, each building upo
 
 ### Layer 1: The Numeric Substrate
 At the lowest level, T81 defines canonical balanced ternary arithmetic.
--   **AGI Role:** Provides the deterministic "physics" of thought. All neural activations rely on these primitives to produce bit-identical results across all architectures. It ensures that the "soul" of the machine is mathematically stable.
+-   **AGI Role:** Provides the deterministic "physics" of thought on verified surfaces. Neural activations rely on these primitives for reproducible behavior within the active determinism profile.
 
 ### Layer 2: Storage and Persistence (`CanonFS`)
 CanonFS is a content-addressed filesystem identifying objects by their `CanonHash81`.
@@ -155,16 +155,16 @@ To understand how these components work together, we follow the lifecycle of a T
 A researcher authors the agent's core cognitive logic in `.t81`. The `t81 compile` tool performs semantic analysis and emits a `.tisc` binary. This binary contains the executable thought-steps and a rich `T81List` of `T81Symbol` metadata which preserves the structural intent of the agent's architecture, allowing the runtime to understand *what* a specific register represents (e.g., "Objective_Function").
 
 ### Phase 2: Manifestation (Bootstrapping)
-Before execution, an `AxionContext` is initialized. This involves loading a specific **Axion Policy** (the agent's "ethics") and a `T81Agent` profile. The context also sources a `T81Entropy` qutrit-seed (ensuring reproducible creativity) and establishes a `T81Time` quota. The agent is now a "governed intelligence," a sandboxed brain ready to process information.
+Before execution, an `AxionContext` is initialized. This involves loading a specific **Axion Policy** (the agent's "ethics") and a `T81Agent` profile. The context also sources a `T81Entropy` qutrit-seed (for reproducibility controls where configured) and establishes a `T81Time` quota. The agent is now a governed intelligence running under process-level policy enforcement.
 
 ### Phase 3: Active Cognition (Supervised Execution)
 HanoiVM starts stepping through the TISC instructions. For every instruction, Axion evaluates the policy. If a `TMatMul` instruction is encountered (e.g., a neural layer inference), Axion verifies handle validity and memory quotas before allowing the ternary SIMD kernels to perform the math. Every step—including synaptic updates and facts pushed to the `HEAP`—is recorded in the **Axion Trace** (`T81Stream`).
 
 ### Phase 4: Self-Optimization (Dynamic Optimization & Reflection)
-As the agent identifies hot paths (e.g., a tight vector accumulation loop for attention), the **Trace-JIT** generates guarded native machine code. Simultaneously, the agent may use Tier 4 reflection (`METAREAD`) to analyze its own logic and use `METAREFINE` to propose bytecode improvements to its `CODE` segment, such as unrolling a loop or pruning a sub-graph, all under the limit of the `require-reflection-cycle` policy.
+As the agent identifies hot paths (e.g., a tight vector accumulation loop for attention), the **Trace-JIT** records and executes guarded threaded traces (not native machine code). Simultaneously, the agent may use Tier 4 reflection (`METAREAD`) to analyze its own logic and use `METAREFINE` to propose bytecode improvements to its `CODE` segment, such as unrolling a loop or pruning a sub-graph, all under the limit of the `require-reflection-cycle` policy.
 
 ### Phase 5: Audit (Replay)
-Once a cognitive task is complete, the system outputs the final result (e.g., a `T81Result<T81Symbol>`) and the `T81Stream` trace log. A third party can take the original artifacts, the seed, and the trace to "replay" the agent's thoughts. Because the entire stack is deterministic, the replay is guaranteed to match the original execution perfectly, providing absolute proof of the agent's alignment and the precise sequence of qutrits that led to its conclusion.
+Once a cognitive task is complete, the system outputs the final result (e.g., a `T81Result<T81Symbol>`) and the `T81Stream` trace log. A third party can take the original artifacts, the seed, and the trace to replay verified deterministic surfaces and detect drift in governed execution paths.
 
 ---
 

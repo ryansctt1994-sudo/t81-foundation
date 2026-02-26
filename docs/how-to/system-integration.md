@@ -1,12 +1,12 @@
 # T81 System Integration: Architectural Coalescence
 
-This document provides a comprehensive overview of how the various components of the T81 Foundation stack—T81Lang, TISC, HanoiVM, Axion, and CanonFS—coalesce into a functional, deterministic, and auditable system.
+This document provides a comprehensive overview of how the various components of the T81 Foundation stack—T81Lang, TISC, HanoiVM, Axion, and CanonFS—coalesce into a functional, bounded-deterministic, and auditable system.
 
 ---
 
 ## 1. The Vision: A Reproducible Computing Discipline
 
-The T81 stack is not merely a collection of libraries; it is a vertical integration designed to treat **nondeterminism as an engineering attack surface**. The goal is to ensure that a program's behavior is identical regardless of the host architecture, toolchain version, or execution environment.
+The T81 stack is not merely a collection of libraries; it is a vertical integration designed to treat **nondeterminism as an engineering attack surface**. The goal is to maximize reproducibility on verified surfaces defined by the determinism profile, while making host-dependent behavior explicit.
 
 This is achieved by enforcing strict boundaries and deterministic contracts at every layer of the stack.
 
@@ -49,7 +49,7 @@ The T81 architecture is organized into five functional layers, each building upo
 
 ### Layer 1: The Numeric Substrate (`T81Int`, `T81BigInt`, `T729Tensor`)
 At the lowest level, T81 defines canonical balanced ternary arithmetic. By using balanced ternary ({-1, 0, +1}), the system avoids the platform-specific pitfalls of binary floating-point arithmetic (rounding modes, denormals, etc.).
-- **Coalescence Role:** Provides the deterministic "physics" of the system. All higher-level operations (like Llama-3.2 inference) rely on these primitives to produce bit-identical results across AVX2-enabled CPUs.
+- **Coalescence Role:** Provides the deterministic "physics" of the system on verified surfaces. Higher-level operations rely on these primitives for reproducible behavior under the active determinism profile.
 
 ### Layer 2: Storage and Persistence (`CanonFS`)
 CanonFS is a content-addressed filesystem where every object is identified by its `CanonHash81` (a 256-bit SHA3-512 truncation).
@@ -93,11 +93,11 @@ HanoiVM starts stepping through the TISC instructions.
 
 ### Phase 4: Dynamic Optimization
 If a loop is executed multiple times, the **Trace Hotspot Detector** triggers the **Trace-JIT**.
-- **Integration Point:** The JIT generates native x86_64 code for the hot path. However, this code includes "guard" instructions that return control to Axion if any boundary (like a memory limit) is approached, maintaining the safety guarantees of the interpreter while approaching native speeds.
+- **Integration Point:** The current Trace-JIT is a threaded trace execution path (not native machine-code emission). Trace boundaries are guarded and return control for policy enforcement.
 
 ### Phase 5: Audit and Replay
 Once execution completes, the system outputs the result and an **Axion Trace Log**.
-- **Integration Point:** A third party can take the original `.tisc` binary, the same weights from **CanonFS**, and the **Axion Trace** to "replay" the execution. Because the entire stack is deterministic, the replay is guaranteed to match the original execution perfectly, proving that the output was generated according to the specified policy.
+- **Integration Point:** A third party can take the original `.tisc` binary, the same weights from **CanonFS**, and the **Axion Trace** to replay verified deterministic surfaces and detect behavioral drift.
 
 ---
 
@@ -105,8 +105,8 @@ Once execution completes, the system outputs the result and an **Axion Trace Log
 
 The coalescence of these components provides three "Hard Guarantees":
 
-1.  **Bit-Identical Reproducibility:** Identical inputs and policies always produce identical outputs and traces across all supported platforms.
-2.  **Policy-Enforced Safety:** No instruction can violate the constraints set in the Axion Policy; the VM will trap deterministically before a violation occurs.
+1.  **Scoped Reproducibility:** Identical inputs and policies produce identical outputs and traces on verified deterministic surfaces.
+2.  **Policy-Enforced Safety (Bounded):** Interpreter dispatch is policy-checked per instruction; trace execution uses boundary checks and equivalent-governance assumptions.
 3.  **Auditability of Intent:** By preserving metadata from T81Lang through TISC to the Axion Trace, the system allows auditors to map high-level code logic directly to low-level machine events.
 
 ---
