@@ -106,3 +106,15 @@ scripts/ci/run_determinism_slice.sh
 *   **"Gate hash mismatch"**: Re-run with a clean build and verify no unsupported optimization flags are injected.
 *   **"llama-run unavailable"**: Reconfigure with `-DT81_ENABLE_LLAMA_CPP=ON`.
 *   **"Policy required for llama-run"**: `--policy <policy.apl>` is mandatory for governed inference mode.
+
+<!-- chapter-nav-start -->
+
+---
+
+**Navigation**
+
+- [Book Index](./README.md)
+- [Previous: Chapter 4: Data Types and Serialization](./04_Data_Types_and_Serialization.md)
+- [Next: Chapter 6: CLI and API Usage](./06_Usage.md)
+
+<!-- chapter-nav-end -->

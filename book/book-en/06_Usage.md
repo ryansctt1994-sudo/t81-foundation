@@ -149,3 +149,15 @@ The `t81 debug` command launches an interactive debugger for TISC.
 ```bash
 t81 debug main.tisc
 ```
+
+<!-- chapter-nav-start -->
+
+---
+
+**Navigation**
+
+- [Book Index](./README.md)
+- [Previous: Chapter 5: Installation and Build Verification](./05_Installation.md)
+- [Next: Chapter 7: Programming in T81Lang](./07_Programming_in_T81Lang.md)
+
+<!-- chapter-nav-end -->

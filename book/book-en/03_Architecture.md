@@ -76,3 +76,15 @@ Trace capture can be used for optimization and forensic analysis.
 ### 3.5.2 Behavioral Equivalence
 
 JIT equivalence must be demonstrated and promoted through governance before deterministic claim expansion.
+
+<!-- chapter-nav-start -->
+
+---
+
+**Navigation**
+
+- [Book Index](./README.md)
+- [Previous: Chapter 2: Core Principles and Invariants](./02_Principles.md)
+- [Next: Chapter 4: Data Types and Serialization](./04_Data_Types_and_Serialization.md)
+
+<!-- chapter-nav-end -->

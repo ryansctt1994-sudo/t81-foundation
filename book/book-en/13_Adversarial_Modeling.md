@@ -56,3 +56,15 @@ Minimum response flow:
 3. apply mitigation and add regression evidence,
 4. update registry/threat/governance records,
 5. issue release-impact decision.
+
+<!-- chapter-nav-start -->
+
+---
+
+**Navigation**
+
+- [Book Index](./README.md)
+- [Previous: Chapter 12: Formal Semantics of TISC and T81VM](./12_Formal_Semantics.md)
+- [Next: Chapter 14: Continuity and Resilience](./14_Continuity_Resilience.md)
+
+<!-- chapter-nav-end -->

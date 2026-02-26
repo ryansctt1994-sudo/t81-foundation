@@ -93,3 +93,14 @@ Key use cases include:
 * [ ] Repro and freeze checks pass for required release surfaces.
 * [ ] Governed non-DCP surfaces are clearly labeled as such.
 * [ ] Experimental content is not presented as release-certified deterministic behavior.
+
+<!-- chapter-nav-start -->
+
+---
+
+**Navigation**
+
+- [Book Index](./README.md)
+- [Next: Chapter 2: Core Principles and Invariants](./02_Principles.md)
+
+<!-- chapter-nav-end -->

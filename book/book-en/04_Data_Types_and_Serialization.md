@@ -59,3 +59,15 @@ Normative definitions live in:
 * `spec/t81-data-types.md`
 * `spec/cpp-mapping.md`
 * `spec/canonfs-spec.md`
+
+<!-- chapter-nav-start -->
+
+---
+
+**Navigation**
+
+- [Book Index](./README.md)
+- [Previous: Chapter 3: T81VM Architecture](./03_Architecture.md)
+- [Next: Chapter 5: Installation and Build Verification](./05_Installation.md)
+
+<!-- chapter-nav-end -->

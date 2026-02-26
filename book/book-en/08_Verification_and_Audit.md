@@ -64,3 +64,15 @@ This gate is governance-facing and does not expand DCP guarantees.
 ## 8.4 Failure Implication and Response
 
 A regression on a verified determinism surface is a release blocker and governance incident candidate. The required response path is defined in `docs/governance/INCIDENT_RESPONSE.md` and freeze enforcement policy.
+
+<!-- chapter-nav-start -->
+
+---
+
+**Navigation**
+
+- [Book Index](./README.md)
+- [Previous: Chapter 7: Programming in T81Lang](./07_Programming_in_T81Lang.md)
+- [Next: Chapter 9: The Axion Safety Kernel](./09_The_Axion_Kernel.md)
+
+<!-- chapter-nav-end -->

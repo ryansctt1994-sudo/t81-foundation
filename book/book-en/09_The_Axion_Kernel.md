@@ -51,3 +51,15 @@ Trace data links operation, verdict, and progression context, enabling replay/di
 Promotion to higher-risk capability tiers requires policy allowance and does not automatically imply deterministic guarantee expansion.
 
 Promotion assurance state is governed by the promotion pipeline and determinism registry status.
+
+<!-- chapter-nav-start -->
+
+---
+
+**Navigation**
+
+- [Book Index](./README.md)
+- [Previous: Chapter 8: Verification and Audit](./08_Verification_and_Audit.md)
+- [Next: Chapter 10: Cognitive Tiers and Distributed Compute](./10_Cognitive_Tiers_and_Distributed_Compute.md)
+
+<!-- chapter-nav-end -->

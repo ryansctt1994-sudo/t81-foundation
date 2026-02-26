@@ -43,3 +43,15 @@ The project identity requires:
 2. canonical representations for hash-critical behavior,
 3. policy-mediated safety controls,
 4. auditable execution/governance evidence.
+
+<!-- chapter-nav-start -->
+
+---
+
+**Navigation**
+
+- [Book Index](./README.md)
+- [Previous: Chapter 13: Adversarial Modeling and Determinism Attacks](./13_Adversarial_Modeling.md)
+- [Next: Chapter 15: Research Frontier](./15_Research_Frontier.md)
+
+<!-- chapter-nav-end -->

@@ -102,3 +102,15 @@ Axion is the enforcement mechanism; governance docs define institutional constra
 | DCP release boundary | `docs/product/DETERMINISTIC_CORE_PROFILE.md` | release readiness packet |
 | Freeze discipline | `docs/governance/FREEZE_ENFORCEMENT.md` | governance checks |
 | Threat-oriented hardening | `docs/governance/DETERMINISM_THREAT_MODEL.md` | security/governance review |
+
+<!-- chapter-nav-start -->
+
+---
+
+**Navigation**
+
+- [Book Index](./README.md)
+- [Previous: Chapter 1: Introduction](./01_Introduction.md)
+- [Next: Chapter 3: T81VM Architecture](./03_Architecture.md)
+
+<!-- chapter-nav-end -->

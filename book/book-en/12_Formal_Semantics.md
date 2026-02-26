@@ -43,3 +43,15 @@ Trace integrity arguments depend on canonical sequencing and cryptographic hash-
 JIT equivalence is not assumed globally; it must be proven for scoped surfaces before deterministic guarantee expansion.
 
 Registry and governance state determine claim strength.
+
+<!-- chapter-nav-start -->
+
+---
+
+**Navigation**
+
+- [Book Index](./README.md)
+- [Previous: Chapter 11: Appendices](./11_Appendices.md)
+- [Next: Chapter 13: Adversarial Modeling and Determinism Attacks](./13_Adversarial_Modeling.md)
+
+<!-- chapter-nav-end -->

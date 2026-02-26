@@ -48,3 +48,15 @@ Promotion of non-DCP surfaces requires governance gates, deterministic evidence,
 * **Book (this narrative)**: `book/book-en/`
 * **Governance docs**: `docs/governance/`
 * **Status/Promotion tracking**: `docs/status/`
+
+<!-- chapter-nav-start -->
+
+---
+
+**Navigation**
+
+- [Book Index](./README.md)
+- [Previous: Chapter 10: Cognitive Tiers and Distributed Compute](./10_Cognitive_Tiers_and_Distributed_Compute.md)
+- [Next: Chapter 12: Formal Semantics of TISC and T81VM](./12_Formal_Semantics.md)
+
+<!-- chapter-nav-end -->

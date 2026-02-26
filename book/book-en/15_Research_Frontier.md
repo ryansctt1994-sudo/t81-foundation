@@ -25,3 +25,14 @@ CanonFS may evolve toward richer immutable graph/state workflows with stronger p
 Governed inference surfaces (including `llama-run`) are currently non-DCP by default and require promotion-gate evidence before stronger guarantee claims.
 
 This remains a primary strategic frontier under the governed AGI direction.
+
+<!-- chapter-nav-start -->
+
+---
+
+**Navigation**
+
+- [Book Index](./README.md)
+- [Previous: Chapter 14: Continuity and Resilience](./14_Continuity_Resilience.md)
+
+<!-- chapter-nav-end -->

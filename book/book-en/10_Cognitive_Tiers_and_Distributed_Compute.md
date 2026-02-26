@@ -51,3 +51,15 @@ Any Tier 5 execution path requires explicit policy controls and should be treate
 ### 10.4.2 Promotion Path
 
 Promotion lifecycle: Planned -> Experimental -> Verified Candidate -> Verified, with mandatory evidence gates as documented in `docs/status/GOVERNED_AGI_PROMOTION_PIPELINE.md`.
+
+<!-- chapter-nav-start -->
+
+---
+
+**Navigation**
+
+- [Book Index](./README.md)
+- [Previous: Chapter 9: The Axion Safety Kernel](./09_The_Axion_Kernel.md)
+- [Next: Chapter 11: Appendices](./11_Appendices.md)
+
+<!-- chapter-nav-end -->

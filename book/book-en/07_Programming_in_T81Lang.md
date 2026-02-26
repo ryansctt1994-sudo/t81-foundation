@@ -100,3 +100,15 @@ fn main() -> i32 {
   return 0;
 }
 ```
+
+<!-- chapter-nav-start -->
+
+---
+
+**Navigation**
+
+- [Book Index](./README.md)
+- [Previous: Chapter 6: CLI and API Usage](./06_Usage.md)
+- [Next: Chapter 8: Verification and Audit](./08_Verification_and_Audit.md)
+
+<!-- chapter-nav-end -->
