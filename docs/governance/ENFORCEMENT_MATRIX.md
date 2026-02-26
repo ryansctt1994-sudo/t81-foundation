@@ -14,6 +14,7 @@ This document translates high-level governance policies into machine-verifiable 
 | **Bit-Exact Determinism** | Yes | `build-and-test`, `determinism-slice`, `t81lang-cross-arch-bit-identity`, `t3k-cross-arch-bit-identity`, `quality-gate` | **Hard-Fail** | `scripts/ci/t81lang_repro_gate.py`, `scripts/ci/t3k_repro_gate.py`, `scripts/ci/run_determinism_slice.sh` |
 | **ISA Stability (Frozen)** | Yes | `spec-and-docs`, `quality-gate` | **Hard-Fail** | `scripts/ci/check_tisc_freeze_integrity.py` |
 | **Unimplemented Privileged Opcode Fail-Closed** | Yes | `build-and-test` | **Hard-Fail** | `tests/cpp/vm_stubbed_privileged_opcode_fail_closed_test.cpp` |
+| **Unimplemented Async/Network Opcode Fail-Closed** | Yes | `build-and-test` | **Hard-Fail** | `tests/cpp/vm_stubbed_async_network_opcode_fail_closed_test.cpp` |
 | **Public API SemVer** | No | N/A (planned) | **Warning** | Planned: API diff contract script (not yet implemented) |
 | **Sandboxed Execution** | No | N/A | **Warning** | Not currently enforced as a hard CI capability |
 

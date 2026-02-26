@@ -4105,9 +4105,10 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "NSend placeholder"};
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
+                                    "Blocked: unimplemented async/network opcode"};
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), 0, verdict);
-        // Placeholder: no actual network op yet
+        trap = Trap::SecurityFault;
         break;
       }
       case t81::tisc::Opcode::NRecv: {
@@ -4115,12 +4116,10 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "NRecv placeholder"};
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
+                                    "Blocked: unimplemented async/network opcode"};
         record_axion_event(insn.opcode, 0, 0, verdict);
-        // Placeholder: return dummy byte buffer (handled as generic handle or int for now)
-        // Since we don't have a BytesHandle yet in ValueTag explicitly used here, we return 0.
-        ctx.registers[insn.a] = 0;
-        ctx.register_tags[insn.a] = ValueTag::Int;
+        trap = Trap::SecurityFault;
         break;
       }
       case t81::tisc::Opcode::VWait: {
@@ -4128,12 +4127,10 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        // Wait on promise handle in insn.b
-        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "VWait placeholder"};
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
+                                    "Blocked: unimplemented async/network opcode"};
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), 0, verdict);
-        // Placeholder: immediate return
-        ctx.registers[insn.a] = 0;
-        ctx.register_tags[insn.a] = ValueTag::Int;
+        trap = Trap::SecurityFault;
         break;
       }
       case t81::tisc::Opcode::VYield: {
@@ -4141,9 +4138,10 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        // Yield result handle in insn.b
-        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "VYield placeholder"};
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
+                                    "Blocked: unimplemented async/network opcode"};
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), 0, verdict);
+        trap = Trap::SecurityFault;
         break;
       }
       case t81::tisc::Opcode::TNorm: {

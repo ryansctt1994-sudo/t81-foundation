@@ -106,7 +106,7 @@ Then reconcile encoding/register semantics into one normative source.
 | Risk Classification | Medium-High |
 
 ### 5.3 Missing Enforcement Surfaces
-- Remaining hardening for broader stub cognitive surfaces (after privileged Axion-opcode fail-closed remediation).
+- Remaining hardening for broader cognitive stub surfaces (after privileged Axion-opcode and async/network fail-closed remediations).
 - Full sync between governance matrix and actual CI-enforced checks.
 
 ## 6. Documentation vs Reality
@@ -124,7 +124,7 @@ Then reconcile encoding/register semantics into one normative source.
 ### 6.3 Required Corrections
 1. Resolve register and encoding contradictions in normative docs.
 2. Normalize secondary docs (how-to/spec aggregations) to current bounded determinism and process-level isolation language.
-3. Continue Axion enforcement hardening for remaining non-privileged cognitive stub opcode surfaces.
+3. Continue Axion enforcement hardening for remaining non-privileged cognitive stub opcode surfaces (notably neural/cognitive placeholders).
 
 ## 7. Code Quality & Engineering Discipline
 
@@ -260,6 +260,15 @@ Then make CI fail on any doc/status/translation drift from that contract.
   - `runtime/**`
   - `lang/**`
 - Expanded clang-tidy header filter accordingly (`include/t81|core|kernel|runtime|lang`) to improve analyzer coverage for non-`src` implementation surfaces.
+
+### 2026-02-26 (R15)
+- Hardened unimplemented async/network placeholder opcodes in `core/vm/vm.cpp`:
+  - `NSEND`, `NRECV`, `VWAIT`, `VYIELD` now fail closed with deterministic `SecurityFault` and explicit deny-log reasons.
+- Added regression coverage in `tests/cpp/vm_stubbed_async_network_opcode_fail_closed_test.cpp` and wired it into `CMakeLists.txt`.
+- Updated ISA docs for implementation parity:
+  - `spec/tisc/opcode-semantics.md`
+  - `spec/tisc/opcode-registry.md`
+- Added governance enforcement mapping in `docs/governance/ENFORCEMENT_MATRIX.md`.
 
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.

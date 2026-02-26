@@ -259,10 +259,10 @@ Shift amounts are masked with `0x3F` (AND 63) to ensure deterministic execution 
 
 | Opcode | Mnemonic | Operands / Encoding | Stack Effect | Description / Semantics | Side Effects / Traps |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `0x7B` | `NSEND` | `B: Handle` | - | Sends handle/data to network (Placeholder). | Axion Event |
-| `0x7C` | `NRECV` | `A: Dest` | - | Receives data from network (Placeholder). | Axion Event |
-| `0x7D` | `VWAIT` | `A: Dest, B: Promise` | - | Waits on a promise/handle. | Axion Event |
-| `0x7E` | `VYIELD` | `B: Handle` | - | Yields execution result. | Axion Event |
+| `0x7B` | `NSEND` | `B: Handle` | - | Unimplemented async/network opcode; VM must fail closed. | SecurityFault |
+| `0x7C` | `NRECV` | `A: Dest` | - | Unimplemented async/network opcode; VM must fail closed. | SecurityFault |
+| `0x7D` | `VWAIT` | `A: Dest, B: Promise` | - | Unimplemented async/network opcode; VM must fail closed. | SecurityFault |
+| `0x7E` | `VYIELD` | `B: Handle` | - | Unimplemented async/network opcode; VM must fail closed. | SecurityFault |
 | `0x44` | `STACKALLOC` | `A: Dest, B: Size` | - | Allocates stack frame of `B` bytes. | StackFault |
 | `0x45` | `STACKFREE` | `A: Addr, B: Size` | - | Frees stack frame. | StackFault |
 | `0x46` | `HEAPALLOC` | `A: Dest, B: Size` | - | Allocates heap block. | BoundsFault |

@@ -243,10 +243,10 @@ Source of Truth: VM + opcode headers
 ### 2.15 Network / Async
 | Mnemonic | Numeric Encoding | Operands | Description | Deterministic | Implementation Location |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| NSend | 123 (0x7B) | A, B, C | Network Send (Stub) | Yes | core/vm/vm.cpp |
-| NRecv | 124 (0x7C) | A, B, C | Network Recv (Stub) | Yes | core/vm/vm.cpp |
-| VWait | 125 (0x7D) | A, B, C | Async Wait (Stub) | Yes | core/vm/vm.cpp |
-| VYield | 126 (0x7E) | A, B, C | Async Yield (Stub) | Yes | core/vm/vm.cpp |
+| NSend | 123 (0x7B) | A, B, C | Network Send (Unimplemented; fail-closed) | Yes | core/vm/vm.cpp |
+| NRecv | 124 (0x7C) | A, B, C | Network Recv (Unimplemented; fail-closed) | Yes | core/vm/vm.cpp |
+| VWait | 125 (0x7D) | A, B, C | Async Wait (Unimplemented; fail-closed) | Yes | core/vm/vm.cpp |
+| VYield | 126 (0x7E) | A, B, C | Async Yield (Unimplemented; fail-closed) | Yes | core/vm/vm.cpp |
 
 ## 3. Reserved / Unused Opcodes
 - **Nop (0x00)**: No Operation.
