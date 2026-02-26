@@ -4,9 +4,9 @@ Date: 2026-02-26
 Scope: `/src`, `/include`, `/spec`, `/docs`, `/book`, CI workflows, governance, contracts, ISA/opcodes, VM, Axion, determinism gates, benchmarks, tests, multilingual alignment, roadmap, release artifacts.
 
 ## Executive Summary
-This repository is a substantial, working deterministic-runtime codebase with strong test/CI investment, but it is not architecturally or governance-coherent enough to treat as production-grade deterministic infrastructure. Core pipeline elements are implemented (frontend, ISA encoding, VM interpreter, Axion engine, CanonFS, reproducibility gates), and representative determinism tests plus both repro gates were validated locally (`t81lang` and `t3k`) as passing.
+This repository is a substantial, working deterministic-runtime codebase with strong test/CI investment. Core pipeline elements are implemented (frontend, ISA encoding, VM interpreter, Axion engine, CanonFS, reproducibility gates), and representative determinism tests plus both repro gates were validated locally (`t81lang` and `t3k`) as passing.
 
-The highest risks are specification/implementation divergence (including register model and encoding model conflicts), over-claiming in several public docs/translations, partial/stubbed ISA surfaces inside a frozen narrative, and governance enforcement drift (policy matrix references missing checks/scripts).
+The highest previously identified remediation gaps (spec/impl contradictions, documentation over-claims, workflow pinning drift, and permissive stub opcode behavior) were closed in this remediation cycle with linked test/governance evidence. Residual risk is concentrated in strategic hardening areas (host-dependent float/tensor behavior, partial cognitive-tier semantics, and incomplete machine-enforcement for some governance policies).
 
 Determinism is defensible only for explicitly bounded surfaces and only with caveats already present in some governance docs. The strategic position is best classified as a **Deterministic Runtime Candidate** (not pre-production infrastructure). If development stopped today, it would be remembered as a serious deterministic-systems research platform with unusually strong implementation depth, but inconsistent assurance posture.
 
@@ -16,11 +16,11 @@ Determinism is defensible only for explicitly bounded surfaces and only with cav
 
 | Area | Spec/Doc Claim | Implementation Evidence | Assessment |
 |---|---|---|---|
-| Register model | TISC defines 81 registers (`spec/tisc-spec.md`) | VM thread context stores 243 registers (`include/t81/vm/state.hpp`) | High drift |
-| Instruction encoding | TISC spec describes fixed 81-trit word (`spec/tisc-spec.md`) | Runtime encodes 13-byte `{opcode,a,b,c}` (`core/isa/encoding.cpp`); opcode registry also says 13-byte (`spec/tisc/opcode-registry.md`) | Spec internal inconsistency |
-| JIT model | VM spec describes deterministic native-code JIT intent (`spec/t81vm-spec.md`) | Capability contract describes threaded trace interpreter (not machine-code JIT) (`docs/reference/CAPABILITY_CONTRACT.md`) | Medium-high drift |
+| Register model | TISC defines mandatory `R0–R80` architectural window (`spec/tisc-spec.md`) | VM thread context stores a larger implementation-defined bank (`include/t81/vm/state.hpp`) | Reconciled to bounded extension model |
+| Instruction encoding | Canonical TISC encoding is fixed-width 13-byte form (`spec/tisc-spec.md`) | Runtime uses 13-byte `{opcode,a,b,c}` (`core/isa/encoding.cpp`) | Aligned |
+| JIT model | VM spec describes deterministic threaded trace mode (`spec/t81vm-spec.md`) | Capability contract describes threaded trace interpreter (not machine-code JIT) (`docs/reference/CAPABILITY_CONTRACT.md`) | Aligned |
 | Axion policy invocation | Per-instruction policy expectation for governed execution | Interpreter does per-step checks; trace path checks entry/exit boundaries (`core/vm/vm.cpp`) | Known bounded divergence |
-| Core maturity | Root status shows T81VM Beta / Axion Alpha (`README.md`) | Reference status shows Stable T81Lang/HanoiVM/Axion (`docs/reference/STATUS.md`) | Governance/document drift |
+| Core maturity | Root status and reference status aligned to current Beta/Alpha posture (`README.md`, `docs/reference/STATUS.md`) | Current docs reflect bounded determinism and partial surfaces | Aligned |
 
 ### 1.2 Layer Violation Analysis
 - Pipeline layering exists in code: frontend -> emitter -> VM -> Axion hooks.
@@ -32,7 +32,7 @@ Determinism is defensible only for explicitly bounded surfaces and only with cav
 
 | Metric | Score (1-10) | Basis |
 |---|---:|---|
-| Architectural Risk | 8 | Normative/implemented model divergence plus governance inconsistency |
+| Architectural Risk | 5.5 | Major norm/implementation contradictions remediated; residual risk now concentrated in bounded governance/semantic coverage gaps |
 
 ## 2. Determinism Validation
 
@@ -64,8 +64,8 @@ Determinism is defensible only for explicitly bounded surfaces and only with cav
 
 ### 3.1 Findings
 - Opcode registry is extensive, mapped, and has matrix tests.
-- Freeze narrative is weakened by explicitly stub/placeholder opcode behavior in VM dispatch.
-- Encoding contract inconsistency (81-trit narrative vs 13-byte implementation) remains unresolved.
+- Unimplemented extension/stub opcode surfaces are now largely fail-closed with explicit deny semantics and regression coverage.
+- Encoding and register contract contradictions were reconciled in normative docs.
 
 ### 3.2 ISA Maturity Stage
 **Stabilizing**
@@ -106,32 +106,32 @@ Then reconcile encoding/register semantics into one normative source.
 | Risk Classification | Medium-High |
 
 ### 5.3 Missing Enforcement Surfaces
-- Remaining hardening for broader cognitive stub surfaces (after privileged Axion-opcode, async/network, and neural fail-closed remediations).
+- Remaining hardening for broader cognitive-tier semantic completeness surfaces (beyond fail-closed guardrails already added).
 - Full sync between governance matrix and actual CI-enforced checks.
 
 ## 6. Documentation vs Reality
 
 ### 6.1 Overstatement Map
-- Root and multilingual READMEs are substantially aligned to bounded determinism language, but additional secondary docs still contain broad sandbox/determinism wording not yet fully normalized.
-- Legacy documents still contain sandbox phrasing that can be read as stronger than current process-level enforcement model.
+- Root and multilingual READMEs are aligned to bounded determinism language.
+- Some legacy/archival documents may still contain stronger historical sandbox language.
 
 ### 6.2 Documentation Credibility Score
 
 | Metric | Score (1-10) |
 |---|---:|
-| Documentation Credibility | 6.1 |
+| Documentation Credibility | 7.4 |
 
 ### 6.3 Required Corrections
-1. Resolve register and encoding contradictions in normative docs.
-2. Normalize secondary docs (how-to/spec aggregations) to current bounded determinism and process-level isolation language.
-3. Continue Axion enforcement hardening for remaining non-privileged cognitive stub opcode surfaces (beyond neural/async-network remediated slices).
+1. Continue normalization of legacy/archival docs that retain stronger historical sandbox wording.
+2. Add machine-verifiable enforcement for currently warning-only governance rows (licenses/structure/staleness).
+3. Continue cognitive-tier semantic hardening where behavior is implemented but not yet assurance-complete.
 
 ## 7. Code Quality & Engineering Discipline
 
 ### 7.1 Findings
 - Build/test matrix is broad and active; local CTest inventory shows 254 tests.
 - Static analysis scope in CI has been expanded beyond `src/**` to include `core/**`, `kernel/**`, `runtime/**`, and `lang/**`; coverage is improved but still not full-repo exhaustive.
-- Governance enforcement matrix references many missing scripts/checks.
+- Governance enforcement matrix now maps major fail-closed runtime guarantees; several policy rows remain warning-only due to missing scripts.
 - Workflow action pinning now passes strict thresholds (`tagged=0`, `unknown=0`) after SHA pinning remediation.
 
 ### 7.2 Maturity & Refactor Priority
@@ -155,7 +155,7 @@ Refactor priority ranking:
 ### 8.2 Why
 - Real implementation depth and strong automated validation.
 - Determinism controls are operational on important slices.
-- Unresolved spec contradictions, stubs, and claim drift block pre-production classification.
+- Residual bounded-surface and cognitive-tier semantic gaps still block pre-production classification.
 
 ### 8.3 If Development Stopped Today
 A technically serious deterministic-compute research/runtime candidate with strong artifacts and tests, remembered for both depth and unresolved assurance-coherence gaps.
@@ -163,11 +163,11 @@ A technically serious deterministic-compute research/runtime candidate with stro
 ## 9. Hard Truth
 
 ### 9.1 Most Serious Structural Risks (Top 5)
-1. Register-model mismatch (81-reg spec vs 243-reg runtime).
-2. Encoding-model contradiction (81-trit vs 13-byte).
-3. Public overclaim risk (global determinism wording vs bounded guarantees).
-4. Governance enforcement debt (policy matrix references missing checks/scripts).
-5. Security/governance ambiguity from conflicting capability-contract statements.
+1. Host-dependent float/tensor behavior outside fully provable cross-platform bit identity.
+2. Partial cognitive-tier semantic completeness (implemented surfaces vs assurance depth).
+3. Governance enforcement debt for warning-only policy rows lacking machine checks.
+4. Trace-mode policy granularity remains boundary-based rather than full per-op trace-internal checks.
+5. Legacy/archival document drift risk reintroducing stronger-than-implemented claims.
 
 ### 9.2 Most Valuable Strengths (Top 5)
 1. High-volume automated test infrastructure.
@@ -311,6 +311,9 @@ Then make CI fail on any doc/status/translation drift from that contract.
 ### 2026-02-26 (R23)
 - Added explicit regression coverage for `AXREPORT` policy-deny fail-closed semantics in `tests/cpp/vm_axreport_policy_deny_fail_closed_test.cpp`.
 - Wired the new test into `CMakeLists.txt` and mapped it as a machine-verifiable hard-fail rule in `docs/governance/ENFORCEMENT_MATRIX.md`.
+
+### 2026-02-26 (R24)
+- Performed post-remediation audit refresh to reconcile top-level ratings/findings/open-risk lists with implemented closures (spec alignment, fail-closed opcode hardening, policy parser hard-fail, workflow pinning, and governance mapping evidence).
 
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
