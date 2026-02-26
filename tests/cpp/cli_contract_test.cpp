@@ -113,6 +113,10 @@ int main(int argc, char* argv[]) {
     const auto result = run_cli(t81_bin, {"--help"});
     T81_TEST_CHECK(result.exit_code == 0);
     T81_TEST_CHECK(contains(result.stderr_text, "compile <file.t81|.t81w>"));
+    T81_TEST_CHECK(contains(result.stderr_text, "test    [options] [-- ...]"));
+    T81_TEST_CHECK(contains(result.stderr_text, "doctor  [--json]"));
+    T81_TEST_CHECK(contains(result.stderr_text, "fmt     [options] <file...>"));
+    T81_TEST_CHECK(!contains(result.stderr_text, "pkg     <subcommand>"));
     T81_TEST_CHECK(!contains(result.stderr_text, "llama-run <model.gguf>"));
     T81_TEST_CHECK(!contains(result.stderr_text, "weights <subcommand>"));
     T81_TEST_CHECK(contains(result.stderr_text, "t81 help advanced"));
@@ -130,6 +134,7 @@ int main(int argc, char* argv[]) {
   {
     const auto result = run_cli(t81_bin, {"help", "labs"});
     T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stderr_text, "pkg <subcommand>"));
     T81_TEST_CHECK(contains(result.stderr_text, "benchmark"));
     T81_TEST_CHECK(contains(result.stderr_text, "llama-run"));
   }
@@ -150,6 +155,24 @@ int main(int argc, char* argv[]) {
     const auto result = run_cli(t81_bin, {"weights", "info", "--help"});
     T81_TEST_CHECK(result.exit_code == 0);
     T81_TEST_CHECK(contains(result.stderr_text, "Usage: t81 weights info"));
+  }
+
+  {
+    const auto result = run_cli(t81_bin, {"help", "test"});
+    T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stderr_text, "Usage: t81 test"));
+  }
+
+  {
+    const auto result = run_cli(t81_bin, {"doctor", "--json"});
+    T81_TEST_CHECK(result.exit_code == 0 || result.exit_code == 2);
+    T81_TEST_CHECK(contains(result.stdout_text, "\"checks\""));
+  }
+
+  {
+    const auto result = run_cli(t81_bin, {"fmt", "--version"});
+    T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stdout_text, "t81-fmt 0.1.0"));
   }
 
   {
@@ -180,6 +203,40 @@ int main(int argc, char* argv[]) {
     const auto result = run_cli(t81_bin, {"init", "bad name"});
     T81_TEST_CHECK(result.exit_code != 0);
     T81_TEST_CHECK(contains(result.stderr_text, "Project name must contain only"));
+  }
+
+  {
+    const fs::path temp_dir = fs::temp_directory_path() / "t81-cli-contract-pkg";
+    std::error_code ignore_ec;
+    fs::remove_all(temp_dir, ignore_ec);
+    fs::create_directories(temp_dir);
+    const fs::path old_cwd = fs::current_path();
+    fs::current_path(temp_dir);
+
+    {
+      std::ofstream out("package.t81");
+      out << "(package\n"
+             "  (name \"ok_pkg\")\n"
+             "  (version \"1.2.3\")\n"
+             ")\n";
+    }
+    const auto ok_result = run_cli(t81_bin, {"pkg", "check", "--json"});
+    T81_TEST_CHECK(ok_result.exit_code == 0);
+    T81_TEST_CHECK(contains(ok_result.stdout_text, "\"valid\": true"));
+
+    {
+      std::ofstream out("bad.t81");
+      out << "(package\n"
+             "  (name \"bad pkg\")\n"
+             "  (version \"x.y.z\")\n"
+             ")\n";
+    }
+    const auto bad_result = run_cli(t81_bin, {"pkg", "check", "bad.t81", "--json"});
+    T81_TEST_CHECK(bad_result.exit_code == 2);
+    T81_TEST_CHECK(contains(bad_result.stdout_text, "\"valid\": false"));
+
+    fs::current_path(old_cwd);
+    fs::remove_all(temp_dir, ignore_ec);
   }
 
   {

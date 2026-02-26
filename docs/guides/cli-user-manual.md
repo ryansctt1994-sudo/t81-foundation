@@ -56,6 +56,9 @@ Additional command groups are discoverable via:
 - `t81 help advanced`
 - `t81 help labs`
 
+Current Labs commands include `pkg`, `benchmark`, `repro-hash`,
+`canonize-tensor`, `canonize-file`, and `llama-run`.
+
 ## 4. Commands
 
 ### 4.1 `compile`
@@ -139,17 +142,49 @@ t81 init <project_name>
 
 Creates a project directory with `main.t81` and `README.md`.
 
-### 4.11 `pkg`
+### 4.11 `test`
+
+```text
+t81 test [options] [-- <ctest args...>]
+t81 test --build-dir <path>
+t81 test --filter <regex>
+t81 test --json
+t81 test --list
+```
+
+Runs project tests through CTest.
+
+### 4.12 `doctor`
+
+```text
+t81 doctor [--json]
+```
+
+Runs environment/toolchain readiness checks and prints actionable fixes.
+
+### 4.13 `fmt`
+
+```text
+t81 fmt [options] <file...>
+t81 fmt --check <file...>
+t81 fmt --json <file...>
+t81 fmt --version
+```
+
+Deterministically normalizes file whitespace (LF endings, trailing-space trim, final newline).
+
+### 4.14 `pkg` (labs)
 
 ```text
 t81 pkg <subcommand> [args]
 t81 pkg init [package_name]
-t81 pkg check
+t81 pkg check [package.t81] [--json]
 ```
 
 Creates/validates `package.t81`.
+This surface is currently experimental and not part of the default core help view.
 
-### 4.12 `benchmark`
+### 4.15 `benchmark`
 
 ```text
 t81 benchmark [benchmark_runner_flags...]
@@ -157,7 +192,7 @@ t81 benchmark [benchmark_runner_flags...]
 
 Runs benchmark runner with forwarded benchmark flags.
 
-### 4.13 `weights`
+### 4.16 `weights`
 
 ```text
 t81 weights <subcommand> [options]
@@ -168,7 +203,7 @@ t81 weights quantize <input> --to-gguf <out>
 
 Weight import/info/quantization helpers.
 
-### 4.14 `policy`
+### 4.17 `policy`
 
 ```text
 t81 policy <subcommand> [options]
@@ -178,7 +213,7 @@ t81 policy run <file.apl|file.axionb> [--json]
 
 Policy compile/validation helpers.
 
-### 4.15 `trace`
+### 4.18 `trace`
 
 ```text
 t81 trace <subcommand> [args]
@@ -190,7 +225,7 @@ t81 trace export <trace.txt> [--format <json|csv>] [-o <file>]
 
 Trace inspection and export utilities.
 
-### 4.16 `llama-run` (experimental)
+### 4.19 `llama-run` (experimental)
 
 ```text
 t81 llama-run <model.gguf|sha3-256:hash> <prompt> --policy <policy.apl> [options]
@@ -215,6 +250,9 @@ Supported help forms:
 ./build/t81 --help # docs-smoke
 ./build/t81 help # docs-smoke
 ./build/t81 help compile # docs-smoke
+./build/t81 help test # docs-smoke
+./build/t81 help doctor # docs-smoke
+./build/t81 help fmt # docs-smoke
 ./build/t81 compile --help # docs-smoke
 ./build/t81 help advanced # docs-smoke
 ./build/t81 help labs # docs-smoke

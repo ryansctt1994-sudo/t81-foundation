@@ -8,6 +8,10 @@ This document defines the intended user experience for `t81` CLI v1.
 It complements `CLI_UX_PRODUCT_SPEC.md` (contract/quality bar) with explicit
 experience design decisions and implementation priorities.
 
+Capability scope and tiering decisions are frozen in:
+
+- `docs/product/CLI_CAPABILITY_PORTFOLIO.md`
+
 ## 1. Design Goal
 
 Make `t81` feel like a professional developer tool, not a research shell.
@@ -115,6 +119,9 @@ Design bar:
 | `disasm` | Functional | Add concise summary footer option (future) | P2 |
 | `debug` | Functional | Improve discoverability of debugger commands | P2 |
 | `repl` | Functional, command-rich | Add `repl --help` command list banner | P2 |
+| `test` | Implemented (`ctest` wrapper) | Expand structured summary detail over time | P1 |
+| `doctor` | Implemented | Expand checks (toolchain + policy-specific readiness) | P1 |
+| `fmt` | Implemented (deterministic whitespace normalization) | Add richer language-aware formatting later | P2 |
 
 ### 6.2 Command Families
 

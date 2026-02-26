@@ -17,6 +17,7 @@ specification authority, freeze boundaries, or determinism claim scope.
 - DETERMINISTIC_CORE_PROFILE.md
 - CLI_UX_PRODUCT_SPEC.md
 - CLI_V1_UX_DESIGN.md
+- CLI_CAPABILITY_PORTFOLIO.md
 - RELEASE_DISCIPLINE.md
 - STRATEGIC_DIRECTION.md
 - ../status/GOVERNED_AGI_PROMOTION_PIPELINE.md

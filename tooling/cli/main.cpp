@@ -21,6 +21,7 @@
 #include <memory>
 #include <optional>
 #include <random>
+#include <regex>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -308,6 +309,54 @@ Example:
 )";
 }
 
+void print_help_test() {
+  std::cerr << R"(
+Usage: t81 test [options] [-- <ctest args...>]
+
+Runs project tests via CTest.
+
+Options:
+  --build-dir <path>   Build directory containing CTest metadata (default: build)
+  --filter <regex>     CTest regex filter (passes through as -R)
+  --json               Emit machine-readable execution summary
+  --list               List discovered tests instead of executing
+
+Examples:
+  t81 test
+  t81 test --filter cli_
+  t81 test --json --build-dir out/build
+)";
+}
+
+void print_help_doctor() {
+  std::cerr << R"(
+Usage: t81 doctor [--json]
+
+Runs local environment readiness checks and reports actionable diagnostics.
+
+Examples:
+  t81 doctor
+  t81 doctor --json
+)";
+}
+
+void print_help_fmt() {
+  std::cerr << R"(
+Usage: t81 fmt [options] <file...>
+
+Formats files with deterministic whitespace normalization.
+
+Options:
+  --check              Dry-run; report files that would change
+  --json               Emit machine-readable summary
+  --version            Print formatter version identifier
+
+Examples:
+  t81 fmt examples/hello_world.t81
+  t81 fmt --check src/a.t81 src/b.t81
+)";
+}
+
 void print_help_repro_hash() {
   std::cerr << R"(
 Usage: t81 repro-hash [fixtures_dir]
@@ -347,11 +396,12 @@ Usage: t81 pkg <subcommand> [args]
 
 Subcommands:
   init [package_name]
-  check
+  check [package.t81] [--json]
 
 Examples:
   t81 pkg init my_pkg
   t81 pkg check
+  t81 pkg check --json
 )";
 }
 
@@ -383,6 +433,7 @@ Use:
 void print_help_labs() {
   std::cerr << R"(
 Labs/internal commands (experimental or operations-focused):
+  pkg <subcommand> [args]              Experimental package manifest helpers
   benchmark                            Internal benchmark runner entrypoint
   repro-hash [fixtures_dir]            Reproducibility gate helper
   canonize-tensor <file>               CanonFS tensor canonicalization utility
@@ -475,8 +526,10 @@ Commands:
   disasm  <file.tisc>                  Print human-readable TISC disassembly
   debug   <file.t81|.tisc> [...]       Start debugger (compile if needed)
   repl                                 Enter interactive REPL
+  test    [options] [-- ...]           Run project tests via CTest
+  doctor  [--json]                     Check environment/toolchain readiness
+  fmt     [options] <file...>          Format files (supports --check)
   init    <project_name>               Scaffold a new T81 project
-  pkg     <subcommand> [args]          Package manifest helpers
   version                              Show version
   help [command]                       Show help for command/topic
 
@@ -553,6 +606,18 @@ bool print_help_topic(std::string_view topic, const char* prog) {
   }
   if (topic == "repl") {
     print_help_repl();
+    return true;
+  }
+  if (topic == "test") {
+    print_help_test();
+    return true;
+  }
+  if (topic == "doctor") {
+    print_help_doctor();
+    return true;
+  }
+  if (topic == "fmt") {
+    print_help_fmt();
     return true;
   }
   if (topic == "benchmark") {
@@ -739,14 +804,19 @@ Args parse_args(int argc, char* argv[]) {
     } else if (arg == "-h" || arg == "--help") {
       a.need_help = true;
     } else if (arg == "-V" || arg == "--version") {
-      a.need_version = true;
+      if (a.command == "fmt") {
+        a.command_args.emplace_back(argv[i]);
+      } else {
+        a.need_version = true;
+      }
     } else if (arg.starts_with('-')) {
       // Subcommands under these top-level commands own additional flags.
       if (a.command == "benchmark") {
         a.benchmark_args.emplace_back(argv[i]);
       } else if (a.command == "weights" || a.command == "help" || a.command == "init" ||
                  a.command == "pkg" || a.command == "repro-hash" || a.command == "policy" ||
-                 a.command == "trace" || a.command == "llama-run" ||
+                 a.command == "trace" || a.command == "llama-run" || a.command == "test" ||
+                 a.command == "doctor" || a.command == "fmt" ||
                  a.command == "canonize-tensor" || a.command == "canonize-file") {
         a.command_args.emplace_back(argv[i]);
       } else {
@@ -758,7 +828,8 @@ Args parse_args(int argc, char* argv[]) {
         a.benchmark_args.emplace_back(argv[i]);
       } else if (a.command == "weights" || a.command == "help" || a.command == "init" ||
                  a.command == "pkg" || a.command == "repro-hash" || a.command == "policy" ||
-                 a.command == "trace" || a.command == "llama-run" ||
+                 a.command == "trace" || a.command == "llama-run" || a.command == "test" ||
+                 a.command == "doctor" || a.command == "fmt" ||
                  a.command == "canonize-tensor" || a.command == "canonize-file") {
         a.command_args.emplace_back(argv[i]);
       } else {
@@ -1325,6 +1396,492 @@ float parse_float_arg(const std::string& text, const char* flag, float min_value
   return value;
 }
 
+std::string json_escape(std::string_view text) {
+  std::string out;
+  out.reserve(text.size() + 8);
+  for (char c : text) {
+    switch (c) {
+      case '\\':
+        out += "\\\\";
+        break;
+      case '"':
+        out += "\\\"";
+        break;
+      case '\n':
+        out += "\\n";
+        break;
+      case '\r':
+        out += "\\r";
+        break;
+      case '\t':
+        out += "\\t";
+        break;
+      default:
+        out.push_back(c);
+        break;
+    }
+  }
+  return out;
+}
+
+bool shell_command_available(const std::string& command) {
+#if defined(_WIN32)
+  std::string probe = "where " + command + " >nul 2>nul";
+#else
+  std::string probe = "command -v " + shell_escape(command) + " >/dev/null 2>&1";
+#endif
+  const int status = std::system(probe.c_str());
+  if (status == -1) {
+    return false;
+  }
+  return decode_system_status(status) == 0;
+}
+
+struct DoctorCheck {
+  std::string id;
+  bool ok = false;
+  std::string detail;
+  std::string remediation;
+};
+
+int run_doctor(const Args& args) {
+  bool as_json = false;
+  for (const auto& token : args.command_args) {
+    if (token == "--json") {
+      as_json = true;
+    } else if (token == "-h" || token == "--help") {
+      print_help_doctor();
+      return 0;
+    } else {
+      error("doctor: unknown option '" + token + "'. Run 't81 help doctor'.");
+      return 1;
+    }
+  }
+
+  std::vector<DoctorCheck> checks;
+
+  DoctorCheck ctest_check;
+  ctest_check.id = "ctest_available";
+  ctest_check.ok = shell_command_available("ctest");
+  ctest_check.detail = ctest_check.ok ? "ctest found in PATH" : "ctest not found in PATH";
+  ctest_check.remediation = "Install CMake/CTest and ensure `ctest` is in PATH.";
+  checks.push_back(std::move(ctest_check));
+
+  DoctorCheck build_dir_check;
+  build_dir_check.id = "build_dir_present";
+  build_dir_check.ok = fs::exists("build/CTestTestfile.cmake");
+  build_dir_check.detail = build_dir_check.ok ? "build/CTestTestfile.cmake found"
+                                              : "build dir is missing CTest metadata";
+  build_dir_check.remediation = "Run: cmake -S . -B build && cmake --build build";
+  checks.push_back(std::move(build_dir_check));
+
+  DoctorCheck write_check;
+  write_check.id = "temp_writable";
+  try {
+    const fs::path probe =
+        fs::temp_directory_path() / ("t81-doctor-probe-" + std::to_string(std::rand()) + ".tmp");
+    {
+      std::ofstream out(probe);
+      write_check.ok = static_cast<bool>(out);
+      if (write_check.ok) {
+        out << "ok";
+      }
+    }
+    std::error_code ignore_ec;
+    fs::remove(probe, ignore_ec);
+    write_check.detail = write_check.ok ? "temp directory writable" : "temp directory not writable";
+  } catch (...) {
+    write_check.ok = false;
+    write_check.detail = "temp directory probe failed";
+  }
+  write_check.remediation = "Fix filesystem permissions for your temp directory.";
+  checks.push_back(std::move(write_check));
+
+  DoctorCheck python_check;
+  python_check.id = "python3_available";
+  python_check.ok = shell_command_available("python3");
+  python_check.detail = python_check.ok ? "python3 found in PATH" : "python3 not found in PATH";
+  python_check.remediation = "Install Python 3 for CI/ops utilities (repro-hash/docs gates).";
+  checks.push_back(std::move(python_check));
+
+  bool all_ok = true;
+  for (const auto& check : checks) {
+    all_ok = all_ok && check.ok;
+  }
+
+  if (as_json) {
+    std::cout << "{\n";
+    std::cout << "  \"ok\": " << (all_ok ? "true" : "false") << ",\n";
+    std::cout << "  \"checks\": [\n";
+    for (size_t i = 0; i < checks.size(); ++i) {
+      const auto& check = checks[i];
+      std::cout << "    {\"id\":\"" << json_escape(check.id) << "\",\"ok\":"
+                << (check.ok ? "true" : "false") << ",\"detail\":\"" << json_escape(check.detail)
+                << "\",\"remediation\":\"" << json_escape(check.remediation) << "\"}";
+      if (i + 1 != checks.size()) {
+        std::cout << ",";
+      }
+      std::cout << "\n";
+    }
+    std::cout << "  ]\n";
+    std::cout << "}\n";
+    return all_ok ? 0 : 2;
+  }
+
+  for (const auto& check : checks) {
+    std::cout << (check.ok ? "[ok]   " : "[fail] ") << check.id << ": " << check.detail << "\n";
+    if (!check.ok) {
+      std::cout << "       fix: " << check.remediation << "\n";
+    }
+  }
+  return all_ok ? 0 : 2;
+}
+
+int run_test_command(const Args& args) {
+  fs::path build_dir = "build";
+  std::optional<std::string> filter;
+  bool as_json = false;
+  bool list_only = false;
+  std::vector<std::string> passthrough;
+
+  for (size_t i = 0; i < args.command_args.size(); ++i) {
+    const std::string& token = args.command_args[i];
+    if (token == "--json") {
+      as_json = true;
+    } else if (token == "--list") {
+      list_only = true;
+    } else if (token == "--build-dir") {
+      if (++i >= args.command_args.size()) {
+        error("test: missing value for --build-dir. Run 't81 help test'.");
+        return 1;
+      }
+      build_dir = fs::path(args.command_args[i]);
+    } else if (token == "--filter" || token == "-R") {
+      if (++i >= args.command_args.size()) {
+        error("test: missing value for --filter. Run 't81 help test'.");
+        return 1;
+      }
+      filter = args.command_args[i];
+    } else if (token == "--") {
+      for (size_t j = i + 1; j < args.command_args.size(); ++j) {
+        passthrough.push_back(args.command_args[j]);
+      }
+      break;
+    } else if (token == "-h" || token == "--help") {
+      print_help_test();
+      return 0;
+    } else {
+      error("test: unknown option '" + token + "'. Run 't81 help test'.");
+      return 1;
+    }
+  }
+
+  if (!shell_command_available("ctest")) {
+    error("test: ctest not found in PATH.");
+    return 2;
+  }
+  if (!fs::exists(build_dir / "CTestTestfile.cmake")) {
+    error("test: missing CTest metadata under " + build_dir.string() +
+          ". Run cmake configure/build first.");
+    return 2;
+  }
+
+  std::string base_cmd = "ctest --test-dir " + shell_escape(build_dir.string());
+  if (list_only) {
+    base_cmd += " -N";
+  } else {
+    base_cmd += " --output-on-failure";
+  }
+  if (filter) {
+    base_cmd += " -R " + shell_escape(*filter);
+  }
+  for (const auto& token : passthrough) {
+    base_cmd += " ";
+    base_cmd += shell_escape(token);
+  }
+
+  if (as_json) {
+    const fs::path out_path = fs::temp_directory_path() / "t81-test.out";
+    const fs::path err_path = fs::temp_directory_path() / "t81-test.err";
+    std::string cmd = base_cmd + " > " + shell_escape(out_path.string()) + " 2> " +
+                      shell_escape(err_path.string());
+    const int status = std::system(cmd.c_str());
+    if (status == -1) {
+      error("test: failed to invoke ctest.");
+      return 2;
+    }
+    const int rc = decode_system_status(status);
+
+    auto read_size = [](const fs::path& p) -> std::uintmax_t {
+      std::error_code ec;
+      auto sz = fs::file_size(p, ec);
+      return ec ? 0 : sz;
+    };
+    const auto stdout_bytes = read_size(out_path);
+    const auto stderr_bytes = read_size(err_path);
+    std::error_code ignore_ec;
+    fs::remove(out_path, ignore_ec);
+    fs::remove(err_path, ignore_ec);
+
+    std::cout << "{\n";
+    std::cout << "  \"ok\": " << (rc == 0 ? "true" : "false") << ",\n";
+    std::cout << "  \"exit_code\": " << rc << ",\n";
+    std::cout << "  \"build_dir\": \"" << json_escape(build_dir.string()) << "\",\n";
+    if (filter) {
+      std::cout << "  \"filter\": \"" << json_escape(*filter) << "\",\n";
+    } else {
+      std::cout << "  \"filter\": null,\n";
+    }
+    std::cout << "  \"listed_only\": " << (list_only ? "true" : "false") << ",\n";
+    std::cout << "  \"stdout_bytes\": " << stdout_bytes << ",\n";
+    std::cout << "  \"stderr_bytes\": " << stderr_bytes << "\n";
+    std::cout << "}\n";
+    return rc == 0 ? 0 : 2;
+  }
+
+  const int status = std::system(base_cmd.c_str());
+  if (status == -1) {
+    error("test: failed to invoke ctest.");
+    return 2;
+  }
+  return decode_system_status(status);
+}
+
+std::string normalize_format_content(const std::string& input) {
+  std::string out;
+  out.reserve(input.size() + 2);
+  std::string line;
+  line.reserve(256);
+  for (size_t i = 0; i < input.size(); ++i) {
+    char c = input[i];
+    if (c == '\r') {
+      continue;
+    }
+    if (c == '\n') {
+      while (!line.empty() && (line.back() == ' ' || line.back() == '\t')) {
+        line.pop_back();
+      }
+      out += line;
+      out.push_back('\n');
+      line.clear();
+      continue;
+    }
+    line.push_back(c);
+  }
+  if (!line.empty()) {
+    while (!line.empty() && (line.back() == ' ' || line.back() == '\t')) {
+      line.pop_back();
+    }
+    out += line;
+    out.push_back('\n');
+  }
+  if (out.empty()) {
+    out.push_back('\n');
+  }
+  return out;
+}
+
+int run_fmt_command(const Args& args) {
+  bool check_only = false;
+  bool as_json = false;
+  bool show_version = false;
+  std::vector<fs::path> files;
+  for (const auto& token : args.command_args) {
+    if (token == "--check") {
+      check_only = true;
+    } else if (token == "--json") {
+      as_json = true;
+    } else if (token == "--version") {
+      show_version = true;
+    } else if (token == "-h" || token == "--help") {
+      print_help_fmt();
+      return 0;
+    } else if (!token.empty() && token[0] == '-') {
+      error("fmt: unknown option '" + token + "'. Run 't81 help fmt'.");
+      return 1;
+    } else {
+      files.emplace_back(token);
+    }
+  }
+
+  if (show_version) {
+    std::cout << "t81-fmt 0.1.0\n";
+    return 0;
+  }
+
+  if (files.empty()) {
+    error("fmt requires at least one file path. Run 't81 help fmt'.");
+    return 1;
+  }
+
+  std::vector<std::string> changed;
+  std::vector<std::string> failures;
+  for (const auto& path : files) {
+    std::ifstream in(path, std::ios::binary);
+    if (!in) {
+      failures.push_back("Could not open file: " + path.string());
+      continue;
+    }
+    std::string original((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    std::string formatted = normalize_format_content(original);
+    if (formatted != original) {
+      changed.push_back(path.string());
+      if (!check_only) {
+        std::ofstream out(path, std::ios::binary | std::ios::trunc);
+        if (!out) {
+          failures.push_back("Could not write file: " + path.string());
+          continue;
+        }
+        out << formatted;
+        if (!out.good()) {
+          failures.push_back("Failed writing file: " + path.string());
+          continue;
+        }
+      }
+    }
+  }
+
+  if (as_json) {
+    const bool ok = failures.empty() && (!check_only || changed.empty());
+    std::cout << "{\n";
+    std::cout << "  \"ok\": " << (ok ? "true" : "false") << ",\n";
+    std::cout << "  \"check_only\": " << (check_only ? "true" : "false") << ",\n";
+    std::cout << "  \"changed\": [";
+    for (size_t i = 0; i < changed.size(); ++i) {
+      if (i != 0) {
+        std::cout << ",";
+      }
+      std::cout << "\"" << json_escape(changed[i]) << "\"";
+    }
+    std::cout << "],\n";
+    std::cout << "  \"failures\": [";
+    for (size_t i = 0; i < failures.size(); ++i) {
+      if (i != 0) {
+        std::cout << ",";
+      }
+      std::cout << "\"" << json_escape(failures[i]) << "\"";
+    }
+    std::cout << "]\n";
+    std::cout << "}\n";
+  } else {
+    for (const auto& file : changed) {
+      std::cout << (check_only ? "would format: " : "formatted: ") << file << "\n";
+    }
+    for (const auto& failure : failures) {
+      error("fmt: " + failure);
+    }
+  }
+
+  if (!failures.empty()) {
+    return 1;
+  }
+  if (check_only && !changed.empty()) {
+    return 2;
+  }
+  return 0;
+}
+
+bool parse_package_field(const std::string& text, const std::string& field, std::string& value_out) {
+  const std::regex re("\\(" + field + "\\s+\"([^\"]+)\"\\)");
+  std::smatch match;
+  if (!std::regex_search(text, match, re) || match.size() < 2) {
+    return false;
+  }
+  value_out = match[1].str();
+  return true;
+}
+
+int run_pkg_check(const Args& args) {
+  fs::path manifest = "package.t81";
+  bool as_json = false;
+  for (const auto& token : args.command_args) {
+    if (token == "--json") {
+      as_json = true;
+    } else if (token == "-h" || token == "--help") {
+      print_help_pkg();
+      return 0;
+    } else if (!token.empty() && token[0] == '-') {
+      error("pkg check: unknown option '" + token + "'. Run 't81 help pkg'.");
+      return 1;
+    } else {
+      manifest = fs::path(token);
+    }
+  }
+
+  std::vector<std::string> errors;
+  std::string name;
+  std::string version;
+  if (!fs::exists(manifest)) {
+    errors.push_back("manifest not found: " + manifest.string());
+  } else {
+    std::ifstream in(manifest);
+    if (!in) {
+      errors.push_back("manifest not readable: " + manifest.string());
+    } else {
+      std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+      if (content.find("(package") == std::string::npos) {
+        errors.push_back("missing top-level (package ...) form");
+      }
+      if (!parse_package_field(content, "name", name)) {
+        errors.push_back("missing required field: (name \"...\")");
+      } else {
+        bool valid_name = !name.empty();
+        for (char c : name) {
+          if (!std::isalnum(static_cast<unsigned char>(c)) && c != '_' && c != '-') {
+            valid_name = false;
+            break;
+          }
+        }
+        if (!valid_name) {
+          errors.push_back("invalid package name: only [A-Za-z0-9_-] allowed");
+        }
+      }
+      if (!parse_package_field(content, "version", version)) {
+        errors.push_back("missing required field: (version \"x.y.z\")");
+      } else {
+        const std::regex semver_re(R"(^[0-9]+\.[0-9]+\.[0-9]+$)");
+        if (!std::regex_match(version, semver_re)) {
+          errors.push_back("invalid version: expected simple semver x.y.z");
+        }
+      }
+    }
+  }
+
+  if (as_json) {
+    std::cout << "{\n";
+    std::cout << "  \"valid\": " << (errors.empty() ? "true" : "false") << ",\n";
+    std::cout << "  \"manifest\": \"" << json_escape(manifest.string()) << "\",\n";
+    std::cout << "  \"name\": ";
+    if (name.empty()) {
+      std::cout << "null,\n";
+    } else {
+      std::cout << "\"" << json_escape(name) << "\",\n";
+    }
+    std::cout << "  \"version\": ";
+    if (version.empty()) {
+      std::cout << "null,\n";
+    } else {
+      std::cout << "\"" << json_escape(version) << "\",\n";
+    }
+    std::cout << "  \"errors\": [";
+    for (size_t i = 0; i < errors.size(); ++i) {
+      if (i != 0) {
+        std::cout << ",";
+      }
+      std::cout << "\"" << json_escape(errors[i]) << "\"";
+    }
+    std::cout << "]\n";
+    std::cout << "}\n";
+  } else if (errors.empty()) {
+    std::cout << "package.t81: valid\n";
+  } else {
+    for (const auto& msg : errors) {
+      error("pkg check: " + msg);
+    }
+  }
+  return errors.empty() ? 0 : 2;
+}
+
 int run_llama_run(const Args& args) {
 #if defined(T81_HAS_LLAMA_CPP)
   if (!args.policy) {
@@ -1728,6 +2285,15 @@ int main(int argc, char* argv[]) {
       }
       return run_canonize_file(args);
 
+    } else if (args.command == "doctor") {
+      return run_doctor(args);
+
+    } else if (args.command == "test") {
+      return run_test_command(args);
+
+    } else if (args.command == "fmt") {
+      return run_fmt_command(args);
+
     } else if (args.command == "init") {
       if (!args.command_args.empty() &&
           (args.command_args[0] == "-h" || args.command_args[0] == "--help")) {
@@ -1760,8 +2326,9 @@ int main(int argc, char* argv[]) {
         std::string name = args.command_args.size() > 1 ? args.command_args[1] : "my-t81-pkg";
         return t81::cli::init_package(name);
       } else if (sub == "check") {
-        info("Package check placeholder: manifest validated.");
-        return 0;
+        Args check_args = args;
+        check_args.command_args.assign(args.command_args.begin() + 1, args.command_args.end());
+        return run_pkg_check(check_args);
       }
       error("pkg: unknown subcommand '" + sub + "'. Run 't81 help pkg'.");
       return 1;
