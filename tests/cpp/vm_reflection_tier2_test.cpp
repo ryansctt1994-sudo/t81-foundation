@@ -1,8 +1,8 @@
+#include "t81/axion/reasons.hpp"
 #include "t81/isa/opcodes.hpp"
 #include "t81/isa/program.hpp"
 #include "t81/vm/state.hpp"
 #include "t81/vm/vm.hpp"
-#include "t81/axion/reasons.hpp"
 
 #include <iostream>
 #include <vector>
