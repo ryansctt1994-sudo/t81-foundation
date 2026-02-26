@@ -1,8 +1,24 @@
 # Full-System Architectural & Strategic Audit
 
 Date: 2026-02-26  
-Revision: Post-remediation refresh + conformance sprint Phase 2 + VM decomposition Phase F closure  
+Revision: Post-remediation refresh + conformance sprint Phase 2 + VM decomposition Phase F closure + rerun on baseline `71fe1ea8`  
 Scope: `/src`, `/include`, `/spec`, `/docs`, `/book`, CI workflows, governance files, capability contract, opcode/ISA surfaces, VM execution model, Axion policy enforcement, determinism gates, benchmarks, tests, multilingual alignment, roadmaps, release notes.
+
+## Rerun Delta (Baseline `71fe1ea8`)
+
+- Added VM and Axion behavioral conformance matrix tests:
+  - `tests/cpp/vm_state_transition_conformance_matrix_test.cpp`
+  - `tests/cpp/axion_policy_allow_deny_determinism_test.cpp`
+- Expanded CanonFS integrity corruption matrix (bit-flip, truncate, append-tail, env-unset default-verify path).
+- Expanded workload determinism tiers (`policy-heavy`, `tensor-access`) and signature surface.
+- Added VM workload benchmark regression guardrail:
+  - `scripts/ci/check_vm_workload_benchmark_regression.py`
+  - enforced in `.github/workflows/ci.yml` and `.github/workflows/bench.yml`
+- Expanded translation semantic gate to require section-heading parity in root translated READMEs.
+- Verification snapshot for rerun baseline:
+  - `scripts/ci/run_determinism_slice.sh build`: PASS
+  - governance/doc/spec gates: PASS
+  - test inventory: `ctest --test-dir build -N` => **276 tests**
 
 ## Executive Summary
 The repository is a substantial implemented system, not a paper design: compiler, ISA encoding, VM interpreter, threaded trace execution, Axion policy engine, CanonFS, and broad CI/test infrastructure are present. Governance maturity materially improved in this remediation cycle: previously warning-level rows were promoted to machine checks (API lock, spec-code baseline, translation staleness/semantic alignment, benchmark regression, overclaim guardrails), and trace-mode policy granularity is now per-instruction fail-closed.
@@ -37,7 +53,7 @@ Current classification remains **Deterministic Runtime Candidate**. The system i
 
 | Metric | Score (1-10) | Basis |
 |---|---:|---|
-| Architectural Risk | 4.8 | Major spec/runtime contradictions remediated; residual risk now concentrated in assurance depth and doc coherence breadth |
+| Architectural Risk | 4.6 | Major contradictions remain remediated; rerun baseline adds conformance and governance depth, residual risk concentrated in VM control concentration and full-proof gaps |
 
 ---
 
@@ -100,7 +116,7 @@ Publish explicit dual profile contract:
 
 | Metric | Score | Interpretation |
 |---|---:|---|
-| Runtime Integrity | 7.6/10 | Strong control posture, bounded by non-DCP surfaces and complexity concentration |
+| Runtime Integrity | 7.8/10 | Strong control posture with improved behavioral conformance coverage; bounded by non-DCP surfaces and VM control concentration |
 | Production Readiness | Candidate-stage | Not pre-production infrastructure |
 
 ---
@@ -155,7 +171,7 @@ Publish explicit dual profile contract:
 
 | Metric | Score (1-10) |
 |---|---:|
-| Documentation Credibility | 8.2 |
+| Documentation Credibility | 8.3 |
 
 ### 6.3 Required Corrections
 1. Extend multilingual semantic checks beyond root README heading parity into deeper section/body semantic equivalence across doc sets.
@@ -168,7 +184,7 @@ Publish explicit dual profile contract:
 ### 7.1 Findings
 - Build/test/toolchain discipline is strong and actively enforced.
 - CI quality gate requires key jobs (spec/docs, build/test, determinism slice, static analysis, sanitizers, fuzzing, benchmarks, tritwise determinism).
-- Test inventory is broad (270 tests currently discovered by CTest).
+- Test inventory is broad (276 tests currently discovered by CTest).
 - Benchmark regression gating is now required in CI and now includes a VM workload dispatch/native ratio guardrail in addition to SIMD-focused checks.
 - Static analysis coverage improved but not full-repo exhaustive.
 
@@ -219,7 +235,7 @@ A technically serious deterministic runtime platform with unusually strong gover
 5. Large, active automated test surface (270+ tests), including new semantic/policy/canonfs/determinism conformance suites.
 
 ### 9.3 Single Most Important Next Move
-Execute **Behavioral Conformance Expansion Sprint (Phase 2)**: extend newly added VM/Axion/CanonFS invariant suites into broader semantic coverage and workload families, while continuing contract-surface consolidation.
+Execute **Behavioral Conformance Expansion Sprint (Phase 3)**: scale the new VM/Axion/CanonFS matrix suites from representative slices to subsystem-complete invariant families and workload strata, while reducing `core/vm/vm.cpp` control concentration.
 
 ---
 
