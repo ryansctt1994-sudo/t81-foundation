@@ -2,7 +2,7 @@
 
 Date: 2026-02-26  
 Scope: `core/vm/vm.cpp`  
-Status: In progress (Phase A scaffold completed; Phase B started: scalar value ops extracted to `core/vm/value_ops.cpp`)
+Status: In progress (Phase A+B completed; Phase C started: stack/memory helpers extracted to `core/vm/memory_segments.cpp`)
 
 ## Objective
 Reduce regression blast radius and improve assurance depth by decomposing `core/vm/vm.cpp` into testable modules while preserving byte-for-byte runtime behavior on DCP surfaces.

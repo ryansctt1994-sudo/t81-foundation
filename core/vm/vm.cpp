@@ -29,6 +29,7 @@
 #include "t81/types/T81Float.hpp"
 #include "internal/tier_limits.hpp"
 #include "internal/value_ops.hpp"
+#include "internal/memory_segments.hpp"
 #include "t81/vm/vm.hpp"
 
 namespace t81::vm {
@@ -437,18 +438,9 @@ public:
       return r >= 0 && static_cast<std::size_t>(r) < ctx.registers.size();
     };
     auto mem_ok = [this](int addr, bool code = false) {
-      if (addr < 0) return false;
-      std::size_t a = static_cast<std::size_t>(addr);
-      const auto& layout = state_.layout;
-      if (code) {
-        return a >= layout.code.start && a <= layout.code.limit;
-      }
-      if (a >= state_.memory.size()) return false;
-      // Strict segment containment: an address must resolve to exactly one segment.
-      return layout.stack.contains(a) || layout.heap.contains(a) || layout.tensor.contains(a) ||
-             layout.meta.contains(a);
+      return t81::vm::internal::mem_ok(state_, addr, code);
     };
-    auto check_mem = [this, mem_ok](t81::tisc::Opcode opcode, int addr, std::string_view action,
+    auto check_mem = [this, &mem_ok](t81::tisc::Opcode opcode, int addr, std::string_view action,
                                     bool code = false) -> bool {
       if (mem_ok(addr, code)) return true;
       this->log_bounds_fault(opcode, addr, action);
@@ -493,31 +485,11 @@ public:
       ctx.flags.negative = (v < 0);
       ctx.flags.positive = (v > 0);
     };
-    auto push_stack = [&ctx, this](std::int64_t val_data,
-                                   ValueTag tag) -> std::optional<std::size_t> {
-      if (ctx.sp <= ctx.stack_limit) return std::nullopt;
-
-      std::size_t new_sp = ctx.sp - 1;
-
-      // Global/Policy Check
-      if (state_.policy && state_.policy->max_stack &&
-          static_cast<std::int64_t>(ctx.stack_base - new_sp) > *state_.policy->max_stack) {
-        return std::nullopt;
-      }
-
-      ctx.sp = new_sp;
-      state_.memory[ctx.sp] = val_data;
-      state_.memory_tags[ctx.sp] = tag;
-      return static_cast<std::size_t>(ctx.sp);
+    auto push_stack = [&ctx, this](std::int64_t val_data, ValueTag tag) -> std::optional<std::size_t> {
+      return t81::vm::internal::push_stack_word(state_, ctx, val_data, tag);
     };
-    auto pop_stack = [&ctx, this](std::int64_t& value,
-                                  ValueTag& tag) -> std::optional<std::size_t> {
-      if (ctx.sp >= ctx.stack_base) return std::nullopt;
-      std::size_t addr = ctx.sp;
-      value = state_.memory[addr];
-      tag = state_.memory_tags[addr];
-      ++ctx.sp;
-      return addr;
+    auto pop_stack = [&ctx, this](std::int64_t& value, ValueTag& tag) -> std::optional<std::size_t> {
+      return t81::vm::internal::pop_stack_word(state_, ctx, value, tag);
     };
     auto tensor_ptr = [this](std::int64_t handle) -> t81::T729DynamicTensor* {
       if (handle <= 0) return nullptr;
@@ -2264,11 +2236,7 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto size = static_cast<std::size_t>(insn.b);
-        // Enforce 81-byte block alignment
-        if (size % 81 != 0) {
-          size = ((size / 81) + 1) * 81;
-        }
+        auto size = t81::vm::internal::align_block81(static_cast<std::size_t>(insn.b));
         std::size_t available = ctx.sp - stack.start;
         if (size > available) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, static_cast<int>(ctx.sp),
@@ -2310,11 +2278,7 @@ public:
           break;
         }
         const auto& stack = state_.layout.stack;
-        auto size = static_cast<std::size_t>(insn.b);
-        // Enforce 81-byte block alignment
-        if (size % 81 != 0) {
-          size = ((size / 81) + 1) * 81;
-        }
+        auto size = t81::vm::internal::align_block81(static_cast<std::size_t>(insn.b));
         if (!stack.valid()) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Stack, 0, "stack frame free");
           trap = Trap::StackFault;
@@ -2361,11 +2325,7 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto size = static_cast<std::size_t>(insn.b);
-        // Enforce 81-byte block alignment
-        if (size % 81 != 0) {
-          size = ((size / 81) + 1) * 81;
-        }
+        auto size = t81::vm::internal::align_block81(static_cast<std::size_t>(insn.b));
         if (size > heap.size()) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Heap, static_cast<int>(heap.limit),
                            "heap block allocate");
@@ -2413,11 +2373,7 @@ public:
           trap = Trap::BoundsFault;
           break;
         }
-        auto size = static_cast<std::size_t>(insn.b);
-        // Enforce 81-byte block alignment
-        if (size % 81 != 0) {
-          size = ((size / 81) + 1) * 81;
-        }
+        auto size = t81::vm::internal::align_block81(static_cast<std::size_t>(insn.b));
         std::int64_t ptr = ctx.registers[insn.a];
         if (!heap.contains(static_cast<std::size_t>(ptr))) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Heap, static_cast<int>(ptr),
