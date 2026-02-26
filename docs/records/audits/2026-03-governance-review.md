@@ -241,6 +241,10 @@ Execution state:
   status stamp remain scheduled for 2026-03-31.
 - Month-close runbook prepared at
   `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md`.
+- Consolidated execution helper prepared on 2026-02-26:
+  `scripts/governance/c2_month_close_check.py` (runs hygiene check, promotion
+  snapshot refresh, and link-target sweep; emits
+  `docs/status/C2_MONTH_CLOSE_CHECK_2026-03-31.md`).
 
 Cadence and navigation checks:
 

@@ -40,6 +40,10 @@ This runbook covers only finalization mechanics for:
    - Command:
      - `python3 - <<'PY'\nimport pathlib,re,sys\nroot=pathlib.Path('.').resolve()\nscan=[root/'docs/status',root/'docs/governance',root/'docs/product',root/'docs/records/audits']\npat=re.compile(r'\\[[^\\]]+\\]\\(([^)#]+)')\nmissing=[]\nfor base in scan:\n  for md in base.rglob('*.md'):\n    txt=md.read_text(encoding='utf-8')\n    for m in pat.finditer(txt):\n      link=m.group(1).strip()\n      if not link or '://' in link or link.startswith('#'):\n        continue\n      tgt=(md.parent/link).resolve()\n      if not tgt.exists():\n        missing.append((md.relative_to(root),link))\nif missing:\n  for md,link in missing:\n    print(f'MISSING {md} -> {link}')\n  sys.exit(1)\nprint('link-target sweep passed')\nPY`
    - Record: pass/fail and any missing targets.
+   - Consolidated option (runs steps 1-3 and writes report):
+     - `python3 scripts/governance/c2_month_close_check.py`
+   - Default report output:
+     - `docs/status/C2_MONTH_CLOSE_CHECK_2026-03-31.md`
 4. Checklist reconfirmation:
    - Source:
      - `docs/governance/MONTHLY_GOVERNANCE_REVIEW_CHECKLIST.md`

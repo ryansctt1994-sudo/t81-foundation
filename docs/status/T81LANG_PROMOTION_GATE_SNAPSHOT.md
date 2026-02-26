@@ -1,6 +1,6 @@
 # T81Lang Promotion Gate Snapshot
 
-Generated (UTC): 2026-02-26 13:35:51Z
+Generated (UTC): 2026-02-26 14:33:57Z
 Generator: `scripts/governance/t81lang_promotion_gate_snapshot.py`
 
 ## Gate Criteria Status
@@ -49,9 +49,9 @@ governance hygiene check PASSED
 ```text
 Test project /Users/t81dev/Code/t81-foundation/build
     Start   6: t81lang_conformance_edge_semantics_test
-1/7 Test   #6: t81lang_conformance_edge_semantics_test ...........   Passed    0.02 sec
+1/7 Test   #6: t81lang_conformance_edge_semantics_test ...........   Passed    0.01 sec
     Start  86: t81lang_conformance_baseline_test
-2/7 Test  #86: t81lang_conformance_baseline_test .................   Passed    0.02 sec
+2/7 Test  #86: t81lang_conformance_baseline_test .................   Passed    0.01 sec
     Start 147: t81_semantic_analyzer_match_test
 3/7 Test #147: t81_semantic_analyzer_match_test ..................   Passed    0.01 sec
     Start 152: t81_semantic_analyzer_loop_test
@@ -61,11 +61,11 @@ Test project /Users/t81dev/Code/t81-foundation/build
     Start 155: t81_semantic_analyzer_cascade_suppression_test
 6/7 Test #155: t81_semantic_analyzer_cascade_suppression_test ....   Passed    0.01 sec
     Start 156: t81_semantic_analyzer_diagnostic_precision_test
-7/7 Test #156: t81_semantic_analyzer_diagnostic_precision_test ...   Passed    0.01 sec
+7/7 Test #156: t81_semantic_analyzer_diagnostic_precision_test ...   Passed    0.02 sec
 
 100% tests passed, 0 tests failed out of 7
 
-Total Test time (real) =   0.11 sec
+Total Test time (real) =   0.10 sec
 ```
 
 ### Compile Determinism Slice
@@ -78,13 +78,13 @@ Test project /Users/t81dev/Code/t81-foundation/build
     Start 168: e2e_compile_determinism_test
 1/3 Test #168: e2e_compile_determinism_test ............   Passed    0.03 sec
     Start 170: e2e_ast_ir_canonical_determinism_test
-2/3 Test #170: e2e_ast_ir_canonical_determinism_test ...   Passed    0.02 sec
+2/3 Test #170: e2e_ast_ir_canonical_determinism_test ...   Passed    0.01 sec
     Start 171: e2e_enum_metadata_determinism_test
 3/3 Test #171: e2e_enum_metadata_determinism_test ......   Passed    0.01 sec
 
 100% tests passed, 0 tests failed out of 3
 
-Total Test time (real) =   0.07 sec
+Total Test time (real) =   0.05 sec
 ```
 
 ### Axion Metadata Slice
@@ -94,20 +94,20 @@ Total Test time (real) =   0.07 sec
 
 ```text
 Test project /Users/t81dev/Code/t81-foundation/build
-    Start 180: axion_policy_match_guard_test
-1/5 Test #180: axion_policy_match_guard_test .....   Passed    0.02 sec
-    Start 181: axion_policy_segment_event_test
-2/5 Test #181: axion_policy_segment_event_test ...   Passed    0.02 sec
-    Start 183: axion_match_metadata_test
-3/5 Test #183: axion_match_metadata_test .........   Passed    0.01 sec
-    Start 184: axion_enum_guard_test
-4/5 Test #184: axion_enum_guard_test .............   Passed    0.02 sec
-    Start 194: e2e_axion_trace_test
-5/5 Test #194: e2e_axion_trace_test ..............   Passed    0.01 sec
+    Start 181: axion_policy_match_guard_test
+1/5 Test #181: axion_policy_match_guard_test .....   Passed    0.02 sec
+    Start 182: axion_policy_segment_event_test
+2/5 Test #182: axion_policy_segment_event_test ...   Passed    0.01 sec
+    Start 184: axion_match_metadata_test
+3/5 Test #184: axion_match_metadata_test .........   Passed    0.01 sec
+    Start 185: axion_enum_guard_test
+4/5 Test #185: axion_enum_guard_test .............   Passed    0.02 sec
+    Start 197: e2e_axion_trace_test
+5/5 Test #197: e2e_axion_trace_test ..............   Passed    0.02 sec
 
 100% tests passed, 0 tests failed out of 5
 
-Total Test time (real) =   0.09 sec
+Total Test time (real) =   0.07 sec
 ```
 
 ### Repro Gate

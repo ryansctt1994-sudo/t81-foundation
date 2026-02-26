@@ -7,7 +7,7 @@ This document tracks immediate, actionable tasks for the T81 project.
 ## 1. Current Sprint: March Governance Close + Governed Inference
 
 ### Release and Governance Closure (C2)
-- [ ] **C2 Month-Close:** Execute runbook on 2026-03-31 and stamp final outcomes in `docs/records/audits/2026-03-governance-review.md`.
+- [ ] **C2 Month-Close:** Execute runbook on 2026-03-31 and stamp final outcomes in `docs/records/audits/2026-03-governance-review.md`. (Prep update 2026-02-26: consolidated execution helper added at `scripts/governance/c2_month_close_check.py`, emitting `docs/status/C2_MONTH_CLOSE_CHECK_2026-03-31.md`.)
 - [x] **Release Candidate Decision:** Select March release-candidate SHA and record required-context results in `docs/status/RELEASE_READINESS_PACKET_2026-03.md`. (Completed 2026-02-26: candidate `b4fdf8efdf249e391f7c93fb18cf9245926b6a38` recorded with required-context evidence; decision remains `HOLD` pending `quality gate / required` and `Analyze (cpp)` success on a post-fix main candidate.)
 - [x] **Promotion Snapshot Refresh:** Re-run `python3 scripts/governance/t81lang_promotion_gate_snapshot.py` within close window and capture result. (Completed 2026-02-26; snapshot refreshed as `READY` in `docs/status/T81LANG_PROMOTION_GATE_SNAPSHOT.md` and recorded in March packet/audit artifacts.)
 - [x] **Status Integrity:** Re-run governance hygiene and status link-target checks and record pass/fail evidence. (Completed 2026-02-26; hygiene check and link-target sweep passed, recorded in `docs/status/RELEASE_READINESS_PACKET_2026-03.md` and `docs/records/audits/2026-03-governance-review.md`.)
