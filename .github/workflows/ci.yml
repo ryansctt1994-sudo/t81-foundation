@@ -347,6 +347,54 @@ jobs:
             --hash-out build/t81lang-repro/hash.txt \
             --expected-hash-file tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt 2>&1 | tee -a .github/logs/build-and-test.log
 
+      - name: Init llama.cpp submodule (optional repro gate)
+        if: vars.T81_ENABLE_LLAMA_REPRO == '1' && matrix.compiler == 'clang' && matrix.platform == 'linux-x86_64' && hashFiles('tests/fixtures/llama_cpp_repro/model.gguf') != '' && hashFiles('tests/fixtures/llama_cpp_repro/model_hash.txt') != '' && hashFiles('tests/fixtures/llama_cpp_repro/policy.apl') != '' && hashFiles('tests/fixtures/llama_cpp_repro/prompt.txt') != ''
+        shell: bash
+        run: |
+          set -eo pipefail
+          git submodule update --init --recursive third_party/llama.cpp 2>&1 | tee -a .github/logs/build-and-test.log
+
+      - name: Configure/Build llama.cpp optional repro target
+        if: vars.T81_ENABLE_LLAMA_REPRO == '1' && matrix.compiler == 'clang' && matrix.platform == 'linux-x86_64' && hashFiles('tests/fixtures/llama_cpp_repro/model.gguf') != '' && hashFiles('tests/fixtures/llama_cpp_repro/model_hash.txt') != '' && hashFiles('tests/fixtures/llama_cpp_repro/policy.apl') != '' && hashFiles('tests/fixtures/llama_cpp_repro/prompt.txt') != ''
+        shell: bash
+        run: |
+          set -eo pipefail
+          cmake -S . -B build-llama-repro -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+            -DT81_ENABLE_LLAMA_CPP=ON \
+            -DT81_BUILD_TESTS=OFF \
+            -DT81_BUILD_BENCHMARKS=OFF \
+            -DT81_BUILD_FUZZ_TESTS=OFF 2>&1 | tee -a .github/logs/build-and-test.log
+          cmake --build build-llama-repro --target t81 --parallel 2>&1 | tee -a .github/logs/build-and-test.log
+
+      - name: Run llama.cpp reproducibility gate (optional)
+        if: vars.T81_ENABLE_LLAMA_REPRO == '1' && matrix.compiler == 'clang' && matrix.platform == 'linux-x86_64' && hashFiles('tests/fixtures/llama_cpp_repro/model.gguf') != '' && hashFiles('tests/fixtures/llama_cpp_repro/model_hash.txt') != '' && hashFiles('tests/fixtures/llama_cpp_repro/policy.apl') != '' && hashFiles('tests/fixtures/llama_cpp_repro/prompt.txt') != ''
+        shell: bash
+        run: |
+          set -eo pipefail
+          PROMPT="$(tr -d '\r' < tests/fixtures/llama_cpp_repro/prompt.txt)"
+          EXPECTED_MODEL_HASH="$(tr -d '\r\n' < tests/fixtures/llama_cpp_repro/model_hash.txt)"
+          if [[ -z "${EXPECTED_MODEL_HASH}" ]]; then
+            echo "tests/fixtures/llama_cpp_repro/model_hash.txt must be non-empty" >&2
+            exit 1
+          fi
+          if ! grep -q "__MODEL_HASH__" tests/fixtures/llama_cpp_repro/policy.apl; then
+            echo "tests/fixtures/llama_cpp_repro/policy.apl must include __MODEL_HASH__ placeholder" >&2
+            exit 1
+          fi
+          sed "s|__MODEL_HASH__|${EXPECTED_MODEL_HASH}|g" \
+            tests/fixtures/llama_cpp_repro/policy.apl \
+            > build/llama-cpp-repro/policy.effective.apl
+          python3 scripts/ci/llama_cpp_repro_gate.py \
+            --t81-bin build-llama-repro/t81 \
+            --model tests/fixtures/llama_cpp_repro/model.gguf \
+            --policy build/llama-cpp-repro/policy.effective.apl \
+            --prompt "$PROMPT" \
+            --expected-model-hash "$EXPECTED_MODEL_HASH" \
+            --hash-out build/llama-cpp-repro/hash.txt 2>&1 | tee -a .github/logs/build-and-test.log
+
       - name: Upload build artifacts
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -371,6 +419,14 @@ jobs:
         with:
           name: t81lang-hash-${{ matrix.platform }}-${{ matrix.compiler }}
           path: build/t81lang-repro/hash.txt
+          if-no-files-found: error
+
+      - name: Upload llama.cpp hash artifact (optional)
+        if: vars.T81_ENABLE_LLAMA_REPRO == '1' && matrix.compiler == 'clang' && matrix.platform == 'linux-x86_64' && hashFiles('tests/fixtures/llama_cpp_repro/model.gguf') != '' && hashFiles('tests/fixtures/llama_cpp_repro/model_hash.txt') != '' && hashFiles('tests/fixtures/llama_cpp_repro/policy.apl') != '' && hashFiles('tests/fixtures/llama_cpp_repro/prompt.txt') != ''
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: llama-cpp-hash-${{ matrix.platform }}-${{ matrix.compiler }}
+          path: build/llama-cpp-repro/hash.txt
           if-no-files-found: error
 
       - name: Show ccache stats

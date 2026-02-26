@@ -16,3 +16,24 @@ python3 scripts/ci/t3k_repro_gate.py --help
 python3 scripts/ci/llama_cpp_repro_gate.py --help
 bash scripts/ci/run_determinism_slice.sh build
 ```
+
+## Optional llama.cpp repro gate
+
+The llama.cpp repro gate is optional and fixture-gated:
+
+- Fixture directory: `tests/fixtures/llama_cpp_repro/`
+- Required files:
+  - `model.gguf` (not committed)
+  - `model_hash.txt` (not committed; expected `sha3-512:<hex>`)
+  - `policy.apl`
+  - `prompt.txt`
+- CI enable switch:
+  - repository variable `T81_ENABLE_LLAMA_REPRO=1`
+
+Helper:
+
+```bash
+python3 scripts/ci/llama_model_hash.py tests/fixtures/llama_cpp_repro/model.gguf \
+  --t81-bin build-llama/t81 \
+  --out tests/fixtures/llama_cpp_repro/model_hash.txt
+```

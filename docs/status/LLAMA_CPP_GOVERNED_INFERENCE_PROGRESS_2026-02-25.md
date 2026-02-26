@@ -1,7 +1,7 @@
 # Llama.cpp Governed Inference Progress (2026-02-25)
 
 Status: In Progress
-Last Updated: 2026-02-25
+Last Updated: 2026-02-26
 Owner: t81dev
 
 ## Objective
@@ -61,6 +61,51 @@ architecture direction, while classifying this surface as governed non-DCP.
    - new pin file: `docs/governance/EXTERNAL_DEPENDENCY_PINS.md`
    - governance index updated to include dependency pin doc
 
+10. Optional CI reproducibility gate wiring added:
+   - `.github/workflows/ci.yml` now includes fixture-gated llama repro steps
+     in `build-and-test` (linux-x86_64 + clang only)
+   - gate executes only when all fixture files exist:
+     - `tests/fixtures/llama_cpp_repro/model.gguf`
+     - `tests/fixtures/llama_cpp_repro/policy.apl`
+     - `tests/fixtures/llama_cpp_repro/prompt.txt`
+   - uploads `build/llama-cpp-repro/hash.txt` as optional CI artifact
+
+11. Sanctioned fixture scaffold added:
+   - new directory: `tests/fixtures/llama_cpp_repro/`
+   - committed artifacts: `policy.apl`, `prompt.txt`, `README.md`, `.gitignore`
+   - real `model.gguf` remains external and is intentionally not checked in
+   - expected model identity file (`model_hash.txt`) is required at runtime and
+     remains external; template committed as `model_hash.txt.example`
+
+12. Optional CI gate hardened with expected model identity enforcement:
+   - `ci.yml` optional llama gate now requires:
+     - `model.gguf`
+     - `model_hash.txt`
+     - `policy.apl`
+     - `prompt.txt`
+     - `T81_ENABLE_LLAMA_REPRO=1`
+   - gate now passes `--expected-model-hash` to repro script
+   - helper added: `scripts/ci/llama_model_hash.py`
+   - policy template `tests/fixtures/llama_cpp_repro/policy.apl` now uses
+     `__MODEL_HASH__` placeholder; CI materializes effective policy at runtime
+
+13. Packaging decision codified:
+   - `t81_llama_adapter` remains internal/build-only (not exported/installed)
+   - new CMake option added: `T81_EXPORT_LLAMA_ADAPTER` (default `OFF`)
+   - enabling `T81_EXPORT_LLAMA_ADAPTER=ON` now fails configure with explicit
+     policy message until dependency export boundaries are formalized
+
+14. Boundary classification synchronized in release/status artifacts:
+   - explicit governed non-DCP classification added to:
+     - `docs/status/RELEASE_READINESS_PACKET_2026-03.md`
+     - `docs/status/IMPLEMENTATION_MATRIX.md`
+
+15. Local mini-model validation completed:
+   - downloaded a local mini GGUF fixture model (`Qwen2.5-0.5B-Instruct-Q4_K_M`)
+   - generated adapter-visible model hash via `llama_model_hash.py --t81-bin`
+   - validated local reproducibility gate pass (`runs=3`) with
+     `build/llama-cpp-repro/hash.txt` emitted
+
 ## Verified Commands
 
 ```bash
@@ -76,8 +121,9 @@ All commands above succeeded in this workspace.
 ## Known Gaps vs AGI How-To Intent
 
 1. This is practical reproducibility, not DCP-level cross-platform determinism.
-2. `t81_llama_adapter` is currently build-only (not exported/installed target).
-3. No checked-in real model/policy fixture pair yet for automated gate execution in CI.
+2. `t81_llama_adapter` is intentionally build-only (not exported/installed target) per current package-boundary policy.
+3. No checked-in real model fixture yet for automated gate execution in CI
+   (policy/prompt scaffold exists; model remains external by design).
 
 ## Current Working Tree Impact
 
@@ -100,8 +146,11 @@ Untracked dependency directory:
 
 ## Recommended Next Pickup Steps
 
-1. Add one sanctioned model/policy fixture pair for local/CI reproducibility gate.
-2. Decide whether `t81_llama_adapter` should be exported as package target or remain internal.
+1. Provision sanctioned model fixture files for opt-in environments:
+   - `tests/fixtures/llama_cpp_repro/model.gguf`
+   - `tests/fixtures/llama_cpp_repro/model_hash.txt`
+2. Revisit adapter export only after dependency export policy and package
+   boundary requirements are formalized.
 3. Extend CI workflow(s) with guarded llama repro execution when fixtures are available.
 
 ## Versioning Statement

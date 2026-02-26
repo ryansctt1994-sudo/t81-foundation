@@ -17,6 +17,9 @@ option(T81_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer for supported compile
 option(T81_USE_CXX23 "Build with C++23 language mode (fallback: C++20)" ON)
 option(T81_TRITWISE_PROFILE "Enable profiling for tritwise operations" OFF)
 option(T81_ENABLE_LLAMA_CPP "Enable experimental llama.cpp adapter (non-DCP)" OFF)
+option(T81_EXPORT_LLAMA_ADAPTER
+  "Export/install t81_llama_adapter (currently unsupported with vendored llama.cpp)"
+  OFF)
 set(T81_LLAMA_REPRO_MODEL "" CACHE FILEPATH "Model path for llama.cpp reproducibility gate")
 set(T81_LLAMA_REPRO_POLICY "" CACHE FILEPATH "Policy path for llama.cpp reproducibility gate")
 set(T81_LLAMA_REPRO_PROMPT "" CACHE STRING "Prompt for llama.cpp reproducibility gate")
@@ -1532,7 +1535,14 @@ set(T81_INSTALL_TARGETS
   t81
 )
 if(T81_ENABLE_LLAMA_CPP)
-  message(STATUS "t81_llama_adapter is build-only and not exported in install targets")
+  if(T81_EXPORT_LLAMA_ADAPTER)
+    message(FATAL_ERROR
+      "T81_EXPORT_LLAMA_ADAPTER=ON is not supported with vendored llama.cpp. "
+      "t81_llama_adapter remains internal/build-only until dependency export "
+      "and package-boundary policy are formalized.")
+  endif()
+  message(STATUS
+    "t81_llama_adapter remains internal/build-only (not exported in install targets)")
 endif()
 
 install(TARGETS ${T81_INSTALL_TARGETS}
