@@ -4841,9 +4841,20 @@ public:
         std::string text = msg.has_value() ? std::string(*msg) : "Check";
 
         t81::axion::Verdict verdict;
-        verdict.kind = ok ? t81::axion::VerdictKind::Allow : t81::axion::VerdictKind::Deny;
-        verdict.reason = "AxCheck: " + text;
+        if (!ok) {
+          verdict.kind = t81::axion::VerdictKind::Deny;
+          verdict.reason = "AxCheck: " + text;
+        } else {
+          verdict = eval_axion_call(t81::axion::reasons::kAxCheck, current_pc, insn.opcode);
+          if (verdict.kind == t81::axion::VerdictKind::Allow ||
+              verdict.kind == t81::axion::VerdictKind::Warn) {
+            verdict.reason = "AxCheck: " + text;
+          }
+        }
         record_axion_event(insn.opcode, 0, ok ? 1 : 0, verdict);
+        if (verdict.kind == t81::axion::VerdictKind::Deny) {
+          trap = Trap::SecurityFault;
+        }
         break;
       }
       case t81::tisc::Opcode::AxReport: {
@@ -4854,10 +4865,16 @@ public:
         auto msg = symbol_like_text(ctx.register_tags[insn.a], ctx.registers[insn.a]);
         std::string text = msg.has_value() ? std::string(*msg) : "Report";
 
-        t81::axion::Verdict verdict;
-        verdict.kind = t81::axion::VerdictKind::Allow;
-        verdict.reason = "AxReport: " + text;
+        t81::axion::Verdict verdict =
+            eval_axion_call(t81::axion::reasons::kAxReport, current_pc, insn.opcode);
+        if (verdict.kind == t81::axion::VerdictKind::Allow ||
+            verdict.kind == t81::axion::VerdictKind::Warn) {
+          verdict.reason = "AxReport: " + text;
+        }
         record_axion_event(insn.opcode, 0, 0, verdict);
+        if (verdict.kind == t81::axion::VerdictKind::Deny) {
+          trap = Trap::SecurityFault;
+        }
         break;
       }
       case t81::tisc::Opcode::AxSign:

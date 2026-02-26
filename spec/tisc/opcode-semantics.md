@@ -247,11 +247,11 @@ Shift amounts are masked with `0x3F` (AND 63) to ensure deterministic execution 
 | `0x17` | `AXSET` | `A: GuardAddr, B: Val` | - | Sets guarded memory with Axion verification. | SecurityFault |
 | `0x18` | `AXVERIFY` | `A: Dest` | - | Returns Axion policy verification status (Allow/Deny). | SecurityFault |
 | `0x83` | `AXHALT` | - | - | Emergency halt triggered by Axion. | SecurityFault |
-| `0x9E` | `AXCHECK` | - | - | Stub: Explicit Axion Policy Check. | Axion Event |
+| `0x9E` | `AXCHECK` | `A: Cond, B: Msg` | - | Evaluates explicit Axion check; denies fail closed (`SecurityFault`). | SecurityFault |
 | `0x9F` | `AXSIGN` | - | - | Unimplemented privileged opcode; VM must fail closed. | SecurityFault |
 | `0xA0` | `AXLINEAGE` | - | - | Unimplemented privileged opcode; VM must fail closed. | SecurityFault |
 | `0xA1` | `AXCANON` | - | - | Unimplemented privileged opcode; VM must fail closed. | SecurityFault |
-| `0xA2` | `AXREPORT` | - | - | Stub: Generates safety report. | Axion Event |
+| `0xA2` | `AXREPORT` | `A: Msg` | - | Emits Axion report event; policy deny fails closed. | SecurityFault |
 
 ---
 

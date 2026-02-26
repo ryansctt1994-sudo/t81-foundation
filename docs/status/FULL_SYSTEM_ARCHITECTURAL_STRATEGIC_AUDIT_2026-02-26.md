@@ -287,6 +287,14 @@ Then make CI fail on any doc/status/translation drift from that contract.
 - Hardened Axion policy parser in `include/t81/axion/policy.hpp` to reject unknown policy clauses instead of skipping them.
 - Extended `tests/cpp/vm_policy_parse_fail_closed_test.cpp` with an unknown-clause scenario to verify deterministic fail-closed VM behavior (`SecurityFault` with parse-failure log evidence).
 
+### 2026-02-26 (R19)
+- Hardened `AXCHECK` semantics in `core/vm/vm.cpp`: deny outcomes now fail closed with deterministic `SecurityFault` rather than continuing execution after a deny log.
+- Added explicit Axion syscall reason handling for `AXCHECK`/`AXREPORT` (`include/t81/axion/reasons.hpp`) and policy-evaluated report handling in VM dispatch.
+- Updated `tests/cpp/test_axion_opcodes.cpp` expectations to validate fail-closed behavior.
+- Updated ISA docs for parity:
+  - `spec/tisc/opcode-semantics.md`
+  - `spec/tisc/opcode-registry.md`
+
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
 - This report is descriptive and evidence-based; it does not override normative `/spec` authority.

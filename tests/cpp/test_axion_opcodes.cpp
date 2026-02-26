@@ -40,7 +40,8 @@ int main() {
     auto vm = vm::make_interpreter_vm();
     vm->load_program(program);
     [[maybe_unused]] auto run = vm->run_to_halt();
-    T81_TEST_CHECK(run.has_value());
+    T81_TEST_CHECK(!run.has_value());
+    T81_TEST_CHECK(run.error() == vm::Trap::SecurityFault);
 
     const auto& axion_log = vm->state().axion_log;
 
