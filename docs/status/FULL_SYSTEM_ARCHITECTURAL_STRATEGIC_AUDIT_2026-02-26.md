@@ -298,6 +298,9 @@ Then make CI fail on any doc/status/translation drift from that contract.
 ### 2026-02-26 (R20)
 - Updated `docs/governance/ENFORCEMENT_MATRIX.md` with explicit machine-verifiable hard-fail mapping for `AXCHECK` deny fail-closed semantics, backed by `tests/cpp/test_axion_opcodes.cpp`.
 
+### 2026-02-26 (R21)
+- Added explicit governance enforcement mapping for Axion policy parse fail-closed behavior (syntax and unknown-clause rejection), backed by `tests/cpp/vm_policy_parse_fail_closed_test.cpp`.
+
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
 - This report is descriptive and evidence-based; it does not override normative `/spec` authority.
