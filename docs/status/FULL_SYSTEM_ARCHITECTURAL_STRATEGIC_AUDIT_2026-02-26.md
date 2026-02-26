@@ -129,6 +129,7 @@ Publish explicit dual profile contract:
 - `TLOADHASH` hash normalization/CanonRef parsing is now encapsulated in tensor helpers, reducing VM dispatch-path parsing logic concentration.
 - `TLOADHASH` CanonFS fetch/decode result classification (invalid hash vs miss vs decode fault) is now centralized in helper code, leaving VM dispatch focused on trap/event mapping.
 - Pre-dispatch Axion deny paths now emit explicit Axion events before `SecurityFault`, improving auditability of fail-closed policy enforcement.
+- Tensor unary `TExp` runtime path is now helper-encapsulated and backed by explicit VM-level output assertions in `t81_vm_tensor_test`.
 - Formal proof depth for governance/security invariants is incomplete.
 - Host-level containment remains intentionally out-of-scope.
 

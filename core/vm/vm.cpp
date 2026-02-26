@@ -1303,9 +1303,7 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        std::vector<float> data = tensor->data();
-        for (auto& val : data) val = std::exp(val);
-        auto res_handle = alloc_tensor(T729DynamicTensor(tensor->shape(), std::move(data)));
+        auto res_handle = alloc_tensor(t81::vm::internal::tensor_unary_exp(*tensor));
         if (!res_handle) {
           trap = res_handle.error();
           break;

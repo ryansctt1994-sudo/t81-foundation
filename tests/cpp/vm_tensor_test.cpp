@@ -1,3 +1,4 @@
+#include <cmath>
 #include <vector>
 #include "test_runtime_check.hpp"
 
@@ -16,6 +17,7 @@ int main() {
   program.insns.push_back({tisc::Opcode::F2I, 10, 8, 0});
   program.insns.push_back({tisc::Opcode::I2Frac, 11, 9, 0});
   program.insns.push_back({tisc::Opcode::Frac2I, 12, 11, 0});
+  program.insns.push_back({tisc::Opcode::TExp, 13, 1, 0});
   program.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
 
   [[maybe_unused]] auto vm = vm::make_interpreter_vm();
@@ -57,6 +59,15 @@ int main() {
   // Conversion ops
   T81_TEST_CHECK(vm->state().contexts[0].registers[10] == 3);
   T81_TEST_CHECK(vm->state().contexts[0].registers[12] == 3);
+
+  // Tensor unary exp
+  [[maybe_unused]] auto expHandle = vm->state().contexts[0].registers[13];
+  const auto& expRes = mutable_state.tensors[static_cast<std::size_t>(expHandle - 1)];
+  T81_TEST_CHECK(expRes.has_value());
+  T81_TEST_CHECK(expRes.value().shape()[0] == 3);
+  T81_TEST_CHECK(std::fabs(expRes.value().data()[0] - std::exp(1.0f)) < 1e-6f);
+  T81_TEST_CHECK(std::fabs(expRes.value().data()[1] - std::exp(2.0f)) < 1e-6f);
+  T81_TEST_CHECK(std::fabs(expRes.value().data()[2] - std::exp(3.0f)) < 1e-6f);
 
   // Shape checks via literal handles.
   [[maybe_unused]] tisc::Program chk;

@@ -45,7 +45,7 @@ Purpose: trace and Axion event recording helpers, deterministic reason formattin
 5. Phase E: Tensor and extended opcode extraction
 - Move tensor and weights handlers.
 - Keep non-DCP boundaries unchanged.
- - Progress: shared native tensor decode path (`WeightsTensorHandle` promotion + `TLoadHash` decode) extracted to `tensor_helpers`; CanonFS tensor-object parsing, decode-or-fail gate, hash-ref parsing, and CanonFS fetch/decode status classification moved out of `vm.cpp`.
+ - Progress: shared native tensor decode path (`WeightsTensorHandle` promotion + `TLoadHash` decode) extracted to `tensor_helpers`; CanonFS tensor-object parsing, decode-or-fail gate, hash-ref parsing, and CanonFS fetch/decode status classification moved out of `vm.cpp`; tensor unary `TExp` compute path extracted to helpers.
 6. Phase F: Final dispatch slimming
 - Reduce `vm.cpp` to dispatch integration and module wiring.
 

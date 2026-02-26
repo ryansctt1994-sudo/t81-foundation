@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <cmath>
 
 #include "t81/tracing/canonhash.hpp"
 
@@ -239,6 +240,14 @@ TensorLoadHashResult load_canon_tensor_by_hash(t81::canonfs::Driver& driver,
     return {TensorLoadHashStatus::DecodeFault, std::nullopt};
   }
   return {TensorLoadHashStatus::Ok, std::move(decoded)};
+}
+
+t81::T729DynamicTensor tensor_unary_exp(const t81::T729DynamicTensor& tensor) {
+  std::vector<float> data = tensor.data();
+  for (auto& val : data) {
+    val = std::exp(val);
+  }
+  return t81::T729DynamicTensor(tensor.shape(), std::move(data));
 }
 
 }  // namespace t81::vm::internal

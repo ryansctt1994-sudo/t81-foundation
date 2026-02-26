@@ -57,4 +57,6 @@ struct TensorLoadHashResult {
 TensorLoadHashResult load_canon_tensor_by_hash(t81::canonfs::Driver& driver,
                                                std::string_view hash_text);
 
+t81::T729DynamicTensor tensor_unary_exp(const t81::T729DynamicTensor& tensor);
+
 }  // namespace t81::vm::internal
