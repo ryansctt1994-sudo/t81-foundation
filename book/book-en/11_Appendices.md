@@ -1,53 +1,67 @@
 # Chapter 11: Appendices
 
+The appendices are practical support material for onboarding, review, and operational alignment. They are not filler; they reduce ambiguity when teams need a quick reference during real work.
+
 ## 11.1 Boundary and Maturity Snapshot
 
-**Status: Current as of this revision**
+This snapshot captures where major surfaces stand in terms of maturity and assurance classification at publication time.
 
-The practical question is not whether a feature exists, but whether it is inside verified deterministic release scope.
+Use it as a situational map, not a permanent truth. As evidence evolves, classifications can change through formal process.
 
-### 11.1.1 DCP-Certified Direction
-
-DCP (Deterministic Core Profile) is the release-certified subset. Verified surfaces are tracked in:
-
-* `docs/product/DETERMINISTIC_CORE_PROFILE.md`
-* `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`
-
-### 11.1.2 Governed Non-DCP Surfaces
-
-The following may be implemented but are not DCP deterministic guarantees by default:
-
-* Trace-JIT runtime paths
-* Experimental distributed/cognitive-tier surfaces
-* Governed `llama.cpp` inference path (`t81 llama-run`)
-
-### 11.1.3 Open Promotion Work
-
-Promotion of non-DCP surfaces requires governance gates, deterministic evidence, and registry updates:
-
-* `docs/status/GOVERNED_AGI_PROMOTION_PIPELINE.md`
-* `docs/governance/FREEZE_ENFORCEMENT.md`
-* `docs/governance/DETERMINISM_THREAT_MODEL.md`
+Onboarding advice: always pair the snapshot with current governance status documents before making release decisions.
 
 ## 11.2 Glossary
 
-| Term | Definition |
-| :--- | :--- |
-| **DCP** | Deterministic Core Profile; the release-certified deterministic subset of T81. |
-| **Determinism Surface Registry** | Governance registry that marks surfaces as Verified/Partial/Unverified for determinism guarantees. |
-| **Governed non-DCP** | Surface under policy/governance controls but outside DCP guarantee scope. |
-| **Axion** | Policy and audit kernel integrated with runtime execution controls. |
-| **CanonRef** | SHA3-256 content reference for immutable CanonFS objects. |
-| **Promotion Pipeline** | Governance lifecycle used to move experimental surfaces toward verified status. |
-| **Repro Gate** | Automated reproducibility checks used to detect determinism drift. |
+The glossary standardizes vocabulary across engineering, governance, and audit discussions. Shared terms reduce miscommunication and speed up cross-team work.
+
+A practical habit is to resolve overloaded words early. If two people use "deterministic" differently, coordination cost rises immediately.
 
 ## 11.3 Useful Links
 
-* **Repository**: [github.com/t81dev/t81-foundation](https://github.com/t81dev/t81-foundation)
-* **Normative Specs**: `spec/`
-* **Book (this narrative)**: `book/book-en/`
-* **Governance docs**: `docs/governance/`
-* **Status/Promotion tracking**: `docs/status/`
+Useful links provide direct access to the most important normative and operational references: specs, governance docs, architecture maps, and status artifacts.
+
+Treat this section as your launchpad when onboarding new teammates.
+
+### Recommended Onboarding Use
+
+During a first week, ask new users to:
+
+1. review the snapshot,
+2. define ten glossary terms in their own words,
+3. locate the corresponding normative sources via useful links.
+
+This produces durable understanding faster than passive reading.
+
+### Role-Based Learning Path
+
+| Role | Focus In This Chapter | You Are Ready When |
+| --- | --- | --- |
+| New User | Use appendices as operational references | You can locate the right source quickly during troubleshooting |
+| Integrator | Keep team vocabulary and links aligned | You can onboard a teammate with the glossary + links only |
+| Auditor | Verify supporting references are current | You can identify stale or ambiguous supporting citations |
+
+### Worked Example
+
+An incident call stalls because terms are used inconsistently. A glossary-driven reset re-establishes shared definitions and reduces miscommunication.
+
+### Hands-On Lab
+
+1. Pick ten glossary terms and rewrite them in your own words.
+2. Link each term to one normative source.
+3. Validate each link is current and unambiguous.
+
+### Expected Outcomes
+
+- You can use appendices as a reliability multiplier.
+- You can reduce coordination friction during high-pressure events.
+
+### Chapter Summary
+
+You should now understand the appendices as operational aids that help teams interpret and apply the rest of the book accurately.
+
+### Read Next
+
+Proceed to Chapter 12 for formal semantics and structural proofs that underpin stronger assurance arguments.
 
 <!-- chapter-nav-start -->
 

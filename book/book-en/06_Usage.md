@@ -1,154 +1,133 @@
 # Chapter 6: CLI and API Usage
 
+This chapter teaches how to operate T81 day-to-day without losing assurance discipline. The command line and APIs are not competing interfaces; they are complementary ways to run the same accountable workflow.
+
+A useful model for onboarding is:
+
+1. use CLI for explicit, replayable operations,
+2. use APIs for integration and automation,
+3. use traces and policy context to explain outcomes.
+
 ## 6.1 The T81 Command Line Interface
 
-**Status: Implemented**
+The CLI is the most transparent way to learn the system because each command is explicit about intent. You can see what was executed, with what arguments, and in what order.
 
-The `t81` binary is the main operator entry point for compile/run/debug and governance workflows.
-
-Core commands:
-* `compile`, `run`, `check`, `lint`, `disasm`, `debug`
-* `repro-hash`
-* `weights`, `policy`, `trace`
-* `canonize-tensor`, `canonize-file`
-* `llama-run` (experimental, non-DCP)
+For new users, this matters because reproducibility starts with observable behavior. Hidden defaults and ad hoc shell history are common sources of confusion in other ecosystems.
 
 ### 6.1.1 Compilation (`compile`)
-Compiles T81 source code (`.t81`) into TISC bytecode (`.tisc`).
 
-```bash
-t81 compile main.t81 -o main.tisc
-```
+Compilation turns source intent into executable machine form. In T81 workflows, compilation artifacts are part of the evidence chain, not disposable byproducts.
 
-**Options**:
-*   `-o, --output <file>`: Output bytecode path. Defaults to `a.tisc`.
-*   `--weights-model <model.t81w>`: Attach a native weights model at compile time.
+When teaching teams, stress two practices:
+
+1. compile from known source state,
+2. capture enough metadata to re-run compilation exactly.
+
+If those habits are present, downstream debugging is much faster.
 
 ### 6.1.2 Execution (`run`)
-Executes a TISC bytecode file or source file (compile-then-run).
 
-```bash
-# Run bytecode
-t81 run main.tisc
+Execution answers a simple but high-stakes question: what happened when this program met this policy and this input set?
 
-# Run source directly
-t81 run main.t81
-```
-
-**Options**:
-*   `--policy <file.apl>`: Apply Axion policy.
-*   `--trace`: Enable execution trace output.
-*   `--weights-model <model.t81w>`: Attach a native weights model.
+A common onboarding mistake is to treat `run` as a generic launch command. In T81, execution context is part of the result. The same binary under different policy context can produce intentionally different outcomes.
 
 ### 6.1.3 Trace Analysis (`trace`)
-The `trace` subcommand suite manages Axion trace artifacts.
 
-*   `t81 trace show <trace_file>`: Human-readable view of a trace.
-*   `t81 trace diff <trace_a> <trace_b>`: Compare two traces.
-*   `t81 trace replay <program.tisc> <trace_file>`: Re-execute and verify trace match.
+Trace analysis is where T81 becomes operationally powerful. Instead of debating hypotheses, teams compare concrete records of execution path and decisions.
+
+During incidents, this shortens mean-time-to-understanding:
+
+1. identify the first divergence point,
+2. confirm whether policy affected control flow,
+3. classify expected vs unexpected behavior.
 
 ### 6.1.4 Interactive Mode (`repl`)
-Launches the Read-Eval-Print Loop.
 
-```bash
-t81 repl
-```
+REPL is excellent for exploration and training. It lowers friction for trying ideas and validating assumptions quickly.
 
-Common REPL commands:
-*   `:load <file>`: Load a script.
-*   `:model <path>`: Show/replace attached weights model.
-*   `:history`: Show snippet history.
-*   `:help`: Show REPL commands.
-*   `:quit`: Exit.
-
-### 6.1.5 Governance and Model Utilities
-
-```bash
-# Determinism fixture hash gate
-t81 repro-hash
-
-# Canonize arbitrary bytes to CanonFS
-t81 canonize-file ./model.gguf
-
-# Policy tooling
-t81 policy compile policy.apl -o policy.axionb
-t81 policy run policy.apl
-
-# Weights tooling
-t81 weights import model.safetensors -o model.t81w
-t81 weights info model.t81w
-t81 weights quantize model.safetensors --to-gguf model.gguf
-```
-
-Governed inference path (experimental, non-DCP):
-
-```bash
-t81 llama-run ./model.gguf "hello" --policy policy.apl --max-tokens 32
-```
-
-### 6.1.6 Governed `llama-run` Boundary
-
-`llama-run` is explicitly **experimental, non-DCP**.
-
-Operational constraints:
-
-1. `--policy <policy.apl>` is required.
-2. Model authorization should be hash-bound (for example via policy and expected hash controls).
-3. Reproducibility evidence for this surface is governance-facing and does not imply DCP certification.
+The maturity step is to graduate important REPL discoveries into source-controlled scripts or programs. Exploration is useful; reproducible evidence is required.
 
 ## 6.2 Embedding T81 (C++ API)
 
-**Status: Stable Public Headers**
+C++ embedding gives you explicit lifecycle control over VM construction, program loading, execution boundaries, and output capture. This is ideal when T81 is part of a larger deterministic system.
 
-To embed T81 into a host application, use `t81::vm::IVirtualMachine`.
+In onboarding terms, C++ embedding teaches that T81 can be treated as a deterministic subsystem with clear contracts, rather than a black box process.
 
-```cpp
-#include <t81/vm/vm.hpp>
-#include <t81/axion/engine.hpp>
+Recommended integration flow:
 
-int main() {
-  auto vm = t81::vm::make_interpreter_vm();
-  t81::tisc::Program p;
-  p.insns.push_back({t81::tisc::Opcode::Halt, 0, 0, 0});
-  vm->load_program(p);
-  auto rc = vm->run_to_halt();
-  return rc ? 0 : 1;
-}
-```
+1. initialize runtime with explicit configuration,
+2. load program and policy context,
+3. execute with controlled inputs,
+4. collect result plus evidence artifacts.
 
 ## 6.3 Embedding T81 (Python API)
 
-**Status: Implemented (testing/orchestration path)**
+Python API usage is often the fastest path for test harnesses, orchestration, and experiment pipelines. It enables broad scenario coverage with less integration overhead.
 
-Python bindings are exposed as `t81_python` in the build output.
+The key discipline is consistency with release paths. Use Python to automate breadth, but keep critical assertions aligned with the same deterministic boundaries used in production evidence.
 
-```python
-import t81_python
+Good onboarding exercise:
 
-source = "fn main() -> i32 { return 1 + 2; }"
-program = t81_python.compile(source)
-vm = t81_python.make_interpreter_vm()
-vm.load_program(program)
-vm.run_to_halt()
-print(vm.get_register(0))
-```
+1. run one scenario via CLI,
+2. run the same scenario via Python,
+3. compare artifacts and explain any mismatch.
 
 ## 6.4 Debugging
 
-**Status: Implemented**
+Debugging in T81 is strongest when framed as divergence analysis rather than symptom chasing. Ask: where did actual behavior first depart from expected constrained behavior?
 
-The `t81 debug` command launches an interactive debugger for TISC.
+Practical debugging loop:
 
-*   `step` / `s`: Step one instruction.
-*   `next` / `n`: Step over call.
-*   `reg`: Dump registers.
-*   `stack`: Dump stack.
-*   `mem <segment> <offset>`: Inspect memory.
-*   `break <pc>`: Set breakpoint.
+1. reproduce with fixed inputs and policy,
+2. inspect trace at divergence boundary,
+3. check whether behavior is policy-enforced, runtime defect, or expectation defect,
+4. validate fix using the same reproducible setup.
 
-```bash
-t81 debug main.tisc
-```
+### Onboarding Drill
+
+Choose one small program and intentionally trigger a policy denial. Then:
+
+1. run it in a controlled environment,
+2. inspect trace output,
+3. explain in writing why denial occurred,
+4. modify policy or program intentionally and rerun.
+
+If a new user can complete this drill, they usually become productive quickly.
+
+### Role-Based Learning Path
+
+| Role | Focus In This Chapter | You Are Ready When |
+| --- | --- | --- |
+| New User | Use CLI commands as replayable workflows | You can rerun compile/run/trace on demand with identical context |
+| Integrator | Choose CLI vs API intentionally | You can justify interface choice for one production task |
+| Auditor | Interpret traces as evidence, not logs | You can explain one behavior change via trace comparison |
+
+### Worked Example
+
+A command succeeds locally but fails in CI. Rather than patching around it, you compare policy context and command parameters, then replay with trace enabled to isolate divergence.
+
+### Hands-On Lab
+
+1. Run one workflow using CLI only.
+2. Re-run same workflow via Python API wrapper.
+3. Compare outputs, traces, and policy context fields.
+
+### Cross-Chapter Continuity
+
+Use this chapter output as input for `Lab A` and `Lab B` in [README](./README.md#cross-chapter-end-to-end-labs).
+
+### Expected Outcomes
+
+- You can treat execution as accountable workflow rather than shell trial-and-error.
+- You can explain mismatches with evidence.
+
+### Chapter Summary
+
+You should now view CLI/API usage as one coherent execution discipline: explicit intent, replayable commands, and evidence-driven interpretation.
+
+### Read Next
+
+Proceed to Chapter 7 to learn how T81Lang coding patterns reinforce deterministic reasoning.
 
 <!-- chapter-nav-start -->
 

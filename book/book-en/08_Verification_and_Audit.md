@@ -1,69 +1,94 @@
 # Chapter 8: Verification and Audit
 
+This chapter explains how T81 turns engineering activity into evidence-backed assurance. Verification is not a ceremonial step at release time; it is an ongoing practice that keeps claims aligned with reality.
+
+For onboarding, the key mindset is simple: if you cannot show evidence, you do not yet have a trustworthy claim.
+
 ## 8.1 Verification Methodology
 
-**Status: Active and Enforced**
+A practical verification methodology links expected behavior to repeatable checks. In T81, that means:
 
-T81 verification is split between implementation tests, deterministic repro gates, and governance evidence.
+1. defining scope clearly,
+2. fixing inputs and execution context,
+3. running deterministic checks,
+4. preserving evidence artifacts.
 
-### 8.1.1 Verification Layers
-
-1.  **Static and semantic validation**: C++ compile checks plus T81Lang parser/semantic analyzer checks.
-2.  **Unit/integration tests**: C++ tests for VM, ISA, numerics, Axion, and CanonFS surfaces.
-3.  **Property and determinism checks**: deterministic fixtures and cross-surface invariants.
-4.  **Governance controls**: freeze-integrity checks, determinism registry discipline, and release packet evidence.
+This structure keeps discussions factual. Teams can compare outputs and traces instead of relying on memory or assumptions.
 
 ## 8.2 Determinism Scope and Audit Matrix
 
-Determinism claims are bounded. The authoritative source is the Determinism Surface Registry and DCP definition, not this narrative chapter.
+Scope is the boundary of what a verification result actually means. The audit matrix maps components/surfaces to assurance status, checks, and known constraints.
 
-| Surface | Reference | Verification | Current Claim |
-| :--- | :--- | :--- | :--- |
-| TISC opcode semantics | `spec/tisc-spec.md` | `tests/cpp/vm_determinism_property_test.cpp`, `tests/cpp/test_tritwise_backend_equivalence.cpp` | Verified |
-| VM interpreter execution | `spec/t81vm-spec.md` | `tests/cpp/vm_trace_test.cpp`, `tests/cpp/vm_determinism_property_test.cpp` | Verified |
-| Data type canonical encoding | `spec/t81-data-types.md` | `tests/cpp/v1_canonical_numeric_contract_test.cpp`, `tests/cpp/tisc_binary_io_determinism_test.cpp` | Verified |
-| Soft-float deterministic math | `spec/t81-data-types.md` | `tests/cpp/test_T81Float_arithmetic.cpp`, `tests/cpp/test_T81Float_rounding.cpp` | Verified |
-| T81Lang compiler emission | `docs/governance/DETERMINISM_SURFACE_REGISTRY.md` | `scripts/ci/t81lang_repro_gate.py` | Partial |
+Teaching point: a passed check outside scope should not be over-interpreted. Strong verification culture depends on precise boundaries.
 
 ## 8.3 Reproducibility Gates
 
-**Status: Critical**
+Reproducibility gates are operational guardrails. They enforce a minimum evidence bar before a claim advances into higher-trust contexts.
 
-### 8.3.1 T81Lang Repro Gate
+Healthy team behavior around gates:
 
-The `t81lang_repro_gate.py` script compiles and executes canonical fixtures, then validates aggregate hash output.
-
-```bash
-python3 scripts/ci/t81lang_repro_gate.py \
-  --t81-bin ./build/t81 \
-  --fixtures-dir tests/fixtures/t81lang_determinism \
-  --workdir build/t81lang-repro-check \
-  --hash-out build/t81lang-repro-check/hash.txt \
-  --expected-hash-file tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt
-```
-
-### 8.3.2 Freeze and Slice Checks
-
-For release hardening, run freeze and determinism slice checks in addition to baseline tests.
-
-```bash
-python3 scripts/ci/check_tisc_freeze_integrity.py
-scripts/ci/run_determinism_slice.sh
-```
-
-### 8.3.3 Governed llama.cpp Repro Gate (Non-DCP)
-
-Governed inference has a dedicated experimental repro path:
-
-```bash
-python3 scripts/ci/llama_cpp_repro_gate.py --help
-```
-
-This gate is governance-facing and does not expand DCP guarantees.
+1. treat failures as information, not inconvenience,
+2. investigate root cause before bypassing,
+3. document classification and remediation path.
 
 ## 8.4 Failure Implication and Response
 
-A regression on a verified determinism surface is a release blocker and governance incident candidate. The required response path is defined in `docs/governance/INCIDENT_RESPONSE.md` and freeze enforcement policy.
+Not all failures are equal. A policy mismatch, tooling drift, and core determinism regression require different response levels.
+
+A strong response flow is:
+
+1. classify failure class,
+2. contain impact surface,
+3. preserve investigation evidence,
+4. apply fix with explicit verification rerun.
+
+This reduces both panic and complacency.
+
+### Auditor Walkthrough
+
+Pick one surface and run a mini-audit:
+
+1. state claimed guarantee,
+2. list checks that support it,
+3. execute or review evidence,
+4. write one paragraph on confidence level and limitations.
+
+This exercise teaches both engineers and auditors to communicate with precision.
+
+### Role-Based Learning Path
+
+| Role | Focus In This Chapter | You Are Ready When |
+| --- | --- | --- |
+| New User | Understand evidence-first assurance | You can explain why a passing test is not always a passing claim |
+| Integrator | Build verification into delivery workflow | You can list gates required before promotion for one surface |
+| Auditor | Perform scoped confidence assessments | You can produce a short confidence statement with explicit limits |
+
+### Worked Example
+
+A release candidate passes functional tests but fails reproducibility gate on one surface. Verification discipline blocks promotion until root cause and rerun evidence are complete.
+
+### Hands-On Lab
+
+1. Select one chapter-8 surface and write its claim statement.
+2. Map required checks and artifacts.
+3. Simulate a failure classification and response note.
+
+### Cross-Chapter Continuity
+
+Use this verification structure to complete `Lab A` and the evidence portions of `Lab C` in [README](./README.md#cross-chapter-end-to-end-labs).
+
+### Expected Outcomes
+
+- You can separate verification completeness from test completeness.
+- You can justify release decisions with scoped evidence.
+
+### Chapter Summary
+
+You should now see verification as a continuous evidence workflow that supports credible, scoped assurance.
+
+### Read Next
+
+Proceed to Chapter 9 to understand Axion as the policy kernel that enforces governance at runtime.
 
 <!-- chapter-nav-start -->
 

@@ -84,6 +84,120 @@ And constraint, when applied deliberately, is a form of clarity.
 
 ---
 
+## 7-Day Onboarding Path
+
+Use this path when onboarding a new engineer, operator, or auditor from zero context.
+
+| Day | Objective | Reading | Output Artifact | Completion Check |
+| --- | --- | --- | --- | --- |
+| 1 | Scope and language alignment | Chapters 1-2 | One-page scope summary | Can explain DCP vs governed non-DCP clearly |
+| 2 | Runtime and data mental model | Chapters 3-4 | Architecture + data flow notes | Can trace one request from source to canonical artifact |
+| 3 | Build and execution discipline | Chapters 5-6 | Reproducible build/run log | Can replay compile/run/trace on clean environment |
+| 4 | Programming model competency | Chapter 7 | Three example programs | Can predict and verify behavior under fixed inputs |
+| 5 | Verification and policy control | Chapters 8-9 | Mini audit packet | Can justify one claim with explicit evidence |
+| 6 | Tiered scaling understanding | Chapters 10-11 | Tier classification worksheet | Can classify one workload and defend confidence level |
+| 7 | Hardening and frontier thinking | Chapters 12-15 | Risk + continuity brief | Can state promotion requirements and rollback triggers |
+
+### Day 7 Exit Criteria
+
+1. Run one end-to-end workflow with captured evidence artifacts.
+2. Produce one scoped assurance claim and one explicit non-claim.
+3. Explain one policy denial and one determinism check result.
+4. Present one promotion plan with risk boundaries.
+
+---
+
+## Cross-Chapter End-to-End Labs
+
+These labs are designed to connect chapter knowledge into publish-grade onboarding outcomes.
+
+### Lab A: Deterministic Baseline Pipeline
+
+Chapters: 1 -> 3 -> 5 -> 6 -> 8
+
+1. Define scope and guarantee language for target surface.
+2. Build from clean environment and capture toolchain data.
+3. Compile and run with trace enabled.
+4. Execute reproducibility checks and summarize findings.
+
+Expected artifacts:
+
+- Build log
+- Run/trace outputs
+- Determinism gate result
+- One-page assurance statement with explicit scope
+
+### Lab B: Policy-Constrained Execution Comparison
+
+Chapters: 2 -> 6 -> 7 -> 9
+
+1. Implement a small T81Lang program with policy-sensitive behavior.
+2. Execute under baseline policy and constrained policy.
+3. Compare outcomes and traces.
+4. Explain divergence with policy model language.
+
+Expected artifacts:
+
+- Program source
+- Two policy profiles used
+- Trace comparison note
+- Root-cause explanation for allow/deny differences
+
+### Lab C: Tier Classification and Promotion Plan
+
+Chapters: 8 -> 10 -> 12 -> 13 -> 14 -> 15
+
+1. Choose one advanced/distributed workflow.
+2. Classify current tier and evidence maturity.
+3. Identify determinism and adversarial risks.
+4. Draft promotion criteria, rollback triggers, and continuity checks.
+
+Expected artifacts:
+
+- Tier classification table
+- Risk register excerpt
+- Promotion checklist
+- Continuity drill outline
+
+---
+
+## Visual Maps
+
+### Architecture Flow Map
+
+```mermaid
+flowchart LR
+    A[Source + Tooling] --> B[TISC/VM Semantics]
+    B --> C[Axion Policy Enforcement]
+    C --> D[Trace + Canonical Artifacts]
+    D --> E[Governance Claim Classification]
+```
+
+### Policy Decision Flow
+
+```mermaid
+flowchart TD
+    I[Execution Request] --> M[Policy Model Evaluation]
+    M --> K{Allowed?}
+    K -->|Yes| R[Execute Instruction]
+    K -->|No| D[Deny/Constrain]
+    R --> T[Record Trace Evidence]
+    D --> T
+```
+
+### Tier Promotion Map
+
+```mermaid
+flowchart LR
+    T3[Stable Deterministic Core] --> T4[Distributed Compute Tier]
+    T4 --> T5[Frontier Research Tier]
+    T3 --> G1[Verification Gates]
+    T4 --> G2[Equivalence + Risk Review]
+    T5 --> G3[Promotion Criteria + Rollback Plan]
+```
+
+---
+
 ## Navigation
 
 <details open>

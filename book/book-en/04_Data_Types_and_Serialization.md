@@ -1,64 +1,74 @@
 # Chapter 4: Data Types and Serialization
 
+In deterministic systems, representation details are system behavior. This chapter explains why T81 treats data shape, numeric meaning, and serialization rules as assurance infrastructure.
+
 ## 4.1 Primitive Types
 
-**Status: Implemented Core Surfaces**
+Primitive types are not just storage formats. They are contracts that influence how values are interpreted across compile, run, serialize, and compare phases.
 
-T81 data types are designed for deterministic representation and canonical behavior.
-
-### 4.1.1 T81Int (Packed Trits)
-
-Integer and trit-oriented representations are foundational to T81's ternary identity.
-
-### 4.1.2 T81Float (Deterministic Float)
-
-Float behavior on deterministic surfaces is governed by project numeric constraints and verification tests. Claims must follow registry/DCP status.
+For onboarding, this means type choice is not merely style. Type choice can affect reproducibility, trace interpretation, and artifact identity.
 
 ## 4.2 T81Float and dmath
 
-**Status: Implemented with Boundary Controls**
+Floating-point drift is one of the most common sources of cross-environment inconsistency.
 
-`dmath`-oriented behavior exists to reduce host-dependent math drift on deterministic surfaces.
-
-### 4.2.1 Transcendental Implementation
-
-Transcendental determinism depends on the verified path and test evidence, not narrative assumptions.
+T81 addresses this by tying numeric behavior claims to explicit verification scope and boundary classification. New users should avoid assumptions based on a single host run and instead follow evidence paths.
 
 ## 4.3 Tensors and Canonical Layouts
 
-**Status: Implemented (scope-dependent guarantees)**
+Model and tensor paths multiply drift risk because they combine large data, conversion pipelines, and external artifacts.
 
-Tensor and model workflows are split by maturity:
+T81 narrative guidance for onboarding:
 
-* DCP deterministic surfaces (where verified),
-* governed non-DCP model/inference surfaces,
-* experimental research surfaces.
-
-### 4.3.1 Tensor Memory Layout
-
-Canonical layout and stable encoding are prerequisites for reproducibility and content-addressed storage.
-
-### 4.3.2 SafeTensors Integration
-
-SafeTensors and related model formats are integrated via tooling and policy controls. CanonFS/canonical hash workflows are used for governed loading paths.
+* keep layout expectations explicit,
+* bind artifacts to canonical identity workflows,
+* use policy controls for sensitive loading/execution paths,
+* classify guarantee strength before public claims.
 
 ## 4.4 Canonical Serialization Rules
 
-**Status: Implemented Core Discipline**
+Canonical serialization is what makes "same meaning" verifiable as "same bytes/hash identity" where required.
 
-Canonical serialization is required so semantically equivalent objects map to stable binary/hash representations.
+Without canonicalization, evidence quality drops quickly. With canonicalization, cross-run comparison becomes practical.
 
-General rules include:
+### Try It
 
-1. stable primitive encodings,
-2. canonical ordering where required,
-3. normalized forms for hash-critical artifacts.
+Choose one sample artifact and answer:
 
-Normative definitions live in:
+1. What gives this artifact identity in your workflow?
+2. How would you detect identity drift?
+3. Which surface classification governs guarantees for this path?
 
-* `spec/t81-data-types.md`
-* `spec/cpp-mapping.md`
-* `spec/canonfs-spec.md`
+### Role-Based Learning Path
+
+| Role | Focus In This Chapter | You Are Ready When |
+| --- | --- | --- |
+| New User | Understand why canonical form matters | You can explain why two equivalent values need one serialization identity |
+| Integrator | Prevent representation drift across components | You can design data contracts that preserve canonical behavior |
+| Auditor | Validate artifact identity assumptions | You can test that canonicalization is stable across repeat runs |
+
+### Worked Example
+
+Two teams exchange numerically equivalent payloads that hash differently because layout rules were inconsistent. Canonical serialization eliminates this ambiguity and restores reproducible comparison.
+
+### Hands-On Lab
+
+1. Serialize the same logical object from two code paths.
+2. Compare byte outputs and hashes.
+3. Normalize to canonical rules and repeat.
+
+### Expected Outcomes
+
+- You can detect representation drift quickly.
+- You can justify canonicalization as an assurance control, not a formatting choice.
+
+### Chapter Summary
+
+You should now understand that representation discipline is foundational to reproducibility, not a formatting preference.
+
+### Read Next
+
+Proceed to Chapter 5 for practical build and verification workflow guidance.
 
 <!-- chapter-nav-start -->
 

@@ -1,81 +1,107 @@
 # Chapter 3: T81VM Architecture
 
+Architecture docs often become abstract diagrams with little onboarding value. This chapter takes the opposite approach: it explains architecture as a practical flow you can reason about while building and debugging.
+
 ## 3.1 Overview
 
-**Status: Current Architecture Narrative**
+T81 architecture is a controlled flow from intent to evidence:
 
-T81 architecture is organized around deterministic execution controls, policy mediation, and canonical data boundaries.
+1. source is authored and compiled,
+2. machine semantics execute that intent,
+3. policy checks constrain execution,
+4. traces/artifacts record what happened,
+5. governance classifies what can be claimed.
 
-### 3.1.1 The Execution Pipeline
+This layered flow is what makes T81 teachable and operable under assurance constraints.
 
-High-level flow:
+### Architecture Map
 
-1. T81Lang source is parsed and lowered to TISC.
-2. TISC executes in the VM interpreter path.
-3. Axion policy checks mediate sensitive operations.
-4. Trace/audit surfaces record execution evidence.
+```mermaid
+flowchart LR
+    S[Source + Compile] --> V[TISC + VM Execution]
+    V --> P[Policy Enforcement]
+    P --> T[Trace + Canonical Artifacts]
+    T --> G[Governance Claim Scope]
+```
 
 ## 3.2 The Runtime Boundary
 
-**Status: Implemented**
+The runtime boundary is where many systems become ambiguous. T81 tries to keep it explicit:
 
-Runtime boundary intent:
+* explicit inputs (program, policy, artifacts),
+* explicit outputs (result, trap, trace context),
+* explicit side-effect control.
 
-* Inputs are explicit: program, policy, and supplied artifacts.
-* Outputs are explicit: result, traps, and trace surfaces.
-* Side effects are policy-gated.
-
-Normative references:
-
-* `spec/t81vm-spec.md`
-* `spec/tisc-spec.md`
-* `spec/axion-kernel.md`
+Onboarding guidance: when diagnosing behavior, first verify boundary inputs before assuming internal bugs.
 
 ## 3.3 Memory Model
 
-**Status: Implemented (with evolving internals)**
+The memory strategy in T81 is aimed at predictable interpretation and failure clarity.
 
-The VM uses controlled state and segmented responsibilities to preserve deterministic behavior and safety constraints.
+For new users, the practical lesson is this: memory behavior should not depend on incidental host details in ways that change semantic outcomes.
 
-### 3.3.1 Formal State Definition
-
-The machine state includes program counter, stack/register state, memory segments, and policy-visible context.
-
-### 3.3.2 Memory Segments
-
-Conceptual segments include code, stack, heap/object state, and metadata/tracing surfaces, with controlled transitions.
-
-### 3.3.3 Handles and Indirection
-
-Opaque handles are used to avoid exposing host-memory identity as semantic input.
+When things go wrong, failure should be traceable and explicit, not silent.
 
 ## 3.4 The Instruction Set (TISC)
 
-**Status: Frozen Boundary for DCP-Certified Scope**
+TISC is the machine contract between compiler output and runtime execution.
 
-TISC is the execution contract between compiler and VM.
+Teaching value:
 
-### 3.4.1 The Instruction Cycle
-
-Typical cycle: fetch -> decode -> policy check -> execute -> record/advance.
-
-### 3.4.2 Opcode Categories
-
-Core categories include arithmetic, control flow, data movement, and policy-sensitive operations. Exact semantics are in the ISA specification.
+* it gives a stable language for discussing semantics,
+* it anchors tests and tooling around shared meaning,
+* it helps teams evaluate changes as explicit semantic choices.
 
 ## 3.5 JIT Compilation (Trace-JIT)
 
-**Status: Experimental Relative to Determinism Guarantees**
+JIT is where performance gains can pressure assurance boundaries.
 
-JIT-related runtime paths may exist for optimization research, but deterministic release guarantees remain anchored to explicitly verified surfaces.
+T81's stance for onboarding is simple: optimization exists, but stronger guarantee claims require equivalence evidence and explicit promotion. "Fast" is not automatically "equivalent." 
 
-### 3.5.1 The Tracing Process
+### Walkthrough Scenario
 
-Trace capture can be used for optimization and forensic analysis.
+Imagine a feature runs faster after a runtime optimization. Before celebrating, a T81-aligned process asks:
 
-### 3.5.2 Behavioral Equivalence
+1. Did behavior remain equivalent on the targeted surface?
+2. Are traces/results consistent with expectation?
+3. Has the assurance classification changed or stayed the same?
 
-JIT equivalence must be demonstrated and promoted through governance before deterministic claim expansion.
+This discipline prevents accidental trust regressions.
+
+### Role-Based Learning Path
+
+| Role | Focus In This Chapter | You Are Ready When |
+| --- | --- | --- |
+| New User | Understand intent-to-evidence flow across layers | You can describe all five architecture layers from memory |
+| Integrator | Locate boundary ownership for debugging and change impact | You can identify which layer owns a given failure signal |
+| Auditor | Verify that architectural claims align with evidence trails | You can trace one behavior from source intent to recorded artifact |
+
+### Worked Example
+
+A run fails under policy on one environment but not another. Architecture-based debugging starts at boundary inputs (policy, artifact identity, runtime context) before suspecting ISA semantics.
+
+### Hands-On Lab
+
+1. Draw the five-layer chain for one sample program.
+2. Mark input/output boundaries at each layer.
+3. Add one potential failure and one verification point per layer.
+
+### Cross-Chapter Continuity
+
+Continue with `Lab A: Deterministic Baseline Pipeline` in [README](./README.md#cross-chapter-end-to-end-labs) to connect this model to build, run, and verification evidence.
+
+### Expected Outcomes
+
+- You can debug by boundary rather than guesswork.
+- You can communicate architecture with operational clarity.
+
+### Chapter Summary
+
+You should now see architecture as a chain of accountable boundaries, not just components.
+
+### Read Next
+
+Proceed to Chapter 4 to understand how type and serialization choices affect reproducibility.
 
 <!-- chapter-nav-start -->
 

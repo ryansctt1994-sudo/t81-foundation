@@ -1,105 +1,127 @@
 # Chapter 7: Programming in T81Lang
 
-**Status: Implemented Language Frontend with Ongoing Evolution**
+T81Lang is designed to keep programs readable, auditable, and predictable under governed execution. This chapter teaches the language as a practical craft: write code that humans can reason about and systems can verify.
 
-T81Lang is the high-level language for authoring programs that compile into TISC.
-
-This chapter is non-normative. Authoritative language behavior is defined in `spec/t81lang-spec.md` and validated by conformance/regression tests.
+For onboarding, the central shift is this: correctness is not only "does it run," but also "can we explain why it behaved this way under explicit constraints?"
 
 ## 7.1 Design Philosophy
 
-* Determinism-aware semantics.
-* Explicit control flow and type intent.
-* Policy-aware runtime boundaries.
-* Auditability and reproducibility as core constraints.
+T81Lang favors explicit semantics over clever shorthand. That choice improves auditability and reduces hidden behavior that would otherwise create cross-environment surprises.
+
+When mentoring new contributors, emphasize this rule: if a construct hides control flow or state transitions too aggressively, it probably conflicts with deterministic maintainability.
 
 ## 7.2 Syntax Basics
 
-### 7.2.1 Comments
+The syntax is intentionally approachable so learners can focus on meaning rather than novelty. Clarity in code structure is treated as an operational asset.
 
-Line and block comments are supported.
+Good onboarding pattern:
 
-### 7.2.2 Variables
+1. start with tiny examples,
+2. predict behavior before running,
+3. confirm results,
+4. document why prediction matched execution.
 
-Immutable and mutable bindings are supported with explicit type annotation where needed.
-
-### 7.2.3 Blocks and Scope
-
-Lexical scoping and block expressions are supported within language rules.
+This trains precise mental models early.
 
 ## 7.3 Data Types
 
-### 7.3.1 Primitives
+Type decisions in T81Lang affect more than storage. They influence serialization identity, runtime interpretation, and downstream policy interaction.
 
-Core numeric, boolean, and textual primitives map to VM-compatible representations.
+Teach types as contracts:
 
-### 7.3.2 Collections
+1. what values are represented,
+2. what operations are valid,
+3. what evidence expectations follow from using them.
 
-Standard library collection forms are available through language and runtime integration.
-
-### 7.3.3 Enums (Option and Result)
-
-Option/Result-style algebraic modeling is supported in the current language surface.
-
-### 7.3.4 Bitwise Operations
-
-Bitwise operators are available for supported integer-compatible types.
+Teams that treat types this way produce fewer ambiguous bugs.
 
 ## 7.4 Control Flow
 
-### 7.4.1 Conditionals
+Control flow constructs are readable by design, but runtime policy still governs what is permitted. A branch can be syntactically valid and still constrained during execution.
 
-Conditional expressions and branching are supported.
-
-### 7.4.2 Pattern Matching
-
-Pattern matching is part of current language coverage and should follow compiler/fixture-tested behavior.
-
-### 7.4.3 Loops
-
-Loop forms are supported and remain subject to runtime policy controls for bounded execution.
+This is an important onboarding lesson: language-level possibility is not the same as policy-authorized behavior.
 
 ## 7.5 Functions
 
-Functions are declared explicitly and compiled into TISC call/return structures.
+Functions are the main unit for creating testable intent boundaries. Clear function contracts make trace interpretation easier and reduce accidental side effects.
+
+Teaching practice that works well:
+
+1. write function with explicit purpose,
+2. define expected output for fixed input,
+3. run under controlled context,
+4. confirm behavior and trace alignment.
 
 ## 7.6 Structures and Methods
 
-**Status: Active Area**
+Structures model domain concepts explicitly, which helps maintain readability as projects grow. Methods should preserve clear ownership and avoid hidden coupling.
 
-Structured user types and method-like organization exist, with details defined by the current language spec and compiler behavior.
+Onboarding heuristic: if a structure cannot be described in one sentence with clear responsibilities, it probably needs to be split.
 
 ## 7.7 Axion Integration
 
-Axion policy is a runtime concern. Typical flow:
+Axion integration should be taught as part of normal programming, not as a late-stage add-on. Policy-aware development prevents teams from confusing intentional denials with random runtime instability.
 
-```bash
-t81 check source.t81
-t81 compile source.t81 -o program.tisc
-t81 run program.tisc --policy policy.apl
-```
+Preferred authoring loop:
+
+1. write code,
+2. compile/check,
+3. run with explicit policy,
+4. review outcomes and trace context.
+
+This loop helps new users develop correct expectations quickly.
 
 ## 7.8 Examples
 
-### 7.8.1 Hello World
+Examples should form a progression from simple to realistic. A strong onboarding sequence includes:
 
-```t81
-fn main() -> i32 {
-  print("Hello, T81");
-  return 0;
-}
-```
+1. deterministic arithmetic/data transformations,
+2. structured control flow with clear branch expectations,
+3. policy-constrained scenarios,
+4. trace-backed explanation of observed results.
 
-### 7.8.2 Vector Addition
+The goal is to teach habits that scale, not tricks that only work in toy cases.
 
-```t81
-fn main() -> i32 {
-  let a = [1, 2, 3];
-  let b = [10, 20, 30];
-  print(a[0] + b[0]);
-  return 0;
-}
-```
+### Practice Path
+
+Build a short example portfolio with three programs:
+
+1. one pure computation example,
+2. one policy-sensitive behavior example,
+3. one intentionally failing example where you explain the failure via trace.
+
+This portfolio becomes a useful internal onboarding artifact for teams.
+
+### Role-Based Learning Path
+
+| Role | Focus In This Chapter | You Are Ready When |
+| --- | --- | --- |
+| New User | Write clear, predictable T81Lang functions | You can predict output for fixed inputs before running |
+| Integrator | Build maintainable modules with explicit contracts | You can describe side effects and policy touchpoints per function |
+| Auditor | Review code for explainability and determinism | You can identify hidden behavior risks in control flow and types |
+
+### Worked Example
+
+A concise but opaque helper function passes tests, yet fails audit review because side effects are implicit. Refactoring into explicit function boundaries improves trace interpretation and reliability.
+
+### Hands-On Lab
+
+1. Write a small program with two functions and one structured type.
+2. Add one policy-sensitive operation.
+3. Document expected behavior and validate via run + trace.
+
+### Expected Outcomes
+
+- You can code in a style that survives audit and maintenance.
+- You can connect language design choices to runtime trust outcomes.
+
+### Chapter Summary
+
+You should now understand T81Lang as a language for explainable, policy-aware deterministic programming.
+
+### Read Next
+
+Proceed to Chapter 8 to learn how verification and audit convert engineering behavior into defendable assurance claims.
 
 <!-- chapter-nav-start -->
 

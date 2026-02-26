@@ -1,111 +1,81 @@
 # Chapter 5: Installation and Build Verification
 
+This chapter teaches installation as reproducible setup. In T81, build behavior is part of what you can later claim, so setup discipline matters.
+
 ## 5.1 Prerequisites
 
-**Status: Current**
+Prerequisites are not housekeeping. They are part of evidence quality.
 
-To build T81 from source, use a modern C++ toolchain and the current repository defaults.
+If toolchain assumptions are undocumented, reproducibility troubleshooting becomes expensive and slow.
 
-*   **Compiler**:
-    *   Clang 18+ (recommended)
-    *   GCC 14+
-*   **Build System**:
-    *   CMake 3.21+
-    *   Ninja (Optional, recommended for speed)
-*   **Dependencies**:
-    *   Python 3.10+ (for determinism gates and CI scripts)
-    *   Git (For version control)
-
-### 5.1.1 Environment Setup (Ubuntu/Debian)
-```bash
-sudo apt update
-sudo apt install -y build-essential cmake ninja-build clang python3 python3-pip git
-```
-
-### 5.1.2 Environment Setup (macOS)
-```bash
-brew install cmake ninja llvm python3
-```
+Onboarding advice: start from documented versions and avoid invisible local customizations until baseline checks pass.
 
 ## 5.2 Building from Source
 
-**Status: Implemented**
+A clean build flow should be your default habit:
 
-Clone the main repository:
+1. configure from a clean state,
+2. build with explicit parameters,
+3. keep commands scriptable and replayable.
 
-```bash
-git clone https://github.com/t81dev/t81-foundation.git
-cd t81-foundation
-```
-
-### 5.2.1 Standard Release Build
-This builds the `t81` binary in release mode.
-
-```bash
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build build --parallel
-```
-
-### 5.2.2 Build Options
-You can control the build configuration:
-
-| Option | Default | Description |
-| :--- | :--- | :--- |
-| `T81_USE_CXX23` | `ON` | Build in C++23 mode (falls back to C++20 if disabled). |
-| `T81_BUILD_TESTS` | `ON` | Build C++ test targets. |
-| `T81_BUILD_EXAMPLES` | `ON` | Build examples in `examples/`. |
-| `T81_BUILD_BENCHMARKS` | `ON` | Build benchmark suite. |
-| `T81_ENABLE_ASAN` | `OFF` | Enable AddressSanitizer where supported. |
-| `T81_ENABLE_UBSAN` | `OFF` | Enable UndefinedBehaviorSanitizer where supported. |
-| `T81_ENABLE_LLAMA_CPP` | `OFF` | Enable governed `llama.cpp` adapter (`llama-run`, experimental non-DCP). |
+This makes comparison and support much easier across team members.
 
 ## 5.3 Verifying the Build
 
-**Status: Critical**
+For T81, compile success alone is insufficient for assurance claims. Verification should include deterministic checks and governance-aligned checks based on the targeted surface class.
 
-After building, you **must** verify that the binary produced is compliant with the T81 spec. A successful compile does not guarantee correct execution.
-
-### 5.3.1 Running Unit Tests
-Execute the standard test suite via `ctest`.
-
-```bash
-ctest --test-dir build --output-on-failure -j1
-```
-
-### 5.3.2 The Determinism Gate
-The reproducibility gate verifies canonical fixture outputs and aggregate hash stability.
-
-```bash
-python3 scripts/ci/t81lang_repro_gate.py \
-  --t81-bin ./build/t81 \
-  --fixtures-dir tests/fixtures/t81lang_determinism \
-  --workdir build/t81lang-repro-check \
-  --hash-out build/t81lang-repro-check/hash.txt \
-  --expected-hash-file tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt
-```
-
-If this gate fails, treat the build as non-release-ready for deterministic claims.
-
-### 5.3.3 Verifying Architecture Targets
-Ensure that the build graph matches the architectural specification:
-
-```bash
-python3 scripts/ci/check_architecture_targets.py
-```
-
-For DCP release checks, also run:
-
-```bash
-python3 scripts/ci/check_tisc_freeze_integrity.py
-scripts/ci/run_determinism_slice.sh
-```
+Teaching rule: "it builds" is a starting milestone, not the finish line.
 
 ## 5.4 Troubleshooting
 
-*   **"C++23 not supported"**: Upgrade compiler/toolchain and reconfigure from a clean build directory.
-*   **"Gate hash mismatch"**: Re-run with a clean build and verify no unsupported optimization flags are injected.
-*   **"llama-run unavailable"**: Reconfigure with `-DT81_ENABLE_LLAMA_CPP=ON`.
-*   **"Policy required for llama-run"**: `--policy <policy.apl>` is mandatory for governed inference mode.
+Use structured triage when behavior diverges:
+
+1. clean/rebuild,
+2. rerun relevant gates,
+3. compare policy/config parity,
+4. classify impact by assurance class.
+
+This sequence avoids unproductive guesswork.
+
+### First 60-Minute Onboarding Exercise
+
+1. Build from clean source.
+2. Run baseline checks.
+3. Execute one controlled program with explicit policy.
+4. Record what artifacts/evidence you used to confirm expected behavior.
+
+If you can do this once, you have a reliable foundation for the rest of the book.
+
+### Role-Based Learning Path
+
+| Role | Focus In This Chapter | You Are Ready When |
+| --- | --- | --- |
+| New User | Build from clean state with confidence | You can reproduce the same build twice from scratch |
+| Integrator | Keep setup scriptable and comparable across environments | You can hand another engineer one command path that works unchanged |
+| Auditor | Confirm setup evidence quality | You can identify missing provenance details in a build report |
+
+### Worked Example
+
+An onboarding user compiles successfully but cannot reproduce gate results later. The root issue is undocumented toolchain variance, not runtime semantics.
+
+### Hands-On Lab
+
+1. Perform a clean build and capture tool versions.
+2. Run baseline tests and determinism gate.
+3. Rebuild from clean state and compare outputs.
+
+### Expected Outcomes
+
+- You can distinguish build success from verification success.
+- You can produce a minimal reproducible setup record.
+
+### Chapter Summary
+
+You should now have an operational mindset: setup and verification are part of trust, not separate from it.
+
+### Read Next
+
+Proceed to Chapter 6 for practical CLI/API usage patterns.
 
 <!-- chapter-nav-start -->
 

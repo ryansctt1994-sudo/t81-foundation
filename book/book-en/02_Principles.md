@@ -1,107 +1,120 @@
 # Chapter 2: Core Principles and Invariants
 
+Principles become valuable only when they change choices in difficult moments. This chapter explains how T81 principles are applied when speed, convenience, and assurance goals conflict.
+
 ## 2.1 The Determinism Invariant
 
-**Status: Governance-Enforced (Scope-Bounded)**
+In T81, determinism is treated as a scoped engineering contract. The project intentionally avoids global claims that cannot be verified.
 
-T81 treats determinism as a constrained guarantee, not a blanket slogan.
+For onboarding, this means you should never ask "is T81 deterministic?" as a yes/no question. You should ask: "which surface, under what conditions, with what evidence?"
 
-For verified surfaces, identical inputs and configuration must yield identical outputs and trace outcomes across supported release platforms.
-
-Formal intent:
-
-$$
-\text{Exec}(S_0, I, C) \to S_n \quad\text{is invariant for verified surfaces}
-$$
-
-Where `C` includes policy, build boundary, and runtime mode.
+That framing may feel strict at first, but it prevents ambiguous communication and reduces incident confusion.
 
 ### 2.1.1 Determinism Surfaces and Attack Vectors
 
-The authoritative scope is tracked in:
+A determinism surface is any boundary where repeatability can be tested with confidence. Typical attack/drift vectors include:
 
-* `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`
-* `docs/product/DETERMINISTIC_CORE_PROFILE.md`
+* hidden host-dependent behavior,
+* ordering instability in transforms,
+* ambiguous serialization rules,
+* policy assumptions that are not enforced,
+* optimization paths without equivalence evidence.
 
-Common risks and controls:
+T81's practical defense model is layered:
 
-| Surface | Risk | Control |
-| :--- | :--- | :--- |
-| Compiler emission | nondeterministic ordering or lowering drift | canonical frontend/IR plus repro gate |
-| VM interpreter | host-dependent behavior | deterministic interpreter tests and trace checks |
-| Numeric behavior | host math library variance | deterministic float behavior on verified path |
-| Serialization | semantically equal objects hashing differently | canonical encoding rules |
-| Governance boundary | overclaiming guarantees on non-verified surfaces | registry + release discipline |
+1. canonical representations,
+2. deterministic tests and repro gates,
+3. policy enforcement at execution boundaries,
+4. explicit governance classification.
 
-### 2.1.2 The "Libm Gap" and `dmath`
-
-Host `libm` behavior can vary by platform and toolchain. T81 addresses this through deterministic numeric controls on verified surfaces and explicit boundary statements for non-verified paths.
-
-Determinism claims must always be interpreted through registry status, not through narrative wording alone.
+No single layer is enough by itself.
 
 ## 2.2 Ternary Logic (Base-3)
 
-**Status: Foundational Design Principle**
+Ternary in T81 is architectural identity, not a novelty feature. It influences type semantics, encoding discussions, and machine-level thinking.
 
-T81 is ternary-native in type and representation design. Balanced ternary remains central to the architecture identity and canonical type system.
+For new users, the key takeaway is consistency: the system tries to keep conceptual language aligned from high-level programming to lower-level representation.
 
-### 2.2.1 Why Ternary?
-
-1. Symmetric signed representation.
-2. Clear radix identity and encoding discipline.
-3. Architectural continuity across types, ISA, and canonicalization.
-
-### 2.2.2 Implementation
-
-Implementation details evolve, but public behavior is constrained by normative spec and compatibility controls:
-
-* `spec/t81-data-types.md`
-* `spec/tisc-spec.md`
-* `spec/t81vm-spec.md`
+This reduces cognitive fragmentation during onboarding.
 
 ## 2.3 Auditability and The Axion Trace
 
-**Status: Implemented (scope-specific guarantees)**
+Determinism without observability is fragile. If behavior diverges and no one can explain where or why, assurance collapses operationally.
 
-Auditability is a first-class requirement. Axion events and traces provide post-hoc verification evidence for execution behavior.
-
-### 2.3.1 The Trace Structure
-
-Conceptually, each trace step links operation, verdict, and state progression under policy control.
-
-### 2.3.2 Example Trace
-
-For deterministic surfaces, repeated runs under identical inputs and controls should produce stable trace outcomes according to registry-verified expectations.
+Axion traceability is therefore not only a debug aid. It is part of the evidence model for changes, incidents, and release confidence.
 
 ## 2.4 The Nine Principles (Ethics Enforcement)
 
-**Status: Policy and Governance Framing**
+The principle framing keeps correctness tied to accountability. It encourages maintainers to ask not only "does it work" but also "is it controlled, explainable, and scoped honestly?"
 
-The project philosophy emphasizes:
+In day-to-day engineering, this becomes concrete behavior:
 
-* safety over opportunistic optimization,
-* explicit policy gates,
-* auditable transitions,
-* bounded authority for high-risk capabilities.
-
-Axion is the enforcement mechanism; governance docs define institutional constraints.
+* favor explicit boundary checks over implicit trust,
+* fail clearly when policy is violated,
+* document assurance class before public claims,
+* treat evidence quality as part of product quality.
 
 ## 2.5 Verification Checklist
 
-* [ ] Determinism claims match current registry status.
-* [ ] DCP boundaries are not overextended by narrative language.
-* [ ] Repro gates pass for required surfaces.
-* [ ] Freeze-integrity checks pass for release candidates.
-* [ ] Incident response path is defined for regressions.
+Use this short review template:
+
+1. Claim identified?
+2. Surface identified?
+3. Assurance class identified?
+4. Evidence path identified?
+5. Rollback/incident path identified?
+
+If any answer is "no," the work is not finished.
 
 ## 2.6 Formal Audit Matrix
 
-| Principle | Normative Source | Validation Surface |
-| :--- | :--- | :--- |
-| Scope-bounded determinism | `docs/governance/DETERMINISM_SURFACE_REGISTRY.md` | repro gates + CI |
-| DCP release boundary | `docs/product/DETERMINISTIC_CORE_PROFILE.md` | release readiness packet |
-| Freeze discipline | `docs/governance/FREEZE_ENFORCEMENT.md` | governance checks |
-| Threat-oriented hardening | `docs/governance/DETERMINISM_THREAT_MODEL.md` | security/governance review |
+Think of the audit matrix as a map from language to proof.
+
+* Narrative says what we want.
+* Matrix says where we prove it.
+
+This keeps communication healthy: aspirations remain useful, but guarantees remain disciplined.
+
+### Try It
+
+Pick one claim in this chapter and map it to:
+
+* one source of truth file,
+* one verification artifact,
+* one owner/team role.
+
+If you cannot do that mapping, refine the claim.
+
+### Role-Based Learning Path
+
+| Role | Focus In This Chapter | You Are Ready When |
+| --- | --- | --- |
+| New User | Internalize determinism as an invariant, not a preference | You can name at least three determinism attack surfaces |
+| Integrator | Apply principles during feature tradeoffs | You can propose a safe fallback when an optimization risks equivalence |
+| Auditor | Map each principle to observable evidence | You can request trace/gate artifacts that support principle claims |
+
+### Worked Example
+
+A new optimization improves throughput but changes one edge-case output. Principle-first reasoning says the optimization cannot be treated as neutral until equivalence is shown or scope is downgraded.
+
+### Hands-On Lab
+
+1. Pick one subsystem and list its determinism surfaces.
+2. For each surface, write one likely failure mode and one mitigation.
+3. Draft a short audit matrix row with status, evidence, and risk class.
+
+### Expected Outcomes
+
+- You can translate principles into day-to-day engineering decisions.
+- You can explain why "faster" and "equivalent" are separate claims.
+
+### Chapter Summary
+
+You should now understand the core T81 habit: scope first, claims second.
+
+### Read Next
+
+Proceed to Chapter 3 for a guided walkthrough of how these principles show up in architecture.
 
 <!-- chapter-nav-start -->
 
