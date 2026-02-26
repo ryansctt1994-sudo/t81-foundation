@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <charconv>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -1062,10 +1063,224 @@ int run_trace_replay(const TraceArgs& args) {
   return 0;
 }
 
+namespace {
+struct ParsedTraceEntry {
+  std::string raw;
+  std::optional<std::uint64_t> pc;
+  std::string opcode;
+  std::optional<std::string> trap;
+};
+
+std::string json_escape(std::string_view text) {
+  std::string out;
+  out.reserve(text.size());
+  for (char c : text) {
+    switch (c) {
+      case '\\':
+        out += "\\\\";
+        break;
+      case '"':
+        out += "\\\"";
+        break;
+      case '\n':
+        out += "\\n";
+        break;
+      case '\r':
+        out += "\\r";
+        break;
+      case '\t':
+        out += "\\t";
+        break;
+      default:
+        out.push_back(c);
+        break;
+    }
+  }
+  return out;
+}
+
+std::string csv_quote(std::string_view text) {
+  std::string out;
+  out.reserve(text.size() + 2);
+  out.push_back('"');
+  for (char c : text) {
+    if (c == '"') out.push_back('"');
+    out.push_back(c);
+  }
+  out.push_back('"');
+  return out;
+}
+
+ParsedTraceEntry parse_trace_line(std::string_view line) {
+  ParsedTraceEntry parsed;
+  parsed.raw = std::string(line);
+  std::string trimmed = trim_copy(line);
+  if (trimmed.rfind("PC=", 0) != 0) {
+    return parsed;
+  }
+
+  size_t pos = 3;
+  while (pos < trimmed.size() && std::isdigit(static_cast<unsigned char>(trimmed[pos]))) {
+    ++pos;
+  }
+  if (pos == 3) {
+    return parsed;
+  }
+
+  std::uint64_t pc = 0;
+  const std::string pc_token = trimmed.substr(3, pos - 3);
+  const char* begin = pc_token.data();
+  const char* end = begin + pc_token.size();
+  auto conv = std::from_chars(begin, end, pc);
+  if (conv.ec != std::errc{} || conv.ptr != end) {
+    return parsed;
+  }
+  parsed.pc = pc;
+
+  while (pos < trimmed.size() && std::isspace(static_cast<unsigned char>(trimmed[pos]))) {
+    ++pos;
+  }
+  if (pos < trimmed.size() && trimmed.compare(pos, 5, "trap=") != 0) {
+    size_t opcode_end = pos;
+    while (opcode_end < trimmed.size() &&
+           !std::isspace(static_cast<unsigned char>(trimmed[opcode_end]))) {
+      ++opcode_end;
+    }
+    parsed.opcode = trimmed.substr(pos, opcode_end - pos);
+    pos = opcode_end;
+  }
+
+  size_t trap_pos = trimmed.find("trap=", pos);
+  if (trap_pos != std::string::npos) {
+    std::string trap = trim_copy(trimmed.substr(trap_pos + 5));
+    if (!trap.empty()) {
+      parsed.trap = trap;
+    }
+  }
+  return parsed;
+}
+
+int run_trace_export(const TraceArgs& args) {
+  if (args.args.empty()) {
+    error("trace export requires an input trace file");
+    return 1;
+  }
+
+  std::string format = "json";
+  std::optional<std::string> out_path;
+  std::vector<std::string> positional;
+  positional.reserve(args.args.size());
+
+  for (size_t i = 0; i < args.args.size(); ++i) {
+    const std::string& token = args.args[i];
+    if (token == "--format") {
+      if (i + 1 >= args.args.size()) {
+        error("--format requires a value (json|csv)");
+        return 1;
+      }
+      format = to_lower(args.args[++i]);
+      if (format != "json" && format != "csv") {
+        error("unsupported trace export format: " + format);
+        return 1;
+      }
+      continue;
+    }
+    if (token == "-o" || token == "--out") {
+      if (i + 1 >= args.args.size()) {
+        error(token + " requires a file path");
+        return 1;
+      }
+      out_path = args.args[++i];
+      continue;
+    }
+    if (!token.empty() && token[0] == '-') {
+      error("unknown trace export option: " + token);
+      return 1;
+    }
+    positional.push_back(token);
+  }
+
+  if (positional.size() != 1) {
+    error("trace export requires exactly one input trace file");
+    return 1;
+  }
+
+  std::ifstream input(positional[0]);
+  if (!input) {
+    error("Could not open trace file: " + positional[0]);
+    return 1;
+  }
+
+  std::vector<ParsedTraceEntry> entries;
+  std::string line;
+  while (std::getline(input, line)) {
+    entries.push_back(parse_trace_line(line));
+  }
+
+  std::ostringstream rendered;
+  if (format == "json") {
+    rendered << "[\n";
+    for (size_t i = 0; i < entries.size(); ++i) {
+      const auto& entry = entries[i];
+      rendered << "  {\"index\":" << (i + 1) << ",\"pc\":";
+      if (entry.pc.has_value()) {
+        rendered << *entry.pc;
+      } else {
+        rendered << "null";
+      }
+      rendered << ",\"opcode\":\"" << json_escape(entry.opcode) << "\",\"trap\":";
+      if (entry.trap.has_value()) {
+        rendered << "\"" << json_escape(*entry.trap) << "\"";
+      } else {
+        rendered << "null";
+      }
+      rendered << ",\"raw\":\"" << json_escape(entry.raw) << "\"}";
+      if (i + 1 != entries.size()) {
+        rendered << ',';
+      }
+      rendered << '\n';
+    }
+    rendered << "]\n";
+  } else {
+    rendered << "index,pc,opcode,trap,raw\n";
+    for (size_t i = 0; i < entries.size(); ++i) {
+      const auto& entry = entries[i];
+      rendered << (i + 1) << ',';
+      if (entry.pc.has_value()) {
+        rendered << *entry.pc;
+      }
+      rendered << ',' << csv_quote(entry.opcode) << ',';
+      rendered << csv_quote(entry.trap.has_value() ? *entry.trap : std::string{}) << ',';
+      rendered << csv_quote(entry.raw) << '\n';
+    }
+  }
+
+  if (out_path.has_value()) {
+    std::ofstream out(*out_path, std::ios::binary | std::ios::trunc);
+    if (!out) {
+      error("Could not open output file: " + *out_path);
+      return 1;
+    }
+    out << rendered.str();
+    out.close();
+    if (!out) {
+      error("Failed writing output file: " + *out_path);
+      return 1;
+    }
+    info("Trace exported to " + *out_path);
+    return 0;
+  }
+
+  std::cout << rendered.str();
+  return 0;
+}
+}  // namespace
+
 int run_trace(const TraceArgs& args) {
   if (args.subcommand == "show") return run_trace_show(args);
   if (args.subcommand == "diff") return run_trace_diff(args);
   if (args.subcommand == "replay") return run_trace_replay(args);
+  if (args.subcommand == "export") return run_trace_export(args);
   error("Unknown trace subcommand: " + args.subcommand);
   return 1;
 }

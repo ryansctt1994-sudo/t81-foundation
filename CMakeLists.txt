@@ -808,6 +808,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_cli_diagnostic_context_test tests/cpp/cli_diagnostic_context_test.cpp)
   target_link_libraries(t81_cli_diagnostic_context_test PRIVATE t81_tool_cli t81_lang_frontend t81_isa t81_vm)
 
+  add_executable(t81_cli_trace_export_test tests/cpp/cli_trace_export_test.cpp)
+  target_link_libraries(t81_cli_trace_export_test PRIVATE t81_tool_cli)
+
   add_executable(t81_cli_structural_types_test tests/cpp/cli_structural_types_test.cpp)
   target_link_libraries(t81_cli_structural_types_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
@@ -1252,6 +1255,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     t81_cli_debugger_test
     t81_cli_option_result_test
     t81_cli_diagnostic_context_test
+    t81_cli_trace_export_test
     cli_canonize_tensor_test
     axion_policy_match_guard_test
     axion_policy_segment_event_test

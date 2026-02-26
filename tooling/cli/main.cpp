@@ -190,6 +190,11 @@ Subcommands:
   show <trace.txt>                Visualize an Axion trace with color
   diff <trace1.txt> <trace2.txt>  Diff two Axion traces
   replay <file.tisc> <trace.txt>  Replay and verify trace matches
+  export <trace.txt> [options]    Export trace to JSON/CSV
+
+Options:
+  --format <json|csv>             Export format (default: json)
+  -o, --out <file>                Output file path (default: stdout)
 )";
 }
 
@@ -248,7 +253,7 @@ Commands:
   benchmark                            Run the core benchmark suite (build/benchmarks/benchmark_runner)
   weights <subcommand> [args]          Manage model weights (import, info, quantize)
   policy <subcommand> [args]           Axion policy tools (compile, run)
-  trace <subcommand> [args]            Trace analysis tools (show, diff, replay)
+  trace <subcommand> [args]            Trace analysis tools (show, diff, replay, export)
   llama-run <model.gguf> <prompt>      Governed llama.cpp inference (experimental, non-DCP)
   help [command]                       Show this message or help for a specific command
 
