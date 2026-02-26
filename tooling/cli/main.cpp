@@ -366,6 +366,33 @@ Example:
 )";
 }
 
+void print_help_advanced() {
+  std::cerr << R"(
+Advanced commands (supported expert workflows):
+  weights <subcommand> [args]         Model weights import/info/quantize tools
+  policy <subcommand> [args]          Axion policy compile/validation tools
+  trace <subcommand> [args]           Trace inspection, diff, replay, export
+
+Use:
+  t81 help weights
+  t81 help policy
+  t81 help trace
+)";
+}
+
+void print_help_labs() {
+  std::cerr << R"(
+Labs/internal commands (experimental or operations-focused):
+  benchmark                            Internal benchmark runner entrypoint
+  repro-hash [fixtures_dir]            Reproducibility gate helper
+  canonize-tensor <file>               CanonFS tensor canonicalization utility
+  canonize-file <file>                 CanonFS raw-file canonicalization utility
+  llama-run ...                        Experimental governed llama.cpp path
+
+These commands are not part of the core beginner workflow.
+)";
+}
+
 void print_help_weights_import() {
   std::cerr << R"(
 Usage: t81 weights import <file> [-o <out>] [--format <safetensors|gguf>]
@@ -441,25 +468,17 @@ Usage: )" << prog
 
 
 Commands:
-  compile <file.t81> [-o <file.tisc>]   Compile T81Lang → TISC bytecode
-  run     <file.t81|.tisc> [--policy <policy.apl>] [--trace] Compile and execute
+  check   <file.t81>                   Syntax/semantic check (no bytecode output)
+  lint    <file.t81>                   Alias for `check`
+  compile <file.t81|.t81w> [...]       Compile source to TISC bytecode
+  run     <file.t81|.tisc> [...]       Compile (if needed) and execute
   disasm  <file.tisc>                  Print human-readable TISC disassembly
-  debug   <file.t81|.tisc>             Compile (if needed) and start debugger
-  check   <file.t81>                   Syntax-check only
-  repro-hash [fixtures_dir]            Run T81Lang determinism fixture hash gate
-  canonize-tensor <file>               Canonize tensor file to CanonFS store
-  canonize-file <file>                 Canonize raw file bytes to CanonFS (prints sha3-256 hash)
-  init    <project_name>               Scaffold a new T81 project
-  pkg     <command> [args]             T81 package manager (init, check)
-  lint    <file.t81>                   Alias for check; performs semantic analysis
+  debug   <file.t81|.tisc> [...]       Start debugger (compile if needed)
   repl                                 Enter interactive REPL
+  init    <project_name>               Scaffold a new T81 project
+  pkg     <subcommand> [args]          Package manifest helpers
   version                              Show version
-  benchmark                            Run the core benchmark suite (build/benchmarks/benchmark_runner)
-  weights <subcommand> [args]          Manage model weights (import, info, quantize)
-  policy <subcommand> [args]           Axion policy tools (compile, run)
-  trace <subcommand> [args]            Trace analysis tools (show, diff, replay, export)
-  llama-run <model.gguf> <prompt>      Governed llama.cpp inference (experimental, non-DCP)
-  help [command]                       Show this message or help for a specific command
+  help [command]                       Show help for command/topic
 
 
 Global options:
@@ -471,6 +490,10 @@ Diagnostics:
   `t81 compile` now prints any semantic or parsing errors with the originating
   source file, line, and column so you can jump directly to the issue without
   rerunning separate diagnostics.
+
+More command groups:
+  t81 help advanced
+  t81 help labs
 
 )";
 }
@@ -542,6 +565,14 @@ bool print_help_topic(std::string_view topic, const char* prog) {
   }
   if (topic == "version" || topic == "--version" || topic == "-V") {
     print_version();
+    return true;
+  }
+  if (topic == "advanced") {
+    print_help_advanced();
+    return true;
+  }
+  if (topic == "labs") {
+    print_help_labs();
     return true;
   }
   if (topic == "help" || topic.empty()) {

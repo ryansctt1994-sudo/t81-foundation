@@ -110,6 +110,31 @@ int main(int argc, char* argv[]) {
   }
 
   {
+    const auto result = run_cli(t81_bin, {"--help"});
+    T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stderr_text, "compile <file.t81|.t81w>"));
+    T81_TEST_CHECK(!contains(result.stderr_text, "llama-run <model.gguf>"));
+    T81_TEST_CHECK(!contains(result.stderr_text, "weights <subcommand>"));
+    T81_TEST_CHECK(contains(result.stderr_text, "t81 help advanced"));
+    T81_TEST_CHECK(contains(result.stderr_text, "t81 help labs"));
+  }
+
+  {
+    const auto result = run_cli(t81_bin, {"help", "advanced"});
+    T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stderr_text, "weights <subcommand>"));
+    T81_TEST_CHECK(contains(result.stderr_text, "policy <subcommand>"));
+    T81_TEST_CHECK(contains(result.stderr_text, "trace <subcommand>"));
+  }
+
+  {
+    const auto result = run_cli(t81_bin, {"help", "labs"});
+    T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stderr_text, "benchmark"));
+    T81_TEST_CHECK(contains(result.stderr_text, "llama-run"));
+  }
+
+  {
     const auto result = run_cli(t81_bin, {"compile", "--help"});
     T81_TEST_CHECK(result.exit_code == 0);
     T81_TEST_CHECK(contains(result.stderr_text, "Usage: t81 compile"));

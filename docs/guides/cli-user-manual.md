@@ -44,11 +44,21 @@ Examples:
 ./build/t81 version -q # docs-smoke
 ./build/t81 compile --help # docs-smoke
 ./build/t81 help compile # docs-smoke
+./build/t81 help advanced # docs-smoke
+./build/t81 help labs # docs-smoke
 ```
 
-## 3. Top-Level Commands
+## 3. Command Tiers
 
-### 3.1 `compile`
+`t81 --help` shows the core workflow commands.
+Additional command groups are discoverable via:
+
+- `t81 help advanced`
+- `t81 help labs`
+
+## 4. Commands
+
+### 4.1 `compile`
 
 ```text
 t81 compile <file.t81|file.t81w> [-o <file.tisc>] [--weights-model <model.t81w>]
@@ -56,7 +66,7 @@ t81 compile <file.t81|file.t81w> [-o <file.tisc>] [--weights-model <model.t81w>]
 
 Compiles source into TISC bytecode.
 
-### 3.2 `run`
+### 4.2 `run`
 
 ```text
 t81 run <file.t81|file.tisc> [--policy <policy.apl>] [--trace] [--weights-model <model.t81w>]
@@ -64,7 +74,7 @@ t81 run <file.t81|file.tisc> [--policy <policy.apl>] [--trace] [--weights-model 
 
 Compiles if needed and executes via VM.
 
-### 3.3 `disasm`
+### 4.3 `disasm`
 
 ```text
 t81 disasm <file.tisc>
@@ -72,7 +82,7 @@ t81 disasm <file.tisc>
 
 Prints human-readable disassembly.
 
-### 3.4 `debug`
+### 4.4 `debug`
 
 ```text
 t81 debug <file.t81|file.tisc> [--policy <policy.apl>] [--weights-model <model.t81w>]
@@ -80,7 +90,7 @@ t81 debug <file.t81|file.tisc> [--policy <policy.apl>] [--weights-model <model.t
 
 Compiles if needed and starts debugger.
 
-### 3.5 `check` / `lint`
+### 4.5 `check` / `lint`
 
 ```text
 t81 check <file.t81>
@@ -89,7 +99,7 @@ t81 lint <file.t81>
 
 Syntax + semantic validation without bytecode emission.
 
-### 3.6 `repl`
+### 4.6 `repl`
 
 ```text
 t81 repl [--weights-model <model.t81w>] [--policy <policy.apl>]
@@ -97,7 +107,7 @@ t81 repl [--weights-model <model.t81w>] [--policy <policy.apl>]
 
 Starts the interactive REPL.
 
-### 3.7 `repro-hash`
+### 4.7 `repro-hash`
 
 ```text
 t81 repro-hash [fixtures_dir]
@@ -105,7 +115,7 @@ t81 repro-hash [fixtures_dir]
 
 Runs the T81Lang reproducibility fixture hash gate.
 
-### 3.8 `canonize-tensor`
+### 4.8 `canonize-tensor`
 
 ```text
 t81 canonize-tensor <file>
@@ -113,7 +123,7 @@ t81 canonize-tensor <file>
 
 Canonicalizes tensor input into CanonFS object storage.
 
-### 3.9 `canonize-file`
+### 4.9 `canonize-file`
 
 ```text
 t81 canonize-file <file> [--canonfs-root <path>]
@@ -121,7 +131,7 @@ t81 canonize-file <file> [--canonfs-root <path>]
 
 Writes raw file bytes to CanonFS and prints `sha3-256:<hash>`.
 
-### 3.10 `init`
+### 4.10 `init`
 
 ```text
 t81 init <project_name>
@@ -129,7 +139,7 @@ t81 init <project_name>
 
 Creates a project directory with `main.t81` and `README.md`.
 
-### 3.11 `pkg`
+### 4.11 `pkg`
 
 ```text
 t81 pkg <subcommand> [args]
@@ -139,7 +149,7 @@ t81 pkg check
 
 Creates/validates `package.t81`.
 
-### 3.12 `benchmark`
+### 4.12 `benchmark`
 
 ```text
 t81 benchmark [benchmark_runner_flags...]
@@ -147,7 +157,7 @@ t81 benchmark [benchmark_runner_flags...]
 
 Runs benchmark runner with forwarded benchmark flags.
 
-### 3.13 `weights`
+### 4.13 `weights`
 
 ```text
 t81 weights <subcommand> [options]
@@ -158,7 +168,7 @@ t81 weights quantize <input> --to-gguf <out>
 
 Weight import/info/quantization helpers.
 
-### 3.14 `policy`
+### 4.14 `policy`
 
 ```text
 t81 policy <subcommand> [options]
@@ -168,7 +178,7 @@ t81 policy run <file.apl|file.axionb> [--json]
 
 Policy compile/validation helpers.
 
-### 3.15 `trace`
+### 4.15 `trace`
 
 ```text
 t81 trace <subcommand> [args]
@@ -180,7 +190,7 @@ t81 trace export <trace.txt> [--format <json|csv>] [-o <file>]
 
 Trace inspection and export utilities.
 
-### 3.16 `llama-run` (experimental)
+### 4.16 `llama-run` (experimental)
 
 ```text
 t81 llama-run <model.gguf|sha3-256:hash> <prompt> --policy <policy.apl> [options]
@@ -197,7 +207,7 @@ Options:
 - `--expected-model-hash <h>`
 - `--canonfs-root <path>`
 
-## 4. Help Contract
+## 5. Help Contract
 
 Supported help forms:
 
@@ -206,11 +216,13 @@ Supported help forms:
 ./build/t81 help # docs-smoke
 ./build/t81 help compile # docs-smoke
 ./build/t81 compile --help # docs-smoke
+./build/t81 help advanced # docs-smoke
+./build/t81 help labs # docs-smoke
 ```
 
 Unknown help topics return non-zero.
 
-## 5. Exit and Output Behavior
+## 6. Exit and Output Behavior
 
 - `0` on success.
 - non-zero on failure.
@@ -231,7 +243,7 @@ Runtime trap exit codes used by `t81 run` / `t81 debug`:
 | `18` | Shape fault |
 | `19` | Tier fault |
 
-## 6. Known Command Validation Rules
+## 7. Known Command Validation Rules
 
 - `check` / `lint` require `.t81`.
 - `disasm` requires `.tisc`.
@@ -239,7 +251,7 @@ Runtime trap exit codes used by `t81 run` / `t81 debug`:
 - `compile` accepts `.t81` and `.t81w`.
 - `pkg init` enforces package name characters: alphanumeric, `_`, `-`.
 
-## 7. Notes on Documentation Scope
+## 8. Notes on Documentation Scope
 
 This manual intentionally excludes deprecated or non-shipping flags.
 If behavior changes, update this file in the same change set as the CLI implementation.
