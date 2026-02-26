@@ -28,6 +28,7 @@
 #include "t81/jit/jit.hpp"
 #include "t81/types/T81Float.hpp"
 #include "internal/tier_limits.hpp"
+#include "internal/value_ops.hpp"
 #include "t81/vm/vm.hpp"
 
 namespace t81::vm {
@@ -1286,7 +1287,8 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        ctx.registers[insn.a] = ctx.registers[insn.b] + ctx.registers[insn.c];
+        ctx.registers[insn.a] =
+            t81::vm::internal::add_int(ctx.registers[insn.b], ctx.registers[insn.c]);
         ctx.register_tags[insn.a] = ValueTag::Int;
         update_flags(ctx.registers[insn.a]);
         break;
@@ -1295,7 +1297,8 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        ctx.registers[insn.a] = ctx.registers[insn.b] - ctx.registers[insn.c];
+        ctx.registers[insn.a] =
+            t81::vm::internal::sub_int(ctx.registers[insn.b], ctx.registers[insn.c]);
         ctx.register_tags[insn.a] = ValueTag::Int;
         update_flags(ctx.registers[insn.a]);
         break;
@@ -2025,7 +2028,8 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        ctx.registers[insn.a] = ctx.registers[insn.b] * ctx.registers[insn.c];
+        ctx.registers[insn.a] =
+            t81::vm::internal::mul_int(ctx.registers[insn.b], ctx.registers[insn.c]);
         ctx.register_tags[insn.a] = ValueTag::Int;
         update_flags(ctx.registers[insn.a]);
         break;
@@ -2035,17 +2039,17 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto divisor = ctx.registers[insn.c];
-        if (divisor == 0) {
+        const auto divisor = ctx.registers[insn.c];
+        const auto lhs = ctx.registers[insn.b];
+        std::int64_t result = 0;
+        const bool ok = (insn.opcode == t81::tisc::Opcode::Div)
+                            ? t81::vm::internal::div_int(lhs, divisor, &result)
+                            : t81::vm::internal::mod_int(lhs, divisor, &result);
+        if (!ok) {
           trap = Trap::DivisionFault;
           break;
         }
-        auto lhs = ctx.registers[insn.b];
-        if (insn.opcode == t81::tisc::Opcode::Div) {
-          ctx.registers[insn.a] = lhs / divisor;
-        } else {
-          ctx.registers[insn.a] = lhs % divisor;
-        }
+        ctx.registers[insn.a] = result;
         ctx.register_tags[insn.a] = ValueTag::Int;
         update_flags(ctx.registers[insn.a]);
         break;
@@ -2096,7 +2100,7 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        ctx.registers[insn.a] = -ctx.registers[insn.b];
+        ctx.registers[insn.a] = t81::vm::internal::neg_int(ctx.registers[insn.b]);
         ctx.register_tags[insn.a] = ValueTag::Int;
         update_flags(ctx.registers[insn.a]);
         break;
