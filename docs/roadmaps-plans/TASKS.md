@@ -9,8 +9,8 @@ This document tracks immediate, actionable tasks for the T81 project.
 ### Release and Governance Closure (C2)
 - [ ] **C2 Month-Close:** Execute runbook on 2026-03-31 and stamp final outcomes in `docs/records/audits/2026-03-governance-review.md`.
 - [ ] **Release Candidate Decision:** Select March release-candidate SHA and record required-context results in `docs/status/RELEASE_READINESS_PACKET_2026-03.md`.
-- [ ] **Promotion Snapshot Refresh:** Re-run `python3 scripts/governance/t81lang_promotion_gate_snapshot.py` within close window and capture result.
-- [ ] **Status Integrity:** Re-run governance hygiene and status link-target checks and record pass/fail evidence.
+- [x] **Promotion Snapshot Refresh:** Re-run `python3 scripts/governance/t81lang_promotion_gate_snapshot.py` within close window and capture result. (Completed 2026-02-26; snapshot refreshed as `READY` in `docs/status/T81LANG_PROMOTION_GATE_SNAPSHOT.md` and recorded in March packet/audit artifacts.)
+- [x] **Status Integrity:** Re-run governance hygiene and status link-target checks and record pass/fail evidence. (Completed 2026-02-26; hygiene check and link-target sweep passed, recorded in `docs/status/RELEASE_READINESS_PACKET_2026-03.md` and `docs/records/audits/2026-03-governance-review.md`.)
 
 ### Governed llama.cpp Integration
 - [ ] **Fixture Pair:** Add one sanctioned model/policy fixture pair for local/CI reproducibility gate execution. (Policy/prompt scaffold plus expected-hash template added in `tests/fixtures/llama_cpp_repro/` on 2026-02-26; local mini-model validation completed, but shared CI provisioning model/source policy is still open.)
