@@ -12,6 +12,7 @@ Reduce regression blast radius and improve assurance depth by decomposing `core/
 - All existing VM/Axion/trace/determinism tests must remain green at each phase.
 - New modules must keep deterministic trap strings and trace reason strings stable.
 - Any behavior-changing fixes must land in separate commits after decomposition steps.
+- Pre-dispatch policy denies must remain observable in Axion logs (no silent deny paths).
 
 ## Target Decomposition
 1. `vm_dispatch_core.cpp`  

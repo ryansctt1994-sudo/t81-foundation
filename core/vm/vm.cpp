@@ -418,6 +418,8 @@ public:
     // Evaluate Axion policy before every instruction.
     auto verdict = eval_axion_call(t81::axion::reasons::kStep, current_pc, insn.opcode);
     if (verdict.kind == t81::axion::VerdictKind::Deny) {
+      // Preserve deny reason visibility for pre-dispatch policy failures.
+      record_axion_event(insn.opcode, 0, 0, verdict);
       return std::expected<void, Trap>(t81::unexpect, Trap::SecurityFault);
     }
     if (verdict.kind == t81::axion::VerdictKind::Warn) {

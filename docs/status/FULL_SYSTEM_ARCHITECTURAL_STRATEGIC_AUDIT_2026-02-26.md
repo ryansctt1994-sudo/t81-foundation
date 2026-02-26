@@ -128,6 +128,7 @@ Publish explicit dual profile contract:
 - VM Phase-E decomposition advanced further: CanonFS tensor object parse+decode gate for `TLOADHASH` is now encapsulated in tensor helpers instead of inline in `vm.cpp`.
 - `TLOADHASH` hash normalization/CanonRef parsing is now encapsulated in tensor helpers, reducing VM dispatch-path parsing logic concentration.
 - `TLOADHASH` CanonFS fetch/decode result classification (invalid hash vs miss vs decode fault) is now centralized in helper code, leaving VM dispatch focused on trap/event mapping.
+- Pre-dispatch Axion deny paths now emit explicit Axion events before `SecurityFault`, improving auditability of fail-closed policy enforcement.
 - Formal proof depth for governance/security invariants is incomplete.
 - Host-level containment remains intentionally out-of-scope.
 

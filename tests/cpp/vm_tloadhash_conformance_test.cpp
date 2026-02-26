@@ -170,6 +170,14 @@ void run_tloadhash_canonfs_miss_case() {
   auto result = vm->run_to_halt();
   T81_TEST_CHECK(!result.has_value());
   T81_TEST_CHECK(result.error() == t81::vm::Trap::BoundsFault);
+
+  const auto& state = vm->state();
+  const auto has_miss_trace =
+      std::any_of(state.axion_log.begin(), state.axion_log.end(), [&](const auto& event) {
+        return event.verdict.reason.find("TLOADHASH canonfs_miss hash=" + hash_symbol) !=
+               std::string::npos;
+      });
+  T81_TEST_CHECK(has_miss_trace);
 }
 
 void run_tloadhash_policy_deny_case() {
@@ -181,6 +189,50 @@ void run_tloadhash_policy_deny_case() {
   auto result = vm->run_to_halt();
   T81_TEST_CHECK(!result.has_value());
   T81_TEST_CHECK(result.error() == t81::vm::Trap::SecurityFault);
+
+  const auto& state = vm->state();
+  const auto has_empty_allowlist_deny =
+      std::any_of(state.axion_log.begin(), state.axion_log.end(), [](const auto& event) {
+        return event.verdict.reason.find("TLOADHASH denied (allowed-tensor-hashes empty)") !=
+               std::string::npos;
+      });
+  T81_TEST_CHECK(has_empty_allowlist_deny);
+}
+
+void run_tloadhash_policy_violation_case() {
+  t81::weights::NativeTensor tensor;
+  tensor.format = t81::weights::NativeFormat::BalancedTernary;
+  tensor.shape = {2, 2};
+  tensor.trits = 4;
+  tensor.data = {40};
+
+  auto source_driver =
+      t81::canonfs::make_persistent_driver(std::filesystem::current_path() / "source_canonfs");
+  auto serialized = serialize_tensor(tensor);
+  auto write = source_driver->write_object(
+      t81::canonfs::ObjectType::CanonTensor,
+      std::span<const std::byte>(serialized.data(), serialized.size()));
+  T81_TEST_CHECK(write.has_value());
+
+  std::string requested_hash = "sha3-256:" + write->hash.h.to_string();
+  auto program = make_tloadhash_program(requested_hash);
+  program.axion_policy_text =
+      "(policy (tier 1) (allowed-tensor-hashes [\"sha3-256:"
+      "000000000000000000000000000000000000000000000000000000000000000000000000000000000\"]))";
+
+  auto vm = t81::vm::make_interpreter_vm();
+  vm->load_program(program);
+  auto result = vm->run_to_halt();
+  T81_TEST_CHECK(!result.has_value());
+  T81_TEST_CHECK(result.error() == t81::vm::Trap::SecurityFault);
+
+  const auto& state = vm->state();
+  const auto has_policy_violation =
+      std::any_of(state.axion_log.begin(), state.axion_log.end(), [&](const auto& event) {
+        return event.verdict.reason.find("TLOADHASH policy_violation hash=" + requested_hash) !=
+               std::string::npos;
+      });
+  T81_TEST_CHECK(has_policy_violation);
 }
 
 }  // namespace
@@ -196,6 +248,7 @@ int main() {
 
   run_tloadhash_canonfs_miss_case();
   run_tloadhash_policy_deny_case();
+  run_tloadhash_policy_violation_case();
   run_tloadhash_success_case();
   run_tloadhash_decode_fault_case();
   run_tloadhash_ambiguous_payload_fail_closed_case();
