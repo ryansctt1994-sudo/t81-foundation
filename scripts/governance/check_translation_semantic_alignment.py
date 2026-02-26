@@ -21,6 +21,10 @@ def main() -> int:
                 "Trace-JIT",
                 "Beta",
                 "Alpha",
+                "cmake -S . -B build -DCMAKE_BUILD_TYPE=Release",
+                "./build/t81 compile",
+                "./build/t81 run",
+                "python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check",
             ],
             "banned_regex": [
                 r"eliminar el no determinismo de punto flotante",
@@ -35,6 +39,10 @@ def main() -> int:
                 "Trace-JIT",
                 "Beta",
                 "Alpha",
+                "cmake -S . -B build -DCMAKE_BUILD_TYPE=Release",
+                "./build/t81 compile",
+                "./build/t81 run",
+                "python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check",
             ],
             "banned_regex": [
                 r"eliminar o não-determinismo de ponto flutuante",
@@ -49,6 +57,10 @@ def main() -> int:
                 "Trace-JIT",
                 "Beta",
                 "Alpha",
+                "cmake -S . -B build -DCMAKE_BUILD_TYPE=Release",
+                "./build/t81 compile",
+                "./build/t81 run",
+                "python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check",
             ],
             "banned_regex": [
                 r"устранения недетерминизма плавающей запятой",
@@ -63,6 +75,10 @@ def main() -> int:
                 "Trace-JIT",
                 "Beta",
                 "Alpha",
+                "cmake -S . -B build -DCMAKE_BUILD_TYPE=Release",
+                "./build/t81 compile",
+                "./build/t81 run",
+                "python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check",
             ],
             "banned_regex": [
                 r"消除浮点非确定性",
