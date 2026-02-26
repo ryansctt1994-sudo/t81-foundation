@@ -8,6 +8,10 @@ This document defines the intended user experience for `t81` CLI v1.
 It complements `CLI_UX_PRODUCT_SPEC.md` (contract/quality bar) with explicit
 experience design decisions and implementation priorities.
 
+For the from-scratch domain-first redesign target, see:
+
+- `docs/product/CLI_V2_UX_BLUEPRINT.md`
+
 Capability scope and tiering decisions are frozen in:
 
 - `docs/product/CLI_CAPABILITY_PORTFOLIO.md`

@@ -23,9 +23,9 @@ Show top-level help:
 Minimal compile/run flow:
 
 ```bash
-./build/t81 check examples/hello_world.t81
-./build/t81 compile examples/hello_world.t81 -o hello.tisc
-./build/t81 run hello.tisc
+./build/t81 code check examples/hello_world.t81
+./build/t81 code build examples/hello_world.t81 -o hello.tisc
+./build/t81 code run hello.tisc
 ```
 
 ## 2. Global Options
@@ -42,6 +42,10 @@ Examples:
 ```bash
 ./build/t81 -q version # docs-smoke
 ./build/t81 version -q # docs-smoke
+./build/t81 help code # docs-smoke
+./build/t81 help project # docs-smoke
+./build/t81 help env # docs-smoke
+./build/t81 help internal # docs-smoke
 ./build/t81 compile --help # docs-smoke
 ./build/t81 help compile # docs-smoke
 ./build/t81 help advanced # docs-smoke
@@ -51,6 +55,13 @@ Examples:
 ## 3. Command Tiers
 
 `t81 --help` shows the core workflow commands.
+Domain-first command families:
+
+- `t81 code <action> [args]`
+- `t81 project <action> [args]`
+- `t81 env <action> [args]`
+- `t81 internal <action> [args]`
+
 Additional command groups are discoverable via:
 
 - `t81 help advanced`
@@ -60,6 +71,38 @@ Current Labs commands include `pkg`, `benchmark`, `repro-hash`,
 `canonize-tensor`, `canonize-file`, and `llama-run`.
 
 ## 4. Commands
+
+### 4.1 Domain-First Groups
+
+```text
+t81 code <action> [args]
+t81 project <action> [args]
+t81 env <action> [args]
+t81 internal <action> [args]
+```
+
+Primary workflow actions:
+
+```text
+t81 code check <file.t81>
+t81 code fmt [options] <file...>
+t81 code build <file.t81|file.t81w> [-o <file.tisc>] [--weights-model <model.t81w>]
+t81 code run <file.t81|file.tisc> [--policy <policy.apl>] [--trace] [--weights-model <model.t81w>]
+t81 code test [options] [-- <ctest args...>]
+t81 code disasm <file.tisc>
+t81 code debug <file.t81|file.tisc> [--policy <policy.apl>] [--weights-model <model.t81w>]
+t81 code repl [--weights-model <model.t81w>] [--policy <policy.apl>]
+t81 project init <project_name>
+t81 env doctor [--json]
+t81 internal pkg <subcommand> [args]
+t81 internal benchmark [benchmark_runner_flags...]
+t81 internal repro-hash [fixtures_dir]
+t81 internal canonize-tensor <file>
+t81 internal canonize-file <file> [--canonfs-root <path>]
+t81 internal llama-run <model.gguf|sha3-256:hash> <prompt> --policy <policy.apl> [options]
+```
+
+### 4.2 Legacy Top-Level Aliases
 
 ### 4.1 `compile`
 
@@ -249,6 +292,9 @@ Supported help forms:
 ```bash
 ./build/t81 --help # docs-smoke
 ./build/t81 help # docs-smoke
+./build/t81 help code # docs-smoke
+./build/t81 help code build # docs-smoke
+./build/t81 code build --help # docs-smoke
 ./build/t81 help compile # docs-smoke
 ./build/t81 help test # docs-smoke
 ./build/t81 help doctor # docs-smoke

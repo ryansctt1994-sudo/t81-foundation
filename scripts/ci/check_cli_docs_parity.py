@@ -11,6 +11,10 @@ from pathlib import Path
 
 
 HELP_TOPICS = [
+    "code",
+    "project",
+    "env",
+    "internal",
     "compile",
     "run",
     "disasm",

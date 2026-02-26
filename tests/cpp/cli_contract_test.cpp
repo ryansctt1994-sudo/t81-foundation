@@ -112,6 +112,10 @@ int main(int argc, char* argv[]) {
   {
     const auto result = run_cli(t81_bin, {"--help"});
     T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stderr_text, "code    <action> [args]"));
+    T81_TEST_CHECK(contains(result.stderr_text, "project <action> [args]"));
+    T81_TEST_CHECK(contains(result.stderr_text, "env     <action> [args]"));
+    T81_TEST_CHECK(contains(result.stderr_text, "internal <action> [args]"));
     T81_TEST_CHECK(contains(result.stderr_text, "compile <file.t81|.t81w>"));
     T81_TEST_CHECK(contains(result.stderr_text, "test    [options] [-- ...]"));
     T81_TEST_CHECK(contains(result.stderr_text, "doctor  [--json]"));
@@ -121,6 +125,18 @@ int main(int argc, char* argv[]) {
     T81_TEST_CHECK(!contains(result.stderr_text, "weights <subcommand>"));
     T81_TEST_CHECK(contains(result.stderr_text, "t81 help advanced"));
     T81_TEST_CHECK(contains(result.stderr_text, "t81 help labs"));
+  }
+
+  {
+    const auto result = run_cli(t81_bin, {"help", "code"});
+    T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stderr_text, "Usage: t81 code <action>"));
+  }
+
+  {
+    const auto result = run_cli(t81_bin, {"help", "code", "build"});
+    T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stderr_text, "Usage: t81 compile"));
   }
 
   {
@@ -256,10 +272,10 @@ int main(int argc, char* argv[]) {
     }
 
     const auto compile_result =
-        run_cli(t81_bin, {"compile", source_path.string(), "-o", program_path.string()});
+        run_cli(t81_bin, {"code", "build", source_path.string(), "-o", program_path.string()});
     T81_TEST_CHECK(compile_result.exit_code == 0);
 
-    const auto run_result = run_cli(t81_bin, {"run", program_path.string()});
+    const auto run_result = run_cli(t81_bin, {"code", "run", program_path.string()});
     T81_TEST_CHECK(run_result.exit_code == 0);
     T81_TEST_CHECK(contains(run_result.stdout_text, "hello-cli-contract"));
     T81_TEST_CHECK(!contains(run_result.stderr_text, "hello-cli-contract"));

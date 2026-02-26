@@ -357,6 +357,68 @@ Examples:
 )";
 }
 
+void print_help_code() {
+  std::cerr << R"(
+Usage: t81 code <action> [args]
+
+Actions:
+  check <file.t81>                    Validate syntax and semantics
+  lint <file.t81>                     Alias for check
+  fmt [options] <file...>             Format source files
+  build <file.t81|file.t81w> [...]    Compile to TISC bytecode
+  run <file.t81|file.tisc> [...]      Execute program
+  test [options] [-- ...]             Run tests via CTest
+  disasm <file.tisc>                  Disassemble TISC
+  debug <file.t81|file.tisc> [...]    Start debugger
+  repl                                Start interactive REPL
+
+Examples:
+  t81 code check examples/hello_world.t81
+  t81 code build examples/hello_world.t81 -o hello.tisc
+  t81 code run hello.tisc
+)";
+}
+
+void print_help_project() {
+  std::cerr << R"(
+Usage: t81 project <action> [args]
+
+Actions:
+  init <project_name>                 Scaffold a new T81 project
+
+Example:
+  t81 project init my_project
+)";
+}
+
+void print_help_env() {
+  std::cerr << R"(
+Usage: t81 env <action> [args]
+
+Actions:
+  doctor [--json]                     Run environment readiness checks
+
+Example:
+  t81 env doctor --json
+)";
+}
+
+void print_help_internal() {
+  std::cerr << R"(
+Usage: t81 internal <action> [args]
+
+Actions:
+  pkg <subcommand> [args]             Package manifest helpers (experimental)
+  benchmark [args]                    Benchmark runner entrypoint
+  repro-hash [fixtures_dir]           Reproducibility gate helper
+  canonize-tensor <file>              CanonFS tensor canonicalization
+  canonize-file <file>                CanonFS raw-file canonicalization
+  llama-run ...                       Experimental governed llama.cpp path
+
+These commands are non-default and intended for internal/expert workflows.
+)";
+}
+
 void print_help_repro_hash() {
   std::cerr << R"(
 Usage: t81 repro-hash [fixtures_dir]
@@ -519,6 +581,11 @@ Usage: )" << prog
 
 
 Commands:
+  code    <action> [args]               Domain-first code workflow commands
+  project <action> [args]               Project lifecycle commands
+  env     <action> [args]               Environment/toolchain diagnostics
+  internal <action> [args]              Internal/experimental command group
+  ---
   check   <file.t81>                   Syntax/semantic check (no bytecode output)
   lint    <file.t81>                   Alias for `check`
   compile <file.t81|.t81w> [...]       Compile source to TISC bytecode
@@ -545,6 +612,10 @@ Diagnostics:
   rerunning separate diagnostics.
 
 More command groups:
+  t81 help code
+  t81 help project
+  t81 help env
+  t81 help internal
   t81 help advanced
   t81 help labs
 
@@ -570,6 +641,26 @@ bool print_help_topic(std::string_view topic, const char* prog) {
   }
   if (topic == "check" || topic == "lint") {
     print_help_check();
+    return true;
+  }
+  if (topic == "code") {
+    print_help_code();
+    return true;
+  }
+  if (topic == "project") {
+    print_help_project();
+    return true;
+  }
+  if (topic == "env") {
+    print_help_env();
+    return true;
+  }
+  if (topic == "internal") {
+    print_help_internal();
+    return true;
+  }
+  if (topic == "build") {
+    print_help_compile();
     return true;
   }
   if (topic == "weights") {
@@ -804,7 +895,8 @@ Args parse_args(int argc, char* argv[]) {
     } else if (arg == "-h" || arg == "--help") {
       a.need_help = true;
     } else if (arg == "-V" || arg == "--version") {
-      if (a.command == "fmt") {
+      if (a.command == "fmt" || a.command == "code" || a.command == "project" ||
+          a.command == "env" || a.command == "internal") {
         a.command_args.emplace_back(argv[i]);
       } else {
         a.need_version = true;
@@ -816,7 +908,8 @@ Args parse_args(int argc, char* argv[]) {
       } else if (a.command == "weights" || a.command == "help" || a.command == "init" ||
                  a.command == "pkg" || a.command == "repro-hash" || a.command == "policy" ||
                  a.command == "trace" || a.command == "llama-run" || a.command == "test" ||
-                 a.command == "doctor" || a.command == "fmt" ||
+                 a.command == "doctor" || a.command == "fmt" || a.command == "code" ||
+                 a.command == "project" || a.command == "env" || a.command == "internal" ||
                  a.command == "canonize-tensor" || a.command == "canonize-file") {
         a.command_args.emplace_back(argv[i]);
       } else {
@@ -829,7 +922,8 @@ Args parse_args(int argc, char* argv[]) {
       } else if (a.command == "weights" || a.command == "help" || a.command == "init" ||
                  a.command == "pkg" || a.command == "repro-hash" || a.command == "policy" ||
                  a.command == "trace" || a.command == "llama-run" || a.command == "test" ||
-                 a.command == "doctor" || a.command == "fmt" ||
+                 a.command == "doctor" || a.command == "fmt" || a.command == "code" ||
+                 a.command == "project" || a.command == "env" || a.command == "internal" ||
                  a.command == "canonize-tensor" || a.command == "canonize-file") {
         a.command_args.emplace_back(argv[i]);
       } else {
@@ -2047,6 +2141,129 @@ int run_llama_run(const Args& args) {
 #endif
 }
 
+int normalize_domain_command(Args& args) {
+  auto remap_to_input_command = [&](const std::string& mapped, size_t first_tail) -> int {
+    args.command = mapped;
+    if (args.command_args.size() <= first_tail) {
+      error(mapped + " requires an input file. Run 't81 help " + mapped + "'.");
+      return 1;
+    }
+    fs::path input = fs::path(args.command_args[first_tail]);
+    for (size_t i = first_tail + 1; i < args.command_args.size(); ++i) {
+      const std::string& extra = args.command_args[i];
+      if (!extra.empty() && extra[0] == '-') {
+        error("Unknown option: " + extra);
+      } else {
+        error("Multiple input files not supported yet");
+      }
+      return 1;
+    }
+    args.input = input;
+    args.command_args.clear();
+    return -1;
+  };
+
+  if (args.command == "code") {
+    if (args.command_args.size() == 1 &&
+        (args.command_args[0] == "-V" || args.command_args[0] == "--version")) {
+      print_version();
+      return 0;
+    }
+    if (args.command_args.empty()) {
+      print_help_code();
+      return 1;
+    }
+    const std::string action = args.command_args[0];
+    if (action == "build") {
+      return remap_to_input_command("compile", 1);
+    }
+    if (action == "check" || action == "lint" || action == "run" || action == "disasm" ||
+        action == "debug") {
+      return remap_to_input_command(action, 1);
+    }
+    if (action == "repl" || action == "test" || action == "fmt") {
+      args.command = action;
+      args.command_args.erase(args.command_args.begin());
+      if (action == "repl" && !args.command_args.empty()) {
+        error("repl does not accept positional arguments");
+        return 1;
+      }
+      return -1;
+    }
+    error("Unknown code action: " + action + ". Run 't81 help code'.");
+    return 1;
+  }
+
+  if (args.command == "project") {
+    if (args.command_args.size() == 1 &&
+        (args.command_args[0] == "-V" || args.command_args[0] == "--version")) {
+      print_version();
+      return 0;
+    }
+    if (args.command_args.empty()) {
+      print_help_project();
+      return 1;
+    }
+    const std::string action = args.command_args[0];
+    if (action == "init") {
+      args.command = "init";
+      args.command_args.erase(args.command_args.begin());
+      return -1;
+    }
+    error("Unknown project action: " + action + ". Run 't81 help project'.");
+    return 1;
+  }
+
+  if (args.command == "env") {
+    if (args.command_args.size() == 1 &&
+        (args.command_args[0] == "-V" || args.command_args[0] == "--version")) {
+      print_version();
+      return 0;
+    }
+    if (args.command_args.empty()) {
+      print_help_env();
+      return 1;
+    }
+    const std::string action = args.command_args[0];
+    if (action == "doctor") {
+      args.command = "doctor";
+      args.command_args.erase(args.command_args.begin());
+      return -1;
+    }
+    error("Unknown env action: " + action + ". Run 't81 help env'.");
+    return 1;
+  }
+
+  if (args.command == "internal") {
+    if (args.command_args.size() == 1 &&
+        (args.command_args[0] == "-V" || args.command_args[0] == "--version")) {
+      print_version();
+      return 0;
+    }
+    if (args.command_args.empty()) {
+      print_help_internal();
+      return 1;
+    }
+    const std::string action = args.command_args[0];
+    if (action == "benchmark") {
+      args.command = "benchmark";
+      args.benchmark_args.assign(args.command_args.begin() + 1, args.command_args.end());
+      args.command_args.clear();
+      return -1;
+    }
+    if (action == "pkg" || action == "repro-hash" || action == "canonize-tensor" ||
+        action == "canonize-file" || action == "llama-run") {
+      args.command = action;
+      args.command_args.erase(args.command_args.begin());
+      return -1;
+    }
+    error("Unknown internal action: " + action + ". Run 't81 help internal'.");
+    return 1;
+  }
+
+  return -1;
+}
+
 // ──────────────────────────────────────────────────────────────
 // Main
 // ──────────────────────────────────────────────────────────────
@@ -2103,6 +2320,74 @@ int main(int argc, char* argv[]) {
           print_help_trace_export();
           return 0;
         }
+        if (family == "code" && sub == "build") {
+          print_help_compile();
+          return 0;
+        }
+        if (family == "code" && sub == "check") {
+          print_help_check();
+          return 0;
+        }
+        if (family == "code" && sub == "lint") {
+          print_help_check();
+          return 0;
+        }
+        if (family == "code" && sub == "fmt") {
+          print_help_fmt();
+          return 0;
+        }
+        if (family == "code" && sub == "run") {
+          print_help_run();
+          return 0;
+        }
+        if (family == "code" && sub == "test") {
+          print_help_test();
+          return 0;
+        }
+        if (family == "code" && sub == "disasm") {
+          print_help_disasm();
+          return 0;
+        }
+        if (family == "code" && sub == "debug") {
+          print_help_debug();
+          return 0;
+        }
+        if (family == "code" && sub == "repl") {
+          print_help_repl();
+          return 0;
+        }
+        if (family == "project" && sub == "init") {
+          print_help_init();
+          return 0;
+        }
+        if (family == "env" && sub == "doctor") {
+          print_help_doctor();
+          return 0;
+        }
+        if (family == "internal" && sub == "pkg") {
+          print_help_pkg();
+          return 0;
+        }
+        if (family == "internal" && sub == "benchmark") {
+          print_help_benchmark();
+          return 0;
+        }
+        if (family == "internal" && sub == "repro-hash") {
+          print_help_repro_hash();
+          return 0;
+        }
+        if (family == "internal" && sub == "canonize-tensor") {
+          print_help_canonize_tensor();
+          return 0;
+        }
+        if (family == "internal" && sub == "canonize-file") {
+          print_help_canonize_file();
+          return 0;
+        }
+        if (family == "internal" && sub == "llama-run") {
+          print_help_llama_run();
+          return 0;
+        }
       }
       std::string sub = args.command_args[0];
       if (print_help_topic(sub, argv[0])) {
@@ -2157,6 +2442,75 @@ int main(int argc, char* argv[]) {
           return 0;
         }
       }
+      if ((args.command == "code" || args.command == "project" || args.command == "env" ||
+           args.command == "internal") &&
+          !args.command_args.empty()) {
+        const std::string& sub = args.command_args[0];
+        if (args.command == "code" && sub == "build") {
+          print_help_compile();
+          return 0;
+        }
+        if (args.command == "code" && (sub == "check" || sub == "lint")) {
+          print_help_check();
+          return 0;
+        }
+        if (args.command == "code" && sub == "fmt") {
+          print_help_fmt();
+          return 0;
+        }
+        if (args.command == "code" && sub == "run") {
+          print_help_run();
+          return 0;
+        }
+        if (args.command == "code" && sub == "test") {
+          print_help_test();
+          return 0;
+        }
+        if (args.command == "code" && sub == "disasm") {
+          print_help_disasm();
+          return 0;
+        }
+        if (args.command == "code" && sub == "debug") {
+          print_help_debug();
+          return 0;
+        }
+        if (args.command == "code" && sub == "repl") {
+          print_help_repl();
+          return 0;
+        }
+        if (args.command == "project" && sub == "init") {
+          print_help_init();
+          return 0;
+        }
+        if (args.command == "env" && sub == "doctor") {
+          print_help_doctor();
+          return 0;
+        }
+        if (args.command == "internal" && sub == "pkg") {
+          print_help_pkg();
+          return 0;
+        }
+        if (args.command == "internal" && sub == "benchmark") {
+          print_help_benchmark();
+          return 0;
+        }
+        if (args.command == "internal" && sub == "repro-hash") {
+          print_help_repro_hash();
+          return 0;
+        }
+        if (args.command == "internal" && sub == "canonize-tensor") {
+          print_help_canonize_tensor();
+          return 0;
+        }
+        if (args.command == "internal" && sub == "canonize-file") {
+          print_help_canonize_file();
+          return 0;
+        }
+        if (args.command == "internal" && sub == "llama-run") {
+          print_help_llama_run();
+          return 0;
+        }
+      }
       if (print_help_topic(args.command, argv[0])) {
         return 0;
       }
@@ -2167,6 +2521,13 @@ int main(int argc, char* argv[]) {
     if (args.command == "version") {
       print_version();
       return 0;
+    }
+
+    {
+      const int normalize_rc = normalize_domain_command(args);
+      if (normalize_rc != -1) {
+        return normalize_rc;
+      }
     }
 
     bool needs_input =
