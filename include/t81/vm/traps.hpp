@@ -11,6 +11,7 @@ enum class Trap {
   StackFault,
   DivisionFault,
   SecurityFault,
+  TierFault,
   ShapeFault,
   TrapInstruction,
   Unimplemented,
@@ -33,6 +34,8 @@ inline std::string to_string(Trap trap) {
       return "DivisionFault";
     case Trap::SecurityFault:
       return "SecurityFault";
+    case Trap::TierFault:
+      return "TierFault";
     case Trap::ShapeFault:
       return "ShapeFault";
     case Trap::TrapInstruction:

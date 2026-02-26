@@ -36,7 +36,8 @@ private:
   std::unique_ptr<Stmt> declaration();
   std::unique_ptr<Stmt> loop_statement();
   std::unique_ptr<Stmt> recurse_declaration();
-  std::unique_ptr<Stmt> function(const std::string& kind);
+  std::unique_ptr<Stmt> function(const std::string& kind,
+                                 std::optional<FunctionAttributes> attributes = std::nullopt);
   std::unique_ptr<Stmt> type_declaration();
   std::unique_ptr<Stmt> record_declaration(
       std::optional<StructuralAttributes> attributes = std::nullopt);

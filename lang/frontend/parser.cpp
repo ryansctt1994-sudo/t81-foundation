@@ -390,7 +390,7 @@ std::unique_ptr<Stmt> Parser::declaration() {
       const Token& anchor = struct_attrs->anchor.value_or(peek());
       report_error(anchor, "Structural attributes may only decorate records or enums.");
     }
-    if (match({TokenType::Fn})) return function("function");
+    if (match({TokenType::Fn})) return function("function", std::move(function_attrs));
     if (match({TokenType::Recurse})) return recurse_declaration();
     if (function_attrs.has_value()) {
       const Token& anchor = function_attrs->anchor.value_or(peek());
@@ -435,7 +435,8 @@ std::unique_ptr<Stmt> Parser::recurse_declaration() {
 
 // Parses a function declaration.
 // function -> "fn" IDENTIFIER "(" parameters? ")" ( "->" type )? "{" block "}" ;
-std::unique_ptr<Stmt> Parser::function(const std::string& kind) {
+std::unique_ptr<Stmt> Parser::function(const std::string& kind,
+                                       std::optional<FunctionAttributes> attributes) {
   Token name = consume(TokenType::Identifier, ("Expect " + kind + " name.").c_str());
   std::vector<Token> generic_params;
   if (match({TokenType::LBracket})) {
@@ -469,8 +470,12 @@ std::unique_ptr<Stmt> Parser::function(const std::string& kind) {
 
   consume(TokenType::LBrace, ("Expect '{' before " + kind + " body.").c_str());
   std::vector<std::unique_ptr<Stmt>> body = block();
+  std::optional<std::int64_t> tier;
+  if (attributes.has_value() && attributes->tier.has_value()) {
+    tier = attributes->tier;
+  }
   return std::make_unique<FunctionStmt>(name, std::move(generic_params), std::move(parameters),
-                                        std::move(return_type), std::move(body));
+                                        std::move(return_type), std::move(body), tier);
 }
 
 std::unique_ptr<Stmt> Parser::type_declaration() {

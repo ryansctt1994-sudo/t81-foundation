@@ -132,7 +132,7 @@ int main() {
     prog.push_back(halt);
 
     t81::vm::Trap t = run_until_trap(prog);
-    T81_TEST_CHECK(t == t81::vm::Trap::SecurityFault);
+    T81_TEST_CHECK(t == t81::vm::Trap::TierFault);
   }
 
   return 0;

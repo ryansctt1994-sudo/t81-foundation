@@ -36,6 +36,42 @@ constexpr std::size_t kDefaultTensorSpace = 256;
 constexpr std::size_t kDefaultMetaSpace = 256;
 constexpr std::size_t kHardRecursionCeiling = T81_HARD_RECURSION_CEILING;
 
+constexpr int tier_rank(t81::cog::TierId tier) {
+  switch (tier) {
+    case t81::cog::TierId::Tier0:
+      return 0;
+    case t81::cog::TierId::Tier1:
+      return 1;
+    case t81::cog::TierId::Tier2:
+      return 2;
+    case t81::cog::TierId::Tier3:
+      return 3;
+    case t81::cog::TierId::Tier4:
+      return 4;
+    case t81::cog::TierId::Tier5:
+      return 5;
+  }
+  return 0;
+}
+
+constexpr std::size_t recursion_limit_for_tier(t81::cog::TierId tier) {
+  switch (tier) {
+    case t81::cog::TierId::Tier0:
+      return 0;
+    case t81::cog::TierId::Tier1:
+      return 1;
+    case t81::cog::TierId::Tier2:
+      return 10;
+    case t81::cog::TierId::Tier3:
+      return 81;
+    case t81::cog::TierId::Tier4:
+      return 243;
+    case t81::cog::TierId::Tier5:
+      return 729;
+  }
+  return 0;
+}
+
 t81::T81Fraction fraction_from_double(double x) {
   if (x == 0.0) {
     return t81::T81Fraction{};
@@ -845,6 +881,32 @@ public:
       if (v > 0) return 1;
       if (v < 0) return -1;
       return 0;
+    };
+    auto ensure_min_tier = [&](t81::cog::TierId required_tier, std::string_view cause) -> bool {
+      while (tier_rank(ctx.tier_status.current) < tier_rank(required_tier)) {
+        auto res = t81::cog::try_promote(ctx.tier_status, [&](const t81::axion::SyscallContext& pctx) {
+          return axion_engine_->evaluate(pctx);
+        });
+        if (!res) {
+          t81::axion::Verdict verdict;
+          verdict.kind = t81::axion::VerdictKind::Deny;
+          std::ostringstream reason;
+          reason << "TierFault promotion denied cause=" << cause
+                 << " current=" << static_cast<int>(ctx.tier_status.current)
+                 << " required>=" << static_cast<int>(required_tier);
+          verdict.reason = reason.str();
+          record_axion_event(insn.opcode, static_cast<std::int32_t>(required_tier),
+                             static_cast<std::int64_t>(ctx.tier_status.current), verdict);
+          return false;
+        }
+        ctx.tier_status = *res;
+        t81::axion::Verdict verdict;
+        verdict.kind = t81::axion::VerdictKind::Allow;
+        verdict.reason = "Cognitive Tier Promotion: " + ctx.tier_status.label;
+        record_axion_event(insn.opcode, static_cast<std::int32_t>(required_tier),
+                           static_cast<std::int64_t>(ctx.tier_status.current), verdict);
+      }
+      return true;
     };
 
     std::function<std::optional<int>(ValueTag, std::int64_t, std::int64_t)> compare_value =
@@ -2366,36 +2428,28 @@ public:
           break;
         }
         std::size_t next_depth = ctx.call_depth + 1;
-        bool need_promotion = false;
-        // Tier 0 limit: 81
-        if (next_depth > 81 && ctx.tier_status.current < t81::cog::TierId::Tier1) {
-          need_promotion = true;
-        }
-        // Tier 1 limit: 243
-        else if (next_depth > 243 && ctx.tier_status.current < t81::cog::TierId::Tier2) {
-          need_promotion = true;
-        }
-
-        if (need_promotion) {
-          auto res = t81::cog::try_promote(ctx.tier_status, [&](const t81::axion::SyscallContext& ctx) {
-            return axion_engine_->evaluate(ctx);
-          });
-          if (res) {
-            ctx.tier_status = *res;
-            t81::axion::Verdict verdict;
-            verdict.kind = t81::axion::VerdictKind::Allow;
-            verdict.reason = "Cognitive Tier Promotion: " + ctx.tier_status.label;
-            record_axion_event(insn.opcode, insn.b,
-                               static_cast<std::int64_t>(ctx.tier_status.current), verdict);
-          } else {
-            // Promotion denied -> Recursion limit enforced
-            t81::axion::Verdict verdict;
-            verdict.kind = t81::axion::VerdictKind::Deny;
-            verdict.reason = "Cognitive Tier Promotion Denied (Recursion Limit)";
-            record_axion_event(insn.opcode, insn.b, static_cast<std::int64_t>(next_depth), verdict);
-            trap = Trap::SecurityFault;
+        while (next_depth > recursion_limit_for_tier(ctx.tier_status.current) &&
+               ctx.tier_status.current != t81::cog::TierId::Tier5) {
+          if (!ensure_min_tier(static_cast<t81::cog::TierId>(tier_rank(ctx.tier_status.current) + 1),
+                               "call-depth")) {
+            trap = Trap::TierFault;
             break;
           }
+        }
+        if (trap != Trap::None) {
+          break;
+        }
+        if (next_depth > recursion_limit_for_tier(ctx.tier_status.current)) {
+          t81::axion::Verdict verdict;
+          verdict.kind = t81::axion::VerdictKind::Deny;
+          std::ostringstream reason;
+          reason << "TierFault recursion depth exceeded depth=" << next_depth
+                 << " tier=" << static_cast<int>(ctx.tier_status.current)
+                 << " limit=" << recursion_limit_for_tier(ctx.tier_status.current);
+          verdict.reason = reason.str();
+          record_axion_event(insn.opcode, insn.b, static_cast<std::int64_t>(next_depth), verdict);
+          trap = Trap::TierFault;
+          break;
         }
 
         if (ctx.call_depth >= kHardRecursionCeiling) {
@@ -4083,6 +4137,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::ReflCap: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier2, "reflective-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.a)) {
           trap = Trap::DecodeFault;
           break;
@@ -4109,6 +4167,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::ReflJustify: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier2, "reflective-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.b)) {
           trap = Trap::DecodeFault;
           break;
@@ -4135,6 +4197,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::ReflCheck: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier2, "reflective-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
           trap = Trap::DecodeFault;
           break;
@@ -4166,6 +4232,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::ReflTrace: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier2, "reflective-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.a)) {
           trap = Trap::DecodeFault;
           break;
@@ -4189,6 +4259,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::ReflSeal: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier2, "reflective-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.a)) {
           trap = Trap::DecodeFault;
           break;
@@ -4210,13 +4284,19 @@ public:
         break;
       }
       case t81::tisc::Opcode::Recurse: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier3, "recurse-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
+        ctx.tier3_recursor.max_depth =
+            static_cast<int>(recursion_limit_for_tier(ctx.tier_status.current));
         if (!ctx.tier3_recursor.can_recurse()) {
           t81::axion::Verdict verdict;
           verdict.kind = t81::axion::VerdictKind::Deny;
           verdict.reason = "Tier 3 recursion limit exceeded";
           record_axion_event(insn.opcode, 0,
                              static_cast<std::int64_t>(ctx.tier3_recursor.current_depth), verdict);
-          trap = Trap::SecurityFault;
+          trap = Trap::TierFault;
           break;
         }
         const double seed_entropy =
@@ -4229,7 +4309,7 @@ public:
           verdict.reason = "Tier 3 depth proof rejected";
           record_axion_event(insn.opcode, 0,
                              static_cast<std::int64_t>(ctx.tier3_recursor.current_depth), verdict);
-          trap = Trap::SecurityFault;
+          trap = Trap::TierFault;
           break;
         }
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "Recurse: depth increased"};
@@ -4238,6 +4318,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::Contract: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier3, "contract-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.b)) {
           trap = Trap::DecodeFault;
           break;
@@ -4256,7 +4340,7 @@ public:
           verdict.kind = t81::axion::VerdictKind::Deny;
           verdict.reason = "Contract: non-contractive entropy update";
           record_axion_event(insn.opcode, 0, static_cast<std::int64_t>(current_entropy), verdict);
-          trap = Trap::SecurityFault;
+          trap = Trap::TierFault;
           break;
         }
 
@@ -4265,6 +4349,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::Entropy: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier3, "entropy-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.a)) {
           trap = Trap::DecodeFault;
           break;
@@ -4277,6 +4365,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::Depth: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier3, "depth-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.a)) {
           trap = Trap::DecodeFault;
           break;
@@ -4287,6 +4379,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::Terminate: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier3, "terminate-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         ctx.tier3_recursor.pop_frame();
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "Terminate: depth decreased"};
         record_axion_event(insn.opcode, 0,
@@ -4294,6 +4390,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::InfSeed: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier5, "infinite-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
           trap = Trap::DecodeFault;
           break;
@@ -4328,6 +4428,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::InfExpand: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier5, "infinite-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
           trap = Trap::DecodeFault;
           break;
@@ -4361,6 +4465,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::InfCollapse: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier5, "infinite-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.a)) {
           trap = Trap::DecodeFault;
           break;
@@ -4382,6 +4490,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::InfConverge: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier5, "infinite-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
           trap = Trap::DecodeFault;
           break;
@@ -4404,6 +4516,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::InfSignature: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier5, "infinite-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
           trap = Trap::DecodeFault;
           break;
@@ -4427,6 +4543,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::Gossip: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier4, "distributed-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.b)) {
           trap = Trap::DecodeFault;
           break;
@@ -4439,6 +4559,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::Merge: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier4, "distributed-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.a)) {
           trap = Trap::DecodeFault;
           break;
@@ -4458,6 +4582,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::TickSync: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier4, "distributed-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.a)) {
           trap = Trap::DecodeFault;
           break;
@@ -4471,6 +4599,10 @@ public:
         break;
       }
       case t81::tisc::Opcode::Coherence: {
+        if (!ensure_min_tier(t81::cog::TierId::Tier4, "distributed-opcode")) {
+          trap = Trap::TierFault;
+          break;
+        }
         if (!reg_ok(insn.a)) {
           trap = Trap::DecodeFault;
           break;

@@ -530,6 +530,127 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   }
   return std::string(name);
 }
+
+int minimum_tier_for_stmt(const t81::frontend::Stmt& stmt) {
+  using t81::frontend::DistributedStmt;
+  using t81::frontend::InfiniteStmt;
+  using t81::frontend::LoopStmt;
+  using t81::frontend::RecurseStmt;
+  using t81::frontend::ReflectStmt;
+  using t81::frontend::TrainStmt;
+  if (dynamic_cast<const InfiniteStmt*>(&stmt)) return 5;
+  if (dynamic_cast<const DistributedStmt*>(&stmt) || dynamic_cast<const TrainStmt*>(&stmt)) return 4;
+  if (dynamic_cast<const RecurseStmt*>(&stmt)) return 3;
+  if (dynamic_cast<const ReflectStmt*>(&stmt)) return 2;
+  if (const auto* loop = dynamic_cast<const LoopStmt*>(&stmt)) {
+    if (loop->bound_kind == LoopStmt::BoundKind::Infinite ||
+        loop->bound_kind == LoopStmt::BoundKind::Guarded) {
+      return 2;
+    }
+  }
+  return 1;
+}
+
+const t81::frontend::Token* tier_anchor_token(const t81::frontend::Stmt& stmt) {
+  using t81::frontend::DistributedStmt;
+  using t81::frontend::ForStmt;
+  using t81::frontend::InfiniteStmt;
+  using t81::frontend::LoopStmt;
+  using t81::frontend::RecurseStmt;
+  using t81::frontend::ReflectStmt;
+  using t81::frontend::TrainStmt;
+  if (const auto* recurse = dynamic_cast<const RecurseStmt*>(&stmt)) return &recurse->keyword;
+  if (const auto* reflect = dynamic_cast<const ReflectStmt*>(&stmt)) return &reflect->keyword;
+  if (const auto* distributed = dynamic_cast<const DistributedStmt*>(&stmt))
+    return &distributed->keyword;
+  if (const auto* infinite = dynamic_cast<const InfiniteStmt*>(&stmt)) return &infinite->keyword;
+  if (const auto* train = dynamic_cast<const TrainStmt*>(&stmt)) return &train->keyword;
+  if (const auto* loop = dynamic_cast<const LoopStmt*>(&stmt)) return &loop->keyword;
+  if (const auto* for_stmt = dynamic_cast<const ForStmt*>(&stmt)) return &for_stmt->iterator;
+  return nullptr;
+}
+
+void collect_tier_violations(const t81::frontend::Stmt& stmt, int declared_tier,
+                             std::vector<std::pair<t81::frontend::Token, std::string>>& out) {
+  using t81::frontend::BlockStmt;
+  using t81::frontend::DistributedStmt;
+  using t81::frontend::ForStmt;
+  using t81::frontend::IfStmt;
+  using t81::frontend::InfiniteStmt;
+  using t81::frontend::LoopStmt;
+  using t81::frontend::RecurseStmt;
+  using t81::frontend::ReflectStmt;
+  using t81::frontend::TrainStmt;
+  using t81::frontend::WhileStmt;
+
+  const int required_tier = minimum_tier_for_stmt(stmt);
+  if (required_tier > declared_tier) {
+    const auto* token = tier_anchor_token(stmt);
+    if (token != nullptr) {
+      std::ostringstream msg;
+      msg << "Function tier @" << declared_tier << " violates required tier @" << required_tier
+          << " behavior.";
+      out.emplace_back(*token, msg.str());
+    }
+  }
+
+  if (const auto* block = dynamic_cast<const BlockStmt*>(&stmt)) {
+    for (const auto& nested : block->statements) {
+      collect_tier_violations(*nested, declared_tier, out);
+    }
+    return;
+  }
+  if (const auto* loop = dynamic_cast<const LoopStmt*>(&stmt)) {
+    for (const auto& nested : loop->body) {
+      collect_tier_violations(*nested, declared_tier, out);
+    }
+    return;
+  }
+  if (const auto* reflect = dynamic_cast<const ReflectStmt*>(&stmt)) {
+    for (const auto& nested : reflect->body) {
+      collect_tier_violations(*nested, declared_tier, out);
+    }
+    return;
+  }
+  if (const auto* distributed = dynamic_cast<const DistributedStmt*>(&stmt)) {
+    for (const auto& nested : distributed->body) {
+      collect_tier_violations(*nested, declared_tier, out);
+    }
+    return;
+  }
+  if (const auto* infinite = dynamic_cast<const InfiniteStmt*>(&stmt)) {
+    for (const auto& nested : infinite->body) {
+      collect_tier_violations(*nested, declared_tier, out);
+    }
+    return;
+  }
+  if (const auto* train = dynamic_cast<const TrainStmt*>(&stmt)) {
+    for (const auto& nested : train->body) {
+      collect_tier_violations(*nested, declared_tier, out);
+    }
+    return;
+  }
+  if (const auto* while_stmt = dynamic_cast<const WhileStmt*>(&stmt)) {
+    collect_tier_violations(*while_stmt->body, declared_tier, out);
+    return;
+  }
+  if (const auto* for_stmt = dynamic_cast<const ForStmt*>(&stmt)) {
+    collect_tier_violations(*for_stmt->body, declared_tier, out);
+    return;
+  }
+  if (const auto* if_stmt = dynamic_cast<const IfStmt*>(&stmt)) {
+    if (if_stmt->then_branch) {
+      collect_tier_violations(*if_stmt->then_branch, declared_tier, out);
+    }
+    if (if_stmt->else_branch) {
+      collect_tier_violations(*if_stmt->else_branch, declared_tier, out);
+    }
+    return;
+  }
+  if (dynamic_cast<const RecurseStmt*>(&stmt)) {
+    return;
+  }
+}
 }  // namespace
 
 namespace t81 {
@@ -609,7 +730,8 @@ void SemanticAnalyzer::exit_scope() {
 void SemanticAnalyzer::define_symbol(const Token& name, SymbolKind kind, bool is_mutable) {
   if (!_scopes.empty()) {
     std::string name_str = std::string(name.lexeme);
-    _scopes.back()[name_str] = SemanticSymbol{kind, name, Type{}, {}, {}, is_mutable, false};
+    _scopes.back()[name_str] =
+        SemanticSymbol{kind, name, Type{}, {}, {}, std::nullopt, is_mutable, false};
   }
 }
 
@@ -1335,6 +1457,7 @@ void SemanticAnalyzer::register_function_signatures() {
                                          : Type{Type::Kind::Void};
     symbol->param_types = param_types;
     symbol->type = return_type;
+    symbol->tier = func->tier;
     symbol->generic_params.clear();
     symbol->generic_params.reserve(func->generic_params.size());
     for (const auto& generic_param : func->generic_params) {
@@ -1669,6 +1792,16 @@ std::any SemanticAnalyzer::visit(const FunctionStmt& stmt) {
 
   if (symbol && symbol->param_types.size() != stmt.params.size()) {
     error(stmt.name, "Function parameter count mismatch between declaration and definition.");
+  }
+
+  if (stmt.tier.has_value()) {
+    std::vector<std::pair<Token, std::string>> tier_violations;
+    for (const auto& statement : stmt.body) {
+      collect_tier_violations(*statement, static_cast<int>(*stmt.tier), tier_violations);
+    }
+    for (const auto& [token, message] : tier_violations) {
+      error(token, message);
+    }
   }
 
   for (size_t i = 0; i < stmt.params.size(); ++i) {

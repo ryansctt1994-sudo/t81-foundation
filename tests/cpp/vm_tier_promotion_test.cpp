@@ -60,9 +60,9 @@ int main() {
   std::cout << "Final call depth: " << state.contexts[0].call_depth << "\n";
   std::cout << "Final tier: " << static_cast<int>(state.contexts[0].tier_status.current) << "\n";
 
-  // Check if we reached Tier 2
-  if (state.contexts[0].tier_status.current != t81::cog::TierId::Tier2) {
-    std::cerr << "Expected Tier 2 (" << static_cast<int>(t81::cog::TierId::Tier2) << "), got "
+  // Depth 250 exceeds Tier4 recursion bound (243), so promotion should reach Tier5.
+  if (state.contexts[0].tier_status.current != t81::cog::TierId::Tier5) {
+    std::cerr << "Expected Tier 5 (" << static_cast<int>(t81::cog::TierId::Tier5) << "), got "
               << static_cast<int>(state.contexts[0].tier_status.current) << "\n";
     return 1;
   }

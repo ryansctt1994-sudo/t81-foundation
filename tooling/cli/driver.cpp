@@ -44,6 +44,8 @@ inline int trap_exit_code(t81::vm::Trap trap) {
       return 10;
     case T::SecurityFault:
       return 13;
+    case T::TierFault:
+      return 19;
     case T::ShapeFault:
       return 18;
     case T::TrapInstruction:

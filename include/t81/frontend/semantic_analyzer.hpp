@@ -71,6 +71,7 @@ struct SemanticSymbol {
   Type type;                                // Variable type or function return type
   std::vector<Type> param_types;            // Only used for functions
   std::vector<std::string> generic_params;  // Generic function parameter names
+  std::optional<std::int64_t> tier;         // Optional @tier(n) intent on functions
   bool is_mutable = true;   // `let` bindings are immutable, `var` bindings are mutable
   bool is_defined = false;  // Functions get declared first, defined later
 };
