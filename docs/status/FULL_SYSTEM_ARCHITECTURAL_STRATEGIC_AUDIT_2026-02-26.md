@@ -308,6 +308,10 @@ Then make CI fail on any doc/status/translation drift from that contract.
   - `R78` constitutional mask now derived from active policy capabilities/requirements.
 - Added regression coverage in `tests/cpp/vm_system_registers_deterministic_test.cpp` and wired it into `CMakeLists.txt`.
 
+### 2026-02-26 (R23)
+- Added explicit regression coverage for `AXREPORT` policy-deny fail-closed semantics in `tests/cpp/vm_axreport_policy_deny_fail_closed_test.cpp`.
+- Wired the new test into `CMakeLists.txt` and mapped it as a machine-verifiable hard-fail rule in `docs/governance/ENFORCEMENT_MATRIX.md`.
+
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
 - This report is descriptive and evidence-based; it does not override normative `/spec` authority.

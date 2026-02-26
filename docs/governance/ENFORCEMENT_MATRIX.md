@@ -17,6 +17,7 @@ This document translates high-level governance policies into machine-verifiable 
 | **Unimplemented Async/Network Opcode Fail-Closed** | Yes | `build-and-test` | **Hard-Fail** | `tests/cpp/vm_stubbed_async_network_opcode_fail_closed_test.cpp` |
 | **Unimplemented Neural Opcode Fail-Closed** | Yes | `build-and-test` | **Hard-Fail** | `tests/cpp/test_vm_neural_opcodes.cpp` |
 | **AXCHECK Deny Fail-Closed** | Yes | `build-and-test` | **Hard-Fail** | `tests/cpp/test_axion_opcodes.cpp` |
+| **AXREPORT Policy Deny Fail-Closed** | Yes | `build-and-test` | **Hard-Fail** | `tests/cpp/vm_axreport_policy_deny_fail_closed_test.cpp` |
 | **Policy Parse Fail-Closed (Syntax + Unknown Clause)** | Yes | `build-and-test` | **Hard-Fail** | `tests/cpp/vm_policy_parse_fail_closed_test.cpp` |
 | **Public API SemVer** | No | N/A (planned) | **Warning** | Planned: API diff contract script (not yet implemented) |
 | **Sandboxed Execution** | No | N/A | **Warning** | Not currently enforced as a hard CI capability |
