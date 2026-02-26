@@ -270,7 +270,7 @@ Execute **Behavioral Conformance Expansion Sprint (Phase 3)**: scale the new VM/
 - Capability boundaries: `docs/reference/CAPABILITY_CONTRACT.md`
 - DCP boundary: `docs/product/DETERMINISTIC_CORE_PROFILE.md`
 - VM/trace policy integration: `core/vm/vm.cpp`, `runtime/jit/jit_compiler.cpp`, `include/t81/jit/jit.hpp`
-- VM decomposition plan baseline: `docs/status/VM_MONOLITH_DECOMPOSITION_PLAN_2026-02-26.md`
+- VM decomposition plan baseline: `docs/records/status-history/VM_MONOLITH_DECOMPOSITION_PLAN_2026-02-26.md`
 - Freeze integrity gate: `scripts/ci/check_tisc_freeze_integrity.py`
 - Translation governance: `scripts/governance/check_translation_*.py`
 - Workload benchmark gate: `scripts/ci/check_vm_workload_benchmark_regression.py`

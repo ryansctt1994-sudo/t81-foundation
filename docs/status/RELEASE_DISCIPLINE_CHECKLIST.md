@@ -103,7 +103,7 @@ If any condition fails, decision is **HOLD**.
 
 ## Cross-References
 
-- `docs/status/RELEASE_READINESS_PACKET_2026-02.md`
+- `docs/records/status-history/RELEASE_READINESS_PACKET_2026-02.md`
 - `.github/RELEASE_TEMPLATE.md`
 
 ## Versioning Statement

@@ -174,7 +174,7 @@ Execution state:
 Verification results:
 
 - Standardized decision fields are present in both packet cycles:
-  - `docs/status/RELEASE_READINESS_PACKET_2026-02.md`
+  - `docs/records/status-history/RELEASE_READINESS_PACKET_2026-02.md`
   - `docs/status/RELEASE_READINESS_PACKET_2026-03.md`
 - Fields preserved:
   - `Decision (UTC)`

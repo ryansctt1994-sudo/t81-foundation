@@ -25,7 +25,7 @@ This plan covers four priority tracks:
 - `docs/status/PROJECT_CONTROL_CENTER.md`
 - `docs/status/IMPLEMENTATION_MATRIX.md`
 - `docs/governance/MONTHLY_GOVERNANCE_REVIEW_CHECKLIST.md`
-- `docs/status/RELEASE_READINESS_PACKET_2026-02.md`
+- `docs/records/status-history/RELEASE_READINESS_PACKET_2026-02.md`
 
 ## Execution Status Ledger (as of 2026-02-25)
 
@@ -40,8 +40,8 @@ This plan covers four priority tracks:
 | A1G. T81Lang Post-A1F Evidence Closure | Completed | `docs/status/T81LANG_DRIFT_DECOMPOSITION_2026-03.md`, `docs/status/T81LANG_IMPLEMENTATION_TASK_QUEUE_2026-03.md`, `docs/records/audits/2026-03-governance-review.md`, `docs/status/IMPLEMENTATION_MATRIX.md` | A1G-CODE-01..03 completed on 2026-02-25; section 2/6 structural-type control-flow and section 5 reproducibility-hash addenda plus matrix/governance synchronization are closed. |
 | A2. Axion Partial-Coverage Alignment Plan | Completed | `docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md`, `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/status/SYSTEM_STATUS.md`, `docs/records/audits/2026-03-governance-review.md` | M1-M4 completed on 2026-02-25 (`A2-N1..04`); matrix and governance synchronization are closed with explicit open-scope tracking retained in A2 artifact. |
 | A3. Experimental Tiers Boundary Clarification | Completed | `docs/product/DETERMINISTIC_CORE_PROFILE.md`, `docs/status/EXPERIMENTAL_SURFACE_INVENTORY.md`, `docs/status/IMPLEMENTATION_MATRIX.md`, `docs/status/SYSTEM_STATUS.md` | Terminology normalized: experimental tiers are non-DCP and non-verified unless promoted through governance and registry update. |
-| B1. Required-Checks Release Gating Procedure | Completed | `docs/status/RELEASE_DISCIPLINE_CHECKLIST.md`, `docs/status/RELEASE_READINESS_PACKET_2026-02.md` | Procedure and decision gate are now explicit and evidence-backed. |
-| B2. Release Decision Lifecycle Standardization | Completed | `docs/status/RELEASE_READINESS_PACKET_2026-02.md`, `docs/status/RELEASE_READINESS_PACKET_2026-03.md` | Decision-stamp continuity validated across consecutive packet cycles (`Decision (UTC)`, `Approver`, `Decision`) with GO/HOLD rule preserved. |
+| B1. Required-Checks Release Gating Procedure | Completed | `docs/status/RELEASE_DISCIPLINE_CHECKLIST.md`, `docs/records/status-history/RELEASE_READINESS_PACKET_2026-02.md` | Procedure and decision gate are now explicit and evidence-backed. |
+| B2. Release Decision Lifecycle Standardization | Completed | `docs/records/status-history/RELEASE_READINESS_PACKET_2026-02.md`, `docs/status/RELEASE_READINESS_PACKET_2026-03.md` | Decision-stamp continuity validated across consecutive packet cycles (`Decision (UTC)`, `Approver`, `Decision`) with GO/HOLD rule preserved. |
 | B3. Non-Required Workflow Failure Handling Rule | Completed | `docs/product/RELEASE_DISCIPLINE.md`, `docs/status/RELEASE_DISCIPLINE_CHECKLIST.md` | Non-required failure classification and waiver recording rules are now codified. |
 | C1. Root Hygiene Guard Review | Completed | `docs/records/audits/2026-03-governance-review.md` | Root artifact cleanup completed and audited. |
 | C2. Records Cadence Enforcement | In Progress | `docs/records/audits/2026-03-governance-review.md`, `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md`, `docs/README.md` | March artifact published; checklist outcomes/reviewer metadata/remediation actions are recorded; pre-close dry-run checks passed on 2026-02-25; month-close runbook prepared; final cadence confirmation remains scheduled for 2026-03-31. |
@@ -109,7 +109,7 @@ This plan covers four priority tracks:
   - GO/HOLD decision stamping fields standardized across readiness packets.
   - Decision basis includes blockers, required checks, and approver timestamp.
 - Evidence Artifact:
-  - `docs/status/RELEASE_READINESS_PACKET_2026-02.md`
+  - `docs/records/status-history/RELEASE_READINESS_PACKET_2026-02.md`
   - subsequent monthly readiness packet(s)
 
 ### B3. Non-Required Workflow Failure Handling Rule

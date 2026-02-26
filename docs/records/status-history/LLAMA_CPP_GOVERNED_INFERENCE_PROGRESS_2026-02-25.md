@@ -139,7 +139,7 @@ New files:
 - `examples/llama_cpp_governed_demo.cpp`
 - `scripts/ci/llama_cpp_repro_gate.py`
 - `docs/governance/EXTERNAL_DEPENDENCY_PINS.md`
-- `docs/status/LLAMA_CPP_GOVERNED_INFERENCE_PROGRESS_2026-02-25.md`
+- `docs/records/status-history/LLAMA_CPP_GOVERNED_INFERENCE_PROGRESS_2026-02-25.md`
 
 Untracked dependency directory:
 - `third_party/llama.cpp`

@@ -138,13 +138,13 @@ Authority remains:
 ## 9. Cross-References
 
 - `docs/roadmaps-plans/TASKS.md`
-- `docs/status/BEHAVIORAL_CONFORMANCE_EXPANSION_SPRINT_2026-02-26.md`
+- `docs/records/status-history/BEHAVIORAL_CONFORMANCE_EXPANSION_SPRINT_2026-02-26.md`
 - `docs/status/BEHAVIORAL_CONFORMANCE_EXPANSION_PHASE3_2026-02-26.md`
 - `docs/status/STDLIB_STABILIZATION_PLAN_2026-03.md`
 - `docs/status/RELEASE_READINESS_PACKET_2026-03.md`
 - `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md`
 - `docs/status/C2_MONTH_CLOSE_CHECK_2026-03-31.md`
-- `docs/status/COGNITIVE_TIERS_SPEC_COMPLIANCE_2026-02-26.md`
+- `docs/records/status-history/COGNITIVE_TIERS_SPEC_COMPLIANCE_2026-02-26.md`
 - `docs/records/audits/2026-03-governance-review.md`
 - `docs/status/EXECUTION_PLAN_2026-03.md`
 - `docs/status/IMPLEMENTATION_MATRIX.md`
