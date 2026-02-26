@@ -60,6 +60,9 @@ Authority remains:
 - Behavioral Conformance Expansion Phase 3 is in progress:
   - deterministic VM trap-family matrix coverage added
   - CanonFS read-verify env-contract matrix coverage added
+  - deterministic `TLOADHASH` decode-fault matrix coverage added
+  - mixed workload conformance matrix (policy+tensor+memory+branch) added
+  - VM trace/log helper extraction advanced in policy-trace bridge
 - Experimental backlog implementation items are complete:
   - Cognitive Tier 1..5 closures
   - Runtime JIT prototype backend uplift

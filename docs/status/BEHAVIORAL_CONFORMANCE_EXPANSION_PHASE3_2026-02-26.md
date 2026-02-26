@@ -2,7 +2,7 @@
 
 Date: 2026-02-26  
 Status: In progress  
-Baseline: `838e05f8`
+Baseline: `07cf69c0`
 
 ## Objective
 
@@ -20,9 +20,20 @@ Completed in this slice:
    - `tests/cpp/canonfs_read_verify_env_contract_test.cpp`
    - Verifies env contract across `unset`, `0`, `false`, `OFF`, `1`, and non-empty unknown values.
 3. Wired both suites into `CMakeLists.txt` test inventory.
+4. Added deterministic `TLOADHASH` decode-fault matrix coverage:
+   - `tests/cpp/vm_tloadhash_decodefault_determinism_matrix_test.cpp`
+   - Covers malformed CanonFS tensor objects yielding `DecodeFault`.
+5. Added mixed workload conformance matrix coverage:
+   - `tests/cpp/vm_mixed_workload_conformance_matrix_test.cpp`
+   - Combines policy + tensor + memory + branch + sum-type surfaces in one signature-hardened workload.
+6. Continued VM extraction on trace/log boundaries:
+   - `core/vm/internal/policy_trace_bridge.hpp`
+   - `core/vm/policy_trace_bridge.cpp`
+   - `core/vm/vm.cpp`
+   - Memory-segment and bounds-fault logging now route through bridge helpers.
 
 ## Next Planned Slice
 
-1. Expand fault-family matrix with `DecodeFault` path determinism on `TLOADHASH` malformed references.
-2. Add mixed workload conformance matrix combining policy + tensor + memory + branch families in one deterministic signature harness.
-3. Continue VM integration extraction on trace/log helper boundaries to reduce `core/vm/vm.cpp` control concentration.
+1. Expand `TLOADHASH` matrix to include deterministic classification of `InvalidHash` vs `CanonFsMiss` vs `DecodeFault` signatures.
+2. Add workload matrix cases with policy-deny branches to harden deterministic deny-path observability invariants.
+3. Continue VM integration extraction with opcode-family dispatch splitting to reduce `core/vm/vm.cpp` control concentration.

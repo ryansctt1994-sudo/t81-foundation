@@ -4893,20 +4893,13 @@ private:
 
   void log_memory_segment_access(t81::tisc::Opcode opcode, MemorySegmentKind kind, std::size_t addr,
                                  std::size_t size, std::string_view action) {
-    t81::axion::Verdict verdict;
-    verdict.kind = t81::axion::VerdictKind::Allow;
-    verdict.reason = t81::vm::internal::format_memory_access_reason(kind, addr, size, action);
-    record_axion_event(opcode, static_cast<std::int32_t>(kind), static_cast<std::int64_t>(addr),
-                       verdict);
+    t81::vm::internal::log_memory_segment_access(state_, state_.current_context, opcode, kind, addr,
+                                                 size, action);
   }
 
   void log_bounds_fault(t81::tisc::Opcode opcode, MemorySegmentKind kind, int addr,
                         std::string_view action) {
-    t81::axion::Verdict verdict;
-    verdict.kind = t81::axion::VerdictKind::Allow;
-    verdict.reason = t81::vm::internal::format_bounds_fault_reason(kind, addr, action);
-    record_axion_event(opcode, static_cast<std::int32_t>(kind), static_cast<std::int64_t>(addr),
-                       verdict);
+    t81::vm::internal::log_bounds_fault(state_, state_.current_context, opcode, kind, addr, action);
   }
 
   void log_bounds_fault(t81::tisc::Opcode opcode, int addr, std::string_view action) {

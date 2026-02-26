@@ -457,6 +457,10 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_tloadhash_conformance_test tests/cpp/vm_tloadhash_conformance_test.cpp)
   target_link_libraries(t81_vm_tloadhash_conformance_test PRIVATE t81_vm t81_core)
 
+  add_executable(t81_vm_tloadhash_decodefault_determinism_matrix_test
+                 tests/cpp/vm_tloadhash_decodefault_determinism_matrix_test.cpp)
+  target_link_libraries(t81_vm_tloadhash_decodefault_determinism_matrix_test PRIVATE t81_vm t81_core)
+
   add_executable(t81_vm_tensor_shape_faults_test tests/cpp/vm_tensor_shape_faults_test.cpp)
   target_link_libraries(t81_vm_tensor_shape_faults_test PRIVATE t81_vm t81_core)
 
@@ -707,6 +711,10 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_workload_determinism_tiers_test
                  tests/cpp/vm_workload_determinism_tiers_test.cpp)
   target_link_libraries(t81_vm_workload_determinism_tiers_test PRIVATE t81_vm t81_core)
+
+  add_executable(t81_vm_mixed_workload_conformance_matrix_test
+                 tests/cpp/vm_mixed_workload_conformance_matrix_test.cpp)
+  target_link_libraries(t81_vm_mixed_workload_conformance_matrix_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_vm_policy_parse_fail_closed_test
                  tests/cpp/vm_policy_parse_fail_closed_test.cpp)
@@ -1291,6 +1299,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     t81_vm_bounds_test
     t81_vm_tensor_test
     t81_vm_tloadhash_conformance_test
+    t81_vm_tloadhash_decodefault_determinism_matrix_test
     t81_vm_tensor_shape_faults_test
     t81_vm_tensor_get_set_conformance_test
     t81_vm_tensor_helper_predicates_test
@@ -1309,6 +1318,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     t81_vm_state_transition_conformance_matrix_test
     t81_vm_workload_determinism_test
     t81_vm_workload_determinism_tiers_test
+    t81_vm_mixed_workload_conformance_matrix_test
     t81_vm_policy_parse_fail_closed_test
     t81_vm_axreport_policy_deny_fail_closed_test
     t81_vm_system_registers_deterministic_test
