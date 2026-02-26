@@ -13,10 +13,14 @@ namespace t81::vm {
  */
 class JitTrace {
 public:
+  using PolicyHook = std::function<bool(std::size_t pc, const t81::tisc::Insn& insn,
+                                        std::size_t executed_so_far)>;
+
   enum class ExitKind {
     Completed,
     Branch,
     GuardDeopt,
+    PolicyDeny,
   };
 
   struct ExecResult {
@@ -25,7 +29,7 @@ public:
   };
 
   virtual ~JitTrace() = default;
-  virtual ExecResult execute(State& state) = 0;
+  virtual ExecResult execute(State& state, const PolicyHook& policy_hook = {}) = 0;
   virtual std::size_t size() const = 0;
 };
 

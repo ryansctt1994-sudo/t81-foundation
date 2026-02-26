@@ -16,6 +16,7 @@ option(T81_ENABLE_ASAN "Enable AddressSanitizer for supported compilers" OFF)
 option(T81_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer for supported compilers" OFF)
 option(T81_USE_CXX23 "Build with C++23 language mode (fallback: C++20)" ON)
 option(T81_TRITWISE_PROFILE "Enable profiling for tritwise operations" OFF)
+option(T81_STRICT_DETERMINISTIC_FLOAT "Use deterministic float math paths where available" ON)
 option(T81_ENABLE_LLAMA_CPP "Enable experimental llama.cpp adapter (non-DCP)" OFF)
 option(T81_EXPORT_LLAMA_ADAPTER
   "Export/install t81_llama_adapter (currently unsupported with vendored llama.cpp)"
@@ -26,6 +27,10 @@ set(T81_LLAMA_REPRO_PROMPT "" CACHE STRING "Prompt for llama.cpp reproducibility
 
 if(T81_TRITWISE_PROFILE)
   add_compile_definitions(T81_TRITWISE_PROFILE)
+endif()
+
+if(T81_STRICT_DETERMINISTIC_FLOAT)
+  add_compile_definitions(T81_DETERMINISTIC)
 endif()
 
 if(T81_USE_CXX23)
@@ -894,6 +899,9 @@ if(T81_BUILD_TESTS)
   add_executable(jit_tensor_trace_equivalence_test tests/cpp/jit_tensor_trace_equivalence_test.cpp)
   target_link_libraries(jit_tensor_trace_equivalence_test PRIVATE t81_vm)
 
+  add_executable(vm_jit_per_instruction_policy_test tests/cpp/vm_jit_per_instruction_policy_test.cpp)
+  target_link_libraries(vm_jit_per_instruction_policy_test PRIVATE t81_vm t81_core)
+
   add_executable(axion_loop_metadata_test tests/cpp/axion_loop_metadata_test.cpp)
   target_link_libraries(axion_loop_metadata_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
@@ -1298,6 +1306,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     t81_jit_test
     jit_trace_equivalence_test
     jit_tensor_trace_equivalence_test
+    vm_jit_per_instruction_policy_test
     e2e_axion_trace_test
     axion_policy_bytecode_test
     test_bigint_multilimb_ext

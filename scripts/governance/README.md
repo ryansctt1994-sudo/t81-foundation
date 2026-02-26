@@ -24,6 +24,10 @@ specification authority, freeze boundaries, or determinism claim scope.
 - check_docs_structure.py
 - check_license_policy.py
 - check_repo_artifact_hygiene.py
+- check_public_api_semver.py
+- check_spec_code_alignment_baseline.py
+- check_cognitive_tier_boundary.py
+- check_overclaim_guardrails.py
 - t81lang_promotion_gate_snapshot.py
 - c2_month_close_check.py
 

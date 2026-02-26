@@ -278,7 +278,7 @@ The system maintains guarantees through layered governance.
 
 * Axion Kernel is designed to enforce capability-based access control.
 * Enforcement coverage is currently partial and evolving.
-* No claim of fully hardened sandboxing beyond implemented surfaces.
+* No claim of hardened sandbox guarantees beyond implemented surfaces.
 
 ### Governance Documentation
 

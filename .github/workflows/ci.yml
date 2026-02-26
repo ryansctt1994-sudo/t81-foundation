@@ -83,6 +83,10 @@ jobs:
           python3 scripts/governance/check_docs_structure.py 2>&1 | tee -a .github/logs/spec-and-docs.log
           python3 scripts/governance/check_license_policy.py 2>&1 | tee -a .github/logs/spec-and-docs.log
           python3 scripts/governance/check_repo_artifact_hygiene.py 2>&1 | tee -a .github/logs/spec-and-docs.log
+          python3 scripts/governance/check_public_api_semver.py 2>&1 | tee -a .github/logs/spec-and-docs.log
+          python3 scripts/governance/check_spec_code_alignment_baseline.py 2>&1 | tee -a .github/logs/spec-and-docs.log
+          python3 scripts/governance/check_cognitive_tier_boundary.py 2>&1 | tee -a .github/logs/spec-and-docs.log
+          python3 scripts/governance/check_overclaim_guardrails.py 2>&1 | tee -a .github/logs/spec-and-docs.log
 
       - name: Run governance audit wrapper
         run: |
@@ -670,7 +674,6 @@ jobs:
     name: " benchmark / linux-x86_64 "
     needs: spec-and-docs
     runs-on: ubuntu-24.04
-    continue-on-error: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -694,6 +697,10 @@ jobs:
         run: |
           mkdir -p .github/logs
           ./build/benchmarks/benchmark_runner --benchmark_format=json --benchmark_out=bench.json 2>&1 | tee .github/logs/benchmark.log
+
+      - name: Enforce SIMD benchmark non-regression thresholds
+        run: |
+          python3 scripts/ci/check_simd_regression.py bench.json 2>&1 | tee -a .github/logs/benchmark.log
 
       - name: Upload benchmark artifacts
         if: always()

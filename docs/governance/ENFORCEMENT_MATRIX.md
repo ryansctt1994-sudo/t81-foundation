@@ -19,8 +19,9 @@ This document translates high-level governance policies into machine-verifiable 
 | **AXCHECK Deny Fail-Closed** | Yes | `build-and-test` | **Hard-Fail** | `tests/cpp/test_axion_opcodes.cpp` |
 | **AXREPORT Policy Deny Fail-Closed** | Yes | `build-and-test` | **Hard-Fail** | `tests/cpp/vm_axreport_policy_deny_fail_closed_test.cpp` |
 | **Policy Parse Fail-Closed (Syntax + Unknown Clause)** | Yes | `build-and-test` | **Hard-Fail** | `tests/cpp/vm_policy_parse_fail_closed_test.cpp` |
-| **Public API SemVer** | No | N/A (planned) | **Warning** | Planned: API diff contract script (not yet implemented) |
-| **Sandboxed Execution** | No | N/A | **Warning** | Not currently enforced as a hard CI capability |
+| **Trace JIT Per-Instruction Policy Enforcement** | Yes | `build-and-test` | **Hard-Fail** | `tests/cpp/vm_jit_per_instruction_policy_test.cpp` |
+| **Public API SemVer Lock** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_public_api_semver.py`, `docs/governance/PUBLIC_API_LOCK.json` |
+| **Sandboxed Execution** | No (non-claim) | N/A | **N/A** | Explicitly out-of-scope in capability contract (process-level enforcement only) |
 
 ## Policy: Multilingual Governance
 
@@ -45,11 +46,18 @@ This document translates high-level governance policies into machine-verifiable 
 
 | Rule | Machine-Verifiable | Required CI Job | Enforcement Severity | Required Scripts / Metadata |
 | :--- | :---: | :--- | :--- | :--- |
-| **Spec-Code Alignment Coverage** | Partial | `spec-and-docs` + governance audits | **Warning** | `scripts/governance/check_docs_governance_hygiene.py` + status artifacts (no single full spec-coverage script yet) |
+| **Spec-Code Alignment Baseline Coverage** | Yes (baseline) | `spec-and-docs` + governance audits | **Hard-Fail** | `scripts/governance/check_spec_code_alignment_baseline.py`, `scripts/governance/check_docs_governance_hygiene.py` |
 
 ## Policy: Project Control Center
 
 | Rule | Machine-Verifiable | Required CI Job | Enforcement Severity | Required Scripts / Metadata |
 | :--- | :---: | :--- | :--- | :--- |
 | **Root Directory Freeze** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_root_structure.py` |
-| **Benchmark Performance Gating** | Partial | `benchmarks` (non-blocking), optional benchmark workflows | **Warning** | `scripts/ci/check_simd_regression.py` exists, but not currently wired as a required hard gate |
+| **Benchmark Performance Gating** | Yes | `benchmarks` | **Hard-Fail** | `scripts/ci/check_simd_regression.py` wired in `.github/workflows/ci.yml` |
+
+## Policy: Documentation Guardrails
+
+| Rule | Machine-Verifiable | Required CI Job | Enforcement Severity | Required Scripts / Metadata |
+| :--- | :---: | :--- | :--- | :--- |
+| **Overclaim Guardrails (active docs)** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_overclaim_guardrails.py` |
+| **Cognitive-Tier Experimental Boundary Labels** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_cognitive_tier_boundary.py` |

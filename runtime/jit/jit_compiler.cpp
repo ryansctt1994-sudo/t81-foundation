@@ -10,7 +10,7 @@ public:
 
   std::size_t size() const override { return insns_.size(); }
 
-  ExecResult execute(State& state) override {
+  ExecResult execute(State& state, const PolicyHook& policy_hook = {}) override {
     if (state.contexts.empty()) return {};
     auto& ctx = state.contexts[state.current_context];
 
@@ -94,6 +94,11 @@ public:
 
     ExecResult result{};
     for (const auto& insn : insns_) {
+      const std::size_t current_pc = ctx.pc + result.instructions_executed;
+      if (policy_hook && !policy_hook(current_pc, insn, result.instructions_executed)) {
+        result.exit_kind = ExitKind::PolicyDeny;
+        return result;
+      }
       result.instructions_executed++;
       bool stop_trace = false;
       bool guard_deopt = false;

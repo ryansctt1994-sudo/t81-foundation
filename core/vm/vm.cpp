@@ -26,6 +26,7 @@
 #include "t81/experimental/cog/promotion.hpp"
 #include "t81/enum_meta.hpp"
 #include "t81/jit/jit.hpp"
+#include "t81/types/T81Float.hpp"
 #include "t81/vm/vm.hpp"
 
 namespace t81::vm {
@@ -440,7 +441,17 @@ public:
                          static_cast<std::int32_t>(trace_it->second->size()),
                          static_cast<std::int64_t>(trace_pc), enter_event);
 
-      const auto exec_result = trace_it->second->execute(state_);
+      const auto base_instruction_count = instruction_count_;
+      const auto exec_result = trace_it->second->execute(
+          state_, [this, base_instruction_count](std::size_t pc, const t81::tisc::Insn& insn,
+                                                 std::size_t executed_so_far) -> bool {
+            const auto verdict = eval_axion_call(t81::axion::reasons::kStep, pc, insn.opcode, {},
+                                                 base_instruction_count + executed_so_far + 1);
+            if (verdict.kind == t81::axion::VerdictKind::Warn) {
+              record_axion_event(insn.opcode, 0, 0, verdict);
+            }
+            return verdict.kind != t81::axion::VerdictKind::Deny;
+          });
       instruction_count_ += exec_result.instructions_executed;
 
       t81::axion::Verdict exit_event{t81::axion::VerdictKind::Allow, ""};
@@ -460,6 +471,9 @@ public:
           case JitTrace::ExitKind::GuardDeopt:
             reason << "guard-deopt";
             break;
+          case JitTrace::ExitKind::PolicyDeny:
+            reason << "policy-deny";
+            break;
         }
         exit_event.reason = reason.str();
       }
@@ -472,6 +486,10 @@ public:
                                    : t81::axion::reasons::kJitTraceExit;
       auto exit = eval_axion_call(exit_reason, ctx.pc, first_opcode);
       if (exit.kind == t81::axion::VerdictKind::Deny) {
+        return std::expected<void, Trap>(t81::unexpect, Trap::SecurityFault);
+      }
+
+      if (exec_result.exit_kind == JitTrace::ExitKind::PolicyDeny) {
         return std::expected<void, Trap>(t81::unexpect, Trap::SecurityFault);
       }
 
@@ -3397,40 +3415,42 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        double result = 0.0;
+        using VMFloat = t81::T81Float<72, 9>;
+        const VMFloat input = VMFloat::from_double(*ptr_val);
+        VMFloat out = VMFloat::zero();
         if (insn.opcode == t81::tisc::Opcode::FSin) {
-          result = std::sin(*ptr_val);
+          out = input.sin();
         } else if (insn.opcode == t81::tisc::Opcode::FCos) {
-          result = std::cos(*ptr_val);
+          out = input.cos();
         } else if (insn.opcode == t81::tisc::Opcode::FTan) {
-          result = std::tan(*ptr_val);
+          out = input.tan();
         } else if (insn.opcode == t81::tisc::Opcode::FAsin) {
-          result = std::asin(*ptr_val);
+          out = input.asin();
         } else if (insn.opcode == t81::tisc::Opcode::FAcos) {
-          result = std::acos(*ptr_val);
+          out = input.acos();
         } else if (insn.opcode == t81::tisc::Opcode::FAtan) {
-          result = std::atan(*ptr_val);
+          out = input.atan();
         } else if (insn.opcode == t81::tisc::Opcode::FSinh) {
-          result = std::sinh(*ptr_val);
+          out = input.sinh();
         } else if (insn.opcode == t81::tisc::Opcode::FCosh) {
-          result = std::cosh(*ptr_val);
+          out = input.cosh();
         } else if (insn.opcode == t81::tisc::Opcode::FTanh) {
-          result = std::tanh(*ptr_val);
+          out = input.tanh();
         } else if (insn.opcode == t81::tisc::Opcode::FSqrt) {
-          result = std::sqrt(*ptr_val);
+          out = input.sqrt();
         } else if (insn.opcode == t81::tisc::Opcode::FExp) {
-          result = std::exp(*ptr_val);
+          out = input.exp();
         } else if (insn.opcode == t81::tisc::Opcode::FLog) {
-          result = std::log(*ptr_val);
+          out = input.log();
         } else {
           auto* exponent = float_ptr(ctx.registers[insn.c]);
           if (!exponent) {
             trap = Trap::DecodeFault;
             break;
           }
-          result = std::pow(*ptr_val, *exponent);
+          out = input.pow(VMFloat::from_double(*exponent));
         }
-        ctx.registers[insn.a] = alloc_float(result);
+        ctx.registers[insn.a] = alloc_float(out.to_double());
         ctx.register_tags[insn.a] = ValueTag::FloatHandle;
         break;
       }
@@ -5313,7 +5333,9 @@ private:
   }
 
   t81::axion::Verdict eval_axion_call(std::string_view syscall, std::size_t prog_counter,
-                                      t81::tisc::Opcode opcode, std::string_view payload = {}) {
+                                      t81::tisc::Opcode opcode, std::string_view payload = {},
+                                      std::optional<std::size_t> instruction_count_override =
+                                          std::nullopt) {
     if (syscall == t81::axion::reasons::kMetaRead) {
       // Internal MetaRead check could go here
     }
@@ -5323,7 +5345,7 @@ private:
     sys_ctx.payload = std::string(payload);
     sys_ctx.pc = prog_counter;
     sys_ctx.next_opcode = opcode;
-    sys_ctx.instruction_count = instruction_count_;
+    sys_ctx.instruction_count = instruction_count_override.value_or(instruction_count_);
 
     if (!state_.contexts.empty()) {
       auto& tctx = state_.contexts[state_.current_context];

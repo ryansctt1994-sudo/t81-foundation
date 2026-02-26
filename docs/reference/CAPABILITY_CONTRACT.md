@@ -82,7 +82,7 @@ Deterministic unless compiler optimization alters behavior.
 
 | Surface                               | Dependency            |
 | ------------------------------------- | --------------------- |
-| T81Float inverse/hyperbolic functions | Host libm             |
+| T81Float inverse/hyperbolic functions | Host libm in non-strict builds; deterministic dmath path when `T81_DETERMINISTIC` is enabled |
 | T81Float rounding                     | Host stdlib           |
 | Memory pointer values                 | Host allocator / ASLR |
 | Thread scheduling                     | OS scheduler          |
@@ -132,8 +132,8 @@ Interpreter Mode:
 JIT Trace Mode:
 
 * Invoked at trace entry and exit.
-* Not invoked per instruction inside trace.
-* Trace invariants assumed.
+* Invoked per instruction inside trace via policy callback in trace executor.
+* Deny outcomes fail closed (`SecurityFault`).
 
 Syscalls:
 
@@ -148,7 +148,7 @@ Syscalls:
 * Memory Segmentation: Software-checked only
 * Enforcement Domain: User-space process
 
-This system does not provide hardware-backed containment.
+This system does not provide hardware-level containment.
 
 ---
 
