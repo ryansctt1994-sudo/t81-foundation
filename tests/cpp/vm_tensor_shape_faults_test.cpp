@@ -111,6 +111,47 @@ t81::tisc::Program make_tendot_shape_mismatch_program() {
   return p;
 }
 
+t81::tisc::Program make_tget_oob_program() {
+  t81::tisc::Program p;
+  p.tensor_pool.push_back(t81::T729DynamicTensor({3}, {1.0f, 2.0f, 3.0f}));
+  t81::tisc::Insn load_t{t81::tisc::Opcode::LoadImm, 1, 1, 0};
+  load_t.literal_kind = t81::tisc::LiteralKind::TensorHandle;
+  p.insns.push_back(load_t);
+  p.insns.push_back({t81::tisc::Opcode::LoadImm, 2, 99, 0});
+  p.insns.push_back({t81::tisc::Opcode::TGet, 3, 1, 2});
+  p.insns.push_back({t81::tisc::Opcode::Halt, 0, 0, 0});
+  return p;
+}
+
+t81::tisc::Program make_tset_oob_program() {
+  t81::tisc::Program p;
+  p.tensor_pool.push_back(t81::T729DynamicTensor({3}, {1.0f, 2.0f, 3.0f}));
+  t81::tisc::Insn load_t{t81::tisc::Opcode::LoadImm, 1, 1, 0};
+  load_t.literal_kind = t81::tisc::LiteralKind::TensorHandle;
+  p.insns.push_back(load_t);
+  p.insns.push_back({t81::tisc::Opcode::LoadImm, 2, 99, 0});
+  p.insns.push_back({t81::tisc::Opcode::LoadImm, 3, 7, 0});
+  p.insns.push_back({t81::tisc::Opcode::TSet, 1, 2, 3});
+  p.insns.push_back({t81::tisc::Opcode::Halt, 0, 0, 0});
+  return p;
+}
+
+t81::tisc::Program make_tset_bad_value_type_program() {
+  t81::tisc::Program p;
+  p.tensor_pool.push_back(t81::T729DynamicTensor({3}, {1.0f, 2.0f, 3.0f}));
+  p.tensor_pool.push_back(t81::T729DynamicTensor({3}, {3.0f, 4.0f, 5.0f}));
+  t81::tisc::Insn load_t{t81::tisc::Opcode::LoadImm, 1, 1, 0};
+  load_t.literal_kind = t81::tisc::LiteralKind::TensorHandle;
+  t81::tisc::Insn load_bad_val{t81::tisc::Opcode::LoadImm, 3, 2, 0};
+  load_bad_val.literal_kind = t81::tisc::LiteralKind::TensorHandle;
+  p.insns.push_back(load_t);
+  p.insns.push_back({t81::tisc::Opcode::LoadImm, 2, 1, 0});
+  p.insns.push_back(load_bad_val);
+  p.insns.push_back({t81::tisc::Opcode::TSet, 1, 2, 3});
+  p.insns.push_back({t81::tisc::Opcode::Halt, 0, 0, 0});
+  return p;
+}
+
 }  // namespace
 
 int main() {
@@ -125,5 +166,8 @@ int main() {
                  t81::vm::Trap::ShapeFault);
   T81_TEST_CHECK(run_expected_trap(make_tendot_shape_mismatch_program()) ==
                  t81::vm::Trap::ShapeFault);
+  T81_TEST_CHECK(run_expected_trap(make_tget_oob_program()) == t81::vm::Trap::BoundsFault);
+  T81_TEST_CHECK(run_expected_trap(make_tset_oob_program()) == t81::vm::Trap::BoundsFault);
+  T81_TEST_CHECK(run_expected_trap(make_tset_bad_value_type_program()) == t81::vm::Trap::TypeFault);
   return 0;
 }

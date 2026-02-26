@@ -134,7 +134,7 @@ Publish explicit dual profile contract:
 - `TLOADHASH` conformance now also covers malformed CanonTensor headers (invalid format tag and rank overflow) as explicit `DecodeFault` cases.
 - Pre-dispatch deny-event observability is now covered by a dedicated VM regression test (`t81_vm_predispatch_policy_deny_logging_test`), reducing risk of silent deny regressions.
 - Tensor shape-compatibility checks for `TVec*`, `TMatMul`, `TRMSNorm`, and `TRoPE` are now helper-centralized, reducing branch-complexity concentration in VM dispatch.
-- VM tensor trap conformance now includes explicit shape/compatibility fault expectations for `TSoftmax`, `TTranspose`, `TRoPE`, `TRMSNorm`, `TVecAdd`, `TMatMul`, and `TTenDot` (`t81_vm_tensor_shape_faults_test`).
+- VM tensor trap conformance now includes explicit fault expectations for `TSoftmax`, `TTranspose`, `TRoPE`, `TRMSNorm`, `TVecAdd`, `TMatMul`, `TTenDot`, `TGet`, and `TSet` mismatch/OOB/type paths (`t81_vm_tensor_shape_faults_test`).
 - Tensor helper compatibility predicates now have direct regression coverage (`t81_vm_tensor_helper_predicates_test`) to lock shape/compatibility contract behavior independent of dispatch wiring.
 - Formal proof depth for governance/security invariants is incomplete.
 - Host-level containment remains intentionally out-of-scope.
