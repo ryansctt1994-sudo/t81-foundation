@@ -2,7 +2,7 @@
 
 Date: 2026-02-26  
 Status: In progress  
-Baseline: `07cf69c0`
+Baseline: `d1cef94c`
 
 ## Objective
 
@@ -31,9 +31,18 @@ Completed in this slice:
    - `core/vm/policy_trace_bridge.cpp`
    - `core/vm/vm.cpp`
    - Memory-segment and bounds-fault logging now route through bridge helpers.
+7. Expanded `TLOADHASH` deterministic classification matrix:
+   - `tests/cpp/vm_tloadhash_decodefault_determinism_matrix_test.cpp`
+   - Added explicit deterministic classification coverage for:
+     - invalid hash string -> `DecodeFault`
+     - CanonFS miss -> `BoundsFault` + `canonfs_miss` reason
+     - malformed object decode faults -> `DecodeFault`
+8. Expanded mixed workload conformance with deterministic deny-path branch coverage:
+   - `tests/cpp/vm_mixed_workload_conformance_matrix_test.cpp`
+   - Added low instruction-budget policy case to force deterministic deny during branch loop.
 
 ## Next Planned Slice
 
-1. Expand `TLOADHASH` matrix to include deterministic classification of `InvalidHash` vs `CanonFsMiss` vs `DecodeFault` signatures.
-2. Add workload matrix cases with policy-deny branches to harden deterministic deny-path observability invariants.
-3. Continue VM integration extraction with opcode-family dispatch splitting to reduce `core/vm/vm.cpp` control concentration.
+1. Continue VM integration extraction with opcode-family dispatch splitting to reduce `core/vm/vm.cpp` control concentration.
+2. Expand workload-level determinism/conformance cases toward longer multi-op mixes with bounded fault-injection checkpoints.
+3. Extend Axion conformance matrices with clause-combination invariants across allow/deny interaction orderings.

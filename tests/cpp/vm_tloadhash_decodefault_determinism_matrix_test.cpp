@@ -128,20 +128,66 @@ int main() {
   if (!expect(write_rank.has_value(), "write malformed rank tensor failed")) return 1;
   const std::string malformed_rank_hash = "sha3-256:" + write_rank->hash.h.to_string();
 
+  t81::weights::NativeTensor miss_tensor;
+  miss_tensor.format = t81::weights::NativeFormat::BalancedTernary;
+  miss_tensor.shape = {2, 2};
+  miss_tensor.trits = 4;
+  miss_tensor.data = {40};
+  auto source_driver = t81::canonfs::make_persistent_driver(workdir / "source_canonfs");
+  auto miss_serialized = serialize_tensor(miss_tensor);
+  auto write_miss = source_driver->write_object(
+      t81::canonfs::ObjectType::CanonTensor,
+      std::span<const std::byte>(miss_serialized.data(), miss_serialized.size()));
+  if (!expect(write_miss.has_value(), "write canonfs miss source tensor failed")) return 1;
+  const std::string canonfs_miss_hash = "sha3-256:" + write_miss->hash.h.to_string();
+
+  auto canonfs_miss_program = make_tloadhash_program(canonfs_miss_hash);
+  canonfs_miss_program.axion_policy_text =
+      "(policy (tier 1) (allowed-tensor-hashes [\"" + canonfs_miss_hash + "\"]))";
+
   struct MatrixCase {
     std::string id;
     t81::tisc::Program program;
+    t81::vm::Trap expected_trap;
+    bool expect_canonfs_miss_reason;
   };
   std::vector<MatrixCase> cases;
-  cases.push_back({"malformed-short-object", make_tloadhash_program(malformed_short_hash)});
-  cases.push_back({"malformed-rank-object", make_tloadhash_program(malformed_rank_hash)});
+  cases.push_back({"invalid-hash-string",
+                   make_tloadhash_program("sha3-256:not-a-valid-canon-hash"),
+                   t81::vm::Trap::DecodeFault,
+                   false});
+  cases.push_back(
+      {"canonfs-miss", canonfs_miss_program, t81::vm::Trap::BoundsFault, true});
+  cases.push_back({"malformed-short-object",
+                   make_tloadhash_program(malformed_short_hash),
+                   t81::vm::Trap::DecodeFault,
+                   false});
+  cases.push_back({"malformed-rank-object",
+                   make_tloadhash_program(malformed_rank_hash),
+                   t81::vm::Trap::DecodeFault,
+                   false});
 
   for (const auto& c : cases) {
     RunSummary baseline = run_once(c.program);
     if (!expect(!baseline.ok, c.id + ": expected trap")) return 1;
-    if (!expect(baseline.trap == t81::vm::Trap::DecodeFault, c.id + ": expected DecodeFault")) {
+    if (!expect(baseline.trap == c.expected_trap, c.id + ": trap classification mismatch")) {
       return 1;
     }
+
+    auto vm = t81::vm::make_interpreter_vm();
+    vm->load_program(c.program);
+    auto run = vm->run_to_halt(256);
+    if (!expect(!run.has_value(), c.id + ": expected trap on classification replay")) return 1;
+    const auto& events = vm->state().axion_log;
+    const auto has_canonfs_miss =
+        std::any_of(events.begin(), events.end(), [](const auto& ev) {
+          return ev.verdict.reason.find("TLOADHASH canonfs_miss hash=") != std::string::npos;
+        });
+    if (!expect(has_canonfs_miss == c.expect_canonfs_miss_reason,
+                c.id + ": canonfs-miss reason classification mismatch")) {
+      return 1;
+    }
+
     for (int i = 0; i < 8; ++i) {
       RunSummary repeat = run_once(c.program);
       if (!expect(repeat.ok == baseline.ok, c.id + ": outcome drift")) return 1;

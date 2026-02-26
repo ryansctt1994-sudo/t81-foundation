@@ -61,7 +61,9 @@ Authority remains:
   - deterministic VM trap-family matrix coverage added
   - CanonFS read-verify env-contract matrix coverage added
   - deterministic `TLOADHASH` decode-fault matrix coverage added
+  - deterministic `TLOADHASH` status classification matrix expanded (`InvalidHash`/`CanonFsMiss`/`DecodeFault`)
   - mixed workload conformance matrix (policy+tensor+memory+branch) added
+  - mixed workload matrix now includes deterministic policy-deny branch-path case
   - VM trace/log helper extraction advanced in policy-trace bridge
 - Experimental backlog implementation items are complete:
   - Cognitive Tier 1..5 closures

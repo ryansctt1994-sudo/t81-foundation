@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "t81/isa/program.hpp"
 #include "t81/vm/vm.hpp"
@@ -20,10 +21,9 @@ std::uint64_t mix(std::uint64_t seed, std::uint64_t value) {
   return seed ^ (value + 0x9e3779b97f4a7c15ULL + (seed << 6U) + (seed >> 2U));
 }
 
-t81::tisc::Program mixed_program() {
+t81::tisc::Program mixed_program(const std::string& policy) {
   t81::tisc::Program p;
-  p.axion_policy_text =
-      "(policy (tier 1) (max-instructions 2048) (max-stack 128) (max-meta-writes 64))";
+  p.axion_policy_text = policy;
 
   // Branch + memory loop.
   p.insns.push_back({t81::tisc::Opcode::LoadImm, 40, 0, 0});
@@ -105,15 +105,36 @@ RunSummary run_once(const t81::tisc::Program& program) {
 }  // namespace
 
 int main() {
-  const auto program = mixed_program();
-  RunSummary baseline = run_once(program);
-  if (!expect(baseline.ok, "baseline run failed")) return 1;
+  struct MatrixCase {
+    std::string id;
+    std::string policy;
+    bool expect_ok;
+    t81::vm::Trap expect_trap;
+  };
 
-  for (int i = 0; i < 10; ++i) {
-    RunSummary repeat = run_once(program);
-    if (!expect(repeat.ok == baseline.ok, "outcome drift")) return 1;
-    if (!expect(repeat.trap == baseline.trap, "trap drift")) return 1;
-    if (!expect(repeat.signature == baseline.signature, "signature drift")) return 1;
+  const std::vector<MatrixCase> cases = {
+      {"allow-mixed-workload",
+       "(policy (tier 1) (max-instructions 2048) (max-stack 128) (max-meta-writes 64))",
+       true,
+       t81::vm::Trap::None},
+      {"deny-branch-loop-via-instruction-budget",
+       "(policy (tier 1) (max-instructions 5) (max-stack 128) (max-meta-writes 64))",
+       false,
+       t81::vm::Trap::SecurityFault},
+  };
+
+  for (const auto& c : cases) {
+    const auto program = mixed_program(c.policy);
+    RunSummary baseline = run_once(program);
+    if (!expect(baseline.ok == c.expect_ok, c.id + ": baseline outcome mismatch")) return 1;
+    if (!expect(baseline.trap == c.expect_trap, c.id + ": baseline trap mismatch")) return 1;
+
+    for (int i = 0; i < 10; ++i) {
+      RunSummary repeat = run_once(program);
+      if (!expect(repeat.ok == baseline.ok, c.id + ": outcome drift")) return 1;
+      if (!expect(repeat.trap == baseline.trap, c.id + ": trap drift")) return 1;
+      if (!expect(repeat.signature == baseline.signature, c.id + ": signature drift")) return 1;
+    }
   }
   return 0;
 }
