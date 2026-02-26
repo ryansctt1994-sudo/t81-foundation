@@ -238,6 +238,7 @@ The system does NOT:
 * Guarantee Tier 5 convergence logic
 * Guarantee thread scheduling determinism
 * Provide implemented async/network execution semantics for `NSEND/NRECV/VWAIT/VYIELD`
+* Provide implemented neural execution semantics for `TNEURALFWD/TNEURALBWD`
 
 ---
 

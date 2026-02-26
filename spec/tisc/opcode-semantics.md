@@ -211,8 +211,8 @@ Shift amounts are masked with `0x3F` (AND 63) to ensure deterministic execution 
 | Opcode | Mnemonic | Operands / Encoding | Stack Effect | Description / Semantics | Side Effects / Traps |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `0x48` | `WEIGHTSLOAD` | `A: Dest, B: NameHandle` | - | Loads pre-trained weights by name. | DecodeFault |
-| `0xA5` | `TNEURALFWD` | `A: Dest, B: Input` | - | Performs neural forward pass (Identity/Stub). | Axion Event |
-| `0xA6` | `TNEURALBWD` | `A: Model` | - | Performs neural backward pass (Stub). | Axion Event |
+| `0xA5` | `TNEURALFWD` | `A: Dest, B: Input` | - | Unimplemented neural opcode; VM must fail closed. | SecurityFault |
+| `0xA6` | `TNEURALBWD` | `A: Model` | - | Unimplemented neural opcode; VM must fail closed. | SecurityFault |
 | `0x21` | `TVECADD` | `A: Dest, B: T1, C: T2` | - | Tensor element-wise addition. | ShapeFault |
 | `0x4F` | `TVECMUL` | `A: Dest, B: T1, C: T2` | - | Tensor element-wise multiplication. | ShapeFault |
 | `0x22` | `TMATMUL` | `A: Dest, B: T1, C: T2` | - | Tensor Matrix Multiplication. | ShapeFault |

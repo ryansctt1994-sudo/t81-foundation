@@ -138,8 +138,8 @@ Source of Truth: VM + opcode headers
 | TSet | 109 (0x6D) | A, B, C | Tensor Set Element | Yes | core/vm/vm.cpp |
 | TLoadHash | 121 (0x79) | A, B, C | Load Tensor by Hash | Yes | core/vm/vm.cpp |
 | TID | 122 (0x7A) | A, B, C | Tensor Identity | Yes | core/vm/vm.cpp |
-| TNeuralFwd | 165 (0xA5) | A, B, C | Neural Forward (Stub) | Yes | core/vm/vm.cpp |
-| TNeuralBwd | 166 (0xA6) | A, B, C | Neural Backward (Stub) | Yes | core/vm/vm.cpp |
+| TNeuralFwd | 165 (0xA5) | A, B, C | Neural Forward (Unimplemented; fail-closed) | Yes | core/vm/vm.cpp |
+| TNeuralBwd | 166 (0xA6) | A, B, C | Neural Backward (Unimplemented; fail-closed) | Yes | core/vm/vm.cpp |
 
 ### 2.9 Math (Float)
 | Mnemonic | Numeric Encoding | Operands | Description | Deterministic | Implementation Location |

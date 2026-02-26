@@ -4875,11 +4875,10 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        // Identity for now, just copy B to A
-        copy_reg(insn.a, insn.b);
-        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow,
-                                    "TNeuralFwd: forward pass identity"};
-        record_axion_event(insn.opcode, 0, ctx.registers[insn.a], verdict);
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
+                                    "Blocked: unimplemented neural opcode"};
+        record_axion_event(insn.opcode, 0, 0, verdict);
+        trap = Trap::SecurityFault;
         break;
       }
       case t81::tisc::Opcode::TNeuralBwd: {
@@ -4887,9 +4886,10 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow,
-                                    "TNeuralBwd: backward pass stub"};
-        record_axion_event(insn.opcode, 0, ctx.registers[insn.a], verdict);
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
+                                    "Blocked: unimplemented neural opcode"};
+        record_axion_event(insn.opcode, 0, 0, verdict);
+        trap = Trap::SecurityFault;
         break;
       }
       case t81::tisc::Opcode::BitAnd:

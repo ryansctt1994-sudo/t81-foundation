@@ -15,6 +15,7 @@ This document translates high-level governance policies into machine-verifiable 
 | **ISA Stability (Frozen)** | Yes | `spec-and-docs`, `quality-gate` | **Hard-Fail** | `scripts/ci/check_tisc_freeze_integrity.py` |
 | **Unimplemented Privileged Opcode Fail-Closed** | Yes | `build-and-test` | **Hard-Fail** | `tests/cpp/vm_stubbed_privileged_opcode_fail_closed_test.cpp` |
 | **Unimplemented Async/Network Opcode Fail-Closed** | Yes | `build-and-test` | **Hard-Fail** | `tests/cpp/vm_stubbed_async_network_opcode_fail_closed_test.cpp` |
+| **Unimplemented Neural Opcode Fail-Closed** | Yes | `build-and-test` | **Hard-Fail** | `tests/cpp/test_vm_neural_opcodes.cpp` |
 | **Public API SemVer** | No | N/A (planned) | **Warning** | Planned: API diff contract script (not yet implemented) |
 | **Sandboxed Execution** | No | N/A | **Warning** | Not currently enforced as a hard CI capability |
 
