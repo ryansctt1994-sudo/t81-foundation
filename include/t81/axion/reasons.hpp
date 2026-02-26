@@ -44,6 +44,7 @@ constexpr std::string_view kHeapCompaction = "heap compaction";
 constexpr std::string_view kHeapRelocation = "heap relocation";
 
 // --- Tier 4 Reflection & Meta-Opcodes ---
+constexpr std::string_view kCogTier2Reflect = "cog:tier2:reflect";
 constexpr std::string_view kMetaRead = "METAREAD";
 constexpr std::string_view kMetaWrite = "METAWRITE";
 constexpr std::string_view kMetaReflect = "METAREFLECT";

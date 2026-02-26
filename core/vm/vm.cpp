@@ -4102,7 +4102,8 @@ public:
         ctx.registers[insn.a] = static_cast<std::int64_t>(ctx.tier2_frames.size());
         ctx.register_tags[insn.a] = ValueTag::Tier2FrameHandle;
 
-        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "ReflCap: captured state"};
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow,
+                                    frame.axion_trace_event("capture")};
         record_axion_event(insn.opcode, static_cast<std::int32_t>(ctx.tier2_frames.size()), 0,
                            verdict);
         break;
@@ -4128,7 +4129,8 @@ public:
         }
         frame->justification.add_step(text);
 
-        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "ReflJustify: added step"};
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow,
+                                    frame->axion_trace_event("justify")};
         record_axion_event(insn.opcode, 0, 0, verdict);
         break;
       }
@@ -4181,7 +4183,8 @@ public:
         std::vector<int64_t> current_regs(ctx.registers.begin(), ctx.registers.end());
         frame->trace(current_pc, current_regs);
 
-        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "ReflTrace"};
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow,
+                                    frame->axion_trace_event("trace")};
         record_axion_event(insn.opcode, 0, 0, verdict);
         break;
       }
@@ -4201,7 +4204,8 @@ public:
         }
         frame->seal();
 
-        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "ReflSeal"};
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow,
+                                    frame->axion_trace_event("seal")};
         record_axion_event(insn.opcode, 0, static_cast<int64_t>(frame->hash), verdict);
         break;
       }

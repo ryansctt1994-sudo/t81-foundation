@@ -2,6 +2,7 @@
 #include "t81/isa/program.hpp"
 #include "t81/vm/state.hpp"
 #include "t81/vm/vm.hpp"
+#include "t81/axion/reasons.hpp"
 
 #include <iostream>
 #include <vector>
@@ -54,14 +55,31 @@ int main() {
 
     const auto& state = vm->state();
     T81_TEST_CHECK(state.contexts[0].register_tags[2] == ValueTag::Tier2FrameHandle);
-    T81_TEST_CHECK(state.tier2_frames.size() == 1);
+    T81_TEST_CHECK(state.contexts[0].tier2_frames.size() == 1);
 
-    const auto& frame = state.tier2_frames[0];
+    const auto& frame = state.contexts[0].tier2_frames[0];
     T81_TEST_CHECK(frame.description == "MyDescription");
     T81_TEST_CHECK(frame.justification.steps.size() == 2);
 
     T81_TEST_CHECK(frame.justification.steps[0] == "Captured state: MyDescription");
     T81_TEST_CHECK(frame.justification.steps[1] == "Because it is true");
+
+    bool saw_tier2_capture_event = false;
+    bool saw_tier2_justify_event = false;
+    for (const auto& event : state.axion_log) {
+      if (event.verdict.reason.find(t81::axion::reasons::kCogTier2Reflect.data()) ==
+          std::string::npos) {
+        continue;
+      }
+      if (event.verdict.reason.find("action=capture") != std::string::npos) {
+        saw_tier2_capture_event = true;
+      }
+      if (event.verdict.reason.find("action=justify") != std::string::npos) {
+        saw_tier2_justify_event = true;
+      }
+    }
+    T81_TEST_CHECK(saw_tier2_capture_event);
+    T81_TEST_CHECK(saw_tier2_justify_event);
 
     std::cout << "  ReflCap/ReflJustify: PASS\n";
   }

@@ -853,6 +853,9 @@ if(T81_BUILD_TESTS)
   add_executable(tiers_structure_test tests/cpp/tiers_structure_test.cpp)
   target_link_libraries(tiers_structure_test PRIVATE t81_core)
 
+  add_executable(vm_reflection_tier2_test tests/cpp/vm_reflection_tier2_test.cpp)
+  target_link_libraries(vm_reflection_tier2_test PRIVATE t81_vm t81_isa t81_core)
+
   add_executable(t81_jit_test tests/cpp/jit_test.cpp)
   target_link_libraries(t81_jit_test PRIVATE t81_vm t81_core)
 

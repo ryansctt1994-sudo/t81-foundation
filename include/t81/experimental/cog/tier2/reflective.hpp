@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace t81::cog::v2 {
@@ -25,6 +26,7 @@ struct ReflectiveFrame {
   bool check(const std::string& criteria) const;
   void trace(std::size_t current_pc, const std::vector<std::int64_t>& regs);
   void seal();
+  std::string axion_trace_event(std::string_view action) const;
 };
 
 }  // namespace t81::cog::v2

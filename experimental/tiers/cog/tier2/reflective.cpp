@@ -1,4 +1,5 @@
 #include "t81/experimental/cog/tier2/reflective.hpp"
+#include "t81/axion/reasons.hpp"
 #include <sstream>
 
 namespace t81::cog::v2 {
@@ -51,6 +52,22 @@ void ReflectiveFrame::seal() {
   hash = h;
   sealed = true;
   justification.add_step("Sealed hash=" + std::to_string(h));
+}
+
+std::string ReflectiveFrame::axion_trace_event(std::string_view action) const {
+  std::ostringstream oss;
+  oss << t81::axion::reasons::kCogTier2Reflect;
+  oss << " action=" << action;
+  oss << " pc=" << pc;
+  oss << " steps=" << justification.steps.size();
+  oss << " sealed=" << (sealed ? 1 : 0);
+  if (sealed) {
+    oss << " hash=" << hash;
+  }
+  if (!description.empty()) {
+    oss << " desc=\"" << description << "\"";
+  }
+  return oss.str();
 }
 
 }  // namespace t81::cog::v2
