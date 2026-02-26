@@ -652,6 +652,10 @@ if(T81_BUILD_TESTS)
                  tests/cpp/vm_policy_parse_fail_closed_test.cpp)
   target_link_libraries(t81_vm_policy_parse_fail_closed_test PRIVATE t81_vm t81_core)
 
+  add_executable(t81_vm_system_registers_deterministic_test
+                 tests/cpp/vm_system_registers_deterministic_test.cpp)
+  target_link_libraries(t81_vm_system_registers_deterministic_test PRIVATE t81_vm t81_core)
+
   add_executable(t81_vm_stubbed_privileged_opcode_fail_closed_test
                  tests/cpp/vm_stubbed_privileged_opcode_fail_closed_test.cpp)
   target_link_libraries(t81_vm_stubbed_privileged_opcode_fail_closed_test PRIVATE t81_vm t81_core)
@@ -1209,6 +1213,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     t81_vm_trace_test
     t81_vm_determinism_property_test
     t81_vm_policy_parse_fail_closed_test
+    t81_vm_system_registers_deterministic_test
     t81_vm_stubbed_privileged_opcode_fail_closed_test
     t81_vm_stubbed_async_network_opcode_fail_closed_test
     vm_extended_ops_test

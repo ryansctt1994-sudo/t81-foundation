@@ -301,6 +301,13 @@ Then make CI fail on any doc/status/translation drift from that contract.
 ### 2026-02-26 (R21)
 - Added explicit governance enforcement mapping for Axion policy parse fail-closed behavior (syntax and unknown-clause rejection), backed by `tests/cpp/vm_policy_parse_fail_closed_test.cpp`.
 
+### 2026-02-26 (R22)
+- Replaced stubbed system-register values in `core/vm/vm.cpp` with deterministic derived values:
+  - `R76` lineage signature now derived from program instructions and policy/metadata text.
+  - `R77` entropy signature now derived from deterministic runtime state tuple.
+  - `R78` constitutional mask now derived from active policy capabilities/requirements.
+- Added regression coverage in `tests/cpp/vm_system_registers_deterministic_test.cpp` and wired it into `CMakeLists.txt`.
+
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
 - This report is descriptive and evidence-based; it does not override normative `/spec` authority.

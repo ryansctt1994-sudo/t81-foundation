@@ -5192,6 +5192,75 @@ public:
   }
 
 private:
+  static std::uint64_t fnv1a64(std::uint64_t hash, std::uint64_t value) {
+    for (int i = 0; i < 8; ++i) {
+      hash ^= static_cast<std::uint8_t>((value >> (i * 8)) & 0xFFu);
+      hash *= 1099511628211ull;
+    }
+    return hash;
+  }
+
+  std::int64_t compute_lineage_signature_() const {
+    std::uint64_t hash = 1469598103934665603ull;
+    hash = fnv1a64(hash, static_cast<std::uint64_t>(program_.insns.size()));
+    for (const auto& insn : program_.insns) {
+      hash = fnv1a64(hash, static_cast<std::uint64_t>(insn.opcode));
+      hash = fnv1a64(hash, static_cast<std::uint64_t>(static_cast<std::int64_t>(insn.a)));
+      hash = fnv1a64(hash, static_cast<std::uint64_t>(static_cast<std::int64_t>(insn.b)));
+      hash = fnv1a64(hash, static_cast<std::uint64_t>(static_cast<std::int64_t>(insn.c)));
+      hash = fnv1a64(hash, static_cast<std::uint64_t>(insn.literal_kind));
+    }
+    for (char ch : program_.axion_policy_text) {
+      hash = fnv1a64(hash, static_cast<std::uint64_t>(static_cast<unsigned char>(ch)));
+    }
+    for (char ch : program_.match_metadata_text) {
+      hash = fnv1a64(hash, static_cast<std::uint64_t>(static_cast<unsigned char>(ch)));
+    }
+    std::int64_t sig = static_cast<std::int64_t>(hash & 0x7FFFFFFFFFFFFFFFull);
+    return sig == 0 ? 1 : sig;
+  }
+
+  std::int64_t compute_entropy_signature_(const ThreadContext& ctx) const {
+    std::uint64_t hash = 1469598103934665603ull;
+    hash = fnv1a64(hash, static_cast<std::uint64_t>(instruction_count_));
+    hash = fnv1a64(hash, static_cast<std::uint64_t>(state_.contradiction_events));
+    hash = fnv1a64(hash, static_cast<std::uint64_t>(ctx.call_depth));
+    hash = fnv1a64(hash, static_cast<std::uint64_t>(ctx.stack_frames.size()));
+    hash = fnv1a64(hash, static_cast<std::uint64_t>(ctx.pc));
+    hash = fnv1a64(hash, static_cast<std::uint64_t>(ctx.tier_status.current));
+    std::int64_t sig = static_cast<std::int64_t>(hash & 0x7FFFFFFFFFFFFFFFull);
+    return sig == 0 ? 1 : sig;
+  }
+
+  std::int64_t compute_constitutional_mask_() const {
+    constexpr std::int64_t kPolicyLoaded = (1ll << 0);
+    constexpr std::int64_t kMaxInstructions = (1ll << 1);
+    constexpr std::int64_t kMaxRecursion = (1ll << 2);
+    constexpr std::int64_t kMaxStack = (1ll << 3);
+    constexpr std::int64_t kMaxReflections = (1ll << 4);
+    constexpr std::int64_t kMaxMetaWrites = (1ll << 5);
+    constexpr std::int64_t kAllowedTensorHashes = (1ll << 6);
+    constexpr std::int64_t kMatchGuards = (1ll << 7);
+    constexpr std::int64_t kSegmentOrAxionRequirements = (1ll << 8);
+    constexpr std::int64_t kAlignmentRequirements = (1ll << 9);
+
+    if (!state_.policy.has_value()) return 0;
+    std::int64_t mask = kPolicyLoaded;
+    const auto& p = *state_.policy;
+    if (p.max_instructions.has_value()) mask |= kMaxInstructions;
+    if (p.max_recursion.has_value()) mask |= kMaxRecursion;
+    if (p.max_stack.has_value()) mask |= kMaxStack;
+    if (p.max_reflections.has_value()) mask |= kMaxReflections;
+    if (p.max_meta_writes.has_value()) mask |= kMaxMetaWrites;
+    if (!p.allowed_tensor_hashes.empty()) mask |= kAllowedTensorHashes;
+    if (!p.match_guards.empty()) mask |= kMatchGuards;
+    if (!p.segment_requirements.empty() || !p.axion_event_requirements.empty()) {
+      mask |= kSegmentOrAxionRequirements;
+    }
+    if (!p.alignment_requirements.empty()) mask |= kAlignmentRequirements;
+    return mask;
+  }
+
   void sync_system_registers() {
     if (state_.contexts.empty()) return;
     auto& ctx = state_.contexts[state_.current_context];
@@ -5202,16 +5271,16 @@ private:
     ctx.registers[75] = static_cast<std::int64_t>(instruction_count_);
     ctx.register_tags[75] = ValueTag::Int;
 
-    // R76: Lineage Root Hash (Stub: using a fixed value for now)
-    ctx.registers[76] = 0xDE7A81;
+    // R76: Lineage Root Hash (derived deterministically from loaded program/policy metadata)
+    ctx.registers[76] = compute_lineage_signature_();
     ctx.register_tags[76] = ValueTag::Int;
 
-    // R77: Current Entropy Signature (Stub)
-    ctx.registers[77] = static_cast<std::int64_t>(state_.contradiction_events);
+    // R77: Current Entropy Signature (derived deterministically from runtime state)
+    ctx.registers[77] = compute_entropy_signature_(ctx);
     ctx.register_tags[77] = ValueTag::Int;
 
-    // R78: Active Constitutional Mask (Stub: Θ₁-Θ₉ enabled)
-    ctx.registers[78] = 0x1FF;
+    // R78: Active Constitutional Mask (derived from active policy capabilities/requirements)
+    ctx.registers[78] = compute_constitutional_mask_();
     ctx.register_tags[78] = ValueTag::Int;
 
     // R79: Recursion Depth Counter
