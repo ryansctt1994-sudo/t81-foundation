@@ -1,7 +1,7 @@
 # Full-System Architectural & Strategic Audit
 
 Date: 2026-02-26  
-Revision: Post-remediation refresh + conformance sprint (working tree)  
+Revision: Post-remediation refresh + conformance sprint (`HEAD`: `df81d922`)  
 Scope: `/src`, `/include`, `/spec`, `/docs`, `/book`, CI workflows, governance files, capability contract, opcode/ISA surfaces, VM execution model, Axion policy enforcement, determinism gates, benchmarks, tests, multilingual alignment, roadmaps, release notes.
 
 ## Executive Summary
@@ -120,7 +120,7 @@ Publish explicit dual profile contract:
 | Risk Classification | Medium |
 
 ### 5.3 Missing Enforcement Surfaces
-- Full behavioral spec-code conformance mapping remains broader than current baseline existence checks.
+- Behavioral spec-code conformance now includes new executable invariant suites, but remains incomplete at full subsystem and workload breadth.
 - Formal proof depth for governance/security invariants is incomplete.
 - Host-level containment remains intentionally out-of-scope.
 
@@ -199,10 +199,10 @@ A technically serious deterministic runtime platform with unusually strong gover
 2. End-to-end implemented pipeline (compiler -> ISA -> VM -> policy).
 3. Fail-closed posture on high-risk unimplemented opcode surfaces.
 4. Explicit capability boundaries and DCP/non-DCP taxonomy.
-5. Large, active automated test surface (260 tests).
+5. Large, active automated test surface (265 tests).
 
 ### 9.3 Single Most Important Next Move
-Execute a **Behavioral Conformance Expansion Sprint**: convert baseline spec-code mapping into subsystem-level behavioral invariants (VM/Axion/CanonFS) with machine-checked evidence, while continuing contract-surface consolidation.
+Execute **Behavioral Conformance Expansion Sprint (Phase 2)**: extend newly added VM/Axion/CanonFS invariant suites into broader semantic coverage and workload families, while continuing contract-surface consolidation.
 
 ---
 
