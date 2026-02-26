@@ -347,6 +347,30 @@ jobs:
             --hash-out build/t81lang-repro/hash.txt \
             --expected-hash-file tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt 2>&1 | tee -a .github/logs/build-and-test.log
 
+      - name: Provision llama.cpp fixture from sanctioned source (optional)
+        if: vars.T81_ENABLE_LLAMA_REPRO == '1' && matrix.compiler == 'clang' && matrix.platform == 'linux-x86_64' && hashFiles('tests/fixtures/llama_cpp_repro/model.gguf') == ''
+        shell: bash
+        env:
+          T81_LLAMA_MODEL_URL: ${{ secrets.T81_LLAMA_MODEL_URL }}
+          T81_LLAMA_MODEL_SHA256: ${{ vars.T81_LLAMA_MODEL_SHA256 }}
+          T81_LLAMA_EXPECTED_MODEL_HASH: ${{ vars.T81_LLAMA_EXPECTED_MODEL_HASH }}
+        run: |
+          set -eo pipefail
+          if [[ -z "${T81_LLAMA_MODEL_URL}" ]]; then
+            echo "T81_LLAMA_MODEL_URL secret is required when T81_ENABLE_LLAMA_REPRO=1 and fixture model is not present." >&2
+            exit 1
+          fi
+          if [[ -z "${T81_LLAMA_EXPECTED_MODEL_HASH}" ]]; then
+            echo "T81_LLAMA_EXPECTED_MODEL_HASH repo variable is required when provisioning llama fixture." >&2
+            exit 1
+          fi
+          mkdir -p tests/fixtures/llama_cpp_repro
+          curl -fsSL "${T81_LLAMA_MODEL_URL}" -o tests/fixtures/llama_cpp_repro/model.gguf
+          if [[ -n "${T81_LLAMA_MODEL_SHA256}" ]]; then
+            echo "${T81_LLAMA_MODEL_SHA256}  tests/fixtures/llama_cpp_repro/model.gguf" | sha256sum -c -
+          fi
+          printf '%s\n' "${T81_LLAMA_EXPECTED_MODEL_HASH}" > tests/fixtures/llama_cpp_repro/model_hash.txt
+
       - name: Init llama.cpp submodule (optional repro gate)
         if: vars.T81_ENABLE_LLAMA_REPRO == '1' && matrix.compiler == 'clang' && matrix.platform == 'linux-x86_64' && hashFiles('tests/fixtures/llama_cpp_repro/model.gguf') != '' && hashFiles('tests/fixtures/llama_cpp_repro/model_hash.txt') != '' && hashFiles('tests/fixtures/llama_cpp_repro/policy.apl') != '' && hashFiles('tests/fixtures/llama_cpp_repro/prompt.txt') != ''
         shell: bash

@@ -32,6 +32,27 @@ satisfied:
 - fixture files exist (`model.gguf`, `model_hash.txt`, `policy.apl`, `prompt.txt`)
 - `T81_ENABLE_LLAMA_REPRO == '1'`
 
+## Shared CI provisioning policy (sanctioned source)
+
+When `T81_ENABLE_LLAMA_REPRO == '1'` and `model.gguf` is absent in workspace,
+CI is allowed to provision the model fixture from a sanctioned source.
+
+Required CI configuration:
+
+- Repository secret: `T81_LLAMA_MODEL_URL`
+  - Signed/private URL to the sanctioned GGUF artifact.
+- Repository variable: `T81_LLAMA_EXPECTED_MODEL_HASH`
+  - Adapter-visible expected model hash in format `sha3-512:<hex>`.
+- Optional repository variable: `T81_LLAMA_MODEL_SHA256`
+  - Transport-integrity checksum for downloaded `model.gguf`.
+
+Provisioning behavior:
+
+1. Download `model.gguf` from `T81_LLAMA_MODEL_URL`.
+2. If `T81_LLAMA_MODEL_SHA256` is set, verify SHA-256 before use.
+3. Materialize `model_hash.txt` from `T81_LLAMA_EXPECTED_MODEL_HASH`.
+4. Continue with the optional llama reproducibility gate.
+
 `policy.apl` is a template and must include `__MODEL_HASH__`; CI replaces this
 placeholder with `model_hash.txt` before running the gate.
 
