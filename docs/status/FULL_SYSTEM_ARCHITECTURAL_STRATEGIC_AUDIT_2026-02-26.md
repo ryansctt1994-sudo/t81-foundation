@@ -235,6 +235,13 @@ Then make CI fail on any doc/status/translation drift from that contract.
   - updated decoder/fetch/alignment text to canonical record boundaries
 - Preserved long-term native-ternary direction by explicitly framing ternary instruction-word layouts as a future profile that must deterministically transcode to canonical encoding.
 
+### 2026-02-26 (R11)
+- Added an explicit "Native Ternary Transition Profile (Planned)" subsection to `spec/tisc-spec.md`.
+- Defined compatibility guardrails for eventual native ternary encoding:
+  - deterministic/lossless transcoding to canonical 13-byte interchange
+  - explicit profile identifiers at artifact boundaries
+  - unchanged opcode semantics and `R0–R80` architectural contract across profiles
+
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
 - This report is descriptive and evidence-based; it does not override normative `/spec` authority.

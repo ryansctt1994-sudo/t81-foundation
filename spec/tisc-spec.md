@@ -246,6 +246,18 @@ Decoding requirements:
 - Any unrecognized opcode or invalid operand combination MUST map to a
   **Decode Fault**, not undefined behavior.
 
+### 4.1 Native Ternary Transition Profile (Planned)
+
+T81’s long-term direction includes native ternary instruction-word execution.
+To preserve compatibility and auditability during that transition:
+
+1. Any native ternary instruction layout MUST define a deterministic, lossless
+   mapping to/from the canonical 13-byte interchange form.
+2. Profile identifiers MUST make encoding mode explicit at artifact boundaries
+   (compiler output, loaders, and replay tools).
+3. ISA semantics for `R0–R80` and opcode behavior MUST remain unchanged across
+   encoding profiles.
+
 ______________________________________________________________________
 
 ## 5. Opcode Classes
