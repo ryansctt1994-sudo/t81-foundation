@@ -37,7 +37,7 @@ For new users, the key takeaway is consistency: the system tries to keep concept
 
 This reduces cognitive fragmentation during onboarding.
 
-## 2.3 Auditability and The Axion Trace
+## 2.3 Auditability and the Axion Trace
 
 Determinism without observability is fragile. If behavior diverges and no one can explain where or why, assurance collapses operationally.
 

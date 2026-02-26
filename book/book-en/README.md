@@ -88,6 +88,8 @@ And constraint, when applied deliberately, is a form of clarity.
 
 Use this path when onboarding a new engineer, operator, or auditor from zero context.
 
+Pilot script: [Onboarding Pilot Checklist](./ONBOARDING_PILOT_CHECKLIST.md)
+
 | Day | Objective | Reading | Output Artifact | Completion Check |
 | --- | --- | --- | --- | --- |
 | 1 | Scope and language alignment | Chapters 1-2 | One-page scope summary | Can explain DCP vs governed non-DCP clearly |
