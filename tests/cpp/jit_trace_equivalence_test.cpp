@@ -130,6 +130,28 @@ Program make_hot_call_ret_program() {
   return p;
 }
 
+Program make_hot_bitwise_program() {
+  Program p;
+  p.insns = {
+      {Opcode::LoadImm, 1, 0x5A, 0},  // 90
+      {Opcode::LoadImm, 2, 0x0F, 0},  // 15
+      {Opcode::LoadImm, 3, 1, 0},     // shift amount
+      {Opcode::LoadImm, 4, 64, 0},    // loop count
+      // loop at pc=4
+      {Opcode::BitAnd, 5, 1, 2},
+      {Opcode::BitOr, 6, 1, 2},
+      {Opcode::BitXor, 7, 1, 2},
+      {Opcode::BitNot, 8, 7, 0},
+      {Opcode::BitShl, 9, 6, 3},
+      {Opcode::BitShr, 10, 9, 3},
+      {Opcode::BitUShr, 11, 8, 3},
+      {Opcode::Dec, 4, 0, 0},
+      {Opcode::JumpIfNotZero, 4, 4, 0},
+      {Opcode::Halt, 0, 0, 0},
+  };
+  return p;
+}
+
 struct Snapshot {
   std::vector<std::int64_t> regs;
   std::vector<t81::vm::ValueTag> tags;
@@ -177,8 +199,8 @@ bool test_jit_trace_equivalence_and_determinism() {
   if (!expect(a.trace_reasons == b.trace_reasons, "arith trace reasons diverged")) return false;
   bool saw_enter = false;
   bool saw_exit = false;
-  bool saw_enter_at_loop_pc = false;
-  bool saw_exit_kind = false;
+  [[maybe_unused]] bool saw_enter_at_loop_pc = false;
+  [[maybe_unused]] bool saw_exit_kind = false;
   for (const auto& reason : a.trace_reasons) {
     if (reason.find("jit trace enter") != std::string::npos) {
       saw_enter = true;
@@ -219,8 +241,8 @@ bool test_jit_extended_opcode_trace_determinism() {
   if (!expect(a.halted == b.halted, "extended halted flags diverged")) return false;
   if (!expect(a.trace_reasons == b.trace_reasons, "extended trace reasons diverged")) return false;
 
-  bool saw_enter_at_loop_pc = false;
-  bool saw_exit_kind = false;
+  [[maybe_unused]] bool saw_enter_at_loop_pc = false;
+  [[maybe_unused]] bool saw_exit_kind = false;
   for (const auto& reason : a.trace_reasons) {
     if (reason.find("jit trace enter") != std::string::npos &&
         reason.find("pc=4") != std::string::npos) {
@@ -331,8 +353,8 @@ bool test_jit_call_ret_trace_determinism() {
   if (!expect(a.halted == b.halted, "call/ret halted flags diverged")) return false;
   if (!expect(a.trace_reasons == b.trace_reasons, "call/ret trace reasons diverged")) return false;
 
-  bool saw_enter_at_loop_pc = false;
-  bool saw_exit_kind = false;
+  [[maybe_unused]] bool saw_enter_at_loop_pc = false;
+  [[maybe_unused]] bool saw_exit_kind = false;
   for (const auto& reason : a.trace_reasons) {
     if (reason.find("jit trace enter") != std::string::npos &&
         reason.find("pc=4") != std::string::npos) {
@@ -355,6 +377,45 @@ bool test_jit_call_ret_trace_determinism() {
   return true;
 }
 
+bool test_jit_bitwise_trace_determinism() {
+  const Program program = make_hot_bitwise_program();
+  const Snapshot a = run_program(program);
+  const Snapshot b = run_program(program);
+
+  if (!expect(!a.regs.empty(), "bitwise snapshot A is empty")) return false;
+  if (!expect(!b.regs.empty(), "bitwise snapshot B is empty")) return false;
+  if (!expect(a.regs == b.regs, "bitwise register snapshots diverged")) return false;
+  if (!expect(a.tags == b.tags, "bitwise register-tag snapshots diverged")) return false;
+  if (!expect(a.pc == b.pc, "bitwise PCs diverged")) return false;
+  if (!expect(a.halted == b.halted, "bitwise halted flags diverged")) return false;
+  if (!expect(a.trace_reasons == b.trace_reasons, "bitwise trace reasons diverged")) return false;
+
+  bool saw_enter_at_loop_pc = false;
+  bool saw_exit_kind = false;
+  for (const auto& reason : a.trace_reasons) {
+    if (reason.find("jit trace enter") != std::string::npos &&
+        reason.find("pc=4") != std::string::npos) {
+      saw_enter_at_loop_pc = true;
+    }
+    if (reason.find("jit trace exit") != std::string::npos &&
+        reason.find("exit-kind=") != std::string::npos) {
+      saw_exit_kind = true;
+    }
+  }
+  if (!expect(saw_enter_at_loop_pc, "bitwise trace missing jit enter at loop pc=4")) return false;
+  if (!expect(saw_exit_kind, "bitwise trace missing jit exit kind annotation")) return false;
+
+  if (!expect(a.regs[5] == 10, "bitwise R5 (BitAnd) expected 10")) return false;
+  if (!expect(a.regs[6] == 95, "bitwise R6 (BitOr) expected 95")) return false;
+  if (!expect(a.regs[7] == 85, "bitwise R7 (BitXor) expected 85")) return false;
+  if (!expect(a.regs[8] == -86, "bitwise R8 (BitNot) expected -86")) return false;
+  if (!expect(a.regs[9] == 190, "bitwise R9 (BitShl) expected 190")) return false;
+  if (!expect(a.regs[10] == 95, "bitwise R10 (BitShr) expected 95")) return false;
+  if (!expect(a.regs[11] == 9223372036854775765LL, "bitwise R11 (BitUShr) expected logical shift"))
+    return false;
+  return true;
+}
+
 }  // namespace
 
 int main() {
@@ -363,6 +424,7 @@ int main() {
   if (!test_jit_memory_option_result_trace_determinism()) return 1;
   if (!test_jit_enum_trace_determinism()) return 1;
   if (!test_jit_call_ret_trace_determinism()) return 1;
+  if (!test_jit_bitwise_trace_determinism()) return 1;
   std::cout << "jit trace equivalence test passed\n";
   return 0;
 }

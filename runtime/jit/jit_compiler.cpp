@@ -670,6 +670,58 @@ public:
           ctx.register_tags[insn.a] = ValueTag::Int;
           break;
         }
+        case t81::tisc::Opcode::BitAnd:
+        case t81::tisc::Opcode::BitOr:
+        case t81::tisc::Opcode::BitXor: {
+          if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+            stop_trace = true;
+            guard_deopt = true;
+            break;
+          }
+          std::int64_t v = 0;
+          if (insn.opcode == t81::tisc::Opcode::BitAnd) {
+            v = ctx.registers[insn.b] & ctx.registers[insn.c];
+          } else if (insn.opcode == t81::tisc::Opcode::BitOr) {
+            v = ctx.registers[insn.b] | ctx.registers[insn.c];
+          } else {
+            v = ctx.registers[insn.b] ^ ctx.registers[insn.c];
+          }
+          ctx.registers[insn.a] = v;
+          ctx.register_tags[insn.a] = ValueTag::Int;
+          break;
+        }
+        case t81::tisc::Opcode::BitNot: {
+          if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+            stop_trace = true;
+            guard_deopt = true;
+            break;
+          }
+          ctx.registers[insn.a] = ~ctx.registers[insn.b];
+          ctx.register_tags[insn.a] = ValueTag::Int;
+          break;
+        }
+        case t81::tisc::Opcode::BitShl:
+        case t81::tisc::Opcode::BitShr:
+        case t81::tisc::Opcode::BitUShr: {
+          if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+            stop_trace = true;
+            guard_deopt = true;
+            break;
+          }
+          const std::int64_t value = ctx.registers[insn.b];
+          const std::int64_t amount = ctx.registers[insn.c] & 0x3F;
+          std::int64_t out = 0;
+          if (insn.opcode == t81::tisc::Opcode::BitShl) {
+            out = value << amount;
+          } else if (insn.opcode == t81::tisc::Opcode::BitShr) {
+            out = value >> amount;
+          } else {
+            out = static_cast<std::int64_t>(static_cast<std::uint64_t>(value) >> amount);
+          }
+          ctx.registers[insn.a] = out;
+          ctx.register_tags[insn.a] = ValueTag::Int;
+          break;
+        }
         case t81::tisc::Opcode::Jump:
           ctx.pc = static_cast<size_t>(insn.a);
           stop_trace = true;
@@ -840,6 +892,13 @@ void JitCompiler::record_instruction(const t81::tisc::Insn& insn) {
     case t81::tisc::Opcode::NotEqual:
     case t81::tisc::Opcode::Cmp:
     case t81::tisc::Opcode::SetF:
+    case t81::tisc::Opcode::BitAnd:
+    case t81::tisc::Opcode::BitOr:
+    case t81::tisc::Opcode::BitXor:
+    case t81::tisc::Opcode::BitNot:
+    case t81::tisc::Opcode::BitShl:
+    case t81::tisc::Opcode::BitShr:
+    case t81::tisc::Opcode::BitUShr:
     case t81::tisc::Opcode::MakeOptionSome:
     case t81::tisc::Opcode::MakeOptionNone:
     case t81::tisc::Opcode::MakeResultOk:
