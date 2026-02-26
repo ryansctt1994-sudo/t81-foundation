@@ -184,4 +184,25 @@ std::optional<t81::weights::NativeTensor> parse_canon_tensor_object(
   return native;
 }
 
+std::optional<t81::T729DynamicTensor> decode_canon_tensor_object(
+    const std::vector<std::byte>& bytes) {
+  auto native = parse_canon_tensor_object(bytes);
+  if (!native.has_value()) {
+    return std::nullopt;
+  }
+
+  // CanonFS tensor objects are expected to carry packed payloads. If payload limbs equal
+  // expanded element count, treat this as an ambiguous layout and fail closed.
+  size_t payload_limbs = native->data.size();
+  size_t expected_elements = 1;
+  for (auto dim : native->shape) {
+    expected_elements *= static_cast<size_t>(dim);
+  }
+  if (payload_limbs == expected_elements) {
+    return std::nullopt;
+  }
+
+  return decode_native_tensor(*native, TensorDecodeMode::Lenient);
+}
+
 }  // namespace t81::vm::internal

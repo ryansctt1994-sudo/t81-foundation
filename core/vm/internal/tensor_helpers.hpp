@@ -34,4 +34,7 @@ std::optional<t81::T729DynamicTensor> decode_native_tensor(
 std::optional<t81::weights::NativeTensor> parse_canon_tensor_object(
     const std::vector<std::byte>& bytes);
 
+std::optional<t81::T729DynamicTensor> decode_canon_tensor_object(
+    const std::vector<std::byte>& bytes);
+
 }  // namespace t81::vm::internal

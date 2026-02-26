@@ -1278,41 +1278,25 @@ public:
           break;
         }
 
-        auto native = t81::vm::internal::parse_canon_tensor_object(obj_res.value());
-        if (!native.has_value()) {
+        auto loaded_tensor = t81::vm::internal::decode_canon_tensor_object(obj_res.value());
+        if (!loaded_tensor.has_value()) {
           trap = Trap::DecodeFault;
           break;
         }
-
-        size_t num_elements = native->data.size();
-        size_t expected = 1;
-        for (auto d : native->shape) expected *= static_cast<size_t>(d);
-        if (num_elements != expected) {
-          auto loaded_tensor = t81::vm::internal::decode_native_tensor(
-              *native, t81::vm::internal::TensorDecodeMode::Lenient);
-          if (!loaded_tensor.has_value()) {
-            trap = Trap::DecodeFault;
-            break;
-          }
-          auto res = alloc_tensor(std::move(*loaded_tensor));
-          if (!res) {
-            trap = res.error();
-            break;
-          }
-          ctx.registers[insn.a] = *res;
-          ctx.register_tags[insn.a] = ValueTag::TensorHandle;
-
-          t81::axion::Verdict success_verdict;
-          success_verdict.kind = t81::axion::VerdictKind::Allow;
-          success_verdict.reason = "TLOADHASH success hash=" + hash_str +
-                                   " handle=" + std::to_string(ctx.registers[insn.a]);
-          record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), ctx.registers[insn.a],
-                             success_verdict);
-        } else {
-          // CanonFS tensor objects are expected to contain packed limbs, not scalar-per-element
-          // payloads. Treat ambiguous payload layouts as decode faults.
-          trap = Trap::DecodeFault;
+        auto res = alloc_tensor(std::move(*loaded_tensor));
+        if (!res) {
+          trap = res.error();
+          break;
         }
+        ctx.registers[insn.a] = *res;
+        ctx.register_tags[insn.a] = ValueTag::TensorHandle;
+
+        t81::axion::Verdict success_verdict;
+        success_verdict.kind = t81::axion::VerdictKind::Allow;
+        success_verdict.reason =
+            "TLOADHASH success hash=" + hash_str + " handle=" + std::to_string(ctx.registers[insn.a]);
+        record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), ctx.registers[insn.a],
+                           success_verdict);
         break;
       }
       case t81::tisc::Opcode::TExp: {
