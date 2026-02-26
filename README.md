@@ -28,7 +28,7 @@
 
 **T81** is a sovereign computing stack built from the ground up for **determinism** and **ternary logic**. It eliminates the non-determinism of modern floating-point arithmetic and provides a mathematically rigorous foundation for high-stakes AI, cryptography, and scientific modeling.
 
-Where traditional systems drift across architectures, T81 guarantees that **every instruction, every float, and every tensor operation produces the exact same bit-pattern on every machine, forever.**
+Where traditional systems drift across architectures, T81 targets bit-exact reproducibility on explicitly verified surfaces, with guarantees bounded by the determinism registry and core profile.
 
 ### The Core Promise: Verified Determinism
 

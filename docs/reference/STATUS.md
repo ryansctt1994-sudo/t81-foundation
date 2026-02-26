@@ -2,28 +2,28 @@
 
 > **Source of Truth:** This document defines the **current operational state** of the project (what is true today). For future plans, see [../roadmaps-plans/ROADMAP.md](../roadmaps-plans/ROADMAP.md). For version history, see [CHANGELOG.md](CHANGELOG.md).
 
-**Last Updated:** February 17, 2026
-**Status:** Active development (Stable Core)
+**Last Updated:** February 26, 2026
+**Status:** Active development (governance-controlled core with mixed maturity)
 
 ## 1. Snapshot
 
-- Core stack is implemented and operational across numerics, language frontend, TISC serialization, VM execution, and Axion/CanonFS enforcement.
+- Core stack is implemented and operational across numerics, language frontend, TISC serialization, VM execution, and Axion/CanonFS enforcement, with maturity varying by subsystem.
 - C++23 is the default build language mode; C++20 remains a compatibility lane.
-- Current local validation baseline passes full ritual (`173/173` tests in latest run).
-- Ecosystem compliance with T81 v1.1.0-canonical specification is now enforced across HanoiVM and TISC tools.
+- Current local validation baseline reports full CTest inventory available in this workspace snapshot.
+- Determinism guarantees are registry-bounded and must not be overclaimed outside verified surfaces.
 
 ## 2. Component Maturity
 
 | Component | Maturity | Spec Version | Test Coverage | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **T81Lang** | Stable | v1.1.0 | High | Full syntax and semantics implemented. |
+| **T81Lang** | Beta | Draft spec / Beta implementation | High | Implementation maturity is Beta under active drift/governance controls. |
 | **TISC** | Stable | v1.1.0 | High | Binary serialization and opcode matrix complete. |
-| **HanoiVM** | Stable | v1.1.0 | High | Core execution loop, memory model verified. |
-| **Axion** | Stable | v1.0.0 | High | Policy enforcement and event tracing active. |
-| **CanonFS** | Beta | v0.9.0 | Medium | Persistent/In-memory drivers implemented; performance optimization ongoing. |
+| **T81VM** | Beta | v1.1 surface | High | Core execution loop active with continued verification and governance controls. |
+| **Axion** | Alpha | Draft surface coverage | High | Policy enforcement active with partial draft-surface coverage. |
+| **CanonFS** | Beta | v0.9.x | Medium | Persistent/In-memory drivers implemented; integrity/performance hardening ongoing. |
 | **CLI** | Beta | - | Medium | `run`/`compile` stable; `debug`/`trace` improving. |
 | **JIT** | Experimental | - | Low | **Threaded Interpreter** only (not machine code JIT). |
-| **Cognitive Tiers** | Mixed | v1.1.0 | Mixed | T1-T4 implemented. **T5 (Infinite) is a skeleton/stub.** |
+| **Cognitive Tiers** | Concept / Experimental | Draft | Mixed | Experimental, non-DCP, non-verified unless promoted through governance. |
 
 **Maturity Levels:**
 - **Stable:** Production-ready, API frozen, full test coverage.
@@ -35,11 +35,11 @@
 
 | Tier | Name | Status | Notes |
 | :--- | :--- | :--- | :--- |
-| T1 | Symbolic | Implemented | Graph rewriting, partial confluence check. |
-| T2 | Reflective | Implemented | Introspection, trace capture. |
-| T3 | Recursive | Implemented | Recursion depth proofs. |
-| T4 | Distributed | Implemented | Coherence vectors. |
-| T5 | Infinite | **Stub** | Skeleton only; `collapse()` returns dummy signature. |
+| T1 | Symbolic | Experimental implementation | Non-DCP unless promoted through governance. |
+| T2 | Reflective | Experimental implementation | Non-DCP unless promoted through governance. |
+| T3 | Recursive | Experimental implementation | Non-DCP unless promoted through governance. |
+| T4 | Distributed | Experimental implementation | Non-DCP unless promoted through governance. |
+| T5 | Infinite | Experimental / partial | Non-DCP unless promoted through governance. |
 
 ## 4. Supported Toolchains
 

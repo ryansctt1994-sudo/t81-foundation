@@ -115,19 +115,19 @@ Then reconcile encoding/register semantics into one normative source.
 ### 6.1 Overstatement Map
 - Root README uses global bit-pattern guarantee language for all instruction/float/tensor outcomes.
 - Governance capability contract says execution is sandboxed; reference capability contract says no OS/hardware sandbox.
-- Multilingual READMEs still show stable-core messaging conflicting with current English root Beta/Alpha posture.
+- Multilingual READMEs are now aligned on component maturity rows (Beta/Alpha), but some translated headline/repro-language remains stronger than bounded-registry framing.
 - `docs/reference/STATUS.md` maturity posture is stale vs active status artifacts.
 
 ### 6.2 Documentation Credibility Score
 
 | Metric | Score (1-10) |
 |---|---:|
-| Documentation Credibility | 4.5 |
+| Documentation Credibility | 5.2 |
 
 ### 6.3 Required Corrections
 1. Unify top-level determinism language to registry-bounded guarantees.
 2. Resolve register and encoding contradictions in normative docs.
-3. Synchronize multilingual root READMEs to canonical current posture.
+3. Complete multilingual semantic parity pass for deterministic-claim wording beyond status rows (including reproducibility-gate phrasing).
 4. Reconcile governance capability contract documents into one coherent claim set.
 5. Remove or restore CI/workflow references that do not exist.
 
@@ -189,6 +189,35 @@ Execute a **Normative Convergence Sprint** that produces one signed authoritativ
 - Axion enforcement semantics
 
 Then make CI fail on any doc/status/translation drift from that contract.
+
+## 10. Remediation Log
+
+### 2026-02-26 (R1)
+- Updated root determinism positioning text in `README.md` to registry-bounded guarantee language.
+- Synchronized `docs/reference/STATUS.md` component maturity posture with active status/governance artifacts (`T81VM` Beta, `Axion` Alpha, `T81Lang` Beta implementation posture).
+- Added this remediation log section to keep audit findings and closure evidence linked in one artifact.
+
+### 2026-02-26 (R2)
+- Synchronized multilingual README component rows (ES/PT/RU/ZH) so `T81VM` and `Axion` maturity no longer conflict with canonical posture.
+- Updated `docs/governance/ENFORCEMENT_MATRIX.md` to reflect actually wired CI checks and to explicitly mark planned/non-implemented enforcement scripts as non-machine-verifiable.
+
+### 2026-02-26 (R3)
+- Reconciled `spec/tisc-spec.md` encoding language with canonical implemented interchange format (`u8 opcode + 3x i32 operands`, 13-byte fixed width).
+- Added explicit register-contract clarification in `spec/tisc-spec.md`: `R0–R80` as the mandatory architectural window, with non-portable implementation-defined extension banks allowed only outside canonical deterministic-profile assumptions.
+
+### 2026-02-26 (R4)
+- Removed remaining tag-pinned workflow actions (`@v4`) and replaced them with SHA-pinned references in:
+  - `.github/workflows/benchmark_packed_trit_vector.yml`
+  - `.github/workflows/ci.yml` (`governance-metrics` job)
+- This closes the workflow action pinning gap identified by `scripts/ci/audit_workflow_actions.py --max-tagged 0 --max-unknown 0`.
+
+### 2026-02-26 (R5)
+- Hardened VM Axion policy handling to fail closed on embedded policy parse errors in `core/vm/vm.cpp`.
+- Added regression coverage in `tests/cpp/vm_policy_parse_fail_closed_test.cpp` and wired it into `CMakeLists.txt`.
+
+### 2026-02-26 (R6)
+- Updated deterministic-claim language in `README.pt-BR.md`, `README.ru.md`, and `README.zh-CN.md` intros and deterministic-execution feature rows to match bounded verified-surface positioning.
+- Re-ran governance and integrity checks (`status label coherence`, `docs governance hygiene`, `TISC freeze integrity`, and strict workflow action pinning) with all checks passing.
 
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.

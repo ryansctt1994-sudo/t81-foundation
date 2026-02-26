@@ -36,6 +36,22 @@ constexpr std::size_t kDefaultTensorSpace = 256;
 constexpr std::size_t kDefaultMetaSpace = 256;
 constexpr std::size_t kHardRecursionCeiling = T81_HARD_RECURSION_CEILING;
 
+class DenyWithReasonEngine final : public t81::axion::Engine {
+public:
+  explicit DenyWithReasonEngine(std::string reason) : reason_(std::move(reason)) {}
+
+  t81::axion::Verdict evaluate(const t81::axion::SyscallContext&) override {
+    return {t81::axion::VerdictKind::Deny, reason_};
+  }
+
+private:
+  std::string reason_;
+};
+
+std::unique_ptr<t81::axion::Engine> make_deny_with_reason_engine(std::string reason) {
+  return std::make_unique<DenyWithReasonEngine>(std::move(reason));
+}
+
 constexpr int tier_rank(t81::cog::TierId tier) {
   switch (tier) {
     case t81::cog::TierId::Tier0:
@@ -331,6 +347,17 @@ public:
           event.verdict.reason = reason.str();
           state_.axion_log.push_back(event);
         }
+      } else {
+        const std::string parse_error = "Axion policy parse failed: " + policy.error();
+        axion_engine_ = make_deny_with_reason_engine(parse_error);
+
+        AxionEvent event;
+        event.opcode = t81::tisc::Opcode::Nop;
+        event.tag = 0;
+        event.value = 0;
+        event.verdict.kind = t81::axion::VerdictKind::Deny;
+        event.verdict.reason = parse_error;
+        state_.axion_log.push_back(event);
       }
     }
     if (!program_.match_metadata_text.empty()) {

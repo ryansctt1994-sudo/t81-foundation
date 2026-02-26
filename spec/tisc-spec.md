@@ -162,7 +162,8 @@ ______________________________________________________________________
 
 ## 2. Register File
 
-TISC defines **81 general-purpose registers**, indexed `R0` through `R80`.
+TISC defines a mandatory **architectural register window of 81 registers**,
+indexed `R0` through `R80`.
 
 ### 2.1 General-Purpose Registers
 
@@ -182,7 +183,24 @@ Registers `R75` through `R80` form the fixed **Axion System Window**. These regi
 | R79 | Recursion Depth Counter |
 | R80 | Axion Seal / Capability Word |
 
-Any attempt by unprivileged instructions to directly modify registers in the `R75–R80` range MUST be ignored or trigger a deterministic **Security Fault**, depending on the active Axion policy.
+Any attempt by unprivileged instructions to directly modify registers in the
+`R75–R80` range MUST be ignored or trigger a deterministic **Security Fault**,
+depending on the active Axion policy.
+
+### 2.3 Implementation-Defined Extended Register Banks
+
+Implementations MAY expose additional internal registers beyond `R80`
+(for example, implementation-local scratch/context banks), but they are
+**non-portable** and outside the mandatory architectural contract.
+
+Requirements:
+
+1. The semantics of `R0–R80` MUST remain unchanged and portable.
+2. Programs that target the canonical deterministic profile MUST NOT rely on
+   registers outside `R0–R80`.
+3. If an implementation exposes extended registers, this MUST be documented as
+   an implementation profile and MUST NOT silently alter the meaning of
+   canonical opcodes over `R0–R80`.
 
 ______________________________________________________________________
 
@@ -206,25 +224,27 @@ ______________________________________________________________________
 
 ## 4. Instruction Encoding
 
-Each TISC instruction is encoded as a fixed-size **81-trit word**.
-
-Conceptually the word is divided into fields:
+For the current canonical runtime/toolchain profile (v1.1), each TISC
+instruction is encoded as a fixed-width **13-byte record**:
 
 ```text
-[ OPC (0..80) | MODE | RD | RS1 | RS2 / IMM_TAG | IMM_EXT / UNUSED ]
+[ OPCODE:u8 | A:i32 | B:i32 | C:i32 ]   // little-endian i32 operands
 ```
 
-- `OPC` — Opcode index (0–80) selecting a semantic class
-- `MODE` — Addressing and operand mode info
-- `RD` — Destination register
-- `RS1` — Source register 1
-- `RS2` — Source register 2 (or high bits of immediate)
-- `IMM_*` — Immediate data or extended encoding bits
+- `OPCODE` — instruction selector (`uint8_t`)
+- `A`, `B`, `C` — signed 32-bit operands
 
-Exact bit/trit layouts are implementation-defined, but:
+The byte-level encoding above is the normative interchange representation used
+by `encode/decode` in the current implementation profile.
+
+Conceptual ternary field decompositions MAY still be used for architectural
+reasoning, but they MUST map deterministically to the canonical 13-byte form.
+
+Decoding requirements:
 
 - Decoding MUST be deterministic and total.
-- Any unrecognized opcode or invalid MODE/operand combination MUST map to a **Decode Fault**, not undefined behavior.
+- Any unrecognized opcode or invalid operand combination MUST map to a
+  **Decode Fault**, not undefined behavior.
 
 ______________________________________________________________________
 

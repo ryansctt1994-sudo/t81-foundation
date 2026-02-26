@@ -23,9 +23,9 @@
 
 ---
 
-T81 es una pila de computación soberana diseñada para eliminar el no determinismo de punto flotante y permitir una ejecución totalmente auditable. Aprovechando la **lógica ternaria equilibrada** y los **tipos de datos de base 81**, T81 garantiza una **reproducibilidad exacta bit a bit** en todas las arquitecturas soportadas (x86/ARM, macOS/Linux). Cuenta con la **T81VM**, el **motor de seguridad Axion** y un sistema de niveles recursivos para escalar desde la lógica simbólica simple hasta formas infinitas distribuidas.
+T81 es una pila de computación soberana diseñada para eliminar el no determinismo de punto flotante y permitir una ejecución totalmente auditable. Aprovechando la **lógica ternaria equilibrada** y los **tipos de datos de base 81**, T81 busca reproducibilidad bit a bit en superficies verificadas y acotadas por el registro de determinismo. Cuenta con la **T81VM**, el **motor de seguridad Axion** y un sistema de niveles recursivos para escalar desde la lógica simbólica simple hasta formas infinitas distribuidas.
 
-> 💡 **Por qué es importante:** En seguridad de IA, modelado financiero y criptografía, "casi correcto" no es suficiente. T81 proporciona certeza matemática de que su código se ejecuta exactamente de la misma manera, en todas partes, cada vez.
+> 💡 **Por qué es importante:** En seguridad de IA, modelado financiero y criptografía, "casi correcto" no es suficiente. T81 prioriza garantías deterministas explícitas en superficies verificadas.
 
 ## Tabla de Contenidos
 
@@ -48,12 +48,12 @@ T81 es una pila de computación soberana diseñada para eliminar el no determini
 
 | Característica | Estado | Descripción |
 | :--- | :--- | :--- |
-| **Ejecución Determinista** | ✨ Estable | Resultados exactos bit a bit en x86/ARM/Apple Silicon vía `dmath` y FP personalizado. |
+| **Ejecución Determinista** | ✨ Estable | Resultados bit a bit en superficies verificadas y delimitadas por el registro de determinismo. |
 | **Tipos Nativos Ternarios** | ✨ Estable | Enteros y flotantes ternarios equilibrados de base 81 (sin bit de signo, acarreo reducido). |
-| **T81VM y TISC** | ✨ Estable | VM de 81 registros con intérprete determinista y Trace-JIT. |
-| **Motor Axion** | ✨ Estable | Motor de política, seguridad, ética y optimización en tiempo de ejecución con trazas de auditoría. |
+| **T81VM y TISC** | 🚧 Beta | Superficie de ejecución activa bajo verificación continua. |
+| **Motor Axion** | ⚠️ Alpha | Motor de políticas activo con cobertura parcial sobre superficies en borrador. |
 | **Herramientas de Modelo** | ✨ Estable | Importar/Inspeccionar SafeTensors, GGUF, T81W; soporte de cuantización. |
-| **Puerta de Reproducibilidad** | ✨ Estable | `t81lang_repro_gate.py` forzado por CI asegura 100% de determinismo. |
+| **Puerta de Reproducibilidad** | ✨ Estable | `t81lang_repro_gate.py` forzado por CI detecta regresiones de reproducibilidad en superficies verificadas. |
 | **Niveles Cognitivos** | 🚧 Beta | Capas de ejecución recursiva (Simbólica → Distribuida → Infinita). |
 | **Trace-JIT** | 🚧 Experimental | Optimización de puntos calientes preservando determinismo estricto. |
 | **Documentación Multilingüe** | 📚 En vivo | Especificaciones completas en Inglés, Chino, Español, Portugués, Ruso. |

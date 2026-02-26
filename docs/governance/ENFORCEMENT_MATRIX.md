@@ -11,39 +11,39 @@ This document translates high-level governance policies into machine-verifiable 
 
 | Rule | Machine-Verifiable | Required CI Job | Enforcement Severity | Required Scripts / Metadata |
 | :--- | :---: | :--- | :--- | :--- |
-| **Bit-Exact Determinism** | Yes | `determinism-check` | **Hard-Fail** | `scripts/ci/t81lang_repro_gate.py` |
-| **ISA Stability (Frozen)** | Yes | `isa-compatibility-check` | **Hard-Fail** | `scripts/ci/check_opcode_compat.py` |
-| **Public API SemVer** | Partial | `api-diff-check` | **Soft-Fail** | `scripts/ci/api_diff.sh` |
-| **Sandboxed Execution** | Yes | `security-sandbox-test` | **Hard-Fail** | `tests/security/sandbox_tests` |
+| **Bit-Exact Determinism** | Yes | `build-and-test`, `determinism-slice`, `t81lang-cross-arch-bit-identity`, `t3k-cross-arch-bit-identity`, `quality-gate` | **Hard-Fail** | `scripts/ci/t81lang_repro_gate.py`, `scripts/ci/t3k_repro_gate.py`, `scripts/ci/run_determinism_slice.sh` |
+| **ISA Stability (Frozen)** | Yes | `spec-and-docs`, `quality-gate` | **Hard-Fail** | `scripts/ci/check_tisc_freeze_integrity.py` |
+| **Public API SemVer** | No | N/A (planned) | **Warning** | Planned: API diff contract script (not yet implemented) |
+| **Sandboxed Execution** | No | N/A | **Warning** | Not currently enforced as a hard CI capability |
 
 ## Policy: Multilingual Governance
 
 | Rule | Machine-Verifiable | Required CI Job | Enforcement Severity | Required Scripts / Metadata |
 | :--- | :---: | :--- | :--- | :--- |
-| **Directory Structure Mirroring** | Yes | `docs-structure-check` | **Soft-Fail** | `scripts/ci/check_docs_structure.py` |
-| **README Naming Convention** | Yes | `docs-structure-check` | **Warning** | `scripts/ci/check_docs_structure.py` |
-| **Translation Metadata Headers** | Yes | `translation-metadata-check` | **Warning** | `scripts/ci/check_translation_metadata.py` |
-| **Staleness Threshold** | Yes | `translation-staleness-check` | **Warning** | `scripts/ci/check_translation_staleness.py` |
+| **Directory Structure Mirroring** | No | N/A (planned) | **Warning** | Planned: `check_docs_structure.py` (not yet implemented) |
+| **README Naming Convention** | No | N/A (planned) | **Warning** | Planned: naming policy checker (not yet implemented) |
+| **Translation Metadata Headers** | No | N/A (planned) | **Warning** | Planned: translation metadata checker (not yet implemented) |
+| **Staleness Threshold** | No | N/A (planned) | **Warning** | Planned: translation staleness checker (not yet implemented) |
 
 ## Policy: Dependency & Hygiene
 
 | Rule | Machine-Verifiable | Required CI Job | Enforcement Severity | Required Scripts / Metadata |
 | :--- | :---: | :--- | :--- | :--- |
-| **No GPL/AGPL Licenses** | Yes | `license-check` | **Hard-Fail** | `scripts/ci/check_licenses.py` |
-| **C++ Dependency Pinning** | Yes | `cmake-audit` | **Hard-Fail** | `scripts/ci/audit_cmake_deps.py` |
-| **No Header Vendoring** | Yes | `include-audit` | **Soft-Fail** | `scripts/ci/audit_include_dir.py` |
-| **No Runtime JS Dependencies** | Yes | `js-dependency-check` | **Hard-Fail** | `scripts/ci/check_package_json.py` |
-| **Artifact Containment** | Yes | `git-clean-check` | **Hard-Fail** | `scripts/ci/check_git_clean.sh` |
+| **No GPL/AGPL Licenses** | No | N/A (planned) | **Warning** | Planned: license policy checker (not yet implemented) |
+| **Workflow Action Pinning** | Yes | `spec-and-docs`, `quality-gate` | **Hard-Fail** | `scripts/ci/audit_workflow_actions.py` |
+| **Workflow Permissions Policy** | Yes | `spec-and-docs`, `quality-gate` | **Hard-Fail** | `scripts/ci/audit_workflow_permissions.py` |
+| **Public Header Root (`include/t81/**`)** | Yes | `deterministic-core-profile-check` | **Hard-Fail** | Inline CI check in `.github/workflows/ci.yml` |
+| **Artifact Containment (repo cleanliness)** | No | N/A (planned) | **Warning** | Planned: git-clean checker (not yet implemented) |
 
 ## Policy: System Status & Implementation
 
 | Rule | Machine-Verifiable | Required CI Job | Enforcement Severity | Required Scripts / Metadata |
 | :--- | :---: | :--- | :--- | :--- |
-| **Spec-Code Alignment Coverage** | Partial | `spec-coverage-report` | **Warning** | `scripts/ci/spec_coverage.py` |
+| **Spec-Code Alignment Coverage** | Partial | `spec-and-docs` + governance audits | **Warning** | `scripts/governance/check_docs_governance_hygiene.py` + status artifacts (no single full spec-coverage script yet) |
 
 ## Policy: Project Control Center
 
 | Rule | Machine-Verifiable | Required CI Job | Enforcement Severity | Required Scripts / Metadata |
 | :--- | :---: | :--- | :--- | :--- |
-| **Root Directory Freeze** | Yes | `root-dir-check` | **Hard-Fail** | `scripts/ci/check_root_structure.py` |
-| **Benchmark Performance Gating** | Yes | `benchmark-gate` | **Soft-Fail** | `scripts/ci/check_simd_regression.py` |
+| **Root Directory Freeze** | No | N/A (planned) | **Warning** | Planned: root-structure checker (not yet implemented) |
+| **Benchmark Performance Gating** | Partial | `benchmarks` (non-blocking), optional benchmark workflows | **Warning** | `scripts/ci/check_simd_regression.py` exists, but not currently wired as a required hard gate |
