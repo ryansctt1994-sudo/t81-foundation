@@ -1,0 +1,7 @@
+fn main() -> i32 {
+    let e1: T81Float = std.math.exp(0.0);
+    let in_range: T81Float = std.math.clamp(3.0, 0.0, 5.0);
+    print(e1);
+    print(in_range);
+    return 0;
+}

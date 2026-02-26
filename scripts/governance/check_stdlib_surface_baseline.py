@@ -25,6 +25,8 @@ EXPECTED_MODULES = {
 }
 
 REQUIRED_STD_FIXTURES = [
+    "tests/fixtures/t81lang_std_core",
+    "tests/fixtures/t81lang_std_math",
     "tests/fixtures/t81lang_std_bytes",
     "tests/fixtures/t81lang_std_collections",
     "tests/fixtures/t81lang_std_runtime",
@@ -34,6 +36,8 @@ REQUIRED_STD_FIXTURES = [
 ]
 
 REQUIRED_STD_TESTS = [
+    "tests/cpp/cli_std_core_fixtures_test.cpp",
+    "tests/cpp/cli_std_math_fixtures_test.cpp",
     "tests/cpp/cli_std_bytes_fixtures_test.cpp",
     "tests/cpp/cli_std_collections_fixtures_test.cpp",
     "tests/cpp/cli_std_runtime_fixtures_test.cpp",

@@ -1,0 +1,9 @@
+fn main() -> i32 {
+    let root: T81Float = std.math.sqrt(0.0);
+    let power: T81Float = std.math.pow(1.0, 2.0);
+    let clamped: T81Float = std.math.clamp(9.0, 0.0, 5.0);
+    print(root);
+    print(power);
+    print(clamped);
+    return 0;
+}

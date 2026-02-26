@@ -140,6 +140,7 @@ def main() -> int:
         ("public api semver lock", "scripts/governance/check_public_api_semver.py"),
         ("spec-code alignment baseline", "scripts/governance/check_spec_code_alignment_baseline.py"),
         ("stdlib surface baseline", "scripts/governance/check_stdlib_surface_baseline.py"),
+        ("stdlib promotion snapshot", "scripts/governance/check_stdlib_promotion_snapshot.py"),
         ("cognitive-tier boundary", "scripts/governance/check_cognitive_tier_boundary.py"),
         ("overclaim guardrails", "scripts/governance/check_overclaim_guardrails.py"),
     ]
@@ -175,7 +176,7 @@ def main() -> int:
     print("- status label coherence checked")
     print(
         "- supplemental governance checks "
-        "(structure/readme/translation/staleness/semantic/license/artifact/api/spec-boundary/stdlib/overclaim) checked"
+        "(structure/readme/translation/staleness/semantic/license/artifact/api/spec-boundary/stdlib/snapshot/overclaim) checked"
     )
     return 0
 

@@ -1,7 +1,7 @@
 # T81Lang Standard Library Stabilization Plan
 
 Date: 2026-02-26  
-Status: Active  
+Status: Sprint 1 Completed  
 Owner: Language + Governance
 
 ## 1. Goal
@@ -51,19 +51,22 @@ Out-of-scope:
 ## 5. Acceptance Gates
 
 1. `scripts/governance/check_stdlib_surface_baseline.py` passes.
-2. CLI std fixture suites remain green:
+2. `scripts/governance/check_stdlib_promotion_snapshot.py` passes.
+3. CLI std fixture suites remain green:
+   - `cli_std_core_fixtures_test`
+   - `cli_std_math_fixtures_test`
    - `cli_std_text_fixtures_test`
    - `cli_std_bytes_fixtures_test`
    - `cli_std_collections_fixtures_test`
    - `cli_std_tensor_fixtures_test`
    - `cli_std_runtime_fixtures_test`
    - `cli_std_symbol_fixtures_test`
-3. `scripts/ci/run_determinism_slice.sh build` remains green.
-4. Documentation alignment is maintained between:
+4. `scripts/ci/run_determinism_slice.sh build` remains green.
+5. Documentation alignment is maintained between:
    - `docs/standards/standard-library.md`
    - `lang/stdlib/std/*.t81`
    - task/status artifacts
-5. No broadening of DCP/verified claims in public docs.
+6. No broadening of DCP/verified claims in public docs.
 
 ## 6. Work Packages
 
@@ -80,3 +83,9 @@ Out-of-scope:
 3. Open stdlib stabilization tasks in `docs/roadmaps-plans/TASKS.md` are closed
    or explicitly deferred with rationale.
 
+## 8. Sprint 1 Closure (2026-02-26)
+
+1. Surface baseline governance gate implemented and CI-enforced.
+2. Promotion snapshot artifact implemented and governance-checked.
+3. `std.core` and `std.math` fixture conformance suites added and passing.
+4. Change taxonomy policy published in `docs/governance/STDLIB_CHANGE_POLICY.md`.

@@ -1,10 +1,10 @@
 # Full-System Architectural & Strategic Audit
 
 Date: 2026-02-26  
-Revision: Post-remediation refresh + conformance sprint Phase 3 closure + VM decomposition Phase F closure + stdlib stabilization kickoff + rerun on baseline `c5c4aa59`  
+Revision: Post-remediation refresh + conformance sprint Phase 3 closure + VM decomposition Phase F closure + stdlib stabilization Sprint 1 closure + rerun on baseline `4de20ad4`  
 Scope: `/src`, `/include`, `/spec`, `/docs`, `/book`, CI workflows, governance files, capability contract, opcode/ISA surfaces, VM execution model, Axion policy enforcement, determinism gates, benchmarks, tests, multilingual alignment, roadmaps, release notes.
 
-## Rerun Delta (Baseline `c5c4aa59`)
+## Rerun Delta (Baseline `4de20ad4`)
 
 - Added and expanded Phase-3 conformance matrices:
   - `tests/cpp/vm_fault_family_determinism_matrix_test.cpp`
@@ -36,10 +36,14 @@ Scope: `/src`, `/include`, `/spec`, `/docs`, `/book`, CI workflows, governance f
   - `docs/status/STDLIB_STABILIZATION_PLAN_2026-03.md`
   - new stdlib surface baseline gate `scripts/governance/check_stdlib_surface_baseline.py`
   - gate enforced in `scripts/governance/check_docs_governance_hygiene.py` and `.github/workflows/ci.yml`
+- Closed stdlib stabilization Sprint 1 work packages:
+  - new stdlib promotion snapshot gate `scripts/governance/check_stdlib_promotion_snapshot.py`
+  - stdlib change policy `docs/governance/STDLIB_CHANGE_POLICY.md`
+  - `std.core` + `std.math` fixture conformance suites and CTest wiring
 - Verification snapshot for rerun baseline:
   - `scripts/ci/run_determinism_slice.sh build`: PASS
   - governance/doc/spec gates: PASS
-  - test inventory: `ctest --test-dir build -N` => **280 tests**
+  - test inventory: `ctest --test-dir build -N` => **282 tests**
 
 ## Executive Summary
 The repository is a substantial implemented system, not a paper design: compiler, ISA encoding, VM interpreter, threaded trace execution, Axion policy engine, CanonFS, and broad CI/test infrastructure are present. Governance maturity materially improved in this remediation cycle: previously warning-level rows were promoted to machine checks (API lock, spec-code baseline, translation staleness/semantic alignment, benchmark regression, overclaim guardrails), and trace-mode policy granularity is now per-instruction fail-closed.
@@ -205,7 +209,7 @@ Publish explicit dual profile contract:
 ### 7.1 Findings
 - Build/test/toolchain discipline is strong and actively enforced.
 - CI quality gate requires key jobs (spec/docs, build/test, determinism slice, static analysis, sanitizers, fuzzing, benchmarks, tritwise determinism).
-- Test inventory is broad (280 tests currently discovered by CTest).
+- Test inventory is broad (282 tests currently discovered by CTest).
 - Benchmark regression gating is now required in CI and now includes a VM workload dispatch/native ratio guardrail in addition to SIMD-focused checks.
 - Static analysis coverage improved but not full-repo exhaustive.
 
@@ -270,7 +274,7 @@ Execute **Behavioral Conformance Expansion Sprint (Phase 3)**: scale the new VM/
 - Freeze integrity gate: `scripts/ci/check_tisc_freeze_integrity.py`
 - Translation governance: `scripts/governance/check_translation_*.py`
 - Workload benchmark gate: `scripts/ci/check_vm_workload_benchmark_regression.py`
-- Test inventory: `ctest --test-dir build -N` (280 tests)
+- Test inventory: `ctest --test-dir build -N` (282 tests)
 
 ## Audit Notes
 - Items with insufficient direct evidence are explicitly marked **Indeterminate**.

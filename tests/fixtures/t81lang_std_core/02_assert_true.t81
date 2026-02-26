@@ -1,0 +1,5 @@
+fn main() -> i32 {
+    let always_true: bool = true;
+    std.core.assert(always_true);
+    return 0;
+}

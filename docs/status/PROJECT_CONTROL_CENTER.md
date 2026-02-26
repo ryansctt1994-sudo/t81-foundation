@@ -14,7 +14,7 @@ Version: 2.1.0
 | Release Readiness Decision | HOLD (decision stamp: 2026-02-26) |
 | Primary Blocker | Required contexts not yet fully satisfied for selected main candidate (`quality gate / required`, `Analyze (cpp)`) |
 | Next Hard Date | C2 month-close execution on 2026-03-31 (UTC) |
-| Open Task Count (`docs/roadmaps-plans/TASKS.md`) | 4 (`C2 Month-Close` + 3 stdlib stabilization tasks) |
+| Open Task Count (`docs/roadmaps-plans/TASKS.md`) | 1 (`C2 Month-Close`) |
 
 ## 2. Purpose
 
@@ -69,8 +69,12 @@ Authority remains:
   - blocked-neural and bitwise opcode-family dispatch concentration reduced via extracted helper paths
   - VM trace/log helper extraction advanced in policy-trace bridge
 - T81Lang stdlib stabilization track is active:
-  - governed stabilization plan published (`docs/status/STDLIB_STABILIZATION_PLAN_2026-03.md`)
-  - stdlib surface baseline CI/governance gate added (`scripts/governance/check_stdlib_surface_baseline.py`)
+  - Sprint 1 stabilization package is complete:
+    - governed stabilization plan published (`docs/status/STDLIB_STABILIZATION_PLAN_2026-03.md`)
+    - stdlib surface baseline CI/governance gate added (`scripts/governance/check_stdlib_surface_baseline.py`)
+    - stdlib promotion snapshot governance gate added (`scripts/governance/check_stdlib_promotion_snapshot.py`)
+    - `std.math`/`std.core` fixture conformance suites added and wired in CMake/CTest
+    - stdlib change policy published (`docs/governance/STDLIB_CHANGE_POLICY.md`)
 - Experimental backlog implementation items are complete:
   - Cognitive Tier 1..5 closures
   - Runtime JIT prototype backend uplift
