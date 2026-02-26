@@ -3,8 +3,8 @@
 Status: Draft (In Progress)
 Review Window: 2026-03
 Owner: @t81dev
-Last Updated: 2026-02-25
-Review Date (UTC): 2026-02-25
+Last Updated: 2026-02-26
+Review Date (UTC): 2026-02-26
 Reviewers: @t81dev
 
 ## Purpose
@@ -273,6 +273,31 @@ Pre-close dry-run results (2026-02-25):
 - `python3 scripts/governance/t81lang_promotion_gate_snapshot.py`: passed
   (snapshot written to `docs/status/T81LANG_PROMOTION_GATE_SNAPSHOT.md`,
   result `READY`).
+
+Pre-close verification refresh (2026-02-26):
+
+- `python3 scripts/governance/check_docs_governance_hygiene.py`: passed.
+- Link-target sweep across status/governance/product/audits: passed
+  (`link-target sweep passed`).
+- `python3 scripts/governance/t81lang_promotion_gate_snapshot.py`: passed
+  (snapshot written to `docs/status/T81LANG_PROMOTION_GATE_SNAPSHOT.md`,
+  result `READY`, timestamp `2026-02-26 13:35:51Z`).
+- Required-context verification refresh (`gh api`):
+  - Branch protection contexts: `quality gate / required`, `Analyze (cpp)`.
+  - Candidate SHA (`origin/main`): `b4fdf8efdf249e391f7c93fb18cf9245926b6a38`.
+  - Candidate status API result: `state: pending`.
+  - Candidate check-runs API currently returns no runs matching the two required
+    context names above.
+- Remediation staged in repo on 2026-02-26:
+  - `.github/workflows/codeql.yml` updated to add `push` trigger on `main` so
+    required context `Analyze (cpp)` can be emitted for release-candidate
+    main commits.
+- Additional verification note (2026-02-26):
+  - Latest observed CodeQL runs are successful in PR contexts (for example run
+    `22426768501`), while selected `main` candidate SHA
+    `b4fdf8efdf249e391f7c93fb18cf9245926b6a38` still reports overall
+    `state: pending` and does not yet surface required check-run
+    `Analyze (cpp)`.
 
 ## Checklist Exceptions
 
