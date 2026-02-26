@@ -21,7 +21,7 @@ This document tracks immediate, actionable tasks for the T81 project.
 ### Experimental Implementation Backlog (Post-C2 Pickup)
 - [x] **Cognitive Tier 1:** Implement `SymbolicGraph::rewrite` and `is_confluent`. (Completed 2026-02-26: deterministic rewrite now updates nodes/edges with canonicalization, and confluence now checks unique nodes, valid edge endpoints, and deterministic `(from,label)->to` transitions; validated via `tiers_structure_test`.)
 - [x] **Cognitive Tier 2:** Connect `ReflectiveFrame` to Axion trace events. (Completed 2026-02-26: added canonical Tier 2 reason channel `cog:tier2:reflect`, wired `ReflCap/ReflJustify/ReflTrace/ReflSeal` to emit reflective Axion event reasons, and validated via `vm_reflection_tier2_test`.)
-- [ ] **Cognitive Tier 3:** Implement `Recursor` evaluation loop and depth proof verification.
+- [x] **Cognitive Tier 3:** Implement `Recursor` evaluation loop and depth proof verification. (Completed 2026-02-26: added proof-verification APIs and deterministic evaluation loop in Tier 3 recursor, wired VM `Recurse/Contract` to enforce contraction proofs, and validated with `test_tier3_opcodes` plus a new Tier 3 failure-path check in `t81_vm_new_opcodes_test`.)
 - [ ] **Cognitive Tier 4:** Implement `NodeState` synchronization and gossip protocol logic.
 - [ ] **Cognitive Tier 5:** Implement `InfiniteCanonicalForm` lazy expansion logic.
 - [ ] **Runtime JIT:** Advance `runtime/jit` from experimental research to prototype backend.

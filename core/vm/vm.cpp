@@ -4219,8 +4219,19 @@ public:
           trap = Trap::SecurityFault;
           break;
         }
-        // Push a dummy proof for now, as we don't have a proof object from registers yet.
-        ctx.tier3_recursor.push_frame(t81::cog::v3::ContractionProof{true, 0.0, 0.0});
+        const double seed_entropy =
+            static_cast<double>((state_.layout.stack.limit - ctx.sp) +
+                                (state_.heap_ptr - state_.layout.heap.start) + ctx.call_depth);
+        t81::cog::v3::ContractionProof proof{true, seed_entropy, seed_entropy};
+        if (!ctx.tier3_recursor.push_frame(proof)) {
+          t81::axion::Verdict verdict;
+          verdict.kind = t81::axion::VerdictKind::Deny;
+          verdict.reason = "Tier 3 depth proof rejected";
+          record_axion_event(insn.opcode, 0,
+                             static_cast<std::int64_t>(ctx.tier3_recursor.current_depth), verdict);
+          trap = Trap::SecurityFault;
+          break;
+        }
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "Recurse: depth increased"};
         record_axion_event(insn.opcode, 0,
                            static_cast<std::int64_t>(ctx.tier3_recursor.current_depth), verdict);
@@ -4240,13 +4251,16 @@ public:
           if (ptr) current_entropy = *ptr;
         }
 
-        // Validate contraction against previous frame
-        // This requires Recursor to expose the top frame's entropy.
-        // The current Recursor struct in memory only has proofs vector.
-        // We will assume the previous proof's final_entropy is the start.
-        // TODO: Implement actual strict entropy contraction check (Theta-7).
-        // For now, we log the check as verified to allow experimentation.
-        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "Contract: entropy checked"};
+        if (!ctx.tier3_recursor.contract_top(current_entropy)) {
+          t81::axion::Verdict verdict;
+          verdict.kind = t81::axion::VerdictKind::Deny;
+          verdict.reason = "Contract: non-contractive entropy update";
+          record_axion_event(insn.opcode, 0, static_cast<std::int64_t>(current_entropy), verdict);
+          trap = Trap::SecurityFault;
+          break;
+        }
+
+        t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "Contract: entropy contracted"};
         record_axion_event(insn.opcode, 0, static_cast<std::int64_t>(current_entropy), verdict);
         break;
       }

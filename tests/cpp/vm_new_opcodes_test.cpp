@@ -107,5 +107,33 @@ int main() {
     run_expect_success(prog);
   }
 
+  // Test Tier 3 contract proof failure (non-contractive entropy update)
+  {
+    std::vector<t81::tisc::Insn> prog;
+
+    t81::tisc::Insn recurse;
+    recurse.opcode = t81::tisc::Opcode::Recurse;
+    prog.push_back(recurse);
+
+    t81::tisc::Insn load_one;
+    load_one.opcode = t81::tisc::Opcode::LoadImm;
+    load_one.a = 1;
+    load_one.b = 1;
+    load_one.literal_kind = t81::tisc::LiteralKind::Int;
+    prog.push_back(load_one);
+
+    t81::tisc::Insn contract;
+    contract.opcode = t81::tisc::Opcode::Contract;
+    contract.b = 1;  // current_entropy source register
+    prog.push_back(contract);
+
+    t81::tisc::Insn halt;
+    halt.opcode = t81::tisc::Opcode::Halt;
+    prog.push_back(halt);
+
+    t81::vm::Trap t = run_until_trap(prog);
+    T81_TEST_CHECK(t == t81::vm::Trap::SecurityFault);
+  }
+
   return 0;
 }
