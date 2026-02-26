@@ -1,24 +1,31 @@
 # Full-System Architectural & Strategic Audit
 
 Date: 2026-02-26  
-Revision: Post-remediation refresh + conformance sprint Phase 2 + VM decomposition Phase F closure + rerun on baseline `71fe1ea8`  
+Revision: Post-remediation refresh + conformance sprint Phase 3 + VM decomposition Phase F closure + rerun on baseline `c67d3b79`  
 Scope: `/src`, `/include`, `/spec`, `/docs`, `/book`, CI workflows, governance files, capability contract, opcode/ISA surfaces, VM execution model, Axion policy enforcement, determinism gates, benchmarks, tests, multilingual alignment, roadmaps, release notes.
 
-## Rerun Delta (Baseline `71fe1ea8`)
+## Rerun Delta (Baseline `c67d3b79`)
 
-- Added VM and Axion behavioral conformance matrix tests:
-  - `tests/cpp/vm_state_transition_conformance_matrix_test.cpp`
-  - `tests/cpp/axion_policy_allow_deny_determinism_test.cpp`
-- Expanded CanonFS integrity corruption matrix (bit-flip, truncate, append-tail, env-unset default-verify path).
-- Expanded workload determinism tiers (`policy-heavy`, `tensor-access`) and signature surface.
-- Added VM workload benchmark regression guardrail:
-  - `scripts/ci/check_vm_workload_benchmark_regression.py`
-  - enforced in `.github/workflows/ci.yml` and `.github/workflows/bench.yml`
-- Expanded translation semantic gate to require section-heading parity in root translated READMEs.
+- Added and expanded Phase-3 conformance matrices:
+  - `tests/cpp/vm_fault_family_determinism_matrix_test.cpp`
+  - `tests/cpp/vm_tloadhash_decodefault_determinism_matrix_test.cpp`
+  - `tests/cpp/vm_mixed_workload_conformance_matrix_test.cpp`
+  - `tests/cpp/canonfs_read_verify_env_contract_test.cpp`
+- Expanded CanonFS integrity and env-contract checks:
+  - default read-verify behavior when `T81_CANONFS_READ_VERIFY` is unset
+  - explicit env override contract coverage
+- Reduced VM dispatch-path concentration by extracting trace/event logging helpers:
+  - `core/vm/internal/policy_trace_bridge.hpp`
+  - `core/vm/policy_trace_bridge.cpp`
+  - wrapper simplification in `core/vm/vm.cpp`
+- Prior Phase-2 controls remain in force:
+  - VM/Axion conformance matrices (`vm_state_transition_conformance_matrix_test`, `axion_policy_allow_deny_determinism_test`)
+  - workload benchmark guardrail in CI
+  - translation semantic heading-parity CI gate
 - Verification snapshot for rerun baseline:
   - `scripts/ci/run_determinism_slice.sh build`: PASS
   - governance/doc/spec gates: PASS
-  - test inventory: `ctest --test-dir build -N` => **276 tests**
+  - test inventory: `ctest --test-dir build -N` => **280 tests**
 
 ## Executive Summary
 The repository is a substantial implemented system, not a paper design: compiler, ISA encoding, VM interpreter, threaded trace execution, Axion policy engine, CanonFS, and broad CI/test infrastructure are present. Governance maturity materially improved in this remediation cycle: previously warning-level rows were promoted to machine checks (API lock, spec-code baseline, translation staleness/semantic alignment, benchmark regression, overclaim guardrails), and trace-mode policy granularity is now per-instruction fail-closed.
@@ -184,7 +191,7 @@ Publish explicit dual profile contract:
 ### 7.1 Findings
 - Build/test/toolchain discipline is strong and actively enforced.
 - CI quality gate requires key jobs (spec/docs, build/test, determinism slice, static analysis, sanitizers, fuzzing, benchmarks, tritwise determinism).
-- Test inventory is broad (276 tests currently discovered by CTest).
+- Test inventory is broad (280 tests currently discovered by CTest).
 - Benchmark regression gating is now required in CI and now includes a VM workload dispatch/native ratio guardrail in addition to SIMD-focused checks.
 - Static analysis coverage improved but not full-repo exhaustive.
 
@@ -249,7 +256,7 @@ Execute **Behavioral Conformance Expansion Sprint (Phase 3)**: scale the new VM/
 - Freeze integrity gate: `scripts/ci/check_tisc_freeze_integrity.py`
 - Translation governance: `scripts/governance/check_translation_*.py`
 - Workload benchmark gate: `scripts/ci/check_vm_workload_benchmark_regression.py`
-- Test inventory: `ctest --test-dir build -N` (276 tests)
+- Test inventory: `ctest --test-dir build -N` (280 tests)
 
 ## Audit Notes
 - Items with insufficient direct evidence are explicitly marked **Indeterminate**.
