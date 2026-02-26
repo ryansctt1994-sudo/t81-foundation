@@ -336,6 +336,13 @@ Then make CI fail on any doc/status/translation drift from that contract.
   - `scripts/governance/check_docs_governance_hygiene.py`
 - Updated `docs/governance/ENFORCEMENT_MATRIX.md` to promote multilingual staleness threshold enforcement from warning/partial to machine-verifiable hard-fail.
 
+### 2026-02-26 (R27)
+- Normalized remaining over-strong sandbox/isolation language in integration guides:
+  - `docs/how-to/system-integration.md`
+  - `docs/how-to/systems-integration-agi.md`
+- Added explicit capability-boundary note in AGI integration guidance to anchor all claims to `docs/reference/CAPABILITY_CONTRACT.md`.
+- Corrected AGI integration register-window wording to the architectural `R0–R80` contract and removed present-tense distributed-network capability wording where implementation remains partial/fail-closed.
+
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
 - This report is descriptive and evidence-based; it does not override normative `/spec` authority.

@@ -59,6 +59,9 @@ The T81 stack is not merely a collection of libraries; it is a vertical integrat
 
 In a T81-based AGI system, "intelligence" is not a black box, but a traceable and replayable sequence of governed state transitions. By reducing silent failure modes like floating-point drift in selected paths, memory corruption in agent state, and un-governed self-modification of core logic, T81 creates a foundation for high-assurance AGI research. This enables "auditable autonomous intelligence" with explicit determinism scope and policy controls, providing a path toward alignment rooted in logical transparency.
 
+**Capability Status Note (Normative Boundary):**
+This document includes architectural direction and research-oriented guidance. Current implementation guarantees are bounded by `docs/reference/CAPABILITY_CONTRACT.md` and active CI/test coverage. Process-level Axion enforcement exists; OS/hardware sandboxing does not. Some network/neural/cognitive-tier surfaces remain partial or fail-closed placeholders.
+
 ---
 
 ## 2. Architectural Formalisms for Intelligence
@@ -66,7 +69,7 @@ In a T81-based AGI system, "intelligence" is not a black box, but a traceable an
 To ensure systemic coalescence of intelligent components, the T81 architecture adheres to formal specifications regarding its environment, dependencies, and internal interactions.
 
 ### 2.1 Neural Invariance
-Host CPU behavior (rounding modes, floating-point denormals, integer overflows, bit-fiddling tricks) must *not* leak into the AGI's neural activations. All calculations are performed using the `T81Int`, `T81BigInt`, `T81Float`, or `T81Tensor` libraries, which implement their own deterministic balanced-ternary semantics. This ensures that a neural activation in a transformer layer will yield the exact same bit-pattern on an x86_64, ARM, or RISC-V host, regardless of the underlying hardware's IEEE-754 implementation or specialized fused-multiply-add logic. This "Neural Invariance" is the bedrock of reproducible cognition, allowing weights to be shared across a heterogeneous global network without loss of fidelity.
+Host CPU behavior (rounding modes, denormals, overflow handling, backend math implementation) must be treated as a potential source of drift outside verified deterministic surfaces. T81 deterministic guarantees are bounded and workload-dependent, with host/hardware-dependent behavior explicitly documented in the capability contract.
 
 ### 2.2 Cognitive Provenance
 All non-trivial data inputs—such as model weights, long-term memory in `T81Tree` nodes, or sensory `T81Bytes` blobs—are retrieved via `CanonFS`. These inputs are verified by their `CanonHash81` at the moment of loading. If a hash mismatch is detected in the "Knowledge Substrate," the system fails fast with an audit-ready error message, preventing the execution of an agent derived from corrupted or unauthorized memory. This creates a "chain of custody" for every qutrit entering the AGI's focus of attention, ensuring the provenance of every fact and synapse.
@@ -75,12 +78,13 @@ All non-trivial data inputs—such as model weights, long-term memory in `T81Tre
 The interaction between HanoiVM (Execution) and Axion (Governance) follows a synchronous **Supervision Loop** which is the heartbeat of the intelligent agent:
 1.  **Fetch:** HanoiVM fetches the next TISC instruction (a "thought step") from the `CODE` segment.
 2.  **Evaluate:** Axion evaluates the instruction against the active `PolicyEngine`. This involves checking register bounds (ensuring R0-R242 limits are respected), memory permissions, and resource quotas. Axion also evaluates stateful predicates like `require-reflection-cycle` for agents using Tier 4 self-modification or `max-entropy-leakage` for agents accessing stochastic search.
+2.  **Evaluate:** Axion evaluates the instruction against the active `PolicyEngine`. This involves checking register bounds (ensuring the architectural R0-R80 window is respected), memory permissions, and resource quotas. Axion also evaluates stateful predicates like `require-reflection-cycle` for agents using Tier 4 self-modification or `max-entropy-leakage` for agents accessing stochastic search.
 3.  **Execute/Trap:** If permitted, HanoiVM executes the instruction. This may involve updating a `T729Tensor` synapse, pushing a fact to a `T81List`, or resolving a inter-agent `T81Promise`. If the policy is violated (e.g., an ethical trap or a resource limit), Axion triggers a deterministic `Trap`.
 4.  **Trace:** Axion records the result and any state changes in the deterministic trace log (`T81Stream`). This log serves as the agent's "conscious stream," stable and suitable for bit-identical replay and forensic analysis.
 
 ### 2.4 Governance Boundaries
-Intelligence isolation is enforced through two primary boundaries that prevent "cognitive escape":
--   **Memory Boundary:** The agent's state is strictly segmented (CODE, STACK, HEAP, TENSOR, META). Cross-segment leakage is prevented at the opcode level. Every load and store is validated against the active segment's bounds, ensuring that a bug in the agent's logic cannot corrupt its own executable "brain," leaking its parameters, or compromising the governing kernel.
+Intelligence safety is enforced through software boundaries in the runtime process:
+-   **Memory Boundary:** The agent's state is segmented (CODE, STACK, HEAP, TENSOR, META). Cross-segment access is checked at the opcode level within VM execution.
 -   **Policy Boundary:** The Axion Policy defines the "legal universe" of the agent. Any attempt to exceed these bounds (e.g., instruction limits, unauthorized network access, excessive entropy consumption during search) results in immediate, deterministic termination. This ensures the agent remains within its alignment envelope.
 
 ---
@@ -470,7 +474,7 @@ Describes how instructions transition the agent state through the five functiona
 A: T81 ensures the *execution* of the model is deterministic and bit-identical. While it cannot prevent high-level semantic errors in the model weights, it provides the trace evidence required to forensicsively analyze *why* a hallucination occurred and prevent it via policy update or weight pruning.
 
 **Q: How does T81 handle AGI scaling across nodes?**
-A: Through `ShardedT729Tensor` and `T81Network`, T81 allows AGI components to be distributed while maintaining a unified, deterministic audit trace. Axion ensures sharding complies with bandwidth and isolation policies.
+A: Distributed AGI scaling is a planned direction. Current implementation does not provide a production-ready distributed runtime path; network-related opcode surfaces are intentionally fail-closed unless explicitly implemented and policy-allowed.
 
 **Q: Is T81 suitable for real-time robotic AGI?**
 A: Yes. The **Trace-JIT** provides the performance required for real-time control, while `T81Time` ensures that the agent's logic is step-locked to the physical environment in a reproducible manner.

@@ -37,8 +37,8 @@ The interaction between HanoiVM (Execution) and Axion (Governance) follows a syn
 4.  **Trace:** Axion records the result and any state changes in the deterministic trace log.
 
 ### 2.4 Operational Boundaries
-System isolation is enforced through two primary boundaries:
--   **Memory Boundary:** The HanoiVM state is strictly segmented (CODE, STACK, HEAP, TENSOR, META). Cross-segment leakage is prevented at the opcode level.
+System safety is enforced through two software boundaries inside the runtime process:
+-   **Memory Boundary:** The HanoiVM state is segmented (CODE, STACK, HEAP, TENSOR, META). Cross-segment access is opcode-checked within VM execution.
 -   **Policy Boundary:** The Axion Policy defines the "legal universe" of the program. Any attempt to exceed these bounds (e.g., `max-instructions`) results in immediate termination.
 
 ---
@@ -60,7 +60,7 @@ T81Lang is a high-level, metadata-preserving language that compiles into TISC (T
 - **Coalescence Role:** Bridges human intent to machine execution. The compilation process is bit-stable, meaning the same source always produces the same TISC binary, preserving the audit trail from code to execution.
 
 ### Layer 4: The Execution Engine (`HanoiVM`, `Trace-JIT`)
-HanoiVM is the virtual machine that executes TISC bytecode. It uses a segmented memory model (CODE, STACK, HEAP, TENSOR, META) to prevent memory corruption and ensure isolation.
+HanoiVM is the virtual machine that executes TISC bytecode. It uses a segmented memory model (CODE, STACK, HEAP, TENSOR, META) with software-checked boundaries.
 - **Coalescence Role:** Translates TISC instructions into state changes in the numeric substrate. The **Trace-JIT** optimizes hot paths without sacrificing determinism by only compiling side-effect-free numeric/tensor operations that are subject to Axion boundary checks.
 
 ### Layer 5: Governance and Oversight (`Axion`)
