@@ -36,18 +36,19 @@ Primary interface: [`include/t81/vm/vm.hpp`](../../../include/t81/vm/vm.hpp) (`I
 
 ```mermaid
 flowchart TD
-    VM[Interpreter]
-    STEP[step()]
-    LOAD[load_program()]
-    RUN[run_to_halt()]
-    STATE[State + ThreadContext]
-    AX[Axion Engine]
-    JIT[JitCompiler + compiled_traces]
-    HELP[internal helpers]
+    VM["Interpreter"]
+    LOAD["load_program()"]
+    STEP["step()"]
+    RUN["run_to_halt()"]
+    STATE["State / ThreadContext"]
+    AX["Axion Engine"]
+    JIT["JitCompiler / compiled traces"]
+    HELP["Internal helpers"]
 
     VM --> LOAD
     VM --> STEP
     VM --> RUN
+
     LOAD --> STATE
     STEP --> STATE
     STEP --> AX
@@ -60,27 +61,32 @@ Diagram source: [`../diagrams/vm-internal-structure.mmd`](../diagrams/vm-interna
 
 ```mermaid
 flowchart TD
-    A[step()] --> B{halted or no runnable context?}
-    B -- yes --> Z[return]
-    B -- no --> C[deterministic fault injection check]
-    C --> D{compiled trace at PC?}
-    D -- yes --> E[Axion check: trace enter]
-    E --> F[execute trace with per-insn policy callback]
-    F --> G[Axion check: trace exit/deopt]
-    G --> H{deopt?}
-    H -- yes --> I[invalidate trace, continue interpreter]
-    H -- no --> Z
-    D -- no --> J[fetch insn, increment counters]
-    I --> J
-    J --> K[hotspot accounting + optional trace compile]
-    K --> L[Axion step check]
-    L --> M{verdict deny?}
-    M -- yes --> N[record event -> SecurityFault]
-    M -- no --> O[switch(opcode)]
-    O --> P{trap?}
-    P -- yes --> Q[log trace+event -> return trap]
-    P -- no --> R[sync system registers, rotate context]
-    R --> Z
+    STEP["step()"] --> HALTQ{"Halted or no runnable context?"}
+    HALTQ -- "yes" --> RET["return"]
+    HALTQ -- "no" --> INJ["Deterministic fault injection check"]
+
+    INJ --> TRACEQ{"Compiled trace at PC?"}
+
+    TRACEQ -- "yes" --> TENTER["Axion check: trace enter"]
+    TENTER --> TEXE["Execute trace (per-instruction policy callback)"]
+    TEXE --> TEXIT["Axion check: trace exit / deopt"]
+    TEXIT --> DEOPTQ{"Deopt?"}
+    DEOPTQ -- "yes" --> INVALID["Invalidate trace; continue interpreter"]
+    DEOPTQ -- "no" --> RET
+
+    TRACEQ -- "no" --> FETCH["Fetch instruction; increment counters"]
+    INVALID --> FETCH
+
+    FETCH --> HOT["Hotspot accounting; optional trace compile"]
+    HOT --> ASTEP["Axion step check"]
+    ASTEP --> DENYQ{"Verdict deny?"}
+    DENYQ -- "yes" --> DENY["Record event; raise SecurityFault"]
+    DENYQ -- "no" --> DISPATCH["switch(opcode)"]
+
+    DISPATCH --> TRAPQ{"Trap?"}
+    TRAPQ -- "yes" --> TRAP["Log trace/event; return trap"]
+    TRAPQ -- "no" --> ROT["Sync system registers; rotate context"]
+    ROT --> RET
 ```
 Diagram source: [`../diagrams/vm-dispatch-flow.mmd`](../diagrams/vm-dispatch-flow.mmd)
 
