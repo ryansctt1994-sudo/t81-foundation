@@ -1,148 +1,124 @@
 # Project Control Center
 
 Status: Active Program Management
-Last Updated: 2026-02-25
+Last Updated: 2026-02-26
 Owner: Project Management / Governance
-Version: 2.0.0
+Version: 2.1.0
 
-## 1. Purpose
+## 1. At-a-Glance
 
-Provide the operational control view for delivery status, governance posture,
-active risks, and near-term execution priorities.
+| Item | Status |
+| :--- | :--- |
+| Sprint Focus | March governance close + governed inference hardening |
+| Overall Program Health | Green with one scheduled governance gate pending |
+| Release Readiness Decision | HOLD (decision stamp: 2026-02-26) |
+| Primary Blocker | Required contexts not yet fully satisfied for selected main candidate (`quality gate / required`, `Analyze (cpp)`) |
+| Next Hard Date | C2 month-close execution on 2026-03-31 (UTC) |
+| Open Task Count (`docs/roadmaps-plans/TASKS.md`) | 1 (`C2 Month-Close`) |
 
-## 2. Scope
+## 2. Purpose
 
-This control document tracks program state across:
+Provide the control-plane view for delivery status, governance posture, active
+risks, and near-term execution priorities.
 
-- architecture and docs governance
-- determinism and release discipline
-- implementation alignment and delivery risks
+## 3. Scope
+
+This document is a roll-up, not a submodule ledger. It tracks:
+
+- governance and release controls
+- determinism and policy boundaries
+- execution status and blockers
+- escalation-level risks
 
 Authority remains:
 `/spec` > `docs/architecture/OVERVIEW.md` > `/docs` > `/book`.
 
-## 3. Current Program Snapshot
+## 4. Current Snapshot
 
-### 3.1 Structural and Governance Posture
+### 4.1 Governance and Release
 
-- Documentation IA separation completed:
-  - canonical docs in `docs/`
-  - records in `docs/records/`
-  - site machinery in `docs/site/`
-- Institutional governance controls are in place:
-  - module ownership charter
-  - ADR system
-  - release discipline manifest
-  - incident response plan
-  - deterministic corpus manifest
-- Strategic orientation is codified:
-  - deterministic ternary-based architecture for governed AGI workloads
-  - bounded by determinism registry and DCP guarantees
-- Root-level artifact hygiene updated:
-  - historical test logs moved to `docs/records/archive/`
+- March packet decision is `HOLD` in
+  `docs/status/RELEASE_READINESS_PACKET_2026-03.md`.
+- Required-context verification rule remains unchanged:
+  GO only when both required contexts are `completed` + `success`.
+- CodeQL push-trigger remediation for `main` has been applied; candidate
+  verification still requires a post-fix main commit outcome.
 
-### 3.2 Verification Snapshot
+### 4.2 Delivery Progress
 
-- Full configure/build and full test sweep completed in current cycle.
-- Last local gate snapshot: `ctest` passed (`247` tests, `0` failures).
-- A1 T81Lang drift decomposition execution track is closed (M1-M4, 2026-02-25)
-  with synchronized matrix and governance evidence artifacts.
-- C2 month-close execution runbook prepared:
+- A1 through A1G closure tracks are complete and synchronized.
+- Governed llama.cpp integration backlog items are complete.
+- Experimental backlog implementation items are complete:
+  - Cognitive Tier 1..5 closures
+  - Runtime JIT prototype backend uplift
+  - CanonFS persistent write-path optimization
+  - CLI `t81 trace export` (JSON/CSV)
+  - Debugger cognitive tier inspection (`t [1|2|3|4|5|all]`)
+
+### 4.3 C2 Month-Close Readiness
+
+- Final C2 execution remains scheduled for 2026-03-31.
+- Runbook exists:
   `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md`.
+- Consolidated execution helper exists:
+  `scripts/governance/c2_month_close_check.py`.
+- Latest prep report:
+  `docs/status/C2_MONTH_CLOSE_CHECK_2026-03-31.md` (latest run: PASS).
 
-## 4. Active Workstreams
+## 5. Active Workstreams
 
-1. Governance maintenance and enforcement consistency
-   - keep ADR and release discipline references synchronized
-2. Determinism assurance continuity
-   - maintain verified-surface evidence and corpus hash discipline
-3. Spec-implementation alignment
-   - A1 closure complete; continue high-drift reduction beyond current
-     decomposition baseline
-   - A1B closure complete (section-level parser/semantic evidence deltas closed)
-   - A1C closure complete (section 3/6 and section 7 evidence indexes closed)
-   - A1D closure complete (section 5 IR/lowering and section 8 stdlib evidence
-     indexes closed)
-   - A1E closure complete (section 4 and residual section 3/6 evidence addenda
-     with matrix/governance synchronization)
-   - A1F closure complete (section 7 guard/segment and section 5 maintenance
-     addenda with matrix/governance synchronization)
-   - A1G closure complete (section 2/6 structural-type control-flow and section
-     5 reproducibility-hash addenda with matrix/governance synchronization)
-   - Program decision (2026-02-25): hold A1-series at A1G in the current March
-     window and prioritize C2 month-close finalization on 2026-03-31
-   - Promotion-readiness artifacts initialized for T81Lang Draft -> Beta
-     pathway:
-     `docs/status/T81LANG_PROMOTION_GATE.md` and
-     `docs/status/T81LANG_ENGINEERING_BACKLOG_2026-03.md`
-4. Documentation lifecycle control
-   - prevent root-level doc sprawl and stale governance artifacts
-5. Governed AGI boundary control
-   - enforce promotion pipeline and boundary classification for AGI-facing
-     surfaces
+1. C2 month-close finalization
+   Date: 2026-03-31
+   Exit criteria: final checklist re-run and final stamp in
+   `docs/records/audits/2026-03-governance-review.md`.
+2. Release candidate required-context closure
+   Exit criteria: required contexts satisfied on selected candidate SHA and
+   packet decision re-evaluated.
+3. Governance continuity maintenance
+   Exit criteria: hygiene/link integrity and artifact synchronization sustained
+   through close window.
 
-## 5. Risk Register
+## 6. Risks
 
-### 5.1 High
+### 6.1 High
 
-- Spec/implementation drift remains non-trivial in draft/experimental surfaces.
-- Determinism overclaim risk persists if external summaries omit registry scope.
+- Required-context mismatch risk can keep March packet in HOLD.
+- Determinism overclaim risk if external summaries omit registry boundaries.
 
-### 5.2 Medium
+### 6.2 Medium
 
-- Multilingual synchronization lag against English canonical content.
-- Single-owner concentration for critical governance and release decisions.
-- AGI-facing surface growth outpacing promotion-gate evidence closure.
+- Single-owner concentration for governance/release approvals.
+- AGI-facing surface growth outpacing promotion evidence updates.
 
-### 5.3 Monitoring
+### 6.3 Monitoring
 
-- Benchmark noise due to environment variability.
-- Experimental surface growth without promotion/retirement discipline.
-- Release-boundary misclassification risk for AGI-facing changes.
+- Experimental scope creep without explicit promotion/retirement actions.
+- Benchmark variability and environment-sensitive signal noise.
 
-## 6. 30/60/90 Day Plan
+## 7. Next Decisions
 
-### 30 Days (Control Tightening)
+1. 2026-03-31: Execute C2 runbook and stamp final outcome fields.
+2. Post-required-context pass: Re-evaluate GO/HOLD in the March packet.
 
-- Enforce root-document hygiene and records archival discipline.
-- Standardize status document refresh cadence.
-- Ensure release template usage is consistent with release discipline manifest.
-
-### 60 Days (Alignment)
-
-- Reduce documented spec drift in highest-risk subsystems.
-- Validate deterministic corpus manifest against release evidence workflow.
-- Tighten cross-link integrity between governance, product, and status docs.
-
-### 90 Days (Institutionalization)
-
-- Establish repeatable monthly governance review checkpoint.
-- Execute C2 month-close runbook on 2026-03-31 and stamp final governance
-  review outcome fields.
-- Produce release-readiness evidence packet from existing governance artifacts.
-- Confirm backlog decomposition aligns with DCP and freeze boundaries.
-
-## 7. Governance Directives
+## 8. Governance Directives
 
 1. Spec-first policy remains mandatory for normative behavior changes.
-2. Freeze boundaries remain unchanged and non-negotiable.
+2. Freeze boundaries remain unchanged.
 3. Determinism claims remain limited to Verified registry surfaces.
 4. Public API contract remains `include/t81/**` only.
-5. New root-level documentation files require explicit governance approval.
+5. Root-level documentation additions require explicit governance approval.
 
-## 8. Cross-References
+## 9. Cross-References
 
-- `docs/governance/SPEC_AUTHORITY_MODEL.md`
-- `docs/governance/FREEZE_ENFORCEMENT.md`
-- `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`
-- `docs/governance/INCIDENT_RESPONSE.md`
-- `docs/product/DETERMINISTIC_CORE_PROFILE.md`
-- `docs/product/RELEASE_DISCIPLINE.md`
-- `docs/status/IMPLEMENTATION_MATRIX.md`
-- `docs/status/SYSTEM_STATUS.md`
+- `docs/roadmaps-plans/TASKS.md`
+- `docs/status/RELEASE_READINESS_PACKET_2026-03.md`
+- `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md`
+- `docs/status/C2_MONTH_CLOSE_CHECK_2026-03-31.md`
+- `docs/records/audits/2026-03-governance-review.md`
 - `docs/status/EXECUTION_PLAN_2026-03.md`
+- `docs/status/IMPLEMENTATION_MATRIX.md`
 
-## 9. Versioning Statement
+## 10. Versioning Statement
 
-This control document is operational governance. Updates must preserve authority
-hierarchy and may not weaken freeze or determinism boundaries.
+This control document is operational governance. Updates must preserve
+authority hierarchy and may not weaken freeze or determinism boundaries.
