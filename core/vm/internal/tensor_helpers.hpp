@@ -7,6 +7,7 @@
 
 #include "t81/canonfs/canon_driver.hpp"
 #include "t81/canonfs/canon_types.hpp"
+#include "t81/support/expected.hpp"
 #include "t81/weights.hpp"
 #include "t81/vm/state.hpp"
 
@@ -86,5 +87,18 @@ std::optional<t81::T729DynamicTensor> tensor_new_1d(std::int64_t size);
 t81::T729DynamicTensor tensor_identity_copy(const t81::T729DynamicTensor& tensor);
 std::optional<float> tensor_get_at(const t81::T729DynamicTensor& tensor, std::int64_t index);
 bool tensor_set_at(t81::T729DynamicTensor& tensor, std::int64_t index, float value);
+
+std::expected<t81::T729DynamicTensor, t81::vm::Trap> tensor_vec_binary_checked(
+    const t81::T729DynamicTensor& lhs, const t81::T729DynamicTensor& rhs, bool multiply);
+std::expected<t81::T729DynamicTensor, t81::vm::Trap> tensor_transpose_checked(
+    const t81::T729DynamicTensor& tensor);
+std::expected<t81::T729DynamicTensor, t81::vm::Trap> tensor_matmul_checked(
+    const t81::T729DynamicTensor& lhs, const t81::T729DynamicTensor& rhs);
+std::expected<t81::T729DynamicTensor, t81::vm::Trap> tensor_contract_dot_checked(
+    const t81::T729DynamicTensor& lhs, const t81::T729DynamicTensor& rhs);
+std::expected<float, t81::vm::Trap> tensor_get_checked(const t81::T729DynamicTensor& tensor,
+                                                       std::int64_t index);
+std::expected<void, t81::vm::Trap> tensor_set_checked(t81::T729DynamicTensor& tensor,
+                                                      std::int64_t index, float value);
 
 }  // namespace t81::vm::internal

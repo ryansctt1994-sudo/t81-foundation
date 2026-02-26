@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -25,5 +26,12 @@ std::string format_bounds_fault_reason(MemorySegmentKind kind, int addr, std::st
 
 std::string append_segment_reason(std::string_view action, MemorySegmentKind kind, std::size_t addr,
                                   std::string_view base_reason);
+
+void apply_segment_reason(t81::axion::Verdict& verdict, std::string_view action, MemorySegmentKind kind,
+                          std::size_t addr);
+
+void record_axion_event(State& state, std::size_t current_context, t81::tisc::Opcode opcode,
+                        std::int32_t tag_val, std::int64_t val_data,
+                        const t81::axion::Verdict& verdict);
 
 }  // namespace t81::vm::internal

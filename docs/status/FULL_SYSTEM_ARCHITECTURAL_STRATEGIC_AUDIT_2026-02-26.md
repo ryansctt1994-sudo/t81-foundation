@@ -1,7 +1,7 @@
 # Full-System Architectural & Strategic Audit
 
 Date: 2026-02-26  
-Revision: Post-remediation refresh + conformance sprint Phase 2 (post-`b70d0cbe` working baseline)  
+Revision: Post-remediation refresh + conformance sprint Phase 2 + VM decomposition Phase F closure  
 Scope: `/src`, `/include`, `/spec`, `/docs`, `/book`, CI workflows, governance files, capability contract, opcode/ISA surfaces, VM execution model, Axion policy enforcement, determinism gates, benchmarks, tests, multilingual alignment, roadmaps, release notes.
 
 ## Executive Summary
@@ -94,7 +94,7 @@ Publish explicit dual profile contract:
 - Trace engine is threaded (not native machine-code JIT).
 - Trace execution now policy-checks per instruction and fail-closes on deny.
 - Deterministic scheduling and broad regression coverage exist.
-- VM core remains high-complexity and monolithic (`core/vm/vm.cpp`).
+- VM helper concentration risk was reduced further in Phase F (`runtime_state_helpers`, `gc_helpers`, Axion event bridge extraction), but `core/vm/vm.cpp` remains high-complexity at integration layer scale.
 
 ### 4.2 Deliverables
 
@@ -137,7 +137,7 @@ Publish explicit dual profile contract:
 - VM tensor trap conformance now includes explicit fault expectations for `TSoftmax`, `TTranspose`, `TRoPE`, `TRMSNorm`, `TVecAdd`, `TMatMul`, `TTenDot`, `TGet`, and `TSet` mismatch/OOB/type paths (`t81_vm_tensor_shape_faults_test`).
 - Tensor helper compatibility predicates now have direct regression coverage (`t81_vm_tensor_helper_predicates_test`) to lock shape/compatibility contract behavior independent of dispatch wiring.
 - `TGet`/`TSet` success-path and type-behavior conformance is now explicitly covered (`t81_vm_tensor_get_set_conformance_test`) in addition to fault-path coverage.
-- Phase E tensor-handler extraction is now effectively complete: remaining major VM work shifts to Phase F dispatch slimming/integration-layer reduction.
+- Phase F dispatch-slimming closure landed: tensor checked trap-routing, system-register/signature helpers, GC helpers, and Axion event-bridge helpers are extracted from `vm.cpp`.
 - Formal proof depth for governance/security invariants is incomplete.
 - Host-level containment remains intentionally out-of-scope.
 
@@ -179,7 +179,7 @@ Publish explicit dual profile contract:
 | Engineering Maturity | Emerging System |
 
 Refactor priority ranking:
-1. Decompose VM monolith (`core/vm/vm.cpp`) into clearer dispatch/policy/math modules.
+1. Continue VM integration-layer decomposition to reduce residual control concentration in `core/vm/vm.cpp`.
 2. Expand spec-code conformance from baseline file mapping to behavioral invariant checks.
 3. Expand CanonFS integrity coverage to additional corruption/recovery scenarios (beyond current read-verify/tamper tests).
 4. Expand benchmark gates beyond SIMD slices to representative workload families.
@@ -216,7 +216,7 @@ A technically serious deterministic runtime platform with unusually strong gover
 2. End-to-end implemented pipeline (compiler -> ISA -> VM -> policy).
 3. Fail-closed posture on high-risk unimplemented opcode surfaces.
 4. Explicit capability boundaries and DCP/non-DCP taxonomy.
-5. Large, active automated test surface (269 tests), including new semantic/policy/canonfs/determinism conformance suites.
+5. Large, active automated test surface (270+ tests), including new semantic/policy/canonfs/determinism conformance suites.
 
 ### 9.3 Single Most Important Next Move
 Execute **Behavioral Conformance Expansion Sprint (Phase 2)**: extend newly added VM/Axion/CanonFS invariant suites into broader semantic coverage and workload families, while continuing contract-surface consolidation.

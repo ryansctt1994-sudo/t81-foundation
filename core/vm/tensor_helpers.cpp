@@ -365,4 +365,58 @@ bool tensor_set_at(t81::T729DynamicTensor& tensor, std::int64_t index, float val
   return true;
 }
 
+std::expected<t81::T729DynamicTensor, t81::vm::Trap> tensor_vec_binary_checked(
+    const t81::T729DynamicTensor& lhs, const t81::T729DynamicTensor& rhs, bool multiply) {
+  if (!tensor_elementwise_compatible(lhs, rhs)) {
+    return std::expected<t81::T729DynamicTensor, t81::vm::Trap>(t81::unexpect,
+                                                                t81::vm::Trap::ShapeFault);
+  }
+  return tensor_binary_elementwise(lhs, rhs, multiply);
+}
+
+std::expected<t81::T729DynamicTensor, t81::vm::Trap> tensor_transpose_checked(
+    const t81::T729DynamicTensor& tensor) {
+  if (!tensor_transpose_2d_compatible(tensor)) {
+    return std::expected<t81::T729DynamicTensor, t81::vm::Trap>(t81::unexpect,
+                                                                t81::vm::Trap::ShapeFault);
+  }
+  return tensor_transpose_2d(tensor);
+}
+
+std::expected<t81::T729DynamicTensor, t81::vm::Trap> tensor_matmul_checked(
+    const t81::T729DynamicTensor& lhs, const t81::T729DynamicTensor& rhs) {
+  if (!tensor_matmul_compatible(lhs, rhs)) {
+    return std::expected<t81::T729DynamicTensor, t81::vm::Trap>(t81::unexpect,
+                                                                t81::vm::Trap::ShapeFault);
+  }
+  return tensor_matmul_2d(lhs, rhs);
+}
+
+std::expected<t81::T729DynamicTensor, t81::vm::Trap> tensor_contract_dot_checked(
+    const t81::T729DynamicTensor& lhs, const t81::T729DynamicTensor& rhs) {
+  auto out = tensor_contract_dot(lhs, rhs);
+  if (!out.has_value()) {
+    return std::expected<t81::T729DynamicTensor, t81::vm::Trap>(t81::unexpect,
+                                                                t81::vm::Trap::ShapeFault);
+  }
+  return std::move(*out);
+}
+
+std::expected<float, t81::vm::Trap> tensor_get_checked(const t81::T729DynamicTensor& tensor,
+                                                       std::int64_t index) {
+  auto out = tensor_get_at(tensor, index);
+  if (!out.has_value()) {
+    return std::expected<float, t81::vm::Trap>(t81::unexpect, t81::vm::Trap::BoundsFault);
+  }
+  return *out;
+}
+
+std::expected<void, t81::vm::Trap> tensor_set_checked(t81::T729DynamicTensor& tensor,
+                                                      std::int64_t index, float value) {
+  if (!tensor_set_at(tensor, index, value)) {
+    return std::expected<void, t81::vm::Trap>(t81::unexpect, t81::vm::Trap::BoundsFault);
+  }
+  return {};
+}
+
 }  // namespace t81::vm::internal

@@ -228,6 +228,8 @@ add_library(t81_vm STATIC
   core/vm/value_ops.cpp
   core/vm/memory_segments.cpp
   core/vm/policy_trace_bridge.cpp
+  core/vm/runtime_state_helpers.cpp
+  core/vm/gc_helpers.cpp
   core/vm/tensor_helpers.cpp
 )
 target_include_directories(t81_vm PUBLIC

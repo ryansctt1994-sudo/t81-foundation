@@ -32,6 +32,8 @@
 #include "internal/memory_segments.hpp"
 #include "internal/policy_trace_bridge.hpp"
 #include "internal/tensor_helpers.hpp"
+#include "internal/runtime_state_helpers.hpp"
+#include "internal/gc_helpers.hpp"
 #include "t81/vm/vm.hpp"
 
 namespace t81::vm {
@@ -191,7 +193,8 @@ public:
     for (std::size_t i = 0; i < state_.enum_metadata.size(); ++i) {
       state_.enum_metadata_index[state_.enum_metadata[i].enum_id] = i;
     }
-    sync_system_registers();
+    t81::vm::internal::sync_system_registers(state_, program_, instruction_count_,
+                                             state_.current_context);
     state_.policy.reset();
     state_.gc_cycles = 0;
     instructions_since_gc_ = 0;
@@ -1378,7 +1381,8 @@ public:
           ctx.register_tags[insn.a] = state_.memory_tags[physical_addr];
         }
         update_flags(ctx.registers[insn.a]);
-        apply_segment_reason(verdict, "MetaRead reflection", segment, static_cast<size_t>(addr));
+        t81::vm::internal::apply_segment_reason(verdict, "MetaRead reflection", segment,
+                                                static_cast<size_t>(addr));
         record_axion_event(insn.opcode, static_cast<int32_t>(segment), addr, verdict);
         break;
       }
@@ -1454,7 +1458,8 @@ public:
           state_.memory[physical_addr] = val;
           state_.memory_tags[physical_addr] = tag;
         }
-        apply_segment_reason(verdict, "MetaWrite reflection", segment, static_cast<size_t>(addr));
+        t81::vm::internal::apply_segment_reason(verdict, "MetaWrite reflection", segment,
+                                                static_cast<size_t>(addr));
         record_axion_event(insn.opcode, static_cast<int32_t>(segment), addr, verdict);
         break;
       }
@@ -2227,7 +2232,7 @@ public:
         auto verdict = eval_axion_call(t81::axion::reasons::kAxRead, current_pc, insn.opcode);
         auto guard_addr = static_cast<std::size_t>(insn.b);
         auto guard_kind = segment_for_address(guard_addr);
-        apply_segment_reason(verdict, "AxRead guard", guard_kind, guard_addr);
+        t81::vm::internal::apply_segment_reason(verdict, "AxRead guard", guard_kind, guard_addr);
         if (verdict.kind == t81::axion::VerdictKind::Deny) {
           record_axion_event(insn.opcode, insn.b, 0, verdict);
           trap = Trap::SecurityFault;
@@ -2252,7 +2257,7 @@ public:
           guard_addr = static_cast<std::size_t>(ctx.registers[insn.a]);
           guard_kind = segment_for_address(guard_addr);
         }
-        apply_segment_reason(verdict, "AxSet guard", guard_kind, guard_addr);
+        t81::vm::internal::apply_segment_reason(verdict, "AxSet guard", guard_kind, guard_addr);
         record_axion_event(insn.opcode, insn.a, value, verdict);
         if (verdict.kind == t81::axion::VerdictKind::Deny) {
           trap = Trap::SecurityFault;
@@ -3451,10 +3456,6 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (!t81::vm::internal::tensor_elementwise_compatible(*tensor_a, *tensor_b)) {
-          trap = Trap::ShapeFault;
-          break;
-        }
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow,
                                     insn.opcode == t81::tisc::Opcode::TVecAdd
                                         ? "TVecAdd kernel execution"
@@ -3463,8 +3464,13 @@ public:
                            verdict);
 
         const bool multiply = insn.opcode == t81::tisc::Opcode::TVecMul;
-        auto res_handle =
-            alloc_tensor(t81::vm::internal::tensor_binary_elementwise(*tensor_a, *tensor_b, multiply));
+        auto computed =
+            t81::vm::internal::tensor_vec_binary_checked(*tensor_a, *tensor_b, multiply);
+        if (!computed.has_value()) {
+          trap = computed.error();
+          break;
+        }
+        auto res_handle = alloc_tensor(std::move(*computed));
         if (!res_handle) {
           trap = res_handle.error();
           break;
@@ -3483,14 +3489,19 @@ public:
           break;
         }
         auto* tensor = tensor_ptr(ctx.registers[insn.b]);
-        if (tensor == nullptr || !t81::vm::internal::tensor_transpose_2d_compatible(*tensor)) {
+        if (tensor == nullptr) {
           trap = Trap::ShapeFault;
           break;
         }
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TTranspose kernel execution"};
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
-        auto res_handle = alloc_tensor(t81::vm::internal::tensor_transpose_2d(*tensor));
+        auto computed = t81::vm::internal::tensor_transpose_checked(*tensor);
+        if (!computed.has_value()) {
+          trap = computed.error();
+          break;
+        }
+        auto res_handle = alloc_tensor(std::move(*computed));
         if (!res_handle) {
           trap = res_handle.error();
           break;
@@ -3526,16 +3537,16 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (!t81::vm::internal::tensor_matmul_compatible(*tensor_a, *tensor_b)) {
-          log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, 0, "TMatMul shape mismatch");
-          trap = Trap::ShapeFault;
-          break;
-        }
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TMatMul kernel execution"};
         record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
-        t81::T729DynamicTensor result = t81::vm::internal::tensor_matmul_2d(*tensor_a, *tensor_b);
-        auto res_handle = alloc_tensor(std::move(result));
+        auto computed = t81::vm::internal::tensor_matmul_checked(*tensor_a, *tensor_b);
+        if (!computed.has_value()) {
+          log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, 0, "TMatMul shape mismatch");
+          trap = computed.error();
+          break;
+        }
+        auto res_handle = alloc_tensor(std::move(*computed));
         if (!res_handle) {
           trap = res_handle.error();
           break;
@@ -3576,12 +3587,12 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        auto result = t81::vm::internal::tensor_contract_dot(*tensor_a, *tensor_b);
-        if (!result.has_value()) {
-          trap = Trap::ShapeFault;
+        auto computed = t81::vm::internal::tensor_contract_dot_checked(*tensor_a, *tensor_b);
+        if (!computed.has_value()) {
+          trap = computed.error();
           break;
         }
-        auto res_handle = alloc_tensor(std::move(*result));
+        auto res_handle = alloc_tensor(std::move(*computed));
         if (!res_handle) {
           trap = res_handle.error();
           break;
@@ -3613,11 +3624,11 @@ public:
           break;
         }
         std::int64_t index = ctx.registers[insn.c];
-        auto value = t81::vm::internal::tensor_get_at(*tensor, index);
+        auto value = t81::vm::internal::tensor_get_checked(*tensor, index);
         if (!value.has_value()) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, static_cast<int>(index),
                            "tensor index out of bounds");
-          trap = Trap::BoundsFault;
+          trap = value.error();
           break;
         }
         ctx.registers[insn.a] = alloc_float(static_cast<double>(*value));
@@ -3689,10 +3700,11 @@ public:
           break;
         }
 
-        if (!t81::vm::internal::tensor_set_at(*tensor, idx, val)) {
+        auto set_res = t81::vm::internal::tensor_set_checked(*tensor, idx, val);
+        if (!set_res.has_value()) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, static_cast<int>(idx),
                            "TSet OOB");
-          trap = Trap::BoundsFault;
+          trap = set_res.error();
           break;
         }
 
@@ -4771,7 +4783,8 @@ public:
       run_gc_cycle_("interval");
     }
 
-    sync_system_registers();
+    t81::vm::internal::sync_system_registers(state_, program_, instruction_count_,
+                                             state_.current_context);
     log_trace(insn.opcode, trap);
     if (trap != Trap::None) {
       return t81::unexpected(trap);
@@ -4820,107 +4833,6 @@ public:
   }
 
 private:
-  static std::uint64_t fnv1a64(std::uint64_t hash, std::uint64_t value) {
-    for (int i = 0; i < 8; ++i) {
-      hash ^= static_cast<std::uint8_t>((value >> (i * 8)) & 0xFFu);
-      hash *= 1099511628211ull;
-    }
-    return hash;
-  }
-
-  std::int64_t compute_lineage_signature_() const {
-    std::uint64_t hash = 1469598103934665603ull;
-    hash = fnv1a64(hash, static_cast<std::uint64_t>(program_.insns.size()));
-    for (const auto& insn : program_.insns) {
-      hash = fnv1a64(hash, static_cast<std::uint64_t>(insn.opcode));
-      hash = fnv1a64(hash, static_cast<std::uint64_t>(static_cast<std::int64_t>(insn.a)));
-      hash = fnv1a64(hash, static_cast<std::uint64_t>(static_cast<std::int64_t>(insn.b)));
-      hash = fnv1a64(hash, static_cast<std::uint64_t>(static_cast<std::int64_t>(insn.c)));
-      hash = fnv1a64(hash, static_cast<std::uint64_t>(insn.literal_kind));
-    }
-    for (char ch : program_.axion_policy_text) {
-      hash = fnv1a64(hash, static_cast<std::uint64_t>(static_cast<unsigned char>(ch)));
-    }
-    for (char ch : program_.match_metadata_text) {
-      hash = fnv1a64(hash, static_cast<std::uint64_t>(static_cast<unsigned char>(ch)));
-    }
-    std::int64_t sig = static_cast<std::int64_t>(hash & 0x7FFFFFFFFFFFFFFFull);
-    return sig == 0 ? 1 : sig;
-  }
-
-  std::int64_t compute_entropy_signature_(const ThreadContext& ctx) const {
-    std::uint64_t hash = 1469598103934665603ull;
-    hash = fnv1a64(hash, static_cast<std::uint64_t>(instruction_count_));
-    hash = fnv1a64(hash, static_cast<std::uint64_t>(state_.contradiction_events));
-    hash = fnv1a64(hash, static_cast<std::uint64_t>(ctx.call_depth));
-    hash = fnv1a64(hash, static_cast<std::uint64_t>(ctx.stack_frames.size()));
-    hash = fnv1a64(hash, static_cast<std::uint64_t>(ctx.pc));
-    hash = fnv1a64(hash, static_cast<std::uint64_t>(ctx.tier_status.current));
-    std::int64_t sig = static_cast<std::int64_t>(hash & 0x7FFFFFFFFFFFFFFFull);
-    return sig == 0 ? 1 : sig;
-  }
-
-  std::int64_t compute_constitutional_mask_() const {
-    constexpr std::int64_t kPolicyLoaded = (1ll << 0);
-    constexpr std::int64_t kMaxInstructions = (1ll << 1);
-    constexpr std::int64_t kMaxRecursion = (1ll << 2);
-    constexpr std::int64_t kMaxStack = (1ll << 3);
-    constexpr std::int64_t kMaxReflections = (1ll << 4);
-    constexpr std::int64_t kMaxMetaWrites = (1ll << 5);
-    constexpr std::int64_t kAllowedTensorHashes = (1ll << 6);
-    constexpr std::int64_t kMatchGuards = (1ll << 7);
-    constexpr std::int64_t kSegmentOrAxionRequirements = (1ll << 8);
-    constexpr std::int64_t kAlignmentRequirements = (1ll << 9);
-
-    if (!state_.policy.has_value()) return 0;
-    std::int64_t mask = kPolicyLoaded;
-    const auto& p = *state_.policy;
-    if (p.max_instructions.has_value()) mask |= kMaxInstructions;
-    if (p.max_recursion.has_value()) mask |= kMaxRecursion;
-    if (p.max_stack.has_value()) mask |= kMaxStack;
-    if (p.max_reflections.has_value()) mask |= kMaxReflections;
-    if (p.max_meta_writes.has_value()) mask |= kMaxMetaWrites;
-    if (!p.allowed_tensor_hashes.empty()) mask |= kAllowedTensorHashes;
-    if (!p.match_guards.empty()) mask |= kMatchGuards;
-    if (!p.segment_requirements.empty() || !p.axion_event_requirements.empty()) {
-      mask |= kSegmentOrAxionRequirements;
-    }
-    if (!p.alignment_requirements.empty()) mask |= kAlignmentRequirements;
-    return mask;
-  }
-
-  void sync_system_registers() {
-    if (state_.contexts.empty()) return;
-    auto& ctx = state_.contexts[state_.current_context];
-    ctx.registers[0] = 0;
-    ctx.register_tags[0] = ValueTag::Int;
-
-    // R75: Global Tick
-    ctx.registers[75] = static_cast<std::int64_t>(instruction_count_);
-    ctx.register_tags[75] = ValueTag::Int;
-
-    // R76: Lineage Root Hash (derived deterministically from loaded program/policy metadata)
-    ctx.registers[76] = compute_lineage_signature_();
-    ctx.register_tags[76] = ValueTag::Int;
-
-    // R77: Current Entropy Signature (derived deterministically from runtime state)
-    ctx.registers[77] = compute_entropy_signature_(ctx);
-    ctx.register_tags[77] = ValueTag::Int;
-
-    // R78: Active Constitutional Mask (derived from active policy capabilities/requirements)
-    ctx.registers[78] = compute_constitutional_mask_();
-    ctx.register_tags[78] = ValueTag::Int;
-
-    // R79: Recursion Depth Counter
-    ctx.registers[79] =
-        static_cast<std::int64_t>(std::max(ctx.stack_frames.size(), ctx.call_depth));
-    ctx.register_tags[79] = ValueTag::Int;
-
-    // R80: Axion Seal / Capability Word
-    ctx.registers[80] = state_.halted ? 0 : 1;
-    ctx.register_tags[80] = ValueTag::Int;
-  }
-
   std::int64_t intern_weights_tensor(std::string_view name) {
     if (name.empty() || !state_.weights_model) {
       return 0;
@@ -5017,192 +4929,10 @@ private:
     log_bounds_fault(opcode, kind, addr, action);
   }
 
-  void push_axion_event(const AxionEvent& event) {
-    static const bool log_to_stderr = []() {
-      if (const char* v = std::getenv("T81_VM_AXION_EVENT_STDERR")) {
-        return std::strcmp(v, "0") != 0;
-      }
-      return false;
-    }();
-    if (log_to_stderr) {
-      std::cerr << "[VM] push_axion_event: opcode=" << static_cast<int>(event.opcode)
-                << " reason=\"" << event.verdict.reason << "\"\n";
-    }
-    state_.axion_log.push_back(event);
-  }
-
-  void log_meta_slot(const char* label) {
-    if (!state_.layout.meta.contains(state_.meta_ptr)) {
-      return;
-    }
-    AxionEvent meta_event;
-    meta_event.opcode = t81::tisc::Opcode::Nop;
-    meta_event.tag = static_cast<std::int32_t>(MemorySegmentKind::Meta);
-    meta_event.value = static_cast<std::int64_t>(state_.meta_ptr);
-    meta_event.verdict.kind = t81::axion::VerdictKind::Allow;
-    std::ostringstream reason_stream;
-    reason_stream << "meta slot " << label << " segment=" << to_string(MemorySegmentKind::Meta)
-                  << " addr=" << state_.meta_ptr;
-    meta_event.verdict.reason = reason_stream.str();
-    push_axion_event(meta_event);
-    ++state_.meta_ptr;
-  }
-
-  static void apply_segment_reason(t81::axion::Verdict& verdict, const char* action,
-                                   MemorySegmentKind kind, std::size_t addr) {
-    verdict.reason = t81::vm::internal::append_segment_reason(action, kind, addr, verdict.reason);
-  }
-
   void record_axion_event(t81::tisc::Opcode opcode, std::int32_t tag_val, std::int64_t val_data,
                           const t81::axion::Verdict& verdict) {
-    log_meta_slot(t81::axion::reasons::kMetaSlotAxionEvent.data());
-    AxionEvent event;
-    event.opcode = opcode;
-    event.tag = tag_val;
-    event.value = val_data;
-    event.verdict = verdict;
-    event.structured.reason = verdict.reason;
-    if (!state_.contexts.empty()) {
-      event.structured.pc = state_.contexts[state_.current_context].pc;
-    } else {
-      event.structured.pc = 0;
-    }
-    event.structured.handle_id = val_data;  // often used for handles
-    if (verdict.kind == t81::axion::VerdictKind::Allow) {
-      event.structured.decision = "allow";
-    } else if (verdict.kind == t81::axion::VerdictKind::Warn) {
-      event.structured.decision = "warn";
-    } else if (verdict.kind == t81::axion::VerdictKind::Defer) {
-      event.structured.decision = "defer";
-    } else {
-      event.structured.decision = "deny";
-    }
-    push_axion_event(event);
-  }
-
-  void mark_and_sweep() {
-    // 1. Initialize mark bitmap
-    std::vector<bool> marked_tensors(state_.tensors.size(), false);
-    std::vector<bool> marked_infinite_forms(state_.infinite_forms.size(), false);
-    std::vector<bool> visited_options(state_.options.size(), false);
-    std::vector<bool> visited_results(state_.results.size(), false);
-    std::vector<bool> visited_enums(state_.enums.size(), false);
-
-    // Helper for marking
-    auto mark_tensor = [&](std::int64_t handle) {
-      if (handle <= 0) return;
-      std::size_t idx = static_cast<std::size_t>(handle - 1);
-      if (idx < marked_tensors.size()) {
-        marked_tensors[idx] = true;
-      }
-    };
-
-    auto mark_infinite = [&](std::int64_t handle) {
-      if (handle <= 0) return;
-      std::size_t idx = static_cast<std::size_t>(handle - 1);
-      if (idx < marked_infinite_forms.size()) {
-        marked_infinite_forms[idx] = true;
-      }
-    };
-
-    // Recursive scan
-    std::function<void(ValueTag, std::int64_t)> scan_value = [&](ValueTag tag, std::int64_t val) {
-      switch (tag) {
-        case ValueTag::TensorHandle:
-          mark_tensor(val);
-          break;
-        case ValueTag::OptionHandle: {
-          if (val <= 0) return;
-          std::size_t idx = static_cast<std::size_t>(val - 1);
-          if (idx < state_.options.size() && !visited_options[idx]) {
-            visited_options[idx] = true;
-            scan_value(state_.options[idx].payload_tag, state_.options[idx].payload);
-          }
-          break;
-        }
-        case ValueTag::ResultHandle: {
-          if (val <= 0) return;
-          std::size_t idx = static_cast<std::size_t>(val - 1);
-          if (idx < state_.results.size() && !visited_results[idx]) {
-            visited_results[idx] = true;
-            scan_value(state_.results[idx].payload_tag, state_.results[idx].payload);
-          }
-          break;
-        }
-        case ValueTag::EnumHandle: {
-          if (val <= 0) return;
-          std::size_t idx = static_cast<std::size_t>(val - 1);
-          if (idx < state_.enums.size() && !visited_enums[idx]) {
-            visited_enums[idx] = true;
-            if (state_.enums[idx].has_payload) {
-              scan_value(state_.enums[idx].payload_tag, state_.enums[idx].payload);
-            }
-          }
-          break;
-        }
-        case ValueTag::InfiniteHandle:
-          mark_infinite(val);
-          break;
-        case ValueTag::ReflectionHandle:
-          // Reflections are roots, scanned below explicitly.
-          break;
-        default:
-          break;
-      }
-    };
-
-    // 2. Scan Roots
-
-    // Registers (for all contexts)
-    for (const auto& ctx : state_.contexts) {
-      for (size_t i = 0; i < ctx.registers.size(); ++i) {
-        scan_value(ctx.register_tags[i], ctx.registers[i]);
-      }
-    }
-
-    // Memory (Stack + Heap segments)
-    for (size_t i = 0; i < state_.memory.size(); ++i) {
-      scan_value(state_.memory_tags[i], state_.memory[i]);
-    }
-
-    // Reflection Snapshots (Implicit Roots)
-    for (const auto& snap : state_.reflection_snapshots) {
-      for (size_t i = 0; i < snap.registers.size(); ++i) {
-        scan_value(snap.register_tags[i], snap.registers[i]);
-      }
-    }
-
-    // 3. Sweep
-    size_t freed_count = 0;
-    for (size_t i = 0; i < state_.tensors.size(); ++i) {
-      if (state_.tensors[i].has_value() && !marked_tensors[i]) {
-        state_.total_tensor_elements -= state_.tensors[i]->data().size();
-        state_.tensors[i] = std::nullopt;
-        state_.free_tensor_indices.push_back(i);
-        freed_count++;
-      }
-    }
-
-    size_t freed_infinite_count = 0;
-    for (size_t i = 0; i < state_.infinite_forms.size(); ++i) {
-      if (state_.infinite_forms[i].has_value() && !marked_infinite_forms[i]) {
-        state_.metrics.total_infinite_forms--;
-        state_.infinite_forms[i] = std::nullopt;
-        state_.free_infinite_indices.push_back(i);
-        freed_infinite_count++;
-      }
-    }
-
-    if (freed_count > 0 || freed_infinite_count > 0) {
-      t81::axion::Verdict verdict;
-      verdict.kind = t81::axion::VerdictKind::Allow;
-      std::ostringstream reason_stream;
-      reason_stream << "GC reclaimed tensors=" << freed_count
-                    << " infinite_forms=" << freed_infinite_count;
-      verdict.reason = reason_stream.str();
-      record_axion_event(t81::tisc::Opcode::Trap, 0,
-                         static_cast<int64_t>(freed_count + freed_infinite_count), verdict);
-    }
+    t81::vm::internal::record_axion_event(state_, state_.current_context, opcode, tag_val, val_data,
+                                          verdict);
   }
 
   void run_gc_cycle_(const char* reason) {
@@ -5217,11 +4947,23 @@ private:
     record_axion_event(t81::tisc::Opcode::Trap, static_cast<std::int32_t>(state_.gc_cycles),
                        static_cast<std::int64_t>(state_.gc_cycles), verdict);
 
-    mark_and_sweep();
+    auto reclaimed = t81::vm::internal::mark_and_sweep(state_);
+    if (reclaimed.tensors > 0 || reclaimed.infinite_forms > 0) {
+      t81::axion::Verdict reclaimed_verdict;
+      reclaimed_verdict.kind = t81::axion::VerdictKind::Allow;
+      std::ostringstream reclaimed_reason;
+      reclaimed_reason << "GC reclaimed tensors=" << reclaimed.tensors
+                       << " infinite_forms=" << reclaimed.infinite_forms;
+      reclaimed_verdict.reason = reclaimed_reason.str();
+      record_axion_event(
+          t81::tisc::Opcode::Trap, 0,
+          static_cast<std::int64_t>(reclaimed.tensors + reclaimed.infinite_forms),
+          reclaimed_verdict);
+    }
 
     log_heap_compaction(state_.heap_ptr, state_.heap_frames.size());
     log_heap_relocation(state_.heap_ptr, state_.layout.heap.start, state_.heap_frames.size());
-    compact_heap(state_.layout.heap.start);
+    t81::vm::internal::compact_heap(state_, state_.layout.heap.start);
   }
 
   void log_heap_compaction(std::size_t heap_ptr, std::size_t heap_frames) {
@@ -5244,14 +4986,6 @@ private:
     verdict.reason = reason_stream.str();
     record_axion_event(t81::tisc::Opcode::Trap, static_cast<std::int32_t>(MemorySegmentKind::Heap),
                        static_cast<std::int64_t>(addr_to), verdict);
-  }
-
-  void compact_heap(std::size_t new_ptr) {
-    for (auto& frame : state_.heap_frames) {
-      frame.first = static_cast<std::int64_t>(new_ptr);
-    }
-    state_.heap_frames.clear();
-    state_.heap_ptr = new_ptr;
   }
 
   struct TierTelemetry {

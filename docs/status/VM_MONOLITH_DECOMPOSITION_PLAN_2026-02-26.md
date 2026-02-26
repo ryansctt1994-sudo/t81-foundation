@@ -2,7 +2,7 @@
 
 Date: 2026-02-26  
 Scope: `core/vm/vm.cpp`  
-Status: In progress (Phase A+B+C+D completed; Phase E complete; Phase F in progress)
+Status: Completed (Phase A+B+C+D+E+F complete)
 
 ## Objective
 Reduce regression blast radius and improve assurance depth by decomposing `core/vm/vm.cpp` into testable modules while preserving byte-for-byte runtime behavior on DCP surfaces.
@@ -14,19 +14,23 @@ Reduce regression blast radius and improve assurance depth by decomposing `core/
 - Any behavior-changing fixes must land in separate commits after decomposition steps.
 - Pre-dispatch policy denies must remain observable in Axion logs (no silent deny paths).
 
-## Target Decomposition
-1. `vm_dispatch_core.cpp`  
-Purpose: opcode dispatch loop, step/run orchestration, trap routing.
-2. `vm_memory_segments.cpp`  
-Purpose: segment checks, stack/heap/meta helpers, bounds trace emission.
-3. `vm_value_ops.cpp`  
-Purpose: scalar arithmetic, comparisons, sum-type constructors/unwrappers.
-4. `vm_tensor_ops.cpp`  
-Purpose: tensor/shape/weights opcode handlers and deterministic guard checks.
-5. `vm_policy_bridge.cpp`  
-Purpose: Axion syscall context assembly, per-instruction policy checks, fail-closed hooks.
-6. `vm_trace_log.cpp`  
-Purpose: trace and Axion event recording helpers, deterministic reason formatting.
+## Target Decomposition (Current Baseline)
+1. `core/vm/vm.cpp`  
+Purpose: dispatch integration, trap routing, and opcode-family orchestration.
+2. `core/vm/value_ops.cpp`  
+Purpose: scalar arithmetic helpers.
+3. `core/vm/memory_segments.cpp`  
+Purpose: memory/stack helpers and layout-aware checks.
+4. `core/vm/policy_trace_bridge.cpp`  
+Purpose: syscall context assembly, deterministic reason formatting, Axion event recording.
+5. `core/vm/tensor_helpers.cpp`  
+Purpose: tensor decode/load/compute kernels and checked tensor trap mapping helpers.
+6. `core/vm/runtime_state_helpers.cpp`  
+Purpose: system-register synchronization and deterministic lineage/entropy/constitutional signatures.
+7. `core/vm/gc_helpers.cpp`  
+Purpose: GC mark/sweep traversal and heap compaction helpers.
+8. `core/vm/tier_limits.cpp`  
+Purpose: cognitive-tier limit/threshold helpers.
 
 ## Phase Plan
 1. Phase A: Extraction scaffolding
@@ -48,6 +52,7 @@ Purpose: trace and Axion event recording helpers, deterministic reason formattin
  - Completed: shared native tensor decode path (`WeightsTensorHandle` promotion + `TLoadHash` decode) extracted to `tensor_helpers`; CanonFS tensor-object parsing, decode-or-fail gate, hash-ref parsing, and CanonFS fetch/decode status classification moved out of `vm.cpp`; tensor compute paths (`TSqrt`, `TExp`, `TSiLU`, `TSoftmax`, `TVecAdd/TVecMul`, `TTranspose`, `TMatMul`, `TTenDot`, `TRMSNorm`, `TRoPE`) now call helper modules; `TGet/TSet/TNew/TID` core operations and tensor shape-compatibility predicates are helper-centralized.
 6. Phase F: Final dispatch slimming
 - Reduce `vm.cpp` to dispatch integration and module wiring.
+ - Completed: tensor checked trap-routing (`TVec*`, `TTranspose`, `TMatMul`, `TTenDot`, `TGet`, `TSet`) now helper-driven; system-register/signature computations extracted to `runtime_state_helpers`; GC mark/sweep and heap compaction extracted to `gc_helpers`; Axion event push/meta-slot/structured-recording extracted to `policy_trace_bridge`.
 
 ## Verification Gates Per Phase
 - `ctest --test-dir build -R "t81_vm_.*|vm_.*|axion_.*|jit_.*|determinism.*|canonfs_.*"`
@@ -71,3 +76,13 @@ Mitigation: benchmark after each major phase and keep hot helpers inline where n
 - Updated architecture docs reflect new module boundaries with evidence links.
 - Pre-dispatch deny-path observability remains locked by explicit VM tests.
 - Tensor shape-fault behavior remains locked by explicit VM trap-conformance tests.
+
+## Exit Evidence
+- `core/vm/vm.cpp` reduced from 5294 to 5021 LOC in this decomposition cycle; high-risk helper clusters moved to dedicated modules.
+- Determinism and governance gates passed on post-Phase-F baseline:
+  - `scripts/ci/run_determinism_slice.sh build`
+  - `python3 scripts/ci/check_tisc_freeze_integrity.py`
+  - `python3 scripts/governance/check_spec_code_alignment_baseline.py`
+  - focused VM/Axion/CanonFS/JIT conformance suites (`ctest` regex slices)
+- Pre-dispatch deny-path observability remains covered by `t81_vm_predispatch_policy_deny_logging_test`.
+- Tensor shape and access trap conformance remains covered by `t81_vm_tensor_shape_faults_test` and `t81_vm_tensor_get_set_conformance_test`.

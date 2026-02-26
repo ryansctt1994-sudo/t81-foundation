@@ -8,7 +8,11 @@ Implementation of the T81VM runtime.
 - Runtime loading/dispatch plumbing
 
 ## Key Files
-- `vm.cpp`: core interpreter loop and opcode dispatch.
+- `vm.cpp`: interpreter dispatch integration and opcode-family orchestration.
+- `tensor_helpers.cpp`: tensor decode/load/compute and checked trap helpers.
+- `policy_trace_bridge.cpp`: Axion syscall context/reason/event bridge helpers.
+- `runtime_state_helpers.cpp`: deterministic system-register/signature synchronization.
+- `gc_helpers.cpp`: GC mark/sweep and heap compaction helpers.
 
 ## Related Interfaces
 - `include/t81/vm/vm.hpp`
