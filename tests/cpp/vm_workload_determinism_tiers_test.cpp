@@ -1,0 +1,123 @@
+#include <cstdint>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include "t81/isa/program.hpp"
+#include "t81/vm/vm.hpp"
+
+namespace {
+
+bool expect(bool cond, const std::string& msg) {
+  if (!cond) {
+    std::cerr << "vm_workload_determinism_tiers_test failure: " << msg << "\n";
+    return false;
+  }
+  return true;
+}
+
+std::uint64_t mix(std::uint64_t seed, std::uint64_t value) {
+  return seed ^ (value + 0x9e3779b97f4a7c15ULL + (seed << 6U) + (seed >> 2U));
+}
+
+std::uint64_t signature_for_program(const t81::tisc::Program& p, bool* ok) {
+  auto vm = t81::vm::make_interpreter_vm();
+  vm->load_program(p);
+  auto run = vm->run_to_halt(5000);
+  *ok = run.has_value();
+  if (!run.has_value()) return 0;
+
+  const auto& st = vm->state();
+  std::uint64_t sig = 1469598103934665603ULL;
+  for (std::size_t i = 0; i < 48; ++i) {
+    sig = mix(sig, static_cast<std::uint64_t>(st.contexts[0].registers[i]));
+    sig = mix(sig, static_cast<std::uint64_t>(st.contexts[0].register_tags[i]));
+  }
+  sig = mix(sig, st.contexts[0].pc);
+  sig = mix(sig, st.contexts[0].sp);
+  sig = mix(sig, st.trace.size());
+  sig = mix(sig, st.axion_log.size());
+  for (const auto& e : st.trace) {
+    sig = mix(sig, e.pc);
+    sig = mix(sig, static_cast<std::uint64_t>(e.opcode));
+    sig = mix(sig, e.trap.has_value() ? static_cast<std::uint64_t>(e.trap.value()) : 0ULL);
+  }
+  for (const auto& line : st.printed_output) {
+    for (unsigned char c : line) sig = mix(sig, c);
+  }
+  return sig;
+}
+
+t81::tisc::Program micro_program() {
+  t81::tisc::Program p;
+  p.insns.push_back({t81::tisc::Opcode::LoadImm, 40, 40, 0});
+  p.insns.push_back({t81::tisc::Opcode::LoadImm, 41, 2, 0});
+  p.insns.push_back({t81::tisc::Opcode::Add, 42, 40, 41});
+  p.insns.push_back({t81::tisc::Opcode::Mul, 43, 42, 41});
+  p.insns.push_back({t81::tisc::Opcode::Halt, 0, 0, 0});
+  return p;
+}
+
+t81::tisc::Program meso_program() {
+  t81::tisc::Program p;
+  p.insns.push_back({t81::tisc::Opcode::LoadImm, 40, 0, 0});
+  p.insns.push_back({t81::tisc::Opcode::LoadImm, 41, 1, 0});
+  p.insns.push_back({t81::tisc::Opcode::LoadImm, 42, 81, 0});
+  p.insns.push_back({t81::tisc::Opcode::Add, 40, 40, 41});       // pc=3
+  p.insns.push_back({t81::tisc::Opcode::Less, 43, 40, 42});      // pc=4
+  p.insns.push_back({t81::tisc::Opcode::JumpIfNotZero, 3, 43, 0});
+  p.insns.push_back({t81::tisc::Opcode::Store, 140, 40, 0});
+  p.insns.push_back({t81::tisc::Opcode::Load, 44, 140, 0});
+  p.insns.push_back({t81::tisc::Opcode::Print, 44, 0, 0});
+  p.insns.push_back({t81::tisc::Opcode::Halt, 0, 0, 0});
+  return p;
+}
+
+t81::tisc::Program mixed_program() {
+  t81::tisc::Program p;
+  p.axion_policy_text = "(policy (tier 1) (max-instructions 512) (max-stack 64))";
+  p.insns.push_back({t81::tisc::Opcode::LoadImm, 40, 42, 0});
+  p.insns.push_back({t81::tisc::Opcode::MakeOptionSome, 41, 40, 0});
+  p.insns.push_back({t81::tisc::Opcode::OptionUnwrap, 42, 41, 0});
+  p.insns.push_back({t81::tisc::Opcode::MakeResultOk, 43, 42, 0});
+  p.insns.push_back({t81::tisc::Opcode::ResultUnwrapOk, 44, 43, 0});
+  p.insns.push_back({t81::tisc::Opcode::Push, 44, 0, 0});
+  p.insns.push_back({t81::tisc::Opcode::Pop, 45, 0, 0});
+  p.insns.push_back({t81::tisc::Opcode::Store, 160, 45, 0});
+  p.insns.push_back({t81::tisc::Opcode::Load, 46, 160, 0});
+  p.insns.push_back({t81::tisc::Opcode::Print, 46, 0, 0});
+  p.insns.push_back({t81::tisc::Opcode::Halt, 0, 0, 0});
+  return p;
+}
+
+bool validate_tier(const std::string& tier_id, const t81::tisc::Program& p, std::ofstream& out) {
+  bool ok = false;
+  const std::uint64_t baseline = signature_for_program(p, &ok);
+  if (!expect(ok, tier_id + ": baseline run failed")) return false;
+  out << tier_id << " baseline=" << baseline << "\n";
+  for (int i = 0; i < 5; ++i) {
+    bool run_ok = false;
+    const std::uint64_t sig = signature_for_program(p, &run_ok);
+    if (!expect(run_ok, tier_id + ": repeated run failed")) return false;
+    if (!expect(sig == baseline, tier_id + ": signature drift")) return false;
+    out << tier_id << " run" << i << "=" << sig << "\n";
+  }
+  return true;
+}
+
+}  // namespace
+
+int main() {
+  std::filesystem::create_directories("artifacts");
+  std::ofstream log("artifacts/vm_workload_determinism_signatures.log", std::ios::trunc);
+  if (!expect(static_cast<bool>(log), "failed to open signature artifact log")) return 1;
+
+  if (!validate_tier("micro", micro_program(), log)) return 1;
+  if (!validate_tier("meso", meso_program(), log)) return 1;
+  if (!validate_tier("mixed", mixed_program(), log)) return 1;
+
+  log.flush();
+  return 0;
+}

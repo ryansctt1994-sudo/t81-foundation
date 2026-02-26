@@ -442,6 +442,7 @@ jobs:
           path: |
             .github/logs/build-and-test.log
             build/ctest-results.xml
+            build/artifacts/vm_workload_determinism_signatures.log
           if-no-files-found: warn
 
       - name: Upload T3_K hash artifact

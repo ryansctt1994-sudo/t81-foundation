@@ -1,7 +1,7 @@
 # Full-System Architectural & Strategic Audit
 
 Date: 2026-02-26  
-Revision: Post-remediation refresh + conformance sprint (`HEAD`: `df81d922`)  
+Revision: Post-remediation refresh + conformance sprint Phase 2 (post-`b70d0cbe` working baseline)  
 Scope: `/src`, `/include`, `/spec`, `/docs`, `/book`, CI workflows, governance files, capability contract, opcode/ISA surfaces, VM execution model, Axion policy enforcement, determinism gates, benchmarks, tests, multilingual alignment, roadmaps, release notes.
 
 ## Executive Summary
@@ -48,6 +48,7 @@ Current classification remains **Deterministic Runtime Candidate**. The system i
 
 ### 2.2 Failure Surface Analysis
 - Bit-exact guarantees are enforced on selected surfaces via CI repro gates (`t81lang`, `t3k`, determinism slice).
+- Workload-level determinism now includes micro/meso/mixed signature tiers with reproducible log artifact output (`build/artifacts/vm_workload_determinism_signatures.log`).
 - Trace mode now enforces policy per instruction (prior boundary-only gap closed).
 - Float path hardening improved: strict deterministic float profile is defaulted (`T81_STRICT_DETERMINISTIC_FLOAT=ON` -> `T81_DETERMINISTIC`).
 - Non-deterministic APIs/surfaces still exist by contract (time, scheduler, allocator addresses, non-DCP tensor/backend).
@@ -121,6 +122,7 @@ Publish explicit dual profile contract:
 
 ### 5.3 Missing Enforcement Surfaces
 - Behavioral spec-code conformance now includes new executable invariant suites, but remains incomplete at full subsystem and workload breadth.
+- Policy behavior coverage now includes a clause matrix suite (`axion_policy_conformance_matrix_test`) in addition to fail-closed parser/invariant tests.
 - Formal proof depth for governance/security invariants is incomplete.
 - Host-level containment remains intentionally out-of-scope.
 
@@ -151,7 +153,7 @@ Publish explicit dual profile contract:
 ### 7.1 Findings
 - Build/test/toolchain discipline is strong and actively enforced.
 - CI quality gate requires key jobs (spec/docs, build/test, determinism slice, static analysis, sanitizers, fuzzing, benchmarks, tritwise determinism).
-- Test inventory is broad (265 tests currently discovered by CTest).
+- Test inventory is broad (269 tests currently discovered by CTest).
 - Benchmark regression gating is now required in CI (SIMD-focused).
 - Static analysis coverage improved but not full-repo exhaustive.
 
@@ -199,7 +201,7 @@ A technically serious deterministic runtime platform with unusually strong gover
 2. End-to-end implemented pipeline (compiler -> ISA -> VM -> policy).
 3. Fail-closed posture on high-risk unimplemented opcode surfaces.
 4. Explicit capability boundaries and DCP/non-DCP taxonomy.
-5. Large, active automated test surface (265 tests).
+5. Large, active automated test surface (269 tests), including new semantic/policy/canonfs/determinism conformance suites.
 
 ### 9.3 Single Most Important Next Move
 Execute **Behavioral Conformance Expansion Sprint (Phase 2)**: extend newly added VM/Axion/CanonFS invariant suites into broader semantic coverage and workload families, while continuing contract-surface consolidation.
@@ -212,9 +214,10 @@ Execute **Behavioral Conformance Expansion Sprint (Phase 2)**: extend newly adde
 - Capability boundaries: `docs/reference/CAPABILITY_CONTRACT.md`
 - DCP boundary: `docs/product/DETERMINISTIC_CORE_PROFILE.md`
 - VM/trace policy integration: `core/vm/vm.cpp`, `runtime/jit/jit_compiler.cpp`, `include/t81/jit/jit.hpp`
+- VM decomposition plan baseline: `docs/status/VM_MONOLITH_DECOMPOSITION_PLAN_2026-02-26.md`
 - Freeze integrity gate: `scripts/ci/check_tisc_freeze_integrity.py`
 - Translation governance: `scripts/governance/check_translation_*.py`
-- Test inventory: `ctest --test-dir build -N` (265 tests)
+- Test inventory: `ctest --test-dir build -N` (269 tests)
 
 ## Audit Notes
 - Items with insufficient direct evidence are explicitly marked **Indeterminate**.
