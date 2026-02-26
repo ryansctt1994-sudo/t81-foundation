@@ -132,6 +132,7 @@ Publish explicit dual profile contract:
 - Tensor unary `TExp` runtime path is now helper-encapsulated and backed by explicit VM-level output assertions in `t81_vm_tensor_test`.
 - Additional VM tensor opcode compute paths (`TSiLU`, `TSoftmax`, `TVecAdd/TVecMul`, `TTranspose`, `TMatMul`, `TTenDot`, `TRMSNorm`, `TRoPE`) now route through helper modules; VM-level conformance assertions were expanded for these kernels.
 - `TLOADHASH` conformance now also covers malformed CanonTensor headers (invalid format tag and rank overflow) as explicit `DecodeFault` cases.
+- Pre-dispatch deny-event observability is now covered by a dedicated VM regression test (`t81_vm_predispatch_policy_deny_logging_test`), reducing risk of silent deny regressions.
 - Formal proof depth for governance/security invariants is incomplete.
 - Host-level containment remains intentionally out-of-scope.
 
