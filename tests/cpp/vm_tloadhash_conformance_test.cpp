@@ -119,6 +119,31 @@ void run_tloadhash_decode_fault_case() {
   T81_TEST_CHECK(result.error() == t81::vm::Trap::DecodeFault);
 }
 
+void run_tloadhash_ambiguous_payload_fail_closed_case() {
+  t81::weights::NativeTensor tensor;
+  tensor.format = t81::weights::NativeFormat::BalancedTernary;
+  tensor.shape = {1};
+  tensor.trits = 1;
+  tensor.data = {1};
+
+  auto driver =
+      t81::canonfs::make_persistent_driver(std::filesystem::current_path() / ".t81_canonfs");
+  auto serialized = serialize_tensor(tensor);
+  auto write = driver->write_object(
+      t81::canonfs::ObjectType::CanonTensor,
+      std::span<const std::byte>(serialized.data(), serialized.size()));
+  T81_TEST_CHECK(write.has_value());
+
+  std::string hash_symbol = "sha3-256:" + write->hash.h.to_string();
+  auto program = make_tloadhash_program(hash_symbol);
+
+  auto vm = t81::vm::make_interpreter_vm();
+  vm->load_program(program);
+  auto result = vm->run_to_halt();
+  T81_TEST_CHECK(!result.has_value());
+  T81_TEST_CHECK(result.error() == t81::vm::Trap::DecodeFault);
+}
+
 }  // namespace
 
 int main() {
@@ -132,6 +157,7 @@ int main() {
 
   run_tloadhash_success_case();
   run_tloadhash_decode_fault_case();
+  run_tloadhash_ambiguous_payload_fail_closed_case();
 
   std::filesystem::current_path(old_cwd);
   std::filesystem::remove_all(workdir);

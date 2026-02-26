@@ -1308,6 +1308,10 @@ public:
                                    " handle=" + std::to_string(ctx.registers[insn.a]);
           record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), ctx.registers[insn.a],
                              success_verdict);
+        } else {
+          // CanonFS tensor objects are expected to contain packed limbs, not scalar-per-element
+          // payloads. Treat ambiguous payload layouts as decode faults.
+          trap = Trap::DecodeFault;
         }
         break;
       }
