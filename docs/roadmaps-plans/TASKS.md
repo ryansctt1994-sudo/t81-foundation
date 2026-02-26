@@ -29,6 +29,11 @@ This document tracks immediate, actionable tasks for the T81 project.
 - [x] **CLI Tooling:** Add `t81 trace export` for Axion logs (JSON/CSV). (Completed 2026-02-26: added `trace export` subcommand with `--format json|csv` and `-o/--out` support, parsing canonical trace lines into structured records with raw fallback; covered by `t81_cli_trace_export_test`.)
 - [x] **Debugger Tooling:** Extend `t81 debug` with cognitive tier state inspection. (Completed 2026-02-26: added debugger command `t [1|2|3|4|5|all]` to inspect cognitive tier state including active tier, Tier 1 symbolic graph counts, Tier 2 reflective frame status, Tier 3 recursion depth/proofs, Tier 4 distributed tick/queues, and Tier 5 infinite-form summaries; validated via `t81_cli_debugger_test`.)
 
+### Cognitive-Tier Spec Closure Follow-On
+- [ ] **Metric Enforcement:** Implement runtime hard gates for cognitive-tier complexity metrics (branching entropy, symbolic complexity, shape complexity `product(shape)*rank`).
+- [ ] **Tier Demotion Policy:** Implement conservative deterministic tier-down transition logic with explicit convergence conditions.
+- [ ] **Tier Declaration Breadth:** Expand `@tier(n)` static verification to cover tensor-rank/effect-surface restrictions per tier.
+
 ______________________________________________________________________
 
 ## 2. Recently Completed (Feb 2026)

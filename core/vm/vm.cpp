@@ -908,6 +908,26 @@ public:
       }
       return true;
     };
+    auto record_tier_fault = [&](std::string_view code, std::string_view detail,
+                                 std::int64_t value = 0) {
+      t81::axion::Verdict verdict;
+      verdict.kind = t81::axion::VerdictKind::Deny;
+      std::ostringstream reason;
+      reason << "TierFault code=" << code << " tier=" << static_cast<int>(ctx.tier_status.current)
+             << " call_depth=" << ctx.call_depth
+             << " recurse_depth=" << ctx.tier3_recursor.current_depth << " pc=" << current_pc
+             << " value=" << value;
+      if (!state_.trace.empty()) {
+        const auto& last = state_.trace.back();
+        reason << " recent_last_pc=" << last.pc << " recent_last_op=" << t81::tisc::opcode_name(last.opcode);
+      }
+      if (!detail.empty()) {
+        reason << " detail=" << detail;
+      }
+      verdict.reason = reason.str();
+      record_axion_event(insn.opcode, static_cast<std::int32_t>(tier_rank(ctx.tier_status.current)),
+                         value, verdict);
+    };
 
     std::function<std::optional<int>(ValueTag, std::int64_t, std::int64_t)> compare_value =
         [&](ValueTag tag, std::int64_t lhs_val, std::int64_t rhs_val) -> std::optional<int> {
@@ -2440,14 +2460,11 @@ public:
           break;
         }
         if (next_depth > recursion_limit_for_tier(ctx.tier_status.current)) {
-          t81::axion::Verdict verdict;
-          verdict.kind = t81::axion::VerdictKind::Deny;
           std::ostringstream reason;
           reason << "TierFault recursion depth exceeded depth=" << next_depth
                  << " tier=" << static_cast<int>(ctx.tier_status.current)
                  << " limit=" << recursion_limit_for_tier(ctx.tier_status.current);
-          verdict.reason = reason.str();
-          record_axion_event(insn.opcode, insn.b, static_cast<std::int64_t>(next_depth), verdict);
+          record_tier_fault("recursion-limit", reason.str(), static_cast<std::int64_t>(next_depth));
           trap = Trap::TierFault;
           break;
         }
@@ -4291,11 +4308,8 @@ public:
         ctx.tier3_recursor.max_depth =
             static_cast<int>(recursion_limit_for_tier(ctx.tier_status.current));
         if (!ctx.tier3_recursor.can_recurse()) {
-          t81::axion::Verdict verdict;
-          verdict.kind = t81::axion::VerdictKind::Deny;
-          verdict.reason = "Tier 3 recursion limit exceeded";
-          record_axion_event(insn.opcode, 0,
-                             static_cast<std::int64_t>(ctx.tier3_recursor.current_depth), verdict);
+          record_tier_fault("tier3-recursor-limit", "Tier 3 recursion limit exceeded",
+                            static_cast<std::int64_t>(ctx.tier3_recursor.current_depth));
           trap = Trap::TierFault;
           break;
         }
@@ -4304,11 +4318,8 @@ public:
                                 (state_.heap_ptr - state_.layout.heap.start) + ctx.call_depth);
         t81::cog::v3::ContractionProof proof{true, seed_entropy, seed_entropy};
         if (!ctx.tier3_recursor.push_frame(proof)) {
-          t81::axion::Verdict verdict;
-          verdict.kind = t81::axion::VerdictKind::Deny;
-          verdict.reason = "Tier 3 depth proof rejected";
-          record_axion_event(insn.opcode, 0,
-                             static_cast<std::int64_t>(ctx.tier3_recursor.current_depth), verdict);
+          record_tier_fault("tier3-depth-proof", "Tier 3 depth proof rejected",
+                            static_cast<std::int64_t>(ctx.tier3_recursor.current_depth));
           trap = Trap::TierFault;
           break;
         }
@@ -4336,10 +4347,8 @@ public:
         }
 
         if (!ctx.tier3_recursor.contract_top(current_entropy)) {
-          t81::axion::Verdict verdict;
-          verdict.kind = t81::axion::VerdictKind::Deny;
-          verdict.reason = "Contract: non-contractive entropy update";
-          record_axion_event(insn.opcode, 0, static_cast<std::int64_t>(current_entropy), verdict);
+          record_tier_fault("tier3-contraction", "Contract: non-contractive entropy update",
+                            static_cast<std::int64_t>(current_entropy));
           trap = Trap::TierFault;
           break;
         }
