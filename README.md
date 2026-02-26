@@ -222,7 +222,7 @@ Contribution guide:
 * **Product** — [docs/product/](docs/product/) (includes [Strategic Direction](docs/product/STRATEGIC_DIRECTION.md))
 * **Book (non-normative narrative)** — [book/book-en/](./book/book-en/)
 
-## The T81 Detail
+## The T81 Details
 
 <details open>
 <summary><strong>Part I — Foundations</strong></summary>
