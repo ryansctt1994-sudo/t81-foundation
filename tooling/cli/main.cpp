@@ -1127,6 +1127,7 @@ int run_weights_info(const Args& args) {
     auto mf = t81::weights::load_t81w(path);
     if (as_json) {
       std::cout << "{\n";
+      std::cout << "  \"schema\": \"t81.weights-info.v1\",\n";
       std::cout << "  \"model\": \"" << path.string() << "\",\n";
       std::cout << "  \"parameters\": " << mf.total_parameters << ",\n";
       std::cout << "  \"trits\": " << mf.total_trits << ",\n";
@@ -1294,6 +1295,7 @@ int run_policy_run(const Args& args) {
   }
   if (as_json) {
     std::cout << "{\n";
+    std::cout << "  \"schema\": \"t81.policy-run.v1\",\n";
     std::cout << "  \"valid\": true,\n";
     std::cout << "  \"tier\": " << policy.tier << ",\n";
     if (policy.max_instructions) {
@@ -1605,6 +1607,7 @@ int run_doctor(const Args& args) {
 
   if (as_json) {
     std::cout << "{\n";
+    std::cout << "  \"schema\": \"t81.doctor.v1\",\n";
     std::cout << "  \"ok\": " << (all_ok ? "true" : "false") << ",\n";
     std::cout << "  \"checks\": [\n";
     for (size_t i = 0; i < checks.size(); ++i) {
@@ -1694,51 +1697,107 @@ int run_test_command(const Args& args) {
     base_cmd += shell_escape(token);
   }
 
-  if (as_json) {
-    const fs::path out_path = fs::temp_directory_path() / "t81-test.out";
-    const fs::path err_path = fs::temp_directory_path() / "t81-test.err";
-    std::string cmd = base_cmd + " > " + shell_escape(out_path.string()) + " 2> " +
-                      shell_escape(err_path.string());
-    const int status = std::system(cmd.c_str());
-    if (status == -1) {
-      error("test: failed to invoke ctest.");
-      return 2;
+  const fs::path out_path = fs::temp_directory_path() / "t81-test.out";
+  const fs::path err_path = fs::temp_directory_path() / "t81-test.err";
+  std::string cmd =
+      base_cmd + " > " + shell_escape(out_path.string()) + " 2> " + shell_escape(err_path.string());
+  const int status = std::system(cmd.c_str());
+  if (status == -1) {
+    error("test: failed to invoke ctest.");
+    return 2;
+  }
+  const int rc = decode_system_status(status);
+
+  auto read_file = [](const fs::path& p) -> std::string {
+    std::ifstream in(p, std::ios::binary);
+    if (!in) return {};
+    return std::string((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+  };
+  auto read_size = [](const fs::path& p) -> std::uintmax_t {
+    std::error_code ec;
+    auto sz = fs::file_size(p, ec);
+    return ec ? 0 : sz;
+  };
+
+  const std::string stdout_text = read_file(out_path);
+  const std::string stderr_text = read_file(err_path);
+  const auto stdout_bytes = read_size(out_path);
+  const auto stderr_bytes = read_size(err_path);
+  std::error_code ignore_ec;
+  fs::remove(out_path, ignore_ec);
+  fs::remove(err_path, ignore_ec);
+
+  struct TestSummary {
+    int total = -1;
+    int passed = -1;
+    int failed = -1;
+    int skipped = -1;
+    double duration_sec = -1.0;
+  };
+  auto parse_summary = [](const std::string& text) -> TestSummary {
+    TestSummary summary;
+    std::smatch match;
+    std::regex pass_fail_re(R"((\d+)% tests passed,\s*(\d+)\s*tests failed out of\s*(\d+))");
+    if (std::regex_search(text, match, pass_fail_re) && match.size() == 4) {
+      summary.failed = std::stoi(match[2].str());
+      summary.total = std::stoi(match[3].str());
+      summary.passed = summary.total - summary.failed;
+      summary.skipped = 0;
     }
-    const int rc = decode_system_status(status);
+    std::regex total_only_re(R"(Total Tests:\s*(\d+))");
+    if (summary.total < 0 && std::regex_search(text, match, total_only_re) && match.size() == 2) {
+      summary.total = std::stoi(match[1].str());
+      summary.passed = summary.total;
+      summary.failed = 0;
+      summary.skipped = 0;
+    }
+    std::regex duration_re(R"(Total Test time \(real\)\s*=\s*([0-9]+(?:\.[0-9]+)?)\s*sec)");
+    if (std::regex_search(text, match, duration_re) && match.size() == 2) {
+      summary.duration_sec = std::stod(match[1].str());
+    }
+    return summary;
+  };
+  const TestSummary summary = parse_summary(stdout_text + "\n" + stderr_text);
 
-    auto read_size = [](const fs::path& p) -> std::uintmax_t {
-      std::error_code ec;
-      auto sz = fs::file_size(p, ec);
-      return ec ? 0 : sz;
-    };
-    const auto stdout_bytes = read_size(out_path);
-    const auto stderr_bytes = read_size(err_path);
-    std::error_code ignore_ec;
-    fs::remove(out_path, ignore_ec);
-    fs::remove(err_path, ignore_ec);
-
+  if (as_json) {
     std::cout << "{\n";
+    std::cout << "  \"schema\": \"t81.test.v1\",\n";
     std::cout << "  \"ok\": " << (rc == 0 ? "true" : "false") << ",\n";
     std::cout << "  \"exit_code\": " << rc << ",\n";
+    std::cout << "  \"mode\": \"" << (list_only ? "list" : "run") << "\",\n";
     std::cout << "  \"build_dir\": \"" << json_escape(build_dir.string()) << "\",\n";
     if (filter) {
       std::cout << "  \"filter\": \"" << json_escape(*filter) << "\",\n";
     } else {
       std::cout << "  \"filter\": null,\n";
     }
-    std::cout << "  \"listed_only\": " << (list_only ? "true" : "false") << ",\n";
+    std::cout << "  \"summary\": {\n";
+    std::cout << "    \"total\": " << summary.total << ",\n";
+    std::cout << "    \"passed\": " << summary.passed << ",\n";
+    std::cout << "    \"failed\": " << summary.failed << ",\n";
+    std::cout << "    \"skipped\": " << summary.skipped << ",\n";
+    std::cout << "    \"duration_sec\": " << std::fixed << std::setprecision(3)
+              << summary.duration_sec << "\n";
+    std::cout << std::defaultfloat;
+    std::cout << "  },\n";
     std::cout << "  \"stdout_bytes\": " << stdout_bytes << ",\n";
     std::cout << "  \"stderr_bytes\": " << stderr_bytes << "\n";
     std::cout << "}\n";
     return rc == 0 ? 0 : 2;
   }
 
-  const int status = std::system(base_cmd.c_str());
-  if (status == -1) {
-    error("test: failed to invoke ctest.");
-    return 2;
+  std::cout << stdout_text;
+  std::cerr << stderr_text;
+  if (!g_flags.quiet) {
+    std::ostringstream oss;
+    oss << "test summary: total=" << summary.total << " passed=" << summary.passed
+        << " failed=" << summary.failed << " skipped=" << summary.skipped;
+    if (summary.duration_sec >= 0.0) {
+      oss << " duration_sec=" << std::fixed << std::setprecision(3) << summary.duration_sec;
+    }
+    std::cout << oss.str() << "\n";
   }
-  return decode_system_status(status);
+  return rc == 0 ? 0 : 2;
 }
 
 std::string normalize_format_content(const std::string& input) {
@@ -1775,6 +1834,48 @@ std::string normalize_format_content(const std::string& input) {
   return out;
 }
 
+std::string format_t81_content(std::string_view input) {
+  std::istringstream in{std::string(input)};
+  std::ostringstream out;
+  std::string line;
+  int indent_level = 0;
+  while (std::getline(in, line)) {
+    std::string trimmed = line;
+    size_t begin = 0;
+    while (begin < trimmed.size() && std::isspace(static_cast<unsigned char>(trimmed[begin]))) {
+      ++begin;
+    }
+    trimmed.erase(0, begin);
+    while (!trimmed.empty() &&
+           std::isspace(static_cast<unsigned char>(trimmed[trimmed.size() - 1]))) {
+      trimmed.pop_back();
+    }
+    if (trimmed.empty()) {
+      out << "\n";
+      continue;
+    }
+
+    int leading_close = 0;
+    while (leading_close < static_cast<int>(trimmed.size()) && trimmed[leading_close] == '}') {
+      ++leading_close;
+    }
+    int line_indent = indent_level - leading_close;
+    if (line_indent < 0) line_indent = 0;
+    out << std::string(static_cast<size_t>(line_indent) * 2, ' ') << trimmed << "\n";
+
+    int delta = 0;
+    for (char c : trimmed) {
+      if (c == '{') ++delta;
+      if (c == '}') --delta;
+    }
+    indent_level += delta;
+    if (indent_level < 0) indent_level = 0;
+  }
+  std::string formatted = out.str();
+  if (formatted.empty()) formatted = "\n";
+  return formatted;
+}
+
 int run_fmt_command(const Args& args) {
   bool check_only = false;
   bool as_json = false;
@@ -1799,7 +1900,7 @@ int run_fmt_command(const Args& args) {
   }
 
   if (show_version) {
-    std::cout << "t81-fmt 0.1.0\n";
+    std::cout << "t81-fmt 0.2.0\n";
     return 0;
   }
 
@@ -1817,7 +1918,12 @@ int run_fmt_command(const Args& args) {
       continue;
     }
     std::string original((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-    std::string formatted = normalize_format_content(original);
+    std::string normalized = normalize_format_content(original);
+    std::string formatted = normalized;
+    const std::string ext = path.extension().string();
+    if (ext == ".t81") {
+      formatted = format_t81_content(normalized);
+    }
     if (formatted != original) {
       changed.push_back(path.string());
       if (!check_only) {
@@ -1838,8 +1944,11 @@ int run_fmt_command(const Args& args) {
   if (as_json) {
     const bool ok = failures.empty() && (!check_only || changed.empty());
     std::cout << "{\n";
+    std::cout << "  \"schema\": \"t81.fmt.v1\",\n";
     std::cout << "  \"ok\": " << (ok ? "true" : "false") << ",\n";
+    std::cout << "  \"formatter_version\": \"t81-fmt 0.2.0\",\n";
     std::cout << "  \"check_only\": " << (check_only ? "true" : "false") << ",\n";
+    std::cout << "  \"files_scanned\": " << files.size() << ",\n";
     std::cout << "  \"changed\": [";
     for (size_t i = 0; i < changed.size(); ++i) {
       if (i != 0) {
@@ -1863,6 +1972,11 @@ int run_fmt_command(const Args& args) {
     }
     for (const auto& failure : failures) {
       error("fmt: " + failure);
+    }
+    if (!g_flags.quiet) {
+      std::cout << "fmt summary: scanned=" << files.size() << " changed=" << changed.size()
+                << " failures=" << failures.size() << " mode=" << (check_only ? "check" : "write")
+                << "\n";
     }
   }
 
@@ -1943,6 +2057,7 @@ int run_pkg_check(const Args& args) {
 
   if (as_json) {
     std::cout << "{\n";
+    std::cout << "  \"schema\": \"t81.pkg-check.v1\",\n";
     std::cout << "  \"valid\": " << (errors.empty() ? "true" : "false") << ",\n";
     std::cout << "  \"manifest\": \"" << json_escape(manifest.string()) << "\",\n";
     std::cout << "  \"name\": ";
@@ -2264,12 +2379,37 @@ int normalize_domain_command(Args& args) {
   return -1;
 }
 
+std::optional<std::string> legacy_alias_recommendation(std::string_view command) {
+  if (command == "compile") return "t81 code build";
+  if (command == "check") return "t81 code check";
+  if (command == "lint") return "t81 code lint";
+  if (command == "run") return "t81 code run";
+  if (command == "test") return "t81 code test";
+  if (command == "fmt") return "t81 code fmt";
+  if (command == "disasm") return "t81 code disasm";
+  if (command == "debug") return "t81 code debug";
+  if (command == "repl") return "t81 code repl";
+  if (command == "init") return "t81 project init";
+  if (command == "doctor") return "t81 env doctor";
+  if (command == "pkg") return "t81 internal pkg";
+  if (command == "benchmark") return "t81 internal benchmark";
+  if (command == "repro-hash") return "t81 internal repro-hash";
+  if (command == "canonize-tensor") return "t81 internal canonize-tensor";
+  if (command == "canonize-file") return "t81 internal canonize-file";
+  if (command == "llama-run") return "t81 internal llama-run";
+  return std::nullopt;
+}
+
 // ──────────────────────────────────────────────────────────────
 // Main
 // ──────────────────────────────────────────────────────────────
 int main(int argc, char* argv[]) {
   try {
     auto args = parse_args(argc, argv);
+    const std::string entered_command = args.command;
+    const bool entered_domain_group =
+        (entered_command == "code" || entered_command == "project" || entered_command == "env" ||
+         entered_command == "internal");
 
     if (args.need_version) {
       print_version();
@@ -2527,6 +2667,14 @@ int main(int argc, char* argv[]) {
       const int normalize_rc = normalize_domain_command(args);
       if (normalize_rc != -1) {
         return normalize_rc;
+      }
+    }
+
+    if (!entered_domain_group && !entered_command.empty()) {
+      auto recommendation = legacy_alias_recommendation(entered_command);
+      if (recommendation && !g_flags.quiet) {
+        std::cerr << "warning: '" << entered_command << "' is a legacy alias; prefer '"
+                  << *recommendation << "'.\n";
       }
     }
 

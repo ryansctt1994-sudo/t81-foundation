@@ -19,6 +19,7 @@ specification authority, freeze boundaries, or determinism claim scope.
 - CLI_V1_UX_DESIGN.md
 - CLI_V2_UX_BLUEPRINT.md
 - CLI_CAPABILITY_PORTFOLIO.md
+- CLI_JSON_SCHEMA_CONTRACTS.md
 - RELEASE_DISCIPLINE.md
 - STRATEGIC_DIRECTION.md
 - ../status/GOVERNED_AGI_PROMOTION_PIPELINE.md

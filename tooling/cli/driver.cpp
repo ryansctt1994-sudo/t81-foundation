@@ -1237,7 +1237,8 @@ int run_trace_export(const TraceArgs& args) {
     rendered << "[\n";
     for (size_t i = 0; i < entries.size(); ++i) {
       const auto& entry = entries[i];
-      rendered << "  {\"index\":" << (i + 1) << ",\"pc\":";
+      rendered << "  {\"schema\":\"t81.trace-export-entry.v1\",\"index\":" << (i + 1)
+               << ",\"pc\":";
       if (entry.pc.has_value()) {
         rendered << *entry.pc;
       } else {

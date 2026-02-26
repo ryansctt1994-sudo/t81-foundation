@@ -49,6 +49,9 @@ int main() {
   if (!expect(json_rc == 0, "json export returned non-zero")) return 1;
 
   std::string json = read_file(json_path);
+  if (!expect(json.find("\"schema\":\"t81.trace-export-entry.v1\"") != std::string::npos,
+              "json missing schema identifier"))
+    return 1;
   if (!expect(json.find("\"index\":1") != std::string::npos, "json missing first entry index"))
     return 1;
   if (!expect(json.find("\"pc\":0") != std::string::npos, "json missing parsed pc")) return 1;

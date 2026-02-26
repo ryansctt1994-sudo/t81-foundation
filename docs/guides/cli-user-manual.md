@@ -48,6 +48,8 @@ Examples:
 ./build/t81 help internal # docs-smoke
 ./build/t81 compile --help # docs-smoke
 ./build/t81 help compile # docs-smoke
+./build/t81 code test --json --list # docs-smoke
+./build/t81 env doctor --json # docs-smoke
 ./build/t81 help advanced # docs-smoke
 ./build/t81 help labs # docs-smoke
 ```
@@ -196,6 +198,7 @@ t81 test --list
 ```
 
 Runs project tests through CTest.
+`--json` uses schema `t81.test.v1` and includes a summary block.
 
 ### 4.12 `doctor`
 
@@ -204,6 +207,7 @@ t81 doctor [--json]
 ```
 
 Runs environment/toolchain readiness checks and prints actionable fixes.
+`--json` uses schema `t81.doctor.v1`.
 
 ### 4.13 `fmt`
 
@@ -214,7 +218,8 @@ t81 fmt --json <file...>
 t81 fmt --version
 ```
 
-Deterministically normalizes file whitespace (LF endings, trailing-space trim, final newline).
+Normalizes whitespace and applies basic `.t81` indentation formatting.
+`--json` uses schema `t81.fmt.v1`.
 
 ### 4.14 `pkg` (labs)
 
@@ -226,6 +231,7 @@ t81 pkg check [package.t81] [--json]
 
 Creates/validates `package.t81`.
 This surface is currently experimental and not part of the default core help view.
+`pkg check --json` uses schema `t81.pkg-check.v1`.
 
 ### 4.15 `benchmark`
 
@@ -245,6 +251,7 @@ t81 weights quantize <input> --to-gguf <out>
 ```
 
 Weight import/info/quantization helpers.
+`weights info --json` uses schema `t81.weights-info.v1`.
 
 ### 4.17 `policy`
 
@@ -255,6 +262,7 @@ t81 policy run <file.apl|file.axionb> [--json]
 ```
 
 Policy compile/validation helpers.
+`policy run --json` uses schema `t81.policy-run.v1`.
 
 ### 4.18 `trace`
 
@@ -267,6 +275,7 @@ t81 trace export <trace.txt> [--format <json|csv>] [-o <file>]
 ```
 
 Trace inspection and export utilities.
+`trace export --format json` emits entries with schema `t81.trace-export-entry.v1`.
 
 ### 4.19 `llama-run` (experimental)
 
@@ -306,12 +315,28 @@ Supported help forms:
 
 Unknown help topics return non-zero.
 
+Legacy top-level aliases print a deprecation warning on `stderr` with the
+domain-first equivalent (for example, `compile` -> `code build`).
+
 ## 6. Exit and Output Behavior
 
 - `0` on success.
-- non-zero on failure.
+- `1` on usage/user input failures.
+- `2` on environment/runtime tool execution failures for selected commands.
 - command result output is written to `stdout`.
 - diagnostics/errors are written to `stderr` and prefixed with `error:`.
+
+Command-specific non-zero exits:
+
+| Command | Exit Code | Meaning |
+| :--- | :--- | :--- |
+| `test` | `2` | `ctest` not available, build metadata missing, or tests failed |
+| `doctor` | `2` | one or more readiness checks failed |
+| `fmt --check` | `2` | formatting drift detected |
+| `pkg check` | `2` | manifest invalid |
+| `trace export` | `1` | invalid args/format/path |
+| `weights info` | `1` | usage or file-loading failure |
+| `policy run` | `1` | usage or policy parse/load failure |
 
 Runtime trap exit codes used by `t81 run` / `t81 debug`:
 

@@ -182,13 +182,14 @@ int main(int argc, char* argv[]) {
   {
     const auto result = run_cli(t81_bin, {"doctor", "--json"});
     T81_TEST_CHECK(result.exit_code == 0 || result.exit_code == 2);
+    T81_TEST_CHECK(contains(result.stdout_text, "\"schema\": \"t81.doctor.v1\""));
     T81_TEST_CHECK(contains(result.stdout_text, "\"checks\""));
   }
 
   {
     const auto result = run_cli(t81_bin, {"fmt", "--version"});
     T81_TEST_CHECK(result.exit_code == 0);
-    T81_TEST_CHECK(contains(result.stdout_text, "t81-fmt 0.1.0"));
+    T81_TEST_CHECK(contains(result.stdout_text, "t81-fmt 0.2.0"));
   }
 
   {
@@ -238,6 +239,7 @@ int main(int argc, char* argv[]) {
     }
     const auto ok_result = run_cli(t81_bin, {"pkg", "check", "--json"});
     T81_TEST_CHECK(ok_result.exit_code == 0);
+    T81_TEST_CHECK(contains(ok_result.stdout_text, "\"schema\": \"t81.pkg-check.v1\""));
     T81_TEST_CHECK(contains(ok_result.stdout_text, "\"valid\": true"));
 
     {
@@ -252,6 +254,81 @@ int main(int argc, char* argv[]) {
     T81_TEST_CHECK(contains(bad_result.stdout_text, "\"valid\": false"));
 
     fs::current_path(old_cwd);
+    fs::remove_all(temp_dir, ignore_ec);
+  }
+
+  {
+    const auto result =
+        run_cli(t81_bin, {"test", "--json", "--list", "--build-dir", t81_bin.parent_path().string()});
+    T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stdout_text, "\"schema\": \"t81.test.v1\""));
+    T81_TEST_CHECK(contains(result.stdout_text, "\"summary\""));
+  }
+
+  {
+    const auto result = run_cli(t81_bin, {"test", "--build-dir", "definitely_missing_build_dir"});
+    T81_TEST_CHECK(result.exit_code == 2);
+    T81_TEST_CHECK(contains(result.stderr_text, "Run cmake configure/build first"));
+  }
+
+  {
+    const fs::path temp_dir = fs::temp_directory_path() / "t81-cli-contract-fmt";
+    std::error_code ignore_ec;
+    fs::remove_all(temp_dir, ignore_ec);
+    fs::create_directories(temp_dir);
+    const fs::path file = temp_dir / "format_me.t81";
+    {
+      std::ofstream out(file);
+      out << "fn main() -> i32 {\n"
+             "print(\"x\");   \n"
+             "return 0;\n"
+             "}\n";
+    }
+
+    const auto check_result = run_cli(t81_bin, {"fmt", "--check", file.string()});
+    T81_TEST_CHECK(check_result.exit_code == 2);
+    T81_TEST_CHECK(contains(check_result.stdout_text, "would format"));
+
+    const auto json_result = run_cli(t81_bin, {"fmt", "--json", file.string()});
+    T81_TEST_CHECK(json_result.exit_code == 0);
+    T81_TEST_CHECK(contains(json_result.stdout_text, "\"schema\": \"t81.fmt.v1\""));
+    T81_TEST_CHECK(contains(json_result.stdout_text, "\"formatter_version\": \"t81-fmt 0.2.0\""));
+
+    fs::remove_all(temp_dir, ignore_ec);
+  }
+
+  {
+    const auto result = run_cli(t81_bin, {"weights", "info"});
+    T81_TEST_CHECK(result.exit_code == 1);
+    T81_TEST_CHECK(contains(result.stderr_text, "Run 't81 help weights info'"));
+  }
+
+  {
+    const fs::path policy = t81_bin.parent_path().parent_path() / "examples/system_integration.apl";
+    T81_TEST_CHECK(fs::exists(policy));
+    const auto result = run_cli(t81_bin, {"policy", "run", policy.string(), "--json"});
+    T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stdout_text, "\"schema\": \"t81.policy-run.v1\""));
+    const auto bad_result = run_cli(t81_bin, {"policy", "run", policy.string(), "--bad-flag"});
+    T81_TEST_CHECK(bad_result.exit_code == 1);
+    T81_TEST_CHECK(contains(bad_result.stderr_text, "Run 't81 help policy run'"));
+  }
+
+  {
+    const fs::path temp_dir = fs::temp_directory_path() / "t81-cli-contract-trace-export";
+    std::error_code ignore_ec;
+    fs::remove_all(temp_dir, ignore_ec);
+    fs::create_directories(temp_dir);
+    const fs::path trace = temp_dir / "a.trace";
+    {
+      std::ofstream out(trace);
+      out << "PC=0 NOP\n";
+    }
+    const auto result = run_cli(t81_bin, {"trace", "export", trace.string(), "--format", "json"});
+    T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stdout_text, "\"schema\":\"t81.trace-export-entry.v1\""));
+    const auto bad_format = run_cli(t81_bin, {"trace", "export", trace.string(), "--format", "xml"});
+    T81_TEST_CHECK(bad_format.exit_code == 1);
     fs::remove_all(temp_dir, ignore_ec);
   }
 
@@ -274,6 +351,13 @@ int main(int argc, char* argv[]) {
     const auto compile_result =
         run_cli(t81_bin, {"code", "build", source_path.string(), "-o", program_path.string()});
     T81_TEST_CHECK(compile_result.exit_code == 0);
+
+    const fs::path legacy_program_path = temp_dir / "legacy.tisc";
+    const auto legacy_compile_result =
+        run_cli(t81_bin, {"compile", source_path.string(), "-o", legacy_program_path.string()});
+    T81_TEST_CHECK(legacy_compile_result.exit_code == 0);
+    T81_TEST_CHECK(contains(legacy_compile_result.stderr_text, "legacy alias"));
+    T81_TEST_CHECK(contains(legacy_compile_result.stderr_text, "t81 code build"));
 
     const auto run_result = run_cli(t81_bin, {"code", "run", program_path.string()});
     T81_TEST_CHECK(run_result.exit_code == 0);
