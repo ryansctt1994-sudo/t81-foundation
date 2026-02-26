@@ -1,3 +1,5 @@
+```mermaid
+
 flowchart TD
     STEP["step()"] --> HALTQ{"Halted or no runnable context?"}
     HALTQ -- "yes" --> RET["return"]
@@ -25,3 +27,4 @@ flowchart TD
     TRAPQ -- "yes" --> TRAP["Log trace/event; return trap"]
     TRAPQ -- "no" --> ROT["Sync system registers; rotate context"]
     ROT --> RET
+```
