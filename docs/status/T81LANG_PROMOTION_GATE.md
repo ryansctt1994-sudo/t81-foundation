@@ -2,14 +2,14 @@
 
 Status: Active
 Owner: @t81dev
-Last Updated: 2026-02-25
-Current Classification: Draft Spec / Experimental Implementation
-Target Transition: Draft -> Beta (candidate)
+Last Updated: 2026-02-26
+Current Classification: Draft Spec / Beta Implementation
+Target Transition: Draft -> Beta (decisioned for implementation maturity)
 
 ## Purpose
 
 Define an explicit, auditable promotion gate for moving T81Lang from Draft /
-Experimental posture toward Beta-candidate review.
+Experimental posture toward Beta implementation maturity.
 
 ## Scope
 
@@ -71,10 +71,28 @@ Promotion readiness decision:
 - Result: Ready for Beta-candidate review (as of 2026-02-25)
 - Blocking criterion(s): None
 
-## Blocking Items (for Beta-candidate review)
+## Promotion Decision Record (Implementation Maturity)
 
-1. Re-run the snapshot procedure before governance decision events.
-2. Keep matrix/audit snapshots synchronized with any new blocker.
+Decision (UTC): 2026-02-26 15:05:00Z
+Approver: @t81dev
+Decision: Promote T81Lang implementation maturity to Beta (spec remains Draft)
+Basis:
+
+- TG-01 through TG-06 are passing in the latest snapshot:
+  `docs/status/T81LANG_PROMOTION_GATE_SNAPSHOT.md`.
+- BG-01 through BG-05 backlog closure is complete.
+- Determinism and conformance slices remain green in mapped suites.
+
+Boundary note:
+
+- This decision updates implementation maturity posture only.
+- It does not change normative authority, freeze policy, or determinism
+  registry boundaries.
+
+## Blocking Items (Post-Decision Maintenance)
+
+1. Re-run the snapshot procedure before each governance decision checkpoint.
+2. Keep matrix/system-status/audit artifacts synchronized with new blockers.
 
 ## Cross-References
 

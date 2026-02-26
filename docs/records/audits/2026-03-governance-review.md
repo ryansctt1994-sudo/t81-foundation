@@ -134,6 +134,17 @@ Evidence updates applied:
 - `tests/cpp/t81lang_conformance_edge_semantics_test.cpp`
   (A1-CODE-05 match/loop/annotation edge conformance evidence)
 
+Promotion decision update (2026-02-26):
+
+- T81Lang implementation maturity promoted to Beta based on passing
+  TG-01..TG-06 gate criteria and closed BG-01..BG-05 backlog.
+- Decision recorded in `docs/status/T81LANG_PROMOTION_GATE.md`.
+- Matrix/system status synchronized:
+  - `docs/status/IMPLEMENTATION_MATRIX.md`
+  - `docs/status/SYSTEM_STATUS.md`
+- Boundary remains unchanged: `spec/t81lang-spec.md` authority status is still
+  Draft.
+
 ## C3 Tracking — Status Cross-Link Integrity Sweep
 
 Execution state:
