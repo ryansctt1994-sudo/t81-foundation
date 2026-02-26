@@ -29,7 +29,7 @@ This document translates high-level governance policies into machine-verifiable 
 | **Directory Structure Mirroring** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_docs_structure.py` |
 | **README Naming Convention** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_readme_naming.py` |
 | **Translation Metadata Headers** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_translation_metadata.py` |
-| **Staleness Threshold** | Partial | `spec-and-docs` | **Warning** | Chapter-coverage proxy via `scripts/governance/check_docs_structure.py`; date-age threshold script still pending |
+| **Staleness Threshold** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_translation_staleness.py` (`>10` canonical commits or `>30` days behind English) |
 
 ## Policy: Dependency & Hygiene
 

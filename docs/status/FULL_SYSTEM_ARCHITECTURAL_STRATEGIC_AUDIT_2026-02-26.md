@@ -123,8 +123,7 @@ Then reconcile encoding/register semantics into one normative source.
 
 ### 6.3 Required Corrections
 1. Continue normalization of legacy/archival docs that retain stronger historical sandbox wording.
-2. Extend translation staleness enforcement from chapter-coverage proxy to explicit date-age policy thresholds.
-3. Continue cognitive-tier semantic hardening where behavior is implemented but not yet assurance-complete.
+2. Continue cognitive-tier semantic hardening where behavior is implemented but not yet assurance-complete.
 
 ## 7. Code Quality & Engineering Discipline
 
@@ -327,6 +326,15 @@ Then make CI fail on any doc/status/translation drift from that contract.
   - `scripts/governance/check_docs_governance_hygiene.py`
   - `.github/workflows/ci.yml` (`spec-and-docs` job)
 - Updated `docs/governance/ENFORCEMENT_MATRIX.md` to promote root-structure, README naming, translation metadata, GPL/AGPL policy, and artifact-hygiene rows to machine-verifiable CI enforcement.
+
+### 2026-02-26 (R26)
+- Implemented explicit translation staleness threshold enforcement in `scripts/governance/check_translation_staleness.py`:
+  - marks translation pairs stale when they are more than `30` days or `10` canonical commits behind English.
+  - covers root README translations and book chapter pairs by canonical chapter prefix.
+- Integrated the check into CI and governance aggregation:
+  - `.github/workflows/ci.yml` (`spec-and-docs` job)
+  - `scripts/governance/check_docs_governance_hygiene.py`
+- Updated `docs/governance/ENFORCEMENT_MATRIX.md` to promote multilingual staleness threshold enforcement from warning/partial to machine-verifiable hard-fail.
 
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.

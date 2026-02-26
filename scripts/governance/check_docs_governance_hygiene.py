@@ -132,6 +132,7 @@ def main() -> int:
         ("root structure", "scripts/governance/check_root_structure.py"),
         ("README naming", "scripts/governance/check_readme_naming.py"),
         ("translation metadata", "scripts/governance/check_translation_metadata.py"),
+        ("translation staleness", "scripts/governance/check_translation_staleness.py"),
         ("docs structure", "scripts/governance/check_docs_structure.py"),
         ("license policy", "scripts/governance/check_license_policy.py"),
         ("artifact hygiene", "scripts/governance/check_repo_artifact_hygiene.py"),
@@ -166,7 +167,7 @@ def main() -> int:
     print("- task-queue status consistency checked")
     print("- stale planned markers checked for completed tasks")
     print("- status label coherence checked")
-    print("- supplemental governance checks (structure/readme/translation/license/artifact) checked")
+    print("- supplemental governance checks (structure/readme/translation/staleness/license/artifact) checked")
     return 0
 
 

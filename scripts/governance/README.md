@@ -20,6 +20,7 @@ specification authority, freeze boundaries, or determinism claim scope.
 - check_root_structure.py
 - check_readme_naming.py
 - check_translation_metadata.py
+- check_translation_staleness.py
 - check_docs_structure.py
 - check_license_policy.py
 - check_repo_artifact_hygiene.py
