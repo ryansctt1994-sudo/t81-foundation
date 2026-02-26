@@ -1188,6 +1188,14 @@ void GenerateMarkdownReport() {
     std::sort(comparable_rows.begin(), comparable_rows.end(),
               [](const UserRow& a, const UserRow& b) { return a.impact > b.impact; });
 
+    auto MdCell = [&](const std::string& in) {
+        std::string s = EscapePipes(in);
+        for (char& ch : s) {
+            if (ch == '\n' || ch == '\r') ch = ' ';
+        }
+        return DisplayValue(s);
+    };
+
     auto category_counts_for = [](const std::vector<UserRow>& source) {
         std::map<std::string, std::array<int, 4>> counts_map;
         for (const auto& row : source) {
@@ -1287,7 +1295,7 @@ void GenerateMarkdownReport() {
             } else if (counts[2] >= 2 && counts[2] > counts[1]) {
                 recommendation = "Prefer binary for throughput-critical path";
             }
-            out << "| " << category
+            out << "| " << MdCell(category)
                 << " | " << counts[0]
                 << " | " << counts[1]
                 << " | " << counts[2]
@@ -1302,31 +1310,31 @@ void GenerateMarkdownReport() {
         const size_t max_rows = std::min(top_n, report_rows.size());
         for (size_t i = 0; i < max_rows; ++i) {
             const auto& row = report_rows[i];
-            out << "| " << row.name
-                << " | " << row.category
-                << " | " << DisplayValue(row.t81_iter)
-                << " | " << DisplayValue(row.binary_iter)
-                << " | " << DisplayValue(row.ratio)
-                << " | " << row.verdict
-                << " | " << row.fairness
-                << " | " << row.confidence << " |\n";
+            out << "| " << MdCell(row.name)
+                << " | " << MdCell(row.category)
+                << " | " << MdCell(row.t81_iter)
+                << " | " << MdCell(row.binary_iter)
+                << " | " << MdCell(row.ratio)
+                << " | " << MdCell(row.verdict)
+                << " | " << MdCell(row.fairness)
+                << " | " << MdCell(row.confidence) << " |\n";
         }
 
         out << "\n## Category Detail\n\n";
         for (const auto& [category, counts] : category_counts) {
             if (counts[0] == 0) continue;
-            out << "### " << category << "\n\n";
+            out << "### " << MdCell(category) << "\n\n";
             out << "| Benchmark | T81 Iteration | Binary Iteration | Throughput Ratio | Verdict | Fairness |\n";
             out << "|---|---|---|---:|---|---|\n";
             int emitted = 0;
             for (const auto& row : report_rows) {
                 if (row.category != category) continue;
-                out << "| " << row.name
-                    << " | " << DisplayValue(row.t81_iter)
-                    << " | " << DisplayValue(row.binary_iter)
-                    << " | " << DisplayValue(row.ratio)
-                    << " | " << row.verdict
-                    << " | " << row.fairness << " |\n";
+                out << "| " << MdCell(row.name)
+                    << " | " << MdCell(row.t81_iter)
+                    << " | " << MdCell(row.binary_iter)
+                    << " | " << MdCell(row.ratio)
+                    << " | " << MdCell(row.verdict)
+                    << " | " << MdCell(row.fairness) << " |\n";
                 emitted++;
                 if (emitted >= 8) break;
             }
@@ -1349,17 +1357,17 @@ void GenerateMarkdownReport() {
             std::sort(sorted_rows.begin(), sorted_rows.end(),
                       [](const UserRow& a, const UserRow& b) { return a.name < b.name; });
             for (const auto& row : sorted_rows) {
-                out << "| " << row.name
-                    << " | " << row.category
-                    << " | " << DisplayValue(EscapePipes(row.t81_result))
-                    << " | " << DisplayValue(EscapePipes(row.t81_iter))
-                    << " | " << DisplayValue(EscapePipes(row.binary_result))
-                    << " | " << DisplayValue(EscapePipes(row.binary_iter))
-                    << " | " << DisplayValue(EscapePipes(row.ratio))
-                    << " | " << row.verdict
-                    << " | " << row.fairness
-                    << " | " << row.confidence
-                    << " | " << DisplayValue(EscapePipes(row.notes)) << " |\n";
+                out << "| " << MdCell(row.name)
+                    << " | " << MdCell(row.category)
+                    << " | " << MdCell(row.t81_result)
+                    << " | " << MdCell(row.t81_iter)
+                    << " | " << MdCell(row.binary_result)
+                    << " | " << MdCell(row.binary_iter)
+                    << " | " << MdCell(row.ratio)
+                    << " | " << MdCell(row.verdict)
+                    << " | " << MdCell(row.fairness)
+                    << " | " << MdCell(row.confidence)
+                    << " | " << MdCell(row.notes) << " |\n";
             }
         }
     };

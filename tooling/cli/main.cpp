@@ -11,6 +11,7 @@
 #include <cctype>
 #include <cerrno>
 #include <charconv>
+#include <chrono>
 #include <climits>
 #include <cstdlib>
 #include <filesystem>
@@ -23,6 +24,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <vector>
 #if !defined(_WIN32)
 #include <sys/wait.h>
@@ -471,12 +473,59 @@ int run_benchmark(const char* command_name, const Args& args) {
   }
 
   info("Running benchmarks via " + runner_path->string());
+#if defined(_WIN32)
   int status = std::system(cmd.c_str());
   if (status == -1) {
     error("Failed to execute benchmark_runner");
     return 1;
   }
   return decode_system_status(status);
+#else
+  auto format_elapsed = [](std::chrono::seconds elapsed) {
+    const auto total = elapsed.count();
+    const auto minutes = total / 60;
+    const auto seconds = total % 60;
+    std::ostringstream oss;
+    oss << std::setfill('0') << std::setw(2) << minutes << ":" << std::setw(2) << seconds;
+    return oss.str();
+  };
+
+  const auto start = std::chrono::steady_clock::now();
+  pid_t child = fork();
+  if (child == 0) {
+    execl("/bin/sh", "sh", "-c", cmd.c_str(), static_cast<char*>(nullptr));
+    _exit(127);
+  }
+  if (child < 0) {
+    error("Failed to spawn benchmark_runner");
+    return 1;
+  }
+
+  int status = 0;
+  auto last_tick = start;
+  while (true) {
+    const pid_t wait_rc = waitpid(child, &status, WNOHANG);
+    if (wait_rc == child) {
+      break;
+    }
+    if (wait_rc < 0) {
+      error("Failed while waiting for benchmark_runner");
+      return 1;
+    }
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    const auto now = std::chrono::steady_clock::now();
+    if (now - last_tick >= std::chrono::seconds(10)) {
+      const auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start);
+      info("Benchmark still running... elapsed " + format_elapsed(elapsed));
+      last_tick = now;
+    }
+  }
+
+  const auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(
+      std::chrono::steady_clock::now() - start);
+  info("Benchmark finished in " + format_elapsed(elapsed));
+  return decode_system_status(status);
+#endif
 }
 
 struct WeightsImportOptions {
