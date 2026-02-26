@@ -220,7 +220,151 @@ Contribution guide:
 * **Governance** — [docs/governance/](docs/governance/)
 * **Status** — [docs/status/](docs/status/)
 * **Product** — [docs/product/](docs/product/) (includes [Strategic Direction](docs/product/STRATEGIC_DIRECTION.md))
-* **Book (non-normative narrative)** — [book/book-en/README.md](book/book-en/README.md)
+
+---
+
+## The T81 Details
+
+<details>
+<summary><strong>Part I — Foundations</strong></summary>
+
+1. **[Introduction](./01_Introduction.md)**
+
+   * [1.1 Scope and Definition](./01_Introduction.md#11-scope-and-definition)
+   * [1.2 System Architecture](./01_Introduction.md#12-system-architecture)
+   * [1.3 Verifiable Compute Mission](./01_Introduction.md#13-verifiable-compute-mission)
+   * [1.4 Terminology](./01_Introduction.md#14-terminology)
+   * [1.5 Verification Checklist](./01_Introduction.md#15-verification-checklist)
+
+2. **[Core Principles and Invariants](./02_Principles.md)**
+
+   * [2.1 The Determinism Invariant](./02_Principles.md#21-the-determinism-invariant)
+   * [2.1.1 Determinism Surfaces and Attack Vectors](./02_Principles.md#211-determinism-surfaces-and-attack-vectors)
+   * [2.2 Ternary Logic (Base-3)](./02_Principles.md#22-ternary-logic-base-3)
+   * [2.3 Auditability and the Axion Trace](./02_Principles.md#23-auditability-and-the-axion-trace)
+   * [2.4 The Nine Principles (Ethics Enforcement)](./02_Principles.md#24-the-nine-principles-ethics-enforcement)
+   * [2.5 Verification Checklist](./02_Principles.md#25-verification-checklist)
+   * [2.6 Formal Audit Matrix](./02_Principles.md#26-formal-audit-matrix)
+
+</details>
+
+<details>
+<summary><strong>Part II — The Deterministic Machine</strong></summary>
+
+3. **[T81VM Architecture](./03_Architecture.md)**
+
+   * [3.1 Overview](./03_Architecture.md#31-overview)
+   * [3.2 The Runtime Boundary](./03_Architecture.md#32-the-runtime-boundary)
+   * [3.3 Memory Model](./03_Architecture.md#33-memory-model)
+   * [3.4 The Instruction Set (TISC)](./03_Architecture.md#34-the-instruction-set-tisc)
+   * [3.5 JIT Compilation (Trace-JIT)](./03_Architecture.md#35-jit-compilation-trace-jit)
+
+4. **[Data Types and Serialization](./04_Data_Types_and_Serialization.md)**
+
+   * [4.1 Primitive Types](./04_Data_Types_and_Serialization.md#41-primitive-types)
+   * [4.2 T81Float and dmath](./04_Data_Types_and_Serialization.md#42-t81float-and-dmath)
+   * [4.3 Tensors and Canonical Layouts](./04_Data_Types_and_Serialization.md#43-tensors-and-canonical-layouts)
+   * [4.4 Canonical Serialization Rules](./04_Data_Types_and_Serialization.md#44-canonical-serialization-rules)
+
+5. **[Installation and Build Verification](./05_Installation.md)**
+
+   * [5.1 Prerequisites](./05_Installation.md#51-prerequisites)
+   * [5.2 Building from Source](./05_Installation.md#52-building-from-source)
+   * [5.3 Verifying the Build](./05_Installation.md#53-verifying-the-build)
+   * [5.4 Troubleshooting](./05_Installation.md#54-troubleshooting)
+
+6. **[CLI and API Usage](./06_Usage.md)**
+
+   * [6.1 The T81 Command Line Interface](./06_Usage.md#61-the-t81-command-line-interface)
+   * [6.2 Embedding T81 (C++ API)](./06_Usage.md#62-embedding-t81-c-api)
+   * [6.3 Embedding T81 (Python API)](./06_Usage.md#63-embedding-t81-python-api)
+   * [6.4 Debugging](./06_Usage.md#64-debugging)
+
+7. **[Programming in T81Lang](./07_Programming_in_T81Lang.md)**
+
+   * [7.1 Design Philosophy](./07_Programming_in_T81Lang.md#71-design-philosophy)
+   * [7.2 Syntax Basics](./07_Programming_in_T81Lang.md#72-syntax-basics)
+   * [7.3 Data Types](./07_Programming_in_T81Lang.md#73-data-types)
+   * [7.4 Control Flow](./07_Programming_in_T81Lang.md#74-control-flow)
+   * [7.5 Functions](./07_Programming_in_T81Lang.md#75-functions)
+   * [7.6 Axion Integration](./07_Programming_in_T81Lang.md#76-axion-integration)
+   * [7.7 Examples](./07_Programming_in_T81Lang.md#77-examples)
+
+</details>
+
+<details>
+<summary><strong>Part III — Governance and Verification</strong></summary>
+
+8. **[Verification and Audit](./08_Verification_and_Audit.md)**
+
+   * [8.1 Formal Verification Methodology](./08_Verification_and_Audit.md#71-formal-verification-methodology)
+   * [8.2 The Formal Audit Matrix](./08_Verification_and_Audit.md#72-the-formal-audit-matrix)
+   * [8.3 Property-Based Testing](./08_Verification_and_Audit.md#73-property-based-testing)
+   * [8.4 The Determinism Gate](./08_Verification_and_Audit.md#74-the-determinism-gate)
+
+9. **[The Axion Safety Kernel](./09_The_Axion_Kernel.md)**
+
+   * [9.1 Formal Definition](./09_The_Axion_Kernel.md#81-formal-definition)
+   * [9.2 The Policy Model](./09_The_Axion_Kernel.md#82-the-policy-model)
+   * [9.3 Instruction Interception](./09_The_Axion_Kernel.md#83-instruction-interception)
+   * [9.4 The Audit Log (Trace)](./09_The_Axion_Kernel.md#84-the-audit-log-trace)
+   * [9.5 Cognitive Promotion](./09_The_Axion_Kernel.md#85-cognitive-promotion)
+
+10. **[Cognitive Tiers and Distributed Compute](./10_Cognitive_Tiers_and_Distributed_Compute.md)**
+
+   * [10.1 The Cognitive Tier Model](./10_Cognitive_Tiers_and_Distributed_Compute.md#91-the-cognitive-tier-model)
+   * [10.2 Distributed Compute (Tier 4)](./10_Cognitive_Tiers_and_Distributed_Compute.md#92-distributed-compute-tier-4)
+   * [10.3 Trace-Based JIT Compilation](./10_Cognitive_Tiers_and_Distributed_Compute.md#93-trace-based-jit-compilation)
+   * [10.4 Infinite Forms (Tier 5)](./10_Cognitive_Tiers_and_Distributed_Compute.md#94-infinite-forms-tier-5)
+
+11. **[Appendices](./11_Appendices.md)**
+
+   * [11.1 What Is Not Yet Implemented](./11_Appendices.md#101-what-is-not-yet-implemented)
+   * [11.2 Glossary](./11_Appendices.md#102-glossary)
+   * [11.3 Useful Links](./11_Appendices.md#103-useful-links)
+
+</details>
+
+<details>
+<summary><strong>Part IV — Formalization and Structural Hardening</strong></summary>
+
+12. **[Formal Semantics of TISC and T81VM](./12_Formal_Semantics.md)**
+
+   * [12.1 Operational Semantics](./12_Formal_Semantics.md#111-operational-semantics)
+   * [12.2 Algebraic Transition Function](./12_Formal_Semantics.md#112-algebraic-transition-function)
+   * [12.3 Canonicalization Rewriting System](./12_Formal_Semantics.md#113-canonicalization-rewriting-system)
+   * [12.4 Determinism Proof Sketches](./12_Formal_Semantics.md#114-determinism-proof-sketches)
+   * [12.5 Interpreter vs Trace-JIT Equivalence](./12_Formal_Semantics.md#115-interpreter-vs-trace-jit-equivalence)
+
+13. **[Adversarial Modeling and Determinism Attacks](./13_Adversarial_Modeling.md)**
+
+   * [13.1 Threat Model](./13_Adversarial_Modeling.md#121-threat-model)
+   * [13.2 Compiler-Level Attacks](./13_Adversarial_Modeling.md#122-compiler-level-attacks)
+   * [13.3 VM and GC Attack Vectors](./13_Adversarial_Modeling.md#123-vm-and-gc-attack-vectors)
+   * [13.4 CanonFS and Hash Attacks](./13_Adversarial_Modeling.md#124-canonfs-and-hash-attacks)
+   * [13.5 Distributed Tier Time-Travel Attack](./13_Adversarial_Modeling.md#125-distributed-tier-time-travel-attack)
+   * [13.6 Determinism Breach Postmortem Template](./13_Adversarial_Modeling.md#126-determinism-breach-postmortem-template)
+
+</details>
+
+<details>
+<summary><strong>Part V — Continuity and Research Horizon</strong></summary>
+
+14. **[Continuity and Resilience](./14_Continuity_Resilience.md)**
+
+   * [14.1 The Cleanroom Protocol](./14_Continuity_Resilience.md#131-the-cleanroom-protocol)
+   * [14.2 Single Points of Failure](./14_Continuity_Resilience.md#132-single-points-of-failure)
+   * [14.3 Continuity Manifest](./14_Continuity_Resilience.md#133-continuity-manifest)
+   * [14.4 Immutable Formal Invariants](./14_Continuity_Resilience.md#134-immutable-formal-invariants)
+
+15. **[Research Frontier](./15_Research_Frontier.md)**
+
+   * [15.1 Ternary Hardware Acceleration](./15_Research_Frontier.md#141-ternary-hardware-acceleration)
+   * [15.2 Formal Verification Paths](./15_Research_Frontier.md#142-formal-verification-paths)
+   * [15.3 CanonFS as a Merkle Substrate](./15_Research_Frontier.md#143-canonfs-as-a-merkle-substrate)
+   * [15.4 Deterministic AI Inference at Scale](./15_Research_Frontier.md#144-deterministic-ai-inference-at-scale)
+
+</details>
 
 ---
 
