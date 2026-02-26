@@ -89,8 +89,12 @@ Authority remains:
   `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md`.
 - Consolidated execution helper exists:
   `scripts/governance/c2_month_close_check.py`.
+- One-command preflight helper exists:
+  `scripts/governance/c2_month_close_preflight.py`.
 - Latest prep report:
   `docs/status/C2_MONTH_CLOSE_CHECK_2026-03-31.md` (latest run: PASS).
+- Latest preflight report:
+  `docs/status/C2_MONTH_CLOSE_PREFLIGHT_2026-03-31.md` (latest run: PASS).
 
 ## 5. Active Workstreams
 
@@ -144,6 +148,7 @@ Authority remains:
 - `docs/status/RELEASE_READINESS_PACKET_2026-03.md`
 - `docs/status/C2_MONTH_CLOSE_RUNBOOK_2026-03-31.md`
 - `docs/status/C2_MONTH_CLOSE_CHECK_2026-03-31.md`
+- `docs/status/C2_MONTH_CLOSE_PREFLIGHT_2026-03-31.md`
 - `docs/records/status-history/COGNITIVE_TIERS_SPEC_COMPLIANCE_2026-02-26.md`
 - `docs/records/audits/2026-03-governance-review.md`
 - `docs/status/EXECUTION_PLAN_2026-03.md`

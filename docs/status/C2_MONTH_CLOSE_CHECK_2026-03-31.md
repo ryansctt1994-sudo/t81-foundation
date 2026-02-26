@@ -1,6 +1,6 @@
 # C2 Month-Close Check Report (2026-03-31 Runbook)
 
-Generated (UTC): 2026-02-26 14:33:57Z
+Generated (UTC): 2026-02-26 20:34:49Z
 Generator: `scripts/governance/c2_month_close_check.py`
 Overall: PASS
 
@@ -14,7 +14,7 @@ Overall: PASS
 
 ## Derived Fields
 
-- Promotion snapshot timestamp: 2026-02-26 14:33:57Z
+- Promotion snapshot timestamp: 2026-02-26 20:34:49Z
 
 ## Command Outputs
 
@@ -28,6 +28,8 @@ governance hygiene check PASSED
 - required README coverage checked: 36 paths
 - task-queue status consistency checked
 - stale planned markers checked for completed tasks
+- status label coherence checked
+- supplemental governance checks (structure/readme/translation/staleness/semantic/license/artifact/api/spec-boundary/stdlib/snapshot/overclaim) checked
 ```
 
 ### Promotion gate snapshot refresh

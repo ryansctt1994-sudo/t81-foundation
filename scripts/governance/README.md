@@ -33,6 +33,7 @@ specification authority, freeze boundaries, or determinism claim scope.
 - check_overclaim_guardrails.py
 - t81lang_promotion_gate_snapshot.py
 - c2_month_close_check.py
+- c2_month_close_preflight.py
 
 ## Versioning Statement
 

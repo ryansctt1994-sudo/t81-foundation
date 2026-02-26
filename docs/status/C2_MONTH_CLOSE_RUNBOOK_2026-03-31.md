@@ -44,6 +44,10 @@ This runbook covers only finalization mechanics for:
      - `python3 scripts/governance/c2_month_close_check.py`
    - Default report output:
      - `docs/status/C2_MONTH_CLOSE_CHECK_2026-03-31.md`
+   - One-command preflight (recommended before final close day execution):
+     - `python3 scripts/governance/c2_month_close_preflight.py`
+   - Default preflight report output:
+     - `docs/status/C2_MONTH_CLOSE_PREFLIGHT_2026-03-31.md`
 4. Checklist reconfirmation:
    - Source:
      - `docs/governance/MONTHLY_GOVERNANCE_REVIEW_CHECKLIST.md`
@@ -70,6 +74,7 @@ This runbook covers only finalization mechanics for:
 - `docs/records/audits/2026-03-governance-review.md`
 - `docs/governance/MONTHLY_GOVERNANCE_REVIEW_CHECKLIST.md`
 - `docs/status/T81LANG_PROMOTION_GATE_SNAPSHOT.md`
+- `docs/status/C2_MONTH_CLOSE_PREFLIGHT_2026-03-31.md`
 
 ## Versioning Statement
 
