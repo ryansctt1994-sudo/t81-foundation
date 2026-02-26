@@ -5,14 +5,21 @@
 The T81 Foundation is committed to providing a stable, secure, and deterministic platform. This contract defines the guarantees we provide to users and developers.
 
 ### 1. Determinism
-We guarantee bit-exact reproducibility for all execution traces across supported platforms, given the same inputs and configuration.
+Determinism guarantees are scoped to verified surfaces defined by governance artifacts (especially the determinism surface registry and CI repro gates). Determinism is not globally guaranteed for all runtime paths or all hardware/libc combinations.
 
 ### 2. Stability
 *   **TISC ISA**: Versioned and frozen. Breaking changes require a major version bump.
 *   **Public APIs**: Semantically versioned. Deprecation warnings provided one cycle in advance.
 
 ### 3. Security
-All execution is sandboxed. Capability-based access control is enforced at the kernel level.
+Capability-based runtime controls are enforced by Axion within process-level software boundaries. T81 does not currently provide hardware isolation or OS-level sandboxing as part of the core runtime guarantee.
+
+### 4. Contract Authority
+The authoritative implementation-bound capability statement is:
+
+* `docs/reference/CAPABILITY_CONTRACT.md`
+
+If this governance summary conflicts with the reference capability contract, the reference capability contract governs.
 
 ## Governance Model
 

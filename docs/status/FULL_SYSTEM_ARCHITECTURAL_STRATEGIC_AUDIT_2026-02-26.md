@@ -106,30 +106,25 @@ Then reconcile encoding/register semantics into one normative source.
 | Risk Classification | Medium-High |
 
 ### 5.3 Missing Enforcement Surfaces
-- Fail-closed policy parse semantics.
 - Stronger gating around stub privileged/cognitive opcode surfaces.
 - Full sync between governance matrix and actual CI-enforced checks.
 
 ## 6. Documentation vs Reality
 
 ### 6.1 Overstatement Map
-- Root README uses global bit-pattern guarantee language for all instruction/float/tensor outcomes.
-- Governance capability contract says execution is sandboxed; reference capability contract says no OS/hardware sandbox.
-- Multilingual READMEs are now aligned on component maturity rows (Beta/Alpha), but some translated headline/repro-language remains stronger than bounded-registry framing.
-- `docs/reference/STATUS.md` maturity posture is stale vs active status artifacts.
+- Root and multilingual READMEs are substantially aligned to bounded determinism language, but additional secondary docs still contain broad sandbox/determinism wording not yet fully normalized.
+- Legacy documents still contain sandbox phrasing that can be read as stronger than current process-level enforcement model.
 
 ### 6.2 Documentation Credibility Score
 
 | Metric | Score (1-10) |
 |---|---:|
-| Documentation Credibility | 5.2 |
+| Documentation Credibility | 6.1 |
 
 ### 6.3 Required Corrections
-1. Unify top-level determinism language to registry-bounded guarantees.
-2. Resolve register and encoding contradictions in normative docs.
-3. Complete multilingual semantic parity pass for deterministic-claim wording beyond status rows (including reproducibility-gate phrasing).
-4. Reconcile governance capability contract documents into one coherent claim set.
-5. Remove or restore CI/workflow references that do not exist.
+1. Resolve register and encoding contradictions in normative docs.
+2. Normalize secondary docs (how-to/spec aggregations) to current bounded determinism and process-level isolation language.
+3. Continue Axion enforcement hardening around stub privileged/cognitive opcode surfaces.
 
 ## 7. Code Quality & Engineering Discipline
 
@@ -218,6 +213,10 @@ Then make CI fail on any doc/status/translation drift from that contract.
 ### 2026-02-26 (R6)
 - Updated deterministic-claim language in `README.pt-BR.md`, `README.ru.md`, and `README.zh-CN.md` intros and deterministic-execution feature rows to match bounded verified-surface positioning.
 - Re-ran governance and integrity checks (`status label coherence`, `docs governance hygiene`, `TISC freeze integrity`, and strict workflow action pinning) with all checks passing.
+
+### 2026-02-26 (R7)
+- Reconciled capability-contract sandbox language by updating `docs/governance/CAPABILITY_CONTRACT.md` to match process-level enforcement limits and explicit non-guarantee of OS/hardware sandboxing.
+- Added explicit contract-authority pointer from governance summary to `docs/reference/CAPABILITY_CONTRACT.md`.
 
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
