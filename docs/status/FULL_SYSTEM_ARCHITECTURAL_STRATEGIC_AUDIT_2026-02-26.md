@@ -1,10 +1,10 @@
 # Full-System Architectural & Strategic Audit
 
 Date: 2026-02-26  
-Revision: Post-remediation refresh + conformance sprint Phase 3 closure + VM decomposition Phase F closure + rerun on baseline `e87e4d4d`  
+Revision: Post-remediation refresh + conformance sprint Phase 3 closure + VM decomposition Phase F closure + rerun on baseline `3808ffae`  
 Scope: `/src`, `/include`, `/spec`, `/docs`, `/book`, CI workflows, governance files, capability contract, opcode/ISA surfaces, VM execution model, Axion policy enforcement, determinism gates, benchmarks, tests, multilingual alignment, roadmaps, release notes.
 
-## Rerun Delta (Baseline `e87e4d4d`)
+## Rerun Delta (Baseline `3808ffae`)
 
 - Added and expanded Phase-3 conformance matrices:
   - `tests/cpp/vm_fault_family_determinism_matrix_test.cpp`
@@ -15,6 +15,9 @@ Scope: `/src`, `/include`, `/spec`, `/docs`, `/book`, CI workflows, governance f
   - deterministic `TLOADHASH` classification coverage for `InvalidHash` vs `CanonFsMiss` vs malformed-object `DecodeFault`
   - mixed workload deterministic deny-path branch coverage via policy instruction-budget gate
   - Axion clause-ordering conformance invariants with deterministic event-signature equivalence checks
+- Reduced VM dispatch concentration on Axion opcodes:
+  - extracted `AxCheck`/`AxReport`/blocked-privileged-Axion handling into dedicated dispatch lambdas in `core/vm/vm.cpp`
+  - preserved fail-closed trap semantics and deterministic Axion event emission behavior
 - Expanded CanonFS integrity and env-contract checks:
   - default read-verify behavior when `T81_CANONFS_READ_VERIFY` is unset
   - explicit env override contract coverage
