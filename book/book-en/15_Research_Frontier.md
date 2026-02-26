@@ -4,40 +4,24 @@
 
 **Status: Research**
 
-While T81 runs efficiently on binary hardware via emulation (`packed-trit` storage), native ternary hardware could offer significant advantages.
-*   **Information Density**: Trits carry $\approx 1.58$ bits of information. A 27-trit word fits in 64 bits but represents $7.6 \times 10^{12}$ values, far exceeding $2^{32}$.
-*   **Arithmetic Efficiency**: Balanced ternary addition reduces the average number of carry operations compared to binary.
-*   **Energy Efficiency**: Research suggests that ternary logic gates can be more power-efficient for certain AI workloads (e.g., Sparse Neural Networks), as the "0" state naturally maps to "Off".
-
-**Path Forward**:
-1.  **FPGA Emulation**: Port the TISC core to Verilog/VHDL targeting Xilinx Artix-7, implementing native ternary ALUs (via 2-bit binary mapping).
-2.  **ASIC Design**: Collaborate with open-source silicon projects (OpenROAD) to tape out a proof-of-concept ternary coprocessor.
-3.  **Memristors**: Investigate multi-state memory devices that can store trits natively.
+Native ternary compute remains an open research track for performance/energy goals while preserving deterministic semantics.
 
 ## 15.2 Formal Verification Paths
 
 **Status: Research**
 
-Currently, T81 relies on **Property-Based Testing** (QuickCheck style) and **Fuzzing** to ensure correctness. The next step is **Formal Proofs**.
-*   **Coq / Isabelle**: Define the formal semantics of TISC in a proof assistant.
-*   **Certified Compilation**: Prove that the T81 Compiler preserves semantics from Source $\to$ AST $\to$ IR $\to$ Bytecode.
-*   **JIT Correctness**: Prove that the trace optimization passes (Constant Folding, Dead Code Elimination) are semantic-preserving transformations.
+Future work includes stronger machine-checked semantics and proof-carrying optimization claims.
 
 ## 15.3 CanonFS as a Merkle Substrate
 
-**Status: Concept**
+**Status: Research/Conceptual Extension**
 
-CanonFS currently handles static blobs (weights, code). Future research aims to make it a fully **Mutable-via-Immutable** filesystem, similar to Git or IPFS but optimized for AI workloads.
-*   **Versioned Models**: `model:v1` is a pointer to `hash1`. `model:v2` is a pointer to `hash2`.
-*   **Deduplication**: Automatically deduplicate layers across different neural networks.
-*   **Lazy Loading**: Stream tensor slices on-demand over the network, verified by Merkle proofs.
+CanonFS may evolve toward richer immutable graph/state workflows with stronger provenance and distribution capabilities.
 
 ## 15.4 Deterministic AI Inference at Scale
 
-**Status: Active Development**
+**Status: Active Governed Exploration**
 
-The ultimate goal of T81 is **Sovereign AI**: running large language models (LLMs) deterministically.
-*   **Problem**: Current GPUs (CUDA) are non-deterministic due to parallel reduction order and hardware quirks.
-*   **Solution**: T81's `dmath` and tensor library provide a slow but correct reference implementation.
-*   **Optimization**: Implement deterministic parallel reduction algorithms (e.g., tree-based summation) to allow multi-core execution without sacrificing bit-exactness.
-*   **Application**: Decentralized AI networks where nodes must reach consensus on the output of an LLM prompt.
+Governed inference surfaces (including `llama-run`) are currently non-DCP by default and require promotion-gate evidence before stronger guarantee claims.
+
+This remains a primary strategic frontier under the governed AGI direction.

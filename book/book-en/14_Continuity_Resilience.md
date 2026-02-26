@@ -2,52 +2,44 @@
 
 ## 14.1 The Cleanroom Protocol
 
-**Status: Aspirational**
+**Status: Defined Direction**
 
-The T81 project is designed with a **"Civilization-Scale"** mindset. The goal is that if all source code repositories (GitHub, GitLab, PyPI) were to vanish, the system could be reconstructed from this monograph and a standard C++ compiler specification.
+Continuity planning assumes long-term reconstruction and verification needs.
 
 ### 14.1.1 Reconstruction Steps
-1.  **Retrieve**: Obtain a copy of the **Definitive Technical Monograph** (this book), preserved in IPFS, printed form, or data crystals.
-2.  **Verify**: Confirm the cryptographic hashes of the core algorithms (SHA3-256, Balanced Ternary Arithmetic) against known mathematical constants.
-3.  **Implement**:
-    *   Write a C++23 compliant compiler.
-    *   Implement `T81Int` and `T81Float` according to the bit-layout specifications in Chapter 4.
-    *   Implement the TISC VM instruction loop (Chapter 3).
-    *   Implement the Axion policy logic (Chapter 9).
-4.  **Validate**: Run the test suite (`tests/cpp/*.cpp`) included in the appendix or reconstructed from the descriptions.
-5.  **Bootstrap**: Use the new implementation to compile the T81Lang self-hosted compiler (if available) or the reference examples.
+
+1. recover normative specs and governance authority chain,
+2. recover reference implementation and tests,
+3. reproduce deterministic evidence for required release surfaces,
+4. re-establish governance controls and incident workflows.
 
 ## 14.2 Single Points of Failure
 
-**Status: Mitigated**
+**Status: Managed Risk**
 
-T81 identifies and mitigates reliance on centralized infrastructure.
+Key concentration risks include maintainer concentration, infrastructure dependence, and undocumented operational knowledge.
 
-*   **Source Control**: The repository is mirrored across multiple git forges (GitHub, GitLab) and decentralized networks (IPFS/Radicle).
-*   **Build Tools**: CMake is the standard build system, but the project structure is simple enough for manual compilation or shell scripts (`gcc src/*.cpp -o t81`).
-*   **Dependencies**: T81 has **zero required runtime dependencies** beyond the C++ standard library. It vendors critical components (like `asio` for networking) or implements them from scratch (like `dmath` for transcendentals). This "hermetic build" philosophy ensures long-term viability.
+Mitigation is process-heavy: mirrored artifacts, reproducible builds, and governance checklists.
 
 ## 14.3 Continuity Manifest
 
 **Status: Documented**
 
-The following artifacts constitute the "Continuity Kit" necessary to rebuild T81:
+Continuity-critical artifacts:
 
-1.  **The Book**: `book/book-en/*.md` (This document).
-2.  **The Spec**: `spec/*.md` (Formal TISC/Axion specifications).
-3.  **The Code**: `src/` and `include/` (Reference implementation).
-4.  **The Tests**: `tests/cpp/` (Validation logic).
-5.  **The Scripts**: `scripts/ci/` (Reproduction gates).
+* `/spec` (normative behavior),
+* governance docs (`docs/governance/`),
+* deterministic release boundary definitions (`docs/product/`),
+* status evidence (`docs/status/`),
+* implementation and tests.
 
 ## 14.4 Immutable Formal Invariants
 
-**Status: Eternal**
+**Status: Project Identity Constraint**
 
-Regardless of implementation details (C++, Rust, Zig), any system calling itself "T81" must adhere to these invariants:
+The project identity requires:
 
-1.  **Strict Determinism**: $f(S, I) \to S'$ is bit-exact across platforms.
-2.  **Ternary Native**: Logic is base-3.
-3.  **Policy Enforced**: No instruction executes without Axion approval.
-4.  **Structurally Honest**: No approximations without explicit typing.
-
-If a system violates any of these, it is a fork, not T81. This definition protects the semantic integrity of the project against "embrace, extend, extinguish" tactics.
+1. explicit determinism boundary discipline,
+2. canonical representations for hash-critical behavior,
+3. policy-mediated safety controls,
+4. auditable execution/governance evidence.

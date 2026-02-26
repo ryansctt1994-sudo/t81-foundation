@@ -2,25 +2,24 @@
 
 ## 5.1 Prerequisites
 
-**Status: Stable**
+**Status: Current**
 
-To build T81 from source, you need a modern C++ toolchain capable of C++23.
+To build T81 from source, use a modern C++ toolchain and the current repository defaults.
 
 *   **Compiler**:
-    *   Clang 16+ (Recommended for strict compliance)
-    *   GCC 13+
-    *   MSVC 19.36+ (VS 2022)
+    *   Clang 18+ (recommended)
+    *   GCC 14+
 *   **Build System**:
-    *   CMake 3.25+
+    *   CMake 3.21+
     *   Ninja (Optional, recommended for speed)
 *   **Dependencies**:
-    *   Python 3.10+ (For validation scripts)
+    *   Python 3.10+ (for determinism gates and CI scripts)
     *   Git (For version control)
 
 ### 5.1.1 Environment Setup (Ubuntu/Debian)
 ```bash
 sudo apt update
-sudo apt install -y build-essential cmake ninja-build clang-16 python3 python3-pip git
+sudo apt install -y build-essential cmake ninja-build clang python3 python3-pip git
 ```
 
 ### 5.1.2 Environment Setup (macOS)
@@ -32,19 +31,19 @@ brew install cmake ninja llvm python3
 
 **Status: Implemented**
 
-Clone the repository recursively to fetch submodules (if any).
+Clone the main repository:
 
 ```bash
-git clone https://github.com/t81-foundation/t81.git
-cd t81
+git clone https://github.com/t81dev/t81-foundation.git
+cd t81-foundation
 ```
 
 ### 5.2.1 Standard Release Build
-This builds the `t81` binary with optimizations (`-O3`) enabled.
+This builds the `t81` binary in release mode.
 
 ```bash
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build build
+cmake --build build --parallel
 ```
 
 ### 5.2.2 Build Options
@@ -52,15 +51,13 @@ You can control the build configuration:
 
 | Option | Default | Description |
 | :--- | :--- | :--- |
-| `T81_USE_CXX23` | `ON` | Enable C++23 features (e.g., `std::expected`, `std::print`). |
-| `T81_BUILD_TESTS` | `ON` | Compile the verification suite (`t81_*_test`). |
-| `T81_BUILD_EXAMPLES` | `ON` | Compile demo programs in `examples/`. |
-| `T81_ENABLE_ASAN` | `OFF` | Enable AddressSanitizer (Debug only). |
-| `T81_ENABLE_UBSAN` | `OFF` | Enable UndefinedBehaviorSanitizer. |
-| `T81_DETERMINISTIC` | `AUTO` | Force usage of `dmath` over `libm`. If `AUTO`, attempts to detect if `libm` is safe (rarely true). |
-
-> **Note on Determinism**: To ensure strict determinism (disabling host FPU fallbacks for transcendentals), define `T81_DETERMINISTIC` manually if not set by default:
-> `cmake -B build -DCMAKE_CXX_FLAGS="-DT81_DETERMINISTIC"`
+| `T81_USE_CXX23` | `ON` | Build in C++23 mode (falls back to C++20 if disabled). |
+| `T81_BUILD_TESTS` | `ON` | Build C++ test targets. |
+| `T81_BUILD_EXAMPLES` | `ON` | Build examples in `examples/`. |
+| `T81_BUILD_BENCHMARKS` | `ON` | Build benchmark suite. |
+| `T81_ENABLE_ASAN` | `OFF` | Enable AddressSanitizer where supported. |
+| `T81_ENABLE_UBSAN` | `OFF` | Enable UndefinedBehaviorSanitizer where supported. |
+| `T81_ENABLE_LLAMA_CPP` | `OFF` | Enable governed `llama.cpp` adapter (`llama-run`, experimental non-DCP). |
 
 ## 5.3 Verifying the Build
 
@@ -69,29 +66,25 @@ You can control the build configuration:
 After building, you **must** verify that the binary produced is compliant with the T81 spec. A successful compile does not guarantee correct execution.
 
 ### 5.3.1 Running Unit Tests
-Execute the standard test suite via `ctest`. This runs hundreds of property-based tests.
+Execute the standard test suite via `ctest`.
 
 ```bash
-cd build
-ctest --output-on-failure
+ctest --test-dir build --output-on-failure -j1
 ```
 
 ### 5.3.2 The Determinism Gate
-The most critical check is the **Determinism Gate**. This script compiles a canonical reference program, runs it, and compares the resulting Axion Trace hash against a known-good value.
+The reproducibility gate verifies canonical fixture outputs and aggregate hash stability.
 
 ```bash
-# Run the repro gate
-python3 scripts/ci/t81lang_repro_gate.py --binary ./build/t81
+python3 scripts/ci/t81lang_repro_gate.py \
+  --t81-bin ./build/t81 \
+  --fixtures-dir tests/fixtures/t81lang_determinism \
+  --workdir build/t81lang-repro-check \
+  --hash-out build/t81lang-repro-check/hash.txt \
+  --expected-hash-file tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt
 ```
 
-**Expected Output**:
-```text
-[PASS] Trace Hash: canon:sha3:a7f92b... MATCHES expected baseline.
-[PASS] Cycles: 10420 (Exact match)
-[PASS] Determinism verification successful.
-```
-
-If this script fails, the build is **tainted** and must not be used for production or auditing tasks.
+If this gate fails, treat the build as non-release-ready for deterministic claims.
 
 ### 5.3.3 Verifying Architecture Targets
 Ensure that the build graph matches the architectural specification:
@@ -100,9 +93,16 @@ Ensure that the build graph matches the architectural specification:
 python3 scripts/ci/check_architecture_targets.py
 ```
 
+For DCP release checks, also run:
+
+```bash
+python3 scripts/ci/check_tisc_freeze_integrity.py
+scripts/ci/run_determinism_slice.sh
+```
+
 ## 5.4 Troubleshooting
 
-*   **"C++23 not supported"**: Upgrade your compiler. T81 relies heavily on modern C++ features for type safety (`std::expected`, `std::span`). Check `clang --version`.
-*   **"Trace Hash Mismatch"**: You may be linking against a different version of standard libraries, or `dmath` fallback was triggered. Ensure `T81_DETERMINISTIC` is defined. Check for compiler flags like `-ffast-math` which break IEEE compliance—T81 forbids them.
-*   **"SIMD Instruction Fault"**: T81 attempts to detect AVX2/NEON availability. If cross-compiling, ensure target flags are correct. Use `-DENABLE_AVX2=OFF` if on older hardware.
-*   **"Memory Allocation Failed"**: If running large models, ensure your ulimit is sufficient. T81 aggressively pre-allocates tensor pools.
+*   **"C++23 not supported"**: Upgrade compiler/toolchain and reconfigure from a clean build directory.
+*   **"Gate hash mismatch"**: Re-run with a clean build and verify no unsupported optimization flags are injected.
+*   **"llama-run unavailable"**: Reconfigure with `-DT81_ENABLE_LLAMA_CPP=ON`.
+*   **"Policy required for llama-run"**: `--policy <policy.apl>` is mandatory for governed inference mode.

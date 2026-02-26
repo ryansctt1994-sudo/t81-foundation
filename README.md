@@ -102,7 +102,7 @@ Authority note: README is a summary. Normative definitions reside in [`/spec`](s
 * **Governance**: `docs/governance/`
 * **Status Tracking**: `docs/status/`
 * **Product Docs**: `docs/product/`
-* **Book (non-normative)**: `book/`
+* **Book (non-normative)**: [book/book-en/](./book/book-en/)
 
 **Public API Contract:**
 Only headers under `include/t81/**` are supported as stable C++ API surface.
@@ -220,7 +220,26 @@ Contribution guide:
 * **Governance** — [docs/governance/](docs/governance/)
 * **Status** — [docs/status/](docs/status/)
 * **Product** — [docs/product/](docs/product/) (includes [Strategic Direction](docs/product/STRATEGIC_DIRECTION.md))
-* **Book (non-normative narrative)** — [book/book-en/README.md](book/book-en/README.md)
+* **Book (non-normative narrative)** — [book/book-en/](./book/book-en/)
+
+## The T81 Detail
+
+* [Book Index](./book/book-en/README.md)
+* [01 Introduction](./book/book-en/01_Introduction.md): [1.1](./book/book-en/01_Introduction.md#11-scope-and-definition) | [1.2](./book/book-en/01_Introduction.md#12-system-architecture) | [1.3](./book/book-en/01_Introduction.md#13-verifiable-compute-mission) | [1.4](./book/book-en/01_Introduction.md#14-terminology) | [1.5](./book/book-en/01_Introduction.md#15-verification-checklist)
+* [02 Principles](./book/book-en/02_Principles.md): [2.1](./book/book-en/02_Principles.md#21-the-determinism-invariant) | [2.2](./book/book-en/02_Principles.md#22-ternary-logic-base-3) | [2.3](./book/book-en/02_Principles.md#23-auditability-and-the-axion-trace) | [2.4](./book/book-en/02_Principles.md#24-the-nine-principles-ethics-enforcement) | [2.5](./book/book-en/02_Principles.md#25-verification-checklist) | [2.6](./book/book-en/02_Principles.md#26-formal-audit-matrix)
+* [03 Architecture](./book/book-en/03_Architecture.md): [3.1](./book/book-en/03_Architecture.md#31-overview) | [3.2](./book/book-en/03_Architecture.md#32-the-runtime-boundary) | [3.3](./book/book-en/03_Architecture.md#33-memory-model) | [3.4](./book/book-en/03_Architecture.md#34-the-instruction-set-tisc) | [3.5](./book/book-en/03_Architecture.md#35-jit-compilation-trace-jit)
+* [04 Data Types and Serialization](./book/book-en/04_Data_Types_and_Serialization.md): [4.1](./book/book-en/04_Data_Types_and_Serialization.md#41-primitive-types) | [4.2](./book/book-en/04_Data_Types_and_Serialization.md#42-t81float-and-dmath) | [4.3](./book/book-en/04_Data_Types_and_Serialization.md#43-tensors-and-canonical-layouts) | [4.4](./book/book-en/04_Data_Types_and_Serialization.md#44-canonical-serialization-rules)
+* [05 Installation](./book/book-en/05_Installation.md): [5.1](./book/book-en/05_Installation.md#51-prerequisites) | [5.2](./book/book-en/05_Installation.md#52-building-from-source) | [5.3](./book/book-en/05_Installation.md#53-verifying-the-build) | [5.4](./book/book-en/05_Installation.md#54-troubleshooting)
+* [06 Usage](./book/book-en/06_Usage.md): [6.1](./book/book-en/06_Usage.md#61-the-t81-command-line-interface) | [6.2](./book/book-en/06_Usage.md#62-embedding-t81-c-api) | [6.3](./book/book-en/06_Usage.md#63-embedding-t81-python-api) | [6.4](./book/book-en/06_Usage.md#64-debugging)
+* [07 Programming in T81Lang](./book/book-en/07_Programming_in_T81Lang.md): [7.1](./book/book-en/07_Programming_in_T81Lang.md#71-design-philosophy) | [7.2](./book/book-en/07_Programming_in_T81Lang.md#72-syntax-basics) | [7.3](./book/book-en/07_Programming_in_T81Lang.md#73-data-types) | [7.4](./book/book-en/07_Programming_in_T81Lang.md#74-control-flow) | [7.5](./book/book-en/07_Programming_in_T81Lang.md#75-functions) | [7.6](./book/book-en/07_Programming_in_T81Lang.md#76-structures-and-methods) | [7.7](./book/book-en/07_Programming_in_T81Lang.md#77-axion-integration) | [7.8](./book/book-en/07_Programming_in_T81Lang.md#78-examples)
+* [08 Verification and Audit](./book/book-en/08_Verification_and_Audit.md): [8.1](./book/book-en/08_Verification_and_Audit.md#81-verification-methodology) | [8.2](./book/book-en/08_Verification_and_Audit.md#82-determinism-scope-and-audit-matrix) | [8.3](./book/book-en/08_Verification_and_Audit.md#83-reproducibility-gates) | [8.4](./book/book-en/08_Verification_and_Audit.md#84-failure-implication-and-response)
+* [09 The Axion Kernel](./book/book-en/09_The_Axion_Kernel.md): [9.1](./book/book-en/09_The_Axion_Kernel.md#91-formal-definition) | [9.2](./book/book-en/09_The_Axion_Kernel.md#92-the-policy-model) | [9.3](./book/book-en/09_The_Axion_Kernel.md#93-instruction-interception) | [9.4](./book/book-en/09_The_Axion_Kernel.md#94-the-audit-log-trace) | [9.5](./book/book-en/09_The_Axion_Kernel.md#95-cognitive-promotion)
+* [10 Cognitive Tiers and Distributed Compute](./book/book-en/10_Cognitive_Tiers_and_Distributed_Compute.md): [10.1](./book/book-en/10_Cognitive_Tiers_and_Distributed_Compute.md#101-the-cognitive-tier-model) | [10.2](./book/book-en/10_Cognitive_Tiers_and_Distributed_Compute.md#102-distributed-compute-tier-4) | [10.3](./book/book-en/10_Cognitive_Tiers_and_Distributed_Compute.md#103-trace-jit-and-advanced-runtime-paths) | [10.4](./book/book-en/10_Cognitive_Tiers_and_Distributed_Compute.md#104-infinite-forms-tier-5)
+* [11 Appendices](./book/book-en/11_Appendices.md): [11.1](./book/book-en/11_Appendices.md#111-boundary-and-maturity-snapshot) | [11.2](./book/book-en/11_Appendices.md#112-glossary) | [11.3](./book/book-en/11_Appendices.md#113-useful-links)
+* [12 Formal Semantics](./book/book-en/12_Formal_Semantics.md): [12.1](./book/book-en/12_Formal_Semantics.md#121-operational-semantics) | [12.2](./book/book-en/12_Formal_Semantics.md#122-algebraic-transition-function) | [12.3](./book/book-en/12_Formal_Semantics.md#123-canonicalization-rewrite-system) | [12.4](./book/book-en/12_Formal_Semantics.md#124-determinism-proof-sketches) | [12.5](./book/book-en/12_Formal_Semantics.md#125-interpreter-vs-trace-jit-equivalence)
+* [13 Adversarial Modeling](./book/book-en/13_Adversarial_Modeling.md): [13.1](./book/book-en/13_Adversarial_Modeling.md#131-threat-model) | [13.2](./book/book-en/13_Adversarial_Modeling.md#132-compiler-level-attacks) | [13.3](./book/book-en/13_Adversarial_Modeling.md#133-vm-and-gc-attack-vectors) | [13.4](./book/book-en/13_Adversarial_Modeling.md#134-canonfs-and-hash-attacks) | [13.5](./book/book-en/13_Adversarial_Modeling.md#135-distributed-tier-time-travel-attack) | [13.6](./book/book-en/13_Adversarial_Modeling.md#136-determinism-breach-postmortem-template)
+* [14 Continuity and Resilience](./book/book-en/14_Continuity_Resilience.md): [14.1](./book/book-en/14_Continuity_Resilience.md#141-the-cleanroom-protocol) | [14.2](./book/book-en/14_Continuity_Resilience.md#142-single-points-of-failure) | [14.3](./book/book-en/14_Continuity_Resilience.md#143-continuity-manifest) | [14.4](./book/book-en/14_Continuity_Resilience.md#144-immutable-formal-invariants)
+* [15 Research Frontier](./book/book-en/15_Research_Frontier.md): [15.1](./book/book-en/15_Research_Frontier.md#151-ternary-hardware-acceleration) | [15.2](./book/book-en/15_Research_Frontier.md#152-formal-verification-paths) | [15.3](./book/book-en/15_Research_Frontier.md#153-canonfs-as-a-merkle-substrate) | [15.4](./book/book-en/15_Research_Frontier.md#154-deterministic-ai-inference-at-scale)
 
 ---
 

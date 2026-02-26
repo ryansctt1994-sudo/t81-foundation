@@ -1,50 +1,50 @@
 # Chapter 11: Appendices
 
-## 11.1 What Is Not Yet Implemented
+## 11.1 Boundary and Maturity Snapshot
 
-**Status: Tracking**
+**Status: Current as of this revision**
 
-While the core T81VM and TISC ISA are stable, several advanced features remain in active development or research phases.
+The practical question is not whether a feature exists, but whether it is inside verified deterministic release scope.
 
-### 11.1.1 Phase 2: Full `dmath` Coverage
-Currently, `dmath` provides deterministic implementations for basic arithmetic (`+`, `-`, `*`, `/`) and key transcendentals (`sin`, `cos`, `exp`, `log`).
-*   **Missing**: Inverse trigonometric functions (`asin`, `acos`, `atan`) currently rely on host `libc` (unless `T81_DETERMINISTIC` is set, which traps).
-*   **Missing**: Hyperbolic functions (`sinh`, `cosh`, `tanh`) are partial.
-*   **Plan**: Implement full Taylor/Maclaurin series expansions for all standard math functions in `include/t81/core/detail/dmath.hpp` to remove all `libm` dependencies.
+### 11.1.1 DCP-Certified Direction
 
-### 11.1.2 Phase 3: Distributed Consensus (Tier 4)
-Tier 4 opcodes (`Gossip`, `Merge`) are specified but the underlying P2P networking stack is experimental.
-*   **Missing**: Robust peer discovery (DHT).
-*   **Missing**: Sybil resistance mechanism (Proof of Work/Stake placeholder).
-*   **Plan**: Integrate a content-addressable networking layer (e.g., libp2p or custom Kademlia) to support decentralized state merging.
+DCP (Deterministic Core Profile) is the release-certified subset. Verified surfaces are tracked in:
 
-### 11.1.3 Phase 4: Full Infinite Forms (Tier 5)
-Tier 5 supports basic Geometric Series collapse.
-*   **Missing**: General analytic continuation for non-geometric series.
-*   **Missing**: Symbolic summation of more complex generating functions.
-*   **Plan**: Expand `InfCollapse` to handle a wider class of meromorphic functions.
+* `docs/product/DETERMINISTIC_CORE_PROFILE.md`
+* `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`
+
+### 11.1.2 Governed Non-DCP Surfaces
+
+The following may be implemented but are not DCP deterministic guarantees by default:
+
+* Trace-JIT runtime paths
+* Experimental distributed/cognitive-tier surfaces
+* Governed `llama.cpp` inference path (`t81 llama-run`)
+
+### 11.1.3 Open Promotion Work
+
+Promotion of non-DCP surfaces requires governance gates, deterministic evidence, and registry updates:
+
+* `docs/status/GOVERNED_AGI_PROMOTION_PIPELINE.md`
+* `docs/governance/FREEZE_ENFORCEMENT.md`
+* `docs/governance/DETERMINISM_THREAT_MODEL.md`
 
 ## 11.2 Glossary
 
 | Term | Definition |
 | :--- | :--- |
-| **Axion** | The safety kernel of T81, responsible for policy enforcement and audit logging. |
-| **CanonRef** | A canonical reference (SHA3-256 hash) pointing to an immutable object in CanonFS. |
-| **Cognitive Tier** | A level of computational capability (1=Symbolic to 5=Infinite). |
-| **Determinism Gate** | The CI process (`t81lang_repro_gate`) that verifies bit-exact reproducibility of the compiler. |
-| **dmath** | Deterministic Math library; a software implementation of floating-point arithmetic. |
-| **T81Float** | A balanced ternary floating-point number $(s, m, e)$ packed into 64 bits. |
-| **T81Int** | An arbitrary-precision balanced ternary integer. |
-| **TISC** | Ternary Instruction Set Computer; the bytecode language of the T81VM. |
-| **Trit** | A base-3 digit $\{-1, 0, 1\}$. |
-| **Tryte** | A sequence of trits (usually 4). |
-| **Structural Honesty** | The principle that a system must not synthesize information or hide approximation. |
-| **Segmented Memory** | A memory model where addresses are (SegmentID, Offset) pairs, preventing pointer aliasing. |
-| **Opaque Handle** | An integer index used to reference a heap object, preventing memory address leakage. |
+| **DCP** | Deterministic Core Profile; the release-certified deterministic subset of T81. |
+| **Determinism Surface Registry** | Governance registry that marks surfaces as Verified/Partial/Unverified for determinism guarantees. |
+| **Governed non-DCP** | Surface under policy/governance controls but outside DCP guarantee scope. |
+| **Axion** | Policy and audit kernel integrated with runtime execution controls. |
+| **CanonRef** | SHA3-256 content reference for immutable CanonFS objects. |
+| **Promotion Pipeline** | Governance lifecycle used to move experimental surfaces toward verified status. |
+| **Repro Gate** | Automated reproducibility checks used to detect determinism drift. |
 
 ## 11.3 Useful Links
 
-*   **Repository**: [github.com/t81-foundation/t81](https://github.com/t81-foundation/t81)
-*   **Specification**: `spec/` directory in the repo.
-*   **CI Dashboard**: GitHub Actions tab.
-*   **Community**: Discord / Matrix (TBD).
+* **Repository**: [github.com/t81dev/t81-foundation](https://github.com/t81dev/t81-foundation)
+* **Normative Specs**: `spec/`
+* **Book (this narrative)**: `book/book-en/`
+* **Governance docs**: `docs/governance/`
+* **Status/Promotion tracking**: `docs/status/`

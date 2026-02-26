@@ -1,71 +1,66 @@
 # Chapter 8: Verification and Audit
 
-## 8.1 Formal Verification Methodology
+## 8.1 Verification Methodology
 
-**Status: Process**
+**Status: Active and Enforced**
 
-The T81 project employs a rigorous verification methodology to ensure that the implementation matches the specification. This is critical because the system's primary value proposition is correctness, not speed.
+T81 verification is split between implementation tests, deterministic repro gates, and governance evidence.
 
-### 8.1.1 The Verification Pyramid
+### 8.1.1 Verification Layers
 
-1.  **Type Checking (Static)**: The C++ compiler (Clang/GCC) ensures type safety in the host implementation. The T81Lang compiler ensures type safety in user programs.
-2.  **Unit Testing (Dynamic)**: Individual components (`dmath`, `Stack`, `Memory`) are tested in isolation.
-3.  **Property-Based Testing (Fuzzing)**: Generators create random inputs to verify invariants hold (e.g., $Add(A, B) == Add(B, A)$).
-4.  **Integration Testing (End-to-End)**: Full programs are compiled and executed, and the resulting traces are verified.
-5.  **Formal Proof (Future)**: Mathematical proofs of correctness for the core transition function.
+1.  **Static and semantic validation**: C++ compile checks plus T81Lang parser/semantic analyzer checks.
+2.  **Unit/integration tests**: C++ tests for VM, ISA, numerics, Axion, and CanonFS surfaces.
+3.  **Property and determinism checks**: deterministic fixtures and cross-surface invariants.
+4.  **Governance controls**: freeze-integrity checks, determinism registry discipline, and release packet evidence.
 
-## 8.2 The Formal Audit Matrix
+## 8.2 Determinism Scope and Audit Matrix
 
-The audit matrix maps every requirement in the specification to a concrete test case in the codebase.
+Determinism claims are bounded. The authoritative source is the Determinism Surface Registry and DCP definition, not this narrative chapter.
 
-| Requirement | Spec Section | Implementation | Verification Test |
+| Surface | Reference | Verification | Current Claim |
 | :--- | :--- | :--- | :--- |
-| **Strict Determinism** | `2.1` | `src/vm/vm.cpp` | `tests/cpp/test_property_invariants.cpp` |
-| **Ternary Arithmetic** | `4.1` | `include/t81/ternary.hpp` | `tests/cpp/ternary_arith_test.cpp` |
-| **Policy Enforcement** | `1.2.2` | `src/axion/policy_engine.cpp` | `tests/cpp/test_ethics.cpp` |
-| **CanonFS Hash Integrity** | `1.2.3` | `src/canonfs/` | `tests/cpp/canonfs_driver_test.cpp` |
-| **Trace Equivalence (JIT)**| `3.5` | `src/vm/jit.cpp` | `tests/cpp/jit_trace_equivalence_test.cpp` |
-| **Soft-Float Bit Exactness**| `4.2` | `include/t81/core/dmath.hpp` | `tests/cpp/test_T81Float.cpp` |
+| TISC opcode semantics | `spec/tisc-spec.md` | `tests/cpp/vm_determinism_property_test.cpp`, `tests/cpp/test_tritwise_backend_equivalence.cpp` | Verified |
+| VM interpreter execution | `spec/t81vm-spec.md` | `tests/cpp/vm_trace_test.cpp`, `tests/cpp/vm_determinism_property_test.cpp` | Verified |
+| Data type canonical encoding | `spec/t81-data-types.md` | `tests/cpp/v1_canonical_numeric_contract_test.cpp`, `tests/cpp/tisc_binary_io_determinism_test.cpp` | Verified |
+| Soft-float deterministic math | `spec/t81-data-types.md` | `tests/cpp/test_T81Float_arithmetic.cpp`, `tests/cpp/test_T81Float_rounding.cpp` | Verified |
+| T81Lang compiler emission | `docs/governance/DETERMINISM_SURFACE_REGISTRY.md` | `scripts/ci/t81lang_repro_gate.py` | Partial |
 
-## 8.3 Property-Based Testing
-
-**Status: Implemented**
-
-T81 relies heavily on property-based testing (similar to QuickCheck or Hypothesis). instead of writing static test cases (e.g., `assert(add(1, 2) == 3)`), we define properties.
-
-### 8.3.1 Example: Commutativity
-```cpp
-// Pseudocode for a property test
-PROPERTY(AddIsCommutative, (T81Int a, T81Int b)) {
-    auto res1 = dmath::add(a, b);
-    auto res2 = dmath::add(b, a);
-    ASSERT_EQ(res1, res2);
-}
-```
-The test runner executes this property with thousands of random inputs, including edge cases like `MaxInt`, `MinInt`, and `0`.
-
-### 8.3.2 Example: Associativity
-```cpp
-PROPERTY(AddIsAssociative, (T81Int a, T81Int b, T81Int c)) {
-    // (a + b) + c == a + (b + c)
-    // Note: This holds for Integers but NOT necessarily for Floating Point!
-    // We test that it holds for T81Int, and EXPLICITLY test that it fails for T81Float
-    // in expected ways (or holds if we use specific subsets).
-}
-```
-
-## 8.4 The Determinism Gate (`t81lang_repro_gate`)
+## 8.3 Reproducibility Gates
 
 **Status: Critical**
 
-The **Determinism Gate** is the final guardian of the release process. It is a script (`scripts/ci/t81lang_repro_gate.py`) that performs a "Black Box" verification of the entire toolchain.
+### 8.3.1 T81Lang Repro Gate
 
-### 8.4.1 The Protocol
-1.  **Clean Build**: The script forces a clean build of the compiler and VM.
-2.  **Canonical Input**: It feeds a standard reference program (`examples/reference_calc.t81`) into the compiler.
-3.  **Trace Capture**: It runs the resulting bytecode and captures the Axion Trace.
-4.  **Hash Comparison**: It computes the SHA3-256 hash of the trace.
-5.  **Verification**: It compares this hash against a hardcoded "Golden Hash".
+The `t81lang_repro_gate.py` script compiles and executes canonical fixtures, then validates aggregate hash output.
 
-### 8.4.2 Failure Implication
-If the hash differs even by one bit, the build fails. This indicates that a change in the code (e.g., a library update, a compiler flag change, or a logic error) has altered the deterministic behavior of the machine. The PR cannot be merged until the issue is resolved or, if the change is intentional (e.g., a bug fix in `sin()`), the Golden Hash is updated with a detailed audit note explaining the divergence.
+```bash
+python3 scripts/ci/t81lang_repro_gate.py \
+  --t81-bin ./build/t81 \
+  --fixtures-dir tests/fixtures/t81lang_determinism \
+  --workdir build/t81lang-repro-check \
+  --hash-out build/t81lang-repro-check/hash.txt \
+  --expected-hash-file tests/fixtures/t81lang_determinism/t81lang_repro_hash.txt
+```
+
+### 8.3.2 Freeze and Slice Checks
+
+For release hardening, run freeze and determinism slice checks in addition to baseline tests.
+
+```bash
+python3 scripts/ci/check_tisc_freeze_integrity.py
+scripts/ci/run_determinism_slice.sh
+```
+
+### 8.3.3 Governed llama.cpp Repro Gate (Non-DCP)
+
+Governed inference has a dedicated experimental repro path:
+
+```bash
+python3 scripts/ci/llama_cpp_repro_gate.py --help
+```
+
+This gate is governance-facing and does not expand DCP guarantees.
+
+## 8.4 Failure Implication and Response
+
+A regression on a verified determinism surface is a release blocker and governance incident candidate. The required response path is defined in `docs/governance/INCIDENT_RESPONSE.md` and freeze enforcement policy.

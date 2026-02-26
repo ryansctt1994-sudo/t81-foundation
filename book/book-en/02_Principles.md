@@ -2,127 +2,103 @@
 
 ## 2.1 The Determinism Invariant
 
-**Status: Implemented & Tested**
+**Status: Governance-Enforced (Scope-Bounded)**
 
-The central axiom of the T81 architecture is **Strict Determinism**. In this system, a program $P$ is not a suggestion to the hardware; it is a mathematical definition of a state transition function $f$.
+T81 treats determinism as a constrained guarantee, not a blanket slogan.
 
-Formally, given an initial state $S$ and an input vector $I$, the function must satisfy:
+For verified surfaces, identical inputs and configuration must yield identical outputs and trace outcomes across supported release platforms.
+
+Formal intent:
+
 $$
-\forall \text{hardware } H: \text{Exec}_H(S, I) \to S' \implies S' \text{ is invariant}
+\text{Exec}(S_0, I, C) \to S_n \quad\text{is invariant for verified surfaces}
 $$
 
-Achieving this requires eliminating all sources of non-determinism common in modern computing. T81 treats the host environment (OS, CPU, FPU) as an "adversarial entropy source" that must be constrained. This means that T81 code cannot access the system clock (`time()`), random number generators (`/dev/urandom`), or uninitialized memory, as these vary across runs.
+Where `C` includes policy, build boundary, and runtime mode.
 
 ### 2.1.1 Determinism Surfaces and Attack Vectors
 
-The "Determinism Surface" is the boundary where the abstract machine interacts with physical reality. Any leakage of physical reality (time, random noise, hardware quirks) into the logical state constitutes a **Determinism Breach**.
+The authoritative scope is tracked in:
 
-| Layer    | Determinism Risk             | Mitigation Mechanism      | Implementation Evidence |
-| :--- | :--- | :--- | :--- |
-| **Compiler** | Token ordering, map iteration | Canonical AST sorting | `src/frontend/ast.cpp` (Sorted Maps) |
-| **VM Memory** | Pointer address leakage | Opaque Handles (Indices) | `src/vm/vm.cpp` (Memory Segments) |
-| **Garbage Collector** | Non-deterministic collection cycles | Alloc-count triggering | `src/vm/gc.cpp` (Instruction-based GC) |
-| **Concurrency** | Race conditions, scheduling | Cooperative coroutines | `src/vm/scheduler.cpp` (Deterministic Ticks) |
-| **Floating Point** | Host FPU drift (IEEE-754) | `dmath` software float | `include/t81/core/T81Float.hpp` |
-| **Transcendental** | Libm implementation variance | Taylor Series (Fixed iter) | `include/t81/core/detail/dmath.hpp` |
-| **JIT** | Optimization divergence | Trace Equivalence Checks | `src/vm/jit_compiler.cpp` |
+* `docs/governance/DETERMINISM_SURFACE_REGISTRY.md`
+* `docs/product/DETERMINISTIC_CORE_PROFILE.md`
+
+Common risks and controls:
+
+| Surface | Risk | Control |
+| :--- | :--- | :--- |
+| Compiler emission | nondeterministic ordering or lowering drift | canonical frontend/IR plus repro gate |
+| VM interpreter | host-dependent behavior | deterministic interpreter tests and trace checks |
+| Numeric behavior | host math library variance | deterministic float behavior on verified path |
+| Serialization | semantically equal objects hashing differently | canonical encoding rules |
+| Governance boundary | overclaiming guarantees on non-verified surfaces | registry + release discipline |
 
 ### 2.1.2 The "Libm Gap" and `dmath`
-A critical vulnerability in cross-platform determinism is the "Libm Gap". The IEEE-754 standard defines floating-point formats but leaves transcendental functions (sin, cos, pow) loosely specified. As a result, `std::sin(x)` on x86_64/GLIBC may differ by 1 ULP (Unit in the Last Place) from `std::sin(x)` on ARM64/MUSL. In chaos-sensitive simulations or long-running neural network training, this 1 ULP difference can cascade into a completely divergent result.
 
-T81 solves this with **`dmath`** (Deterministic Math), a custom library that implements:
-*   **Soft-Float Arithmetic**: `Add`, `Sub`, `Mul` are bit-exact. They emulate IEEE-754 behavior (or T81's custom format) entirely in integer logic.
-*   **Custom Transcendentals**: `Sin`, `Cos`, `Exp` are implemented via Taylor/Maclaurin series or CORDIC algorithms with a fixed number of iterations and fixed constants, ignoring the host's `libm`.
-*   **Rounding Mode**: Ties-to-even is enforced in software.
+Host `libm` behavior can vary by platform and toolchain. T81 addresses this through deterministic numeric controls on verified surfaces and explicit boundary statements for non-verified paths.
 
-> **Invariant**: $\text{dmath::sin}(x)$ produces the exact same bit pattern on an Intel i9, an Apple M3, and a RISC-V development board.
+Determinism claims must always be interpreted through registry status, not through narrative wording alone.
 
 ## 2.2 Ternary Logic (Base-3)
 
-**Status: Implemented & Tested**
+**Status: Foundational Design Principle**
 
-T81 is a **balanced ternary** system. The fundamental unit is the **trit**, with values $\{-1, 0, 1\}$ (often denoted as $-, 0, +$ or $T, 0, 1$).
+T81 is ternary-native in type and representation design. Balanced ternary remains central to the architecture identity and canonical type system.
 
 ### 2.2.1 Why Ternary?
-1.  **Symmetric Arithmetic**: The value range is symmetric around zero. In binary (Two's Complement), the range is asymmetric (e.g., -128 to +127). In balanced ternary, an $N$-trit integer covers $-\frac{3^N-1}{2} \dots +\frac{3^N-1}{2}$. For example, a 3-trit number ranges from -13 to +13.
-2.  **Rounding Efficiency**: Rounding to the nearest integer is equivalent to truncation. $0.5$ is not exactly representable, avoiding the "0.5 rounding problem."
-3.  **Radix Economy**: The radix economy $E(r, N) = r \lfloor \log_r N \rfloor$ is minimized when $r = e \approx 2.718$. The integer $3$ is closer to $e$ than $2$ is, making ternary theoretically more efficient for information storage density per logic gate.
-4.  **Signed Representation**: Negative numbers do not require a separate sign bit. The sign is carried by the most significant non-zero trit. This simplifies arithmetic logic units (ALUs) by unifying addition and subtraction.
+
+1. Symmetric signed representation.
+2. Clear radix identity and encoding discipline.
+3. Architectural continuity across types, ISA, and canonicalization.
 
 ### 2.2.2 Implementation
-In the C++ codebase, trits are simulated on binary hardware for efficiency.
-*   **Packed Storage**: `T81Int` uses a 2-bit-per-trit encoding scheme (00=0, 01=1, 11=-1/T). This allows 4 trits to fit in a byte (a Tryte), utilizing 8 bits to store $3^4 = 81$ states (vs $2^8 = 256$ states). While slightly less dense than binary, it allows efficient emulation.
-*   **Arithmetic**: Operations are implemented using integer math that simulates balanced ternary carry chains.
-    *   Example: $1 + 1 = 1T$ (which is $3 - 1 = 2$).
-    *   Example: $T + T = T1$ (which is $-3 + 1 = -2$).
-    *   Example: $1 + T = 0$ (Cancellation).
+
+Implementation details evolve, but public behavior is constrained by normative spec and compatibility controls:
+
+* `spec/t81-data-types.md`
+* `spec/tisc-spec.md`
+* `spec/t81vm-spec.md`
 
 ## 2.3 Auditability and The Axion Trace
 
-**Status: Implemented & Tested**
+**Status: Implemented (scope-specific guarantees)**
 
-Determinism alone is insufficient; the execution must be **auditable**. The Axion Kernel produces a cryptographic log called the **Trace**.
+Auditability is a first-class requirement. Axion events and traces provide post-hoc verification evidence for execution behavior.
 
 ### 2.3.1 The Trace Structure
-A trace $\mathcal{T}$ is an ordered sequence of events $E_0, E_1, \dots, E_k$. Each event captures a significant state transition or policy check.
 
-```cpp
-struct AxionEvent {
-    uint64_t tick;          // Logical timestamp (instruction count)
-    Opcode op;              // The operation attempted (e.g., CALL, STORE)
-    Verdict verdict;        // The kernel's decision (Allow/Deny)
-    CanonHash81 state_hash; // Merkle root of the VM state AFTER the op
-    std::string metadata;   // Contextual debug info (e.g., "tier_3_promotion")
-};
-```
-
-This trace serves as a **Proof of Execution**. By replaying the trace against the initial state, an auditor can mathematically prove that the computation yielded the claimed result without trusting the hardware that produced it. The `state_hash` acts as a checkpoint; if replay diverges at tick $T$, the calculated hash will differ from the recorded hash.
+Conceptually, each trace step links operation, verdict, and state progression under policy control.
 
 ### 2.3.2 Example Trace
-Imagine a program calculating a factorial. The trace might look like this:
 
-| Tick | Opcode | Verdict | State Hash | Note |
-| :--- | :--- | :--- | :--- | :--- |
-| 100 | `Load(5)` | `Allow` | `0xa1b2...` | Push 5 to stack |
-| 101 | `Recurse` | `Allow` | `0x99c8...` | Enter new frame |
-| ... | ... | ... | ... | ... |
-| 500 | `Recurse` | `Deny` | `0xdead...` | Max depth exceeded |
-| 501 | `Trap` | `N/A` | `0x0000...` | Execution halted |
+For deterministic surfaces, repeated runs under identical inputs and controls should produce stable trace outcomes according to registry-verified expectations.
 
 ## 2.4 The Nine Principles (Ethics Enforcement)
 
-**Status: Implemented & Tested**
+**Status: Policy and Governance Framing**
 
-T81 embeds a set of immutable "Constitutional Principles" ($\Theta_1 \dots \Theta_9$) directly into the VM's policy engine. These are not merely guidelines; they are runtime constraints enforced by the Axion Kernel.
+The project philosophy emphasizes:
 
-| Symbol | Principle | Description | Enforced By |
-| :--- | :--- | :--- | :--- |
-| $\Theta_1$ | **Non-Harm** | Fundamental safety layer; prevents memory corruption and segfaults. | Memory Bounds Checks |
-| $\Theta_2$ | **Non-Coercion** | Prevents forced state transitions without cryptographic authorization. | Signature Verification |
-| $\Theta_3$ | **Truth** | Information must be canonical; no two different hashes can map to the same object. | CanonFS Collision Checks |
-| $\Theta_4$ | **Interpretability** | Opaque "black box" execution is warned against; trace generation is mandatory for Tier 3+. | Trace Logger |
-| $\Theta_5$ | **Identity Integrity** | Distributed nodes must maintain consistent identity keys. | Tier 4 Handshake |
-| $\Theta_6$ | **Ethical Priority** | Safety policies override performance optimizations. | Policy Pre-emption |
-| $\Theta_7$ | **Entropy Containment** | Prevents unbounded resource expansion (e.g., infinite loops, memory leaks). | Recursion Limits / Gas |
-| $\Theta_8$ | **Canonical Consistency** | All data must be normalized before hashing. | Serializer |
-| $\Theta_9$ | **Transparent Execution** | The system must not hide side effects; `MetaWrite` requires explicit policy allowance. | Axion Interceptor |
+* safety over opportunistic optimization,
+* explicit policy gates,
+* auditable transitions,
+* bounded authority for high-risk capabilities.
 
-> **Example**: If a program attempts to recurse infinitely, it violates $\Theta_7$ (Entropy Containment). The Axion Kernel detects that `recursion_depth > policy.max_depth` and issues a `Deny` verdict, converting the operation into a `Trap::SecurityFault`.
+Axion is the enforcement mechanism; governance docs define institutional constraints.
 
 ## 2.5 Verification Checklist
 
-*   [ ] **Float Consistency**: Does `T81Float` produce identical bit-patterns for transcendental functions (`sin`, `exp`) on all platforms? (Run `tests/cpp/test_T81Float.cpp` and `tests/cpp/test_property_float.cpp`)
-*   [ ] **GC Determinism**: Does the Garbage Collector run at exact instruction counts (allocations), not wall time? (Check `kGcInterval` in `src/vm/vm.cpp`)
-*   [ ] **Trace Integrity**: Is the Axion log immutable during execution? (Verified by `tests/cpp/axion_log_determinism_test.cpp`)
-*   [ ] **Ethics Enforcement**: Do the $\Theta$ checks fire correctly when limits are exceeded? (Verified by `tests/cpp/test_ethics.cpp`)
-*   [ ] **Trit Encoding**: Are negative zero representations handled correctly in packed trytes? (Verified by `tests/cpp/test_ternary_encoding.cpp`)
+* [ ] Determinism claims match current registry status.
+* [ ] DCP boundaries are not overextended by narrative language.
+* [ ] Repro gates pass for required surfaces.
+* [ ] Freeze-integrity checks pass for release candidates.
+* [ ] Incident response path is defined for regressions.
 
 ## 2.6 Formal Audit Matrix
 
-| Principle | Spec Section | Implementation | Test Coverage |
-| :--- | :--- | :--- | :--- |
-| Strict Determinism | `spec/determinism-profile.md` | `src/vm/vm.cpp` | `tests/cpp/test_property_invariants.cpp` |
-| Ternary Logic | `spec/t81-data-types.md` | `include/t81/ternary.hpp` | `tests/cpp/ternary_arith_test.cpp` |
-| Auditability | `spec/axion-kernel.md` | `include/t81/axion/api.hpp` | `tests/cpp/test_ethics.cpp` |
-| Canonical Storage | `spec/canonfs-spec.md` | `src/canonfs/` | `tests/cpp/canonfs_driver_test.cpp` |
-| Policy Enforcement | `spec/policy-engine.md` | `src/axion/policy_engine.cpp` | `tests/cpp/test_resource_monitoring.cpp` |
+| Principle | Normative Source | Validation Surface |
+| :--- | :--- | :--- |
+| Scope-bounded determinism | `docs/governance/DETERMINISM_SURFACE_REGISTRY.md` | repro gates + CI |
+| DCP release boundary | `docs/product/DETERMINISTIC_CORE_PROFILE.md` | release readiness packet |
+| Freeze discipline | `docs/governance/FREEZE_ENFORCEMENT.md` | governance checks |
+| Threat-oriented hardening | `docs/governance/DETERMINISM_THREAT_MODEL.md` | security/governance review |

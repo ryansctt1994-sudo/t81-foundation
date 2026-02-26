@@ -2,66 +2,57 @@
 
 ## 13.1 Threat Model
 
-**Status: Theoretical**
+**Status: Active Governance Artifact**
 
-T81 assumes a hostile environment. The **Host** (OS, Hardware, Operator) is considered an adversary that may attempt to:
-1.  **Introduce Entropy**: Inject randomness into deterministic execution.
-2.  **Forge States**: Claim a computation reached state $S'$ when it actually reached $S$.
-3.  **Deny Service**: Consume infinite resources.
-4.  **Leak Information**: Expose private data via side channels.
+T81 assumes adversarial pressure at compiler, runtime, dependency, and governance layers.
+
+Authoritative threat tracking lives in:
+
+* `docs/governance/DETERMINISM_THREAT_MODEL.md`
+* `docs/governance/INCIDENT_RESPONSE.md`
 
 ## 13.2 Compiler-Level Attacks
 
-**Attack Vector**: "Trojan Source" / Homoglyphs.
-**Description**: An attacker uses Unicode control characters (e.g., Right-to-Left Override) to make source code appear different to humans than to the compiler.
-**Mitigation**: The T81 Lexer enforces a strict subset of UTF-8. Control characters and non-printable characters are rejected during tokenization. All identifiers must be normalized to NFC form.
+Primary concerns:
 
-**Attack Vector**: Token Reordering / Optimization Drift.
-**Description**: A malicious compiler might reorder instructions in a way that preserves semantics on one architecture but not another (e.g., due to memory model differences).
-**Mitigation**: The T81 Compiler emits a **Canonical AST**. The IR generation phase is deterministic and platform-agnostic. The `t81lang_repro_gate` verifies that the compiler output is bit-identical across runs.
+* source ambiguity and parser confusion,
+* nondeterministic lowering paths,
+* toolchain drift affecting emitted bytecode.
+
+Mitigations include deterministic compilation checks and fixture-based repro gates.
 
 ## 13.3 VM and GC Attack Vectors
 
-**Attack Vector**: Rowhammer / Bit Flips.
-**Description**: Physical attacks on DRAM to flip bits in sensitive memory (e.g., changing a `Deny` verdict to `Allow` or flipping a trit).
-**Mitigation**: T81 uses **Opaque Handles** and **Memory Segmentation**. Critical kernel structures are stored in isolated pages (where possible) and validated by checksums. However, software cannot fully mitigate hardware faults without ECC memory. Future versions may implement software-based Reed-Solomon encoding for critical state.
+Primary concerns:
 
-**Attack Vector**: Garbage Collection Nondeterminism.
-**Description**: If GC runs based on wall-clock time or memory pressure, execution traces will diverge across runs.
-**Mitigation**: The T81 GC is **deterministic**. It is triggered solely by allocation counts (`bytes_allocated > threshold`). This ensures that GC pauses happen at the exact same instruction on every run, preserving the trace structure.
+* host/environment influence on state progression,
+* resource-exhaustion behavior,
+* policy bypass attempts.
 
-**Attack Vector**: Timing Side-Channels.
-**Description**: Observing the time it takes to compute a function (e.g., modular exponentiation) to infer secret keys.
-**Mitigation**: `dmath` aims for constant-time implementations for cryptographic primitives, but general-purpose arithmetic is not guaranteed to be constant-time. T81 focuses on *functional* determinism, not *temporal* determinism (constant cycles). Users should be aware of this limitation for cryptographic code.
+Mitigations include policy-gated execution, deterministic test coverage, and explicit trap behavior.
 
 ## 13.4 CanonFS and Hash Attacks
 
-**Attack Vector**: Hash Collision / Preimage.
-**Description**: Finding two different inputs $A \neq B$ such that $Hash(A) = Hash(B)$.
-**Mitigation**: T81 uses **SHA3-256** (Keccak), which is resistant to length-extension attacks and collision attacks. The canonical serialization rules (sorting keys, normalizing floats) minimize the attack surface by reducing the input space of valid objects.
+Primary concerns:
+
+* hash misuse or weak artifact verification,
+* non-canonical serialization causing identity drift,
+* model/artifact substitution.
+
+Mitigations include canonical serialization discipline and hash-bound loading controls.
 
 ## 13.5 Distributed Tier Time-Travel Attack
 
-**Attack Vector**: State Withholding / Replay.
-**Description**: In Tier 4, a node computes a state transition $S_t \to S_{t+1}$ but withholds it, releasing it later to invalidate other nodes' progress (a "selfish mining" equivalent).
-**Mitigation**:
-1.  **Lamport Timestamps**: Every transition must causally follow the previous one.
-2.  **Consensus Quorums**: A state is only finalized when signed by $2/3$ of the cognitive cluster.
-3.  **Trace Merging**: If branches diverge, the deterministic merge function resolves conflicts based on total computational work (trace length).
+Distributed and higher-tier surfaces are treated as governed non-DCP/experimental unless promoted. Replay, withholding, and ordering attacks remain first-class threat categories.
 
 ## 13.6 Determinism Breach Postmortem Template
 
-**Status: Process**
+**Status: Operational Process**
 
-If a determinism breach is detected (i.e., `t81lang_repro_gate` fails), the following procedure is invoked:
+Minimum response flow:
 
-1.  **Isolation**: Identify the diverging inputs and the specific instruction index where trace $A$ differs from trace $B$.
-2.  **Reproduction**: Create a minimal reproduction case (`repro.t81`).
-3.  **Analysis**:
-    *   Is it a compiler bug? (Check AST dump)
-    *   Is it a VM bug? (Check `dmath` implementation)
-    *   Is it a host library issue? (Check `libc` linkage)
-4.  **Remediation**:
-    *   Patch `dmath` to replace host fallback.
-    *   Update `t81lang_repro_gate` with the new regression test.
-5.  **Disclosure**: Publish a "Determinism Advisory" (if production systems affected).
+1. isolate divergence surface and reproduction case,
+2. classify boundary impact (DCP / governed non-DCP / experimental),
+3. apply mitigation and add regression evidence,
+4. update registry/threat/governance records,
+5. issue release-impact decision.

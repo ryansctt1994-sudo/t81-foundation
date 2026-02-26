@@ -312,7 +312,7 @@ Documentation authority is structured as follows:
 
 **Narrative / Monograph**
 
-* `/book/`
+* `/book/book-en/`
 
 **Exploratory / Experimental**
 
@@ -336,6 +336,6 @@ Documentation authority is structured as follows:
 
 * `/spec/` defines standards.
 * `/docs/` explains and maps.
-* `/book/` narrates.
+* `/book/book-en/` narrates.
 * `/notebooks/` experiments.
 * `/artifacts/` contains generated outputs.
