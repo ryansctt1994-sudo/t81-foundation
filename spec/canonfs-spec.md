@@ -161,6 +161,8 @@ The reference implementation exposes `make_persistent_driver(root)` (see `includ
 
 Every `write_object`, `read_object_bytes`, `publish_capability`, and `revoke_capability` invocation runs the Axion hook before mutating `objects/` or `caps/`. That hook emits the canonical `meta slot axion event segment=meta addr=<n> action=Write` (for writes) and `action=Read` (for reads), so `scripts/capture-axion-trace.sh` can verify `canonfs_axion_trace_test` produces the same strings auditors expect. Capabilities gate access via the `CANON_PERM_READ`/`CANON_PERM_WRITE` bitmask; when no capabilities exist the driver permits bootstrap writes, but once a capability is published, only callers with the matching mask may read or write the object.
 
+Read paths re-verify content identity by default: after loading bytes, the driver recomputes `CanonHash` and compares it to the requested `CanonRef`. Mismatches fail with deterministic decode errors. A diagnostic override exists via `T81_CANONFS_READ_VERIFY=0`.
+
 This driver fulfills the Axion observability requirements in a deterministic, disk-backed form: writes now flush to persistent storage, the Axion trace includes the canonical meta slot events before any data touches disk, and audits can replay the resulting `build/artifacts/canonfs_axion_trace.log` snippet to prove that canonical strings preceded persistence.
 
 ______________________________________________________________________

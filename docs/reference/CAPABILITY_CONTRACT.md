@@ -160,11 +160,12 @@ This system does not provide hardware-level containment.
 * Hash computed on write.
 * Content-addressable structure enforced.
 
-## 5.2 Read Path (Not Verified)
+## 5.2 Read Path (Verified by Default)
 
-* Read operation trusts file system.
-* No automatic re-hashing on load.
-* Backing store tampering may inject modified content under trusted hash.
+* Read path re-hashes payload bytes and compares against `CanonRef` hash.
+* Hash mismatch returns deterministic `DecodeError`.
+* Verification is enabled by default for both in-memory and persistent drivers.
+* Diagnostic override exists: `T81_CANONFS_READ_VERIFY=0`.
 
 ## 5.3 Persistence
 
@@ -233,7 +234,6 @@ The system does NOT:
 * Emit machine-code JIT
 * Guarantee transcendental bit-exactness
 * Guarantee tensor determinism across platforms
-* Re-verify CanonFS hashes on read
 * Guarantee atomic persistence
 * Guarantee Tier 5 convergence logic
 * Guarantee thread scheduling determinism
@@ -247,7 +247,7 @@ The system does NOT:
 * Host libm drift breaks float determinism.
 * Omitted policy call bypasses resource limits.
 * Host stack overflow precedes virtual recursion guard.
-* CanonFS backing store tampering bypasses read integrity.
+* CanonFS backing store tampering is detected when read verification is enabled (default).
 * JIT trace omission of policy checks enables unbounded execution.
 
 ---

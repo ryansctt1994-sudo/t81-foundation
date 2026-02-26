@@ -428,6 +428,9 @@ if(T81_BUILD_TESTS)
   add_executable(canonfs_persistent_driver_test tests/cpp/canonfs_persistent_driver_test.cpp)
   target_link_libraries(canonfs_persistent_driver_test PRIVATE t81_core t81_axion)
 
+  add_executable(canonfs_read_verify_test tests/cpp/canonfs_read_verify_test.cpp)
+  target_link_libraries(canonfs_read_verify_test PRIVATE t81_core t81_axion)
+
   add_executable(t81_ir_encoding_test tests/cpp/ir_encoding_test.cpp)
   target_link_libraries(t81_ir_encoding_test PRIVATE t81_core)
 
@@ -653,6 +656,13 @@ if(T81_BUILD_TESTS)
   add_executable(t81_vm_determinism_property_test tests/cpp/vm_determinism_property_test.cpp)
   target_link_libraries(t81_vm_determinism_property_test PRIVATE t81_vm t81_core)
 
+  add_executable(t81_vm_state_transition_invariants_test
+                 tests/cpp/vm_state_transition_invariants_test.cpp)
+  target_link_libraries(t81_vm_state_transition_invariants_test PRIVATE t81_vm t81_core)
+
+  add_executable(t81_vm_workload_determinism_test tests/cpp/vm_workload_determinism_test.cpp)
+  target_link_libraries(t81_vm_workload_determinism_test PRIVATE t81_vm t81_core)
+
   add_executable(t81_vm_policy_parse_fail_closed_test
                  tests/cpp/vm_policy_parse_fail_closed_test.cpp)
   target_link_libraries(t81_vm_policy_parse_fail_closed_test PRIVATE t81_vm t81_core)
@@ -706,6 +716,9 @@ if(T81_BUILD_TESTS)
 
   add_executable(t81_spec_compliance_test tests/cpp/spec_compliance_test.cpp)
   target_link_libraries(t81_spec_compliance_test PRIVATE t81_lang_frontend)
+
+  add_executable(tisc_semantic_equivalence_test tests/cpp/tisc_semantic_equivalence_test.cpp)
+  target_link_libraries(tisc_semantic_equivalence_test PRIVATE t81_vm t81_core)
 
   add_executable(t81_frontend_expression_features_test tests/cpp/frontend_expression_features_test.cpp)
   target_link_libraries(t81_frontend_expression_features_test PRIVATE t81_lang_frontend t81_isa)
@@ -922,6 +935,9 @@ target_link_libraries(axion_policy_gc_trace_test PRIVATE t81_tool_cli t81_isa t8
 
 add_executable(axion_policy_segment_event_test tests/cpp/axion_policy_segment_event_test.cpp)
 target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
+
+  add_executable(axion_policy_invariants_test tests/cpp/axion_policy_invariants_test.cpp)
+  target_link_libraries(axion_policy_invariants_test PRIVATE t81_vm t81_core)
 
   add_executable(axion_instruction_counter_test tests/cpp/axion_instruction_counter_test.cpp)
   target_link_libraries(axion_instruction_counter_test PRIVATE t81_core t81_vm)
@@ -1173,6 +1189,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     t81_tensor_reshape_test
     t81_tensor_loader_test
     t81_canonfs_io_test
+    canonfs_read_verify_test
     t81_ir_encoding_test
     t81_isa_encoding_test
     t81_hash_stub_test
@@ -1224,6 +1241,8 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     t81_weights_load_test
     t81_vm_trace_test
     t81_vm_determinism_property_test
+    t81_vm_state_transition_invariants_test
+    t81_vm_workload_determinism_test
     t81_vm_policy_parse_fail_closed_test
     t81_vm_axreport_policy_deny_fail_closed_test
     t81_vm_system_registers_deterministic_test
@@ -1248,6 +1267,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     t81_frontend_lexer_test
     t81_frontend_parser_test
     t81_spec_compliance_test
+    tisc_semantic_equivalence_test
     t81_frontend_expression_features_test
     t81_frontend_parser_generics_test
     t81_frontend_parser_recovery_test
@@ -1292,6 +1312,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     cli_canonize_tensor_test
     axion_policy_match_guard_test
     axion_policy_segment_event_test
+    axion_policy_invariants_test
     axion_loop_metadata_test
     axion_match_metadata_test
     axion_enum_guard_test

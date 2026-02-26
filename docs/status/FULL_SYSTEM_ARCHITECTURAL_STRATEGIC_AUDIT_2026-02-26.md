@@ -1,13 +1,13 @@
 # Full-System Architectural & Strategic Audit
 
 Date: 2026-02-26  
-Revision: Post-remediation refresh (`HEAD`: `bc286106`)  
+Revision: Post-remediation refresh + conformance sprint (working tree)  
 Scope: `/src`, `/include`, `/spec`, `/docs`, `/book`, CI workflows, governance files, capability contract, opcode/ISA surfaces, VM execution model, Axion policy enforcement, determinism gates, benchmarks, tests, multilingual alignment, roadmaps, release notes.
 
 ## Executive Summary
 The repository is a substantial implemented system, not a paper design: compiler, ISA encoding, VM interpreter, threaded trace execution, Axion policy engine, CanonFS, and broad CI/test infrastructure are present. Governance maturity materially improved in this remediation cycle: previously warning-level rows were promoted to machine checks (API lock, spec-code baseline, translation staleness/semantic alignment, benchmark regression, overclaim guardrails), and trace-mode policy granularity is now per-instruction fail-closed.
 
-Determinism claims are defensible for bounded, registry/DCP-defined surfaces. They are not defensible as universal guarantees across all runtime/backend surfaces. Tensor/backend and other non-DCP paths remain explicitly outside cross-platform bit-exact scope. CanonFS read-path trust is still weaker than write-path identity guarantees.
+Determinism claims are defensible for bounded, registry/DCP-defined surfaces. They are not defensible as universal guarantees across all runtime/backend surfaces. Tensor/backend and other non-DCP paths remain explicitly outside cross-platform bit-exact scope. CanonFS now re-verifies hash identity on read by default, reducing storage tamper exposure.
 
 Architectural drift is reduced but not eliminated. The primary residual drift class is documentation consistency depth: major surfaces are aligned, but full section-level semantic parity across all multilingual and non-normative docs is not fully machine-proved. Complexity concentration in VM core remains a maintenance risk.
 
@@ -26,7 +26,7 @@ Current classification remains **Deterministic Runtime Candidate**. The system i
 | Register contract | `R0-R80` architectural window | VM uses larger implementation bank with bounded architectural window | Aligned (bounded extension model) |
 | Trace governance | Policy-governed execution | JIT trace now applies per-instruction policy callback and fail-closed deny | Aligned |
 | Unimplemented privileged/async/neural ops | Must not be permissive | Fail-closed `SecurityFault` behavior with tests and registry docs | Aligned |
-| CanonFS integrity | Content-addressed integrity | Write hash identity enforced; read re-verify absent | Partial |
+| CanonFS integrity | Content-addressed integrity | Write hash identity enforced; read re-verify enforced by default (`T81_CANONFS_READ_VERIFY=0` override) | Aligned |
 
 ### 1.2 Layer Violation Analysis
 - Layering is mostly respected in code paths.
@@ -51,7 +51,7 @@ Current classification remains **Deterministic Runtime Candidate**. The system i
 - Trace mode now enforces policy per instruction (prior boundary-only gap closed).
 - Float path hardening improved: strict deterministic float profile is defaulted (`T81_STRICT_DETERMINISTIC_FLOAT=ON` -> `T81_DETERMINISTIC`).
 - Non-deterministic APIs/surfaces still exist by contract (time, scheduler, allocator addresses, non-DCP tensor/backend).
-- CanonFS read path remains trust-based (no automatic read-time re-hash verification).
+- CanonFS read path now enforces read-time re-hash verification by default; diagnostic override exists and must remain bounded.
 
 ### 2.3 Determinism Threat Map
 
@@ -59,7 +59,7 @@ Current classification remains **Deterministic Runtime Candidate**. The system i
 |---|---|---|---|
 | Non-DCP tensor/backend cross-platform drift | High | Medium | Explicit DCP exclusion and capability-contract non-guarantee |
 | Host/toolchain variability outside bounded surfaces | Medium | Medium | CI gates + multi-platform matrix |
-| CanonFS read-path tamper exposure | Medium | Medium | Documented non-capability; no read re-verify enforcement |
+| CanonFS read-path tamper exposure | Low-Medium | Low-Medium | Default read re-verify + deterministic mismatch faults |
 | Overclaim reintroduction in active docs | Medium | Low | CI overclaim guardrail scripts |
 | Full reduction-order/proof completeness | Medium | Indeterminate | Partial tests; no full formal closure evidence |
 
@@ -151,7 +151,7 @@ Publish explicit dual profile contract:
 ### 7.1 Findings
 - Build/test/toolchain discipline is strong and actively enforced.
 - CI quality gate requires key jobs (spec/docs, build/test, determinism slice, static analysis, sanitizers, fuzzing, benchmarks, tritwise determinism).
-- Test inventory is broad (260 tests currently discovered by CTest).
+- Test inventory is broad (265 tests currently discovered by CTest).
 - Benchmark regression gating is now required in CI (SIMD-focused).
 - Static analysis coverage improved but not full-repo exhaustive.
 
@@ -164,7 +164,7 @@ Publish explicit dual profile contract:
 Refactor priority ranking:
 1. Decompose VM monolith (`core/vm/vm.cpp`) into clearer dispatch/policy/math modules.
 2. Expand spec-code conformance from baseline file mapping to behavioral invariant checks.
-3. Add CanonFS read-time integrity verification mode/path.
+3. Expand CanonFS integrity coverage to additional corruption/recovery scenarios (beyond current read-verify/tamper tests).
 4. Expand benchmark gates beyond SIMD slices to representative workload families.
 5. Continue contract-surface deduplication across docs/status/release narratives.
 
@@ -189,10 +189,10 @@ A technically serious deterministic runtime platform with unusually strong gover
 
 ### 9.1 Most Serious Structural Risks (Top 5)
 1. Non-DCP tensor/backend surfaces remain outside universal bit-exact guarantees.
-2. CanonFS read-path trust model is weaker than write-path integrity model.
-3. VM core complexity concentration increases regression and maintainability risk.
-4. Spec-code assurance is still baseline-oriented, not full behavioral conformance coverage.
-5. Multilingual semantic parity is partially machine-checked but not full-depth across all docs.
+2. VM core complexity concentration increases regression and maintainability risk.
+3. Spec-code assurance is still baseline-oriented, not full behavioral conformance coverage.
+4. Multilingual semantic parity is partially machine-checked but not full-depth across all docs.
+5. Workload-level determinism validation breadth is still narrower than full production workload space.
 
 ### 9.2 Most Valuable Strengths (Top 5)
 1. High-rigor CI with hard-fail governance and determinism gates.
@@ -214,7 +214,7 @@ Execute a **Behavioral Conformance Expansion Sprint**: convert baseline spec-cod
 - VM/trace policy integration: `core/vm/vm.cpp`, `runtime/jit/jit_compiler.cpp`, `include/t81/jit/jit.hpp`
 - Freeze integrity gate: `scripts/ci/check_tisc_freeze_integrity.py`
 - Translation governance: `scripts/governance/check_translation_*.py`
-- Test inventory: `ctest --test-dir build -N` (260 tests)
+- Test inventory: `ctest --test-dir build -N` (265 tests)
 
 ## Audit Notes
 - Items with insufficient direct evidence are explicitly marked **Indeterminate**.

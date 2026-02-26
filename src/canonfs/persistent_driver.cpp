@@ -2,6 +2,7 @@
 
 #include <cerrno>
 #include <cstddef>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <istream>
@@ -10,6 +11,7 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <system_error>
 #include <unordered_map>
 #include <utility>
@@ -37,6 +39,15 @@ struct hash<t81::canonfs::CanonHash> {
 
 namespace t81::canonfs {
 namespace {
+bool read_verify_enabled() {
+  const char* raw = std::getenv("T81_CANONFS_READ_VERIFY");
+  if (raw == nullptr) {
+    return true;
+  }
+  std::string_view v(raw);
+  return !(v == "0" || v == "false" || v == "FALSE" || v == "off" || v == "OFF");
+}
+
 std::filesystem::path objects_dir(const std::filesystem::path& root) { return root / "objects"; }
 
 std::filesystem::path capabilities_dir(const std::filesystem::path& root) { return root / "caps"; }
@@ -156,6 +167,13 @@ public:
 
     auto it = object_cache_.find(ref.hash);
     if (it != object_cache_.end()) {
+      if (read_verify_enabled()) {
+        auto computed = t81::hash::hash_bytes(
+            std::span<const std::byte>(it->second.data.data(), it->second.data.size()));
+        if (computed != ref.hash.h) {
+          return Result<std::vector<std::byte>>(t81::unexpect, Error::DecodeError);
+        }
+      }
       // Move to front of LRU
       lru_list_.erase(it->second.lru_it);
       lru_list_.push_front(ref.hash);
@@ -186,6 +204,14 @@ public:
       munmap(addr, size);
     }
     close(fd);
+
+    if (read_verify_enabled()) {
+      auto computed =
+          t81::hash::hash_bytes(std::span<const std::byte>(result.data(), result.size()));
+      if (computed != ref.hash.h) {
+        return Result<std::vector<std::byte>>(t81::unexpect, Error::DecodeError);
+      }
+    }
 
     // Update LRU cache
     if (object_cache_.size() >= kMaxCacheSize) {

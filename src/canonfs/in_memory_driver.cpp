@@ -1,17 +1,28 @@
 #include "t81/canonfs/canon_driver.hpp"
 
 #include <cstring>
+#include <cstdlib>
 #include <functional>
 #include <map>
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <t81/canonfs/rs_repair.hpp>
 #include <t81/tracing/canonhash.hpp>
 #include <vector>
 
 namespace t81::canonfs {
 namespace {
+bool read_verify_enabled() {
+  const char* raw = std::getenv("T81_CANONFS_READ_VERIFY");
+  if (raw == nullptr) {
+    return true;
+  }
+  std::string_view v(raw);
+  return !(v == "0" || v == "false" || v == "FALSE" || v == "off" || v == "OFF");
+}
+
 class InMemoryDriver : public Driver {
 public:
   void set_axion_hook(std::function<AxionVerdict(OpKind, const CanonRef&)> hook) override {
@@ -44,6 +55,13 @@ public:
     auto it = objects_.find(ref.hash);
     if (it == objects_.end()) {
       return Result<std::vector<std::byte>>(t81::unexpect, Error::NotFound);
+    }
+    if (read_verify_enabled()) {
+      auto computed =
+          t81::hash::hash_bytes(std::span<const std::byte>(it->second.data(), it->second.size()));
+      if (computed != ref.hash.h) {
+        return Result<std::vector<std::byte>>(t81::unexpect, Error::DecodeError);
+      }
     }
     return it->second;
   }

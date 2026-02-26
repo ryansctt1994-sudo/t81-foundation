@@ -16,10 +16,17 @@ CanonFS is built on a few core principles:
 
 ## Current Status
 
-The CanonFS implementation is currently in an early, **experimental** stage. The public API is defined in `include/t81/canonfs`, and a basic in-memory driver is provided for testing, but a persistent, on-disk storage layer has not yet been implemented.
+CanonFS has both:
+
+- `in_memory_driver.cpp` for deterministic test/prototyping paths.
+- `persistent_driver.cpp` for disk-backed storage under `objects/`, `caps/`, and `parity/`.
+
+Both drivers enforce content addressing on write and perform hash re-verification on read by default. Read verification can be disabled for diagnostics via `T81_CANONFS_READ_VERIFY=0`.
 
 ## Components
 
--   `in_memory_driver.cpp`: An implementation of the `ICanonDriver` interface (defined in `include/t81/canonfs/canon_driver.hpp`) that stores all data in memory. This is useful for testing and prototyping but is not suitable for production use.
+-   `in_memory_driver.cpp`: `Driver` implementation backed by process memory.
 
--   `canon_types.hpp` (in `include/t81/canonfs`): Defines the core data structures of CanonFS, such as `CanonId` and directory entry types.
+-   `persistent_driver.cpp`: `Driver` implementation backed by filesystem blocks.
+
+-   `canon_types.hpp` (in `include/t81/canonfs`): Core CanonFS data structures and operation tags.
