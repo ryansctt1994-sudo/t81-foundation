@@ -252,6 +252,14 @@ t81::T729DynamicTensor tensor_unary_exp(const t81::T729DynamicTensor& tensor) {
   return t81::T729DynamicTensor(tensor.shape(), std::move(data));
 }
 
+t81::T729DynamicTensor tensor_unary_sqrt(const t81::T729DynamicTensor& tensor) {
+  std::vector<float> data = tensor.data();
+  for (auto& val : data) {
+    val = std::sqrt(val);
+  }
+  return t81::T729DynamicTensor(tensor.shape(), std::move(data));
+}
+
 t81::T729DynamicTensor tensor_unary_silu(const t81::T729DynamicTensor& tensor) {
   return t81::ops::silu(tensor);
 }
@@ -328,6 +336,33 @@ t81::T729DynamicTensor tensor_rope(const t81::T729DynamicTensor& tensor, int pos
 
 bool tensor_rope_compatible(const t81::T729DynamicTensor& tensor) {
   return tensor.rank() >= 2;
+}
+
+std::optional<t81::T729DynamicTensor> tensor_new_1d(std::int64_t size) {
+  if (size <= 0) {
+    return std::nullopt;
+  }
+  std::vector<int> shape = {static_cast<int>(size)};
+  return t81::T729DynamicTensor(shape);
+}
+
+t81::T729DynamicTensor tensor_identity_copy(const t81::T729DynamicTensor& tensor) {
+  return t81::T729DynamicTensor(tensor.shape(), std::vector<float>(tensor.data()));
+}
+
+std::optional<float> tensor_get_at(const t81::T729DynamicTensor& tensor, std::int64_t index) {
+  if (index < 0 || static_cast<std::size_t>(index) >= tensor.data().size()) {
+    return std::nullopt;
+  }
+  return tensor.data()[static_cast<std::size_t>(index)];
+}
+
+bool tensor_set_at(t81::T729DynamicTensor& tensor, std::int64_t index, float value) {
+  if (index < 0 || static_cast<std::size_t>(index) >= tensor.data().size()) {
+    return false;
+  }
+  tensor.data()[static_cast<std::size_t>(index)] = value;
+  return true;
 }
 
 }  // namespace t81::vm::internal

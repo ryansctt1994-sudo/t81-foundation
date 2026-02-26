@@ -2,7 +2,7 @@
 
 Date: 2026-02-26  
 Scope: `core/vm/vm.cpp`  
-Status: In progress (Phase A+B+C+D completed; Phase E advanced: tensor allocation/policy + native tensor decode helpers extracted to `core/vm/tensor_helpers.cpp`)
+Status: In progress (Phase A+B+C+D completed; Phase E complete; Phase F in progress)
 
 ## Objective
 Reduce regression blast radius and improve assurance depth by decomposing `core/vm/vm.cpp` into testable modules while preserving byte-for-byte runtime behavior on DCP surfaces.
@@ -45,7 +45,7 @@ Purpose: trace and Axion event recording helpers, deterministic reason formattin
 5. Phase E: Tensor and extended opcode extraction
 - Move tensor and weights handlers.
 - Keep non-DCP boundaries unchanged.
- - Progress: shared native tensor decode path (`WeightsTensorHandle` promotion + `TLoadHash` decode) extracted to `tensor_helpers`; CanonFS tensor-object parsing, decode-or-fail gate, hash-ref parsing, and CanonFS fetch/decode status classification moved out of `vm.cpp`; tensor compute paths (`TExp`, `TSiLU`, `TSoftmax`, `TVecAdd/TVecMul`, `TTranspose`, `TMatMul`, `TTenDot`, `TRMSNorm`, `TRoPE`) now call helper modules; tensor shape-compatibility predicates are helper-centralized.
+ - Completed: shared native tensor decode path (`WeightsTensorHandle` promotion + `TLoadHash` decode) extracted to `tensor_helpers`; CanonFS tensor-object parsing, decode-or-fail gate, hash-ref parsing, and CanonFS fetch/decode status classification moved out of `vm.cpp`; tensor compute paths (`TSqrt`, `TExp`, `TSiLU`, `TSoftmax`, `TVecAdd/TVecMul`, `TTranspose`, `TMatMul`, `TTenDot`, `TRMSNorm`, `TRoPE`) now call helper modules; `TGet/TSet/TNew/TID` core operations and tensor shape-compatibility predicates are helper-centralized.
 6. Phase F: Final dispatch slimming
 - Reduce `vm.cpp` to dispatch integration and module wiring.
 

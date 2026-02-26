@@ -58,6 +58,7 @@ TensorLoadHashResult load_canon_tensor_by_hash(t81::canonfs::Driver& driver,
                                                std::string_view hash_text);
 
 t81::T729DynamicTensor tensor_unary_exp(const t81::T729DynamicTensor& tensor);
+t81::T729DynamicTensor tensor_unary_sqrt(const t81::T729DynamicTensor& tensor);
 t81::T729DynamicTensor tensor_unary_silu(const t81::T729DynamicTensor& tensor);
 t81::T729DynamicTensor tensor_unary_softmax(const t81::T729DynamicTensor& tensor);
 bool tensor_elementwise_compatible(const t81::T729DynamicTensor& lhs,
@@ -80,5 +81,10 @@ bool tensor_rmsnorm_compatible(const t81::T729DynamicTensor& tensor,
                                const t81::T729DynamicTensor& weights);
 t81::T729DynamicTensor tensor_rope(const t81::T729DynamicTensor& tensor, int pos);
 bool tensor_rope_compatible(const t81::T729DynamicTensor& tensor);
+
+std::optional<t81::T729DynamicTensor> tensor_new_1d(std::int64_t size);
+t81::T729DynamicTensor tensor_identity_copy(const t81::T729DynamicTensor& tensor);
+std::optional<float> tensor_get_at(const t81::T729DynamicTensor& tensor, std::int64_t index);
+bool tensor_set_at(t81::T729DynamicTensor& tensor, std::int64_t index, float value);
 
 }  // namespace t81::vm::internal

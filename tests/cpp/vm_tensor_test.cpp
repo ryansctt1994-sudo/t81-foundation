@@ -25,6 +25,7 @@ int main() {
   program.insns.push_back({tisc::Opcode::TTranspose, 17, 5, 0});
   program.insns.push_back({tisc::Opcode::TRMSNorm, 18, 1, 2});
   program.insns.push_back({tisc::Opcode::TRoPE, 19, 5, 9});
+  program.insns.push_back({tisc::Opcode::TSqrt, 20, 1, 0});
   program.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
 
   [[maybe_unused]] auto vm = vm::make_interpreter_vm();
@@ -128,6 +129,15 @@ int main() {
   for (std::size_t i = 0; i < ropeExpected.data().size(); ++i) {
     T81_TEST_CHECK(std::fabs(ropeRes.value().data()[i] - ropeExpected.data()[i]) < 1e-6f);
   }
+
+  // Tensor unary sqrt
+  [[maybe_unused]] auto sqrtHandle = vm->state().contexts[0].registers[20];
+  const auto& sqrtRes = mutable_state.tensors[static_cast<std::size_t>(sqrtHandle - 1)];
+  T81_TEST_CHECK(sqrtRes.has_value());
+  T81_TEST_CHECK(sqrtRes.value().shape()[0] == 3);
+  T81_TEST_CHECK(std::fabs(sqrtRes.value().data()[0] - std::sqrt(1.0f)) < 1e-6f);
+  T81_TEST_CHECK(std::fabs(sqrtRes.value().data()[1] - std::sqrt(2.0f)) < 1e-6f);
+  T81_TEST_CHECK(std::fabs(sqrtRes.value().data()[2] - std::sqrt(3.0f)) < 1e-6f);
 
   // Shape checks via literal handles.
   [[maybe_unused]] tisc::Program chk;

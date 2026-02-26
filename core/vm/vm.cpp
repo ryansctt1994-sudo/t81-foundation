@@ -1640,9 +1640,7 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        std::vector<float> data = tensor->data();
-        for (auto& val : data) val = std::sqrt(val);
-        auto res_handle = alloc_tensor(T729DynamicTensor(tensor->shape(), std::move(data)));
+        auto res_handle = alloc_tensor(t81::vm::internal::tensor_unary_sqrt(*tensor));
         if (!res_handle) {
           trap = res_handle.error();
           break;
@@ -3615,16 +3613,14 @@ public:
           break;
         }
         std::int64_t index = ctx.registers[insn.c];
-        if (index < 0 || static_cast<std::size_t>(index) >= tensor->data().size()) {
+        auto value = t81::vm::internal::tensor_get_at(*tensor, index);
+        if (!value.has_value()) {
           log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, static_cast<int>(index),
                            "tensor index out of bounds");
           trap = Trap::BoundsFault;
           break;
         }
-
-        float val = tensor->data()[static_cast<std::size_t>(index)];
-
-        ctx.registers[insn.a] = alloc_float(static_cast<double>(val));
+        ctx.registers[insn.a] = alloc_float(static_cast<double>(*value));
         ctx.register_tags[insn.a] = ValueTag::FloatHandle;
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TGet kernel execution"};
@@ -3642,14 +3638,12 @@ public:
           break;
         }
         std::int64_t size = ctx.registers[insn.b];
-        if (size <= 0) {
+        auto tensor = t81::vm::internal::tensor_new_1d(size);
+        if (!tensor.has_value()) {
           trap = Trap::BoundsFault;
           break;
         }
-
-        std::vector<int> shape = {static_cast<int>(size)};
-        t81::T729DynamicTensor t(shape);
-        auto res_handle = alloc_tensor(std::move(t));
+        auto res_handle = alloc_tensor(std::move(*tensor));
         if (!res_handle) {
           trap = res_handle.error();
           break;
@@ -3682,12 +3676,6 @@ public:
           break;
         }
         std::int64_t idx = ctx.registers[insn.b];
-        if (idx < 0 || static_cast<size_t>(idx) >= tensor->data().size()) {
-          log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, static_cast<int>(idx),
-                           "TSet OOB");
-          trap = Trap::BoundsFault;
-          break;
-        }
 
         float val = 0.0F;
         auto val_tag = ctx.register_tags[insn.c];
@@ -3701,7 +3689,12 @@ public:
           break;
         }
 
-        tensor->data()[static_cast<size_t>(idx)] = val;
+        if (!t81::vm::internal::tensor_set_at(*tensor, idx, val)) {
+          log_bounds_fault(insn.opcode, MemorySegmentKind::Tensor, static_cast<int>(idx),
+                           "TSet OOB");
+          trap = Trap::BoundsFault;
+          break;
+        }
 
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TSet"};
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), 0, verdict);
@@ -3721,9 +3714,7 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        // Deep copy
-        t81::T729DynamicTensor copy(tensor->shape(), std::vector<float>(tensor->data()));
-        auto res_handle = alloc_tensor(std::move(copy));
+        auto res_handle = alloc_tensor(t81::vm::internal::tensor_identity_copy(*tensor));
         if (!res_handle) {
           trap = res_handle.error();
           break;
