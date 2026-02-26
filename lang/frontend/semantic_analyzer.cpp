@@ -531,6 +531,29 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   return std::string(name);
 }
 
+std::optional<int> minimum_tier_for_call_surface(std::string_view canonical_name) {
+  if (canonical_name == "Tensor.matmul" || canonical_name == "tensor_dot" ||
+      canonical_name == "weights.load" || canonical_name == "Tensor.load" ||
+      canonical_name == "sys_reflect" || canonical_name == "agent_self_reflect") {
+    return 2;
+  }
+  if (canonical_name == "io_stream" || canonical_name == "io_net" ||
+      canonical_name == "async_thread" || canonical_name == "async_promise") {
+    return 2;
+  }
+  return std::nullopt;
+}
+
+bool is_effect_surface_call(std::string_view canonical_name) {
+  return canonical_name == "print" || canonical_name == "sys_exit" || canonical_name == "sys_time" ||
+         canonical_name == "sys_entropy" || canonical_name == "sys_proof" ||
+         canonical_name == "sys_reflect" || canonical_name == "io_stream" ||
+         canonical_name == "io_net" || canonical_name == "async_yield" ||
+         canonical_name == "async_sleep" || canonical_name == "async_thread" ||
+         canonical_name == "async_promise" || canonical_name == "agent_self_reflect" ||
+         canonical_name == "weights.load" || canonical_name == "Tensor.load";
+}
+
 int minimum_tier_for_stmt(const t81::frontend::Stmt& stmt) {
   using t81::frontend::DistributedStmt;
   using t81::frontend::InfiniteStmt;
@@ -1789,6 +1812,9 @@ std::any SemanticAnalyzer::visit(const FunctionStmt& stmt) {
 
   enter_scope();
   _function_return_stack.push_back(symbol ? symbol->type : Type{Type::Kind::Unknown});
+  const std::optional<std::int64_t> active_tier =
+      stmt.tier.has_value() ? stmt.tier : (symbol ? symbol->tier : std::nullopt);
+  _function_tier_stack.push_back(active_tier);
 
   if (symbol && symbol->param_types.size() != stmt.params.size()) {
     error(stmt.name, "Function parameter count mismatch between declaration and definition.");
@@ -1827,6 +1853,7 @@ std::any SemanticAnalyzer::visit(const FunctionStmt& stmt) {
     analyze(*statement);
   }
 
+  _function_tier_stack.pop_back();
   _function_return_stack.pop_back();
   exit_scope();
   return symbol ? symbol->type : Type{Type::Kind::Unknown};
@@ -2182,6 +2209,27 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
     const std::string raw_name = *callee_name;
     std::string func_name = canonical_stdlib_call_name(raw_name);
     Token call_token = extract_token(*expr.callee);
+    auto enforce_active_tier_minimum = [&](int required_tier, std::string_view surface) {
+      if (_function_tier_stack.empty()) return;
+      const auto& active = _function_tier_stack.back();
+      if (!active.has_value()) return;
+      if (*active < required_tier) {
+        std::ostringstream msg;
+        msg << "Function tier @" << *active << " cannot call '" << surface
+            << "' (requires tier @" << required_tier << ").";
+        error(call_token, msg.str());
+      }
+    };
+    if (auto required = minimum_tier_for_call_surface(func_name); required.has_value()) {
+      enforce_active_tier_minimum(*required, raw_name);
+    }
+    if (!_function_tier_stack.empty() && _function_tier_stack.back().has_value() &&
+        *_function_tier_stack.back() <= 1 && is_effect_surface_call(func_name)) {
+      std::ostringstream msg;
+      msg << "Function tier @" << *_function_tier_stack.back()
+          << " cannot use effect surface '" << raw_name << "'.";
+      error(call_token, msg.str());
+    }
     if (func_name.find('.') != std::string::npos) {
       size_t dot = func_name.find('.');
       std::string obj_name = func_name.substr(0, dot);
@@ -3468,6 +3516,13 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       if (symbol->kind != SymbolKind::Function) {
         error(var_expr->name, "'" + func_name + "' is not a function.");
         return make_error_type();
+      }
+      if (!_function_tier_stack.empty() && _function_tier_stack.back().has_value() &&
+          symbol->tier.has_value() && *_function_tier_stack.back() < *symbol->tier) {
+        std::ostringstream msg;
+        msg << "Function tier @" << *_function_tier_stack.back() << " cannot call '"
+            << func_name << "' declared at tier @" << *symbol->tier << ".";
+        error(var_expr->name, msg.str());
       }
 
       if (symbol->param_types.size() != arg_types.size()) {

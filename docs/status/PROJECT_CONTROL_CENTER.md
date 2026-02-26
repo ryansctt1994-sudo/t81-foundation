@@ -14,7 +14,7 @@ Version: 2.1.0
 | Release Readiness Decision | HOLD (decision stamp: 2026-02-26) |
 | Primary Blocker | Required contexts not yet fully satisfied for selected main candidate (`quality gate / required`, `Analyze (cpp)`) |
 | Next Hard Date | C2 month-close execution on 2026-03-31 (UTC) |
-| Open Task Count (`docs/roadmaps-plans/TASKS.md`) | 4 (`C2 Month-Close` + 3 cognitive-tier spec closure follow-ons) |
+| Open Task Count (`docs/roadmaps-plans/TASKS.md`) | 1 (`C2 Month-Close`) |
 
 ## 2. Purpose
 

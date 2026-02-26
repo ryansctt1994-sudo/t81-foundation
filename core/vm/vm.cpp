@@ -72,6 +72,104 @@ constexpr std::size_t recursion_limit_for_tier(t81::cog::TierId tier) {
   return 0;
 }
 
+constexpr t81::cog::TierId tier_from_rank(int rank) {
+  switch (rank) {
+    case 0:
+      return t81::cog::TierId::Tier0;
+    case 1:
+      return t81::cog::TierId::Tier1;
+    case 2:
+      return t81::cog::TierId::Tier2;
+    case 3:
+      return t81::cog::TierId::Tier3;
+    case 4:
+      return t81::cog::TierId::Tier4;
+    case 5:
+      return t81::cog::TierId::Tier5;
+    default:
+      return rank < 1 ? t81::cog::TierId::Tier0 : t81::cog::TierId::Tier5;
+  }
+}
+
+constexpr std::size_t max_shape_complexity_for_tier(t81::cog::TierId tier) {
+  switch (tier) {
+    case t81::cog::TierId::Tier0:
+    case t81::cog::TierId::Tier1:
+      return 81;
+    case t81::cog::TierId::Tier2:
+      return 81 * 81 * 3;
+    case t81::cog::TierId::Tier3:
+      return 81 * 81 * 5;
+    case t81::cog::TierId::Tier4:
+      return 81 * 81 * 7;
+    case t81::cog::TierId::Tier5:
+      return 81 * 81 * 9;
+  }
+  return 81;
+}
+
+constexpr int max_tensor_rank_for_tier(t81::cog::TierId tier) {
+  switch (tier) {
+    case t81::cog::TierId::Tier0:
+    case t81::cog::TierId::Tier1:
+      return 1;
+    case t81::cog::TierId::Tier2:
+      return 3;
+    case t81::cog::TierId::Tier3:
+      return 5;
+    case t81::cog::TierId::Tier4:
+      return 7;
+    case t81::cog::TierId::Tier5:
+      return 9;
+  }
+  return 1;
+}
+
+constexpr std::size_t max_symbolic_complexity_for_tier(t81::cog::TierId tier) {
+  switch (tier) {
+    case t81::cog::TierId::Tier0:
+    case t81::cog::TierId::Tier1:
+      return 81;
+    case t81::cog::TierId::Tier2:
+      return 243;
+    case t81::cog::TierId::Tier3:
+      return 729;
+    case t81::cog::TierId::Tier4:
+      return 2187;
+    case t81::cog::TierId::Tier5:
+      return 6561;
+  }
+  return 81;
+}
+
+constexpr double max_branch_entropy_for_tier(t81::cog::TierId tier) {
+  switch (tier) {
+    case t81::cog::TierId::Tier0:
+    case t81::cog::TierId::Tier1:
+      return 16.0;
+    case t81::cog::TierId::Tier2:
+      return 64.0;
+    case t81::cog::TierId::Tier3:
+      return 162.0;
+    case t81::cog::TierId::Tier4:
+      return 243.0;
+    case t81::cog::TierId::Tier5:
+      return 324.0;
+  }
+  return 16.0;
+}
+
+constexpr std::size_t shape_complexity(const t81::T729DynamicTensor& tensor) {
+  std::size_t product = 1;
+  for (int dim : tensor.shape()) {
+    if (dim <= 0) {
+      return 0;
+    }
+    product *= static_cast<std::size_t>(dim);
+  }
+  return product * static_cast<std::size_t>(tensor.rank());
+}
+
 t81::T81Fraction fraction_from_double(double x) {
   if (x == 0.0) {
     return t81::T81Fraction{};
@@ -182,6 +280,7 @@ public:
     state_.weights_model = program_.weights_model;
     state_.weights_tensor_refs.clear();
     state_.weights_tensor_handles.clear();
+    tier_telemetry_.assign(state_.contexts.size(), TierTelemetry{});
     ctx.stack_frames.clear();
     ctx.call_depth = 0;
     state_.contradiction_events = 0;
@@ -201,6 +300,13 @@ public:
     state_.gc_cycles = 0;
     instructions_since_gc_ = 0;
     instruction_count_ = 0;
+    for (const auto& t : state_.tensors) {
+      if (!t.has_value()) continue;
+      tier_telemetry_[0].max_shape_complexity =
+          std::max(tier_telemetry_[0].max_shape_complexity, shape_complexity(*t));
+      tier_telemetry_[0].max_tensor_rank =
+          std::max(tier_telemetry_[0].max_tensor_rank, static_cast<std::size_t>(t->rank()));
+    }
     if (!program_.axion_policy_text.empty()) {
       auto policy = t81::axion::parse_policy(program_.axion_policy_text);
       if (policy.has_value()) {
@@ -259,6 +365,10 @@ public:
     }
 
     auto& ctx = state_.contexts[state_.current_context];
+    if (tier_telemetry_.size() < state_.contexts.size()) {
+      tier_telemetry_.resize(state_.contexts.size());
+    }
+    auto& telemetry = tier_telemetry_[state_.current_context];
 
     // Deterministic Fault Injection Check
     for (auto it = state_.pending_faults.begin(); it != state_.pending_faults.end();) {
@@ -484,8 +594,11 @@ public:
       if (!state_.tensors[idx].has_value()) return nullptr;
       return &state_.tensors[idx].value();
     };
-    auto alloc_tensor =
-        [this, current_pc](t81::T729DynamicTensor tensor) -> std::expected<std::int64_t, Trap> {
+    auto alloc_tensor = [this, current_pc, &telemetry](
+                            t81::T729DynamicTensor tensor) -> std::expected<std::int64_t, Trap> {
+      const std::size_t tensor_elements = tensor.data().size();
+      const std::size_t tensor_shape_complexity = shape_complexity(tensor);
+      const std::size_t tensor_rank = static_cast<std::size_t>(tensor.rank());
       if (state_.policy) {
         std::size_t active_tensors = state_.tensors.size() - state_.free_tensor_indices.size();
         if (state_.policy->max_tensors &&
@@ -495,7 +608,7 @@ public:
           return t81::unexpected(Trap::SecurityFault);
         }
         if (state_.policy->max_tensor_elements &&
-            state_.total_tensor_elements + tensor.data().size() >
+            state_.total_tensor_elements + tensor_elements >
                 static_cast<std::size_t>(*state_.policy->max_tensor_elements)) {
           record_axion_event(
               program_.insns[current_pc].opcode, 0, 0,
@@ -504,7 +617,7 @@ public:
         }
       }
 
-      state_.total_tensor_elements += tensor.data().size();
+      state_.total_tensor_elements += tensor_elements;
 
       std::size_t idx_handle;
       if (!state_.free_tensor_indices.empty()) {
@@ -518,7 +631,9 @@ public:
       }
 
       state_.metrics.total_tensors++;
-      state_.metrics.total_tensor_elements += tensor.data().size();
+      state_.metrics.total_tensor_elements += tensor_elements;
+      telemetry.max_shape_complexity = std::max(telemetry.max_shape_complexity, tensor_shape_complexity);
+      telemetry.max_tensor_rank = std::max(telemetry.max_tensor_rank, tensor_rank);
 
       log_memory_segment_access(program_.insns[current_pc].opcode, MemorySegmentKind::Tensor,
                                 idx_handle, 1, t81::axion::reasons::kTensorAlloc);
@@ -927,6 +1042,37 @@ public:
       verdict.reason = reason.str();
       record_axion_event(insn.opcode, static_cast<std::int32_t>(tier_rank(ctx.tier_status.current)),
                          value, verdict);
+    };
+    auto record_branch_decision = [&](bool taken) {
+      telemetry.branch_events += 1;
+      if (taken) {
+        telemetry.branch_taken += 1;
+      }
+    };
+    auto branch_entropy_bits = [&]() -> double {
+      if (telemetry.branch_events == 0) {
+        return 0.0;
+      }
+      const double p_taken =
+          static_cast<double>(telemetry.branch_taken) / static_cast<double>(telemetry.branch_events);
+      const double p_not_taken = 1.0 - p_taken;
+      double shannon = 0.0;
+      if (p_taken > 0.0) {
+        shannon -= p_taken * std::log2(p_taken);
+      }
+      if (p_not_taken > 0.0) {
+        shannon -= p_not_taken * std::log2(p_not_taken);
+      }
+      return shannon * static_cast<double>(telemetry.branch_events);
+    };
+    auto infer_required_tier_for_recursion = [&]() -> int {
+      const std::size_t depth =
+          std::max<std::size_t>(ctx.call_depth, static_cast<std::size_t>(ctx.tier3_recursor.current_depth));
+      if (depth > recursion_limit_for_tier(t81::cog::TierId::Tier4)) return 5;
+      if (depth > recursion_limit_for_tier(t81::cog::TierId::Tier3)) return 4;
+      if (depth > recursion_limit_for_tier(t81::cog::TierId::Tier2)) return 3;
+      if (depth > recursion_limit_for_tier(t81::cog::TierId::Tier1)) return 2;
+      return 1;
     };
 
     std::function<std::optional<int>(ValueTag, std::int64_t, std::int64_t)> compare_value =
@@ -1985,12 +2131,16 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (ctx.registers[insn.b] == 0) {
-          if (!check_mem(insn.opcode, insn.a, "jump if zero", true)) {
-            trap = Trap::DecodeFault;
-            break;
+        {
+          const bool taken = ctx.registers[insn.b] == 0;
+          record_branch_decision(taken);
+          if (taken) {
+            if (!check_mem(insn.opcode, insn.a, "jump if zero", true)) {
+              trap = Trap::DecodeFault;
+              break;
+            }
+            ctx.pc = static_cast<std::size_t>(insn.a);
           }
-          ctx.pc = static_cast<std::size_t>(insn.a);
         }
         break;
       case t81::tisc::Opcode::JumpIfNotZero:
@@ -1998,12 +2148,16 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        if (ctx.registers[insn.b] != 0) {
-          if (!check_mem(insn.opcode, insn.a, "jump if not zero", true)) {
-            trap = Trap::DecodeFault;
-            break;
+        {
+          const bool taken = ctx.registers[insn.b] != 0;
+          record_branch_decision(taken);
+          if (taken) {
+            if (!check_mem(insn.opcode, insn.a, "jump if not zero", true)) {
+              trap = Trap::DecodeFault;
+              break;
+            }
+            ctx.pc = static_cast<std::size_t>(insn.a);
           }
-          ctx.pc = static_cast<std::size_t>(insn.a);
         }
         break;
       case t81::tisc::Opcode::Neg:
@@ -2015,8 +2169,10 @@ public:
         ctx.register_tags[insn.a] = ValueTag::Int;
         update_flags(ctx.registers[insn.a]);
         break;
-      case t81::tisc::Opcode::JumpIfNegative:
-        if (ctx.flags.negative) {
+      case t81::tisc::Opcode::JumpIfNegative: {
+        const bool taken = ctx.flags.negative;
+        record_branch_decision(taken);
+        if (taken) {
           if (!check_mem(insn.opcode, insn.a, "jump if negative", true)) {
             trap = Trap::DecodeFault;
             break;
@@ -2024,8 +2180,11 @@ public:
           ctx.pc = static_cast<std::size_t>(insn.a);
         }
         break;
-      case t81::tisc::Opcode::JumpIfPositive:
-        if (ctx.flags.positive) {
+      }
+      case t81::tisc::Opcode::JumpIfPositive: {
+        const bool taken = ctx.flags.positive;
+        record_branch_decision(taken);
+        if (taken) {
           if (!check_mem(insn.opcode, insn.a, "jump if positive", true)) {
             trap = Trap::DecodeFault;
             break;
@@ -2033,6 +2192,7 @@ public:
           ctx.pc = static_cast<std::size_t>(insn.a);
         }
         break;
+      }
       case t81::tisc::Opcode::Less:
       case t81::tisc::Opcode::LessEqual:
       case t81::tisc::Opcode::Greater:
@@ -4070,6 +4230,7 @@ public:
         ctx.registers[insn.a] = *res_handle;
         ctx.register_tags[insn.a] = ValueTag::SymbolicGraphHandle;
         {
+          telemetry.symbolic_rewrites += 1;
           t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "SymLoad"};
           record_axion_event(insn.opcode, 0, ctx.registers[insn.a], verdict);
         }
@@ -4108,6 +4269,7 @@ public:
           }
         }
         {
+          telemetry.symbolic_rewrites += 3;
           t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "SymRewrite"};
           record_axion_event(insn.opcode, 0, 0, verdict);
         }
@@ -4126,6 +4288,7 @@ public:
         bool conf = graph ? graph->is_confluent() : false;
         set_reg(insn.a, conf ? 1 : 0, ValueTag::Bool);
         {
+          telemetry.symbolic_rewrites += 1;
           t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "SymConfluence"};
           record_axion_event(insn.opcode, 0, conf ? 1 : 0, verdict);
         }
@@ -4143,6 +4306,7 @@ public:
         auto* graph = symbolic_graph_ptr(ctx.registers[insn.a]);
         if (graph) graph->canonicalize();
         {
+          telemetry.symbolic_rewrites += 2;
           t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "SymCanon"};
           record_axion_event(insn.opcode, 0, 0, verdict);
         }
@@ -4761,6 +4925,178 @@ public:
         trap = Trap::DecodeFault;
         break;
     }
+    if (trap == Trap::None) {
+      telemetry.epoch_steps += 1;
+      const double branch_entropy = branch_entropy_bits();
+      const std::size_t symbolic_complexity =
+          state_.total_symbolic_nodes + (state_.symbolic_graphs.size() * 2) +
+          (telemetry.symbolic_rewrites * 3);
+
+      std::size_t observed_shape_complexity = telemetry.max_shape_complexity;
+      std::size_t observed_tensor_rank = telemetry.max_tensor_rank;
+      for (const auto& tensor : state_.tensors) {
+        if (!tensor.has_value()) continue;
+        observed_shape_complexity = std::max(observed_shape_complexity, shape_complexity(*tensor));
+        observed_tensor_rank =
+            std::max(observed_tensor_rank, static_cast<std::size_t>(tensor->rank()));
+      }
+
+      auto promote_to_fit_tier_limit = [&](bool exceeded, std::string_view cause) -> bool {
+        while (exceeded && ctx.tier_status.current != t81::cog::TierId::Tier5) {
+          if (!ensure_min_tier(tier_from_rank(tier_rank(ctx.tier_status.current) + 1), cause)) {
+            trap = Trap::TierFault;
+            return false;
+          }
+          exceeded = false;
+          if (cause == std::string_view("branching-entropy")) {
+            exceeded = branch_entropy > max_branch_entropy_for_tier(ctx.tier_status.current);
+          } else if (cause == std::string_view("symbolic-complexity")) {
+            exceeded = symbolic_complexity > max_symbolic_complexity_for_tier(ctx.tier_status.current);
+          } else if (cause == std::string_view("shape-complexity")) {
+            exceeded =
+                observed_shape_complexity > max_shape_complexity_for_tier(ctx.tier_status.current);
+          } else if (cause == std::string_view("tensor-rank")) {
+            exceeded = observed_tensor_rank >
+                       static_cast<std::size_t>(max_tensor_rank_for_tier(ctx.tier_status.current));
+          }
+        }
+        return true;
+      };
+
+      bool exceeded_branch_entropy = branch_entropy > max_branch_entropy_for_tier(ctx.tier_status.current);
+      if (exceeded_branch_entropy && !promote_to_fit_tier_limit(exceeded_branch_entropy, "branching-entropy")) {
+        record_tier_fault("branching-entropy",
+                          "Branching entropy exceeded policy after promotion attempts",
+                          static_cast<std::int64_t>(branch_entropy));
+      }
+      if (trap == Trap::None &&
+          branch_entropy > max_branch_entropy_for_tier(ctx.tier_status.current)) {
+        record_tier_fault("branching-entropy",
+                          "Branching entropy exceeded tier ceiling",
+                          static_cast<std::int64_t>(branch_entropy));
+        trap = Trap::TierFault;
+      }
+
+      bool exceeded_symbolic =
+          symbolic_complexity > max_symbolic_complexity_for_tier(ctx.tier_status.current);
+      if (trap == Trap::None && exceeded_symbolic &&
+          !promote_to_fit_tier_limit(exceeded_symbolic, "symbolic-complexity")) {
+        record_tier_fault("symbolic-complexity",
+                          "Symbolic complexity exceeded policy after promotion attempts",
+                          static_cast<std::int64_t>(symbolic_complexity));
+      }
+      if (trap == Trap::None &&
+          symbolic_complexity > max_symbolic_complexity_for_tier(ctx.tier_status.current)) {
+        record_tier_fault("symbolic-complexity", "Symbolic complexity exceeded tier ceiling",
+                          static_cast<std::int64_t>(symbolic_complexity));
+        trap = Trap::TierFault;
+      }
+
+      bool exceeded_shape = observed_shape_complexity > max_shape_complexity_for_tier(ctx.tier_status.current);
+      if (trap == Trap::None && exceeded_shape &&
+          !promote_to_fit_tier_limit(exceeded_shape, "shape-complexity")) {
+        record_tier_fault("shape-complexity",
+                          "Shape complexity exceeded policy after promotion attempts",
+                          static_cast<std::int64_t>(observed_shape_complexity));
+      }
+      if (trap == Trap::None &&
+          observed_shape_complexity > max_shape_complexity_for_tier(ctx.tier_status.current)) {
+        record_tier_fault("shape-complexity", "Tensor shape complexity exceeded tier ceiling",
+                          static_cast<std::int64_t>(observed_shape_complexity));
+        trap = Trap::TierFault;
+      }
+
+      bool exceeded_rank =
+          observed_tensor_rank > static_cast<std::size_t>(max_tensor_rank_for_tier(ctx.tier_status.current));
+      if (trap == Trap::None && exceeded_rank &&
+          !promote_to_fit_tier_limit(exceeded_rank, "tensor-rank")) {
+        record_tier_fault("tensor-rank", "Tensor rank exceeded policy after promotion attempts",
+                          static_cast<std::int64_t>(observed_tensor_rank));
+      }
+      if (trap == Trap::None &&
+          observed_tensor_rank >
+              static_cast<std::size_t>(max_tensor_rank_for_tier(ctx.tier_status.current))) {
+        record_tier_fault("tensor-rank", "Tensor rank exceeded tier ceiling",
+                          static_cast<std::int64_t>(observed_tensor_rank));
+        trap = Trap::TierFault;
+      }
+
+      if (trap == Trap::None) {
+        int required_rank = 1;
+        required_rank = std::max(required_rank, infer_required_tier_for_recursion());
+        if (branch_entropy > max_branch_entropy_for_tier(t81::cog::TierId::Tier1)) required_rank = 2;
+        if (branch_entropy > max_branch_entropy_for_tier(t81::cog::TierId::Tier2)) required_rank = 3;
+        if (branch_entropy > max_branch_entropy_for_tier(t81::cog::TierId::Tier3)) required_rank = 4;
+        if (branch_entropy > max_branch_entropy_for_tier(t81::cog::TierId::Tier4)) required_rank = 5;
+        if (symbolic_complexity > max_symbolic_complexity_for_tier(t81::cog::TierId::Tier1))
+          required_rank = std::max(required_rank, 3);
+        if (observed_tensor_rank > static_cast<std::size_t>(max_tensor_rank_for_tier(t81::cog::TierId::Tier1)) ||
+            observed_shape_complexity > max_shape_complexity_for_tier(t81::cog::TierId::Tier1)) {
+          required_rank = std::max(required_rank, 2);
+        }
+        if (observed_tensor_rank > static_cast<std::size_t>(max_tensor_rank_for_tier(t81::cog::TierId::Tier2)) ||
+            observed_shape_complexity > max_shape_complexity_for_tier(t81::cog::TierId::Tier2)) {
+          required_rank = std::max(required_rank, 3);
+        }
+        if (!state_.tier4_state.inbox.empty() || !state_.tier4_state.outbox.empty()) {
+          required_rank = std::max(required_rank, 4);
+        }
+        bool has_infinite_state = false;
+        for (const auto& inf : state_.infinite_forms) {
+          if (inf.has_value()) {
+            has_infinite_state = true;
+            break;
+          }
+        }
+        if (has_infinite_state) {
+          required_rank = std::max(required_rank, 5);
+        }
+
+        if (required_rank < tier_rank(ctx.tier_status.current)) {
+          telemetry.stable_simple_steps += 1;
+          if (telemetry.stable_simple_steps >= 81) {
+            const int candidate_rank = tier_rank(ctx.tier_status.current) - 1;
+            const auto candidate_tier = tier_from_rank(candidate_rank);
+            bool converged = true;
+            converged = converged &&
+                        ctx.call_depth <= recursion_limit_for_tier(candidate_tier) &&
+                        static_cast<std::size_t>(ctx.tier3_recursor.current_depth) <=
+                            recursion_limit_for_tier(candidate_tier);
+            if (candidate_rank < 5) {
+              converged = converged && !has_infinite_state;
+            }
+            if (candidate_rank < 4) {
+              converged = converged && state_.tier4_state.inbox.empty() &&
+                          state_.tier4_state.outbox.empty();
+            }
+            if (candidate_rank < 3) {
+              converged = converged && state_.symbolic_graphs.empty();
+            }
+            if (converged && candidate_rank >= required_rank) {
+              ctx.tier_status.current = candidate_tier;
+              ctx.tier_status.label = "tier-" + std::to_string(candidate_rank) + "-demoted";
+              t81::axion::Verdict demotion_verdict;
+              demotion_verdict.kind = t81::axion::VerdictKind::Allow;
+              demotion_verdict.reason = "Cognitive Tier Demotion: convergence conditions met";
+              record_axion_event(insn.opcode, candidate_rank,
+                                 static_cast<std::int64_t>(ctx.tier_status.current), demotion_verdict);
+              telemetry.stable_simple_steps = 0;
+            }
+          }
+        } else {
+          telemetry.stable_simple_steps = 0;
+        }
+      }
+
+      if (telemetry.epoch_steps >= 243) {
+        telemetry.epoch_steps = 0;
+        telemetry.branch_events = 0;
+        telemetry.branch_taken = 0;
+        telemetry.symbolic_rewrites = 0;
+        telemetry.max_shape_complexity = observed_shape_complexity;
+        telemetry.max_tensor_rank = observed_tensor_rank;
+      }
+    }
     ++instructions_since_gc_;
     if (instructions_since_gc_ >= kGcInterval) {
       run_gc_cycle_("interval");
@@ -5218,6 +5554,16 @@ private:
     state_.heap_ptr = new_ptr;
   }
 
+  struct TierTelemetry {
+    std::size_t epoch_steps{0};
+    std::size_t branch_events{0};
+    std::size_t branch_taken{0};
+    std::size_t symbolic_rewrites{0};
+    std::size_t max_shape_complexity{0};
+    std::size_t max_tensor_rank{0};
+    std::size_t stable_simple_steps{0};
+  };
+
   State state_{};
   t81::tisc::Program program_{};
   std::unique_ptr<t81::axion::Engine> axion_engine_;
@@ -5230,6 +5576,7 @@ private:
   JitCompiler jit_compiler_;
   std::unordered_map<std::size_t, std::size_t> hot_spots_;
   std::unordered_map<std::size_t, std::unique_ptr<JitTrace>> compiled_traces_;
+  std::vector<TierTelemetry> tier_telemetry_;
   static constexpr std::size_t kHotSpotThreshold = 50;
 };
 }  // namespace

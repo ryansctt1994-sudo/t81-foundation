@@ -221,6 +221,7 @@ private:
   const std::vector<std::unique_ptr<Stmt>>& _statements;
   bool _had_error = false;
   std::vector<Type> _function_return_stack;
+  std::vector<std::optional<std::int64_t>> _function_tier_stack;
   std::vector<Diagnostic> _diagnostics;
   std::string _source_name;
 

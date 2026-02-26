@@ -60,10 +60,18 @@ int main() {
   std::cout << "Final call depth: " << state.contexts[0].call_depth << "\n";
   std::cout << "Final tier: " << static_cast<int>(state.contexts[0].tier_status.current) << "\n";
 
-  // Depth 250 exceeds Tier4 recursion bound (243), so promotion should reach Tier5.
-  if (state.contexts[0].tier_status.current != t81::cog::TierId::Tier5) {
-    std::cerr << "Expected Tier 5 (" << static_cast<int>(t81::cog::TierId::Tier5) << "), got "
-              << static_cast<int>(state.contexts[0].tier_status.current) << "\n";
+  bool saw_tier5_promotion = false;
+  for (const auto& event : state.axion_log) {
+    if (event.verdict.reason.find("Cognitive Tier Promotion") != std::string::npos &&
+        event.value == static_cast<std::int64_t>(t81::cog::TierId::Tier5)) {
+      saw_tier5_promotion = true;
+      break;
+    }
+  }
+
+  // Depth 250 exceeds Tier4 recursion bound (243), so execution must promote to Tier5 at least once.
+  if (!saw_tier5_promotion) {
+    std::cerr << "Expected promotion path to reach Tier 5, but no Tier 5 promotion event was found.\n";
     return 1;
   }
 

@@ -30,9 +30,9 @@ This document tracks immediate, actionable tasks for the T81 project.
 - [x] **Debugger Tooling:** Extend `t81 debug` with cognitive tier state inspection. (Completed 2026-02-26: added debugger command `t [1|2|3|4|5|all]` to inspect cognitive tier state including active tier, Tier 1 symbolic graph counts, Tier 2 reflective frame status, Tier 3 recursion depth/proofs, Tier 4 distributed tick/queues, and Tier 5 infinite-form summaries; validated via `t81_cli_debugger_test`.)
 
 ### Cognitive-Tier Spec Closure Follow-On
-- [ ] **Metric Enforcement:** Implement runtime hard gates for cognitive-tier complexity metrics (branching entropy, symbolic complexity, shape complexity `product(shape)*rank`).
-- [ ] **Tier Demotion Policy:** Implement conservative deterministic tier-down transition logic with explicit convergence conditions.
-- [ ] **Tier Declaration Breadth:** Expand `@tier(n)` static verification to cover tensor-rank/effect-surface restrictions per tier.
+- [x] **Metric Enforcement:** Implement runtime hard gates for cognitive-tier complexity metrics (branching entropy, symbolic complexity, shape complexity `product(shape)*rank`). (Completed 2026-02-26: VM now enforces branch-entropy, symbolic-complexity, tensor-rank, and shape-complexity gates with deterministic promotion attempts before `TierFault`.)
+- [x] **Tier Demotion Policy:** Implement conservative deterministic tier-down transition logic with explicit convergence conditions. (Completed 2026-02-26: VM now applies stability-window demotion with explicit convergence checks over recursion depth, symbolic/distributed/infinite activity, and complexity metrics.)
+- [x] **Tier Declaration Breadth:** Expand `@tier(n)` static verification to cover tensor-rank/effect-surface restrictions per tier. (Completed 2026-02-26: semantic analyzer now enforces tiered call surfaces (tensor/effect builtins) and prevents lower-tier functions from calling higher-tier declared functions.)
 
 ______________________________________________________________________
 

@@ -1,6 +1,6 @@
 # Cognitive Tiers Spec Compliance (2026-02-26)
 
-Status: Partial Compliance (Major Gaps Closed)
+Status: Substantial Compliance (Runtime/Frontend Closures Applied)
 Date (UTC): 2026-02-26
 Owner: Project Management / Runtime
 
@@ -35,6 +35,22 @@ Comparison baseline:
    - Semantic analyzer validates function bodies against declared tier and fails on mismatch.
 5. Tier fault metadata hardening
    - Tier-fault reasons now include tier/call-depth/recurse-depth/pc/value and recent trace context.
+6. Runtime metric enforcement
+   - Added hard runtime gates for normative complexity metrics:
+     - branching entropy
+     - symbolic complexity
+     - shape complexity (`product(shape) * rank`)
+     - tensor-rank ceilings by tier
+   - Metric overages deterministically attempt tier promotion first; unresolved overages fault with `TierFault`.
+7. Deterministic tier demotion policy
+   - Added conservative tier-down logic with explicit convergence conditions:
+     - recursion and recursor depth within lower-tier limits
+     - no active higher-tier infinite/distributed/symbolic surfaces for target tier
+     - stability window before demotion
+   - Demotions are logged as observable Axion events.
+8. Expanded `@tier` declaration verification breadth
+   - Semantic analyzer now enforces tiered call surfaces and effect surfaces.
+   - Lower-tier functions cannot call functions declared at higher tiers.
 
 ## Validation
 
@@ -50,20 +66,5 @@ All above passed on the 2026-02-26 run after enforcement updates.
 
 ## Residual Gaps (Still Open)
 
-1. Full metric-governed enforcement is incomplete
-   - Spec metrics call out branching entropy, symbolic complexity, and shape complexity as normative.
-   - Current enforcement is strongest on recursion/tiered opcode surfaces; metric gates are not yet complete.
-2. Tier demotion policy is not fully implemented
-   - Spec defines conservative tier-down transitions.
-   - Current runtime heavily emphasizes deterministic promotion and faulting.
-3. Tier declaration verification breadth
-   - `@tier` checks now catch key tiered constructs, but not every possible complexity expression path.
-
-## Next Closure Candidates
-
-1. Add explicit runtime metric accounting + hard policy gates for:
-   - branching entropy
-   - symbolic complexity
-   - shape complexity (`product(shape) * rank`)
-2. Implement conservative demotion state machine tied to verified convergence conditions.
-3. Expand `@tier` static checks to include tensor-rank and effect-surface restrictions by tier.
+1. No immediate cognitive-tier spec closure gaps remain from the 2026-02-26 follow-on set.
+2. Remaining governance work is C2 month-close execution on 2026-03-31.
