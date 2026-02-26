@@ -65,6 +65,52 @@ t81::tisc::Program make_rmsnorm_shape_mismatch_program() {
   return p;
 }
 
+t81::tisc::Program make_vecadd_shape_mismatch_program() {
+  t81::tisc::Program p;
+  p.tensor_pool.push_back(t81::T729DynamicTensor({2}, {1.0f, 2.0f}));
+  p.tensor_pool.push_back(t81::T729DynamicTensor({3}, {3.0f, 4.0f, 5.0f}));
+  t81::tisc::Insn load_a{t81::tisc::Opcode::LoadImm, 1, 1, 0};
+  load_a.literal_kind = t81::tisc::LiteralKind::TensorHandle;
+  t81::tisc::Insn load_b{t81::tisc::Opcode::LoadImm, 2, 2, 0};
+  load_b.literal_kind = t81::tisc::LiteralKind::TensorHandle;
+  p.insns.push_back(load_a);
+  p.insns.push_back(load_b);
+  p.insns.push_back({t81::tisc::Opcode::TVecAdd, 3, 1, 2});
+  p.insns.push_back({t81::tisc::Opcode::Halt, 0, 0, 0});
+  return p;
+}
+
+t81::tisc::Program make_matmul_shape_mismatch_program() {
+  t81::tisc::Program p;
+  p.tensor_pool.push_back(t81::T729DynamicTensor({2, 3}, {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f}));
+  p.tensor_pool.push_back(t81::T729DynamicTensor({2, 2}, {1.0f, 0.0f, 0.0f, 1.0f}));
+  t81::tisc::Insn load_a{t81::tisc::Opcode::LoadImm, 1, 1, 0};
+  load_a.literal_kind = t81::tisc::LiteralKind::TensorHandle;
+  t81::tisc::Insn load_b{t81::tisc::Opcode::LoadImm, 2, 2, 0};
+  load_b.literal_kind = t81::tisc::LiteralKind::TensorHandle;
+  p.insns.push_back(load_a);
+  p.insns.push_back(load_b);
+  p.insns.push_back({t81::tisc::Opcode::TMatMul, 3, 1, 2});
+  p.insns.push_back({t81::tisc::Opcode::Halt, 0, 0, 0});
+  return p;
+}
+
+t81::tisc::Program make_tendot_shape_mismatch_program() {
+  t81::tisc::Program p;
+  p.tensor_pool.push_back(t81::T729DynamicTensor({2, 3}, {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f}));
+  p.tensor_pool.push_back(t81::T729DynamicTensor({4, 2}, {1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+                                                           0.0f, 1.0f}));
+  t81::tisc::Insn load_a{t81::tisc::Opcode::LoadImm, 1, 1, 0};
+  load_a.literal_kind = t81::tisc::LiteralKind::TensorHandle;
+  t81::tisc::Insn load_b{t81::tisc::Opcode::LoadImm, 2, 2, 0};
+  load_b.literal_kind = t81::tisc::LiteralKind::TensorHandle;
+  p.insns.push_back(load_a);
+  p.insns.push_back(load_b);
+  p.insns.push_back({t81::tisc::Opcode::TTenDot, 3, 1, 2});
+  p.insns.push_back({t81::tisc::Opcode::Halt, 0, 0, 0});
+  return p;
+}
+
 }  // namespace
 
 int main() {
@@ -72,6 +118,12 @@ int main() {
   T81_TEST_CHECK(run_expected_trap(make_transpose_rank1_program()) == t81::vm::Trap::ShapeFault);
   T81_TEST_CHECK(run_expected_trap(make_rope_rank1_program()) == t81::vm::Trap::ShapeFault);
   T81_TEST_CHECK(run_expected_trap(make_rmsnorm_shape_mismatch_program()) ==
+                 t81::vm::Trap::ShapeFault);
+  T81_TEST_CHECK(run_expected_trap(make_vecadd_shape_mismatch_program()) ==
+                 t81::vm::Trap::ShapeFault);
+  T81_TEST_CHECK(run_expected_trap(make_matmul_shape_mismatch_program()) ==
+                 t81::vm::Trap::ShapeFault);
+  T81_TEST_CHECK(run_expected_trap(make_tendot_shape_mismatch_program()) ==
                  t81::vm::Trap::ShapeFault);
   return 0;
 }
