@@ -16,3 +16,7 @@ Task-oriented guides for using and operating T81 tooling.
 - `../navigation.md`
 - `../tutorials/ai-quickstart.md`
 - `../explanation/ARCHITECTURE.md`
+
+## Key Guides
+- `cli-user-manual.md` - authoritative command/operator reference for `t81`.
+- `cli-toolkit.md` - scripted workflows and wrappers around CLI commands.

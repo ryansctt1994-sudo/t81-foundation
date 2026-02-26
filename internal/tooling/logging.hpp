@@ -22,8 +22,4 @@ inline void info(std::string_view msg) {
   }
 }
 
-inline void error(std::string_view msg) {
-  if (!g_flags.quiet) {
-    std::cerr << "error: " << msg << '\n';
-  }
-}
+inline void error(std::string_view msg) { std::cerr << "error: " << msg << '\n'; }

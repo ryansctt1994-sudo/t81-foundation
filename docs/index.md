@@ -51,6 +51,9 @@ For contributors looking to modify the codebase, these resources provide detaile
 - **[Guide: Adding a Language Feature](./guides/adding-a-language-feature.md)**
   - The lifecycle of a T81Lang feature, from lexer to IR generator.
 
+- **[CLI User Manual](./guides/cli-user-manual.md)**
+  - Command and operator reference for the shipped `t81` binary.
+
 - **[Guide: Match Expression Demo](./guides/match-example.md)**
   - A live example that compiles and runs an `Option`/`Result` match through the CLI and HanoiVM.
 

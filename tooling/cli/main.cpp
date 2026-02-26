@@ -33,10 +33,10 @@
 #include <io.h>
 #endif
 
-#include "t81/cli/driver.hpp"
 #include "internal/tooling/logging.hpp"
 #include "t81/canonfs/canon_driver.hpp"
 #include "t81/canonfs/canon_types.hpp"
+#include "t81/cli/driver.hpp"
 #include "t81/frontend/ir_generator.hpp"
 #include "t81/frontend/lexer.hpp"
 #include "t81/frontend/parser.hpp"
@@ -166,6 +166,11 @@ Subcommands:
 Options:
   --format <fmt>    Input format (safetensors, gguf). Default: safetensors
   -o, --out <file>  Output file path
+
+Examples:
+  t81 weights import model.safetensors -o model.t81w
+  t81 weights info model.t81w --json
+  t81 weights quantize model.safetensors --to-gguf model.gguf
 )";
 }
 
@@ -179,6 +184,10 @@ Subcommands:
 
 Options:
   -o <out>          Output file path
+
+Examples:
+  t81 policy compile policy.apl -o policy.axionb
+  t81 policy run policy.apl --json
 )";
 }
 
@@ -195,6 +204,12 @@ Subcommands:
 Options:
   --format <json|csv>             Export format (default: json)
   -o, --out <file>                Output file path (default: stdout)
+  --no-color                      Disable ANSI colors in show/diff output
+
+Examples:
+  t81 trace show trace.log
+  t81 trace diff run1.log run2.log --no-color
+  t81 trace export trace.log --format json -o trace.json
 )";
 }
 
@@ -223,6 +238,195 @@ Options:
 Notes:
   - This surface is experimental and non-DCP.
   - --policy is required and must include allowed-tensor-hashes for model authorization.
+)";
+}
+
+void print_help_compile() {
+  std::cerr << R"(
+Usage: t81 compile <file.t81|file.t81w> [-o <file.tisc>] [--weights-model <model.t81w>]
+
+Compiles T81Lang source (or T81 weight module source) into TISC bytecode.
+
+Example:
+  t81 compile program.t81 -o program.tisc
+)";
+}
+
+void print_help_run() {
+  std::cerr << R"(
+Usage: t81 run <file.t81|file.tisc> [--policy <policy.apl>] [--trace] [--weights-model <model.t81w>]
+
+Compiles (if needed) and executes a program via the VM.
+
+Example:
+  t81 run program.tisc --policy policy.apl
+)";
+}
+
+void print_help_disasm() {
+  std::cerr << R"(
+Usage: t81 disasm <file.tisc>
+
+Prints human-readable TISC disassembly.
+
+Example:
+  t81 disasm program.tisc
+)";
+}
+
+void print_help_debug() {
+  std::cerr << R"(
+Usage: t81 debug <file.t81|file.tisc> [--policy <policy.apl>] [--weights-model <model.t81w>]
+
+Compiles (if needed) and starts the interactive debugger.
+
+Example:
+  t81 debug program.tisc
+)";
+}
+
+void print_help_check() {
+  std::cerr << R"(
+Usage: t81 check <file.t81>
+       t81 lint  <file.t81>
+
+Performs syntax and semantic checks without emitting bytecode.
+
+Example:
+  t81 check program.t81
+)";
+}
+
+void print_help_repl() {
+  std::cerr << R"(
+Usage: t81 repl [--weights-model <model.t81w>] [--policy <policy.apl>]
+
+Starts the interactive REPL.
+
+Example:
+  t81 repl --policy policy.apl
+)";
+}
+
+void print_help_repro_hash() {
+  std::cerr << R"(
+Usage: t81 repro-hash [fixtures_dir]
+
+Runs the T81Lang reproducibility fixture hash gate.
+
+Example:
+  t81 repro-hash tests/fixtures/t81lang_determinism
+)";
+}
+
+void print_help_canonize_tensor() {
+  std::cerr << R"(
+Usage: t81 canonize-tensor <file>
+
+Canonicalizes tensor input into CanonFS object storage.
+
+Example:
+  t81 canonize-tensor model.t81w
+)";
+}
+
+void print_help_init() {
+  std::cerr << R"(
+Usage: t81 init <project_name>
+
+Scaffolds a new T81 project.
+
+Example:
+  t81 init my_project
+)";
+}
+
+void print_help_pkg() {
+  std::cerr << R"(
+Usage: t81 pkg <subcommand> [args]
+
+Subcommands:
+  init [package_name]
+  check
+
+Examples:
+  t81 pkg init my_pkg
+  t81 pkg check
+)";
+}
+
+void print_help_benchmark() {
+  std::cerr << R"(
+Usage: t81 benchmark [benchmark_runner_flags...]
+
+Runs the core benchmark suite.
+
+Example:
+  t81 benchmark --benchmark_filter=BM_VMSimulation_Dispatch
+)";
+}
+
+void print_help_weights_import() {
+  std::cerr << R"(
+Usage: t81 weights import <file> [-o <out>] [--format <safetensors|gguf>]
+
+Imports model weights into native `.t81w`.
+)";
+}
+
+void print_help_weights_info() {
+  std::cerr << R"(
+Usage: t81 weights info <model.t81w> [--json]
+
+Prints native model metadata (human-readable or JSON).
+)";
+}
+
+void print_help_weights_quantize() {
+  std::cerr << R"(
+Usage: t81 weights quantize <input> --to-gguf <out>
+
+Quantizes SafeTensors input into GGUF output.
+)";
+}
+
+void print_help_policy_compile() {
+  std::cerr << R"(
+Usage: t81 policy compile <file.apl> [-o <out>]
+
+Compiles Axion policy source into bytecode.
+)";
+}
+
+void print_help_policy_run() {
+  std::cerr << R"(
+Usage: t81 policy run <file.apl|file.axionb> [--json]
+
+Parses/loads policy and reports validation result.
+)";
+}
+
+void print_help_trace_show() {
+  std::cerr << R"(
+Usage: t81 trace show <trace.txt> [--no-color]
+)";
+}
+
+void print_help_trace_diff() {
+  std::cerr << R"(
+Usage: t81 trace diff <trace1.txt> <trace2.txt> [--no-color]
+)";
+}
+
+void print_help_trace_replay() {
+  std::cerr << R"(
+Usage: t81 trace replay <file.tisc> <trace.txt>
+)";
+}
+
+void print_help_trace_export() {
+  std::cerr << R"(
+Usage: t81 trace export <trace.txt> [--format <json|csv>] [-o <file>]
 )";
 }
 
@@ -269,6 +473,82 @@ Diagnostics:
   rerunning separate diagnostics.
 
 )";
+}
+
+bool print_help_topic(std::string_view topic, const char* prog) {
+  if (topic == "compile") {
+    print_help_compile();
+    return true;
+  }
+  if (topic == "run") {
+    print_help_run();
+    return true;
+  }
+  if (topic == "disasm") {
+    print_help_disasm();
+    return true;
+  }
+  if (topic == "debug") {
+    print_help_debug();
+    return true;
+  }
+  if (topic == "check" || topic == "lint") {
+    print_help_check();
+    return true;
+  }
+  if (topic == "weights") {
+    print_help_weights();
+    return true;
+  }
+  if (topic == "policy") {
+    print_help_policy();
+    return true;
+  }
+  if (topic == "trace") {
+    print_help_trace();
+    return true;
+  }
+  if (topic == "repro-hash") {
+    print_help_repro_hash();
+    return true;
+  }
+  if (topic == "canonize-tensor") {
+    print_help_canonize_tensor();
+    return true;
+  }
+  if (topic == "canonize-file") {
+    print_help_canonize_file();
+    return true;
+  }
+  if (topic == "init") {
+    print_help_init();
+    return true;
+  }
+  if (topic == "pkg") {
+    print_help_pkg();
+    return true;
+  }
+  if (topic == "repl") {
+    print_help_repl();
+    return true;
+  }
+  if (topic == "benchmark") {
+    print_help_benchmark();
+    return true;
+  }
+  if (topic == "llama-run") {
+    print_help_llama_run();
+    return true;
+  }
+  if (topic == "version" || topic == "--version" || topic == "-V") {
+    print_version();
+    return true;
+  }
+  if (topic == "help" || topic.empty()) {
+    print_usage(prog);
+    return true;
+  }
+  return false;
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -360,26 +640,45 @@ Args parse_args(int argc, char* argv[]) {
     return a;
   }
 
-  std::string cmd = argv[1];
-  if (cmd == "help") {
-    a.command = "help";
-    for (int i = 2; i < argc; ++i) {
-      a.command_args.emplace_back(argv[i]);
+  int i = 1;
+  for (; i < argc; ++i) {
+    std::string_view token = argv[i];
+    if (token == "-v" || token == "--verbose") {
+      g_flags.verbose = true;
+      continue;
+    }
+    if (token == "-q" || token == "--quiet") {
+      g_flags.quiet = true;
+      continue;
+    }
+    if (token == "-h" || token == "--help") {
+      a.need_help = true;
+      continue;
+    }
+    if (token == "-V" || token == "--version") {
+      a.need_version = true;
+      continue;
+    }
+    if (token.starts_with('-')) {
+      error("Unknown option: " + std::string(token));
+      std::exit(1);
+    }
+    a.command = std::string(token);
+    ++i;
+    break;
+  }
+
+  if (a.command.empty()) {
+    if (!a.need_version) {
+      a.need_help = true;
     }
     return a;
   }
-  if (cmd == "--help" || cmd == "-h") {
-    a.need_help = true;
-    return a;
-  }
-  if (cmd == "version" || cmd == "--version" || cmd == "-V") {
+
+  if (a.command == "version") {
     a.need_version = true;
-    return a;
   }
-
-  a.command = cmd;
-
-  for (int i = 2; i < argc; ++i) {
+  for (; i < argc; ++i) {
     std::string_view arg = argv[i];
 
     if (arg == "-v" || arg == "--verbose")
@@ -408,13 +707,15 @@ Args parse_args(int argc, char* argv[]) {
       a.trace = true;
     } else if (arg == "-h" || arg == "--help") {
       a.need_help = true;
+    } else if (arg == "-V" || arg == "--version") {
+      a.need_version = true;
     } else if (arg.starts_with('-')) {
       // Subcommands under these top-level commands own additional flags.
       if (a.command == "benchmark") {
         a.benchmark_args.emplace_back(argv[i]);
-      } else if (a.command == "weights" || a.command == "init" || a.command == "pkg" ||
-                 a.command == "repro-hash" || a.command == "policy" || a.command == "trace" ||
-                 a.command == "llama-run" ||
+      } else if (a.command == "weights" || a.command == "help" || a.command == "init" ||
+                 a.command == "pkg" || a.command == "repro-hash" || a.command == "policy" ||
+                 a.command == "trace" || a.command == "llama-run" ||
                  a.command == "canonize-tensor" || a.command == "canonize-file") {
         a.command_args.emplace_back(argv[i]);
       } else {
@@ -424,9 +725,9 @@ Args parse_args(int argc, char* argv[]) {
     } else {
       if (a.command == "benchmark") {
         a.benchmark_args.emplace_back(argv[i]);
-      } else if (a.command == "weights" || a.command == "init" || a.command == "pkg" ||
-                 a.command == "repro-hash" || a.command == "policy" || a.command == "trace" ||
-                 a.command == "llama-run" ||
+      } else if (a.command == "weights" || a.command == "help" || a.command == "init" ||
+                 a.command == "pkg" || a.command == "repro-hash" || a.command == "policy" ||
+                 a.command == "trace" || a.command == "llama-run" ||
                  a.command == "canonize-tensor" || a.command == "canonize-file") {
         a.command_args.emplace_back(argv[i]);
       } else {
@@ -526,8 +827,8 @@ int run_benchmark(const char* command_name, const Args& args) {
     }
   }
 
-  const auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(
-      std::chrono::steady_clock::now() - start);
+  const auto elapsed =
+      std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start);
   info("Benchmark finished in " + format_elapsed(elapsed));
   return decode_system_status(status);
 #endif
@@ -603,22 +904,56 @@ int run_weights_import(const Args& args) {
 
 int run_weights_info(const Args& args) {
   if (args.command_args.size() < 2) {
-    error("weights info requires a .t81w file path");
+    error("weights info requires a .t81w file path. Run 't81 help weights info'.");
     return 1;
   }
-  fs::path path = args.command_args[1];
+  fs::path path;
+  bool as_json = false;
+  for (size_t i = 1; i < args.command_args.size(); ++i) {
+    const std::string& token = args.command_args[i];
+    if (token == "--json") {
+      as_json = true;
+    } else if (!token.empty() && token[0] == '-') {
+      error("weights info: unknown option '" + token + "'. Run 't81 help weights info'.");
+      return 1;
+    } else if (path.empty()) {
+      path = fs::path(token);
+    } else {
+      error("weights info: unexpected argument '" + token + "'. Run 't81 help weights info'.");
+      return 1;
+    }
+  }
+  if (path.empty()) {
+    error("weights info requires a .t81w file path. Run 't81 help weights info'.");
+    return 1;
+  }
   try {
     auto mf = t81::weights::load_t81w(path);
-    std::cout << "Model:        " << path << "\n";
-    std::cout << "Parameters:   " << t81::weights::format_count(mf.total_parameters) << "\n";
-    std::cout << "Trits:        " << t81::weights::format_count(mf.total_trits) << " trits\n";
-    std::cout << "Storage:      " << t81::weights::format_bytes(mf.file_size) << " (" << std::fixed
-              << std::setprecision(3) << mf.bits_per_trit << " bits/trit avg)\n";
-    std::cout << std::fixed << std::setprecision(1) << "Sparsity:     " << (mf.sparsity * 100.0)
-              << "% zeros\n";
-    std::cout << std::defaultfloat;
-    std::cout << "Format:       " << mf.format << "\n";
-    std::cout << "Checksum:     sha3-512:" << mf.checksum << " (CanonFS-ready)\n";
+    if (as_json) {
+      std::cout << "{\n";
+      std::cout << "  \"model\": \"" << path.string() << "\",\n";
+      std::cout << "  \"parameters\": " << mf.total_parameters << ",\n";
+      std::cout << "  \"trits\": " << mf.total_trits << ",\n";
+      std::cout << "  \"file_size_bytes\": " << mf.file_size << ",\n";
+      std::cout << "  \"bits_per_trit\": " << std::fixed << std::setprecision(6) << mf.bits_per_trit
+                << ",\n";
+      std::cout << "  \"sparsity\": " << std::fixed << std::setprecision(6) << mf.sparsity << ",\n";
+      std::cout << "  \"format\": \"" << mf.format << "\",\n";
+      std::cout << "  \"checksum_sha3_512\": \"" << mf.checksum << "\"\n";
+      std::cout << "}\n";
+      std::cout << std::defaultfloat;
+    } else {
+      std::cout << "Model:        " << path << "\n";
+      std::cout << "Parameters:   " << t81::weights::format_count(mf.total_parameters) << "\n";
+      std::cout << "Trits:        " << t81::weights::format_count(mf.total_trits) << " trits\n";
+      std::cout << "Storage:      " << t81::weights::format_bytes(mf.file_size) << " ("
+                << std::fixed << std::setprecision(3) << mf.bits_per_trit << " bits/trit avg)\n";
+      std::cout << std::fixed << std::setprecision(1) << "Sparsity:     " << (mf.sparsity * 100.0)
+                << "% zeros\n";
+      std::cout << std::defaultfloat;
+      std::cout << "Format:       " << mf.format << "\n";
+      std::cout << "Checksum:     sha3-512:" << mf.checksum << " (CanonFS-ready)\n";
+    }
   } catch (const std::exception& e) {
     error(e.what());
     return 1;
@@ -628,7 +963,8 @@ int run_weights_info(const Args& args) {
 
 int run_weights_quantize(const Args& args) {
   if (args.command_args.size() != 4 || args.command_args[2] != "--to-gguf") {
-    error("weights quantize requires: quantize <input> --to-gguf <output>");
+    error("weights quantize requires: quantize <input> --to-gguf <output>. Run 't81 help weights "
+          "quantize'.");
     return 1;
   }
   fs::path input = args.command_args[1];
@@ -643,8 +979,27 @@ int run_weights_quantize(const Args& args) {
 }
 
 int run_weights(const Args& args) {
-  if (args.command_args.empty()) {
-    error("weights requires a subcommand (import|info)");
+  if (args.command_args.empty() || args.command_args[0] == "-h" ||
+      args.command_args[0] == "--help") {
+    print_help_weights();
+    return args.command_args.empty() ? 1 : 0;
+  }
+  if (args.command_args.size() >= 2 &&
+      (args.command_args[1] == "-h" || args.command_args[1] == "--help")) {
+    const std::string sub = args.command_args[0];
+    if (sub == "import") {
+      print_help_weights_import();
+      return 0;
+    }
+    if (sub == "info") {
+      print_help_weights_info();
+      return 0;
+    }
+    if (sub == "quantize") {
+      print_help_weights_quantize();
+      return 0;
+    }
+    error("weights: unknown subcommand '" + sub + "'. Run 't81 help weights'.");
     return 1;
   }
   const std::string sub = args.command_args[0];
@@ -655,13 +1010,13 @@ int run_weights(const Args& args) {
   } else if (sub == "quantize") {
     return run_weights_quantize(args);
   }
-  error("weights: unknown subcommand '" + sub + "'");
+  error("weights: unknown subcommand '" + sub + "'. Run 't81 help weights'.");
   return 1;
 }
 
 int run_policy_compile(const Args& args) {
   if (args.command_args.size() < 2) {
-    error("policy compile requires an input .apl file");
+    error("policy compile requires an input .apl file. Run 't81 help policy compile'.");
     return 1;
   }
   fs::path input = args.command_args[1];
@@ -691,10 +1046,29 @@ int run_policy_compile(const Args& args) {
 
 int run_policy_run(const Args& args) {
   if (args.command_args.size() < 2) {
-    error("policy run requires an input .apl or .axionb file");
+    error("policy run requires an input .apl or .axionb file. Run 't81 help policy run'.");
     return 1;
   }
-  fs::path input = args.command_args[1];
+  fs::path input;
+  bool as_json = false;
+  for (size_t i = 1; i < args.command_args.size(); ++i) {
+    const std::string& token = args.command_args[i];
+    if (token == "--json") {
+      as_json = true;
+    } else if (!token.empty() && token[0] == '-') {
+      error("policy run: unknown option '" + token + "'. Run 't81 help policy run'.");
+      return 1;
+    } else if (input.empty()) {
+      input = fs::path(token);
+    } else {
+      error("policy run: unexpected argument '" + token + "'. Run 't81 help policy run'.");
+      return 1;
+    }
+  }
+  if (input.empty()) {
+    error("policy run requires an input .apl or .axionb file. Run 't81 help policy run'.");
+    return 1;
+  }
   t81::axion::Policy policy;
   if (input.extension() == ".axionb") {
     std::ifstream ifs(input, std::ios::binary);
@@ -722,26 +1096,67 @@ int run_policy_run(const Args& args) {
     }
     policy = std::move(res.value());
   }
-  info("Policy validated successfully.");
-  if (g_flags.verbose) {
-    std::cout << "Tier: " << policy.tier << "\n";
-    if (policy.max_instructions)
-      std::cout << "Max Instructions: " << *policy.max_instructions << "\n";
-    if (policy.max_stack) std::cout << "Max Stack: " << *policy.max_stack << "\n";
-    if (policy.max_recursion) std::cout << "Max Recursion: " << *policy.max_recursion << "\n";
+  if (as_json) {
+    std::cout << "{\n";
+    std::cout << "  \"valid\": true,\n";
+    std::cout << "  \"tier\": " << policy.tier << ",\n";
+    if (policy.max_instructions) {
+      std::cout << "  \"max_instructions\": " << *policy.max_instructions << ",\n";
+    } else {
+      std::cout << "  \"max_instructions\": null,\n";
+    }
+    if (policy.max_stack) {
+      std::cout << "  \"max_stack\": " << *policy.max_stack << ",\n";
+    } else {
+      std::cout << "  \"max_stack\": null,\n";
+    }
+    if (policy.max_recursion) {
+      std::cout << "  \"max_recursion\": " << *policy.max_recursion << "\n";
+    } else {
+      std::cout << "  \"max_recursion\": null\n";
+    }
+    std::cout << "}\n";
+  } else {
+    info("Policy validated successfully.");
+    if (g_flags.verbose) {
+      std::cout << "Tier: " << policy.tier << "\n";
+      if (policy.max_instructions)
+        std::cout << "Max Instructions: " << *policy.max_instructions << "\n";
+      if (policy.max_stack) std::cout << "Max Stack: " << *policy.max_stack << "\n";
+      if (policy.max_recursion) std::cout << "Max Recursion: " << *policy.max_recursion << "\n";
+    }
   }
   return 0;
 }
 
 int run_policy(const Args& args) {
+  if (args.command_args.empty() || args.command_args[0] == "-h" ||
+      args.command_args[0] == "--help") {
+    print_help_policy();
+    return args.command_args.empty() ? 1 : 0;
+  }
+  if (args.command_args.size() >= 2 &&
+      (args.command_args[1] == "-h" || args.command_args[1] == "--help")) {
+    const std::string sub = args.command_args[0];
+    if (sub == "compile") {
+      print_help_policy_compile();
+      return 0;
+    }
+    if (sub == "run") {
+      print_help_policy_run();
+      return 0;
+    }
+    error("policy: unknown subcommand '" + sub + "'. Run 't81 help policy'.");
+    return 1;
+  }
   if (args.command_args.empty()) {
-    error("policy requires a subcommand (compile|run)");
+    error("policy requires a subcommand (compile|run). Run 't81 help policy'.");
     return 1;
   }
   const std::string sub = args.command_args[0];
   if (sub == "compile") return run_policy_compile(args);
   if (sub == "run") return run_policy_run(args);
-  error("policy: unknown subcommand '" + sub + "'");
+  error("policy: unknown subcommand '" + sub + "'. Run 't81 help policy'.");
   return 1;
 }
 
@@ -814,7 +1229,7 @@ int run_repro_hash(const char* command_name, const Args& args) {
 
 int run_canonize_file(const Args& args) {
   if (args.command_args.empty()) {
-    error("canonize-file requires an input file");
+    error("canonize-file requires an input file. Run 't81 help canonize-file'.");
     return 1;
   }
 
@@ -824,12 +1239,12 @@ int run_canonize_file(const Args& args) {
     const std::string& token = args.command_args[i];
     if (token == "--canonfs-root") {
       if (++i >= args.command_args.size()) {
-        error("canonize-file: missing value for --canonfs-root");
+        error("canonize-file: missing value for --canonfs-root. Run 't81 help canonize-file'.");
         return 1;
       }
       canon_root = fs::path(args.command_args[i]);
     } else {
-      error("canonize-file: unknown argument '" + token + "'");
+      error("canonize-file: unknown argument '" + token + "'. Run 't81 help canonize-file'.");
       return 1;
     }
   }
@@ -947,7 +1362,7 @@ int run_llama_run(const Args& args) {
       }
       canonfs_root = fs::path(args.command_args[i]);
     } else if (!token.empty() && token.front() == '-') {
-      error("llama-run: unknown option '" + token + "'");
+      error("llama-run: unknown option '" + token + "'. Run 't81 help llama-run'.");
       return 1;
     } else {
       positional.push_back(token);
@@ -994,7 +1409,8 @@ int run_llama_run(const Args& args) {
       return 1;
     }
     const auto& bytes = read_res.value();
-    out.write(reinterpret_cast<const char*>(bytes.data()), static_cast<std::streamsize>(bytes.size()));
+    out.write(reinterpret_cast<const char*>(bytes.data()),
+              static_cast<std::streamsize>(bytes.size()));
     if (!out.good()) {
       error("llama-run: failed writing temporary model bytes");
       return 1;
@@ -1050,10 +1466,6 @@ int main(int argc, char* argv[]) {
   try {
     auto args = parse_args(argc, argv);
 
-    if (args.need_help) {
-      print_usage(argv[0]);
-      return 0;
-    }
     if (args.need_version) {
       print_version();
       return 0;
@@ -1062,23 +1474,110 @@ int main(int argc, char* argv[]) {
     if (args.command == "help") {
       if (args.command_args.empty()) {
         print_usage(argv[0]);
-      } else {
-        std::string sub = args.command_args[0];
-        if (sub == "weights")
-          print_help_weights();
-        else if (sub == "policy")
-          print_help_policy();
-        else if (sub == "trace")
-          print_help_trace();
-        else if (sub == "canonize-file")
-          print_help_canonize_file();
-        else if (sub == "llama-run")
-          print_help_llama_run();
-        else {
-          print_usage(argv[0]);
-          std::cerr << "\nUnknown help topic: " << sub << "\n";
+        return 0;
+      }
+      if (args.command_args.size() >= 2) {
+        const std::string& family = args.command_args[0];
+        const std::string& sub = args.command_args[1];
+        if (family == "weights" && sub == "import") {
+          print_help_weights_import();
+          return 0;
+        }
+        if (family == "weights" && sub == "info") {
+          print_help_weights_info();
+          return 0;
+        }
+        if (family == "weights" && sub == "quantize") {
+          print_help_weights_quantize();
+          return 0;
+        }
+        if (family == "policy" && sub == "compile") {
+          print_help_policy_compile();
+          return 0;
+        }
+        if (family == "policy" && sub == "run") {
+          print_help_policy_run();
+          return 0;
+        }
+        if (family == "trace" && sub == "show") {
+          print_help_trace_show();
+          return 0;
+        }
+        if (family == "trace" && sub == "diff") {
+          print_help_trace_diff();
+          return 0;
+        }
+        if (family == "trace" && sub == "replay") {
+          print_help_trace_replay();
+          return 0;
+        }
+        if (family == "trace" && sub == "export") {
+          print_help_trace_export();
+          return 0;
         }
       }
+      std::string sub = args.command_args[0];
+      if (print_help_topic(sub, argv[0])) {
+        return 0;
+      }
+      error("Unknown help topic: " + sub + ". Run 't81 --help'.");
+      return 1;
+    }
+
+    if (args.need_help) {
+      if (args.command.empty()) {
+        print_usage(argv[0]);
+        return 0;
+      }
+      if ((args.command == "weights" || args.command == "policy" || args.command == "trace") &&
+          !args.command_args.empty()) {
+        const std::string& sub = args.command_args[0];
+        if (args.command == "weights" && sub == "import") {
+          print_help_weights_import();
+          return 0;
+        }
+        if (args.command == "weights" && sub == "info") {
+          print_help_weights_info();
+          return 0;
+        }
+        if (args.command == "weights" && sub == "quantize") {
+          print_help_weights_quantize();
+          return 0;
+        }
+        if (args.command == "policy" && sub == "compile") {
+          print_help_policy_compile();
+          return 0;
+        }
+        if (args.command == "policy" && sub == "run") {
+          print_help_policy_run();
+          return 0;
+        }
+        if (args.command == "trace" && sub == "show") {
+          print_help_trace_show();
+          return 0;
+        }
+        if (args.command == "trace" && sub == "diff") {
+          print_help_trace_diff();
+          return 0;
+        }
+        if (args.command == "trace" && sub == "replay") {
+          print_help_trace_replay();
+          return 0;
+        }
+        if (args.command == "trace" && sub == "export") {
+          print_help_trace_export();
+          return 0;
+        }
+      }
+      if (print_help_topic(args.command, argv[0])) {
+        return 0;
+      }
+      error("Unknown help topic: " + args.command + ". Run 't81 --help'.");
+      return 1;
+    }
+
+    if (args.command == "version") {
+      print_version();
       return 0;
     }
 
@@ -1171,39 +1670,69 @@ int main(int argc, char* argv[]) {
       return run_benchmark(argv[0], args);
 
     } else if (args.command == "repro-hash") {
+      if (!args.command_args.empty() &&
+          (args.command_args[0] == "-h" || args.command_args[0] == "--help")) {
+        print_help_repro_hash();
+        return 0;
+      }
       return run_repro_hash(argv[0], args);
 
     } else if (args.command == "canonize-tensor") {
+      if (!args.command_args.empty() &&
+          (args.command_args[0] == "-h" || args.command_args[0] == "--help")) {
+        print_help_canonize_tensor();
+        return 0;
+      }
       if (args.command_args.empty()) {
-        error("canonize-tensor requires an input file");
+        error("canonize-tensor requires an input file. Run 't81 help canonize-tensor'.");
         return 1;
       }
       return t81::cli::canonize_tensor(args.command_args[0]);
 
     } else if (args.command == "canonize-file") {
+      if (!args.command_args.empty() &&
+          (args.command_args[0] == "-h" || args.command_args[0] == "--help")) {
+        print_help_canonize_file();
+        return 0;
+      }
       return run_canonize_file(args);
 
     } else if (args.command == "init") {
+      if (!args.command_args.empty() &&
+          (args.command_args[0] == "-h" || args.command_args[0] == "--help")) {
+        print_help_init();
+        return 0;
+      }
       if (args.command_args.empty()) {
-        error("init requires a project name");
+        error("init requires a project name. Run 't81 help init'.");
         return 1;
       }
       return t81::cli::init_project(args.command_args[0]);
 
     } else if (args.command == "pkg") {
+      if (!args.command_args.empty() &&
+          (args.command_args[0] == "-h" || args.command_args[0] == "--help")) {
+        print_help_pkg();
+        return 0;
+      }
       if (args.command_args.empty()) {
-        error("pkg requires a subcommand (init, check)");
+        error("pkg requires a subcommand (init, check). Run 't81 help pkg'.");
         return 1;
       }
       const std::string sub = args.command_args[0];
       if (sub == "init") {
+        if (args.command_args.size() >= 2 &&
+            (args.command_args[1] == "-h" || args.command_args[1] == "--help")) {
+          print_help_pkg();
+          return 0;
+        }
         std::string name = args.command_args.size() > 1 ? args.command_args[1] : "my-t81-pkg";
         return t81::cli::init_package(name);
       } else if (sub == "check") {
         info("Package check placeholder: manifest validated.");
         return 0;
       }
-      error("pkg: unknown subcommand '" + sub + "'");
+      error("pkg: unknown subcommand '" + sub + "'. Run 't81 help pkg'.");
       return 1;
 
     } else if (args.command == "repl") {
@@ -1216,12 +1745,39 @@ int main(int argc, char* argv[]) {
       return run_policy(args);
 
     } else if (args.command == "trace") {
+      if (!args.command_args.empty() &&
+          (args.command_args[0] == "-h" || args.command_args[0] == "--help")) {
+        print_help_trace();
+        return 0;
+      }
       t81::cli::TraceArgs ta;
-      if (!args.command_args.empty()) {
-        ta.subcommand = args.command_args[0];
-        ta.args.reserve(args.command_args.size() - 1);
-        for (size_t i = 1; i < args.command_args.size(); ++i)
-          ta.args.push_back(args.command_args[i]);
+      for (size_t i = 0; i < args.command_args.size(); ++i) {
+        const auto& token = args.command_args[i];
+        if (token == "--no-color") {
+          ta.no_color = true;
+          continue;
+        }
+        if (ta.subcommand.empty()) {
+          ta.subcommand = token;
+          continue;
+        }
+        if ((token == "-h" || token == "--help") && ta.subcommand == "show") {
+          print_help_trace_show();
+          return 0;
+        }
+        if ((token == "-h" || token == "--help") && ta.subcommand == "diff") {
+          print_help_trace_diff();
+          return 0;
+        }
+        if ((token == "-h" || token == "--help") && ta.subcommand == "replay") {
+          print_help_trace_replay();
+          return 0;
+        }
+        if ((token == "-h" || token == "--help") && ta.subcommand == "export") {
+          print_help_trace_export();
+          return 0;
+        }
+        ta.args.push_back(token);
       }
       return t81::cli::run_trace(ta);
 
@@ -1229,7 +1785,7 @@ int main(int argc, char* argv[]) {
       return run_llama_run(args);
 
     } else {
-      error("Unknown command: " + args.command);
+      error("Unknown command: " + args.command + ". Run 't81 --help' to list commands.");
       print_usage(argv[0]);
       return 1;
     }

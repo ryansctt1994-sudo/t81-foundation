@@ -39,6 +39,7 @@ int canonize_tensor(const std::string& input_file);
 struct TraceArgs {
   std::string subcommand;
   std::vector<std::string> args;
+  bool no_color = false;
 };
 int run_trace(const TraceArgs& args);
 

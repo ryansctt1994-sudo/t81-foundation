@@ -1,7 +1,7 @@
 # Product documentation index
 
 Status: Active
-Last Updated: 2026-02-25
+Last Updated: 2026-02-26
 
 ## Purpose
 
@@ -15,6 +15,8 @@ specification authority, freeze boundaries, or determinism claim scope.
 ## Navigation
 
 - DETERMINISTIC_CORE_PROFILE.md
+- CLI_UX_PRODUCT_SPEC.md
+- CLI_V1_UX_DESIGN.md
 - RELEASE_DISCIPLINE.md
 - STRATEGIC_DIRECTION.md
 - ../status/GOVERNED_AGI_PROMOTION_PIPELINE.md

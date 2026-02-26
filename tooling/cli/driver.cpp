@@ -834,7 +834,7 @@ int run_tisc(const fs::path& path, const std::optional<fs::path>& policy_path, b
   auto result = vm->run_to_halt();
 
   for (const auto& line : vm->state().printed_output) {
-    std::cerr << line << "\n";
+    std::cout << line << "\n";
   }
 
   if (!result) {
@@ -935,6 +935,10 @@ int init_project(const std::string& name) {
     error("Project name cannot be empty");
     return 1;
   }
+  if (!is_valid_package_name(name)) {
+    error("Project name must contain only alphanumeric characters, underscores, and hyphens.");
+    return 1;
+  }
 
   fs::path project_dir(name);
   if (fs::exists(project_dir)) {
@@ -993,14 +997,17 @@ int run_trace_show(const TraceArgs& args) {
   }
   std::string line;
   while (std::getline(ifs, line)) {
-    if (line.find("fault") != std::string::npos || line.find("trap") != std::string::npos)
+    if (!args.no_color &&
+        (line.find("fault") != std::string::npos || line.find("trap") != std::string::npos)) {
       std::cout << COLOR_RED << line << COLOR_RESET << "\n";
-    else if (line.find("allow") != std::string::npos || line.find("satisfied") != std::string::npos)
+    } else if (!args.no_color && (line.find("allow") != std::string::npos ||
+                                  line.find("satisfied") != std::string::npos)) {
       std::cout << COLOR_GREEN << line << COLOR_RESET << "\n";
-    else if (line.find("PC=") != std::string::npos)
+    } else if (!args.no_color && line.find("PC=") != std::string::npos) {
       std::cout << COLOR_CYAN << line << COLOR_RESET << "\n";
-    else
+    } else {
       std::cout << line << "\n";
+    }
   }
   return 0;
 }
@@ -1020,9 +1027,15 @@ int run_trace_diff(const TraceArgs& args) {
   bool found_diff = false;
   while (std::getline(f1, l1) && std::getline(f2, l2)) {
     if (l1 != l2) {
-      std::cout << COLOR_BOLD << "Difference at line " << line_num << ":" << COLOR_RESET << "\n";
-      std::cout << COLOR_RED << "- " << l1 << COLOR_RESET << "\n";
-      std::cout << COLOR_GREEN << "+ " << l2 << COLOR_RESET << "\n";
+      if (args.no_color) {
+        std::cout << "Difference at line " << line_num << ":\n";
+        std::cout << "- " << l1 << "\n";
+        std::cout << "+ " << l2 << "\n";
+      } else {
+        std::cout << COLOR_BOLD << "Difference at line " << line_num << ":" << COLOR_RESET << "\n";
+        std::cout << COLOR_RED << "- " << l1 << COLOR_RESET << "\n";
+        std::cout << COLOR_GREEN << "+ " << l2 << COLOR_RESET << "\n";
+      }
       found_diff = true;
     }
     line_num++;
@@ -1279,11 +1292,15 @@ int run_trace_export(const TraceArgs& args) {
 }  // namespace
 
 int run_trace(const TraceArgs& args) {
+  if (args.subcommand.empty()) {
+    error("trace requires a subcommand (show|diff|replay|export). Run 't81 help trace'.");
+    return 1;
+  }
   if (args.subcommand == "show") return run_trace_show(args);
   if (args.subcommand == "diff") return run_trace_diff(args);
   if (args.subcommand == "replay") return run_trace_replay(args);
   if (args.subcommand == "export") return run_trace_export(args);
-  error("Unknown trace subcommand: " + args.subcommand);
+  error("Unknown trace subcommand: " + args.subcommand + ". Run 't81 help trace'.");
   return 1;
 }
 

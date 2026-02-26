@@ -905,6 +905,9 @@ if(T81_BUILD_TESTS)
   add_executable(t81_cli_trace_export_test tests/cpp/cli_trace_export_test.cpp)
   target_link_libraries(t81_cli_trace_export_test PRIVATE t81_tool_cli)
 
+  add_executable(t81_cli_contract_test tests/cpp/cli_contract_test.cpp)
+  target_compile_features(t81_cli_contract_test PRIVATE ${T81_CXX_STD_FEATURE})
+
   add_executable(t81_cli_structural_types_test tests/cpp/cli_structural_types_test.cpp)
   target_link_libraries(t81_cli_structural_types_test PRIVATE t81_tool_cli t81_isa t81_vm)
 
@@ -1435,6 +1438,7 @@ target_link_libraries(axion_policy_segment_event_test PRIVATE t81_isa t81_vm)
     add_test(NAME ${tgt} COMMAND $<TARGET_FILE:${tgt}>)
   endforeach()
   add_test(NAME t81_cli_repro_hash_test COMMAND $<TARGET_FILE:cli_repro_hash_test> $<TARGET_FILE:t81>)
+  add_test(NAME t81_cli_contract_test_runner COMMAND $<TARGET_FILE:t81_cli_contract_test> $<TARGET_FILE:t81>)
   add_test(NAME t81_cli_std_text_fixtures_test COMMAND $<TARGET_FILE:cli_std_text_fixtures_test>)
   add_test(NAME t81_cli_std_bytes_fixtures_test COMMAND $<TARGET_FILE:cli_std_bytes_fixtures_test>)
   add_test(NAME t81_cli_std_symbol_fixtures_test COMMAND $<TARGET_FILE:cli_std_symbol_fixtures_test>)

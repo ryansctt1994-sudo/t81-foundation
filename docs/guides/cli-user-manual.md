@@ -1,160 +1,245 @@
 # T81 CLI User Manual
 
-This manual walks through every major `t81` command, flags, and workflow so developers, auditors, and Axion stewards can use the CLI as the canonical interface to the compiler, runtime, and policy tooling.
+This is the operator manual for the `t81` CLI.
+Everything in this document is intended to match the current shipped binary behavior.
 
-**Last Updated:** February 17, 2026
+**Last Updated:** February 26, 2026
 
-## 1. Getting started
+## 1. Quick Start
 
-1. **Build the toolchain**: After syncing the repo, ensure you have a release build:
-
-   ```bash
-   cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-   cmake --build build --parallel
-   ```
-
-2. **Run the CLI driver** (`t81`):
-
-   ```bash
-   ./build/t81 --help
-   ```
-
-   The `t81` binary dispatches subcommands like `compile`, `repl`, `run`, and others listed below. Always run from the repository root so relative paths (scripts, artifacts, policy files) resolve as explained in the docs.
-
-## 2. Compilation workflow
-
-### 2.1 `t81 compile`
-
-Primary compile command; emits `.tisc` bytecode plus Axion metadata.
-
-```
-t81 compile [options] <source>.t81 -o <output>.tisc
-```
-
-Key options:
-
-- `-P docs/governance/archive/policy/<name>.axion`: embed an Axion policy (see `docs/governance/archive/policy/guards.axion`).
-- `--verbose`: prints loop/match metadata, guard events, and Axion trace strings (useful for auditors).
-- `--trace-match`: records match metadata even for structural matches that normally skip logging.
-- `--include <dir>`: add include paths for `import` statements.
-
-The CLI generates logs that mirror `docs/guides/axion-trace.md` samples:
-
-```
-verdict.reason="enum=Option variant=Some match=pass guard=pass payload=i32"
-verdict.reason="stack frame allocated stack addr=243 size=16"
-```
-
-These strings feed Axion policies (RFC-0009) and must match the canonical text used by regressions like `axion_policy_match_guard_test`.
-
-### 2.2 `t81 run`
-
-Execute an existing `.tisc` file:
-
-```
-t81 run <program>.tisc
-```
-
-- Picks up the Axion policy embedded in the program.
-- Dumps per-opcode `AxionEvent` entries when `AXTRACE` instrumentation is enabled.
-- Use `AXTRACE=full` environment variable for verbose guard/segment logging (matching `scripts/capture-axion-trace.sh` output).
-
-### 2.3 `t81 check` / `t81 lint`
-
-Check syntax and semantics without generating bytecode.
+Build:
 
 ```bash
-t81 check <source>.t81
-# or alias
-t81 lint <source>.t81
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
 ```
 
-## 3. REPL & tracing
-
-Launch the interactive prompt:
-
-```
-t81 repl [--policy docs/governance/archive/policy/axion-pkg.axion]
-```
-
-At the REPL, after executing guard-heavy code, type `:trace` to dump the current `State::axion_log`. This command prints the same `verdict.reason` strings seen during compilation and regression runs, proving the runtime and Axion trace infrastructure agree.
-
-Use `:rules` to inspect the active policy, `:load` to load `.tisc`, and `:trace chart` to render segment timing in ASCII.
-
-## 4. Policy tooling integration
-
-The CLI exposes two helper targets:
-
-- `axion_policy_trace` (built via `cmake --build build --target axion_policy_trace`): runs a program that touches stack, heap, tensor, and meta segments while emitting Axion events. Look for lines such as `opcode=22 reason="AxRead guard segment=stack addr=5"`.
-- `axion_policy_runner` (see `examples/axion_policy_runner.cpp`): enforces `(require-match-guard ...)` and `(require-segment-event ...)` clauses while printing `build/artifacts/axion_policy_runner.log`. Use `scripts/capture-axion-trace.sh` to rerun it and capture the deterministic artifact mentioned in section 6 of `docs/guides/axion-trace.md`.
-
-When compiling with `-P docs/governance/archive/policy/guards.axion`, the CLI output matches RFC-0009/0013/0019 expectations. Pair this with `--verbose` to confirm the guard strings before Axion policy enforcement occurs.
-
-## 5. Debugging & automation
-
-- `t81 compile --trace-guards` enables the guard instrumentation used by `t81_cli_trace_test`.  
-- `t81 compile` pipelines used in CI should redirect their output into `build/logs/cli-<timestamp>.log` so release artifacts can include `t81 compile --verbose` transcripts.
-- If you see “policy trap” errors, run `t81 repl` with `:trace` to inspect which `verdict.reason` string is missing (the CLI shows the exact match string enforced by `policy_engine`).
-
-## 6. Advanced switches
-
-- `--axion-policy`/`--axion-policy-text` (deprecated alias) allow you to embed policy s-expressions directly without a file. Prefer the `.axion` file for reproducibility.
-- `--profile` writes instruction counts and guard coverage for every Axion event; feed the resulting JSON into `tools/axion-profiler` to visualize guard hot spots.
-- `--emit-axion-log`: emits `State::axion_log` into `build/artifacts/axion-<run>.log` automatically, matching the CLI samples in this manual.
-
-## 7. Reference snippets
-
-Include the following in release notes to preserve canonical log snippets:
-
-1. `./scripts/capture-axion-trace.sh` (produces `build/artifacts/axion_policy_runner.log` with policy strings).
-2. `ctest --test-dir build -R axion_segment_trace_test --output-on-failure` snippet (records `bounds fault …` and segment `verdict.reason` strings).
-3. `t81 compile --verbose match_guard.t81 -P docs/governance/archive/policy/guards.axion` transcript (records guard trace strings such as `enum=Option …`).
-
-These samples ensure auditors can audit Axion traces without reading the VM code or rerunning the entire suite.
-
-## 8. Related resources
-
-- `docs/guides/axion-trace.md` (Axion trace reference with CLI/REPL samples).  
-- `spec/axion-kernel.md` section 1.5‑1.10 (Axion responsibilities, metadata contract).  
-- RFC-0009, RFC-0020, RFC-0019 (policy language, segment trace semantics, match metadata).  
-- `docs/guides/cli-toolkit.md` for tooling that wraps the CLI in reproducible scripts.
-
-## 9. Project & Package Management
-
-### 9.1 `t81 init`
-
-Scaffold a new T81 project with a default directory structure and `main.t81`.
+Show top-level help:
 
 ```bash
+./build/t81 --help # docs-smoke
+```
+
+Minimal compile/run flow:
+
+```bash
+./build/t81 check examples/hello_world.t81
+./build/t81 compile examples/hello_world.t81 -o hello.tisc
+./build/t81 run hello.tisc
+```
+
+## 2. Global Options
+
+These options are accepted before or after the command token:
+
+- `-h`, `--help`
+- `-V`, `--version`
+- `-q`, `--quiet`
+- `-v`, `--verbose`
+
+Examples:
+
+```bash
+./build/t81 -q version # docs-smoke
+./build/t81 version -q # docs-smoke
+./build/t81 compile --help # docs-smoke
+./build/t81 help compile # docs-smoke
+```
+
+## 3. Top-Level Commands
+
+### 3.1 `compile`
+
+```text
+t81 compile <file.t81|file.t81w> [-o <file.tisc>] [--weights-model <model.t81w>]
+```
+
+Compiles source into TISC bytecode.
+
+### 3.2 `run`
+
+```text
+t81 run <file.t81|file.tisc> [--policy <policy.apl>] [--trace] [--weights-model <model.t81w>]
+```
+
+Compiles if needed and executes via VM.
+
+### 3.3 `disasm`
+
+```text
+t81 disasm <file.tisc>
+```
+
+Prints human-readable disassembly.
+
+### 3.4 `debug`
+
+```text
+t81 debug <file.t81|file.tisc> [--policy <policy.apl>] [--weights-model <model.t81w>]
+```
+
+Compiles if needed and starts debugger.
+
+### 3.5 `check` / `lint`
+
+```text
+t81 check <file.t81>
+t81 lint <file.t81>
+```
+
+Syntax + semantic validation without bytecode emission.
+
+### 3.6 `repl`
+
+```text
+t81 repl [--weights-model <model.t81w>] [--policy <policy.apl>]
+```
+
+Starts the interactive REPL.
+
+### 3.7 `repro-hash`
+
+```text
+t81 repro-hash [fixtures_dir]
+```
+
+Runs the T81Lang reproducibility fixture hash gate.
+
+### 3.8 `canonize-tensor`
+
+```text
+t81 canonize-tensor <file>
+```
+
+Canonicalizes tensor input into CanonFS object storage.
+
+### 3.9 `canonize-file`
+
+```text
+t81 canonize-file <file> [--canonfs-root <path>]
+```
+
+Writes raw file bytes to CanonFS and prints `sha3-256:<hash>`.
+
+### 3.10 `init`
+
+```text
 t81 init <project_name>
 ```
 
-- Creates a directory named `<project_name>`.
-- Generates a sample `main.t81` and `README.md`.
-- **Security Note**: Project names are restricted to alphanumeric characters, underscores (`_`), and hyphens (`-`).
+Creates a project directory with `main.t81` and `README.md`.
 
-### 9.2 `t81 pkg`
+### 3.11 `pkg`
 
-Manage package manifests (`package.t81`).
-
-```bash
+```text
+t81 pkg <subcommand> [args]
 t81 pkg init [package_name]
-```
-
-- Generates a `package.t81` manifest file in the current directory.
-- Defaults to `my-t81-pkg` if no name is provided.
-- Enforces strict naming conventions (alphanumeric, `_`, `-`) to prevent configuration injection.
-
-```bash
 t81 pkg check
 ```
 
-- Validates the current `package.t81` manifest.
+Creates/validates `package.t81`.
 
-### 9.3 `t81 repro-hash`
+### 3.12 `benchmark`
 
-Run the T81Lang determinism fixture hash gate.
+```text
+t81 benchmark [benchmark_runner_flags...]
+```
+
+Runs benchmark runner with forwarded benchmark flags.
+
+### 3.13 `weights`
+
+```text
+t81 weights <subcommand> [options]
+t81 weights import <file> [-o <out>] [--format <fmt>]
+t81 weights info <model.t81w> [--json]
+t81 weights quantize <input> --to-gguf <out>
+```
+
+Weight import/info/quantization helpers.
+
+### 3.14 `policy`
+
+```text
+t81 policy <subcommand> [options]
+t81 policy compile <file.apl> [-o <out>]
+t81 policy run <file.apl|file.axionb> [--json]
+```
+
+Policy compile/validation helpers.
+
+### 3.15 `trace`
+
+```text
+t81 trace <subcommand> [args]
+t81 trace show <trace.txt> [--no-color]
+t81 trace diff <trace1.txt> <trace2.txt> [--no-color]
+t81 trace replay <file.tisc> <trace.txt>
+t81 trace export <trace.txt> [--format <json|csv>] [-o <file>]
+```
+
+Trace inspection and export utilities.
+
+### 3.16 `llama-run` (experimental)
+
+```text
+t81 llama-run <model.gguf|sha3-256:hash> <prompt> --policy <policy.apl> [options]
+```
+
+Options:
+
+- `--max-tokens <n>`
+- `--seed <n>`
+- `--threads <n>`
+- `--temperature <x>`
+- `--top-k <n>`
+- `--top-p <x>`
+- `--expected-model-hash <h>`
+- `--canonfs-root <path>`
+
+## 4. Help Contract
+
+Supported help forms:
 
 ```bash
-t81 repro-hash [fixtures_dir]
+./build/t81 --help # docs-smoke
+./build/t81 help # docs-smoke
+./build/t81 help compile # docs-smoke
+./build/t81 compile --help # docs-smoke
 ```
+
+Unknown help topics return non-zero.
+
+## 5. Exit and Output Behavior
+
+- `0` on success.
+- non-zero on failure.
+- command result output is written to `stdout`.
+- diagnostics/errors are written to `stderr` and prefixed with `error:`.
+
+Runtime trap exit codes used by `t81 run` / `t81 debug`:
+
+| Code | Meaning |
+| :--- | :--- |
+| `10` | Division fault |
+| `12` | Bounds fault |
+| `13` | Security fault |
+| `14` | Decode fault |
+| `15` | Explicit trap instruction |
+| `16` | Type fault |
+| `17` | Stack fault |
+| `18` | Shape fault |
+| `19` | Tier fault |
+
+## 6. Known Command Validation Rules
+
+- `check` / `lint` require `.t81`.
+- `disasm` requires `.tisc`.
+- `run` and `debug` require `.t81` or `.tisc`.
+- `compile` accepts `.t81` and `.t81w`.
+- `pkg init` enforces package name characters: alphanumeric, `_`, `-`.
+
+## 7. Notes on Documentation Scope
+
+This manual intentionally excludes deprecated or non-shipping flags.
+If behavior changes, update this file in the same change set as the CLI implementation.
