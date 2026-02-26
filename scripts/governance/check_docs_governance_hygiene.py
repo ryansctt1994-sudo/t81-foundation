@@ -133,6 +133,7 @@ def main() -> int:
         ("README naming", "scripts/governance/check_readme_naming.py"),
         ("translation metadata", "scripts/governance/check_translation_metadata.py"),
         ("translation staleness", "scripts/governance/check_translation_staleness.py"),
+        ("translation semantic alignment", "scripts/governance/check_translation_semantic_alignment.py"),
         ("docs structure", "scripts/governance/check_docs_structure.py"),
         ("license policy", "scripts/governance/check_license_policy.py"),
         ("artifact hygiene", "scripts/governance/check_repo_artifact_hygiene.py"),
@@ -173,7 +174,7 @@ def main() -> int:
     print("- status label coherence checked")
     print(
         "- supplemental governance checks "
-        "(structure/readme/translation/staleness/license/artifact/api/spec-boundary/overclaim) checked"
+        "(structure/readme/translation/staleness/semantic/license/artifact/api/spec-boundary/overclaim) checked"
     )
     return 0
 

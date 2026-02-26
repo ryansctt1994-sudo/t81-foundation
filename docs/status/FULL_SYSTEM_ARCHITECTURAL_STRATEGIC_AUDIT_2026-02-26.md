@@ -106,17 +106,15 @@ Architectural drift remains in documentation coherence: some non-normative docs 
 ## 6. Documentation vs Reality
 
 ### Overstatement Map
-- Root README still contains broad phrasing (“eliminates non-determinism of modern floating-point arithmetic”) that is stronger than bounded capability-contract language.
-- Release note language for functional stubs/default float behavior is partially stale relative to current fail-closed + deterministic float profile defaults.
-- Multilingual synchronization is structurally enforced and staleness-gated, but semantic parity remains only partially machine-verifiable.
+- Root README claim language has been normalized to bounded determinism scope.
+- Release-note caveat language has been updated to current fail-closed/runtime-profile behavior.
+- Multilingual synchronization is now structurally, staleness, and root semantic-alignment checked in CI; deep full-text equivalence remains Indeterminate.
 
 ### Documentation Credibility Score
 **8.0 / 10**
 
 ### Required Corrections
-1. Normalize top-level README language to explicit DCP/registry-bounded guarantees.
-2. Update release note caveats to current fail-closed opcode behavior and strict-float default profile.
-3. Extend multilingual checks from token/date structure toward semantic diff quality (currently Indeterminate).
+1. Extend multilingual semantic checks beyond root README markers to broader section-level parity (currently Indeterminate).
 
 ---
 

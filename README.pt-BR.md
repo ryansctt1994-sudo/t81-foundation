@@ -23,7 +23,7 @@
 
 ---
 
-T81 é uma pilha de computação soberana projetada para eliminar o não-determinismo de ponto flutuante e permitir execução totalmente auditável. Aproveitando **lógica ternária balanceada** e **tipos de dados base-81**, o T81 busca reprodutibilidade bit-exata em superfícies verificadas e delimitadas pelo registro de determinismo. Possui a **T81VM**, o **motor de segurança Axion** e um sistema de níveis recursivos para escalar desde lógica simbólica simples até formas infinitas distribuídas.
+T81 é uma pilha de computação soberana projetada para reduzir o não-determinismo de ponto flutuante e permitir execução totalmente auditável em superfícies verificadas. Aproveitando **lógica ternária balanceada** e **tipos de dados base-81**, o T81 busca reprodutibilidade bit-exata em superfícies verificadas e delimitadas pelo registro de determinismo. Possui a **T81VM**, o **motor de segurança Axion** e um sistema de níveis recursivos para escalar desde lógica simbólica simples até formas infinitas distribuídas.
 
 > 💡 **Por que importa:** Em segurança de IA, modelagem financeira e criptografia, "quase correto" não é suficiente. T81 prioriza garantias determinísticas explícitas em superfícies verificadas.
 

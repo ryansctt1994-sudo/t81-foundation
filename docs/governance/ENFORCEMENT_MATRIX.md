@@ -31,6 +31,7 @@ This document translates high-level governance policies into machine-verifiable 
 | **README Naming Convention** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_readme_naming.py` |
 | **Translation Metadata Headers** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_translation_metadata.py` |
 | **Staleness Threshold** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_translation_staleness.py` (`>10` canonical commits or `>30` days behind English) |
+| **Translation Semantic Alignment (Root READMEs)** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_translation_semantic_alignment.py` |
 
 ## Policy: Dependency & Hygiene
 
