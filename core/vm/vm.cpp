@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include <functional>
 #include <limits>
 #include <locale>
@@ -4814,8 +4816,16 @@ private:
   }
 
   void push_axion_event(const AxionEvent& event) {
-    std::cerr << "[VM] push_axion_event: opcode=" << static_cast<int>(event.opcode) << " reason=\""
-              << event.verdict.reason << "\"\n";
+    static const bool log_to_stderr = []() {
+      if (const char* v = std::getenv("T81_VM_AXION_EVENT_STDERR")) {
+        return std::strcmp(v, "0") != 0;
+      }
+      return false;
+    }();
+    if (log_to_stderr) {
+      std::cerr << "[VM] push_axion_event: opcode=" << static_cast<int>(event.opcode)
+                << " reason=\"" << event.verdict.reason << "\"\n";
+    }
     state_.axion_log.push_back(event);
   }
 

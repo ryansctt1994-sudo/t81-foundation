@@ -14,6 +14,7 @@
 #include <sstream>
 #include <cmath>
 #include <cctype>
+#include <cstdlib>
 
 struct BenchmarkResult {
     std::string name;
@@ -727,7 +728,17 @@ public:
 
 void GenerateMarkdownReport();
 
+static void ConfigureBenchmarkTrapLogging() {
+    if (std::getenv("T81_AXION_TRAP_STDERR") != nullptr) return;
+#ifdef _WIN32
+    _putenv_s("T81_AXION_TRAP_STDERR", "0");
+#else
+    setenv("T81_AXION_TRAP_STDERR", "0", 0);
+#endif
+}
+
 int main(int argc, char** argv) {
+    ConfigureBenchmarkTrapLogging();
     ::benchmark::Initialize(&argc, argv);
     if (::benchmark::ReportUnrecognizedArguments(argc, argv)) return 1;
 
