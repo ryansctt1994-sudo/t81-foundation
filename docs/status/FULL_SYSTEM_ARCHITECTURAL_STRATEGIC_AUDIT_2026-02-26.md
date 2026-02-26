@@ -130,7 +130,7 @@ Then reconcile encoding/register semantics into one normative source.
 
 ### 7.1 Findings
 - Build/test matrix is broad and active; local CTest inventory shows 254 tests.
-- Static analysis scope in CI is narrowed to `src/**` compile units, omitting large implementation domains.
+- Static analysis scope in CI has been expanded beyond `src/**` to include `core/**`, `kernel/**`, `runtime/**`, and `lang/**`; coverage is improved but still not full-repo exhaustive.
 - Governance enforcement matrix references many missing scripts/checks.
 - Workflow action pinning now passes strict thresholds (`tagged=0`, `unknown=0`) after SHA pinning remediation.
 
@@ -252,6 +252,14 @@ Then make CI fail on any doc/status/translation drift from that contract.
 
 ### 2026-02-26 (R13)
 - Updated `docs/governance/ENFORCEMENT_MATRIX.md` with a machine-verifiable hard-fail rule for unimplemented privileged opcode fail-closed behavior, mapped to `build-and-test` via `tests/cpp/vm_stubbed_privileged_opcode_fail_closed_test.cpp`.
+
+### 2026-02-26 (R14)
+- Expanded CI static-analysis (`clang-tidy`) compile-unit scope in `.github/workflows/ci.yml` from `src/**` only to include:
+  - `core/**`
+  - `kernel/**`
+  - `runtime/**`
+  - `lang/**`
+- Expanded clang-tidy header filter accordingly (`include/t81|core|kernel|runtime|lang`) to improve analyzer coverage for non-`src` implementation surfaces.
 
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
