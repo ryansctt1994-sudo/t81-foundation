@@ -6,7 +6,7 @@ Scope: `/src`, `/include`, `/spec`, `/docs`, `/book`, CI workflows, governance, 
 ## Executive Summary
 This repository is a substantial, working deterministic-runtime codebase with strong test/CI investment. Core pipeline elements are implemented (frontend, ISA encoding, VM interpreter, Axion engine, CanonFS, reproducibility gates), and representative determinism tests plus both repro gates were validated locally (`t81lang` and `t3k`) as passing.
 
-The highest previously identified remediation gaps (spec/impl contradictions, documentation over-claims, workflow pinning drift, and permissive stub opcode behavior) were closed in this remediation cycle with linked test/governance evidence. Residual risk is concentrated in strategic hardening areas (host-dependent float/tensor behavior, partial cognitive-tier semantics, and incomplete machine-enforcement for some governance policies).
+The highest previously identified remediation gaps (spec/impl contradictions, documentation over-claims, workflow pinning drift, permissive stub opcode behavior, and translation staleness machine-enforcement) were closed in this remediation cycle with linked test/governance evidence. Residual risk is concentrated in strategic hardening areas (host-dependent float/tensor behavior, experimental-surface promotion discipline, and remaining warning-level governance rows).
 
 Determinism is defensible only for explicitly bounded surfaces and only with caveats already present in some governance docs. The strategic position is best classified as a **Deterministic Runtime Candidate** (not pre-production infrastructure). If development stopped today, it would be remembered as a serious deterministic-systems research platform with unusually strong implementation depth, but inconsistent assurance posture.
 
@@ -106,7 +106,7 @@ Then reconcile encoding/register semantics into one normative source.
 | Risk Classification | Medium-High |
 
 ### 5.3 Missing Enforcement Surfaces
-- Remaining hardening for broader cognitive-tier semantic completeness surfaces (beyond fail-closed guardrails already added).
+- No immediate cognitive-tier closure gaps are open in the 2026-02-26 compliance pass; remaining tier risk is governance posture and promotion evidence for still-experimental surfaces.
 - Full sync between governance matrix and actual CI-enforced checks remains in progress, with major structure/license/artifact rows now promoted to machine-verifiable checks.
 
 ## 6. Documentation vs Reality
@@ -123,7 +123,7 @@ Then reconcile encoding/register semantics into one normative source.
 
 ### 6.3 Required Corrections
 1. Continue normalization of legacy/archival docs that retain stronger historical sandbox wording.
-2. Continue cognitive-tier semantic hardening where behavior is implemented but not yet assurance-complete.
+2. Maintain evidence-backed promotion discipline for cognitive-tier surfaces that remain experimental/non-DCP.
 
 ## 7. Code Quality & Engineering Discipline
 
@@ -154,7 +154,7 @@ Refactor priority ranking:
 ### 8.2 Why
 - Real implementation depth and strong automated validation.
 - Determinism controls are operational on important slices.
-- Residual bounded-surface and cognitive-tier semantic gaps still block pre-production classification.
+- Residual bounded-surface guarantees and experimental-surface promotion governance still block pre-production classification.
 
 ### 8.3 If Development Stopped Today
 A technically serious deterministic-compute research/runtime candidate with strong artifacts and tests, remembered for both depth and unresolved assurance-coherence gaps.
@@ -163,7 +163,7 @@ A technically serious deterministic-compute research/runtime candidate with stro
 
 ### 9.1 Most Serious Structural Risks (Top 5)
 1. Host-dependent float/tensor behavior outside fully provable cross-platform bit identity.
-2. Partial cognitive-tier semantic completeness (implemented surfaces vs assurance depth).
+2. Experimental cognitive-tier surfaces are not yet promoted to verified/non-experimental status.
 3. Governance enforcement debt for warning-only policy rows lacking machine checks.
 4. Trace-mode policy granularity remains boundary-based rather than full per-op trace-internal checks.
 5. Legacy/archival document drift risk reintroducing stronger-than-implemented claims.
@@ -342,6 +342,9 @@ Then make CI fail on any doc/status/translation drift from that contract.
   - `docs/how-to/systems-integration-agi.md`
 - Added explicit capability-boundary note in AGI integration guidance to anchor all claims to `docs/reference/CAPABILITY_CONTRACT.md`.
 - Corrected AGI integration register-window wording to the architectural `R0–R80` contract and removed present-tense distributed-network capability wording where implementation remains partial/fail-closed.
+
+### 2026-02-26 (R28)
+- Reconciled audit residual-risk language with current cognitive-tier compliance evidence (`docs/status/COGNITIVE_TIERS_SPEC_COMPLIANCE_2026-02-26.md`), replacing "open semantic closure gaps" wording with the current governance reality: experimental/non-DCP promotion discipline.
 
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
