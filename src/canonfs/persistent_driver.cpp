@@ -1,7 +1,7 @@
 #include "t81/canonfs/canon_driver.hpp"
 
-#include <cstddef>
 #include <cerrno>
+#include <cstddef>
 #include <filesystem>
 #include <fstream>
 #include <istream>

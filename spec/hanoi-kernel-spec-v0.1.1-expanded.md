@@ -198,10 +198,11 @@ A capability is a tuple:
 - **Scope Violation**: Passing a capability outside its allowed scope triggers an Axion veto.
 
 ### Example Usage
-```rust
+```cpp
 // Grant read access to a specific block
-let read_cap = kernel.grant_cap(target_block, PERM_READ)?;
-process.send(recipient_pid, read_cap);
+auto read_cap = kernel.grant_cap(target_block, PERM_READ);
+if (!read_cap) return read_cap.error();
+process.send(recipient_pid, *read_cap);
 ```
 
 ## 5.2 CanonFS Driver (Ring 0)
@@ -224,8 +225,8 @@ Writes do not mutate in place; they return a new `SnapshotRef`.
 - **Hash Collision**: Theoretically impossible with CanonHash-81; treated as catastrophic invariant failure (`AXHALT`).
 
 ### Example Usage
-```rust
-let block = canonfs.read_block(file_hash)?;
+```cpp
+auto block = canonfs.read_block(file_hash);
 // Automatically verified and repaired
 ```
 
@@ -278,8 +279,8 @@ Allocations are strictly strictly bump-pointer or COW from CanonFS.
 2. **Isolation**: Processes cannot address memory outside their capability bounds.
 
 ### Example Usage
-```rust
-let region = memory.map_region(canon_ref, PERM_RW)?;
+```cpp
+auto region = memory.map_region(canon_ref, PERM_RW);
 // region is now accessible in process address space
 ```
 
@@ -312,8 +313,8 @@ stateDiagram-v2
 
 ### 6.1 fork_snapshot()
 
-```rust
-fn fork_snapshot() -> Result<SnapshotRef, HanoiError>
+```cpp
+auto fork_snapshot() -> expected<SnapshotRef, HanoiError>
 ```
 Creates a mutable staging area (Copy-On-Write) from the current root. The new root is not yet visible to other processes.
 - **Pre-condition**: Caller has `CAP_SNAPSHOT_CREATE`.
@@ -321,8 +322,8 @@ Creates a mutable staging area (Copy-On-Write) from the current root. The new ro
 
 ### 6.2 commit_snapshot(snapshot)
 
-```rust
-fn commit_snapshot(snapshot: SnapshotRef) -> Result<(), HanoiError>
+```cpp
+auto commit_snapshot(SnapshotRef snapshot) -> expected<void, HanoiError>
 ```
 Finalizes a pending snapshot, calculating the new Merkle root hash and persisting all dirty blocks.
 - **Pre-condition**: `snapshot` is valid and owned by caller.
@@ -331,8 +332,8 @@ Finalizes a pending snapshot, calculating the new Merkle root hash and persistin
 
 ### 6.3 switch_root(snapshot)
 
-```rust
-fn switch_root(snapshot: SnapshotRef) -> Result<(), AxionRejection>
+```cpp
+auto switch_root(SnapshotRef snapshot) -> expected<void, AxionRejection>
 ```
 The atomic transition.
 1. **Suspend**: All userland execution pauses.
@@ -369,183 +370,222 @@ All syscalls use the TISC `syscall` instruction. Arguments are passed in registe
 ### Detailed Specification
 
 #### 0x00: fork_snapshot
-**Signature**: `fork_snapshot() -> Result<SnapshotRef>`
+**Signature**: `fork_snapshot() -> expected<SnapshotRef, HanoiError>`
 - **Args**: None.
 - **Pre-conditions**: `CAP_SNAPSHOT_CREATE`.
 - **Axion Veto**: If snapshot rate exceeds `Θ_RATE_LIMIT`.
 - **Pseudocode**:
-  ```rust
-  fn sys_fork_snapshot() -> Result<SnapshotRef, HanoiError> {
-      let current = fs::get_root();
-      let new_cow = fs::cow_clone(current);
-      Ok(new_cow.handle())
+  ```cpp
+  auto sys_fork_snapshot() -> expected<SnapshotRef, HanoiError> {
+      auto current = fs::get_root();
+      auto new_cow = fs::cow_clone(current);
+      return new_cow.handle();
   }
   ```
 
 #### 0x01: commit_snapshot
-**Signature**: `commit_snapshot(snapshot: SnapshotRef) -> Result<()>`
+**Signature**: `commit_snapshot(snapshot: SnapshotRef) -> expected<void, HanoiError>`
 - **Args**: `snapshot` - Handle to the pending snapshot.
 - **Pre-conditions**: Caller owns `snapshot` and has `CAP_SNAPSHOT_COMMIT`.
 - **Axion Veto**: If merkle root fails verification or dirty blocks contain illegal states.
 - **Pseudocode**:
-  ```rust
-  fn sys_commit_snapshot(handle: SnapshotRef) -> Result<(), HanoiError> {
-      let snap = fs::get_pending(handle)?;
-      axion::verify_integrity(snap)?;
-      fs::persist(snap)?;
-      Ok(())
+  ```cpp
+  auto sys_commit_snapshot(SnapshotRef handle) -> expected<void, HanoiError> {
+      auto snap = fs::get_pending(handle);
+      if (!snap) return unexpected(HanoiError::InvalidHandle);
+
+      if (auto err = axion::verify_integrity(*snap); !err)
+          return unexpected(err.error());
+
+      if (auto res = fs::persist(*snap); !res)
+          return unexpected(res.error());
+
+      return {};
   }
   ```
 
 #### 0x02: switch_root
-**Signature**: `switch_root(snapshot: SnapshotRef) -> Result<()>`
+**Signature**: `switch_root(snapshot: SnapshotRef) -> expected<void, HanoiError>`
 - **Args**: `snapshot` - Handle to a committed snapshot.
 - **Pre-conditions**: `CAP_ROOT_SWITCH`.
 - **Axion Veto**: Strict check. If `snapshot` is not in the canonical lineage or violates `Θ_IMMUTABILITY`.
 - **Pseudocode**:
-  ```rust
-  fn sys_switch_root(handle: SnapshotRef) -> Result<(), HanoiError> {
-      let snap = fs::get_committed(handle)?;
-      axion::approve_transition(current_root(), snap)?;
+  ```cpp
+  auto sys_switch_root(SnapshotRef handle) -> expected<void, HanoiError> {
+      auto snap = fs::get_committed(handle);
+      if (!snap) return unexpected(HanoiError::InvalidHandle);
+
+      if (auto err = axion::approve_transition(current_root(), *snap); !err)
+          return unexpected(err.error());
+
       scheduler::suspend_all();
-      fs::set_root(snap);
+      fs::set_root(*snap);
       scheduler::resume_all();
-      Ok(())
+      return {};
   }
   ```
 
 #### 0x03: spawn
-**Signature**: `spawn(exec: CanonRef) -> Result<Pid>`
+**Signature**: `spawn(exec: CanonRef) -> expected<Pid, HanoiError>`
 - **Args**: `exec` - Hash of the `CanonExec` object.
 - **Pre-conditions**: `CAP_EXEC` for the object.
 - **Axion Veto**: Rejects if recursion depth > limit or violates Θ safety.
 - **Pseudocode**:
-  ```rust
-  fn sys_spawn(exec_ref: CanonRef) -> Result<Pid, HanoiError> {
-      let exec_obj = canonfs::load(exec_ref)?;
-      axion::verify_exec(exec_obj)?;
-      let pid = scheduler::allocate_slot()?;
-      let process = Process::new(pid, exec_obj);
-      scheduler::schedule(process);
-      Ok(pid)
+  ```cpp
+  auto sys_spawn(CanonRef exec_ref) -> expected<Pid, HanoiError> {
+      auto exec_obj = canonfs::load(exec_ref);
+      if (!exec_obj) return unexpected(exec_obj.error());
+
+      if (auto err = axion::verify_exec(*exec_obj); !err)
+          return unexpected(err.error());
+
+      auto pid = scheduler::allocate_slot();
+      if (!pid) return unexpected(pid.error());
+
+      Process process(*pid, *exec_obj);
+      scheduler::schedule(std::move(process));
+      return *pid;
   }
   ```
 
 #### 0x04: read_block
-**Signature**: `read_block(path: CanonRef) -> Result<CanonBlock, CorruptionFixed>`
+**Signature**: `read_block(path: CanonRef) -> expected<CanonBlock, HanoiError>`
 - **Args**: `path` - The content hash to read.
 - **Pre-conditions**: `CAP_READ` for the object scope.
 - **Axion Veto**: None (read-only), unless access pattern violates side-channel protections.
 - **Pseudocode**:
-  ```rust
-  fn sys_read_block(hash: CanonRef) -> Result<CanonBlock, HanoiError> {
-      cap_mgr::check_access(hash, PERM_READ)?;
-      match canonfs::fetch(hash) {
-          Ok(block) => Ok(block),
-          Err(Corrupt) => canonfs::repair(hash),
+  ```cpp
+  auto sys_read_block(CanonRef hash) -> expected<CanonBlock, HanoiError> {
+      if (auto err = cap_mgr::check_access(hash, PERM_READ); !err)
+          return unexpected(err.error());
+
+      auto result = canonfs::fetch(hash);
+      if (!result && result.error() == HanoiError::Corrupt) {
+          return canonfs::repair(hash);
       }
+      return result;
   }
   ```
 
 #### 0x05: read_object
-**Signature**: `read_object(href: CanonRef) -> Result<CanonObject>`
+**Signature**: `read_object(href: CanonRef) -> expected<CanonObject, HanoiError>`
 - **Args**: `href` - Object hash.
 - **Pre-conditions**: `CAP_READ`.
 - **Description**: Like `read_block` but handles objects larger than 729 trytes (reassembly).
 - **Pseudocode**:
-  ```rust
-  fn sys_read_object(hash: CanonRef) -> Result<CanonObject, HanoiError> {
-      let root_block = sys_read_block(hash)?;
-      if root_block.is_multi_part() {
-          canonfs::reassemble(root_block)
+  ```cpp
+  auto sys_read_object(CanonRef hash) -> expected<CanonObject, HanoiError> {
+      auto root_block = sys_read_block(hash);
+      if (!root_block) return unexpected(root_block.error());
+
+      if (root_block->is_multi_part()) {
+          return canonfs::reassemble(*root_block);
       } else {
-          Ok(CanonObject::from(root_block))
+          return CanonObject::from(*root_block);
       }
   }
   ```
 
 #### 0x06: grant_cap
-**Signature**: `grant_cap(cap: Capability) -> Result<CanonRef>`
+**Signature**: `grant_cap(cap: Capability) -> expected<CanonRef, HanoiError>`
 - **Args**: `cap` - The capability structure to grant.
 - **Pre-conditions**: Caller must hold `CAP_GRANT` on the target object.
 - **Axion Veto**: If granting exceeds scope or creates circular trust violation.
 - **Pseudocode**:
-  ```rust
-  fn sys_grant_cap(cap: Capability) -> Result<CanonRef, HanoiError> {
-      cap_mgr::verify_ownership(current_pid(), cap.object)?;
-      axion::verify_delegation(cap)?;
-      let signed_cap = cap_mgr::sign(cap);
-      canonfs::store(signed_cap)
+  ```cpp
+  auto sys_grant_cap(Capability cap) -> expected<CanonRef, HanoiError> {
+      if (auto err = cap_mgr::verify_ownership(current_pid(), cap.object); !err)
+          return unexpected(err.error());
+
+      if (auto err = axion::verify_delegation(cap); !err)
+          return unexpected(err.error());
+
+      auto signed_cap = cap_mgr::sign(cap);
+      return canonfs::store(signed_cap);
   }
   ```
 
 #### 0x07: revoke_cap
-**Signature**: `revoke_cap(href: CanonRef) -> Result<()>`
+**Signature**: `revoke_cap(href: CanonRef) -> expected<void, HanoiError>`
 - **Args**: `href` - Hash of the capability to revoke.
 - **Pre-conditions**: Caller is the granter of the capability.
 - **Axion Veto**: None.
 - **Pseudocode**:
-  ```rust
-  fn sys_revoke_cap(cap_hash: CanonRef) -> Result<(), HanoiError> {
-      cap_mgr::verify_granter(current_pid(), cap_hash)?;
+  ```cpp
+  auto sys_revoke_cap(CanonRef cap_hash) -> expected<void, HanoiError> {
+      if (auto err = cap_mgr::verify_granter(current_pid(), cap_hash); !err)
+          return unexpected(err.error());
+
       cap_mgr::emit_revocation_tombstone(cap_hash);
-      Ok(())
+      return {};
   }
   ```
 
 #### 0x08: yield_tick
-**Signature**: `yield_tick() -> ()`
+**Signature**: `yield_tick() -> void`
 - **Args**: None.
 - **Description**: Voluntarily relinquishes the remainder of the process's time quantum.
 - **Pseudocode**:
-  ```rust
-  fn sys_yield() {
+  ```cpp
+  void sys_yield() {
       scheduler::current_process().tick_budget = 0;
       scheduler::schedule_next();
   }
   ```
 
 #### 0x09: map_region
-**Signature**: `map_region(href: CanonRef) -> Result<RegionHandle>`
+**Signature**: `map_region(href: CanonRef) -> expected<RegionHandle, HanoiError>`
 - **Args**: `href` - Object to map into address space.
 - **Pre-conditions**: `CAP_READ` (and `CAP_WRITE` if COW).
 - **Axion Veto**: If region overlaps reserved memory or exceeds total memory budget.
 - **Pseudocode**:
-  ```rust
-  fn sys_map_region(hash: CanonRef) -> Result<RegionHandle, HanoiError> {
-      let size = canonfs::get_size(hash)?;
-      mem_mgr::check_budget(current_pid(), size)?;
-      let vaddr = mem_mgr::find_free_range(size)?;
-      mem_mgr::map(vaddr, hash);
-      Ok(vaddr)
+  ```cpp
+  auto sys_map_region(CanonRef hash) -> expected<RegionHandle, HanoiError> {
+      auto size = canonfs::get_size(hash);
+      if (!size) return unexpected(size.error());
+
+      if (auto err = mem_mgr::check_budget(current_pid(), *size); !err)
+          return unexpected(err.error());
+
+      auto vaddr = mem_mgr::find_free_range(*size);
+      if (!vaddr) return unexpected(vaddr.error());
+
+      mem_mgr::map(*vaddr, hash);
+      return *vaddr;
   }
   ```
 
 #### 0x0A: seal_object
-**Signature**: `seal_object(href: CanonRef) -> Result<CanonRef>`
+**Signature**: `seal_object(href: CanonRef) -> expected<CanonRef, HanoiError>`
 - **Args**: `href` - Object to seal.
 - **Description**: Encrypts the object using a key derived from the current snapshot and the object's identity.
 - **Pseudocode**:
-  ```rust
-  fn sys_seal_object(href: CanonRef) -> Result<CanonRef, HanoiError> {
-      let obj = canonfs::get(href)?;
-      let key = kdf::derive_seal_key(href, current_snapshot_hash());
-      let sealed = crypto::aead_seal(key, obj);
-      canonfs::store(sealed)
+  ```cpp
+  auto sys_seal_object(CanonRef href) -> expected<CanonRef, HanoiError> {
+      auto obj = canonfs::get(href);
+      if (!obj) return unexpected(obj.error());
+
+      auto key = kdf::derive_seal_key(href, current_snapshot_hash());
+      auto sealed = crypto::aead_seal(key, *obj);
+      return canonfs::store(sealed);
   }
   ```
 
 #### 0x0B: unseal_object
-**Signature**: `unseal_object(href: CanonRef) -> Result<CanonRef>`
+**Signature**: `unseal_object(href: CanonRef) -> expected<CanonRef, HanoiError>`
 - **Args**: `href` - Sealed object hash.
 - **Pre-conditions**: Caller must have the capability used to seal it (or a derived delegation).
 - **Pseudocode**:
-  ```rust
-  fn sys_unseal_object(href: CanonRef) -> Result<CanonRef, HanoiError> {
-      let sealed = canonfs::get(href)?;
-      let key = kdf::derive_seal_key(sealed.identity, current_snapshot_hash());
-      let plain = crypto::aead_open(key, sealed)?;
-      canonfs::store(plain)
+  ```cpp
+  auto sys_unseal_object(CanonRef href) -> expected<CanonRef, HanoiError> {
+      auto sealed = canonfs::get(href);
+      if (!sealed) return unexpected(sealed.error());
+
+      auto key = kdf::derive_seal_key(sealed->identity, current_snapshot_hash());
+      auto plain = crypto::aead_open(key, *sealed);
+      if (!plain) return unexpected(plain.error());
+
+      return canonfs::store(*plain);
   }
   ```
 
@@ -554,25 +594,28 @@ All syscalls use the TISC `syscall` instruction. Arguments are passed in registe
 - **Args**: None.
 - **Description**: Returns 81 trytes of entropy.
 - **Pseudocode**:
-  ```rust
-  fn sys_drbg() -> [Tryte; 81] {
-      crypto::drbg_next(current_pid())
+  ```cpp
+  auto sys_drbg() -> std::array<Tryte, 81> {
+      return crypto::drbg_next(current_pid());
   }
   ```
 
 #### 0x0D: parity_repair
-**Signature**: `parity_repair(root: CanonRef) -> Result<()>`
+**Signature**: `parity_repair(root: CanonRef) -> expected<void, HanoiError>`
 - **Args**: `root` - Root of the subtree to repair.
 - **Description**: Manually triggers parity reconstruction for a damaged tree.
 - **Pseudocode**:
-  ```rust
-  fn sys_parity_repair(root: CanonRef) -> Result<(), HanoiError> {
-      let tree = canonfs::walk(root);
-      if tree.is_damaged() {
-          let parity = canonfs::fetch_parity(root)?;
-          reedsolomon::reconstruct(tree, parity)?;
+  ```cpp
+  auto sys_parity_repair(CanonRef root) -> expected<void, HanoiError> {
+      auto tree = canonfs::walk(root);
+      if (tree.is_damaged()) {
+          auto parity = canonfs::fetch_parity(root);
+          if (!parity) return unexpected(parity.error());
+
+          if (auto err = reedsolomon::reconstruct(tree, *parity); !err)
+              return unexpected(err.error());
       }
-      Ok(())
+      return {};
   }
   ```
 
@@ -581,12 +624,12 @@ All syscalls use the TISC `syscall` instruction. Arguments are passed in registe
 - **Args**: `reason` - Status code.
 - **Description**: Terminates the process. If PID 1 halts, the system halts.
 - **Pseudocode**:
-  ```rust
-  fn sys_halt(reason: Tryte) -> ! {
-      let pid = current_pid();
+  ```cpp
+  [[noreturn]] void sys_halt(Tryte reason) {
+      auto pid = current_pid();
       scheduler::terminate(pid, reason);
-      if pid == 1 {
-          kernel::panic!("System Halted: {:?}", reason);
+      if (pid == 1) {
+          kernel::panic("System Halted: {}", reason);
       }
       scheduler::schedule_next();
   }
@@ -703,15 +746,15 @@ ______________________________________________________________________
 
 ## 10.1 Process Model
 
-```rust
+```cpp
 struct Process {
-    pid: Pid,               // Tryte identifier
-    exec: CanonRef,         // Code reference
-    region: RegionHandle,   // Memory map
-    caps: CapabilitySet,    // Held capabilities
-    pc: TISC_Addr,          // Program counter
-    tick_budget: u8         // Remaining ticks in quantum
-}
+    Pid pid;                 // Tryte identifier
+    CanonRef exec;           // Code reference
+    RegionHandle region;     // Memory map
+    CapabilitySet caps;      // Held capabilities
+    TISC_Addr pc;            // Program counter
+    uint8_t tick_budget;     // Remaining ticks in quantum
+};
 ```
 
 ## 10.2 Memory Layout
@@ -807,38 +850,56 @@ graph LR
 
 ______________________________________________________________________
 
-# 12. Reference Implementation Scaffold — hanoi-rs
+# 12. Reference Implementation Scaffold — hanoi-cpp
 
-The reference implementation structure follows a clean separation of concerns.
+The reference implementation structure follows a clean separation of concerns, adhering to modern C++20 standards.
 
 ```
-hanoi-rs/
-├── Cargo.toml
+hanoi-cpp/
+├── CMakeLists.txt
 ├── src/
-│    ├── main.rs
+│    ├── main.cpp
 │    ├── kernel/
-│    │     ├── boot.rs
-│    │     ├── scheduler.rs
-│    │     ├── capability.rs
-│    │     ├── canonfs.rs
-│    │     ├── memory.rs
-│    │     ├── syscall.rs
-│    │     ├── axion.rs
-│    │     └── error.rs
+│    │     ├── boot.cpp
+│    │     ├── scheduler.cpp
+│    │     ├── capability.cpp
+│    │     ├── canonfs.cpp
+│    │     ├── memory.cpp
+│    │     ├── syscall.cpp
+│    │     ├── axion.cpp
+│    │     └── error.cpp
 │    ├── tisc/
-│    │     ├── execution.rs
-│    │     ├── registers.rs
-│    │     └── decoder.rs
+│    │     ├── execution.cpp
+│    │     ├── registers.cpp
+│    │     └── decoder.cpp
 │    ├── drivers/
 │    └── utils/
-│          ├── base81.rs
-│          ├── tryte.rs
-│          └── parity.rs
+│          ├── base81.cpp
+│          ├── tryte.cpp
+│          └── parity.cpp
+├── include/
+│    ├── kernel/
+│    │     ├── boot.hpp
+│    │     ├── scheduler.hpp
+│    │     ├── capability.hpp
+│    │     ├── canonfs.hpp
+│    │     ├── memory.hpp
+│    │     ├── syscall.hpp
+│    │     ├── axion.hpp
+│    │     └── error.hpp
+│    ├── tisc/
+│    │     ├── execution.hpp
+│    │     ├── registers.hpp
+│    │     └── decoder.hpp
+│    └── utils/
+│          ├── base81.hpp
+│          ├── tryte.hpp
+│          └── parity.hpp
 ├── tests/
-│    ├── boot.rs
-│    ├── syscall.rs
-│    ├── canonfs.rs
-│    └── axion.rs
+│    ├── boot_test.cpp
+│    ├── syscall_test.cpp
+│    ├── canonfs_test.cpp
+│    └── axion_test.cpp
 └── README.md
 ```
 
@@ -937,230 +998,241 @@ ______________________________________________________________________
 
 # 18. Complete Reference Implementation Scaffold
 
-The following Rust modules constitute the core logic of `hanoi-rs`.
+The following C++20 modules constitute the core logic of `hanoi-cpp`.
 
-### `src/main.rs`
-```rust
-mod kernel;
-mod tisc;
-mod utils;
+### `src/main.cpp`
+```cpp
+#include <iostream>
+#include "kernel/boot.hpp"
+#include "kernel/scheduler.hpp"
 
-use kernel::boot;
+int main() {
+    std::cout << "Hanoi Kernel v0.1.1 - Boot Sequence Initiated" << std::endl;
 
-fn main() -> Result<(), kernel::error::HanoiError> {
-    println!("Hanoi Kernel v0.1.1 - Boot Sequence Initiated");
+    auto system = hanoi::kernel::boot::sequence();
+    if (!system) {
+        std::cerr << "Boot Failed" << std::endl;
+        return 1;
+    }
 
-    // Stage 0-7: Boot Sequence
-    let system = boot::sequence()?;
-
-    println!("Boot Complete. Root Snapshot: {:?}", system.root_hash);
+    std::cout << "Boot Complete. Root Snapshot: " << system->root_hash << std::endl;
 
     // Handover to scheduler
-    kernel::scheduler::run_loop(system)
+    hanoi::kernel::scheduler::run_loop(*system);
+    return 0;
 }
 ```
 
-### `src/kernel/boot.rs`
-```rust
-use super::error::HanoiError;
-use crate::utils::base81::CanonHash;
+### `include/kernel/boot.hpp`
+```cpp
+#pragma once
+#include <expected>
+#include "utils/base81.hpp"
+#include "kernel/error.hpp"
 
-pub struct SystemState {
-    pub root_hash: CanonHash,
+namespace hanoi::kernel::boot {
+
+struct SystemState {
+    utils::CanonHash root_hash;
     // ... other state
-}
+};
 
-pub fn sequence() -> Result<SystemState, HanoiError> {
+auto sequence() -> std::expected<SystemState, Error>;
+
+} // namespace hanoi::kernel::boot
+```
+
+### `src/kernel/boot.cpp`
+```cpp
+#include "kernel/boot.hpp"
+#include "kernel/axion.hpp"
+#include "kernel/canonfs.hpp"
+
+namespace hanoi::kernel::boot {
+
+auto sequence() -> std::expected<SystemState, Error> {
     // Stage 0: ROM Stub
-    let block = load_rom_stub()?;
+    auto block = canonfs::load_rom_stub();
+    if (!block) return std::unexpected(block.error());
 
     // Stage 1: CanonVerify
-    verify_block(&block)?;
+    // verify_block(*block);
 
     // Stage 3: AxionSeal
-    crate::kernel::axion::init()?;
+    if (auto err = axion::init(); !err) return std::unexpected(err.error());
 
-    Ok(SystemState { root_hash: block.hash() })
+    return SystemState{ .root_hash = block->hash() };
 }
 
-fn load_rom_stub() -> Result<crate::kernel::canonfs::Block, HanoiError> {
-    Ok(crate::kernel::canonfs::Block::default()) // Stub
-}
-
-fn verify_block(_b: &crate::kernel::canonfs::Block) -> Result<(), HanoiError> {
-    Ok(()) // Stub
-}
+} // namespace hanoi::kernel::boot
 ```
 
-### `src/kernel/scheduler.rs`
-```rust
-use super::error::HanoiError;
-use super::boot::SystemState;
+### `src/kernel/scheduler.cpp`
+```cpp
+#include "kernel/scheduler.hpp"
 
-pub fn run_loop(state: SystemState) -> Result<(), HanoiError> {
-    let mut tick: u64 = 0;
-    loop {
+namespace hanoi::kernel::scheduler {
+
+auto run_loop(boot::SystemState& state) -> void {
+    uint64_t tick = 0;
+    while (true) {
         // 81-slot round robin
-        let slot = tick % 81;
+        uint64_t slot = tick % 81;
 
         // Dispatch process in slot
         // ...
 
-        tick += 1;
-        if tick > 1_000_000 { break; } // Safety break for test
+        tick++;
+        if (tick > 1'000'000) break; // Safety break
     }
-    Ok(())
 }
 
-pub fn schedule_next() {
-    // Context switch logic
+auto allocate_slot() -> std::expected<uint64_t, Error> {
+    return 1; // Stub PID
 }
 
-pub fn allocate_slot() -> Result<u64, HanoiError> {
-    Ok(1) // Stub PID
-}
+} // namespace hanoi::kernel::scheduler
 ```
 
-### `src/kernel/capability.rs`
-```rust
-use crate::utils::base81::CanonHash;
+### `include/kernel/capability.hpp`
+```cpp
+#pragma once
+#include <unordered_map>
+#include "utils/base81.hpp"
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Capability {
-    pub object: CanonHash,
-    pub permissions: u16,
-    pub scope: u8,
-}
+namespace hanoi::kernel::capability {
 
-pub struct CapManager {
-    caps: std::collections::HashMap<u64, Capability>,
-}
+struct Capability {
+    utils::CanonHash object;
+    uint16_t permissions;
+    uint8_t scope;
+};
 
-impl CapManager {
-    pub fn new() -> Self {
-        Self { caps: std::collections::HashMap::new() }
-    }
+class CapManager {
+public:
+    CapManager() = default;
 
-    pub fn verify(&self, handle: u64, target: CanonHash, required_perm: u16) -> bool {
-        if let Some(cap) = self.caps.get(&handle) {
-            cap.object == target && (cap.permissions & required_perm) == required_perm
-        } else {
-            false
+    bool verify(uint64_t handle, const utils::CanonHash& target, uint16_t required_perm) const {
+        if (auto it = caps_.find(handle); it != caps_.end()) {
+            return it->second.object == target &&
+                   (it->second.permissions & required_perm) == required_perm;
         }
+        return false;
     }
-}
+
+private:
+    std::unordered_map<uint64_t, Capability> caps_;
+};
+
+} // namespace hanoi::kernel::capability
 ```
 
-### `src/kernel/canonfs.rs`
-```rust
-use super::error::HanoiError;
-use crate::utils::base81::CanonHash;
+### `include/kernel/canonfs.hpp`
+```cpp
+#pragma once
+#include <array>
+#include <expected>
+#include "utils/base81.hpp"
+#include "kernel/error.hpp"
 
-#[derive(Default, Clone)]
-pub struct Block {
-    pub data: [i8; 729], // Trytes
-}
+namespace hanoi::kernel::canonfs {
 
-impl Block {
-    pub fn hash(&self) -> CanonHash {
-        CanonHash::default()
-    }
-}
+struct Block {
+    std::array<int8_t, 729> data; // Trytes
 
-pub fn get_root() -> CanonHash {
-    CanonHash::default()
-}
+    auto hash() const -> utils::CanonHash;
+};
 
-pub fn fetch(_hash: CanonHash) -> Result<Block, HanoiError> {
-    Ok(Block::default())
-}
+auto get_root() -> utils::CanonHash;
+auto fetch(utils::CanonHash hash) -> std::expected<Block, Error>;
+auto store(const Block& block) -> std::expected<utils::CanonHash, Error>;
+auto load_rom_stub() -> std::expected<Block, Error>;
 
-pub fn store(_block: Block) -> Result<CanonHash, HanoiError> {
-    Ok(CanonHash::default())
-}
+} // namespace hanoi::kernel::canonfs
 ```
 
-### `src/kernel/memory.rs`
-```rust
-use super::error::HanoiError;
-use crate::utils::base81::CanonHash;
+### `src/kernel/memory.cpp`
+```cpp
+#include "kernel/memory.hpp"
 
-pub struct Page {
-    pub content: CanonHash,
-    pub perms: u8,
+namespace hanoi::kernel::memory {
+
+auto map_region(utils::CanonHash hash, uint8_t perms) -> std::expected<uint64_t, Error> {
+    return 0x1000; // Stub vaddr
 }
 
-pub struct MemoryManager {
-    pages: Vec<Page>,
-}
-
-pub fn map_region(_hash: CanonHash, _perms: u8) -> Result<u64, HanoiError> {
-    Ok(0x1000) // Stub vaddr
-}
+} // namespace hanoi::kernel::memory
 ```
 
-### `src/kernel/syscall.rs`
-```rust
-use super::error::HanoiError;
-use super::capability::CapManager;
-use super::axion::AxionCoProcessor;
+### `src/kernel/syscall.cpp`
+```cpp
+#include "kernel/syscall.hpp"
 
-pub fn dispatch(
-    op: u8,
-    args: &[u64],
-    _caps: &CapManager,
-    axion: &AxionCoProcessor
-) -> Result<u64, HanoiError> {
+namespace hanoi::kernel::syscall {
+
+auto dispatch(
+    uint8_t op,
+    std::span<const uint64_t> args,
+    const capability::CapManager& caps,
+    const axion::AxionCoProcessor& axion
+) -> std::expected<uint64_t, Error> {
 
     // 1. Axion Verify
-    axion.verify_syscall(op, args)?;
+    if (auto err = axion.verify_syscall(op, args); !err)
+        return std::unexpected(err.error());
 
     // 2. Dispatch
-    match op {
-        0x00 => sys_fork_snapshot(),
-        0x08 => sys_yield(),
-        0x0E => sys_halt(args[0]),
-        _ => Err(HanoiError::InvalidSyscall),
+    switch (op) {
+        case 0x00: return sys_fork_snapshot();
+        case 0x08: sys_yield(); return 0;
+        case 0x0E: sys_halt(args[0]);
+        default: return std::unexpected(Error::InvalidSyscall);
     }
 }
 
-fn sys_fork_snapshot() -> Result<u64, HanoiError> {
-    Ok(0)
+auto sys_fork_snapshot() -> std::expected<uint64_t, Error> {
+    return 0;
 }
 
-fn sys_yield() -> Result<u64, HanoiError> {
-    Ok(0)
+void sys_yield() {}
+
+[[noreturn]] void sys_halt(uint64_t reason) {
+    std::terminate();
 }
 
-fn sys_halt(_reason: u64) -> ! {
-    panic!("HALT SYSCALL");
-}
+} // namespace hanoi::kernel::syscall
 ```
 
-### `src/kernel/axion.rs`
-```rust
-use crate::kernel::error::HanoiError;
+### `include/kernel/axion.hpp`
+```cpp
+#pragma once
+#include <expected>
+#include <span>
+#include "kernel/error.hpp"
 
-pub struct AxionCoProcessor;
+namespace hanoi::kernel::axion {
 
-impl AxionCoProcessor {
-    pub fn init() -> Result<(), HanoiError> {
-        Ok(())
+class AxionCoProcessor {
+public:
+    static auto init() -> std::expected<void, Error> { return {}; }
+
+    auto verify_syscall(uint8_t op, std::span<const uint64_t> args) const
+        -> std::expected<void, Error> {
+        if (op == 0xFF) return std::unexpected(Error::AxionRejection);
+        return {};
     }
+};
 
-    pub fn verify_syscall(&self, op: u8, _args: &[u64]) -> Result<(), HanoiError> {
-        if op == 0xFF {
-            return Err(HanoiError::AxionRejection);
-        }
-        Ok(())
-    }
-}
+} // namespace hanoi::kernel::axion
 ```
 
-### `src/kernel/error.rs`
-```rust
-#[derive(Debug)]
-pub enum HanoiError {
+### `include/kernel/error.hpp`
+```cpp
+#pragma once
+
+namespace hanoi::kernel {
+
+enum class Error {
     AxionRejection,
     CapabilityMissing,
     CapabilityRevoked,
@@ -1168,90 +1240,113 @@ pub enum HanoiError {
     CanonMismatch,
     InvalidSyscall,
     OutOfMemory,
-}
+    InvalidHandle
+};
+
+} // namespace hanoi::kernel
 ```
 
-### `src/tisc/execution.rs`
-```rust
-use crate::utils::tryte::Tryte;
+### `src/tisc/execution.cpp`
+```cpp
+#include "tisc/execution.hpp"
 
-pub struct Engine {
-    pub pc: u64,
-    pub regs: [Tryte; 9],
+namespace hanoi::tisc {
+
+void Engine::step() {
+    pc_++;
 }
 
-impl Engine {
-    pub fn step(&mut self) {
-        self.pc += 1;
-    }
-}
+} // namespace hanoi::tisc
 ```
 
-### `src/tisc/registers.rs`
-```rust
-use crate::utils::tryte::Tryte;
+### `include/tisc/registers.hpp`
+```cpp
+#pragma once
+#include <array>
+#include "utils/tryte.hpp"
 
-pub enum Register {
+namespace hanoi::tisc {
+
+enum class Register {
     R0, R1, R2, R3, R4, R5, R6, R7, R8,
     SP, FP, PC, CR, TR
-}
+};
 
-pub struct RegisterFile {
-    pub gpr: [Tryte; 9],
-    pub sp: u64,
-}
+struct RegisterFile {
+    std::array<utils::Tryte, 9> gpr;
+    uint64_t sp;
+};
+
+} // namespace hanoi::tisc
 ```
 
-### `src/tisc/decoder.rs`
-```rust
-pub enum Opcode {
-    Nop,
-    Add,
-    Mov,
-    Syscall
-}
+### `src/tisc/decoder.cpp`
+```cpp
+#include "tisc/decoder.hpp"
 
-pub fn decode(word: u32) -> Opcode {
-    match word {
-        0 => Opcode::Nop,
-        1 => Opcode::Add,
-        _ => Opcode::Syscall,
+namespace hanoi::tisc {
+
+auto decode(uint32_t word) -> Opcode {
+    switch (word) {
+        case 0: return Opcode::Nop;
+        case 1: return Opcode::Add;
+        default: return Opcode::Syscall;
     }
 }
+
+} // namespace hanoi::tisc
 ```
 
-### `src/utils/base81.rs`
-```rust
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub struct CanonHash([u8; 81]);
+### `include/utils/base81.hpp`
+```cpp
+#pragma once
+#include <array>
+#include <iostream>
 
-impl CanonHash {
-    pub fn new(data: &[u8]) -> Self {
-        CanonHash([0; 81]) // Stub
-    }
+namespace hanoi::utils {
+
+struct CanonHash {
+    std::array<uint8_t, 81> data;
+
+    bool operator==(const CanonHash& other) const = default;
+};
+
+inline std::ostream& operator<<(std::ostream& os, const CanonHash& h) {
+    return os << "CanonHash(...)";
 }
+
+} // namespace hanoi::utils
 ```
 
-### `src/utils/tryte.rs`
-```rust
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Tryte(pub i8);
+### `include/utils/tryte.hpp`
+```cpp
+#pragma once
+#include <cstdint>
 
-impl Tryte {
-    pub fn zero() -> Self { Tryte(0) }
-    pub fn from_i8(v: i8) -> Self { Tryte(v) }
-}
+namespace hanoi::utils {
+
+struct Tryte {
+    int8_t val;
+
+    static Tryte zero() { return Tryte{0}; }
+    static Tryte from_i8(int8_t v) { return Tryte{v}; }
+};
+
+} // namespace hanoi::utils
 ```
 
-### `src/utils/parity.rs`
-```rust
-use super::base81::CanonHash;
-use crate::kernel::error::HanoiError;
+### `src/utils/parity.cpp`
+```cpp
+#include "utils/parity.hpp"
 
-pub fn reconstruct(_root: CanonHash) -> Result<(), HanoiError> {
+namespace hanoi::utils::parity {
+
+auto reconstruct(const CanonHash& root) -> std::expected<void, kernel::Error> {
     // Reed-Solomon Stub
-    Ok(())
+    return {};
 }
+
+} // namespace hanoi::utils::parity
 ```
 
 ______________________________________________________________________
