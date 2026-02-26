@@ -95,8 +95,8 @@ Then reconcile encoding/register semantics into one normative source.
 
 ### 5.1 Findings
 - Axion policy engine and bytecode evaluator are implemented.
-- Unknown policy clauses are skipped deterministically (not hard-failed) in parser.
-- If embedded policy parse fails during load, VM path can continue without fail-closed semantics.
+- Unknown policy clauses now hard-fail during parse (deterministic parse error).
+- Embedded policy parse failures are now fail-closed at VM load (`SecurityFault` on execution path with deterministic deny-log event).
 
 ### 5.2 Governance Rating
 
@@ -282,6 +282,10 @@ Then make CI fail on any doc/status/translation drift from that contract.
   - `spec/tisc/opcode-registry.md`
   - `docs/governance/ENFORCEMENT_MATRIX.md`
   - `docs/reference/CAPABILITY_CONTRACT.md`
+
+### 2026-02-26 (R18)
+- Hardened Axion policy parser in `include/t81/axion/policy.hpp` to reject unknown policy clauses instead of skipping them.
+- Extended `tests/cpp/vm_policy_parse_fail_closed_test.cpp` with an unknown-clause scenario to verify deterministic fail-closed VM behavior (`SecurityFault` with parse-failure log evidence).
 
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
