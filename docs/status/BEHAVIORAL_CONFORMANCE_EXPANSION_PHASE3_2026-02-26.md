@@ -48,6 +48,10 @@ Completed in this slice:
    - `core/vm/vm.cpp`
    - Extracted `AxCheck`/`AxReport`/blocked-privileged-Axion handling into dedicated dispatch lambdas.
    - Preserved fail-closed trap and event semantics while reducing switch-body control density.
+11. Reduced VM dispatch concentration for blocked-neural and bitwise opcode families:
+   - `core/vm/vm.cpp`
+   - Extracted `TNeuralFwd/TNeuralBwd` blocked-op handling and `BitAnd/BitOr/BitXor/BitNot/BitShl/BitShr/BitUShr` execution into dedicated dispatch lambdas.
+   - Preserved decode-fault guards, fail-closed neural security traps, and bitwise result/tag/flag semantics.
 
 ## Next Planned Slice
 

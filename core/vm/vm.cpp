@@ -1129,6 +1129,65 @@ public:
       return Trap::SecurityFault;
     };
 
+    auto handle_blocked_neural_opcode = [&](bool require_b_operand) -> std::optional<Trap> {
+      if (!reg_ok(insn.a) || (require_b_operand && !reg_ok(insn.b))) {
+        return Trap::DecodeFault;
+      }
+      t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
+                                  "Blocked: unimplemented neural opcode"};
+      record_axion_event(insn.opcode, 0, 0, verdict);
+      return Trap::SecurityFault;
+    };
+
+    auto handle_bitwise_binary = [&]() -> std::optional<Trap> {
+      if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+        return Trap::DecodeFault;
+      }
+      std::int64_t v = 0;
+      if (insn.opcode == t81::tisc::Opcode::BitAnd) {
+        v = ctx.registers[insn.b] & ctx.registers[insn.c];
+      } else if (insn.opcode == t81::tisc::Opcode::BitOr) {
+        v = ctx.registers[insn.b] | ctx.registers[insn.c];
+      } else {
+        v = ctx.registers[insn.b] ^ ctx.registers[insn.c];
+      }
+      ctx.registers[insn.a] = v;
+      ctx.register_tags[insn.a] = ValueTag::Int;
+      update_flags(v);
+      return std::nullopt;
+    };
+
+    auto handle_bitwise_not = [&]() -> std::optional<Trap> {
+      if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
+        return Trap::DecodeFault;
+      }
+      std::int64_t v = ~ctx.registers[insn.b];
+      ctx.registers[insn.a] = v;
+      ctx.register_tags[insn.a] = ValueTag::Int;
+      update_flags(v);
+      return std::nullopt;
+    };
+
+    auto handle_bitwise_shift = [&]() -> std::optional<Trap> {
+      if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
+        return Trap::DecodeFault;
+      }
+      std::int64_t val = ctx.registers[insn.b];
+      std::int64_t amt = ctx.registers[insn.c] & 0x3F;
+      std::int64_t res = 0;
+      if (insn.opcode == t81::tisc::Opcode::BitShl) {
+        res = val << amt;
+      } else if (insn.opcode == t81::tisc::Opcode::BitShr) {
+        res = val >> amt;
+      } else {
+        res = static_cast<std::int64_t>(static_cast<uint64_t>(val) >> amt);
+      }
+      ctx.registers[insn.a] = res;
+      ctx.register_tags[insn.a] = ValueTag::Int;
+      update_flags(res);
+      return std::nullopt;
+    };
+
     Trap trap = Trap::None;
     switch (insn.opcode) {
       case t81::tisc::Opcode::Nop: {
@@ -4547,78 +4606,37 @@ public:
         break;
       }
       case t81::tisc::Opcode::TNeuralFwd: {
-        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
-          trap = Trap::DecodeFault;
-          break;
+        if (auto neural_trap = handle_blocked_neural_opcode(true); neural_trap.has_value()) {
+          trap = *neural_trap;
         }
-        t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
-                                    "Blocked: unimplemented neural opcode"};
-        record_axion_event(insn.opcode, 0, 0, verdict);
-        trap = Trap::SecurityFault;
         break;
       }
       case t81::tisc::Opcode::TNeuralBwd: {
-        if (!reg_ok(insn.a)) {  // Operand is the model/tensor to train
-          trap = Trap::DecodeFault;
-          break;
+        if (auto neural_trap = handle_blocked_neural_opcode(false); neural_trap.has_value()) {
+          trap = *neural_trap;
         }
-        t81::axion::Verdict verdict{t81::axion::VerdictKind::Deny,
-                                    "Blocked: unimplemented neural opcode"};
-        record_axion_event(insn.opcode, 0, 0, verdict);
-        trap = Trap::SecurityFault;
         break;
       }
       case t81::tisc::Opcode::BitAnd:
       case t81::tisc::Opcode::BitOr:
       case t81::tisc::Opcode::BitXor: {
-        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
-          trap = Trap::DecodeFault;
-          break;
+        if (auto bit_trap = handle_bitwise_binary(); bit_trap.has_value()) {
+          trap = *bit_trap;
         }
-        std::int64_t v = 0;
-        if (insn.opcode == t81::tisc::Opcode::BitAnd) {
-          v = ctx.registers[insn.b] & ctx.registers[insn.c];
-        } else if (insn.opcode == t81::tisc::Opcode::BitOr) {
-          v = ctx.registers[insn.b] | ctx.registers[insn.c];
-        } else {
-          v = ctx.registers[insn.b] ^ ctx.registers[insn.c];
-        }
-        ctx.registers[insn.a] = v;
-        ctx.register_tags[insn.a] = ValueTag::Int;
-        update_flags(v);
         break;
       }
       case t81::tisc::Opcode::BitNot: {
-        if (!reg_ok(insn.a) || !reg_ok(insn.b)) {
-          trap = Trap::DecodeFault;
-          break;
+        if (auto bit_trap = handle_bitwise_not(); bit_trap.has_value()) {
+          trap = *bit_trap;
         }
-        std::int64_t v = ~ctx.registers[insn.b];
-        ctx.registers[insn.a] = v;
-        ctx.register_tags[insn.a] = ValueTag::Int;
-        update_flags(v);
         break;
       }
       case t81::tisc::Opcode::BitShl:
       case t81::tisc::Opcode::BitShr:
       case t81::tisc::Opcode::BitUShr: {
-        if (!reg_ok(insn.a) || !reg_ok(insn.b) || !reg_ok(insn.c)) {
-          trap = Trap::DecodeFault;
-          break;
+        if (auto bit_trap = handle_bitwise_shift(); bit_trap.has_value()) {
+          trap = *bit_trap;
         }
-        std::int64_t val = ctx.registers[insn.b];
-        std::int64_t amt = ctx.registers[insn.c] & 0x3F;
-        std::int64_t res = 0;
-        if (insn.opcode == t81::tisc::Opcode::BitShl) {
-          res = val << amt;
-        } else if (insn.opcode == t81::tisc::Opcode::BitShr) {
-          res = val >> amt;
-        } else {
-          res = static_cast<std::int64_t>(static_cast<uint64_t>(val) >> amt);
-        }
-        ctx.registers[insn.a] = res;
-        ctx.register_tags[insn.a] = ValueTag::Int;
-        update_flags(res);
         break;
       }
       default:
