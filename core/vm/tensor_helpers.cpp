@@ -1,6 +1,8 @@
 #include "internal/tensor_helpers.hpp"
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <cstring>
 
 namespace t81::vm::internal {
@@ -117,6 +119,69 @@ std::optional<t81::T729DynamicTensor> decode_native_tensor(const t81::weights::N
     shape.push_back(static_cast<int>(dim));
   }
   return t81::T729DynamicTensor(std::move(shape), std::move(float_data));
+}
+
+std::optional<t81::weights::NativeTensor> parse_canon_tensor_object(
+    const std::vector<std::byte>& bytes) {
+  // Header is 72 bytes: type(1), version(1), format(1), rank(1), reserved(4), shape(64).
+  if (bytes.size() < 72) {
+    return std::nullopt;
+  }
+
+  const uint8_t* ptr = reinterpret_cast<const uint8_t*>(bytes.data());
+  if (*ptr++ != 0x20) {
+    return std::nullopt;
+  }
+  if (*ptr++ != 1) {
+    return std::nullopt;
+  }
+
+  const uint8_t fmt = *ptr++;
+  if (fmt != static_cast<uint8_t>(t81::weights::NativeFormat::BalancedTernary) &&
+      fmt != static_cast<uint8_t>(t81::weights::NativeFormat::T3_K)) {
+    return std::nullopt;
+  }
+
+  const uint8_t rank = *ptr++;
+  if (rank > 8) {
+    return std::nullopt;
+  }
+  ptr += 4;  // reserved
+
+  t81::weights::NativeTensor native;
+  native.format = static_cast<t81::weights::NativeFormat>(fmt);
+  native.shape.reserve(rank);
+  for (int i = 0; i < 8; ++i) {
+    uint64_t dim = 0;
+    for (int b = 0; b < 8; ++b) {
+      dim |= (static_cast<uint64_t>(*ptr++) << (b * 8));
+    }
+    if (i < rank) {
+      native.shape.push_back(dim);
+    }
+  }
+
+  const size_t payload_bytes = bytes.size() - (ptr - reinterpret_cast<const uint8_t*>(bytes.data()));
+  if (payload_bytes % 8 != 0) {
+    return std::nullopt;
+  }
+
+  const size_t limbs = payload_bytes / 8;
+  native.data.reserve(limbs);
+  for (size_t i = 0; i < limbs; ++i) {
+    uint64_t val = 0;
+    for (int b = 0; b < 8; ++b) {
+      val |= (static_cast<uint64_t>(*ptr++) << (b * 8));
+    }
+    native.data.push_back(val);
+  }
+
+  uint64_t trits = 1;
+  for (uint64_t dim : native.shape) {
+    trits *= dim;
+  }
+  native.trits = trits;
+  return native;
 }
 
 }  // namespace t81::vm::internal

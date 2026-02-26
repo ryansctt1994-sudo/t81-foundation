@@ -1278,65 +1278,18 @@ public:
           break;
         }
 
-        auto bytes = obj_res.value();
-        // Min size: 1 (Type) + 1 (Ver) + 1 (Fmt) + 1 (Rank) + 4 (Res) + 64 (Shape) = 72 bytes
-        // header + data
-        if (bytes.size() < 72) {
+        auto native = t81::vm::internal::parse_canon_tensor_object(obj_res.value());
+        if (!native.has_value()) {
           trap = Trap::DecodeFault;
           break;
-        }
-        const uint8_t* ptr = reinterpret_cast<const uint8_t*>(bytes.data());
-        if (*ptr++ != 0x20) {  // TypeID
-          trap = Trap::DecodeFault;
-          break;
-        }
-        if (*ptr++ != 1) {  // Version
-          trap = Trap::DecodeFault;
-          break;
-        }
-        uint8_t fmt = *ptr++;
-        uint8_t rank = *ptr++;
-        ptr += 4;  // Reserved
-
-        std::vector<int> shape;
-        for (int i = 0; i < 8; ++i) {
-          uint64_t dim = 0;
-          for (int b = 0; b < 8; ++b) {
-            dim |= (static_cast<uint64_t>(*ptr++) << (b * 8));
-          }
-          if (i < rank) shape.push_back(static_cast<int>(dim));
         }
 
-        // Remaining bytes are payload
-        size_t payload_bytes =
-            bytes.size() - (ptr - reinterpret_cast<const uint8_t*>(bytes.data()));
-        if (payload_bytes % 8 != 0) {
-          trap = Trap::DecodeFault;
-          break;
-        }
-        size_t num_elements = payload_bytes / 8;
-
-        // Check if shape matches num_elements
+        size_t num_elements = native->data.size();
         size_t expected = 1;
-        for (int d : shape) expected *= d;
+        for (auto d : native->shape) expected *= static_cast<size_t>(d);
         if (num_elements != expected) {
-          t81::weights::NativeTensor native;
-          native.format = static_cast<t81::weights::NativeFormat>(fmt);
-          for (int d : shape) native.shape.push_back(d);
-          native.data.reserve(num_elements);
-          for (size_t i = 0; i < num_elements; ++i) {
-            uint64_t val = 0;
-            for (int b = 0; b < 8; ++b) {
-              val |= (static_cast<uint64_t>(*ptr++) << (b * 8));
-            }
-            native.data.push_back(val);
-          }
-          uint64_t calculated_trits = 1;
-          for (auto d : native.shape) calculated_trits *= d;
-          native.trits = calculated_trits;
-
           auto loaded_tensor = t81::vm::internal::decode_native_tensor(
-              native, t81::vm::internal::TensorDecodeMode::Lenient);
+              *native, t81::vm::internal::TensorDecodeMode::Lenient);
           if (!loaded_tensor.has_value()) {
             trap = Trap::DecodeFault;
             break;
