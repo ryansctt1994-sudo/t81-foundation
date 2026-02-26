@@ -250,6 +250,9 @@ Then make CI fail on any doc/status/translation drift from that contract.
   - `spec/tisc/opcode-semantics.md`
   - `spec/tisc/opcode-registry.md`
 
+### 2026-02-26 (R13)
+- Updated `docs/governance/ENFORCEMENT_MATRIX.md` with a machine-verifiable hard-fail rule for unimplemented privileged opcode fail-closed behavior, mapped to `build-and-test` via `tests/cpp/vm_stubbed_privileged_opcode_fail_closed_test.cpp`.
+
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
 - This report is descriptive and evidence-based; it does not override normative `/spec` authority.
