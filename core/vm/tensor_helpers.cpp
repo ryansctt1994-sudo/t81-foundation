@@ -1,5 +1,8 @@
 #include "internal/tensor_helpers.hpp"
 
+#include <algorithm>
+#include <cstring>
+
 namespace t81::vm::internal {
 
 std::size_t tensor_shape_complexity(const t81::T729DynamicTensor& tensor) {
@@ -49,6 +52,71 @@ void account_tensor_allocation(State& state, std::size_t tensor_elements) {
   state.total_tensor_elements += tensor_elements;
   state.metrics.total_tensors++;
   state.metrics.total_tensor_elements += tensor_elements;
+}
+
+std::optional<t81::T729DynamicTensor> decode_native_tensor(const t81::weights::NativeTensor& native,
+                                                           TensorDecodeMode mode) {
+  std::vector<float> float_data;
+  float_data.reserve(native.num_trits());
+
+  if (native.format == t81::weights::NativeFormat::T3_K) {
+    const uint8_t* byte_ptr = reinterpret_cast<const uint8_t*>(native.data.data());
+    const uint64_t total_trits = native.num_trits();
+    for (uint64_t offset = 0; offset < total_trits; offset += 128) {
+      float scale;
+      std::memcpy(&scale, byte_ptr, sizeof(float));
+      byte_ptr += sizeof(float);
+      const uint64_t count = std::min<uint64_t>(128, total_trits - offset);
+      uint64_t trit_index = 0;
+      for (uint64_t packed_idx = 0; packed_idx < 26; ++packed_idx) {
+        uint8_t packed = *byte_ptr++;
+        if (mode == TensorDecodeMode::StrictCanonical && packed > 242) {
+          return std::nullopt;
+        }
+        uint8_t rem = packed;
+        for (uint64_t local = 0; local < 5; ++local, ++trit_index) {
+          const uint8_t digit = static_cast<uint8_t>(rem % 3);
+          rem = static_cast<uint8_t>(rem / 3);
+          if (trit_index < count) {
+            const float trit = static_cast<float>(static_cast<int>(digit) - 1);
+            float_data.push_back(trit * scale);
+          } else if (mode == TensorDecodeMode::StrictCanonical && digit != 1) {
+            // Canonical padding requires extra trits to be zero (mapped digit=1).
+            return std::nullopt;
+          }
+        }
+      }
+    }
+  } else {
+    uint64_t remaining = native.trits;
+    if (remaining == 0 && !native.data.empty()) {
+      remaining = native.data.size() * 48;
+    }
+    for (uint64_t limb : native.data) {
+      const uint64_t count = std::min<uint64_t>(48, remaining);
+      std::vector<float> block(count);
+      uint64_t val = limb;
+      for (int i = 47; i >= 0; --i) {
+        const uint64_t digit = val % 3;
+        val /= 3;
+        if (static_cast<uint64_t>(i) < count) {
+          block[i] = static_cast<float>(static_cast<int>(digit) - 1);
+        }
+      }
+      float_data.insert(float_data.end(), block.begin(), block.end());
+      remaining -= count;
+      if (remaining == 0) {
+        break;
+      }
+    }
+  }
+
+  std::vector<int> shape;
+  shape.reserve(native.shape.size());
+  for (auto dim : native.shape) {
+    shape.push_back(static_cast<int>(dim));
+  }
+  return t81::T729DynamicTensor(std::move(shape), std::move(float_data));
 }
 
 }  // namespace t81::vm::internal

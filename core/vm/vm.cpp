@@ -526,67 +526,12 @@ public:
         auto handle = ctx.registers[reg];
         const auto* native = weights_tensor(handle);
         if (!native) return std::expected<void, Trap>(t81::unexpect, Trap::DecodeFault);
-
-        std::vector<float> float_data;
-        float_data.reserve(native->num_trits());
-
-        if (native->format == t81::weights::NativeFormat::T3_K) {
-          const uint8_t* byte_ptr = reinterpret_cast<const uint8_t*>(native->data.data());
-          uint64_t total_trits = native->num_trits();
-          for (uint64_t offset = 0; offset < total_trits; offset += 128) {
-            float scale;
-            std::memcpy(&scale, byte_ptr, sizeof(float));
-            byte_ptr += sizeof(float);
-            uint64_t count = std::min<uint64_t>(128, total_trits - offset);
-            uint64_t trit_index = 0;
-            for (uint64_t packed_idx = 0; packed_idx < 26; ++packed_idx) {
-              uint8_t packed = *byte_ptr++;
-              if (packed > 242) {
-                return std::expected<void, Trap>(t81::unexpect, Trap::DecodeFault);
-              }
-              uint8_t rem = packed;
-              for (uint64_t local = 0; local < 5; ++local, ++trit_index) {
-                uint8_t digit = static_cast<uint8_t>(rem % 3);
-                rem = static_cast<uint8_t>(rem / 3);
-                if (trit_index < count) {
-                  float trit = static_cast<float>(static_cast<int>(digit) - 1);
-                  float_data.push_back(trit * scale);
-                } else if (digit != 1) {
-                  // Canonical padding requires extra trits to be zero (mapped digit=1).
-                  return std::expected<void, Trap>(t81::unexpect, Trap::DecodeFault);
-                }
-              }
-            }
-          }
-        } else {
-          uint64_t remaining = native->trits;
-          if (remaining == 0 && !native->data.empty()) {
-            remaining = native->data.size() * 48;
-          }
-
-          for (uint64_t limb : native->data) {
-            uint64_t count = std::min<uint64_t>(48, remaining);
-            std::vector<float> block(count);
-            uint64_t val = limb;
-            for (int i = 47; i >= 0; --i) {
-              uint64_t digit = val % 3;
-              val /= 3;
-              if (static_cast<uint64_t>(i) < count) {
-                block[i] = static_cast<float>(static_cast<int>(digit) - 1);
-              }
-            }
-            float_data.insert(float_data.end(), block.begin(), block.end());
-            remaining -= count;
-            if (remaining == 0) break;
-          }
+        auto promoted = t81::vm::internal::decode_native_tensor(
+            *native, t81::vm::internal::TensorDecodeMode::StrictCanonical);
+        if (!promoted.has_value()) {
+          return std::expected<void, Trap>(t81::unexpect, Trap::DecodeFault);
         }
-
-        std::vector<int> shape;
-        shape.reserve(native->shape.size());
-        for (auto d : native->shape) shape.push_back(static_cast<int>(d));
-
-        t81::T729DynamicTensor promoted(std::move(shape), std::move(float_data));
-        auto result = alloc_tensor(std::move(promoted));
+        auto result = alloc_tensor(std::move(*promoted));
         if (!result) {
           return std::expected<void, Trap>(t81::unexpect, result.error());
         }
@@ -1375,28 +1320,6 @@ public:
         size_t expected = 1;
         for (int d : shape) expected *= d;
         if (num_elements != expected) {
-          // For T3_K or others this might differ, but for now we assume packed u64
-          // Actually, serialize_tensor in canonize_tensor used NativeTensor which has uint64_t
-          // data. And promoted to float for T729DynamicTensor. Wait, T729DynamicTensor uses float
-          // (32-bit?) or T81Float<72,9>? T729DynamicTensor is alias for T81Tensor<T81Float<72,9>>?
-          // The memory says: "T729DynamicTensor ... is a template alias for T81Tensor specialized
-          // with T81Float<72, 9>". But in vm.cpp: `t81::T729DynamicTensor
-          // promoted(std::move(shape), std::move(float_data));` where `float_data` is
-          // `std::vector<float>`. So T729DynamicTensor seems to hold float? Let's check
-          // `include/t81/types/T729DynamicTensor.hpp` or `t81/tensor.hpp`. I don't have access to
-          // those files right now (didn't read them), but `vm.cpp` uses `std::vector<float> data =
-          // tensor->data();`. So `T729DynamicTensor` uses `float` or convertible to `float`. The
-          // serialized format I wrote in `canonize_tensor` writes `uint64_t` from `NativeTensor`.
-          // `NativeTensor` holds trits packed in limbs or T3_K. If `fmt` is BalancedTernary (0), it
-          // is `vector<uint64_t>`. To load it into `T729DynamicTensor` (which is floats in VM), I
-          // need to convert/promote it! Just like `promote_to_tensor` does for
-          // `WeightsTensorHandle`.
-
-          // I should reuse logic from `promote_to_tensor`?
-          // But `promote_to_tensor` works on `NativeTensor`.
-          // I can reconstruct `NativeTensor` from the bytes, then use similar logic.
-
-          // Reconstruct NativeTensor
           t81::weights::NativeTensor native;
           native.format = static_cast<t81::weights::NativeFormat>(fmt);
           for (int d : shape) native.shape.push_back(d);
@@ -1408,59 +1331,17 @@ public:
             }
             native.data.push_back(val);
           }
-          native.trits = 0;  // Not stored in header? num_trits() calculates it.
-
-          // Convert NativeTensor to T729DynamicTensor (floats)
-          std::vector<float> float_data;
           uint64_t calculated_trits = 1;
           for (auto d : native.shape) calculated_trits *= d;
           native.trits = calculated_trits;
-          float_data.reserve(native.trits);
 
-          if (native.format == t81::weights::NativeFormat::T3_K) {
-            const uint8_t* byte_ptr = reinterpret_cast<const uint8_t*>(native.data.data());
-            uint64_t total_trits = native.num_trits();
-            for (uint64_t offset = 0; offset < total_trits; offset += 128) {
-              float scale;
-              std::memcpy(&scale, byte_ptr, sizeof(float));
-              byte_ptr += sizeof(float);
-              uint64_t count = std::min<uint64_t>(128, total_trits - offset);
-              uint64_t trit_index = 0;
-              for (uint64_t packed_idx = 0; packed_idx < 26; ++packed_idx) {
-                uint8_t packed = *byte_ptr++;
-                // ... checks ...
-                uint8_t rem = packed;
-                for (uint64_t local = 0; local < 5; ++local, ++trit_index) {
-                  uint8_t digit = static_cast<uint8_t>(rem % 3);
-                  rem = static_cast<uint8_t>(rem / 3);
-                  if (trit_index < count) {
-                    float trit = static_cast<float>(static_cast<int>(digit) - 1);
-                    float_data.push_back(trit * scale);
-                  }
-                }
-              }
-            }
-          } else {
-            uint64_t remaining = native.trits;
-            for (uint64_t limb : native.data) {
-              uint64_t count = std::min<uint64_t>(48, remaining);
-              std::vector<float> block(count);
-              uint64_t val = limb;
-              for (int i = 47; i >= 0; --i) {
-                uint64_t digit = val % 3;
-                val /= 3;
-                if (static_cast<uint64_t>(i) < count) {
-                  block[i] = static_cast<float>(static_cast<int>(digit) - 1);
-                }
-              }
-              float_data.insert(float_data.end(), block.begin(), block.end());
-              remaining -= count;
-              if (remaining == 0) break;
-            }
+          auto loaded_tensor = t81::vm::internal::decode_native_tensor(
+              native, t81::vm::internal::TensorDecodeMode::Lenient);
+          if (!loaded_tensor.has_value()) {
+            trap = Trap::DecodeFault;
+            break;
           }
-
-          t81::T729DynamicTensor loaded_tensor(std::move(shape), std::move(float_data));
-          auto res = alloc_tensor(std::move(loaded_tensor));
+          auto res = alloc_tensor(std::move(*loaded_tensor));
           if (!res) {
             trap = res.error();
             break;

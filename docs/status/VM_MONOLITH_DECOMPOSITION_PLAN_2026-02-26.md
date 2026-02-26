@@ -2,7 +2,7 @@
 
 Date: 2026-02-26  
 Scope: `core/vm/vm.cpp`  
-Status: In progress (Phase A+B+C+D completed; Phase E started: tensor allocation/policy helpers extracted to `core/vm/tensor_helpers.cpp`)
+Status: In progress (Phase A+B+C+D completed; Phase E advanced: tensor allocation/policy + native tensor decode helpers extracted to `core/vm/tensor_helpers.cpp`)
 
 ## Objective
 Reduce regression blast radius and improve assurance depth by decomposing `core/vm/vm.cpp` into testable modules while preserving byte-for-byte runtime behavior on DCP surfaces.
@@ -44,6 +44,7 @@ Purpose: trace and Axion event recording helpers, deterministic reason formattin
 5. Phase E: Tensor and extended opcode extraction
 - Move tensor and weights handlers.
 - Keep non-DCP boundaries unchanged.
+ - Progress: shared native tensor decode path (`WeightsTensorHandle` promotion + `TLoadHash` decode) extracted to `tensor_helpers`.
 6. Phase F: Final dispatch slimming
 - Reduce `vm.cpp` to dispatch integration and module wiring.
 
