@@ -17,6 +17,7 @@ specification authority, freeze boundaries, or determinism claim scope.
 - ../spec/
 - ../governance/
 - ../status/
+- T81LANG_STDLIB_REFERENCE.md
 
 ## Versioning Statement
 

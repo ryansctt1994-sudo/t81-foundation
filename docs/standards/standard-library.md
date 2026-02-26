@@ -3,6 +3,10 @@
 This document describes the standard library modules available in T81Lang.
 These modules are located in `lang/stdlib/std/`.
 
+Reference companion:
+- `docs/reference/T81LANG_STDLIB_REFERENCE.md`
+- `docs/status/STDLIB_PROMOTION_SNAPSHOT_2026-03.md`
+
 ## Generic Call Syntax
 
 User-defined generic functions support both inferred and explicit call-site type arguments:

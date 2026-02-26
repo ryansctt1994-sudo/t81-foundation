@@ -29,4 +29,5 @@ Baseline: `c5c4aa59`
    - release/status synchronization.
 3. `std.math` remains bounded until host-dependent transcendental surfaces are
    fully contract-resolved for cross-platform bit-identity claims.
-
+4. Usage reference:
+   - `docs/reference/T81LANG_STDLIB_REFERENCE.md`
