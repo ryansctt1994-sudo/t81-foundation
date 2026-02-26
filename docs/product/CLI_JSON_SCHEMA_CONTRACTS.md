@@ -15,6 +15,8 @@ This document freezes machine-output JSON contracts for CLI automation.
 - `t81.weights-info.v1` (`t81 weights info --json`)
 - `t81.policy-run.v1` (`t81 policy run --json`)
 - `t81.trace-export-entry.v1` (`t81 trace export --format json`)
+- `t81.feedback.v1` (`t81 feedback submit ...`)
+- `t81.feedback-report.v1` (`t81 feedback report`)
 
 ## 2. Compatibility Rules
 

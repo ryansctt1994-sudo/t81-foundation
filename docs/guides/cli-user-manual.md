@@ -46,10 +46,15 @@ Examples:
 ./build/t81 help project # docs-smoke
 ./build/t81 help env # docs-smoke
 ./build/t81 help internal # docs-smoke
+./build/t81 help completion # docs-smoke
+./build/t81 help man # docs-smoke
+./build/t81 help feedback # docs-smoke
 ./build/t81 compile --help # docs-smoke
 ./build/t81 help compile # docs-smoke
 ./build/t81 code test --json --list # docs-smoke
 ./build/t81 env doctor --json # docs-smoke
+./build/t81 completion bash # docs-smoke
+./build/t81 man # docs-smoke
 ./build/t81 help advanced # docs-smoke
 ./build/t81 help labs # docs-smoke
 ```
@@ -81,6 +86,9 @@ t81 code <action> [args]
 t81 project <action> [args]
 t81 env <action> [args]
 t81 internal <action> [args]
+t81 completion <bash|zsh|fish>
+t81 man [--install-dir <dir>]
+t81 feedback <submit|report> [options]
 ```
 
 Primary workflow actions:
@@ -96,12 +104,17 @@ t81 code debug <file.t81|file.tisc> [--policy <policy.apl>] [--weights-model <mo
 t81 code repl [--weights-model <model.t81w>] [--policy <policy.apl>]
 t81 project init <project_name>
 t81 env doctor [--json]
+t81 env feedback <submit|report> [options]
 t81 internal pkg <subcommand> [args]
 t81 internal benchmark [benchmark_runner_flags...]
 t81 internal repro-hash [fixtures_dir]
 t81 internal canonize-tensor <file>
 t81 internal canonize-file <file> [--canonfs-root <path>]
 t81 internal llama-run <model.gguf|sha3-256:hash> <prompt> --policy <policy.apl> [options]
+t81 completion bash|zsh|fish
+t81 man [--install-dir <dir>]
+t81 feedback submit --rating <1-5> [--note <text>] [--path <file>]
+t81 feedback report [--path <file>]
 ```
 
 ### 4.2 Legacy Top-Level Aliases
@@ -294,6 +307,33 @@ Options:
 - `--expected-model-hash <h>`
 - `--canonfs-root <path>`
 
+### 4.20 `completion`
+
+```text
+t81 completion <bash|zsh|fish>
+```
+
+Prints shell completion script to `stdout`.
+
+### 4.21 `man`
+
+```text
+t81 man [--install-dir <dir>]
+```
+
+Shows embedded manpage text or installs `t81.1`.
+
+### 4.22 `feedback`
+
+```text
+t81 feedback submit --rating <1-5> [--note <text>] [--path <file>]
+t81 feedback report [--path <file>]
+```
+
+Local CLI UX feedback loop.
+Submit writes JSONL entries with schema `t81.feedback.v1`.
+Report emits schema `t81.feedback-report.v1`.
+
 ## 5. Help Contract
 
 Supported help forms:
@@ -308,6 +348,9 @@ Supported help forms:
 ./build/t81 help test # docs-smoke
 ./build/t81 help doctor # docs-smoke
 ./build/t81 help fmt # docs-smoke
+./build/t81 help completion # docs-smoke
+./build/t81 help man # docs-smoke
+./build/t81 help feedback # docs-smoke
 ./build/t81 compile --help # docs-smoke
 ./build/t81 help advanced # docs-smoke
 ./build/t81 help labs # docs-smoke
@@ -337,6 +380,9 @@ Command-specific non-zero exits:
 | `trace export` | `1` | invalid args/format/path |
 | `weights info` | `1` | usage or file-loading failure |
 | `policy run` | `1` | usage or policy parse/load failure |
+| `completion` | `1` | unsupported shell or usage error |
+| `man` | `2` | install directory/file write failure |
+| `feedback` | `2` | feedback file read/write failure |
 
 Runtime trap exit codes used by `t81 run` / `t81 debug`:
 

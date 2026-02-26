@@ -26,6 +26,7 @@
 #include <stdexcept>
 #include <string>
 #include <thread>
+#include <tuple>
 #include <vector>
 #if !defined(_WIN32)
 #include <sys/wait.h>
@@ -357,6 +358,43 @@ Examples:
 )";
 }
 
+void print_help_completion() {
+  std::cerr << R"(
+Usage: t81 completion <bash|zsh|fish>
+
+Prints shell completion script to stdout.
+
+Examples:
+  t81 completion bash > ~/.local/share/bash-completion/completions/t81
+  t81 completion zsh > ~/.zfunc/_t81
+)";
+}
+
+void print_help_man() {
+  std::cerr << R"(
+Usage: t81 man [--install-dir <dir>]
+
+Shows an embedded manpage-style summary, or writes `t81.1` into install dir.
+
+Examples:
+  t81 man
+  t81 man --install-dir ~/.local/share/man/man1
+)";
+}
+
+void print_help_feedback() {
+  std::cerr << R"(
+Usage: t81 feedback <submit|report> [options]
+
+Subcommands:
+  submit --rating <1-5> [--note <text>] [--path <file>]   Append feedback record
+  report [--path <file>]                                    Summarize feedback records
+
+Default path:
+  .t81_cli_feedback.jsonl
+)";
+}
+
 void print_help_code() {
   std::cerr << R"(
 Usage: t81 code <action> [args]
@@ -397,6 +435,7 @@ Usage: t81 env <action> [args]
 
 Actions:
   doctor [--json]                     Run environment readiness checks
+  feedback <subcommand> [args]        Record/report local CLI UX feedback
 
 Example:
   t81 env doctor --json
@@ -585,6 +624,9 @@ Commands:
   project <action> [args]               Project lifecycle commands
   env     <action> [args]               Environment/toolchain diagnostics
   internal <action> [args]              Internal/experimental command group
+  completion <shell>                    Print shell completion script
+  man [--install-dir <dir>]             Show or install CLI manpage
+  feedback <subcommand> [args]          Local CLI UX feedback loop
   ---
   check   <file.t81>                   Syntax/semantic check (no bytecode output)
   lint    <file.t81>                   Alias for `check`
@@ -709,6 +751,18 @@ bool print_help_topic(std::string_view topic, const char* prog) {
   }
   if (topic == "fmt") {
     print_help_fmt();
+    return true;
+  }
+  if (topic == "completion") {
+    print_help_completion();
+    return true;
+  }
+  if (topic == "man") {
+    print_help_man();
+    return true;
+  }
+  if (topic == "feedback") {
+    print_help_feedback();
     return true;
   }
   if (topic == "benchmark") {
@@ -896,7 +950,8 @@ Args parse_args(int argc, char* argv[]) {
       a.need_help = true;
     } else if (arg == "-V" || arg == "--version") {
       if (a.command == "fmt" || a.command == "code" || a.command == "project" ||
-          a.command == "env" || a.command == "internal") {
+          a.command == "env" || a.command == "internal" || a.command == "completion" ||
+          a.command == "man" || a.command == "feedback") {
         a.command_args.emplace_back(argv[i]);
       } else {
         a.need_version = true;
@@ -910,6 +965,7 @@ Args parse_args(int argc, char* argv[]) {
                  a.command == "trace" || a.command == "llama-run" || a.command == "test" ||
                  a.command == "doctor" || a.command == "fmt" || a.command == "code" ||
                  a.command == "project" || a.command == "env" || a.command == "internal" ||
+                 a.command == "completion" || a.command == "man" || a.command == "feedback" ||
                  a.command == "canonize-tensor" || a.command == "canonize-file") {
         a.command_args.emplace_back(argv[i]);
       } else {
@@ -924,6 +980,7 @@ Args parse_args(int argc, char* argv[]) {
                  a.command == "trace" || a.command == "llama-run" || a.command == "test" ||
                  a.command == "doctor" || a.command == "fmt" || a.command == "code" ||
                  a.command == "project" || a.command == "env" || a.command == "internal" ||
+                 a.command == "completion" || a.command == "man" || a.command == "feedback" ||
                  a.command == "canonize-tensor" || a.command == "canonize-file") {
         a.command_args.emplace_back(argv[i]);
       } else {
@@ -1697,17 +1754,6 @@ int run_test_command(const Args& args) {
     base_cmd += shell_escape(token);
   }
 
-  const fs::path out_path = fs::temp_directory_path() / "t81-test.out";
-  const fs::path err_path = fs::temp_directory_path() / "t81-test.err";
-  std::string cmd =
-      base_cmd + " > " + shell_escape(out_path.string()) + " 2> " + shell_escape(err_path.string());
-  const int status = std::system(cmd.c_str());
-  if (status == -1) {
-    error("test: failed to invoke ctest.");
-    return 2;
-  }
-  const int rc = decode_system_status(status);
-
   auto read_file = [](const fs::path& p) -> std::string {
     std::ifstream in(p, std::ios::binary);
     if (!in) return {};
@@ -1719,13 +1765,54 @@ int run_test_command(const Args& args) {
     return ec ? 0 : sz;
   };
 
-  const std::string stdout_text = read_file(out_path);
-  const std::string stderr_text = read_file(err_path);
-  const auto stdout_bytes = read_size(out_path);
-  const auto stderr_bytes = read_size(err_path);
-  std::error_code ignore_ec;
-  fs::remove(out_path, ignore_ec);
-  fs::remove(err_path, ignore_ec);
+  auto run_ctest_capture = [&](const std::string& effective_cmd) {
+    const fs::path out_path = fs::temp_directory_path() / "t81-test.out";
+    const fs::path err_path = fs::temp_directory_path() / "t81-test.err";
+    std::string cmd = effective_cmd + " > " + shell_escape(out_path.string()) + " 2> " +
+                      shell_escape(err_path.string());
+    const int status = std::system(cmd.c_str());
+    if (status == -1) {
+      return std::tuple<int, std::string, std::string, std::uintmax_t, std::uintmax_t>{
+          -1, {}, {}, 0, 0};
+    }
+    const int rc = decode_system_status(status);
+    const std::string stdout_text = read_file(out_path);
+    const std::string stderr_text = read_file(err_path);
+    const auto stdout_bytes = read_size(out_path);
+    const auto stderr_bytes = read_size(err_path);
+    std::error_code ignore_ec;
+    fs::remove(out_path, ignore_ec);
+    fs::remove(err_path, ignore_ec);
+    return std::tuple<int, std::string, std::string, std::uintmax_t, std::uintmax_t>{
+        rc, stdout_text, stderr_text, stdout_bytes, stderr_bytes};
+  };
+
+  bool used_junit = false;
+  fs::path junit_path = fs::temp_directory_path() / "t81-test-junit.xml";
+  std::string effective_cmd = base_cmd;
+  if (!list_only) {
+    effective_cmd += " --output-junit " + shell_escape(junit_path.string());
+    used_junit = true;
+  }
+  auto [rc, stdout_text, stderr_text, stdout_bytes, stderr_bytes] = run_ctest_capture(effective_cmd);
+  if (rc == -1) {
+    error("test: failed to invoke ctest.");
+    return 2;
+  }
+  if (used_junit && rc != 0) {
+    std::string lowered = stderr_text;
+    for (char& c : lowered) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+    if (lowered.find("output-junit") != std::string::npos &&
+        (lowered.find("unknown") != std::string::npos || lowered.find("unrecognized") != std::string::npos ||
+         lowered.find("invalid") != std::string::npos)) {
+      used_junit = false;
+      std::tie(rc, stdout_text, stderr_text, stdout_bytes, stderr_bytes) = run_ctest_capture(base_cmd);
+      if (rc == -1) {
+        error("test: failed to invoke ctest.");
+        return 2;
+      }
+    }
+  }
 
   struct TestSummary {
     int total = -1;
@@ -1757,7 +1844,29 @@ int run_test_command(const Args& args) {
     }
     return summary;
   };
-  const TestSummary summary = parse_summary(stdout_text + "\n" + stderr_text);
+  TestSummary summary = parse_summary(stdout_text + "\n" + stderr_text);
+  if (used_junit && fs::exists(junit_path)) {
+    const std::string xml = read_file(junit_path);
+    std::smatch m;
+    if (std::regex_search(xml, m, std::regex("tests=\"([0-9]+)\"")) && m.size() == 2) {
+      summary.total = std::atoi(m[1].str().c_str());
+    }
+    if (std::regex_search(xml, m, std::regex("failures=\"([0-9]+)\"")) && m.size() == 2) {
+      summary.failed = std::atoi(m[1].str().c_str());
+    }
+    if (std::regex_search(xml, m, std::regex("disabled=\"([0-9]+)\"")) && m.size() == 2) {
+      summary.skipped = std::atoi(m[1].str().c_str());
+    }
+    if (summary.total >= 0 && summary.failed >= 0) {
+      summary.passed = summary.total - summary.failed - std::max(0, summary.skipped);
+    }
+    if (std::regex_search(xml, m, std::regex("time=\"([0-9]+(?:\\.[0-9]+)?)\"")) &&
+        m.size() == 2) {
+      summary.duration_sec = std::atof(m[1].str().c_str());
+    }
+    std::error_code ignore_ec;
+    fs::remove(junit_path, ignore_ec);
+  }
 
   if (as_json) {
     std::cout << "{\n";
@@ -1781,7 +1890,8 @@ int run_test_command(const Args& args) {
     std::cout << std::defaultfloat;
     std::cout << "  },\n";
     std::cout << "  \"stdout_bytes\": " << stdout_bytes << ",\n";
-    std::cout << "  \"stderr_bytes\": " << stderr_bytes << "\n";
+    std::cout << "  \"stderr_bytes\": " << stderr_bytes << ",\n";
+    std::cout << "  \"summary_source\": \"" << (used_junit ? "junit_xml" : "ctest_text") << "\"\n";
     std::cout << "}\n";
     return rc == 0 ? 0 : 2;
   }
@@ -2091,6 +2201,277 @@ int run_pkg_check(const Args& args) {
   return errors.empty() ? 0 : 2;
 }
 
+std::string build_bash_completion() {
+  return R"(_t81_complete() {
+  local cur prev words cword
+  _init_completion || return
+  local commands="code project env internal completion man feedback check lint compile run disasm debug repl test doctor fmt init version help weights policy trace pkg benchmark repro-hash canonize-tensor canonize-file llama-run"
+  if [[ ${cword} -eq 1 ]]; then
+    COMPREPLY=( $(compgen -W "${commands}" -- "${cur}") )
+    return
+  fi
+  case "${words[1]}" in
+    code)
+      COMPREPLY=( $(compgen -W "check lint fmt build run test disasm debug repl" -- "${cur}") )
+      ;;
+    project)
+      COMPREPLY=( $(compgen -W "init" -- "${cur}") )
+      ;;
+    env)
+      COMPREPLY=( $(compgen -W "doctor feedback" -- "${cur}") )
+      ;;
+    internal)
+      COMPREPLY=( $(compgen -W "pkg benchmark repro-hash canonize-tensor canonize-file llama-run" -- "${cur}") )
+      ;;
+    completion)
+      COMPREPLY=( $(compgen -W "bash zsh fish" -- "${cur}") )
+      ;;
+    feedback)
+      COMPREPLY=( $(compgen -W "submit report" -- "${cur}") )
+      ;;
+  esac
+}
+complete -F _t81_complete t81
+)";
+}
+
+std::string build_zsh_completion() {
+  return R"(#compdef t81
+local -a commands
+commands=(
+  'code:code workflow commands'
+  'project:project lifecycle commands'
+  'env:environment commands'
+  'internal:internal commands'
+  'completion:print completion script'
+  'man:show or install man page'
+  'feedback:local CLI feedback loop'
+  'check:legacy alias'
+  'compile:legacy alias'
+  'run:legacy alias'
+  'help:show help'
+  'version:show version'
+)
+_arguments '1:command:->cmds' '*::arg:->args'
+case $state in
+  cmds) _describe -t commands 't81 commands' commands ;;
+esac
+)";
+}
+
+std::string build_fish_completion() {
+  return R"(complete -c t81 -f -n '__fish_use_subcommand' -a 'code project env internal completion man feedback check lint compile run disasm debug repl test doctor fmt init version help weights policy trace pkg benchmark repro-hash canonize-tensor canonize-file llama-run'
+complete -c t81 -f -n '__fish_seen_subcommand_from completion' -a 'bash zsh fish'
+complete -c t81 -f -n '__fish_seen_subcommand_from code' -a 'check lint fmt build run test disasm debug repl'
+complete -c t81 -f -n '__fish_seen_subcommand_from project' -a 'init'
+complete -c t81 -f -n '__fish_seen_subcommand_from env' -a 'doctor feedback'
+complete -c t81 -f -n '__fish_seen_subcommand_from internal' -a 'pkg benchmark repro-hash canonize-tensor canonize-file llama-run'
+complete -c t81 -f -n '__fish_seen_subcommand_from feedback' -a 'submit report'
+)";
+}
+
+int run_completion_command(const Args& args) {
+  if (args.command_args.empty() || args.command_args[0] == "-h" || args.command_args[0] == "--help") {
+    print_help_completion();
+    return args.command_args.empty() ? 1 : 0;
+  }
+  const std::string shell = args.command_args[0];
+  if (shell == "bash") {
+    std::cout << build_bash_completion();
+    return 0;
+  }
+  if (shell == "zsh") {
+    std::cout << build_zsh_completion();
+    return 0;
+  }
+  if (shell == "fish") {
+    std::cout << build_fish_completion();
+    return 0;
+  }
+  error("completion: unsupported shell '" + shell + "'. Use bash|zsh|fish.");
+  return 1;
+}
+
+std::string build_manpage_text() {
+  return R"(.TH T81 1 "2026-02-26" "t81 CLI" "User Commands"
+.SH NAME
+t81 \- T81 Foundation CLI
+.SH SYNOPSIS
+t81 [global-options] <command> [args]
+t81 [global-options] <domain> <action> [args]
+.SH DESCRIPTION
+Domain-first commands:
+.TP
+code
+Check, build, run, test, format, debug, disassemble, repl.
+.TP
+project
+Project lifecycle commands.
+.TP
+env
+Environment checks and UX feedback.
+.TP
+internal
+Internal and experimental operations.
+.SH GLOBAL OPTIONS
+-h, --help
+-V, --version
+-q, --quiet
+-v, --verbose
+.SH SEE ALSO
+t81 help, t81 help code, t81 help advanced, t81 help labs
+)";
+}
+
+int run_man_command(const Args& args) {
+  fs::path install_dir;
+  for (size_t i = 0; i < args.command_args.size(); ++i) {
+    const std::string& token = args.command_args[i];
+    if (token == "-h" || token == "--help") {
+      print_help_man();
+      return 0;
+    }
+    if (token == "--install-dir") {
+      if (++i >= args.command_args.size()) {
+        error("man: missing value for --install-dir. Run 't81 help man'.");
+        return 1;
+      }
+      install_dir = fs::path(args.command_args[i]);
+      continue;
+    }
+    error("man: unknown option '" + token + "'. Run 't81 help man'.");
+    return 1;
+  }
+  const std::string man_text = build_manpage_text();
+  if (install_dir.empty()) {
+    std::cout << man_text;
+    return 0;
+  }
+  std::error_code ec;
+  fs::create_directories(install_dir, ec);
+  if (ec) {
+    error("man: could not create install dir: " + install_dir.string());
+    return 2;
+  }
+  const fs::path out = install_dir / "t81.1";
+  std::ofstream ofs(out, std::ios::binary | std::ios::trunc);
+  if (!ofs) {
+    error("man: could not open output file: " + out.string());
+    return 2;
+  }
+  ofs << man_text;
+  if (!ofs.good()) {
+    error("man: failed writing output file: " + out.string());
+    return 2;
+  }
+  std::cout << "installed man page: " << out.string() << "\n";
+  return 0;
+}
+
+int run_feedback_command(const Args& args) {
+  if (args.command_args.empty() || args.command_args[0] == "-h" || args.command_args[0] == "--help") {
+    print_help_feedback();
+    return args.command_args.empty() ? 1 : 0;
+  }
+  const std::string sub = args.command_args[0];
+  fs::path path = ".t81_cli_feedback.jsonl";
+  if (sub == "submit") {
+    int rating = -1;
+    std::string note;
+    for (size_t i = 1; i < args.command_args.size(); ++i) {
+      const std::string& token = args.command_args[i];
+      if (token == "--rating") {
+        if (++i >= args.command_args.size()) {
+          error("feedback submit: missing value for --rating");
+          return 1;
+        }
+        rating = std::atoi(args.command_args[i].c_str());
+      } else if (token == "--note") {
+        if (++i >= args.command_args.size()) {
+          error("feedback submit: missing value for --note");
+          return 1;
+        }
+        note = args.command_args[i];
+      } else if (token == "--path") {
+        if (++i >= args.command_args.size()) {
+          error("feedback submit: missing value for --path");
+          return 1;
+        }
+        path = fs::path(args.command_args[i]);
+      } else {
+        error("feedback submit: unknown option '" + token + "'");
+        return 1;
+      }
+    }
+    if (rating < 1 || rating > 5) {
+      error("feedback submit: --rating must be between 1 and 5");
+      return 1;
+    }
+    std::ofstream out(path, std::ios::binary | std::ios::app);
+    if (!out) {
+      error("feedback submit: could not open path: " + path.string());
+      return 2;
+    }
+    out << "{\"schema\":\"t81.feedback.v1\",\"rating\":" << rating << ",\"note\":\""
+        << json_escape(note) << "\"}\n";
+    if (!out.good()) {
+      error("feedback submit: write failed: " + path.string());
+      return 2;
+    }
+    std::cout << "feedback recorded: " << path.string() << "\n";
+    return 0;
+  }
+
+  if (sub == "report") {
+    for (size_t i = 1; i < args.command_args.size(); ++i) {
+      const std::string& token = args.command_args[i];
+      if (token == "--path") {
+        if (++i >= args.command_args.size()) {
+          error("feedback report: missing value for --path");
+          return 1;
+        }
+        path = fs::path(args.command_args[i]);
+      } else {
+        error("feedback report: unknown option '" + token + "'");
+        return 1;
+      }
+    }
+    std::ifstream in(path, std::ios::binary);
+    if (!in) {
+      error("feedback report: could not open path: " + path.string());
+      return 2;
+    }
+    std::string line;
+    int count = 0;
+    int rating_sum = 0;
+    while (std::getline(in, line)) {
+      std::smatch m;
+      if (std::regex_search(line, m, std::regex("\"rating\":([0-9]+)")) && m.size() == 2) {
+        int r = std::atoi(m[1].str().c_str());
+        if (r >= 1 && r <= 5) {
+          ++count;
+          rating_sum += r;
+        }
+      }
+    }
+    std::cout << "{\n";
+    std::cout << "  \"schema\": \"t81.feedback-report.v1\",\n";
+    std::cout << "  \"path\": \"" << json_escape(path.string()) << "\",\n";
+    std::cout << "  \"count\": " << count << ",\n";
+    if (count == 0) {
+      std::cout << "  \"average_rating\": null\n";
+    } else {
+      std::cout << "  \"average_rating\": " << std::fixed << std::setprecision(3)
+                << (static_cast<double>(rating_sum) / static_cast<double>(count)) << "\n";
+      std::cout << std::defaultfloat;
+    }
+    std::cout << "}\n";
+    return 0;
+  }
+  error("feedback: unknown subcommand '" + sub + "'. Run 't81 help feedback'.");
+  return 1;
+}
+
 int run_llama_run(const Args& args) {
 #if defined(T81_HAS_LLAMA_CPP)
   if (!args.policy) {
@@ -2345,6 +2726,11 @@ int normalize_domain_command(Args& args) {
       args.command_args.erase(args.command_args.begin());
       return -1;
     }
+    if (action == "feedback") {
+      args.command = "feedback";
+      args.command_args.erase(args.command_args.begin());
+      return -1;
+    }
     error("Unknown env action: " + action + ". Run 't81 help env'.");
     return 1;
   }
@@ -2504,6 +2890,10 @@ int main(int argc, char* argv[]) {
           print_help_doctor();
           return 0;
         }
+        if (family == "env" && sub == "feedback") {
+          print_help_feedback();
+          return 0;
+        }
         if (family == "internal" && sub == "pkg") {
           print_help_pkg();
           return 0;
@@ -2624,6 +3014,10 @@ int main(int argc, char* argv[]) {
         }
         if (args.command == "env" && sub == "doctor") {
           print_help_doctor();
+          return 0;
+        }
+        if (args.command == "env" && sub == "feedback") {
+          print_help_feedback();
           return 0;
         }
         if (args.command == "internal" && sub == "pkg") {
@@ -2802,6 +3196,15 @@ int main(int argc, char* argv[]) {
 
     } else if (args.command == "fmt") {
       return run_fmt_command(args);
+
+    } else if (args.command == "completion") {
+      return run_completion_command(args);
+
+    } else if (args.command == "man") {
+      return run_man_command(args);
+
+    } else if (args.command == "feedback") {
+      return run_feedback_command(args);
 
     } else if (args.command == "init") {
       if (!args.command_args.empty() &&

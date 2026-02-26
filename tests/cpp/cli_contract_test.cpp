@@ -116,6 +116,9 @@ int main(int argc, char* argv[]) {
     T81_TEST_CHECK(contains(result.stderr_text, "project <action> [args]"));
     T81_TEST_CHECK(contains(result.stderr_text, "env     <action> [args]"));
     T81_TEST_CHECK(contains(result.stderr_text, "internal <action> [args]"));
+    T81_TEST_CHECK(contains(result.stderr_text, "completion <shell>"));
+    T81_TEST_CHECK(contains(result.stderr_text, "man [--install-dir <dir>]"));
+    T81_TEST_CHECK(contains(result.stderr_text, "feedback <subcommand> [args]"));
     T81_TEST_CHECK(contains(result.stderr_text, "compile <file.t81|.t81w>"));
     T81_TEST_CHECK(contains(result.stderr_text, "test    [options] [-- ...]"));
     T81_TEST_CHECK(contains(result.stderr_text, "doctor  [--json]"));
@@ -137,6 +140,24 @@ int main(int argc, char* argv[]) {
     const auto result = run_cli(t81_bin, {"help", "code", "build"});
     T81_TEST_CHECK(result.exit_code == 0);
     T81_TEST_CHECK(contains(result.stderr_text, "Usage: t81 compile"));
+  }
+
+  {
+    const auto result = run_cli(t81_bin, {"help", "completion"});
+    T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stderr_text, "Usage: t81 completion"));
+  }
+
+  {
+    const auto result = run_cli(t81_bin, {"help", "man"});
+    T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stderr_text, "Usage: t81 man"));
+  }
+
+  {
+    const auto result = run_cli(t81_bin, {"help", "feedback"});
+    T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stderr_text, "Usage: t81 feedback"));
   }
 
   {
@@ -263,6 +284,7 @@ int main(int argc, char* argv[]) {
     T81_TEST_CHECK(result.exit_code == 0);
     T81_TEST_CHECK(contains(result.stdout_text, "\"schema\": \"t81.test.v1\""));
     T81_TEST_CHECK(contains(result.stdout_text, "\"summary\""));
+    T81_TEST_CHECK(contains(result.stdout_text, "\"summary_source\""));
   }
 
   {
@@ -329,6 +351,39 @@ int main(int argc, char* argv[]) {
     T81_TEST_CHECK(contains(result.stdout_text, "\"schema\":\"t81.trace-export-entry.v1\""));
     const auto bad_format = run_cli(t81_bin, {"trace", "export", trace.string(), "--format", "xml"});
     T81_TEST_CHECK(bad_format.exit_code == 1);
+    fs::remove_all(temp_dir, ignore_ec);
+  }
+
+  {
+    const auto result = run_cli(t81_bin, {"completion", "bash"});
+    T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stdout_text, "complete -F _t81_complete t81"));
+  }
+
+  {
+    const auto result = run_cli(t81_bin, {"completion", "wat"});
+    T81_TEST_CHECK(result.exit_code == 1);
+  }
+
+  {
+    const auto result = run_cli(t81_bin, {"man"});
+    T81_TEST_CHECK(result.exit_code == 0);
+    T81_TEST_CHECK(contains(result.stdout_text, ".TH T81 1"));
+  }
+
+  {
+    const fs::path temp_dir = fs::temp_directory_path() / "t81-cli-contract-feedback";
+    std::error_code ignore_ec;
+    fs::remove_all(temp_dir, ignore_ec);
+    fs::create_directories(temp_dir);
+    const fs::path feedback_path = temp_dir / "feedback.jsonl";
+    const auto submit = run_cli(t81_bin, {"feedback", "submit", "--rating", "4", "--note", "good",
+                                          "--path", feedback_path.string()});
+    T81_TEST_CHECK(submit.exit_code == 0);
+    const auto report =
+        run_cli(t81_bin, {"feedback", "report", "--path", feedback_path.string()});
+    T81_TEST_CHECK(report.exit_code == 0);
+    T81_TEST_CHECK(contains(report.stdout_text, "\"schema\": \"t81.feedback-report.v1\""));
     fs::remove_all(temp_dir, ignore_ec);
   }
 
