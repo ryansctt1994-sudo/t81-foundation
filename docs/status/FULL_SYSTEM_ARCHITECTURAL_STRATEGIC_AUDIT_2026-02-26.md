@@ -122,8 +122,7 @@ Then reconcile encoding/register semantics into one normative source.
 | Documentation Credibility | 7.4 |
 
 ### 6.3 Required Corrections
-1. Continue normalization of legacy/archival docs that retain stronger historical sandbox wording.
-2. Maintain evidence-backed promotion discipline for cognitive-tier surfaces that remain experimental/non-DCP.
+No immediate high-priority corrections remain from this audit cycle. Ongoing governance work continues through scheduled month-close and promotion-gate processes.
 
 ## 7. Code Quality & Engineering Discipline
 
@@ -345,6 +344,10 @@ Then make CI fail on any doc/status/translation drift from that contract.
 
 ### 2026-02-26 (R28)
 - Reconciled audit residual-risk language with current cognitive-tier compliance evidence (`docs/status/COGNITIVE_TIERS_SPEC_COMPLIANCE_2026-02-26.md`), replacing "open semantic closure gaps" wording with the current governance reality: experimental/non-DCP promotion discipline.
+
+### 2026-02-26 (R29)
+- Completed a focused post-remediation wording sweep across integration/status guidance to confirm no remaining high-risk overclaims of OS/hardware sandboxing or unconditional isolation guarantees in the audited documentation scope.
+- Closed the audit-cycle "Required Corrections" section as complete, with remaining activity tracked as ongoing governance cadence rather than open remediation debt.
 
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
