@@ -207,6 +207,8 @@ This system does not provide hardware-backed containment.
 | Tier 5 (Infinite)    | Stub (returns constant) | False Capability |
 
 Tier 5 does not perform convergence analysis.
+Some unimplemented Tier/extension opcodes are intentionally fail-closed in VM
+execution (deterministic `SecurityFault`) rather than permissive placeholders.
 
 ---
 
@@ -235,6 +237,7 @@ The system does NOT:
 * Guarantee atomic persistence
 * Guarantee Tier 5 convergence logic
 * Guarantee thread scheduling determinism
+* Provide implemented async/network execution semantics for `NSEND/NRECV/VWAIT/VYIELD`
 
 ---
 

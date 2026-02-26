@@ -270,6 +270,9 @@ Then make CI fail on any doc/status/translation drift from that contract.
   - `spec/tisc/opcode-registry.md`
 - Added governance enforcement mapping in `docs/governance/ENFORCEMENT_MATRIX.md`.
 
+### 2026-02-26 (R16)
+- Updated `docs/reference/CAPABILITY_CONTRACT.md` to explicitly document fail-closed behavior for unimplemented tier/extension surfaces and to list async/network opcode semantics (`NSEND/NRECV/VWAIT/VYIELD`) as non-capabilities until implemented.
+
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
 - This report is descriptive and evidence-based; it does not override normative `/spec` authority.
