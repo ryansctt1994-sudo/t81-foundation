@@ -1,10 +1,10 @@
 # Full-System Architectural & Strategic Audit
 
 Date: 2026-02-26  
-Revision: Post-remediation refresh + conformance sprint Phase 3 closure + VM decomposition Phase F closure + rerun on baseline `40488752`  
+Revision: Post-remediation refresh + conformance sprint Phase 3 closure + VM decomposition Phase F closure + stdlib stabilization kickoff + rerun on baseline `c5c4aa59`  
 Scope: `/src`, `/include`, `/spec`, `/docs`, `/book`, CI workflows, governance files, capability contract, opcode/ISA surfaces, VM execution model, Axion policy enforcement, determinism gates, benchmarks, tests, multilingual alignment, roadmaps, release notes.
 
-## Rerun Delta (Baseline `40488752`)
+## Rerun Delta (Baseline `c5c4aa59`)
 
 - Added and expanded Phase-3 conformance matrices:
   - `tests/cpp/vm_fault_family_determinism_matrix_test.cpp`
@@ -32,6 +32,10 @@ Scope: `/src`, `/include`, `/spec`, `/docs`, `/book`, CI workflows, governance f
   - VM/Axion conformance matrices (`vm_state_transition_conformance_matrix_test`, `axion_policy_allow_deny_determinism_test`)
   - workload benchmark guardrail in CI
   - translation semantic heading-parity CI gate
+- Launched stdlib stabilization governance track:
+  - `docs/status/STDLIB_STABILIZATION_PLAN_2026-03.md`
+  - new stdlib surface baseline gate `scripts/governance/check_stdlib_surface_baseline.py`
+  - gate enforced in `scripts/governance/check_docs_governance_hygiene.py` and `.github/workflows/ci.yml`
 - Verification snapshot for rerun baseline:
   - `scripts/ci/run_determinism_slice.sh build`: PASS
   - governance/doc/spec gates: PASS
