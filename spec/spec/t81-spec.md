@@ -900,15 +900,22 @@ With fixed-width fields for deterministic decoding.
 
 ## **3.6.1 Encoding**
 
-Instructions are 81 trits → Instructions are **243 trits** (49 bytes in binary-hosted formats)
+Current canonical interchange encoding is a fixed-width **13-byte record**:
+
+```
+[ OPCODE:u8 | A:i32 | B:i32 | C:i32 ]   // little-endian i32 operands
+```
+
+This profile is normative for current toolchain/VM interoperability.
+Native ternary instruction-word encodings remain a future profile target and
+MUST map deterministically to the canonical 13-byte form when introduced.
 
 Fields include:
 
-- 9-trit opcode
-- 9-trit flags
-- 18-trit operand A
-- 18-trit operand B
-- 27-trit immediate (optional)
+- 8-bit opcode
+- 32-bit operand A
+- 32-bit operand B
+- 32-bit operand C
 
 All unused bits MUST be zero.
 
@@ -1305,7 +1312,7 @@ ______________________________________________________________________
 
 The decoder:
 
-- reads 81-trit instruction words
+- reads canonical 13-byte instruction records
 - verifies structural correctness
 - extracts opcode, flags, and operands
 - rejects malformed instructions deterministically
@@ -4709,18 +4716,17 @@ The hardware register file matches the TISC specification exactly:
 ## **12.4.1 Register Count**
 
 ```
-R0  … R26
+R0  … R80
 ```
 
-27 registers total.
+81-register architectural window (`R0–R80`) is mandatory.
+Implementations MAY provide additional non-portable extension banks.
 
 ## **12.4.2 Register Types**
 
-- **GPRs** (general purpose)
-- **ACC** (accumulator)
-- **FLAGS** (ternary condition flags)
-- **TENSOR** (vector/tensor interface)
-- **ASR** (Axion System Register)
+- **R0** (hardwired zero)
+- **R1–R74** (general purpose)
+- **R75–R80** (Axion system window)
 
 ## **12.4.3 ASR Hardware Implications**
 
@@ -4775,12 +4781,14 @@ ______________________________________________________________________
 
 ## **12.6.1 Instruction Word Size**
 
-TISC instructions are **81 trits**.
+TISC canonical interchange instructions are fixed-width **13-byte records**.
+Future native-ternary instruction words are profile-defined and must be
+deterministically transcodable to/from canonical records.
 
 ## **12.6.2 Decoding Stages**
 
-1. **Fetch** — pull 81 trits from instruction memory
-2. **Align** — verify trit alignment
+1. **Fetch** — pull one 13-byte instruction record from instruction memory
+2. **Align** — verify canonical field boundaries
 3. **Check** — ensure legality of opcode
 4. **Decode** — parse flags and operands
 5. **Validate** — Axion pre-check
@@ -7126,14 +7134,14 @@ ______________________________________________________________________
 The VM MUST implement:
 
 ```
-R0 … R26          (GPRs)
-ACC               (accumulator)
-FLAGS             (ternary flags)
-ASR               (Axion System Register)
+R0 … R80          (architectural register window)
 PC                (program counter)
 SP                (stack pointer)
 FP                (frame pointer)
 ```
+
+`R75–R80` are reserved as the Axion system window. Implementations MAY maintain
+additional internal registers, but portable programs MUST target `R0–R80`.
 
 ## **18.3.2 Execution Flags**
 
@@ -7182,7 +7190,7 @@ ______________________________________________________________________
 
 The VM MUST:
 
-1. fetch 81 trits
+1. fetch one canonical 13-byte instruction record
 2. validate opcode
 3. decode fields
 4. canonicalize as needed
@@ -7941,26 +7949,22 @@ ______________________________________________________________________
 
 # **20.1 Instruction Encoding**
 
-All instructions are **81 trits**.
-
-Each instruction word is divided into fields:
+Canonical encoding is fixed-width **13 bytes** per instruction:
 
 ```
-[  0.. 8]  OPCODE       (9 trits)
-[  9..17]  FLAGS        (9 trits)
-[ 18..26]  DEST         (9 trits)
-[ 27..35]  SRC1         (9 trits)
-[ 36..44]  SRC2         (9 trits)
-[ 45..80]  IMM/EXT      (36 trits)
+[ OPCODE:u8 | A:i32 | B:i32 | C:i32 ]   // little-endian i32 operands
 ```
+
+Native ternary instruction-word layouts are a future profile target and MUST
+define deterministic transcoding rules to canonical 13-byte encoding.
 
 ## **20.1.1 Alignment Rules**
 
-1. Instructions MUST begin on 81-trit boundaries
-2. All registers are 27-trit identifiers
-3. Immediate fields MUST be base-81 encoded
-4. Illegal encodings MUST fault deterministically
-5. No instruction may overlap memory boundaries
+1. Instructions MUST begin on canonical 13-byte record boundaries
+2. Operands MUST decode exactly as canonical signed 32-bit fields
+3. Illegal encodings MUST fault deterministically
+4. No instruction may overlap instruction-memory boundaries
+5. Native-ternary profile alignment rules are profile-specific and non-normative here
 
 ______________________________________________________________________
 
@@ -7971,18 +7975,16 @@ TISC defines:
 ## **20.2.1 General Purpose Registers (GPR)**
 
 ```
-R0 … R26   (27 registers)
+R0 … R74   (general-purpose registers)
 ```
 
 ## **20.2.2 Special Registers**
 
 ```
-ACC     — accumulator  
-FLAGS   — ternary condition flags  
-PC      — program counter  
-SP      — stack pointer  
-FP      — frame pointer  
-ASR     — Axion System Register  
+R75 … R80 — Axion system window
+PC        — program counter
+SP        — stack pointer
+FP        — frame pointer
 ```
 
 FLAGS can be:
@@ -10287,7 +10289,7 @@ For each CanonIR node:
 2. **Operand Verification** → type & shape
 3. **Axion Binding** → embed metadata
 4. **Instruction Serialization** → base-81 packed binary
-5. **Alignment** → enforce 81-trit boundaries
+5. **Alignment** → enforce canonical 13-byte instruction boundaries
 6. **Canonicalization** → final hashing
 7. **Emission** → TISC stream output
 
