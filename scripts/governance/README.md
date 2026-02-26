@@ -17,6 +17,12 @@ specification authority, freeze boundaries, or determinism claim scope.
 - ../README.md
 - ../../docs/governance/
 - check_docs_governance_hygiene.py
+- check_root_structure.py
+- check_readme_naming.py
+- check_translation_metadata.py
+- check_docs_structure.py
+- check_license_policy.py
+- check_repo_artifact_hygiene.py
 - t81lang_promotion_gate_snapshot.py
 - c2_month_close_check.py
 

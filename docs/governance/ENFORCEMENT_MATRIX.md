@@ -26,20 +26,20 @@ This document translates high-level governance policies into machine-verifiable 
 
 | Rule | Machine-Verifiable | Required CI Job | Enforcement Severity | Required Scripts / Metadata |
 | :--- | :---: | :--- | :--- | :--- |
-| **Directory Structure Mirroring** | No | N/A (planned) | **Warning** | Planned: `check_docs_structure.py` (not yet implemented) |
-| **README Naming Convention** | No | N/A (planned) | **Warning** | Planned: naming policy checker (not yet implemented) |
-| **Translation Metadata Headers** | No | N/A (planned) | **Warning** | Planned: translation metadata checker (not yet implemented) |
-| **Staleness Threshold** | No | N/A (planned) | **Warning** | Planned: translation staleness checker (not yet implemented) |
+| **Directory Structure Mirroring** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_docs_structure.py` |
+| **README Naming Convention** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_readme_naming.py` |
+| **Translation Metadata Headers** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_translation_metadata.py` |
+| **Staleness Threshold** | Partial | `spec-and-docs` | **Warning** | Chapter-coverage proxy via `scripts/governance/check_docs_structure.py`; date-age threshold script still pending |
 
 ## Policy: Dependency & Hygiene
 
 | Rule | Machine-Verifiable | Required CI Job | Enforcement Severity | Required Scripts / Metadata |
 | :--- | :---: | :--- | :--- | :--- |
-| **No GPL/AGPL Licenses** | No | N/A (planned) | **Warning** | Planned: license policy checker (not yet implemented) |
+| **No GPL/AGPL Licenses** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_license_policy.py` |
 | **Workflow Action Pinning** | Yes | `spec-and-docs`, `quality-gate` | **Hard-Fail** | `scripts/ci/audit_workflow_actions.py` |
 | **Workflow Permissions Policy** | Yes | `spec-and-docs`, `quality-gate` | **Hard-Fail** | `scripts/ci/audit_workflow_permissions.py` |
 | **Public Header Root (`include/t81/**`)** | Yes | `deterministic-core-profile-check` | **Hard-Fail** | Inline CI check in `.github/workflows/ci.yml` |
-| **Artifact Containment (repo cleanliness)** | No | N/A (planned) | **Warning** | Planned: git-clean checker (not yet implemented) |
+| **Artifact Containment (repo cleanliness)** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_repo_artifact_hygiene.py` |
 
 ## Policy: System Status & Implementation
 
@@ -51,5 +51,5 @@ This document translates high-level governance policies into machine-verifiable 
 
 | Rule | Machine-Verifiable | Required CI Job | Enforcement Severity | Required Scripts / Metadata |
 | :--- | :---: | :--- | :--- | :--- |
-| **Root Directory Freeze** | No | N/A (planned) | **Warning** | Planned: root-structure checker (not yet implemented) |
+| **Root Directory Freeze** | Yes | `spec-and-docs` | **Hard-Fail** | `scripts/governance/check_root_structure.py` |
 | **Benchmark Performance Gating** | Partial | `benchmarks` (non-blocking), optional benchmark workflows | **Warning** | `scripts/ci/check_simd_regression.py` exists, but not currently wired as a required hard gate |

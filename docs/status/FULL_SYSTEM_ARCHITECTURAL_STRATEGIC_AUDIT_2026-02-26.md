@@ -107,7 +107,7 @@ Then reconcile encoding/register semantics into one normative source.
 
 ### 5.3 Missing Enforcement Surfaces
 - Remaining hardening for broader cognitive-tier semantic completeness surfaces (beyond fail-closed guardrails already added).
-- Full sync between governance matrix and actual CI-enforced checks.
+- Full sync between governance matrix and actual CI-enforced checks remains in progress, with major structure/license/artifact rows now promoted to machine-verifiable checks.
 
 ## 6. Documentation vs Reality
 
@@ -123,7 +123,7 @@ Then reconcile encoding/register semantics into one normative source.
 
 ### 6.3 Required Corrections
 1. Continue normalization of legacy/archival docs that retain stronger historical sandbox wording.
-2. Add machine-verifiable enforcement for currently warning-only governance rows (licenses/structure/staleness).
+2. Extend translation staleness enforcement from chapter-coverage proxy to explicit date-age policy thresholds.
 3. Continue cognitive-tier semantic hardening where behavior is implemented but not yet assurance-complete.
 
 ## 7. Code Quality & Engineering Discipline
@@ -314,6 +314,19 @@ Then make CI fail on any doc/status/translation drift from that contract.
 
 ### 2026-02-26 (R24)
 - Performed post-remediation audit refresh to reconcile top-level ratings/findings/open-risk lists with implemented closures (spec alignment, fail-closed opcode hardening, policy parser hard-fail, workflow pinning, and governance mapping evidence).
+
+### 2026-02-26 (R25)
+- Implemented new governance policy check scripts:
+  - `scripts/governance/check_root_structure.py`
+  - `scripts/governance/check_readme_naming.py`
+  - `scripts/governance/check_translation_metadata.py`
+  - `scripts/governance/check_docs_structure.py`
+  - `scripts/governance/check_license_policy.py`
+  - `scripts/governance/check_repo_artifact_hygiene.py`
+- Integrated these checks into:
+  - `scripts/governance/check_docs_governance_hygiene.py`
+  - `.github/workflows/ci.yml` (`spec-and-docs` job)
+- Updated `docs/governance/ENFORCEMENT_MATRIX.md` to promote root-structure, README naming, translation metadata, GPL/AGPL policy, and artifact-hygiene rows to machine-verifiable CI enforcement.
 
 ## Audit Notes
 - Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.

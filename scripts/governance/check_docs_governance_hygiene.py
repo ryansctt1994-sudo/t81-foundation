@@ -127,6 +127,34 @@ def main() -> int:
               for line in output.splitlines():
                   issues.append(f"coherence: {line}")
 
+    # 5) Supplemental governance policy checks promoted from warning-only rows.
+    supplemental_checks = [
+        ("root structure", "scripts/governance/check_root_structure.py"),
+        ("README naming", "scripts/governance/check_readme_naming.py"),
+        ("translation metadata", "scripts/governance/check_translation_metadata.py"),
+        ("docs structure", "scripts/governance/check_docs_structure.py"),
+        ("license policy", "scripts/governance/check_license_policy.py"),
+        ("artifact hygiene", "scripts/governance/check_repo_artifact_hygiene.py"),
+    ]
+    for label, rel_script in supplemental_checks:
+        script_path = REPO_ROOT / rel_script
+        if not script_path.exists():
+            issues.append(f"missing {label} check script: {rel_script}")
+            continue
+        result = subprocess.run(
+            [sys.executable, str(script_path)],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode != 0:
+            issues.append(f"{label} check failed")
+            output = (result.stdout + "\n" + result.stderr).strip()
+            if output:
+                for line in output.splitlines():
+                    issues.append(f"{label}: {line}")
+
     if issues:
         print("governance hygiene check FAILED:")
         for issue in issues:
@@ -138,6 +166,7 @@ def main() -> int:
     print("- task-queue status consistency checked")
     print("- stale planned markers checked for completed tasks")
     print("- status label coherence checked")
+    print("- supplemental governance checks (structure/readme/translation/license/artifact) checked")
     return 0
 
 

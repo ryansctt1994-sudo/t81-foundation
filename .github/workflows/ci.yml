@@ -74,6 +74,15 @@ jobs:
         run: |
           python3 scripts/ci/audit_workflow_permissions.py --max-missing 0 2>&1 | tee -a .github/logs/spec-and-docs.log
 
+      - name: Run governance policy structure/license/artifact checks
+        run: |
+          python3 scripts/governance/check_root_structure.py 2>&1 | tee -a .github/logs/spec-and-docs.log
+          python3 scripts/governance/check_readme_naming.py 2>&1 | tee -a .github/logs/spec-and-docs.log
+          python3 scripts/governance/check_translation_metadata.py 2>&1 | tee -a .github/logs/spec-and-docs.log
+          python3 scripts/governance/check_docs_structure.py 2>&1 | tee -a .github/logs/spec-and-docs.log
+          python3 scripts/governance/check_license_policy.py 2>&1 | tee -a .github/logs/spec-and-docs.log
+          python3 scripts/governance/check_repo_artifact_hygiene.py 2>&1 | tee -a .github/logs/spec-and-docs.log
+
       - name: Run governance audit wrapper
         run: |
           make audit-governance 2>&1 | tee -a .github/logs/spec-and-docs.log
