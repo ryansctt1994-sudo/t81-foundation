@@ -4,6 +4,7 @@
 
 #include "t81/isa/program.hpp"
 #include "t81/tensor.hpp"
+#include "t81/tensor/llama.hpp"
 #include "t81/vm/vm.hpp"
 
 using namespace t81;
@@ -18,6 +19,12 @@ int main() {
   program.insns.push_back({tisc::Opcode::I2Frac, 11, 9, 0});
   program.insns.push_back({tisc::Opcode::Frac2I, 12, 11, 0});
   program.insns.push_back({tisc::Opcode::TExp, 13, 1, 0});
+  program.insns.push_back({tisc::Opcode::TVecMul, 14, 1, 2});
+  program.insns.push_back({tisc::Opcode::TSiLU, 15, 1, 0});
+  program.insns.push_back({tisc::Opcode::TSoftmax, 16, 1, 0});
+  program.insns.push_back({tisc::Opcode::TTranspose, 17, 5, 0});
+  program.insns.push_back({tisc::Opcode::TRMSNorm, 18, 1, 2});
+  program.insns.push_back({tisc::Opcode::TRoPE, 19, 5, 9});
   program.insns.push_back({tisc::Opcode::Halt, 0, 0, 0});
 
   [[maybe_unused]] auto vm = vm::make_interpreter_vm();
@@ -68,6 +75,59 @@ int main() {
   T81_TEST_CHECK(std::fabs(expRes.value().data()[0] - std::exp(1.0f)) < 1e-6f);
   T81_TEST_CHECK(std::fabs(expRes.value().data()[1] - std::exp(2.0f)) < 1e-6f);
   T81_TEST_CHECK(std::fabs(expRes.value().data()[2] - std::exp(3.0f)) < 1e-6f);
+
+  // Vector multiplication
+  [[maybe_unused]] auto mulHandle = vm->state().contexts[0].registers[14];
+  const auto& mulRes = mutable_state.tensors[static_cast<std::size_t>(mulHandle - 1)];
+  T81_TEST_CHECK(mulRes.has_value());
+  T81_TEST_CHECK(mulRes.value().shape()[0] == 3);
+  T81_TEST_CHECK(std::fabs(mulRes.value().data()[0] - 4.0f) < 1e-6f);
+  T81_TEST_CHECK(std::fabs(mulRes.value().data()[1] - 10.0f) < 1e-6f);
+  T81_TEST_CHECK(std::fabs(mulRes.value().data()[2] - 18.0f) < 1e-6f);
+
+  // SiLU and softmax must preserve shape and produce finite deterministic outputs.
+  [[maybe_unused]] auto siluHandle = vm->state().contexts[0].registers[15];
+  const auto& siluRes = mutable_state.tensors[static_cast<std::size_t>(siluHandle - 1)];
+  T81_TEST_CHECK(siluRes.has_value());
+  T81_TEST_CHECK(siluRes.value().shape()[0] == 3);
+  T81_TEST_CHECK(std::fabs(siluRes.value().data()[0] - (1.0f / (1.0f + std::exp(-1.0f)))) < 1e-6f);
+
+  [[maybe_unused]] auto softmaxHandle = vm->state().contexts[0].registers[16];
+  const auto& softmaxRes = mutable_state.tensors[static_cast<std::size_t>(softmaxHandle - 1)];
+  T81_TEST_CHECK(softmaxRes.has_value());
+  T81_TEST_CHECK(softmaxRes.value().shape()[0] == 3);
+  const float softmax_sum =
+      softmaxRes.value().data()[0] + softmaxRes.value().data()[1] + softmaxRes.value().data()[2];
+  T81_TEST_CHECK(std::fabs(softmax_sum - 1.0f) < 1e-5f);
+
+  // Transpose of 2x2 matrix handle 3.
+  [[maybe_unused]] auto transposeHandle = vm->state().contexts[0].registers[17];
+  const auto& transposeRes = mutable_state.tensors[static_cast<std::size_t>(transposeHandle - 1)];
+  T81_TEST_CHECK(transposeRes.has_value());
+  T81_TEST_CHECK(transposeRes.value().shape()[0] == 2 && transposeRes.value().shape()[1] == 2);
+  T81_TEST_CHECK(std::fabs(transposeRes.value().data()[0] - 1.0f) < 1e-6f);
+  T81_TEST_CHECK(std::fabs(transposeRes.value().data()[1] - 3.0f) < 1e-6f);
+
+  // RMSNorm and RoPE should match kernel implementations.
+  [[maybe_unused]] auto rmsHandle = vm->state().contexts[0].registers[18];
+  const auto& rmsRes = mutable_state.tensors[static_cast<std::size_t>(rmsHandle - 1)];
+  T81_TEST_CHECK(rmsRes.has_value());
+  auto rmsExpected = t81::ops::rmsnorm(vecA, vecB);
+  T81_TEST_CHECK(rmsRes.value().shape() == rmsExpected.shape());
+  T81_TEST_CHECK(rmsRes.value().data().size() == rmsExpected.data().size());
+  for (std::size_t i = 0; i < rmsExpected.data().size(); ++i) {
+    T81_TEST_CHECK(std::fabs(rmsRes.value().data()[i] - rmsExpected.data()[i]) < 1e-6f);
+  }
+
+  [[maybe_unused]] auto ropeHandle = vm->state().contexts[0].registers[19];
+  const auto& ropeRes = mutable_state.tensors[static_cast<std::size_t>(ropeHandle - 1)];
+  T81_TEST_CHECK(ropeRes.has_value());
+  auto ropeExpected = t81::ops::rope(matA, 3);
+  T81_TEST_CHECK(ropeRes.value().shape() == ropeExpected.shape());
+  T81_TEST_CHECK(ropeRes.value().data().size() == ropeExpected.data().size());
+  for (std::size_t i = 0; i < ropeExpected.data().size(); ++i) {
+    T81_TEST_CHECK(std::fabs(ropeRes.value().data()[i] - ropeExpected.data()[i]) < 1e-6f);
+  }
 
   // Shape checks via literal handles.
   [[maybe_unused]] tisc::Program chk;

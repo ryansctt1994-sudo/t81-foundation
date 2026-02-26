@@ -1668,7 +1668,7 @@ public:
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TSiLU kernel execution"};
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
-        auto res_handle = alloc_tensor(t81::ops::silu(*tensor));
+        auto res_handle = alloc_tensor(t81::vm::internal::tensor_unary_silu(*tensor));
         if (!res_handle) {
           trap = res_handle.error();
           break;
@@ -1694,7 +1694,7 @@ public:
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TSoftmax kernel execution"};
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
-        auto res_handle = alloc_tensor(t81::ops::softmax(*tensor));
+        auto res_handle = alloc_tensor(t81::vm::internal::tensor_unary_softmax(*tensor));
         if (!res_handle) {
           trap = res_handle.error();
           break;
@@ -1727,7 +1727,7 @@ public:
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TRMSNorm kernel execution"};
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
-        auto res_handle = alloc_tensor(t81::ops::rmsnorm(*tensor, *w));
+        auto res_handle = alloc_tensor(t81::vm::internal::tensor_rmsnorm(*tensor, *w));
         if (!res_handle) {
           trap = res_handle.error();
           break;
@@ -1755,7 +1755,7 @@ public:
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
         int pos = static_cast<int>(ctx.registers[insn.c]);
-        auto res_handle = alloc_tensor(t81::ops::rope(*tensor, pos));
+        auto res_handle = alloc_tensor(t81::vm::internal::tensor_rope(*tensor, pos));
         if (!res_handle) {
           trap = res_handle.error();
           break;
@@ -3464,17 +3464,9 @@ public:
         record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
 
-        std::vector<float> data(tensor_a->data().size());
-        if (insn.opcode == t81::tisc::Opcode::TVecAdd) {
-          for (std::size_t i = 0; i < data.size(); ++i) {
-            data[i] = tensor_a->data()[i] + tensor_b->data()[i];
-          }
-        } else {
-          for (std::size_t i = 0; i < data.size(); ++i) {
-            data[i] = tensor_a->data()[i] * tensor_b->data()[i];
-          }
-        }
-        auto res_handle = alloc_tensor(t81::T729DynamicTensor(tensor_a->shape(), std::move(data)));
+        const bool multiply = insn.opcode == t81::tisc::Opcode::TVecMul;
+        auto res_handle =
+            alloc_tensor(t81::vm::internal::tensor_binary_elementwise(*tensor_a, *tensor_b, multiply));
         if (!res_handle) {
           trap = res_handle.error();
           break;
@@ -3500,7 +3492,7 @@ public:
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TTranspose kernel execution"};
         record_axion_event(insn.opcode, static_cast<std::int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
-        auto res_handle = alloc_tensor(tensor->transpose2d());
+        auto res_handle = alloc_tensor(t81::vm::internal::tensor_transpose_2d(*tensor));
         if (!res_handle) {
           trap = res_handle.error();
           break;
@@ -3551,7 +3543,7 @@ public:
         t81::axion::Verdict verdict{t81::axion::VerdictKind::Allow, "TMatMul kernel execution"};
         record_axion_event(insn.opcode, static_cast<int32_t>(insn.b), ctx.registers[insn.b],
                            verdict);
-        t81::T729DynamicTensor result = t81::ops::matmul(*tensor_a, *tensor_b);
+        t81::T729DynamicTensor result = t81::vm::internal::tensor_matmul_2d(*tensor_a, *tensor_b);
         auto res_handle = alloc_tensor(std::move(result));
         if (!res_handle) {
           trap = res_handle.error();
@@ -3593,18 +3585,18 @@ public:
           trap = Trap::DecodeFault;
           break;
         }
-        try {
-          auto result = t81::T729DynamicTensor::contract_dot(*tensor_a, *tensor_b);
-          auto res_handle = alloc_tensor(std::move(result));
-          if (!res_handle) {
-            trap = res_handle.error();
-            break;
-          }
-          ctx.registers[insn.a] = *res_handle;
-          ctx.register_tags[insn.a] = ValueTag::TensorHandle;
-        } catch (...) {
+        auto result = t81::vm::internal::tensor_contract_dot(*tensor_a, *tensor_b);
+        if (!result.has_value()) {
           trap = Trap::ShapeFault;
+          break;
         }
+        auto res_handle = alloc_tensor(std::move(*result));
+        if (!res_handle) {
+          trap = res_handle.error();
+          break;
+        }
+        ctx.registers[insn.a] = *res_handle;
+        ctx.register_tags[insn.a] = ValueTag::TensorHandle;
         break;
       }
       case t81::tisc::Opcode::TGet: {

@@ -6,6 +6,8 @@
 #include <cstring>
 #include <cmath>
 
+#include "t81/tensor/llama.hpp"
+#include "t81/tensor/matmul.hpp"
 #include "t81/tracing/canonhash.hpp"
 
 namespace t81::vm::internal {
@@ -248,6 +250,57 @@ t81::T729DynamicTensor tensor_unary_exp(const t81::T729DynamicTensor& tensor) {
     val = std::exp(val);
   }
   return t81::T729DynamicTensor(tensor.shape(), std::move(data));
+}
+
+t81::T729DynamicTensor tensor_unary_silu(const t81::T729DynamicTensor& tensor) {
+  return t81::ops::silu(tensor);
+}
+
+t81::T729DynamicTensor tensor_unary_softmax(const t81::T729DynamicTensor& tensor) {
+  return t81::ops::softmax(tensor);
+}
+
+t81::T729DynamicTensor tensor_binary_elementwise(const t81::T729DynamicTensor& lhs,
+                                                 const t81::T729DynamicTensor& rhs,
+                                                 bool multiply) {
+  std::vector<float> data(lhs.data().size());
+  if (multiply) {
+    for (std::size_t i = 0; i < data.size(); ++i) {
+      data[i] = lhs.data()[i] * rhs.data()[i];
+    }
+  } else {
+    for (std::size_t i = 0; i < data.size(); ++i) {
+      data[i] = lhs.data()[i] + rhs.data()[i];
+    }
+  }
+  return t81::T729DynamicTensor(lhs.shape(), std::move(data));
+}
+
+t81::T729DynamicTensor tensor_transpose_2d(const t81::T729DynamicTensor& tensor) {
+  return tensor.transpose2d();
+}
+
+t81::T729DynamicTensor tensor_matmul_2d(const t81::T729DynamicTensor& lhs,
+                                        const t81::T729DynamicTensor& rhs) {
+  return t81::ops::matmul(lhs, rhs);
+}
+
+std::optional<t81::T729DynamicTensor> tensor_contract_dot(const t81::T729DynamicTensor& lhs,
+                                                          const t81::T729DynamicTensor& rhs) {
+  try {
+    return t81::T729DynamicTensor::contract_dot(lhs, rhs);
+  } catch (...) {
+    return std::nullopt;
+  }
+}
+
+t81::T729DynamicTensor tensor_rmsnorm(const t81::T729DynamicTensor& tensor,
+                                      const t81::T729DynamicTensor& weights) {
+  return t81::ops::rmsnorm(tensor, weights);
+}
+
+t81::T729DynamicTensor tensor_rope(const t81::T729DynamicTensor& tensor, int pos) {
+  return t81::ops::rope(tensor, pos);
 }
 
 }  // namespace t81::vm::internal
