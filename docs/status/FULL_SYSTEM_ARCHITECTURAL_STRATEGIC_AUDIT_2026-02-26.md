@@ -1,397 +1,169 @@
-# Full-System Architectural & Strategic Audit
-
-Date: 2026-02-26  
-Scope: `/src`, `/include`, `/spec`, `/docs`, `/book`, CI workflows, governance, contracts, ISA/opcodes, VM, Axion, determinism gates, benchmarks, tests, multilingual alignment, roadmap, release artifacts.
-
 ## Executive Summary
-This repository is a substantial, working deterministic-runtime codebase with strong test/CI investment. Core pipeline elements are implemented (frontend, ISA encoding, VM interpreter, Axion engine, CanonFS, reproducibility gates), and representative determinism tests plus both repro gates were validated locally (`t81lang` and `t3k`) as passing.
+The repository is a real, executable deterministic-runtime stack with broad CI/test coverage (260 CTest targets) and materially improved governance enforcement. Core pipeline layers (Lang → TISC → VM → Axion → CanonFS) are implemented and wired in CI. Major prior gaps (warning-only governance rows, trace-policy granularity, translation staleness gating) are now machine-enforced.
 
-The highest previously identified remediation gaps (spec/impl contradictions, documentation over-claims, workflow pinning drift, permissive stub opcode behavior, translation staleness machine-enforcement, trace policy granularity, and warning-only governance rows) were closed in this remediation cycle with linked test/governance evidence. Residual risk is now concentrated in long-horizon areas (non-DCP tensor/backend reproducibility and promotion governance for experimental surfaces).
+Determinism claims are defensible for scoped, governed surfaces (DCP/registry-bounded), not as universal system guarantees. Runtime trace mode now enforces Axion policy per instruction, reducing a prior governance gap. Float determinism posture improved (strict deterministic float profile enabled by default build option), but host/hardware dependence remains for excluded/non-DCP surfaces and backend/tensor paths.
 
-Determinism is defensible only for explicitly bounded surfaces and only with caveats already present in some governance docs. The strategic position is best classified as a **Deterministic Runtime Candidate** (not pre-production infrastructure). If development stopped today, it would be remembered as a serious deterministic-systems research platform with unusually strong implementation depth, but inconsistent assurance posture.
+Architectural drift remains in documentation coherence: some non-normative docs still overstate global determinism or capability breadth versus contract-bounded guarantees. Strategic posture is **Deterministic Runtime Candidate**: stronger than research prototype, not yet pre-production infrastructure due to non-DCP backend variability, partial experimental-surface promotion evidence, and remaining contract consolidation work.
+
+---
+
+## 0. Implementation Reality Snapshot
+
+| Category | Status | Evidence |
+|---|---|---|
+| Actually implemented | Lang compiler, TISC encoding/registry, VM interpreter, threaded trace mode, Axion policy engine, CanonFS write integrity, CI repro gates | [`core/vm/vm.cpp`](/Users/t81dev/Code/t81-foundation/core/vm/vm.cpp), [`core/isa/encoding.cpp`](/Users/t81dev/Code/t81-foundation/core/isa/encoding.cpp), [`scripts/ci/t81lang_repro_gate.py`](/Users/t81dev/Code/t81-foundation/scripts/ci/t81lang_repro_gate.py) |
+| Partially implemented | Cognitive tiers, Axion draft-surface coverage, full spec-code coverage breadth, performance gating breadth | [`docs/status/IMPLEMENTATION_MATRIX.md`](/Users/t81dev/Code/t81-foundation/docs/status/IMPLEMENTATION_MATRIX.md), [`docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md`](/Users/t81dev/Code/t81-foundation/docs/status/AXION_PARTIAL_COVERAGE_ALIGNMENT_2026-03.md) |
+| Specified but not fully implemented | Tier 4/5 semantics, distributed/runtime research surfaces, CanonFS read re-verify path | [`spec/cognitive-tiers.md`](/Users/t81dev/Code/t81-foundation/spec/cognitive-tiers.md), [`docs/reference/CAPABILITY_CONTRACT.md`](/Users/t81dev/Code/t81-foundation/docs/reference/CAPABILITY_CONTRACT.md) |
+| Architectural drift present | Some release/how-to/README narrative strength vs bounded contract language | [`README.md`](/Users/t81dev/Code/t81-foundation/README.md), [`docs/releases/TISC_v1.1.0_Canonical_Freeze.md`](/Users/t81dev/Code/t81-foundation/docs/releases/TISC_v1.1.0_Canonical_Freeze.md), [`docs/reference/CAPABILITY_CONTRACT.md`](/Users/t81dev/Code/t81-foundation/docs/reference/CAPABILITY_CONTRACT.md) |
+
+---
 
 ## 1. Architectural Integrity
 
-### 1.1 Drift Matrix (Spec vs Implementation)
+### Drift Matrix (Spec vs Implementation)
 
 | Area | Spec/Doc Claim | Implementation Evidence | Assessment |
 |---|---|---|---|
-| Register model | TISC defines mandatory `R0–R80` architectural window (`spec/tisc-spec.md`) | VM thread context stores a larger implementation-defined bank (`include/t81/vm/state.hpp`) | Reconciled to bounded extension model |
-| Instruction encoding | Canonical TISC encoding is fixed-width 13-byte form (`spec/tisc-spec.md`) | Runtime uses 13-byte `{opcode,a,b,c}` (`core/isa/encoding.cpp`) | Aligned |
-| JIT model | VM spec describes deterministic threaded trace mode (`spec/t81vm-spec.md`) | Capability contract describes threaded trace interpreter (not machine-code JIT) (`docs/reference/CAPABILITY_CONTRACT.md`) | Aligned |
-| Axion policy invocation | Per-instruction policy expectation for governed execution | Interpreter does per-step checks; trace path now evaluates policy per instruction via JIT policy hook (`core/vm/vm.cpp`, `runtime/jit/jit_compiler.cpp`) | Aligned |
-| Core maturity | Root status and reference status aligned to current Beta/Alpha posture (`README.md`, `docs/reference/STATUS.md`) | Current docs reflect bounded determinism and partial surfaces | Aligned |
+| Layered pipeline | Lang→TISC→VM→Axion→CanonFS | Compiler/IR/VM/Axion hooks exist | Aligned |
+| TISC encoding | Frozen 13-byte canonical record | Encoding implementation matches | Aligned |
+| Trace governance | Policy-governed execution | Trace now enforces per-instruction policy callback | Aligned (improved) |
+| Opcode stub behavior | Reserved/unimplemented surfaces | Privileged/network/neural opcodes fail-closed | Aligned |
+| CanonFS integrity | Content-addressed integrity | Write-path hash enforced; read re-verify absent | Partially aligned |
 
-### 1.2 Layer Violation Analysis
-- Pipeline layering exists in code: frontend -> emitter -> VM -> Axion hooks.
-- Authority layering is inconsistent across spec/status/reference artifacts.
-- Experimental/stub opcode surfaces are present in core VM dispatch under the same ISA namespace.
-- Legacy/archival naming persists in roadmap/reference documents.
+### Layer Violation Analysis
+- Layering is mostly respected in code.
+- Experimental surfaces share ISA namespace with stable surfaces; governance differentiates by fail-closed + status docs.
+- Some doc strata still state stronger global behavior than contract-bounded guarantees.
 
-### 1.3 Architectural Risk Score
+### Architectural Risk Score
+**4.8 / 10** (lower is better risk posture): core contradictions reduced; residual risk is mostly governance/documentation coherence and non-DCP boundary management.
 
-| Metric | Score (1-10) | Basis |
-|---|---:|---|
-| Architectural Risk | 5.5 | Major norm/implementation contradictions remediated; residual risk now concentrated in bounded governance/semantic coverage gaps |
+---
 
 ## 2. Determinism Validation
 
-### 2.1 Determinism Confidence Rating
-**Moderate** for scoped verified surfaces, **Low** for broad ecosystem claims.
+### Determinism Confidence Rating
+**Moderate (system-wide), Strong (bounded DCP/verified surfaces).**
 
-### 2.2 Failure Surface Analysis
-- VM float transcendental opcodes route through `T81Float` operations (deterministic dmath path when `T81_DETERMINISTIC` is enabled via build profile) (`core/vm/vm.cpp`, `CMakeLists.txt`).
-- Determinism registry explicitly excludes/limits several surfaces (`docs/governance/DETERMINISM_SURFACE_REGISTRY.md`).
-- Entropy/time APIs include non-deterministic sources unless overridden (`include/t81/entropy.hpp`, `include/t81/types/T81Time.hpp`).
-- JIT trace execution now enforces policy per instruction through a policy callback and returns fail-closed on deny (`Trap::SecurityFault`) with regression coverage (`tests/cpp/vm_jit_per_instruction_policy_test.cpp`).
+### Failure Surface Analysis
+- Bit-exact guarantees are gated for specific surfaces (`t81lang`, `t3k`, determinism slice).
+- Float transcendental VM path now routed through `T81Float` ops; strict deterministic float profile defaulted (`T81_STRICT_DETERMINISTIC_FLOAT=ON`).
+- Non-deterministic APIs remain by contract: time/thread scheduling, host allocator addresses, non-DCP tensor/backend paths.
+- Hidden randomness: entropy/time remain host-sensitive outside replay/controlled contexts.
+- Compiler flag sensitivity: deterministic behavior still depends on bounded profiles and CI gate discipline.
+- UB exposure: mitigated by sanitizers + shift masking; full proof-grade UB elimination remains Indeterminate.
 
-### 2.3 Determinism Threat Map
+### Determinism Threat Map
 
 | Threat | Severity | Likelihood | Current Control |
 |---|---|---|---|
-| Float transcendental drift in non-strict builds | Medium | Low | Strict deterministic float profile is default in build configuration (`T81_DETERMINISTIC`) |
-| Overclaim in active docs | Low | Low | CI overclaim guardrails + capability-boundary normalization in integration/status docs |
-| JIT equivalence/policy drift | Medium | Low | Equivalence tests + per-instruction policy hook in trace execution |
-| CanonFS read integrity trust | Medium | Medium | Write hashing enforced; read-time re-verify absent |
-| Spec/encoding mismatch | High | Medium | No single harmonized canonical encoding narrative |
+| Non-DCP tensor/backend drift | High | Medium | Explicit non-guarantee + DCP exclusion |
+| Contract overclaim reintroduction | Medium | Low | Overclaim guardrail CI check |
+| CanonFS read-time trust gap | Medium | Medium | Documented non-capability |
+| Toolchain/flag drift | Medium | Medium | Multi-job CI + repro gates |
+| Full reduction-order proof coverage | Medium | Indeterminate | Partial tests; no full formal closure evidence |
 
-### 2.4 Validation Snapshot (Local)
-- `ctest` selected tests passed: `t81_vm_determinism_property_test`, `jit_trace_equivalence_test`, `axion_policy_segment_event_test`.
-- `scripts/ci/t81lang_repro_gate.py` passed (16 fixtures).
-- `scripts/ci/t3k_repro_gate.py` passed.
+---
 
 ## 3. Instruction Set Coherence (TISC)
 
-### 3.1 Findings
-- Opcode registry is extensive, mapped, and has matrix tests.
-- Unimplemented extension/stub opcode surfaces are now largely fail-closed with explicit deny semantics and regression coverage.
-- Encoding and register contract contradictions were reconciled in normative docs.
+- Opcode versioning and freeze enforcement are consistent (`174` opcodes, freeze integrity check in CI).
+- Semantic stability improved via fail-closed semantics for unimplemented extension opcodes.
+- Extension pressure remains real due to reserved space + experimental surfaces.
 
-### 3.2 ISA Maturity Stage
-**Stabilizing**
+**ISA maturity stage: Near-Freeze (Frozen core, experimental extension profile).**
 
-### 3.3 Recommended Next Action
-Split ISA posture into:
-1. Frozen core profile
-2. Extension/stub profile
+**Recommended next action:** split and publish explicit two-profile contract: `Frozen Core ISA` vs `Experimental Extension ISA`, with mandatory tooling labels in artifacts.
 
-Then reconcile encoding/register semantics into one normative source.
+---
 
 ## 4. VM & Execution Engine
 
-### 4.1 Findings
-- Interpreter is substantial and policy-aware.
-- Deterministic round-robin multi-context scheduling exists.
-- JIT trace execution is real, tested, and now policy-checked per instruction; execution remains threaded trace (not native machine-code JIT).
+- Interpreter: substantial and policy-integrated.
+- Trace/JIT: threaded trace (not native code JIT), equivalence-tested.
+- Policy integration: now per-instruction in trace execution; deny is fail-closed.
+- Determinism: strong on governed/bounded flows; non-DCP backend surfaces remain variable.
+- Safety surfaces: broad fail-closed opcode hardening and policy-parse denial paths present.
 
-### 4.2 Runtime Ratings
+**Runtime integrity score:** **7.6 / 10**  
+**Production readiness estimate:** **Not pre-production yet** (candidate-stage runtime with strong controls, incomplete full-surface assurance).
 
-| Metric | Score | Interpretation |
-|---|---:|---|
-| Runtime Integrity | 6.8/10 | Strong implementation, bounded by model mismatches |
-| Production Readiness | Not ready | Candidate-stage, not hardened infrastructure |
+---
 
 ## 5. Axion Governance & Enforcement
 
-### 5.1 Findings
-- Axion policy engine and bytecode evaluator are implemented.
-- Unknown policy clauses now hard-fail during parse (deterministic parse error).
-- Embedded policy parse failures are now fail-closed at VM load (`SecurityFault` on execution path with deterministic deny-log event).
+- Policy enforcement completeness is materially improved (deny fail-closed mappings and CI test anchors).
+- Capability boundaries are explicit and largely honest (no OS/hardware sandbox claim).
+- Bypass vectors reduced (trace-policy granularity gap closed), but host-level hazards remain outside scope.
+- Auditability is strong (Axion logs, reasoned denials, CI governance matrix).
 
-### 5.2 Governance Rating
+**Governance strength rating:** **Moderate-Strong**  
+**Missing enforcement surfaces:** full-depth spec-code coverage (baseline exists, not exhaustive), broader benchmark-gate families, full formal policy proofs.  
+**Risk classification:** **Medium**
 
-| Metric | Rating |
-|---|---|
-| Governance Strength | Moderate |
-| Risk Classification | Medium-High |
-
-### 5.3 Missing Enforcement Surfaces
-- No immediate cognitive-tier closure gaps are open in the 2026-02-26 compliance pass; remaining tier risk is governance posture and promotion evidence for still-experimental surfaces.
-- Governance matrix and CI are synchronized for previously warning-level rows via machine-verifiable scripts; residual enforcement work is now mainly depth/coverage expansion, not missing baseline checks.
+---
 
 ## 6. Documentation vs Reality
 
-### 6.1 Overstatement Map
-- Root and multilingual READMEs are aligned to bounded determinism language.
-- Active docs now have overclaim guardrails enforced in CI to prevent stronger-than-implemented claim reintroduction.
+### Overstatement Map
+- Root README still contains broad phrasing (“eliminates non-determinism of modern floating-point arithmetic”) that is stronger than bounded capability-contract language.
+- Release note language for functional stubs/default float behavior is partially stale relative to current fail-closed + deterministic float profile defaults.
+- Multilingual synchronization is structurally enforced and staleness-gated, but semantic parity remains only partially machine-verifiable.
 
-### 6.2 Documentation Credibility Score
+### Documentation Credibility Score
+**8.0 / 10**
 
-| Metric | Score (1-10) |
-|---|---:|
-| Documentation Credibility | 7.4 |
+### Required Corrections
+1. Normalize top-level README language to explicit DCP/registry-bounded guarantees.
+2. Update release note caveats to current fail-closed opcode behavior and strict-float default profile.
+3. Extend multilingual checks from token/date structure toward semantic diff quality (currently Indeterminate).
 
-### 6.3 Required Corrections
-No immediate high-priority corrections remain from this audit cycle. Ongoing governance work continues through scheduled month-close and promotion-gate processes.
+---
 
 ## 7. Code Quality & Engineering Discipline
 
-### 7.1 Findings
-- Build/test matrix is broad and active; local CTest inventory shows 254 tests.
-- Static analysis scope in CI has been expanded beyond `src/**` to include `core/**`, `kernel/**`, `runtime/**`, and `lang/**`; coverage is improved but still not full-repo exhaustive.
-- Governance enforcement matrix now maps fail-closed runtime guarantees and promoted former warning rows to hard-fail checks (API lock, spec-code baseline, benchmark regression, overclaim/boundary guardrails).
-- Workflow action pinning now passes strict thresholds (`tagged=0`, `unknown=0`) after SHA pinning remediation.
+- Build/toolchain coherence is good; strict CI graph with quality gate.
+- CI rigor is high: governance checks, freeze checks, repro gates, sanitizers, fuzzing, static analysis, benchmarks now required.
+- Test coverage realism is strong by volume and subsystem spread (260 tests), but not proof of exhaustive semantic coverage.
+- Benchmark validity is improving; current hard gate is SIMD-focused, not whole-system performance validity.
+- Complexity hotspots remain in `core/vm/vm.cpp` and status/governance artifact sprawl.
 
-### 7.2 Maturity & Refactor Priority
+**Engineering maturity level:** **Emerging System**
 
-| Dimension | Assessment |
-|---|---|
-| Engineering Maturity | Emerging System |
+### Refactor Priority Ranking
+1. Contract unification across README/release/capability/status artifacts.
+2. Reduce VM monolith complexity (`core/vm/vm.cpp`) via dispatch/module extraction.
+3. Expand spec-code coverage checks beyond baseline mapping.
+4. Add CanonFS read-time integrity verification path (or explicit optional mode).
+5. Broaden performance gating from SIMD slice to workload families.
 
-Refactor priority ranking:
-1. Spec/runtime contract convergence (registers + encoding + JIT model).
-2. Documentation governance unification (single claim model + multilingual sync).
-3. Axion fail-closed behavior and policy versioning.
-4. CI governance hardening (pinning + matrix-to-enforcement parity).
-5. Determinism hardening/partitioning for host-dependent float/tensor behavior.
+---
 
 ## 8. Strategic Position Assessment
 
-### 8.1 Classification
-**Deterministic Runtime Candidate**
+**Classification:** **Deterministic Runtime Candidate**
 
-### 8.2 Why
-- Real implementation depth and strong automated validation.
-- Determinism controls are operational on important slices.
-- Residual bounded-surface guarantees and experimental-surface promotion governance still block pre-production classification.
+**Why:** real implementation depth, enforced governance, and reproducibility infrastructure are present; remaining limitations are boundary scope and assurance-completeness, not absence of system substance.
 
-### 8.3 If Development Stopped Today
-A technically serious deterministic-compute research/runtime candidate with strong artifacts and tests, remembered for both depth and unresolved assurance-coherence gaps.
+**If development stopped today:** it would be remembered as a technically serious deterministic runtime platform with unusually strong governance/test scaffolding, but not yet a production-viable deterministic infrastructure core.
+
+---
 
 ## 9. Hard Truth
 
-### 9.1 Most Serious Structural Risks (Top 5)
-1. Tensor/backend hardware paths remain non-DCP and not cross-platform bit-exact by contract.
-2. Experimental cognitive-tier surfaces are not yet promoted to verified/non-experimental status.
-3. CanonFS read path integrity trust remains weaker than write-path guarantees.
-4. Single-source normative convergence across all spec/reference/status artifacts is still incomplete.
-5. Performance-gate scope currently focuses on SIMD kernel regression, not full workload families.
+### 5 Most Serious Structural Risks
+1. Non-DCP tensor/backend reproducibility remains outside bit-exact guarantee scope.
+2. CanonFS read-path trust model is weaker than write-path integrity model.
+3. Documentation contract coherence still lags implementation in key top-level artifacts.
+4. Spec-code alignment checks are baseline-level, not full-coverage assurance.
+5. VM core complexity concentration increases maintenance and regression risk.
 
-### 9.2 Most Valuable Strengths (Top 5)
-1. High-volume automated test infrastructure.
-2. Working end-to-end toolchain and runtime (not paper architecture).
-3. Operational reproducibility gates (`t81lang`, `t3k`).
-4. Explicit determinism threat/registry framework.
-5. Axion policy + trace substrate with meaningful audit hooks.
+### 5 Most Valuable Strengths
+1. Strong CI governance enforcement with hard-fail policy mapping.
+2. Working end-to-end stack (not conceptual-only architecture).
+3. Determinism gates and cross-arch reproducibility workflows are operational.
+4. Fail-closed security posture for major unimplemented privileged surfaces.
+5. Explicit capability boundary documentation and status taxonomy.
 
-### 9.3 Single Most Important Next Move
-Execute a **Normative Convergence Sprint** that produces one signed authoritative contract set for:
-- ISA encoding
-- register model
-- determinism scope
-- Axion enforcement semantics
-
-Then make CI fail on any doc/status/translation drift from that contract.
-
-## 10. Remediation Log
-
-### 2026-02-26 (R1)
-- Updated root determinism positioning text in `README.md` to registry-bounded guarantee language.
-- Synchronized `docs/reference/STATUS.md` component maturity posture with active status/governance artifacts (`T81VM` Beta, `Axion` Alpha, `T81Lang` Beta implementation posture).
-- Added this remediation log section to keep audit findings and closure evidence linked in one artifact.
-
-### 2026-02-26 (R2)
-- Synchronized multilingual README component rows (ES/PT/RU/ZH) so `T81VM` and `Axion` maturity no longer conflict with canonical posture.
-- Updated `docs/governance/ENFORCEMENT_MATRIX.md` to reflect actually wired CI checks and to explicitly mark planned/non-implemented enforcement scripts as non-machine-verifiable.
-
-### 2026-02-26 (R3)
-- Reconciled `spec/tisc-spec.md` encoding language with canonical implemented interchange format (`u8 opcode + 3x i32 operands`, 13-byte fixed width).
-- Added explicit register-contract clarification in `spec/tisc-spec.md`: `R0–R80` as the mandatory architectural window, with non-portable implementation-defined extension banks allowed only outside canonical deterministic-profile assumptions.
-
-### 2026-02-26 (R4)
-- Removed remaining tag-pinned workflow actions (`@v4`) and replaced them with SHA-pinned references in:
-  - `.github/workflows/benchmark_packed_trit_vector.yml`
-  - `.github/workflows/ci.yml` (`governance-metrics` job)
-- This closes the workflow action pinning gap identified by `scripts/ci/audit_workflow_actions.py --max-tagged 0 --max-unknown 0`.
-
-### 2026-02-26 (R5)
-- Hardened VM Axion policy handling to fail closed on embedded policy parse errors in `core/vm/vm.cpp`.
-- Added regression coverage in `tests/cpp/vm_policy_parse_fail_closed_test.cpp` and wired it into `CMakeLists.txt`.
-
-### 2026-02-26 (R6)
-- Updated deterministic-claim language in `README.pt-BR.md`, `README.ru.md`, and `README.zh-CN.md` intros and deterministic-execution feature rows to match bounded verified-surface positioning.
-- Re-ran governance and integrity checks (`status label coherence`, `docs governance hygiene`, `TISC freeze integrity`, and strict workflow action pinning) with all checks passing.
-
-### 2026-02-26 (R7)
-- Reconciled capability-contract sandbox language by updating `docs/governance/CAPABILITY_CONTRACT.md` to match process-level enforcement limits and explicit non-guarantee of OS/hardware sandboxing.
-- Added explicit contract-authority pointer from governance summary to `docs/reference/CAPABILITY_CONTRACT.md`.
-
-### 2026-02-26 (R8)
-- Normalized over-strong determinism/sandbox/JIT wording in high-visibility integration guides:
-  - `docs/how-to/system-integration.md`
-  - `docs/how-to/systems-integration-agi.md`
-- Replaced global replay/native-code claims with bounded determinism and current threaded-trace execution wording.
-
-### 2026-02-26 (R9)
-- Removed stale register-model wording in `spec/tisc-spec.md` section 1 (`27 general-purpose registers`) and aligned it to the mandatory `R0–R80` architectural window with optional implementation-defined extensions.
-- Replaced stale native-code JIT wording in `spec/t81vm-spec.md` with deterministic threaded trace mode terminology to match current runtime capability contracts.
-
-### 2026-02-26 (R10)
-- Reconciled major monolithic-spec ISA contradictions in `spec/spec/t81-spec.md`:
-  - replaced legacy `81-trit` instruction-word claims with canonical fixed-width `13-byte` encoding (`u8 opcode + 3x i32`)
-  - replaced legacy `R0..R26` register model wording with `R0..R80` architectural window wording
-  - updated decoder/fetch/alignment text to canonical record boundaries
-- Preserved long-term native-ternary direction by explicitly framing ternary instruction-word layouts as a future profile that must deterministically transcode to canonical encoding.
-
-### 2026-02-26 (R11)
-- Added an explicit "Native Ternary Transition Profile (Planned)" subsection to `spec/tisc-spec.md`.
-- Defined compatibility guardrails for eventual native ternary encoding:
-  - deterministic/lossless transcoding to canonical 13-byte interchange
-  - explicit profile identifiers at artifact boundaries
-  - unchanged opcode semantics and `R0–R80` architectural contract across profiles
-
-### 2026-02-26 (R12)
-- Hardened privileged stub opcode behavior in `core/vm/vm.cpp`:
-  - `AXSIGN`, `AXLINEAGE`, and `AXCANON` now fail closed with deterministic `SecurityFault` and explicit deny-log reasons.
-- Added regression test coverage in `tests/cpp/vm_stubbed_privileged_opcode_fail_closed_test.cpp` and wired it into `CMakeLists.txt`.
-- Updated ISA reference docs for consistency:
-  - `spec/tisc/opcode-semantics.md`
-  - `spec/tisc/opcode-registry.md`
-
-### 2026-02-26 (R13)
-- Updated `docs/governance/ENFORCEMENT_MATRIX.md` with a machine-verifiable hard-fail rule for unimplemented privileged opcode fail-closed behavior, mapped to `build-and-test` via `tests/cpp/vm_stubbed_privileged_opcode_fail_closed_test.cpp`.
-
-### 2026-02-26 (R14)
-- Expanded CI static-analysis (`clang-tidy`) compile-unit scope in `.github/workflows/ci.yml` from `src/**` only to include:
-  - `core/**`
-  - `kernel/**`
-  - `runtime/**`
-  - `lang/**`
-- Expanded clang-tidy header filter accordingly (`include/t81|core|kernel|runtime|lang`) to improve analyzer coverage for non-`src` implementation surfaces.
-
-### 2026-02-26 (R15)
-- Hardened unimplemented async/network placeholder opcodes in `core/vm/vm.cpp`:
-  - `NSEND`, `NRECV`, `VWAIT`, `VYIELD` now fail closed with deterministic `SecurityFault` and explicit deny-log reasons.
-- Added regression coverage in `tests/cpp/vm_stubbed_async_network_opcode_fail_closed_test.cpp` and wired it into `CMakeLists.txt`.
-- Updated ISA docs for implementation parity:
-  - `spec/tisc/opcode-semantics.md`
-  - `spec/tisc/opcode-registry.md`
-- Added governance enforcement mapping in `docs/governance/ENFORCEMENT_MATRIX.md`.
-
-### 2026-02-26 (R16)
-- Updated `docs/reference/CAPABILITY_CONTRACT.md` to explicitly document fail-closed behavior for unimplemented tier/extension surfaces and to list async/network opcode semantics (`NSEND/NRECV/VWAIT/VYIELD`) as non-capabilities until implemented.
-
-### 2026-02-26 (R17)
-- Hardened unimplemented neural placeholder opcodes in `core/vm/vm.cpp`:
-  - `TNEURALFWD`, `TNEURALBWD` now fail closed with deterministic `SecurityFault` and explicit deny-log reasons.
-- Updated regression coverage by converting `tests/cpp/test_vm_neural_opcodes.cpp` to assert fail-closed behavior.
-- Updated ISA/governance/reference docs for parity:
-  - `spec/tisc/opcode-semantics.md`
-  - `spec/tisc/opcode-registry.md`
-  - `docs/governance/ENFORCEMENT_MATRIX.md`
-  - `docs/reference/CAPABILITY_CONTRACT.md`
-
-### 2026-02-26 (R18)
-- Hardened Axion policy parser in `include/t81/axion/policy.hpp` to reject unknown policy clauses instead of skipping them.
-- Extended `tests/cpp/vm_policy_parse_fail_closed_test.cpp` with an unknown-clause scenario to verify deterministic fail-closed VM behavior (`SecurityFault` with parse-failure log evidence).
-
-### 2026-02-26 (R19)
-- Hardened `AXCHECK` semantics in `core/vm/vm.cpp`: deny outcomes now fail closed with deterministic `SecurityFault` rather than continuing execution after a deny log.
-- Added explicit Axion syscall reason handling for `AXCHECK`/`AXREPORT` (`include/t81/axion/reasons.hpp`) and policy-evaluated report handling in VM dispatch.
-- Updated `tests/cpp/test_axion_opcodes.cpp` expectations to validate fail-closed behavior.
-- Updated ISA docs for parity:
-  - `spec/tisc/opcode-semantics.md`
-  - `spec/tisc/opcode-registry.md`
-
-### 2026-02-26 (R20)
-- Updated `docs/governance/ENFORCEMENT_MATRIX.md` with explicit machine-verifiable hard-fail mapping for `AXCHECK` deny fail-closed semantics, backed by `tests/cpp/test_axion_opcodes.cpp`.
-
-### 2026-02-26 (R21)
-- Added explicit governance enforcement mapping for Axion policy parse fail-closed behavior (syntax and unknown-clause rejection), backed by `tests/cpp/vm_policy_parse_fail_closed_test.cpp`.
-
-### 2026-02-26 (R22)
-- Replaced stubbed system-register values in `core/vm/vm.cpp` with deterministic derived values:
-  - `R76` lineage signature now derived from program instructions and policy/metadata text.
-  - `R77` entropy signature now derived from deterministic runtime state tuple.
-  - `R78` constitutional mask now derived from active policy capabilities/requirements.
-- Added regression coverage in `tests/cpp/vm_system_registers_deterministic_test.cpp` and wired it into `CMakeLists.txt`.
-
-### 2026-02-26 (R23)
-- Added explicit regression coverage for `AXREPORT` policy-deny fail-closed semantics in `tests/cpp/vm_axreport_policy_deny_fail_closed_test.cpp`.
-- Wired the new test into `CMakeLists.txt` and mapped it as a machine-verifiable hard-fail rule in `docs/governance/ENFORCEMENT_MATRIX.md`.
-
-### 2026-02-26 (R24)
-- Performed post-remediation audit refresh to reconcile top-level ratings/findings/open-risk lists with implemented closures (spec alignment, fail-closed opcode hardening, policy parser hard-fail, workflow pinning, and governance mapping evidence).
-
-### 2026-02-26 (R25)
-- Implemented new governance policy check scripts:
-  - `scripts/governance/check_root_structure.py`
-  - `scripts/governance/check_readme_naming.py`
-  - `scripts/governance/check_translation_metadata.py`
-  - `scripts/governance/check_docs_structure.py`
-  - `scripts/governance/check_license_policy.py`
-  - `scripts/governance/check_repo_artifact_hygiene.py`
-- Integrated these checks into:
-  - `scripts/governance/check_docs_governance_hygiene.py`
-  - `.github/workflows/ci.yml` (`spec-and-docs` job)
-- Updated `docs/governance/ENFORCEMENT_MATRIX.md` to promote root-structure, README naming, translation metadata, GPL/AGPL policy, and artifact-hygiene rows to machine-verifiable CI enforcement.
-
-### 2026-02-26 (R26)
-- Implemented explicit translation staleness threshold enforcement in `scripts/governance/check_translation_staleness.py`:
-  - marks translation pairs stale when they are more than `30` days or `10` canonical commits behind English.
-  - covers root README translations and book chapter pairs by canonical chapter prefix.
-- Integrated the check into CI and governance aggregation:
-  - `.github/workflows/ci.yml` (`spec-and-docs` job)
-  - `scripts/governance/check_docs_governance_hygiene.py`
-- Updated `docs/governance/ENFORCEMENT_MATRIX.md` to promote multilingual staleness threshold enforcement from warning/partial to machine-verifiable hard-fail.
-
-### 2026-02-26 (R27)
-- Normalized remaining over-strong sandbox/isolation language in integration guides:
-  - `docs/how-to/system-integration.md`
-  - `docs/how-to/systems-integration-agi.md`
-- Added explicit capability-boundary note in AGI integration guidance to anchor all claims to `docs/reference/CAPABILITY_CONTRACT.md`.
-- Corrected AGI integration register-window wording to the architectural `R0–R80` contract and removed present-tense distributed-network capability wording where implementation remains partial/fail-closed.
-
-### 2026-02-26 (R28)
-- Reconciled audit residual-risk language with current cognitive-tier compliance evidence (`docs/status/COGNITIVE_TIERS_SPEC_COMPLIANCE_2026-02-26.md`), replacing "open semantic closure gaps" wording with the current governance reality: experimental/non-DCP promotion discipline.
-
-### 2026-02-26 (R29)
-- Completed a focused post-remediation wording sweep across integration/status guidance to confirm no remaining high-risk overclaims of OS/hardware sandboxing or unconditional isolation guarantees in the audited documentation scope.
-- Closed the audit-cycle "Required Corrections" section as complete, with remaining activity tracked as ongoing governance cadence rather than open remediation debt.
-
-### 2026-02-26 (R30)
-- Added per-instruction policy enforcement inside JIT trace execution:
-  - extended JIT trace interface with policy callback support and explicit policy-deny exit kind.
-  - wired VM trace execution to call `eval_axion_call(kStep, ...)` for each trace instruction with deterministic instruction-count progression.
-  - fail-closed behavior on trace policy deny now returns `SecurityFault`.
-- Added regression coverage: `tests/cpp/vm_jit_per_instruction_policy_test.cpp`.
-
-### 2026-02-26 (R31)
-- Reduced host-math exposure in VM float transcendental opcode dispatch by routing `FSin/FCos/FTan/FAsin/FAcos/FAtan/FSinh/FCosh/FTanh/FSqrt/FExp/FLog/FPow` through `T81Float` operations in `core/vm/vm.cpp`.
-- Added strict deterministic float build profile option in `CMakeLists.txt`:
-  - `T81_STRICT_DETERMINISTIC_FLOAT=ON` (default) -> compile definition `T81_DETERMINISTIC`.
-
-### 2026-02-26 (R32)
-- Promoted warning-only governance rows to machine checks by adding:
-  - `scripts/governance/check_public_api_semver.py`
-  - `scripts/governance/check_spec_code_alignment_baseline.py`
-  - `docs/governance/PUBLIC_API_LOCK.json`
-- Integrated checks into CI `spec-and-docs` and governance hygiene aggregation.
-
-### 2026-02-26 (R33)
-- Added documentation-governance guardrails:
-  - `scripts/governance/check_overclaim_guardrails.py`
-  - `scripts/governance/check_cognitive_tier_boundary.py`
-- Integrated guardrails into CI/governance hygiene and normalized legacy wording in:
-  - `docs/architecture/OVERVIEW.md`
-  - `docs/reference/CAPABILITY_CONTRACT.md`
-
-### 2026-02-26 (R34)
-- Enabled benchmark regression hard-fail gating in CI benchmarks job by wiring:
-  - `scripts/ci/check_simd_regression.py bench.json`
-- Updated `docs/governance/ENFORCEMENT_MATRIX.md` to reflect hard-fail status for:
-  - public API semver lock
-  - spec-code alignment baseline coverage
-  - benchmark performance regression gating
-  - overclaim/cognitive-tier boundary documentation guardrails
-
-### 2026-02-26 (R35)
-- Normalized top-level claim wording in `README.md` to deterministic-surface-bounded language (removed universal phrasing around eliminating floating-point nondeterminism).
-- Updated `docs/releases/TISC_v1.1.0_Canonical_Freeze.md` to reflect current runtime semantics:
-  - unimplemented neural/privileged/async-network opcode surfaces are fail-closed (`SecurityFault`)
-  - strict deterministic float profile is defaulted via `T81_STRICT_DETERMINISTIC_FLOAT=ON` / `T81_DETERMINISTIC`
-  - non-DCP backend caveat remains explicit
-
-## Audit Notes
-- Ambiguous or weakly evidenced areas were treated conservatively; unresolved points should be considered **Indeterminate** until additional traceable evidence is added.
-- This report is descriptive and evidence-based; it does not override normative `/spec` authority.
+### Single Most Important Next Move
+Execute a **Contract Convergence + Coverage Expansion cycle**: make README/release/capability claims strictly identical to enforced CI scope, and upgrade spec-code alignment from baseline existence checks to behavioral conformance checks per critical subsystem.
