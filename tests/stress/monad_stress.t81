@@ -1,0 +1,57 @@
+fn test_option_pipeline() -> i32 {
+    let some_val: Option[i32] = Some(42);
+    let none_val: Option[i32] = None;
+
+    let u1: i32 = std.core.unwrap_or(some_val, 0);
+    print("Unwrap Some(42):");
+    print(u1);
+
+    let u2: i32 = std.core.unwrap_or(none_val, -1);
+    print("Unwrap None (default -1):");
+    print(u2);
+
+    return 0;
+}
+
+fn test_result_pipeline() -> i32 {
+    let ok_res: Result[i32, i32] = Ok(100);
+    let err_res: Result[i32, i32] = Err(500);
+
+    if (std.result.is_ok(ok_res)) {
+        let v: i32 = std.result.unwrap(ok_res);
+        print("Result Ok:");
+        print(v);
+    }
+
+    if (std.result.is_err(err_res)) {
+        let e: i32 = std.result.unwrap_err(err_res);
+        print("Result Err:");
+        print(e);
+    }
+
+    return 0;
+}
+
+fn test_maybe_semantics() -> i32 {
+    let m: Option[T81Maybe] = T81Maybe(); // Likely returns Option[Unknown] or Option[Maybe]
+    // T81Maybe appears to be an alias for Option in some contexts or a distinct type.
+    // The constructor T81Maybe() takes no args.
+
+    // Check if it behaves like None or Some(Unit)
+    if (std.option.is_none(m)) {
+        print("T81Maybe() is None-like");
+    } else {
+        print("T81Maybe() is Some-like");
+    }
+
+    return 0;
+}
+
+fn main() -> i32 {
+    print("--- Phase 5: Monadic Pipeline Integrity ---");
+    test_option_pipeline();
+    test_result_pipeline();
+    test_maybe_semantics();
+    print("--- End Phase 5 ---");
+    return 0;
+}

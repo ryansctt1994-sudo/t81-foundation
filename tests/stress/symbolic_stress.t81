@@ -1,0 +1,46 @@
+fn test_symbolic_order() -> i32 {
+    // Correcting type assumption: std.symbol.intern returns T81String in current implementation
+    // This is a drift observation: Symbols are strings in the frontend typing?
+
+    let s1: T81String = std.symbol.intern("b");
+    let s2: T81String = std.symbol.intern("a");
+    let s3: T81String = std.symbol.intern("c");
+
+    let str_a: T81String = std.symbol.intern("A");
+    let str_b: T81String = std.symbol.intern("B");
+
+    if (std.symbol.eq(str_a, str_b)) {
+        print("Error: A == B");
+    } else {
+        print("A != B");
+    }
+
+    let str_a2: T81String = std.symbol.intern("A");
+    if (std.symbol.eq(str_a, str_a2)) {
+        print("Interning idempotent");
+    } else {
+        print("Interning failed");
+    }
+
+    return 0;
+}
+
+fn test_polynomial_construction() -> i32 {
+    let p1: T81Polynomial = std.polynomial.load("x^2 + 2x + 1");
+
+    if (std.polynomial.confluent(p1)) {
+        print("P1 is confluent (canonical)");
+    } else {
+        print("P1 is NOT confluent");
+    }
+
+    return 0;
+}
+
+fn main() -> i32 {
+    print("--- Phase 2: Symbolic Canonical Order ---");
+    test_symbolic_order();
+    test_polynomial_construction();
+    print("--- End Phase 2 ---");
+    return 0;
+}

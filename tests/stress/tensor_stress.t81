@@ -1,0 +1,41 @@
+fn test_tensor_ops() -> i32 {
+    let t1: Tensor = Tensor.from_list([1, 2, 3, 4]);
+    let t2: Tensor = Tensor.from_list([10, 20, 30, 40]);
+
+    let sum: Tensor = Tensor.vec_add(t1, t2);
+
+    // Dot product
+    let dot: i32 = std.tensor.dot_product(t1, t2);
+    print("Dot product (1*10 + 2*20 + 3*30 + 4*40):");
+    print(dot); // Should be 10 + 40 + 90 + 160 = 300
+
+    return 0;
+}
+
+fn test_matmul_deterministic() -> i32 {
+    // Matmul typically requires specific shapes.
+    // Assuming 2x2 matrices flattened: [1, 2, 3, 4] x [1, 0, 0, 1] (Identity)
+    let m1: Tensor = Tensor.from_list([1, 2, 3, 4]);
+    let id: Tensor = Tensor.from_list([1, 0, 0, 1]);
+
+    // T81Lang tensor ops might infer shape or require reshape.
+    // For now, let's test if the op runs without crashing and produces a tensor.
+    let res: Tensor = Tensor.matmul(m1, id);
+
+    // We can't inspect tensor content easily without serialization or explicit get calls (if they exist)
+    // but we can dot product it with something to verifying value stability.
+
+    let check: i32 = std.tensor.dot_product(res, id);
+    print("Matmul result check hash (dot product):");
+    print(check);
+
+    return 0;
+}
+
+fn main() -> i32 {
+    print("--- Phase 4: Tensor Cross-Layer Test ---");
+    test_tensor_ops();
+    test_matmul_deterministic();
+    print("--- End Phase 4 ---");
+    return 0;
+}
