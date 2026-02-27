@@ -4741,9 +4741,10 @@ public:
       }
 
       // Fallback by name if semantic info missing or if Type::Kind logic failed
-      if (!handled && (type_name == "List" || type_name == "Map" || type_name == "Set" || type_name == "Tree")) {
+      if (!handled && (type_name == "List" || type_name == "Map" || type_name == "Set" ||
+                       type_name == "Tree")) {
         if (!expr.arguments.empty()) {
-            throw std::runtime_error("Collection constructor expects no arguments.");
+          throw std::runtime_error("Collection constructor expects no arguments.");
         }
         auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
         tisc::ir::Instruction vec_new;
@@ -4751,20 +4752,20 @@ public:
         vec_new.operands = {dest.reg};
         emit(vec_new);
         record_result(&expr, dest);
-        handled = true; // Mark as handled
+        handled = true;  // Mark as handled
         return {};
       }
 
       if ((callee_type && callee_type->kind == Type::Kind::Option) ||
           std::string(generic_expr->name.lexeme) == "T81Maybe") {
         if (std::string(generic_expr->name.lexeme) == "T81Maybe") {
-            if (!expr.arguments.empty()) {
-                throw std::runtime_error("T81Maybe constructor expects no arguments.");
-            }
-            auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-            emit_make_option_none(dest);
-            record_result(&expr, dest);
-            return {};
+          if (!expr.arguments.empty()) {
+            throw std::runtime_error("T81Maybe constructor expects no arguments.");
+          }
+          auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+          emit_make_option_none(dest);
+          record_result(&expr, dest);
+          return {};
         }
       }
       if (callee_type && callee_type->kind == Type::Kind::Custom &&
@@ -4818,43 +4819,43 @@ public:
         std::string func_name(generic_expr->name.lexeme);
         auto label_it = _function_labels.find(func_name);
         if (label_it != _function_labels.end()) {
-            // Push arguments
-            for (const auto& arg : expr.arguments) {
-                arg->accept(*this);
-                auto val = ensure_expr_result(arg.get());
-                tisc::ir::Instruction push;
-                push.opcode = tisc::ir::Opcode::PUSH;
-                push.operands = {val.reg};
-                emit(push);
-            }
+          // Push arguments
+          for (const auto& arg : expr.arguments) {
+            arg->accept(*this);
+            auto val = ensure_expr_result(arg.get());
+            tisc::ir::Instruction push;
+            push.opcode = tisc::ir::Opcode::PUSH;
+            push.operands = {val.reg};
+            emit(push);
+          }
 
-            auto addr = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-            tisc::ir::Instruction load;
-            load.opcode = tisc::ir::Opcode::LOADI;
-            load.operands = {addr.reg, label_it->second};
-            emit(load);
+          auto addr = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+          tisc::ir::Instruction load;
+          load.opcode = tisc::ir::Opcode::LOADI;
+          load.operands = {addr.reg, label_it->second};
+          emit(load);
 
-            tisc::ir::Instruction call;
-            call.opcode = tisc::ir::Opcode::CALL;
-            call.operands = {tisc::ir::Register{0}, addr.reg};
-            emit(call);
+          tisc::ir::Instruction call;
+          call.opcode = tisc::ir::Opcode::CALL;
+          call.operands = {tisc::ir::Register{0}, addr.reg};
+          emit(call);
 
-            bool returns_void = false;
-            if (_semantic) {
-                const Type* type = _semantic->type_of(&expr);
-                if (type && type->kind == Type::Kind::Void) {
-                returns_void = true;
-                }
+          bool returns_void = false;
+          if (_semantic) {
+            const Type* type = _semantic->type_of(&expr);
+            if (type && type->kind == Type::Kind::Void) {
+              returns_void = true;
             }
-            if (!returns_void) {
-                auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-                tisc::ir::Instruction pop;
-                pop.opcode = tisc::ir::Opcode::POP;
-                pop.operands = {dest.reg};
-                emit(pop);
-                record_result(&expr, dest);
-            }
-            return {};
+          }
+          if (!returns_void) {
+            auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+            tisc::ir::Instruction pop;
+            pop.opcode = tisc::ir::Opcode::POP;
+            pop.operands = {dest.reg};
+            emit(pop);
+            record_result(&expr, dest);
+          }
+          return {};
         }
       }
     }
@@ -5779,3 +5780,4 @@ private:
 }  // namespace t81::frontend
 
 #endif  // T81_FRONTEND_IR_GENERATOR_HPP
+// test
