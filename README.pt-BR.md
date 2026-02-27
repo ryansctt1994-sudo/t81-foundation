@@ -48,32 +48,51 @@ Onde sistemas tradicionais divergem entre arquiteturas, o T81 busca reprodutibil
 O T81 é organizado em camadas estritas de autoridade e abstração.
 
 ```mermaid
-graph TD
-    subgraph ApplicationLayer["`Application Layer`"]
-        Lang[T81Lang Source]
-        Cognitive[Cognitive Tiers]
+flowchart TD
+
+    %% ─────────────────────────────────────
+    %% Application Layer
+    %% ─────────────────────────────────────
+    subgraph A["Application Layer"]
+        Lang["T81Lang Source"]
+        Cognitive["Cognitive Tiers"]
     end
 
-    subgraph GovernanceLayer["`Governance Layer`"]
-        Axion[Axion Policy Kernel]
+    %% ─────────────────────────────────────
+    %% Governance Layer
+    %% ─────────────────────────────────────
+    subgraph G["Governance Layer"]
+        Axion["Axion Policy Kernel"]
     end
 
-    subgraph ExecutionLayer["`Execution Layer`"]
-        VM[T81VM Interpreter]
-        JIT["`Trace-JIT (Experimental)`"]
+    %% ─────────────────────────────────────
+    %% Execution Layer
+    %% ─────────────────────────────────────
+    subgraph E["Execution Layer"]
+        VM["T81VM Interpreter"]
+        JIT["Trace-JIT (Experimental)"]
     end
 
-    subgraph FoundationLayer["`Foundation Layer (Frozen)`"]
-        ISA[TISC ISA]
-        Types[Ternary Data Types]
+    %% ─────────────────────────────────────
+    %% Foundation Layer
+    %% ─────────────────────────────────────
+    subgraph F["Foundation Layer (Frozen)"]
+        ISA["TISC ISA"]
+        Types["Ternary Data Types"]
     end
 
+    %% Primary execution flow
     Lang --> VM
-    Cognitive --> Axion
-    VM --> Axion
-    Axion --> ISA
     VM --> ISA
     ISA --> Types
+
+    %% Governance enforcement
+    VM --> Axion
+    Cognitive --> Axion
+    Axion --> ISA
+
+    %% Experimental path
+    VM -. optional .-> JIT
 ```
 
 *   **Camada de fundação:** O núcleo "congelado". `T81BigInt`, `T81Float` e a ISA **TISC** (Ternary Instruction Set Computer). Mudanças aqui exigem aumento de versão major.
