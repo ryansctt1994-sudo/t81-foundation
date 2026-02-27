@@ -135,6 +135,7 @@ The T81 ecosystem is documented across several authority levels.
 | Resource | Description | Authority |
 | :--- | :--- | :--- |
 | **[The Monograph](book/book-en/README.md)** | The definitive book on T81's philosophy, architecture, and usage. **Start Here.** | High |
+| **[Project Profile](docs/T81_FOUNDATION_PROJECT_PROFILE.md)** | Public-facing technical profile of T81's deterministic architecture, governance posture, and research relevance. | High |
 | **[Normative Specs](spec/)** | The normative specification source of truth. Defines the TISC ISA, Data Types, and VM behavior. | **Absolute** |
 | **[Architecture](docs/architecture/OVERVIEW.md)** | The "North Star" document defining system boundaries and invariants. | High |
 | **[Status Dashboard](docs/status/PROJECT_CONTROL_CENTER.md)** | Live tracking of system health, active gates, and verified surfaces. | Live |
