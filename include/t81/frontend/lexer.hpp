@@ -57,6 +57,11 @@ enum class TokenType {
   Matrix,
   Tensor,
   Graph,
+  // Added missing collection types
+  List,
+  Map,
+  Set,
+  Tree,
 
   // Literals
   Integer,

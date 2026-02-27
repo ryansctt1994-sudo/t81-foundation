@@ -1096,6 +1096,14 @@ Type SemanticAnalyzer::type_from_token(const Token& name) {
       return Type{Type::Kind::Tensor};
     case TokenType::Graph:
       return Type{Type::Kind::Graph};
+    case TokenType::List:
+      return Type{Type::Kind::List};
+    case TokenType::Map:
+      return Type{Type::Kind::Map};
+    case TokenType::Set:
+      return Type{Type::Kind::Set};
+    case TokenType::Tree:
+      return Type{Type::Kind::Tree};
     case TokenType::String:
       return Type{Type::Kind::String};
     default:
@@ -1254,10 +1262,19 @@ std::string SemanticAnalyzer::type_to_string(const Type& type) const {
       break;
     case Type::Kind::Vector:
     case Type::Kind::Matrix:
-    case Type::Kind::Tensor: {
-      result = (type.kind == Type::Kind::Vector   ? "Vector"
-                : type.kind == Type::Kind::Matrix ? "Matrix"
-                                                  : "Tensor");
+    case Type::Kind::Tensor:
+    case Type::Kind::List:
+    case Type::Kind::Map:
+    case Type::Kind::Set:
+    case Type::Kind::Tree: {
+      if (type.kind == Type::Kind::Vector) result = "Vector";
+      else if (type.kind == Type::Kind::Matrix) result = "Matrix";
+      else if (type.kind == Type::Kind::Tensor) result = "Tensor";
+      else if (type.kind == Type::Kind::List) result = "List";
+      else if (type.kind == Type::Kind::Map) result = "Map";
+      else if (type.kind == Type::Kind::Set) result = "Set";
+      else if (type.kind == Type::Kind::Tree) result = "Tree";
+
       if (!type.params.empty()) {
         result += "[";
         for (size_t i = 0; i < type.params.size(); ++i) {
