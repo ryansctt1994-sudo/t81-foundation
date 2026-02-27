@@ -167,6 +167,20 @@ enum class Opcode {
   SYMCANON,
   SYMCONFLUENCE,
 
+  // Map/Set Scaffolding
+  MapNew,
+  MapPut,
+  MapGet,
+  MapHas,
+  MapRemove,
+  MapKeys,
+  MapSize,
+  SetNew,
+  SetAdd,
+  SetRemove,
+  SetHas,
+  SetSize,
+
   // Pseudo-instructions
   LABEL
 };

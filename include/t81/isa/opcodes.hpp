@@ -182,6 +182,19 @@ enum class Opcode : std::uint8_t {
   BitShl,
   BitShr,
   BitUShr,
+  // Map/Set Scaffolding Opcodes
+  MapNew,
+  MapPut,
+  MapGet,
+  MapHas,
+  MapRemove,
+  MapKeys,
+  MapSize,
+  SetNew,
+  SetAdd,
+  SetRemove,
+  SetHas,
+  SetSize,
 };
 
 [[nodiscard]] constexpr std::string_view opcode_name(Opcode opcode) {
@@ -534,13 +547,37 @@ enum class Opcode : std::uint8_t {
       return "BitShr";
     case Opcode::BitUShr:
       return "BitUShr";
+    case Opcode::MapNew:
+      return "MapNew";
+    case Opcode::MapPut:
+      return "MapPut";
+    case Opcode::MapGet:
+      return "MapGet";
+    case Opcode::MapHas:
+      return "MapHas";
+    case Opcode::MapRemove:
+      return "MapRemove";
+    case Opcode::MapKeys:
+      return "MapKeys";
+    case Opcode::MapSize:
+      return "MapSize";
+    case Opcode::SetNew:
+      return "SetNew";
+    case Opcode::SetAdd:
+      return "SetAdd";
+    case Opcode::SetRemove:
+      return "SetRemove";
+    case Opcode::SetHas:
+      return "SetHas";
+    case Opcode::SetSize:
+      return "SetSize";
   }
   return "Unknown";
 }
 
-inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::BitUShr) + 1> kAllOpcodes =
+inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::SetSize) + 1> kAllOpcodes =
     [] {
-      std::array<Opcode, static_cast<std::size_t>(Opcode::BitUShr) + 1> values{};
+      std::array<Opcode, static_cast<std::size_t>(Opcode::SetSize) + 1> values{};
       for (std::size_t i = 0; i < values.size(); ++i) {
         values[i] = static_cast<Opcode>(i);
       }
@@ -548,6 +585,6 @@ inline constexpr std::array<Opcode, static_cast<std::size_t>(Opcode::BitUShr) + 
     }();
 
 [[nodiscard]] constexpr bool is_valid_opcode(std::uint8_t raw_opcode) {
-  return raw_opcode <= static_cast<std::uint8_t>(Opcode::BitUShr);
+  return raw_opcode <= static_cast<std::uint8_t>(Opcode::SetSize);
 }
 }  // namespace t81::tisc
