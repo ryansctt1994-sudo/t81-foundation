@@ -8,10 +8,8 @@
 #     creates a source code tarball.
 # 2.  **Generate SBOM**: Creates a Software Bill of Materials (SBOM) for
 #     the release artifacts.
-# 3.  **Sign Artifacts**: Signs the release artifacts using Cosign to
-#     ensure their integrity.
-# 4.  **Create GitHub Release**: Creates a new GitHub release and uploads
-#     the signed artifacts and SBOM.
+# 3.  **Create GitHub Release**: Creates a new GitHub release and uploads
+#     the release artifacts and SBOM.
 
 name: Release
 
@@ -22,7 +20,6 @@ on:
 
 permissions:
   contents: write
-  id-token: write
 
 jobs:
   release:
@@ -53,23 +50,11 @@ jobs:
           path: ./build/
           artifact-name: sbom.spdx.json
 
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad # v4.0.0
-        with:
-          cosign-release: 'v2.2.1'
-
-      - name: Sign the release artifacts
-        run: cosign sign-blob --yes --key env://COSIGN_PRIVATE_KEY release.tar.gz > release.tar.gz.sig
-        env:
-          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-
       - name: Create Release
         uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
         with:
           files: |
             release.tar.gz
-            release.tar.gz.sig
             sbom.spdx.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
