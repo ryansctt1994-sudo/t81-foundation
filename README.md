@@ -46,32 +46,51 @@ Where traditional systems drift across architectures, T81 targets bit-exact repr
 T81 is organized into strict layers of authority and abstraction.
 
 ```mermaid
-graph TD
-    subgraph ApplicationLayer["`Application Layer`"]
-        Lang[T81Lang Source]
-        Cognitive[Cognitive Tiers]
+flowchart TD
+
+    %% ─────────────────────────────────────
+    %% Application Layer
+    %% ─────────────────────────────────────
+    subgraph A["Application Layer"]
+        Lang["T81Lang Source"]
+        Cognitive["Cognitive Tiers"]
     end
 
-    subgraph GovernanceLayer["`Governance Layer`"]
-        Axion[Axion Policy Kernel]
+    %% ─────────────────────────────────────
+    %% Governance Layer
+    %% ─────────────────────────────────────
+    subgraph G["Governance Layer"]
+        Axion["Axion Policy Kernel"]
     end
 
-    subgraph ExecutionLayer["`Execution Layer`"]
-        VM[T81VM Interpreter]
-        JIT["`Trace-JIT (Experimental)`"]
+    %% ─────────────────────────────────────
+    %% Execution Layer
+    %% ─────────────────────────────────────
+    subgraph E["Execution Layer"]
+        VM["T81VM Interpreter"]
+        JIT["Trace-JIT (Experimental)"]
     end
 
-    subgraph FoundationLayer["`Foundation Layer (Frozen)`"]
-        ISA[TISC ISA]
-        Types[Ternary Data Types]
+    %% ─────────────────────────────────────
+    %% Foundation Layer
+    %% ─────────────────────────────────────
+    subgraph F["Foundation Layer (Frozen)"]
+        ISA["TISC ISA"]
+        Types["Ternary Data Types"]
     end
 
+    %% Primary execution flow
     Lang --> VM
-    Cognitive --> Axion
-    VM --> Axion
-    Axion --> ISA
     VM --> ISA
     ISA --> Types
+
+    %% Governance enforcement
+    VM --> Axion
+    Cognitive --> Axion
+    Axion --> ISA
+
+    %% Experimental path
+    VM -. optional .-> JIT
 ```
 
 *   **Foundation Layer:** The "Frozen" core. `T81BigInt`, `T81Float`, and the **TISC** (Ternary Instruction Set Computer) ISA. Changes here require a major version bump.
