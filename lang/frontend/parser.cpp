@@ -115,6 +115,14 @@ std::string token_type_name(TokenType type) {
       return "'tensor'";
     case TokenType::Graph:
       return "'graph'";
+    case TokenType::List:
+      return "'list'";
+    case TokenType::Map:
+      return "'map'";
+    case TokenType::Set:
+      return "'set'";
+    case TokenType::Tree:
+      return "'tree'";
     case TokenType::Integer:
       return "integer literal";
     case TokenType::Float:
@@ -266,6 +274,10 @@ bool is_dot_field_segment_token(TokenType type) {
     case TokenType::Matrix:
     case TokenType::Tensor:
     case TokenType::Graph:
+    case TokenType::List:
+    case TokenType::Map:
+    case TokenType::Set:
+    case TokenType::Tree:
       return true;
     default:
       return false;
@@ -1107,6 +1119,8 @@ static bool is_type_start_token(const Token& token) {
          token.type == TokenType::T81Qutrit || token.type == TokenType::T81Uint ||
          token.type == TokenType::T81Vector || token.type == TokenType::Matrix ||
          token.type == TokenType::Tensor || token.type == TokenType::Graph ||
+         token.type == TokenType::List || token.type == TokenType::Map ||
+         token.type == TokenType::Set || token.type == TokenType::Tree ||
          token.type == TokenType::String;
 }
 
@@ -1662,7 +1676,8 @@ bool Parser::is_type_start() {
          check(TokenType::T81Fraction) || check(TokenType::T81Fixed) ||
          check(TokenType::T81Complex) || check(TokenType::T81Qutrit) || check(TokenType::T81Uint) ||
          check(TokenType::T81Vector) || check(TokenType::Matrix) || check(TokenType::Tensor) ||
-         check(TokenType::Graph) || check(TokenType::String);
+         check(TokenType::Graph) || check(TokenType::List) || check(TokenType::Map) ||
+         check(TokenType::Set) || check(TokenType::Tree) || check(TokenType::String);
 }
 
 // Parses a type expression.

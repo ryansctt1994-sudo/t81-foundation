@@ -65,6 +65,10 @@ const std::unordered_map<std::string_view, TokenType> KEYWORDS = {
     {"matrix", TokenType::Matrix},
     {"tensor", TokenType::Tensor},
     {"graph", TokenType::Graph},
+    {"list", TokenType::List},
+    {"map", TokenType::Map},
+    {"set", TokenType::Set},
+    {"tree", TokenType::Tree},
 };
 
 bool is_alpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'; }
