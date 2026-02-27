@@ -1,0 +1,52 @@
+// experiments/monadic_flow.t81
+// Exploration of Monadic and Flow Control Types: Option, Result
+// Note: Promise and Maybe not explicitly seen in basic stdlib, focusing on Option/Result.
+
+fn monadic_flow_demo() -> i32 {
+    print("=== Monadic / Flow Control Layer ===");
+
+    // 1. Option Type
+    print("--- Option ---");
+    let some_val: Option[i32] = Some(42);
+    let none_val: Option[i32] = None;
+
+    // Match on Option
+    // match needs parens around value: match (val) { ... }
+    // Arms must return same type.
+    let res1: i32 = match (some_val) {
+        Some(v) => v * 2;
+        None => 0;
+    };
+    print("Option Some(42) match result: "); print(res1);
+
+    let res2: i32 = match (none_val) {
+        Some(v) => v * 2;
+        None => -1;
+    };
+    print("Option None match result: "); print(res2);
+
+    // 2. Result Type
+    print("--- Result ---");
+    let ok_res: Result[i32, T81String] = Ok(100);
+    let err_res: Result[i32, T81String] = Err("Operation failed");
+
+    let res3: i32 = match (ok_res) {
+        Ok(v) => v + 50;
+        Err(e) => -999;
+    };
+    print("Result Ok(100) match result: "); print(res3);
+
+    // Block expressions in match arms seem to have issues with return value inference.
+    // Simplifying to single expression arms for now.
+    let res4: i32 = match (err_res) {
+        Ok(v) => v + 50;
+        Err(e) => -999;
+    };
+    print("Result Err match result: "); print(res4);
+
+    return 0;
+}
+
+fn main() -> i32 {
+    return monadic_flow_demo();
+}
