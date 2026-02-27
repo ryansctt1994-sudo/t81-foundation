@@ -17,9 +17,9 @@ ______________________________________________________________________
 
 # T81Lang Specification
 
-Version 1.1 — Stable
+Version 1.1 — Draft
 
-Status: Stable\
+Status: Draft\
 Applies to: TISC, T81VM, Axion, Data Types
 
 T81Lang is the **high-level, deterministic, ternary-native programming language** of the T81 Ecosystem.\

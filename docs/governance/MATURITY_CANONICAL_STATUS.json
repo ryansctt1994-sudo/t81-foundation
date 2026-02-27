@@ -1,0 +1,23 @@
+{
+  "components": {
+    "t81lang": {
+      "display_name": "T81Lang",
+      "maturity": "Beta",
+      "spec_authority": "Draft",
+      "spec_path": "spec/t81lang-spec.md",
+      "promotion_gate_classification": "Current Classification: Draft Spec / Beta Implementation"
+    },
+    "t81vm": {
+      "display_name": "T81VM",
+      "maturity": "Beta",
+      "spec_authority": "Beta",
+      "spec_path": "spec/t81vm-spec.md"
+    },
+    "axion": {
+      "display_name": "Axion Kernel",
+      "maturity": "Alpha",
+      "spec_authority": "Draft",
+      "spec_path": "spec/axion-kernel.md"
+    }
+  }
+}

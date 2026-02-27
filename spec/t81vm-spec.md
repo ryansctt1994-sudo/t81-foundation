@@ -17,9 +17,9 @@ ______________________________________________________________________
 
 # T81 Virtual Machine Specification
 
-Version 1.1 — Stable
+Version 1.1 — Beta
 
-Status: Stable\
+Status: Beta\
 Applies to: TISC, T81Lang, Axion, Cognitive Tiers
 
 The T81 Virtual Machine (T81VM) is the **deterministic execution environment** for TISC programs.\
