@@ -17,7 +17,7 @@ This is achieved by enforcing strict boundaries and deterministic contracts at e
 To ensure systemic coalescence, the T81 architecture adheres to a set of formal specifications regarding its environment, dependencies, and internal interactions.
 
 ### 2.1 Architectural Assumptions
-The following conditions are assumed to be true for the system to maintain its determinism guarantees, as strictly defined in the [Strict Determinism Profile](../../spec/determinism-profile.md):
+The following conditions are assumed to be true for the system to maintain bounded determinism guarantees on verified surfaces, as defined in the [Strict Determinism Profile](../../spec/determinism-profile.md):
 1.  **Semantic Invariance:** The host CPU's floating-point or integer behavior does *not* leak into the T81 runtime. All calculations are performed using the `T81Int` or `T729Tensor` libraries (Tier A Determinism).
 2.  **Input Provenance:** All non-trivial data inputs (e.g., model weights) are retrieved via `CanonFS` and verified by their `CanonHash81`.
 3.  **Host Cooperation:** While the system is designed to be auditable, it assumes a cooperative host OS that does not perform adversarial memory tampering or non-deterministic thread scheduling on the HanoiVM worker.
@@ -26,7 +26,7 @@ The following conditions are assumed to be true for the system to maintain its d
 The T81 stack is a strictly ordered hierarchy. Circular dependencies are forbidden.
 -   **Core (Dependency Root):** `t81_core` (Arithmetic, Axion, CanonFS).
 -   **Representation:** `t81_isa` depends on `t81_core` for serialization primitives.
--   **Frontend:** `t81_frontend` depends on `t81_isa` to emit IR.
+-   **Frontend:** `t81_lang_frontend` produces language IR/bytecode inputs consumed by execution and tooling layers.
 -   **Execution:** `t81_vm` depends on `t81_core` (for the Axion engine) and `t81_isa` (for instruction decoding).
 
 ### 2.3 Interaction Patterns: The Supervision Loop

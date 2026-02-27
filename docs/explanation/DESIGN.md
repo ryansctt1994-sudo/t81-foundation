@@ -15,7 +15,7 @@ ______________________________________________________________________
 
 ## 2. Architectural Principles
 
-- **Decoupled Components:** The system is built from libraries with distinct responsibilities (e.g., `t81_core`, `t81_frontend`, `t81_vm`). This separation is enforced by the CMake build system and allows for independent development and testing.
+- **Decoupled Components:** The system is built from libraries with distinct responsibilities (e.g., `t81_core`, `t81_lang_frontend`, `t81_vm`). This separation is enforced by the CMake build system and allows for independent development and testing.
 - **Stable TISC Interface:** The Ternary Instruction Set Computer (TISC) serves as a stable, well-defined interface between the T81Lang compiler frontend and the T81VM execution backend. This allows different frontends or backends to be developed independently.
 - **Immutable Historical Reference:** The original CWEB implementation in `/legacy/hanoivm` is preserved as an immutable reference. It is a source of historical context and semantic clarification, but it is not a target for new development.
 

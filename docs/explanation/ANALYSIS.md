@@ -43,7 +43,7 @@ ______________________________________________________________________
 
 ______________________________________________________________________
 
-## 4. T81Lang Frontend (`t81_frontend`)
+## 4. T81Lang Frontend (`t81_lang_frontend`)
 
 - **Specification:** [`spec/t81lang-spec.md`](../../spec/t81lang-spec.md)
 - **Status:** `Implemented`

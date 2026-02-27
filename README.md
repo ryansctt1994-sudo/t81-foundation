@@ -75,7 +75,7 @@ graph TD
 ```
 
 *   **Foundation Layer:** The "Frozen" core. `T81BigInt`, `T81Float`, and the **TISC** (Ternary Instruction Set Computer) ISA. Changes here require a major version bump.
-*   **Execution Layer:** The **T81VM** executes TISC bytecode. It includes a deterministic interpreter and an experimental Trace-JIT that preserves bit-exactness.
+*   **Execution Layer:** The **T81VM** executes TISC bytecode. It includes a deterministic interpreter and an experimental Trace-JIT, with bounded determinism claims constrained to governed/verified surfaces.
 *   **Governance Layer:** The **Axion Kernel** intercepts execution to enforce safety policies, resource limits, and ethical guardrails defined in configuration.
 
 ---

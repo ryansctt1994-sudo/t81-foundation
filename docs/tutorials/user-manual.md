@@ -124,7 +124,7 @@ Typical edit-compile-debug loop:
 
 ## Working with Data Types
 
-T81 provides ternary-native types with strict determinism.
+T81 provides ternary-native types with bounded determinism on verified surfaces.
 
 Common types (see [spec/t81-data-types.md](../../spec/t81-data-types.md)):
 
