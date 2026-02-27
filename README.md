@@ -82,11 +82,11 @@ graph TD
 
 ## 🚀 Quick Start
 
-Build the T81 stack from source in under 60 seconds.
+Build the T81 stack from source.
 
 ### Prerequisites
 *   **CMake** 3.16+
-*   **C++ Compiler** supporting C++20/23 (Clang 18+, GCC 14+, MSVC)
+*   **C++ Compiler** supporting C++20/23 (tested on AppleClang 17+, Clang 18+, GCC 14+, MSVC)
 
 ### Installation
 
@@ -135,7 +135,7 @@ The T81 ecosystem is documented across several authority levels.
 | Resource | Description | Authority |
 | :--- | :--- | :--- |
 | **[The Monograph](book/book-en/README.md)** | The definitive book on T81's philosophy, architecture, and usage. **Start Here.** | High |
-| **[Normative Specs](spec/)** | The absolute law. Defines the TISC ISA, Data Types, and VM behavior. | **Absolute** |
+| **[Normative Specs](spec/)** | The normative specification source of truth. Defines the TISC ISA, Data Types, and VM behavior. | **Absolute** |
 | **[Architecture](docs/architecture/OVERVIEW.md)** | The "North Star" document defining system boundaries and invariants. | High |
 | **[Status Dashboard](docs/status/PROJECT_CONTROL_CENTER.md)** | Live tracking of system health, active gates, and verified surfaces. | Live |
 | **[Governance](docs/governance/)** | Policies on Spec Drift, Release Discipline, and Threat Models. | High |
@@ -152,7 +152,7 @@ The T81 ecosystem is documented across several authority levels.
 | Component | Status | Description |
 | :--- | :--- | :--- |
 | **TISC ISA** | 🧊 **Frozen** | The instruction set is verified and immutable (v1). |
-| **Data Types** | 🧊 **Frozen** | Core arithmetic types are stable and bit-exact. |
+| **Data Types** | 🧊 **Frozen** | Core arithmetic types are stable; bit-exact guarantees are bounded to verified deterministic surfaces. |
 | **T81VM** | 🚧 **Beta** | Runtime surface is active and under continued verification. |
 | **Axion** | ⚠️ **Alpha** | Policy engine is active with partial draft-surface coverage. |
 | **T81Lang** | 🚧 **Beta** | Implementation maturity is Beta; normative language spec remains Draft. |
@@ -172,7 +172,7 @@ We welcome contributors who share our passion for rigorous, deterministic system
 *   **[Discussions](https://github.com/t81dev/t81-foundation/discussions):** Ask questions and share ideas.
 
 ### The "Repro Gate"
-All Pull Requests are automatically checked against the **Reproducibility Gate**. If your change affects the deterministic output of the compiler or VM, the gate will fail. This is a feature, not a bug.
+Required Pull Request checks enforce reproducibility and conformance gates for scoped deterministic surfaces. If your change alters governed deterministic outputs, the corresponding gate should fail. This is a feature, not a bug.
 
 ---
 
