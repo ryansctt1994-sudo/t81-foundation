@@ -162,6 +162,10 @@ enum class Opcode {
   TICKSYNC,
   COHERENCE,
   DISTSEAL,
+  SYMLOAD,
+  SYMREWRITE,
+  SYMCANON,
+  SYMCONFLUENCE,
 
   // Pseudo-instructions
   LABEL

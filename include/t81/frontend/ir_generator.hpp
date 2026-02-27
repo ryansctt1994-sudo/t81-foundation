@@ -278,6 +278,30 @@ inline std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.agent.self_reflect") {
     return "agent_self_reflect";
   }
+  if (name == "std.symbolic.load") {
+    return "symbolic_load";
+  }
+  if (name == "std.symbolic.rewrite") {
+    return "symbolic_rewrite";
+  }
+  if (name == "std.symbolic.canon") {
+    return "symbolic_canon";
+  }
+  if (name == "std.symbolic.confluent") {
+    return "symbolic_confluent";
+  }
+  if (name == "std.polynomial.load") {
+    return "polynomial_load";
+  }
+  if (name == "std.polynomial.rewrite") {
+    return "polynomial_rewrite";
+  }
+  if (name == "std.polynomial.canon") {
+    return "polynomial_canon";
+  }
+  if (name == "std.polynomial.confluent") {
+    return "polynomial_confluent";
+  }
   if (name == "std.distributed.gossip") {
     return "dist_gossip";
   }
@@ -1210,6 +1234,91 @@ public:
         record_result(&expr, dest);
         return {};
       }
+      if (func_name == "T81Maybe") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("T81Maybe constructor expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        emit_make_option_none(dest);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "T81Promise") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("T81Promise constructor expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::LOADI;
+        instr.operands = {dest.reg};
+        instr.literal_kind = tisc::LiteralKind::SymbolHandle;
+        instr.text_literal = "std.async.promise";
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "T81Time") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("T81Time constructor expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Float);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::LOADI;
+        instr.operands = {dest.reg};
+        instr.literal_kind = tisc::LiteralKind::FloatHandle;
+        instr.text_literal = "0";
+        instr.primitive = tisc::ir::PrimitiveKind::Float;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "T81Entropy") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("T81Entropy constructor expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        auto instr =
+            tisc::ir::Instruction{tisc::ir::Opcode::LOADI, {dest.reg, tisc::ir::Immediate{0}}};
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "T81Agent") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("T81Agent constructor expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::META_REFLECT;
+        instr.operands = {dest.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "T81Polynomial" || func_name == "T81Symbolic") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error(func_name + " constructor expects no arguments.");
+        }
+        auto seed = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction seed_load;
+        seed_load.opcode = tisc::ir::Opcode::LOADI;
+        seed_load.operands = {seed.reg};
+        seed_load.literal_kind = tisc::LiteralKind::SymbolHandle;
+        seed_load.text_literal =
+            (func_name == "T81Polynomial") ? "t81.poly.zero" : "t81.symbolic.root";
+        seed_load.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(seed_load);
+
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction sym_load;
+        sym_load.opcode = tisc::ir::Opcode::SYMLOAD;
+        sym_load.operands = {dest.reg, seed.reg};
+        emit(sym_load);
+        record_result(&expr, dest);
+        return {};
+      }
       if (func_name == "weights.load" || func_name == "Tensor.load") {
         if (expr.arguments.size() != 1) {
           throw std::runtime_error("weights.load expects a single string argument.");
@@ -1818,6 +1927,65 @@ public:
         instr.opcode = tisc::ir::Opcode::META_REFLECT;
         instr.operands = {dest.reg};
         emit(instr);
+        return {};
+      }
+      if (func_name == "symbolic_load" || func_name == "polynomial_load") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error(func_name + " expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto seed = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::SYMLOAD;
+        instr.operands = {dest.reg, seed.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "symbolic_rewrite" || func_name == "polynomial_rewrite") {
+        if (expr.arguments.size() != 3) {
+          throw std::runtime_error(func_name + " expects exactly three arguments.");
+        }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        expr.arguments[2]->accept(*this);
+        auto graph = ensure_expr_result(expr.arguments[0].get());
+        auto match = ensure_expr_result(expr.arguments[1].get());
+        auto repl = ensure_expr_result(expr.arguments[2].get());
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::SYMREWRITE;
+        instr.operands = {graph.reg, match.reg, repl.reg};
+        emit(instr);
+        record_result(&expr, graph);
+        return {};
+      }
+      if (func_name == "symbolic_canon" || func_name == "polynomial_canon") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error(func_name + " expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto graph = ensure_expr_result(expr.arguments[0].get());
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::SYMCANON;
+        instr.operands = {graph.reg};
+        emit(instr);
+        record_result(&expr, graph);
+        return {};
+      }
+      if (func_name == "symbolic_confluent" || func_name == "polynomial_confluent") {
+        if (expr.arguments.size() != 1) {
+          throw std::runtime_error(func_name + " expects exactly one argument.");
+        }
+        expr.arguments[0]->accept(*this);
+        auto graph = ensure_expr_result(expr.arguments[0].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::SYMCONFLUENCE;
+        instr.operands = {dest.reg, graph.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Boolean;
+        emit(instr);
+        record_result(&expr, dest);
         return {};
       }
 
@@ -4460,10 +4628,121 @@ public:
         record_result(&expr, dest);
         return {};
       }
+      if (type_name == "T81Maybe") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("T81Maybe constructor expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        emit_make_option_none(dest);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (type_name == "T81Promise") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("T81Promise constructor expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::LOADI;
+        instr.operands = {dest.reg};
+        instr.literal_kind = tisc::LiteralKind::SymbolHandle;
+        instr.text_literal = "std.async.promise";
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (type_name == "T81Time") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("T81Time constructor expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Float);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::LOADI;
+        instr.operands = {dest.reg};
+        instr.literal_kind = tisc::LiteralKind::FloatHandle;
+        instr.text_literal = "0";
+        instr.primitive = tisc::ir::PrimitiveKind::Float;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (type_name == "T81Entropy") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("T81Entropy constructor expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        auto instr =
+            tisc::ir::Instruction{tisc::ir::Opcode::LOADI, {dest.reg, tisc::ir::Immediate{0}}};
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (type_name == "T81Agent") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("T81Agent constructor expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::META_REFLECT;
+        instr.operands = {dest.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (type_name == "T81Polynomial" || type_name == "T81Symbolic") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error(type_name + " constructor expects no arguments.");
+        }
+        auto seed = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction seed_load;
+        seed_load.opcode = tisc::ir::Opcode::LOADI;
+        seed_load.operands = {seed.reg};
+        seed_load.literal_kind = tisc::LiteralKind::SymbolHandle;
+        seed_load.text_literal =
+            (type_name == "T81Polynomial") ? "t81.poly.zero" : "t81.symbolic.root";
+        seed_load.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(seed_load);
+
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction sym_load;
+        sym_load.opcode = tisc::ir::Opcode::SYMLOAD;
+        sym_load.operands = {dest.reg, seed.reg};
+        emit(sym_load);
+        record_result(&expr, dest);
+        return {};
+      }
     }
 
     if (auto* generic_expr = dynamic_cast<const GenericTypeExpr*>(expr.callee.get())) {
       const Type* callee_type = typed_expr(generic_expr);
+      if (callee_type && callee_type->kind == Type::Kind::Option &&
+          std::string(generic_expr->name.lexeme) == "T81Maybe") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("T81Maybe constructor expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        emit_make_option_none(dest);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (callee_type && callee_type->kind == Type::Kind::Custom &&
+          callee_type->custom_name == "T81Promise") {
+        if (!expr.arguments.empty()) {
+          throw std::runtime_error("T81Promise constructor expects no arguments.");
+        }
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::LOADI;
+        instr.operands = {dest.reg};
+        instr.literal_kind = tisc::LiteralKind::SymbolHandle;
+        instr.text_literal = "std.async.promise";
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
       if (callee_type && callee_type->kind == Type::Kind::Fixed) {
         if (expr.arguments.size() != 1) {
           throw std::runtime_error("T81Fixed constructor expects exactly one argument.");

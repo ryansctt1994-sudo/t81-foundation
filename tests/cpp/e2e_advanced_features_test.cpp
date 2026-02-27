@@ -200,6 +200,39 @@ void test_complex_constructor_pipeline() {
   }
 }
 
+void test_placeholder_constructor_surface() {
+  const std::string source = R"(
+        fn main() -> i32 {
+            let agent: T81Agent = T81Agent();
+            let poly: T81Polynomial = T81Polynomial();
+            let sym: T81Symbolic = T81Symbolic();
+            let maybe: T81Maybe[i32] = T81Maybe[i32]();
+            let promise: T81Promise[i32] = T81Promise[i32]();
+            let timev: T81Time = T81Time();
+            let ent: T81Entropy = T81Entropy();
+            std.agent.self_reflect();
+            std.sys.reflect();
+            let maybe_score: i32 = match (maybe) {
+                Some(v) => v,
+                None => 9
+            };
+            let _a = agent;
+            let _p = poly;
+            let _s = sym;
+            let _pr = promise;
+            let _t = timev;
+            let _e = ent;
+            return 123 + maybe_score;
+        }
+    )";
+  [[maybe_unused]] int64_t result = run_e2e_test(source);
+  if (result != 132) {
+    std::cerr << "test_placeholder_constructor_surface failed: expected 132, got " << result
+              << std::endl;
+    throw std::runtime_error("test_placeholder_constructor_surface failed");
+  }
+}
+
 void test_std_tensor_from_list_pipeline() {
   const std::string source = R"(
         fn main() -> i32 {
@@ -636,6 +669,29 @@ void test_advanced_tensor_ops_pipeline() {
   }
 }
 
+void test_symbolic_polynomial_pipeline() {
+  const std::string source = R"(
+        fn main() -> i32 {
+            let g: T81Symbolic = std.symbolic.load("seed");
+            let g2: T81Symbolic = std.symbolic.rewrite(g, "seed", "x");
+            let g3: T81Symbolic = std.symbolic.canon(g2);
+            let _ok: bool = std.symbolic.confluent(g3);
+
+            let p: T81Polynomial = std.polynomial.load("p0");
+            let p2: T81Polynomial = std.polynomial.rewrite(p, "p0", "p1");
+            let p3: T81Polynomial = std.polynomial.canon(p2);
+            let _pk: bool = std.polynomial.confluent(p3);
+            return 17;
+        }
+    )";
+  [[maybe_unused]] int64_t result = run_e2e_test(source);
+  if (result != 17) {
+    std::cerr << "test_symbolic_polynomial_pipeline failed: expected 17, got " << result
+              << std::endl;
+    throw std::runtime_error("test_symbolic_polynomial_pipeline failed");
+  }
+}
+
 int main() {
   std::cout << "Running test_while_break..." << std::endl;
   test_while_break();
@@ -651,6 +707,8 @@ int main() {
   test_constructor_and_conversion_pipeline();
   std::cout << "Running test_complex_constructor_pipeline..." << std::endl;
   test_complex_constructor_pipeline();
+  std::cout << "Running test_placeholder_constructor_surface..." << std::endl;
+  test_placeholder_constructor_surface();
   std::cout << "Running test_std_tensor_from_list_pipeline..." << std::endl;
   test_std_tensor_from_list_pipeline();
   std::cout << "Running test_std_tensor_vec_add_pipeline..." << std::endl;
@@ -673,6 +731,8 @@ int main() {
   test_bigint_stdlib_pipeline();
   std::cout << "Running test_advanced_tensor_ops_pipeline..." << std::endl;
   test_advanced_tensor_ops_pipeline();
+  std::cout << "Running test_symbolic_polynomial_pipeline..." << std::endl;
+  test_symbolic_polynomial_pipeline();
   std::cout << "All advanced E2E tests passed!" << std::endl;
   return 0;
 }

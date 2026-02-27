@@ -1,0 +1,18 @@
+// lang/stdlib/std/symbolic.t81
+// Deterministic symbolic helper aliases.
+
+fn load(seed: T81String) -> T81Symbolic {
+    return std.symbolic.load(seed);
+}
+
+fn rewrite(expr: T81Symbolic, from: T81String, to: T81String) -> T81Symbolic {
+    return std.symbolic.rewrite(expr, from, to);
+}
+
+fn canon(expr: T81Symbolic) -> T81Symbolic {
+    return std.symbolic.canon(expr);
+}
+
+fn confluent(expr: T81Symbolic) -> bool {
+    return std.symbolic.confluent(expr);
+}

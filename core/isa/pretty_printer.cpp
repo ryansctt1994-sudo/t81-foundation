@@ -68,6 +68,14 @@ std::string opcode_to_string(ir::Opcode opcode) {
       return "BitShr";
     case ir::Opcode::BITUSHR:
       return "BitUShr";
+    case ir::Opcode::SYMLOAD:
+      return "SYMLOAD";
+    case ir::Opcode::SYMREWRITE:
+      return "SYMREWRITE";
+    case ir::Opcode::SYMCANON:
+      return "SYMCANON";
+    case ir::Opcode::SYMCONFLUENCE:
+      return "SYMCONFLUENCE";
     case ir::Opcode::LABEL:
       return "L";
     default:

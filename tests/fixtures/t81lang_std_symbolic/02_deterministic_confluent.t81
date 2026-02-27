@@ -1,0 +1,9 @@
+fn main() -> i32 {
+  let a: T81Symbolic = std.symbolic.load("alpha");
+  let b: T81Symbolic = std.symbolic.rewrite(a, "missing", "beta");
+  let c: T81Symbolic = std.symbolic.canon(b);
+  print(std.symbolic.confluent(a));
+  print(std.symbolic.confluent(b));
+  print(std.symbolic.confluent(c));
+  return 0;
+}

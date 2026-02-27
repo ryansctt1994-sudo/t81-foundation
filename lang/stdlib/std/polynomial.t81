@@ -1,0 +1,18 @@
+// lang/stdlib/std/polynomial.t81
+// Deterministic polynomial helper aliases.
+
+fn load(seed: T81String) -> T81Polynomial {
+    return std.polynomial.load(seed);
+}
+
+fn rewrite(expr: T81Polynomial, from: T81String, to: T81String) -> T81Polynomial {
+    return std.polynomial.rewrite(expr, from, to);
+}
+
+fn canon(expr: T81Polynomial) -> T81Polynomial {
+    return std.polynomial.canon(expr);
+}
+
+fn confluent(expr: T81Polynomial) -> bool {
+    return std.polynomial.confluent(expr);
+}

@@ -1,0 +1,7 @@
+fn main() -> i32 {
+  let g: T81Symbolic = std.symbolic.load("seed");
+  let g2: T81Symbolic = std.symbolic.rewrite(g, "seed", "x");
+  let g3: T81Symbolic = std.symbolic.canon(g2);
+  print(std.symbolic.confluent(g3));
+  return 0;
+}

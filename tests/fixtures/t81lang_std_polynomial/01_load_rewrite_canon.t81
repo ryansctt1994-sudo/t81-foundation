@@ -1,0 +1,7 @@
+fn main() -> i32 {
+  let p: T81Polynomial = std.polynomial.load("p0");
+  let p2: T81Polynomial = std.polynomial.rewrite(p, "p0", "p1");
+  let p3: T81Polynomial = std.polynomial.canon(p2);
+  print(std.polynomial.confluent(p3));
+  return 0;
+}

@@ -351,6 +351,30 @@ std::string canonical_stdlib_call_name(std::string_view name) {
   if (name == "std.agent.self_reflect") {
     return "agent_self_reflect";
   }
+  if (name == "std.symbolic.load") {
+    return "symbolic_load";
+  }
+  if (name == "std.symbolic.rewrite") {
+    return "symbolic_rewrite";
+  }
+  if (name == "std.symbolic.canon") {
+    return "symbolic_canon";
+  }
+  if (name == "std.symbolic.confluent") {
+    return "symbolic_confluent";
+  }
+  if (name == "std.polynomial.load") {
+    return "polynomial_load";
+  }
+  if (name == "std.polynomial.rewrite") {
+    return "polynomial_rewrite";
+  }
+  if (name == "std.polynomial.canon") {
+    return "polynomial_canon";
+  }
+  if (name == "std.polynomial.confluent") {
+    return "polynomial_confluent";
+  }
   if (name == "std.tensor.load") {
     return "weights.load";
   }
@@ -2259,7 +2283,6 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       }
       return result;
     };
-
     if (func_name == "Some") {
       if (arg_types.size() != 1) {
         error(call_token, "The 'Some' constructor expects exactly one argument.");
@@ -2360,6 +2383,38 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return make_error_type();
       }
       return Type{Type::Kind::Bytes};
+    }
+    if (func_name == "T81Maybe") {
+      if (!arg_types.empty()) {
+        error(call_token, "T81Maybe constructor expects no arguments.");
+        return make_error_type();
+      }
+      if (expected && expected->kind == Type::Kind::Option) {
+        return *expected;
+      }
+      return Type{Type::Kind::Option, {Type{Type::Kind::Unknown}}};
+    }
+    if (func_name == "T81Promise") {
+      if (!arg_types.empty()) {
+        error(call_token, "T81Promise constructor expects no arguments.");
+        return make_error_type();
+      }
+      if (expected && expected->kind == Type::Kind::Custom && expected->custom_name == "T81Promise") {
+        return *expected;
+      }
+      return Type{Type::Kind::Custom, {}, "T81Promise"};
+    }
+    if (func_name == "T81Agent" || func_name == "T81Polynomial" || func_name == "T81Symbolic" ||
+        func_name == "T81Time" || func_name == "T81Entropy") {
+      if (!arg_types.empty()) {
+        error(call_token, func_name + " constructor expects no arguments.");
+        return make_error_type();
+      }
+      if (expected && expected->kind == Type::Kind::Custom &&
+          expected->custom_name == func_name) {
+        return *expected;
+      }
+      return Type{Type::Kind::Custom, {}, func_name};
     }
     if (func_name == "T81Uint" || func_name == "T81Qutrit") {
       if (arg_types.size() != 1) {
@@ -2696,6 +2751,61 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return make_error_type();
       }
       return Type{Type::Kind::Void};
+    }
+    if (func_name == "symbolic_load" || func_name == "polynomial_load") {
+      if (arg_types.size() != 1) {
+        error(call_token, func_name + " expects exactly one argument.");
+        return make_error_type();
+      }
+      if (arg_types[0].kind != Type::Kind::String) {
+        error(call_token, func_name + " expects a T81String seed argument.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Custom, {}, func_name == "symbolic_load" ? "T81Symbolic"
+                                                                         : "T81Polynomial"};
+    }
+    if (func_name == "symbolic_rewrite" || func_name == "polynomial_rewrite") {
+      if (arg_types.size() != 3) {
+        error(call_token, func_name + " expects exactly three arguments.");
+        return make_error_type();
+      }
+      const std::string root_name =
+          (func_name == "symbolic_rewrite") ? "T81Symbolic" : "T81Polynomial";
+      if (arg_types[0].kind != Type::Kind::Custom || arg_types[0].custom_name != root_name) {
+        error(call_token, func_name + " first argument must be " + root_name + ".");
+        return make_error_type();
+      }
+      if (arg_types[1].kind != Type::Kind::String || arg_types[2].kind != Type::Kind::String) {
+        error(call_token, func_name + " rewrite operands must be T81String.");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Custom, {}, root_name};
+    }
+    if (func_name == "symbolic_canon" || func_name == "polynomial_canon") {
+      if (arg_types.size() != 1) {
+        error(call_token, func_name + " expects exactly one argument.");
+        return make_error_type();
+      }
+      const std::string root_name =
+          (func_name == "symbolic_canon") ? "T81Symbolic" : "T81Polynomial";
+      if (arg_types[0].kind != Type::Kind::Custom || arg_types[0].custom_name != root_name) {
+        error(call_token, func_name + " argument must be " + root_name + ".");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Custom, {}, root_name};
+    }
+    if (func_name == "symbolic_confluent" || func_name == "polynomial_confluent") {
+      if (arg_types.size() != 1) {
+        error(call_token, func_name + " expects exactly one argument.");
+        return make_error_type();
+      }
+      const std::string root_name =
+          (func_name == "symbolic_confluent") ? "T81Symbolic" : "T81Polynomial";
+      if (arg_types[0].kind != Type::Kind::Custom || arg_types[0].custom_name != root_name) {
+        error(call_token, func_name + " argument must be " + root_name + ".");
+        return make_error_type();
+      }
+      return Type{Type::Kind::Bool};
     }
     if (func_name == "print") {
       if (arg_types.size() != 1) {
@@ -3624,6 +3734,7 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
 
   if (auto* type_callee = dynamic_cast<const SimpleTypeExpr*>(expr.callee.get())) {
     const std::string callee_name(type_callee->name.lexeme);
+    const Type* expected = current_expected_type();
     if (callee_name == "T81Bytes") {
       if (arg_types.size() != 1) {
         error(type_callee->name, "T81Bytes conversion expects exactly one argument.");
@@ -3651,6 +3762,40 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
       const Type target_type = type_from_token(type_callee->name);
       validate_constrained_integer_assignment(target_type, *expr.arguments[0], type_callee->name);
       return target_type;
+    }
+    if (callee_name == "T81Maybe") {
+      if (!arg_types.empty()) {
+        error(type_callee->name, "T81Maybe constructor expects no arguments.");
+        return make_error_type();
+      }
+      if (expected && expected->kind == Type::Kind::Option) {
+        return *expected;
+      }
+      return Type{Type::Kind::Option, {Type{Type::Kind::Unknown}}};
+    }
+    if (callee_name == "T81Promise") {
+      if (!arg_types.empty()) {
+        error(type_callee->name, "T81Promise constructor expects no arguments.");
+        return make_error_type();
+      }
+      if (expected && expected->kind == Type::Kind::Custom &&
+          expected->custom_name == "T81Promise") {
+        return *expected;
+      }
+      return Type{Type::Kind::Custom, {}, "T81Promise"};
+    }
+    if (callee_name == "T81Agent" || callee_name == "T81Polynomial" ||
+        callee_name == "T81Symbolic" || callee_name == "T81Time" ||
+        callee_name == "T81Entropy") {
+      if (!arg_types.empty()) {
+        error(type_callee->name, callee_name + " constructor expects no arguments.");
+        return make_error_type();
+      }
+      if (expected && expected->kind == Type::Kind::Custom &&
+          expected->custom_name == callee_name) {
+        return *expected;
+      }
+      return Type{Type::Kind::Custom, {}, callee_name};
     }
   }
 
@@ -3781,6 +3926,20 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
     }
 
     Type constructed_type = evaluate_expression(*generic_callee);
+    if (constructed_type.kind == Type::Kind::Option && std::string(generic_callee->name.lexeme) == "T81Maybe") {
+      if (!arg_types.empty()) {
+        error(generic_callee->name, "T81Maybe constructor expects no arguments.");
+        return make_error_type();
+      }
+      return constructed_type;
+    }
+    if (constructed_type.kind == Type::Kind::Custom && constructed_type.custom_name == "T81Promise") {
+      if (!arg_types.empty()) {
+        error(generic_callee->name, "T81Promise constructor expects no arguments.");
+        return make_error_type();
+      }
+      return constructed_type;
+    }
     if (constructed_type.kind == Type::Kind::Fixed) {
       if (arg_types.size() != 1) {
         error(generic_callee->name, "T81Fixed constructor expects exactly one argument.");
@@ -4569,6 +4728,26 @@ std::any SemanticAnalyzer::visit(const GenericTypeExpr& expr) {
                            std::to_string(params.size()) + ".");
     }
     Type result{Type::Kind::Option, {params[0]}};
+    merge_expected_params(result, expected);
+    return result;
+  }
+
+  if (type_name == "T81Maybe") {
+    if (params.size() != 1) {
+      error(expr.name, "The 'T81Maybe' type expects exactly one type parameter, but got " +
+                           std::to_string(params.size()) + ".");
+    }
+    Type result{Type::Kind::Option, {params.empty() ? Type{Type::Kind::Unknown} : params[0]}};
+    merge_expected_params(result, expected);
+    return result;
+  }
+
+  if (type_name == "T81Promise") {
+    if (params.size() != 1) {
+      error(expr.name, "The 'T81Promise' type expects exactly one type parameter, but got " +
+                           std::to_string(params.size()) + ".");
+    }
+    Type result{Type::Kind::Custom, params, "T81Promise"};
     merge_expected_params(result, expected);
     return result;
   }

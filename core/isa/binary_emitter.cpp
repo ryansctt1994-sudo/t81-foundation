@@ -316,6 +316,14 @@ Opcode map_opcode(const ir::Instruction& instr) {
           return Opcode::Coherence;
         case O::DISTSEAL:
           return Opcode::DistSeal;
+        case O::SYMLOAD:
+          return Opcode::SymLoad;
+        case O::SYMREWRITE:
+          return Opcode::SymRewrite;
+        case O::SYMCANON:
+          return Opcode::SymCanon;
+        case O::SYMCONFLUENCE:
+          return Opcode::SymConfluence;
         default:
           throw std::runtime_error("Unsupported IR opcode in binary emitter.");
       }
