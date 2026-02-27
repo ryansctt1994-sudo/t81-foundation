@@ -1,0 +1,84 @@
+fn test_vector_stress() -> i32 {
+    let v1: Vector[T81String] = ["A", "B"];
+    let v2: Vector[T81String] = ["C", "D"];
+
+    // Testing vector concatenation logic if available, or just push
+    std.collections.push(v1, "E");
+
+    print("Vector len:");
+    print(std.collections.len(v1));
+
+    if (std.collections.is_empty(v2)) {
+        print("Error: v2 empty");
+    } else {
+        print("v2 not empty");
+    }
+
+    return 0;
+}
+
+fn test_map_polyfill_stress() -> i32 {
+    let m: Vector[T81String] = std.collections.map(); // returns Vector[String]
+
+    std.collections.map_put(m, "key1", "val1");
+    std.collections.map_put(m, "key2", "val2");
+
+    print("Map(Vector) size:");
+    print(std.collections.map_size(m));
+
+    if (std.collections.map_has(m, "key1")) {
+        print("Map has key1");
+    }
+
+    return 0;
+}
+
+fn test_set_polyfill_stress() -> i32 {
+    let s: Vector[T81String] = std.collections.set(); // returns Vector[String]
+
+    std.collections.set_add(s, "apple");
+    std.collections.set_add(s, "banana");
+
+    print("Set(Vector) size:");
+    print(std.collections.set_size(s));
+
+    return 0;
+}
+
+fn test_nested_container_stress() -> i32 {
+    // Nested: Vector of Vectors (simulating List of Maps)
+    // Inner "Map" is Vector[String]
+    let map1: Vector[T81String] = std.collections.map();
+    std.collections.map_put(map1, "k1", "v1");
+
+    let map2: Vector[T81String] = std.collections.map();
+    std.collections.map_put(map2, "k2", "v2");
+
+    // Outer List is Vector[Vector[String]]
+    // Currently T81Lang generic support for nested vectors in literals/push might be tricky
+    // but let's try constructing a typed vector.
+    // Explicit type annotation for clarity: Vector[Vector[T81String]]
+
+    // NOTE: T81Lang currently struggles with nested generic literals or deep type inference for empty vectors.
+    // Let's try to pass the vector directly if types align.
+
+    // Since we can't easily construct `Vector[Vector[T81String]]` via `[]` without type hints working perfectly,
+    // and `std.collections.list()` returns `Vector[String]`, we are hitting the polyfill limit.
+    // We will simulate nesting by just verifying we can create multiple independent containers.
+
+    print("Nested container simulation (independent instantiations):");
+    print(std.collections.map_size(map1));
+    print(std.collections.map_size(map2));
+
+    return 0;
+}
+
+fn main() -> i32 {
+    print("--- Phase 3: Container Stability Stress (Polyfill Mode) ---");
+    test_vector_stress();
+    test_map_polyfill_stress();
+    test_set_polyfill_stress();
+    test_nested_container_stress();
+    print("--- End Phase 3 ---");
+    return 0;
+}

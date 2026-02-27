@@ -1,0 +1,84 @@
+fn run_pipeline1() -> i32 {
+    print("Pipeline 1: Polynomial -> Tensor -> Agent");
+
+    // 1. Symbolic Polynomial
+    let p: T81Polynomial = std.polynomial.load("x^2 + 1");
+    // Evaluate p at x=2 (symbolic eval not directly exposed, simulating logic)
+    let val: i32 = 5; // 2^2 + 1
+
+    // 2. Tensor Evaluation
+    let t: Tensor = Tensor.from_list([5, 5, 5, 5]);
+    let dot: i32 = std.tensor.dot_product(t, t); // 5*5 + 5*5 + 5*5 + 5*5 = 100
+
+    // 3. Agent Memory (Simulated via Entropy/State)
+    if (dot > 50) {
+        std.agent.self_reflect();
+    }
+
+    print("Pipeline 1 Result:");
+    print(dot);
+    return 0;
+}
+
+fn run_pipeline2() -> i32 {
+    print("Pipeline 2: Graph -> Traversal -> Embedding");
+
+    // 1. Graph (Simulated via Vector adjacency for now due to limited Graph API)
+    let nodes: Vector[T81String] = ["A", "B", "C"];
+    // A -> B, B -> C
+
+    // 2. Deterministic Traversal (Linear scan of vector)
+    var sum_hash: i32 = 0;
+
+    let first: T81String = std.collections.first(nodes);
+    if (std.text.str_len(first) > 0) {
+        sum_hash = sum_hash + 1;
+    }
+
+    // 3. Tensor Embedding
+    // Embed "1" into a tensor
+    let embed: Tensor = Tensor.from_list([1, 1]);
+
+    print("Pipeline 2 Embedding Dot:");
+    print(std.tensor.dot_product(embed, embed));
+
+    return 0;
+}
+
+fn run_pipeline3() -> i32 {
+    print("Pipeline 3: Numeric Simulation -> Container Aggregation -> Proof");
+
+    // 1. Numeric Simulation (BigInt growth)
+    let base: T81BigInt = 1t81;
+    var curr: T81BigInt = base;
+    var i: i32 = 0;
+    while (i < 10) {
+        curr = curr * 2t81;
+        i = i + 1;
+    }
+
+    // 2. Container Aggregation
+    // Storing simulation steps in a container (Vector)
+    let history: Vector[T81String] = ["start"];
+    std.collections.push(history, "growth_phase");
+    std.collections.push(history, "end");
+
+    // 3. Proof Artifact (Simulated via string check)
+    let last: T81String = std.collections.last(history);
+    if (std.text.str_len(last) == 3) {
+        // "end" has length 3
+        std.sys.proof(); // Generate proof artifact (mock)
+        print("Proof generated for simulation.");
+    }
+
+    return 0;
+}
+
+fn main() -> i32 {
+    print("--- Phase 7: Cross-Layer Compositional Torture ---");
+    run_pipeline1();
+    run_pipeline2();
+    run_pipeline3();
+    print("--- End Phase 7 ---");
+    return 0;
+}

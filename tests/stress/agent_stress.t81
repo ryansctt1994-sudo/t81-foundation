@@ -1,0 +1,40 @@
+fn test_agent_construction() -> i32 {
+    let a: T81Agent = T81Agent();
+    // T81Agent API in T81Lang is currently limited/experimental.
+    // We can try calling standard reflective methods if exposed.
+
+    // Attempting self-reflection if available
+    // std.agent.self_reflect() (void)
+
+    std.agent.self_reflect();
+    print("Agent self-reflected");
+
+    return 0;
+}
+
+fn test_entropy_consumption() -> i32 {
+    // std.sys.entropy() returns i32
+    let e1: i32 = std.sys.entropy();
+    let e2: i32 = std.sys.entropy();
+
+    print("Entropy 1:");
+    print(e1);
+    print("Entropy 2:");
+    print(e2);
+
+    if (e1 == e2) {
+        print("Warning: Entropy is constant (Deterministic Mode?)");
+    } else {
+        print("Entropy is varying");
+    }
+
+    return 0;
+}
+
+fn main() -> i32 {
+    print("--- Phase 6: Agent and Reflective Layer Pressure ---");
+    test_agent_construction();
+    test_entropy_consumption();
+    print("--- End Phase 6 ---");
+    return 0;
+}
