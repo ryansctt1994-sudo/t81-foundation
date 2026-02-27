@@ -11,6 +11,7 @@
 namespace fs = std::filesystem;
 
 namespace {
+constexpr const char* kExpectedVersion = "1.1.0";
 
 std::string shell_escape(std::string_view arg) {
   if (arg.empty()) {
@@ -210,7 +211,7 @@ int main(int argc, char* argv[]) {
   {
     const auto result = run_cli(t81_bin, {"fmt", "--version"});
     T81_TEST_CHECK(result.exit_code == 0);
-    T81_TEST_CHECK(contains(result.stdout_text, "t81-fmt 0.2.0"));
+    T81_TEST_CHECK(contains(result.stdout_text, std::string("t81-fmt ") + kExpectedVersion));
   }
 
   {
@@ -222,13 +223,13 @@ int main(int argc, char* argv[]) {
   {
     const auto result = run_cli(t81_bin, {"-q", "version"});
     T81_TEST_CHECK(result.exit_code == 0);
-    T81_TEST_CHECK(contains(result.stdout_text, "T81 Foundation 1.0.0-SOVEREIGN"));
+    T81_TEST_CHECK(contains(result.stdout_text, std::string("T81 Foundation ") + kExpectedVersion));
   }
 
   {
     const auto result = run_cli(t81_bin, {"version", "-q"});
     T81_TEST_CHECK(result.exit_code == 0);
-    T81_TEST_CHECK(contains(result.stdout_text, "T81 Foundation 1.0.0-SOVEREIGN"));
+    T81_TEST_CHECK(contains(result.stdout_text, std::string("T81 Foundation ") + kExpectedVersion));
   }
 
   {
@@ -314,7 +315,7 @@ int main(int argc, char* argv[]) {
     const auto json_result = run_cli(t81_bin, {"fmt", "--json", file.string()});
     T81_TEST_CHECK(json_result.exit_code == 0);
     T81_TEST_CHECK(contains(json_result.stdout_text, "\"schema\": \"t81.fmt.v1\""));
-    T81_TEST_CHECK(contains(json_result.stdout_text, "\"formatter_version\": \"t81-fmt 0.2.0\""));
+    T81_TEST_CHECK(contains(json_result.stdout_text, std::string("\"formatter_version\": \"t81-fmt ") + kExpectedVersion + "\""));
 
     const fs::path bad_file = temp_dir / "invalid.t81";
     {

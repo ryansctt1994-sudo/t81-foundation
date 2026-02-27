@@ -1,6 +1,7 @@
 #include "t81/cli/driver.hpp"
 #include "debugger.hpp"
 #include "internal/tooling/logging.hpp"
+#include "t81/config.hpp"
 #include "t81/frontend/ir_generator.hpp"
 #include "t81/frontend/lexer.hpp"
 #include "t81/frontend/parser.hpp"
@@ -1319,10 +1320,10 @@ int init_package(const std::string& name) {
     std::ofstream pkg_file("package.t81");
     pkg_file << "(package\n"
              << "  (name \"" << name << "\")\n"
-             << "  (version \"0.1.0\")\n"
+             << "  (version \"" << T81_VERSION_STR << "\")\n"
              << "  (description \"A ternary-native T81 package\")\n"
              << "  (dependencies\n"
-             << "    (std \"0.1.0\")\n"
+             << "    (std \"" << T81_VERSION_STR << "\")\n"
              << "  )\n"
              << ")\n";
     pkg_file.close();

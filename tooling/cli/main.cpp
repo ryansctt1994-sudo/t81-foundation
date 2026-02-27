@@ -1,6 +1,6 @@
 /**
  * @file main.cpp
- * @brief T81 Foundation Command-Line Interface (v1.0.0-SOVEREIGN)
+ * @brief T81 Foundation Command-Line Interface
  *
  * Sovereign-grade, zero-dependency, ternary-native toolchain driver.
  * MIT + GPL-3.0 dual-licensed.
@@ -36,6 +36,7 @@
 #endif
 
 #include "internal/tooling/logging.hpp"
+#include "t81/config.hpp"
 #include "t81/canonfs/canon_driver.hpp"
 #include "t81/canonfs/canon_types.hpp"
 #include "t81/cli/driver.hpp"
@@ -61,9 +62,10 @@ namespace fs = std::filesystem;
 #define STR(x) #x
 #define XSTR(x) STR(x)
 
-constexpr const char* T81_VERSION = "1.0.0-SOVEREIGN";
+constexpr const char* T81_VERSION = T81_VERSION_STR;
 constexpr const char* T81_FULL_VERSION =
-    "T81 Foundation 1.0.0-SOVEREIGN (" __DATE__ " " __TIME__ ")";
+    "T81 Foundation " T81_VERSION_STR " (" __DATE__ " " __TIME__ ")";
+constexpr const char* T81_FMT_VERSION = "t81-fmt " T81_VERSION_STR;
 struct TempTiscFile {
   fs::path path;
 
@@ -2078,7 +2080,7 @@ int run_fmt_command(const Args& args) {
   }
 
   if (show_version) {
-    std::cout << "t81-fmt 0.2.0\n";
+    std::cout << T81_FMT_VERSION << '\n';
     return 0;
   }
 
@@ -2139,7 +2141,7 @@ int run_fmt_command(const Args& args) {
     std::cout << "{\n";
     std::cout << "  \"schema\": \"t81.fmt.v1\",\n";
     std::cout << "  \"ok\": " << (ok ? "true" : "false") << ",\n";
-    std::cout << "  \"formatter_version\": \"t81-fmt 0.2.0\",\n";
+    std::cout << "  \"formatter_version\": \"" << T81_FMT_VERSION << "\",\n";
     std::cout << "  \"check_only\": " << (check_only ? "true" : "false") << ",\n";
     std::cout << "  \"files_scanned\": " << files.size() << ",\n";
     std::cout << "  \"changed\": [";
