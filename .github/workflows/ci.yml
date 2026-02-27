@@ -93,7 +93,7 @@ jobs:
 
       - name: Run governance audit wrapper
         run: |
-          make audit-governance 2>&1 | tee -a .github/logs/spec-and-docs.log
+          python3 scripts/governance/check_docs_governance_hygiene.py 2>&1 | tee -a .github/logs/spec-and-docs.log
 
       - name: Job Failure Summary
         if: failure()
@@ -439,12 +439,12 @@ jobs:
         run: |
           set -eo pipefail
           if [[ -z "${T81_LLAMA_MODEL_URL}" ]]; then
-            echo "T81_LLAMA_MODEL_URL secret is required when T81_ENABLE_LLAMA_REPRO=1 and fixture model is not present." >&2
-            exit 1
+            echo "::warning::Skipping optional llama repro fixture provisioning: missing T81_LLAMA_MODEL_URL secret."
+            exit 0
           fi
           if [[ -z "${T81_LLAMA_EXPECTED_MODEL_HASH}" ]]; then
-            echo "T81_LLAMA_EXPECTED_MODEL_HASH repo variable is required when provisioning llama fixture." >&2
-            exit 1
+            echo "::warning::Skipping optional llama repro fixture provisioning: missing T81_LLAMA_EXPECTED_MODEL_HASH repository variable."
+            exit 0
           fi
           mkdir -p tests/fixtures/llama_cpp_repro
           curl -fsSL "${T81_LLAMA_MODEL_URL}" -o tests/fixtures/llama_cpp_repro/model.gguf

@@ -1,7 +1,0 @@
-exclude:
-  - third_party
-  - build
-  - build-local
-  - artifacts
-  - .github
-  - scripts

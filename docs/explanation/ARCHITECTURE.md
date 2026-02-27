@@ -15,7 +15,7 @@ ______________________________________________________________________
 
 Applied examples:
 - Determinism: cross-arch CI gates compare T81Lang and T3_K artifact hashes for stable replay guarantees.
-- Layering: `t81_cli_driver` depends on frontend/TISC/VM facades rather than re-implementing runtime behavior.
+- Layering: `t81_tool_cli` depends on frontend/TISC/VM facades rather than re-implementing runtime behavior.
 - Spec authority: behavior changes route through `../../spec/` and RFC flow before becoming implementation contracts.
 
 ______________________________________________________________________
@@ -29,14 +29,14 @@ The authoritative build graph is `../../CMakeLists.txt`. It includes static libr
 | `t81_core` | STATIC | Core numerics, VM runtime, JIT compiler, Axion engine, CanonFS, codecs, hashing/crypto, weights internals, Cognitive Tiers | (none) |
 | `t81_io` | STATIC | Tensor/model I/O helpers | `t81_core` |
 | `t81_c_api` | STATIC | C ABI surface for selected runtime/core functions | `t81_core` |
-| `t81_frontend` | STATIC | Lexer, parser, semantic analyzer (T81Lang frontend) | `t81_core` |
+| `t81_lang_frontend` | STATIC | Lexer, parser, semantic analyzer (T81Lang frontend) | `t81_core` |
 | `t81_isa` | STATIC | TISC IR/binary emitter, pretty printer, binary I/O, base81 TISC views | `t81_core` |
 | `t81_vm` | INTERFACE | VM public facade target for consumers/tests | `t81_core` |
 | `t81_llvm` | INTERFACE | LLVM-facing facade target (placeholder/adapter layer) | `t81_core` |
-| `t81_cli_driver` | STATIC | CLI orchestration (compile/run/trace/repro/tools) | `t81_frontend`, `t81_isa`, `t81_vm` |
-| `t81` | EXECUTABLE | Main CLI entry point | `t81_frontend`, `t81_isa`, `t81_vm`, `t81_cli_driver` |
-| `t81_python` | MODULE (optional) | `pybind11` Python bindings | `t81_core`, `t81_frontend`, `t81_isa` |
-| `benchmark_runner` (subdir) | EXECUTABLE (optional) | Benchmark suite and docs benchmark generation pipeline | `t81_core`, `t81_frontend`, `t81_isa`, Google Benchmark |
+| `t81_tool_cli` | STATIC | CLI orchestration (compile/run/trace/repro/tools) | `t81_lang_frontend`, `t81_isa`, `t81_vm` |
+| `t81` | EXECUTABLE | Main CLI entry point | `t81_lang_frontend`, `t81_isa`, `t81_vm`, `t81_tool_cli` |
+| `t81_python` | MODULE (optional) | `pybind11` Python bindings | `t81_core`, `t81_lang_frontend`, `t81_isa`, `t81_vm` |
+| `benchmark_runner` (subdir) | EXECUTABLE (optional) | Benchmark suite and docs benchmark generation pipeline | `t81_core`, `t81_lang_frontend`, `t81_isa`, `t81_vm`, Google Benchmark |
 
 Notes:
 - CMake defaults to `cxx_std_23`; a temporary compatibility lane remains available via `-DT81_USE_CXX23=OFF`.
@@ -199,7 +199,7 @@ ______________________________________________________________________
 
 ## 7. Key Architectural Boundaries
 
-- **Frontend vs Runtime:** `t81_frontend` produces typed/validated IR; it does not execute programs.
+- **Frontend vs Runtime:** `t81_lang_frontend` produces typed/validated IR; it does not execute programs.
 - **TISC Format vs VM Execution:** `t81_isa` defines program representation; `t81_vm` executes it via interpreter and trace-JIT.
 - **Core as substrate:** `t81_core` provides shared primitives/services (VM state, Axion, CanonFS, codecs, tensor numerics) and is the dependency root.
 - **Policy vs performance:** Axion policy checks and trace logging remain mandatory across interpreter and compiled trace paths.
