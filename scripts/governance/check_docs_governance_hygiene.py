@@ -143,6 +143,7 @@ def main() -> int:
         ("stdlib promotion snapshot", "scripts/governance/check_stdlib_promotion_snapshot.py"),
         ("cognitive-tier boundary", "scripts/governance/check_cognitive_tier_boundary.py"),
         ("overclaim guardrails", "scripts/governance/check_overclaim_guardrails.py"),
+        ("target name drift", "scripts/governance/check_target_name_drift.py"),
     ]
     for label, rel_script in supplemental_checks:
         script_path = REPO_ROOT / rel_script
