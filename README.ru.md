@@ -48,32 +48,51 @@
 T81 организован в строгие слои полномочий и абстракций.
 
 ```mermaid
-graph TD
-    subgraph ApplicationLayer["`Application Layer`"]
-        Lang[T81Lang Source]
-        Cognitive[Cognitive Tiers]
+flowchart TD
+
+    %% ─────────────────────────────────────
+    %% Application Layer
+    %% ─────────────────────────────────────
+    subgraph A["Application Layer"]
+        Lang["T81Lang Source"]
+        Cognitive["Cognitive Tiers"]
     end
 
-    subgraph GovernanceLayer["`Governance Layer`"]
-        Axion[Axion Policy Kernel]
+    %% ─────────────────────────────────────
+    %% Governance Layer
+    %% ─────────────────────────────────────
+    subgraph G["Governance Layer"]
+        Axion["Axion Policy Kernel"]
     end
 
-    subgraph ExecutionLayer["`Execution Layer`"]
-        VM[T81VM Interpreter]
-        JIT["`Trace-JIT (Experimental)`"]
+    %% ─────────────────────────────────────
+    %% Execution Layer
+    %% ─────────────────────────────────────
+    subgraph E["Execution Layer"]
+        VM["T81VM Interpreter"]
+        JIT["Trace-JIT (Experimental)"]
     end
 
-    subgraph FoundationLayer["`Foundation Layer (Frozen)`"]
-        ISA[TISC ISA]
-        Types[Ternary Data Types]
+    %% ─────────────────────────────────────
+    %% Foundation Layer
+    %% ─────────────────────────────────────
+    subgraph F["Foundation Layer (Frozen)"]
+        ISA["TISC ISA"]
+        Types["Ternary Data Types"]
     end
 
+    %% Primary execution flow
     Lang --> VM
-    Cognitive --> Axion
-    VM --> Axion
-    Axion --> ISA
     VM --> ISA
     ISA --> Types
+
+    %% Governance enforcement
+    VM --> Axion
+    Cognitive --> Axion
+    Axion --> ISA
+
+    %% Experimental path
+    VM -. optional .-> JIT
 ```
 
 *   **Базовый слой:** «Замороженное» ядро. `T81BigInt`, `T81Float` и ISA **TISC** (Ternary Instruction Set Computer). Изменения здесь требуют увеличения major-версии.
