@@ -1,7 +1,3 @@
-/**
- * @file lexer.cpp
- * @brief Implements the Lexer for the T81Lang frontend.
- */
 #include "t81/frontend/lexer.hpp"
 #include <unordered_map>
 
@@ -222,6 +218,19 @@ Token Lexer::number() {
     is_float_literal = true;
     advance();
     while (is_digit(peek())) advance();
+  }
+
+  if (peek() == 'e' || peek() == 'E') {
+    is_float_literal = true;
+    char next = peek_next();
+    if (next == '+' || next == '-') {
+      advance(); // Consume 'e'
+      advance(); // Consume '+' or '-'
+      while (is_digit(peek())) advance();
+    } else if (is_digit(next)) {
+      advance(); // Consume 'e'
+      while (is_digit(peek())) advance();
+    }
   }
 
   if (peek() == 't' && peek_next() == '8' && (_current + 2 < _source.end()) &&

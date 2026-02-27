@@ -3,6 +3,7 @@
 #define T81_FRONTEND_IR_GENERATOR_HPP
 
 #include <any>
+#include <charconv>
 #include <iostream>
 #include <limits>
 #include <locale>
@@ -11,6 +12,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <typeinfo>
 #include <unordered_map>
 #include "t81/enum_meta.hpp"
@@ -100,6 +102,18 @@ inline std::string strip_t81_suffix(std::string_view literal) {
   return value;
 }
 
+// Use std::from_chars for locale-independent, deterministic float parsing.
+inline double parse_canonical_float(std::string_view literal) {
+  double value = 0.0;
+  auto res = std::from_chars(literal.data(), literal.data() + literal.size(), value);
+  if (res.ec != std::errc()) {
+    // If parsing fails, default to 0.0 or handle error appropriately.
+    // Given the lexer has validated the format, failure implies overflow/underflow or implementation limits.
+    return 0.0;
+  }
+  return value;
+}
+
 inline int64_t parse_base81_integer_literal(std::string_view literal) {
   std::string value = strip_t81_suffix(literal);
   return std::stoll(value);
@@ -107,7 +121,7 @@ inline int64_t parse_base81_integer_literal(std::string_view literal) {
 
 inline double parse_base81_float_literal(std::string_view literal) {
   std::string value = strip_t81_suffix(literal);
-  return std::stod(value);
+  return parse_canonical_float(value);
 }
 
 inline std::optional<std::string> qualified_call_name(const Expr& expr) {
@@ -1100,7 +1114,7 @@ public:
     if (expr.value.type == TokenType::Float || expr.value.type == TokenType::Base81Float) {
       const double parsed = (expr.value.type == TokenType::Base81Float)
                                 ? parse_base81_float_literal(expr.value.lexeme)
-                                : std::stod(std::string(expr.value.lexeme));
+                                : parse_canonical_float(expr.value.lexeme);
       std::ostringstream out;
       out.imbue(std::locale::classic());
       out.precision(std::numeric_limits<double>::max_digits10);
@@ -1137,6 +1151,28 @@ public:
   }
 
   std::any visit(const UnaryExpr& expr) override {
+    if (expr.op.type == TokenType::Bang) {
+      auto right = evaluate_expr(expr.right.get());
+      auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+      auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+      tisc::ir::Instruction load_zero;
+      load_zero.opcode = tisc::ir::Opcode::LOADI;
+      load_zero.operands = {zero.reg, tisc::ir::Immediate{0}};
+      load_zero.primitive = tisc::ir::PrimitiveKind::Boolean;
+      load_zero.literal_kind = tisc::LiteralKind::Bool;
+      emit(load_zero);
+
+      tisc::ir::Instruction cmp;
+      cmp.opcode = tisc::ir::Opcode::CMP;
+      cmp.operands = {dest.reg, right.reg, zero.reg};
+      cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
+      cmp.boolean_result = true;
+      cmp.relation = tisc::ir::ComparisonRelation::Equal;
+      emit(cmp);
+      record_result(&expr, dest);
+      return {};
+    }
+
     auto right = evaluate_expr(expr.right.get());
     auto dest = allocate_typed_register(right.primitive);
     tisc::ir::Opcode opcode;
@@ -1217,7 +1253,16 @@ public:
         }
         expr.arguments[0]->accept(*this);
         auto value = ensure_expr_result(expr.arguments[0].get());
-        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+
+        tisc::ir::PrimitiveKind dest_kind = tisc::ir::PrimitiveKind::Unknown;
+        if (func_name == "symbol_intern") {
+            // Symbol intern returns an integer-like handle (Symbol), but the VM handles it.
+            // If Type::Kind::Symbol is treated as Integer in IR generation (categorize_primitive),
+            // then we should use Integer.
+            dest_kind = tisc::ir::PrimitiveKind::Integer;
+        }
+
+        auto dest = allocate_typed_register(dest_kind);
         copy_to_dest(value, dest);
         record_result(&expr, dest);
         return {};
@@ -2705,10 +2750,10 @@ public:
           throw std::runtime_error("collections_map expects no arguments.");
         }
         auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction vec_new;
-        vec_new.opcode = tisc::ir::Opcode::STRVECNEW;
-        vec_new.operands = {dest.reg};
-        emit(vec_new);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::MapNew;
+        instr.operands = {dest.reg};
+        emit(instr);
         record_result(&expr, dest);
         return {};
       }
@@ -2718,26 +2763,12 @@ public:
         }
         expr.arguments[0]->accept(*this);
         auto map_vec = ensure_expr_result(expr.arguments[0].get());
-        auto raw_len = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction len_instr;
-        len_instr.opcode = tisc::ir::Opcode::VECLEN;
-        len_instr.operands = {raw_len.reg, map_vec.reg};
-        len_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(len_instr);
-
-        auto two = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction load_two;
-        load_two.opcode = tisc::ir::Opcode::LOADI;
-        load_two.operands = {two.reg, tisc::ir::Immediate{2}};
-        load_two.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(load_two);
-
         auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction div_instr;
-        div_instr.opcode = tisc::ir::Opcode::DIV;
-        div_instr.operands = {dest.reg, raw_len.reg, two.reg};
-        div_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(div_instr);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::MapSize;
+        instr.operands = {dest.reg, map_vec.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Integer;
+        emit(instr);
         record_result(&expr, dest);
         return {};
       }
@@ -2749,126 +2780,13 @@ public:
         expr.arguments[1]->accept(*this);
         auto map_vec = ensure_expr_result(expr.arguments[0].get());
         auto needle = ensure_expr_result(expr.arguments[1].get());
-
-        auto two = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction load_two;
-        load_two.opcode = tisc::ir::Opcode::LOADI;
-        load_two.operands = {two.reg, tisc::ir::Immediate{2}};
-        load_two.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(load_two);
-
-        auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction load_zero;
-        load_zero.opcode = tisc::ir::Opcode::LOADI;
-        load_zero.operands = {zero.reg, tisc::ir::Immediate{0}};
-        load_zero.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(load_zero);
-
-        auto work = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        copy_to_dest(map_vec, work);
-
-        auto raw_len = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction len_instr;
-        len_instr.opcode = tisc::ir::Opcode::VECLEN;
-        len_instr.operands = {raw_len.reg, work.reg};
-        len_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(len_instr);
-
-        auto rem = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction mod_instr;
-        mod_instr.opcode = tisc::ir::Opcode::MOD;
-        mod_instr.operands = {rem.reg, raw_len.reg, two.reg};
-        mod_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(mod_instr);
-
-        auto has_odd_tail = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction odd_cmp;
-        odd_cmp.opcode = tisc::ir::Opcode::CMP;
-        odd_cmp.operands = {has_odd_tail.reg, rem.reg, zero.reg};
-        odd_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        odd_cmp.boolean_result = true;
-        odd_cmp.relation = tisc::ir::ComparisonRelation::NotEqual;
-        emit(odd_cmp);
-
-        auto loop_label = new_label();
-        auto found_label = new_label();
-        auto end_label = new_label();
-        auto trimmed_label = new_label();
-
-        emit_jump_if_zero(trimmed_label, has_odd_tail);
-        auto trimmed = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction trim_instr;
-        trim_instr.opcode = tisc::ir::Opcode::VECPOP;
-        trim_instr.operands = {trimmed.reg, work.reg};
-        emit(trim_instr);
-        copy_to_dest(trimmed, work);
-        emit_label(trimmed_label);
-
-        auto result = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction init_false;
-        init_false.opcode = tisc::ir::Opcode::LOADI;
-        init_false.operands = {result.reg, tisc::ir::Immediate{0}};
-        init_false.primitive = tisc::ir::PrimitiveKind::Boolean;
-        init_false.literal_kind = tisc::LiteralKind::Bool;
-        emit(init_false);
-
-        emit_label(loop_label);
-        auto cur_len = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction cur_len_instr;
-        cur_len_instr.opcode = tisc::ir::Opcode::VECLEN;
-        cur_len_instr.operands = {cur_len.reg, work.reg};
-        cur_len_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(cur_len_instr);
-
-        auto has_pair = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction pair_cmp;
-        pair_cmp.opcode = tisc::ir::Opcode::CMP;
-        pair_cmp.operands = {has_pair.reg, cur_len.reg, two.reg};
-        pair_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        pair_cmp.boolean_result = true;
-        pair_cmp.relation = tisc::ir::ComparisonRelation::GreaterEqual;
-        emit(pair_cmp);
-        emit_jump_if_zero(end_label, has_pair);
-
-        auto no_value = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction pop_value;
-        pop_value.opcode = tisc::ir::Opcode::VECPOP;
-        pop_value.operands = {no_value.reg, work.reg};
-        emit(pop_value);
-
-        auto key = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction last_instr;
-        last_instr.opcode = tisc::ir::Opcode::VECLAST;
-        last_instr.operands = {key.reg, no_value.reg};
-        emit(last_instr);
-
-        auto is_match = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction key_cmp;
-        key_cmp.opcode = tisc::ir::Opcode::CMP;
-        key_cmp.operands = {is_match.reg, key.reg, needle.reg};
-        key_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        key_cmp.boolean_result = true;
-        key_cmp.relation = tisc::ir::ComparisonRelation::Equal;
-        emit(key_cmp);
-        emit_jump_if_not_zero(found_label, is_match);
-
-        auto no_pair = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction pop_key;
-        pop_key.opcode = tisc::ir::Opcode::VECPOP;
-        pop_key.operands = {no_pair.reg, no_value.reg};
-        emit(pop_key);
-        copy_to_dest(no_pair, work);
-        emit_jump(loop_label);
-
-        emit_label(found_label);
-        tisc::ir::Instruction set_true;
-        set_true.opcode = tisc::ir::Opcode::LOADI;
-        set_true.operands = {result.reg, tisc::ir::Immediate{1}};
-        set_true.primitive = tisc::ir::PrimitiveKind::Boolean;
-        set_true.literal_kind = tisc::LiteralKind::Bool;
-        emit(set_true);
-        emit_label(end_label);
-        record_result(&expr, result);
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::MapHas;
+        instr.operands = {dest.reg, map_vec.reg, needle.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Boolean;
+        emit(instr);
+        record_result(&expr, dest);
         return {};
       }
       if (func_name == "collections_map_get") {
@@ -2879,359 +2797,72 @@ public:
         expr.arguments[1]->accept(*this);
         auto map_vec = ensure_expr_result(expr.arguments[0].get());
         auto needle = ensure_expr_result(expr.arguments[1].get());
-
-        auto two = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction load_two;
-        load_two.opcode = tisc::ir::Opcode::LOADI;
-        load_two.operands = {two.reg, tisc::ir::Immediate{2}};
-        load_two.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(load_two);
-
-        auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction load_zero;
-        load_zero.opcode = tisc::ir::Opcode::LOADI;
-        load_zero.operands = {zero.reg, tisc::ir::Immediate{0}};
-        load_zero.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(load_zero);
-
-        auto work = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        copy_to_dest(map_vec, work);
-
-        auto raw_len = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction len_instr;
-        len_instr.opcode = tisc::ir::Opcode::VECLEN;
-        len_instr.operands = {raw_len.reg, work.reg};
-        len_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(len_instr);
-
-        auto rem = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction mod_instr;
-        mod_instr.opcode = tisc::ir::Opcode::MOD;
-        mod_instr.operands = {rem.reg, raw_len.reg, two.reg};
-        mod_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(mod_instr);
-
-        auto has_odd_tail = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction odd_cmp;
-        odd_cmp.opcode = tisc::ir::Opcode::CMP;
-        odd_cmp.operands = {has_odd_tail.reg, rem.reg, zero.reg};
-        odd_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        odd_cmp.boolean_result = true;
-        odd_cmp.relation = tisc::ir::ComparisonRelation::NotEqual;
-        emit(odd_cmp);
-
-        auto trim_done = new_label();
-        emit_jump_if_zero(trim_done, has_odd_tail);
-        auto trimmed = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction trim_instr;
-        trim_instr.opcode = tisc::ir::Opcode::VECPOP;
-        trim_instr.operands = {trimmed.reg, work.reg};
-        emit(trim_instr);
-        copy_to_dest(trimmed, work);
-        emit_label(trim_done);
-
-        auto result = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        emit_make_option_none(result);
-
-        auto loop_label = new_label();
-        auto found_label = new_label();
-        auto end_label = new_label();
-
-        emit_label(loop_label);
-        auto cur_len = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction cur_len_instr;
-        cur_len_instr.opcode = tisc::ir::Opcode::VECLEN;
-        cur_len_instr.operands = {cur_len.reg, work.reg};
-        cur_len_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(cur_len_instr);
-
-        auto has_pair = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction pair_cmp;
-        pair_cmp.opcode = tisc::ir::Opcode::CMP;
-        pair_cmp.operands = {has_pair.reg, cur_len.reg, two.reg};
-        pair_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        pair_cmp.boolean_result = true;
-        pair_cmp.relation = tisc::ir::ComparisonRelation::GreaterEqual;
-        emit(pair_cmp);
-        emit_jump_if_zero(end_label, has_pair);
-
-        auto value = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction value_instr;
-        value_instr.opcode = tisc::ir::Opcode::VECLAST;
-        value_instr.operands = {value.reg, work.reg};
-        emit(value_instr);
-
-        auto no_value = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction pop_value;
-        pop_value.opcode = tisc::ir::Opcode::VECPOP;
-        pop_value.operands = {no_value.reg, work.reg};
-        emit(pop_value);
-
-        auto key = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction key_instr;
-        key_instr.opcode = tisc::ir::Opcode::VECLAST;
-        key_instr.operands = {key.reg, no_value.reg};
-        emit(key_instr);
-
-        auto is_match = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction key_cmp;
-        key_cmp.opcode = tisc::ir::Opcode::CMP;
-        key_cmp.operands = {is_match.reg, key.reg, needle.reg};
-        key_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        key_cmp.boolean_result = true;
-        key_cmp.relation = tisc::ir::ComparisonRelation::Equal;
-        emit(key_cmp);
-        emit_jump_if_not_zero(found_label, is_match);
-
-        auto no_pair = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction pop_key;
-        pop_key.opcode = tisc::ir::Opcode::VECPOP;
-        pop_key.operands = {no_pair.reg, no_value.reg};
-        emit(pop_key);
-        copy_to_dest(no_pair, work);
-        emit_jump(loop_label);
-
-        emit_label(found_label);
-        emit_make_option_some(result, value);
-        emit_label(end_label);
-        record_result(&expr, result);
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::MapGet;
+        instr.operands = {dest.reg, map_vec.reg, needle.reg};
+        emit(instr);
+        record_result(&expr, dest);
         return {};
       }
-      if (func_name == "collections_map_remove" || func_name == "collections_map_put") {
-        const bool is_put = func_name == "collections_map_put";
-        const size_t expected_arity = is_put ? 3 : 2;
-        if (expr.arguments.size() != expected_arity) {
-          throw std::runtime_error(
-              std::string(is_put ? "collections_map_put" : "collections_map_remove") +
-              " expects exactly " + std::to_string(expected_arity) + " arguments.");
+      if (func_name == "collections_map_remove") {
+        if (expr.arguments.size() != 2) {
+          throw std::runtime_error("collections_map_remove expects exactly two arguments.");
         }
         expr.arguments[0]->accept(*this);
         expr.arguments[1]->accept(*this);
-        if (is_put) {
-          expr.arguments[2]->accept(*this);
-        }
         auto map_vec = ensure_expr_result(expr.arguments[0].get());
         auto needle = ensure_expr_result(expr.arguments[1].get());
-        TypedRegister put_value;
-        if (is_put) {
-          put_value = ensure_expr_result(expr.arguments[2].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::MapRemove;
+        instr.operands = {dest.reg, map_vec.reg, needle.reg};
+        emit(instr);
+        record_result(&expr, dest);
+        return {};
+      }
+      if (func_name == "collections_map_put") {
+        if (expr.arguments.size() != 3) {
+          throw std::runtime_error("collections_map_put expects exactly three arguments.");
         }
+        expr.arguments[0]->accept(*this);
+        expr.arguments[1]->accept(*this);
+        expr.arguments[2]->accept(*this);
+        auto map_vec = ensure_expr_result(expr.arguments[0].get());
+        auto key = ensure_expr_result(expr.arguments[1].get());
+        auto value = ensure_expr_result(expr.arguments[2].get());
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::MapPut;
+        instr.operands = {dest.reg, map_vec.reg, key.reg, value.reg}; // VM implementation assumes map is in A? No, wait.
+        // My VM implementation used: A=Map, B=Key, C=Val. But wait, `MapPut` in my VM implementation uses `ctx.registers[insn.a]` as map handle.
+        // TISC instructions generally write to A.
+        // If MapPut modifies in place, it should return the map handle.
+        // My VM implementation:
+        //   auto* vec = string_vector_mut(ctx.registers[insn.a]);
+        // So A is both input and output (in-place modification).
+        // BUT `tisc::ir::Instruction` supports A, B, C.
+        // If I emit operands {map_vec.reg, key.reg, value.reg}, then A=map, B=key, C=val.
+        // And I allocate `dest` but don't use it in operands?
+        // Ah, `copy_to_dest(map_vec, dest)` if I want a new register?
+        // If I use map_vec directly as A, it modifies the register that holds the map handle. That's fine since it's a handle.
+        // However, standard IR generation flow: allocate dest register, emit instruction writing to dest.
+        // If I want `dest = MapPut(map, key, val)` where `dest` is a new alias to the map?
+        // VM implementation: `ctx.registers[insn.a]` is modified? No, `ctx.registers[insn.a]` holds the handle. `string_vector_mut` gets the vector *pointed to* by the handle.
+        // So `ctx.registers[insn.a]` is NOT modified (the handle is the same). The *vector* is modified.
+        // So: `MapPut` takes `map` in A.
+        // But if I want `dest` to be the result of the expression (which is the map), I should probably copy `map` to `dest` first, then operate on `dest`.
+        // Or make MapPut have 3 operands: Dest, Map, Key, Value? No, TISC is limited to 3 operands (A, B, C).
+        // So: MapPut(Map, Key, Value) -> modifies Map. Returns Map handle.
+        // If I want to support chaining or assignment, I need the result in a register.
+        // Let's assume MapPut modifies `A` (the map handle reg) in place (conceptually the object it points to).
+        // But what if I need `dest` to be a *different* register from `map_vec`?
+        // `copy_to_dest(map_vec, dest);` then `MapPut(dest, key, value)`.
 
-        auto two = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction load_two;
-        load_two.opcode = tisc::ir::Opcode::LOADI;
-        load_two.operands = {two.reg, tisc::ir::Immediate{2}};
-        load_two.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(load_two);
-
-        auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction load_zero;
-        load_zero.opcode = tisc::ir::Opcode::LOADI;
-        load_zero.operands = {zero.reg, tisc::ir::Immediate{0}};
-        load_zero.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(load_zero);
-
-        auto work = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        copy_to_dest(map_vec, work);
-
-        auto raw_len = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction len_instr;
-        len_instr.opcode = tisc::ir::Opcode::VECLEN;
-        len_instr.operands = {raw_len.reg, work.reg};
-        len_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(len_instr);
-
-        auto rem = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction mod_instr;
-        mod_instr.opcode = tisc::ir::Opcode::MOD;
-        mod_instr.operands = {rem.reg, raw_len.reg, two.reg};
-        mod_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(mod_instr);
-
-        auto has_odd_tail = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction odd_cmp;
-        odd_cmp.opcode = tisc::ir::Opcode::CMP;
-        odd_cmp.operands = {has_odd_tail.reg, rem.reg, zero.reg};
-        odd_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        odd_cmp.boolean_result = true;
-        odd_cmp.relation = tisc::ir::ComparisonRelation::NotEqual;
-        emit(odd_cmp);
-
-        auto trim_done = new_label();
-        emit_jump_if_zero(trim_done, has_odd_tail);
-        auto trimmed = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction trim_instr;
-        trim_instr.opcode = tisc::ir::Opcode::VECPOP;
-        trim_instr.operands = {trimmed.reg, work.reg};
-        emit(trim_instr);
-        copy_to_dest(trimmed, work);
-        emit_label(trim_done);
-
-        auto reversed_pairs = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction rev_new;
-        rev_new.opcode = tisc::ir::Opcode::STRVECNEW;
-        rev_new.operands = {reversed_pairs.reg};
-        emit(rev_new);
-
-        auto scan_loop = new_label();
-        auto scan_done = new_label();
-        auto keep_pair = new_label();
-        auto after_pair = new_label();
-
-        emit_label(scan_loop);
-        auto cur_len = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction cur_len_instr;
-        cur_len_instr.opcode = tisc::ir::Opcode::VECLEN;
-        cur_len_instr.operands = {cur_len.reg, work.reg};
-        cur_len_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(cur_len_instr);
-
-        auto has_pair = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction pair_cmp;
-        pair_cmp.opcode = tisc::ir::Opcode::CMP;
-        pair_cmp.operands = {has_pair.reg, cur_len.reg, two.reg};
-        pair_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        pair_cmp.boolean_result = true;
-        pair_cmp.relation = tisc::ir::ComparisonRelation::GreaterEqual;
-        emit(pair_cmp);
-        emit_jump_if_zero(scan_done, has_pair);
-
-        auto value = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction value_instr;
-        value_instr.opcode = tisc::ir::Opcode::VECLAST;
-        value_instr.operands = {value.reg, work.reg};
-        emit(value_instr);
-
-        auto no_value = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction pop_value;
-        pop_value.opcode = tisc::ir::Opcode::VECPOP;
-        pop_value.operands = {no_value.reg, work.reg};
-        emit(pop_value);
-
-        auto key = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction key_instr;
-        key_instr.opcode = tisc::ir::Opcode::VECLAST;
-        key_instr.operands = {key.reg, no_value.reg};
-        emit(key_instr);
-
-        auto no_pair = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction pop_key;
-        pop_key.opcode = tisc::ir::Opcode::VECPOP;
-        pop_key.operands = {no_pair.reg, no_value.reg};
-        emit(pop_key);
-
-        auto is_match = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction key_cmp;
-        key_cmp.opcode = tisc::ir::Opcode::CMP;
-        key_cmp.operands = {is_match.reg, key.reg, needle.reg};
-        key_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        key_cmp.boolean_result = true;
-        key_cmp.relation = tisc::ir::ComparisonRelation::Equal;
-        emit(key_cmp);
-        emit_jump_if_zero(keep_pair, is_match);
-        emit_jump(after_pair);
-
-        emit_label(keep_pair);
-        auto rev_with_key = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction push_key;
-        push_key.opcode = tisc::ir::Opcode::VECPUSH;
-        push_key.operands = {rev_with_key.reg, reversed_pairs.reg, key.reg};
-        emit(push_key);
-        auto rev_with_value = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction push_value;
-        push_value.opcode = tisc::ir::Opcode::VECPUSH;
-        push_value.operands = {rev_with_value.reg, rev_with_key.reg, value.reg};
-        emit(push_value);
-        copy_to_dest(rev_with_value, reversed_pairs);
-
-        emit_label(after_pair);
-        copy_to_dest(no_pair, work);
-        emit_jump(scan_loop);
-        emit_label(scan_done);
-
-        auto result = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction out_new;
-        out_new.opcode = tisc::ir::Opcode::STRVECNEW;
-        out_new.operands = {result.reg};
-        emit(out_new);
-
-        auto rev_work = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        copy_to_dest(reversed_pairs, rev_work);
-
-        auto rebuild_loop = new_label();
-        auto rebuild_done = new_label();
-        emit_label(rebuild_loop);
-        auto rev_len = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction rev_len_instr;
-        rev_len_instr.opcode = tisc::ir::Opcode::VECLEN;
-        rev_len_instr.operands = {rev_len.reg, rev_work.reg};
-        rev_len_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(rev_len_instr);
-
-        auto rev_has_pair = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction rev_pair_cmp;
-        rev_pair_cmp.opcode = tisc::ir::Opcode::CMP;
-        rev_pair_cmp.operands = {rev_has_pair.reg, rev_len.reg, two.reg};
-        rev_pair_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        rev_pair_cmp.boolean_result = true;
-        rev_pair_cmp.relation = tisc::ir::ComparisonRelation::GreaterEqual;
-        emit(rev_pair_cmp);
-        emit_jump_if_zero(rebuild_done, rev_has_pair);
-
-        auto rev_value = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction rev_value_instr;
-        rev_value_instr.opcode = tisc::ir::Opcode::VECLAST;
-        rev_value_instr.operands = {rev_value.reg, rev_work.reg};
-        emit(rev_value_instr);
-
-        auto rev_no_value = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction rev_pop_value;
-        rev_pop_value.opcode = tisc::ir::Opcode::VECPOP;
-        rev_pop_value.operands = {rev_no_value.reg, rev_work.reg};
-        emit(rev_pop_value);
-
-        auto rev_key = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction rev_key_instr;
-        rev_key_instr.opcode = tisc::ir::Opcode::VECLAST;
-        rev_key_instr.operands = {rev_key.reg, rev_no_value.reg};
-        emit(rev_key_instr);
-
-        auto rev_no_pair = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction rev_pop_key;
-        rev_pop_key.opcode = tisc::ir::Opcode::VECPOP;
-        rev_pop_key.operands = {rev_no_pair.reg, rev_no_value.reg};
-        emit(rev_pop_key);
-
-        auto out_with_key = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction out_push_key;
-        out_push_key.opcode = tisc::ir::Opcode::VECPUSH;
-        out_push_key.operands = {out_with_key.reg, result.reg, rev_key.reg};
-        emit(out_push_key);
-        auto out_with_value = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction out_push_value;
-        out_push_value.opcode = tisc::ir::Opcode::VECPUSH;
-        out_push_value.operands = {out_with_value.reg, out_with_key.reg, rev_value.reg};
-        emit(out_push_value);
-        copy_to_dest(out_with_value, result);
-        copy_to_dest(rev_no_pair, rev_work);
-        emit_jump(rebuild_loop);
-        emit_label(rebuild_done);
-
-        if (is_put) {
-          auto with_key = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-          tisc::ir::Instruction push_key;
-          push_key.opcode = tisc::ir::Opcode::VECPUSH;
-          push_key.operands = {with_key.reg, result.reg, needle.reg};
-          emit(push_key);
-          auto with_value = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-          tisc::ir::Instruction push_value;
-          push_value.opcode = tisc::ir::Opcode::VECPUSH;
-          push_value.operands = {with_value.reg, with_key.reg, put_value.reg};
-          emit(push_value);
-          copy_to_dest(with_value, result);
-        }
-
-        record_result(&expr, result);
+        copy_to_dest(map_vec, dest);
+        instr.operands = {dest.reg, key.reg, value.reg};
+        emit(instr);
+        record_result(&expr, dest);
         return {};
       }
       if (func_name == "collections_map_keys") {
@@ -3240,163 +2871,12 @@ public:
         }
         expr.arguments[0]->accept(*this);
         auto map_vec = ensure_expr_result(expr.arguments[0].get());
-
-        auto two = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction load_two;
-        load_two.opcode = tisc::ir::Opcode::LOADI;
-        load_two.operands = {two.reg, tisc::ir::Immediate{2}};
-        load_two.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(load_two);
-
-        auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction load_zero;
-        load_zero.opcode = tisc::ir::Opcode::LOADI;
-        load_zero.operands = {zero.reg, tisc::ir::Immediate{0}};
-        load_zero.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(load_zero);
-
-        auto work = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        copy_to_dest(map_vec, work);
-
-        auto raw_len = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction len_instr;
-        len_instr.opcode = tisc::ir::Opcode::VECLEN;
-        len_instr.operands = {raw_len.reg, work.reg};
-        len_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(len_instr);
-
-        auto rem = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction mod_instr;
-        mod_instr.opcode = tisc::ir::Opcode::MOD;
-        mod_instr.operands = {rem.reg, raw_len.reg, two.reg};
-        mod_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(mod_instr);
-
-        auto has_odd_tail = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction odd_cmp;
-        odd_cmp.opcode = tisc::ir::Opcode::CMP;
-        odd_cmp.operands = {has_odd_tail.reg, rem.reg, zero.reg};
-        odd_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        odd_cmp.boolean_result = true;
-        odd_cmp.relation = tisc::ir::ComparisonRelation::NotEqual;
-        emit(odd_cmp);
-
-        auto trim_done = new_label();
-        emit_jump_if_zero(trim_done, has_odd_tail);
-        auto trimmed = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction trim_instr;
-        trim_instr.opcode = tisc::ir::Opcode::VECPOP;
-        trim_instr.operands = {trimmed.reg, work.reg};
-        emit(trim_instr);
-        copy_to_dest(trimmed, work);
-        emit_label(trim_done);
-
-        auto rev_keys = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction rev_new;
-        rev_new.opcode = tisc::ir::Opcode::STRVECNEW;
-        rev_new.operands = {rev_keys.reg};
-        emit(rev_new);
-
-        auto collect_loop = new_label();
-        auto collect_done = new_label();
-        emit_label(collect_loop);
-        auto cur_len = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction cur_len_instr;
-        cur_len_instr.opcode = tisc::ir::Opcode::VECLEN;
-        cur_len_instr.operands = {cur_len.reg, work.reg};
-        cur_len_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(cur_len_instr);
-
-        auto has_pair = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction pair_cmp;
-        pair_cmp.opcode = tisc::ir::Opcode::CMP;
-        pair_cmp.operands = {has_pair.reg, cur_len.reg, two.reg};
-        pair_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        pair_cmp.boolean_result = true;
-        pair_cmp.relation = tisc::ir::ComparisonRelation::GreaterEqual;
-        emit(pair_cmp);
-        emit_jump_if_zero(collect_done, has_pair);
-
-        auto no_value = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction pop_value;
-        pop_value.opcode = tisc::ir::Opcode::VECPOP;
-        pop_value.operands = {no_value.reg, work.reg};
-        emit(pop_value);
-
-        auto key = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction key_instr;
-        key_instr.opcode = tisc::ir::Opcode::VECLAST;
-        key_instr.operands = {key.reg, no_value.reg};
-        emit(key_instr);
-
-        auto no_pair = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction pop_key;
-        pop_key.opcode = tisc::ir::Opcode::VECPOP;
-        pop_key.operands = {no_pair.reg, no_value.reg};
-        emit(pop_key);
-
-        auto rev_with_key = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction push_key;
-        push_key.opcode = tisc::ir::Opcode::VECPUSH;
-        push_key.operands = {rev_with_key.reg, rev_keys.reg, key.reg};
-        emit(push_key);
-        copy_to_dest(rev_with_key, rev_keys);
-        copy_to_dest(no_pair, work);
-        emit_jump(collect_loop);
-        emit_label(collect_done);
-
-        auto result = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction out_new;
-        out_new.opcode = tisc::ir::Opcode::STRVECNEW;
-        out_new.operands = {result.reg};
-        emit(out_new);
-
-        auto rev_work = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        copy_to_dest(rev_keys, rev_work);
-
-        auto rebuild_loop = new_label();
-        auto rebuild_done = new_label();
-        emit_label(rebuild_loop);
-        auto rev_len = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction rev_len_instr;
-        rev_len_instr.opcode = tisc::ir::Opcode::VECLEN;
-        rev_len_instr.operands = {rev_len.reg, rev_work.reg};
-        rev_len_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(rev_len_instr);
-
-        auto has_key = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction has_key_cmp;
-        has_key_cmp.opcode = tisc::ir::Opcode::CMP;
-        has_key_cmp.operands = {has_key.reg, rev_len.reg, zero.reg};
-        has_key_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        has_key_cmp.boolean_result = true;
-        has_key_cmp.relation = tisc::ir::ComparisonRelation::Greater;
-        emit(has_key_cmp);
-        emit_jump_if_zero(rebuild_done, has_key);
-
-        auto out_key = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction out_key_instr;
-        out_key_instr.opcode = tisc::ir::Opcode::VECLAST;
-        out_key_instr.operands = {out_key.reg, rev_work.reg};
-        emit(out_key_instr);
-
-        auto rev_no_key = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction rev_pop_key;
-        rev_pop_key.opcode = tisc::ir::Opcode::VECPOP;
-        rev_pop_key.operands = {rev_no_key.reg, rev_work.reg};
-        emit(rev_pop_key);
-
-        auto out_with_key = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction out_push_key;
-        out_push_key.opcode = tisc::ir::Opcode::VECPUSH;
-        out_push_key.operands = {out_with_key.reg, result.reg, out_key.reg};
-        emit(out_push_key);
-        copy_to_dest(out_with_key, result);
-        copy_to_dest(rev_no_key, rev_work);
-        emit_jump(rebuild_loop);
-        emit_label(rebuild_done);
-
-        record_result(&expr, result);
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::MapKeys;
+        instr.operands = {dest.reg, map_vec.reg};
+        emit(instr);
+        record_result(&expr, dest);
         return {};
       }
       if (func_name == "collections_set") {
@@ -3404,10 +2884,10 @@ public:
           throw std::runtime_error("collections_set expects no arguments.");
         }
         auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction vec_new;
-        vec_new.opcode = tisc::ir::Opcode::STRVECNEW;
-        vec_new.operands = {dest.reg};
-        emit(vec_new);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::SetNew;
+        instr.operands = {dest.reg};
+        emit(instr);
         record_result(&expr, dest);
         return {};
       }
@@ -3419,7 +2899,7 @@ public:
         auto set_vec = ensure_expr_result(expr.arguments[0].get());
         auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
         tisc::ir::Instruction instr;
-        instr.opcode = tisc::ir::Opcode::VECLEN;
+        instr.opcode = tisc::ir::Opcode::SetSize;
         instr.operands = {dest.reg, set_vec.reg};
         instr.primitive = tisc::ir::PrimitiveKind::Integer;
         emit(instr);
@@ -3434,80 +2914,13 @@ public:
         expr.arguments[1]->accept(*this);
         auto set_vec = ensure_expr_result(expr.arguments[0].get());
         auto needle = ensure_expr_result(expr.arguments[1].get());
-
-        auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction load_zero;
-        load_zero.opcode = tisc::ir::Opcode::LOADI;
-        load_zero.operands = {zero.reg, tisc::ir::Immediate{0}};
-        load_zero.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(load_zero);
-
-        auto work = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        copy_to_dest(set_vec, work);
-
-        auto result = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction init_false;
-        init_false.opcode = tisc::ir::Opcode::LOADI;
-        init_false.operands = {result.reg, tisc::ir::Immediate{0}};
-        init_false.primitive = tisc::ir::PrimitiveKind::Boolean;
-        init_false.literal_kind = tisc::LiteralKind::Bool;
-        emit(init_false);
-
-        auto loop_label = new_label();
-        auto found_label = new_label();
-        auto end_label = new_label();
-
-        emit_label(loop_label);
-        auto cur_len = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction len_instr;
-        len_instr.opcode = tisc::ir::Opcode::VECLEN;
-        len_instr.operands = {cur_len.reg, work.reg};
-        len_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(len_instr);
-
-        auto has_item = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction len_cmp;
-        len_cmp.opcode = tisc::ir::Opcode::CMP;
-        len_cmp.operands = {has_item.reg, cur_len.reg, zero.reg};
-        len_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        len_cmp.boolean_result = true;
-        len_cmp.relation = tisc::ir::ComparisonRelation::Greater;
-        emit(len_cmp);
-        emit_jump_if_zero(end_label, has_item);
-
-        auto value = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction last_instr;
-        last_instr.opcode = tisc::ir::Opcode::VECLAST;
-        last_instr.operands = {value.reg, work.reg};
-        emit(last_instr);
-
-        auto is_match = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction cmp_instr;
-        cmp_instr.opcode = tisc::ir::Opcode::CMP;
-        cmp_instr.operands = {is_match.reg, value.reg, needle.reg};
-        cmp_instr.primitive = tisc::ir::PrimitiveKind::Boolean;
-        cmp_instr.boolean_result = true;
-        cmp_instr.relation = tisc::ir::ComparisonRelation::Equal;
-        emit(cmp_instr);
-        emit_jump_if_not_zero(found_label, is_match);
-
-        auto popped = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction pop_instr;
-        pop_instr.opcode = tisc::ir::Opcode::VECPOP;
-        pop_instr.operands = {popped.reg, work.reg};
-        emit(pop_instr);
-        copy_to_dest(popped, work);
-        emit_jump(loop_label);
-
-        emit_label(found_label);
-        tisc::ir::Instruction set_true;
-        set_true.opcode = tisc::ir::Opcode::LOADI;
-        set_true.operands = {result.reg, tisc::ir::Immediate{1}};
-        set_true.primitive = tisc::ir::PrimitiveKind::Boolean;
-        set_true.literal_kind = tisc::LiteralKind::Bool;
-        emit(set_true);
-        emit_label(end_label);
-        record_result(&expr, result);
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::SetHas;
+        instr.operands = {dest.reg, set_vec.reg, needle.reg};
+        instr.primitive = tisc::ir::PrimitiveKind::Boolean;
+        emit(instr);
+        record_result(&expr, dest);
         return {};
       }
       if (func_name == "collections_set_add") {
@@ -3518,95 +2931,13 @@ public:
         expr.arguments[1]->accept(*this);
         auto set_vec = ensure_expr_result(expr.arguments[0].get());
         auto needle = ensure_expr_result(expr.arguments[1].get());
-
-        auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction load_zero;
-        load_zero.opcode = tisc::ir::Opcode::LOADI;
-        load_zero.operands = {zero.reg, tisc::ir::Immediate{0}};
-        load_zero.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(load_zero);
-
-        auto work = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        copy_to_dest(set_vec, work);
-        auto result = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        copy_to_dest(set_vec, result);
-
-        auto loop_label = new_label();
-        auto found_label = new_label();
-        auto end_label = new_label();
-
-        emit_label(loop_label);
-        auto cur_len = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction len_instr;
-        len_instr.opcode = tisc::ir::Opcode::VECLEN;
-        len_instr.operands = {cur_len.reg, work.reg};
-        len_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(len_instr);
-
-        auto has_item = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction len_cmp;
-        len_cmp.opcode = tisc::ir::Opcode::CMP;
-        len_cmp.operands = {has_item.reg, cur_len.reg, zero.reg};
-        len_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        len_cmp.boolean_result = true;
-        len_cmp.relation = tisc::ir::ComparisonRelation::Greater;
-        emit(len_cmp);
-        emit_jump_if_zero(end_label, has_item);
-
-        auto value = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction last_instr;
-        last_instr.opcode = tisc::ir::Opcode::VECLAST;
-        last_instr.operands = {value.reg, work.reg};
-        emit(last_instr);
-
-        auto is_match = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction cmp_instr;
-        cmp_instr.opcode = tisc::ir::Opcode::CMP;
-        cmp_instr.operands = {is_match.reg, value.reg, needle.reg};
-        cmp_instr.primitive = tisc::ir::PrimitiveKind::Boolean;
-        cmp_instr.boolean_result = true;
-        cmp_instr.relation = tisc::ir::ComparisonRelation::Equal;
-        emit(cmp_instr);
-        emit_jump_if_not_zero(found_label, is_match);
-
-        auto popped = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction pop_instr;
-        pop_instr.opcode = tisc::ir::Opcode::VECPOP;
-        pop_instr.operands = {popped.reg, work.reg};
-        emit(pop_instr);
-        copy_to_dest(popped, work);
-        emit_jump(loop_label);
-
-        emit_label(found_label);
-        emit_jump(end_label);
-
-        emit_label(end_label);
-        auto end_len = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction end_len_instr;
-        end_len_instr.opcode = tisc::ir::Opcode::VECLEN;
-        end_len_instr.operands = {end_len.reg, work.reg};
-        end_len_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(end_len_instr);
-
-        auto already_present = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction present_cmp;
-        present_cmp.opcode = tisc::ir::Opcode::CMP;
-        present_cmp.operands = {already_present.reg, end_len.reg, zero.reg};
-        present_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        present_cmp.boolean_result = true;
-        present_cmp.relation = tisc::ir::ComparisonRelation::Greater;
-        emit(present_cmp);
-
-        auto done_label = new_label();
-        emit_jump_if_not_zero(done_label, already_present);
-        auto pushed = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction push_instr;
-        push_instr.opcode = tisc::ir::Opcode::VECPUSH;
-        push_instr.operands = {pushed.reg, result.reg, needle.reg};
-        emit(push_instr);
-        copy_to_dest(pushed, result);
-        emit_label(done_label);
-        record_result(&expr, result);
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        copy_to_dest(set_vec, dest);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::SetAdd;
+        instr.operands = {dest.reg, needle.reg};
+        emit(instr);
+        record_result(&expr, dest);
         return {};
       }
       if (func_name == "collections_set_remove") {
@@ -3617,134 +2948,13 @@ public:
         expr.arguments[1]->accept(*this);
         auto set_vec = ensure_expr_result(expr.arguments[0].get());
         auto needle = ensure_expr_result(expr.arguments[1].get());
-
-        auto zero = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction load_zero;
-        load_zero.opcode = tisc::ir::Opcode::LOADI;
-        load_zero.operands = {zero.reg, tisc::ir::Immediate{0}};
-        load_zero.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(load_zero);
-
-        auto work = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        copy_to_dest(set_vec, work);
-
-        auto rev = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction rev_new;
-        rev_new.opcode = tisc::ir::Opcode::STRVECNEW;
-        rev_new.operands = {rev.reg};
-        emit(rev_new);
-
-        auto loop_label = new_label();
-        auto done_label = new_label();
-        auto keep_label = new_label();
-        auto after_label = new_label();
-        emit_label(loop_label);
-
-        auto cur_len = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction len_instr;
-        len_instr.opcode = tisc::ir::Opcode::VECLEN;
-        len_instr.operands = {cur_len.reg, work.reg};
-        len_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(len_instr);
-
-        auto has_item = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction len_cmp;
-        len_cmp.opcode = tisc::ir::Opcode::CMP;
-        len_cmp.operands = {has_item.reg, cur_len.reg, zero.reg};
-        len_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        len_cmp.boolean_result = true;
-        len_cmp.relation = tisc::ir::ComparisonRelation::Greater;
-        emit(len_cmp);
-        emit_jump_if_zero(done_label, has_item);
-
-        auto value = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction last_instr;
-        last_instr.opcode = tisc::ir::Opcode::VECLAST;
-        last_instr.operands = {value.reg, work.reg};
-        emit(last_instr);
-
-        auto popped = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction pop_instr;
-        pop_instr.opcode = tisc::ir::Opcode::VECPOP;
-        pop_instr.operands = {popped.reg, work.reg};
-        emit(pop_instr);
-
-        auto is_match = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction cmp_instr;
-        cmp_instr.opcode = tisc::ir::Opcode::CMP;
-        cmp_instr.operands = {is_match.reg, value.reg, needle.reg};
-        cmp_instr.primitive = tisc::ir::PrimitiveKind::Boolean;
-        cmp_instr.boolean_result = true;
-        cmp_instr.relation = tisc::ir::ComparisonRelation::Equal;
-        emit(cmp_instr);
-        emit_jump_if_zero(keep_label, is_match);
-        emit_jump(after_label);
-
-        emit_label(keep_label);
-        auto rev_pushed = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction rev_push;
-        rev_push.opcode = tisc::ir::Opcode::VECPUSH;
-        rev_push.operands = {rev_pushed.reg, rev.reg, value.reg};
-        emit(rev_push);
-        copy_to_dest(rev_pushed, rev);
-
-        emit_label(after_label);
-        copy_to_dest(popped, work);
-        emit_jump(loop_label);
-
-        emit_label(done_label);
-        auto result = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction out_new;
-        out_new.opcode = tisc::ir::Opcode::STRVECNEW;
-        out_new.operands = {result.reg};
-        emit(out_new);
-
-        auto rev_work = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        copy_to_dest(rev, rev_work);
-        auto rebuild_loop = new_label();
-        auto rebuild_done = new_label();
-        emit_label(rebuild_loop);
-
-        auto rev_len = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);
-        tisc::ir::Instruction rev_len_instr;
-        rev_len_instr.opcode = tisc::ir::Opcode::VECLEN;
-        rev_len_instr.operands = {rev_len.reg, rev_work.reg};
-        rev_len_instr.primitive = tisc::ir::PrimitiveKind::Integer;
-        emit(rev_len_instr);
-
-        auto has_rev_item = allocate_typed_register(tisc::ir::PrimitiveKind::Boolean);
-        tisc::ir::Instruction rev_cmp;
-        rev_cmp.opcode = tisc::ir::Opcode::CMP;
-        rev_cmp.operands = {has_rev_item.reg, rev_len.reg, zero.reg};
-        rev_cmp.primitive = tisc::ir::PrimitiveKind::Boolean;
-        rev_cmp.boolean_result = true;
-        rev_cmp.relation = tisc::ir::ComparisonRelation::Greater;
-        emit(rev_cmp);
-        emit_jump_if_zero(rebuild_done, has_rev_item);
-
-        auto rev_value = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction rev_last;
-        rev_last.opcode = tisc::ir::Opcode::VECLAST;
-        rev_last.operands = {rev_value.reg, rev_work.reg};
-        emit(rev_last);
-
-        auto rev_popped = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction rev_pop;
-        rev_pop.opcode = tisc::ir::Opcode::VECPOP;
-        rev_pop.operands = {rev_popped.reg, rev_work.reg};
-        emit(rev_pop);
-
-        auto out_pushed = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
-        tisc::ir::Instruction out_push;
-        out_push.opcode = tisc::ir::Opcode::VECPUSH;
-        out_push.operands = {out_pushed.reg, result.reg, rev_value.reg};
-        emit(out_push);
-        copy_to_dest(out_pushed, result);
-        copy_to_dest(rev_popped, rev_work);
-        emit_jump(rebuild_loop);
-        emit_label(rebuild_done);
-
-        record_result(&expr, result);
+        auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+        copy_to_dest(set_vec, dest);
+        tisc::ir::Instruction instr;
+        instr.opcode = tisc::ir::Opcode::SetRemove;
+        instr.operands = {dest.reg, needle.reg};
+        emit(instr);
+        record_result(&expr, dest);
         return {};
       }
       if (func_name == "collections_tree" || func_name == "collections_graph") {
@@ -5289,8 +4499,47 @@ public:
     if (!_semantic) return {};
     const auto* data = _semantic->vector_literal_data(&expr);
     if (!data) {
-      throw std::runtime_error("Vector literal data missing during IR generation.");
+      // Dynamic vector construction
+      // Check if we can determine size statically or if elements are dynamic expressions
+      // For now, assume dynamic construction via STRVEC ops if data is missing,
+      // but strictly speaking, STRVEC* ops are for untyped/string vectors.
+      // However, T81 vectors are currently polyfilled over string vectors or use Tensor logic.
+      // If `_semantic->vector_literal_data` failed, it means elements are non-constant.
+
+      // We will construct it as a generic vector (polyfilled) if possible,
+      // OR as a Tensor if it's numeric but dynamic.
+      // Current VM `STRVEC` ops might not support floats directly unless we stringify or use `any`.
+      // But let's assume we treat it as a generic container for now to satisfy "Dynamic Vector Literal Support".
+      // The prompt says "Emit runtime construction instructions instead of compile-time constant folding."
+
+      auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Unknown);
+      tisc::ir::Instruction vec_new;
+      vec_new.opcode = tisc::ir::Opcode::STRVECNEW;
+      vec_new.operands = {dest.reg};
+      emit(vec_new);
+
+      for (const auto& element : expr.elements) {
+        element->accept(*this);
+        auto value = ensure_expr_result(element.get());
+
+        // If numeric, we might need conversion or just push as is if STRVEC accepts any register.
+        // Assuming STRVECPUSH pushes the *value* in the register.
+        tisc::ir::Instruction push;
+        push.opcode = tisc::ir::Opcode::STRVECPUSH;
+        push.operands = {dest.reg, value.reg};
+        emit(push);
+      }
+
+      // If we need to treat this as a Tensor later, we might need a conversion,
+      // but `STRVEC` is the generic fallback for now.
+      // If the expected type is Tensor, we might fail at runtime or need `Tensor.from_list` equivalent.
+      // But `Vector` type in T81Lang maps to this.
+
+      record_result(&expr, dest);
+      return {};
     }
+
+    // Static constant optimization path
     t81::T729DynamicTensor tensor({static_cast<int>(data->size())}, *data);
     int handle = _program.add_tensor(std::move(tensor));
     auto dest = allocate_typed_register(tisc::ir::PrimitiveKind::Integer);

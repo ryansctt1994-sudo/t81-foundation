@@ -1648,9 +1648,25 @@ if(T81_BUILD_TESTS)
   target_link_libraries(t81_symbolic_vm_test PRIVATE t81_core t81_isa t81_vm)
   add_test(NAME t81_symbolic_vm_test COMMAND t81_symbolic_vm_test)
 
+  add_executable(test_t81float_scientific tests/cpp/test_t81float_scientific.cpp)
+  target_link_libraries(test_t81float_scientific PRIVATE t81_core t81_isa t81_lang_frontend)
+  add_test(NAME test_t81float_scientific COMMAND test_t81float_scientific)
+
+  add_executable(test_symbol_type tests/cpp/test_symbol_type.cpp)
+  target_link_libraries(test_symbol_type PRIVATE t81_core t81_isa t81_lang_frontend)
+  add_test(NAME test_symbol_type COMMAND test_symbol_type)
+
+  add_executable(test_dynamic_vector tests/cpp/test_dynamic_vector.cpp)
+  target_link_libraries(test_dynamic_vector PRIVATE t81_core t81_isa t81_lang_frontend)
+  add_test(NAME test_dynamic_vector COMMAND test_dynamic_vector)
+
   add_executable(test_concurrency tests/cpp/test_concurrency.cpp)
   target_link_libraries(test_concurrency PRIVATE t81_core t81_isa t81_vm)
   add_test(NAME test_concurrency COMMAND test_concurrency)
+
+  add_executable(test_collections_scaffold tests/cpp/test_collections_scaffold.cpp)
+  target_link_libraries(test_collections_scaffold PRIVATE t81_core t81_isa t81_vm t81_lang_frontend t81_axion)
+  add_test(NAME test_collections_scaffold COMMAND test_collections_scaffold)
 
   if(T81_ENABLE_LLAMA_CPP)
     find_package(Python3 COMPONENTS Interpreter REQUIRED)

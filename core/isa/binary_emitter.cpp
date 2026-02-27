@@ -303,6 +303,30 @@ Opcode map_opcode(const ir::Instruction& instr) {
       return Opcode::BitShr;
     case O::BITUSHR:
       return Opcode::BitUShr;
+    case O::MapNew:
+      return Opcode::MapNew;
+    case O::MapPut:
+      return Opcode::MapPut;
+    case O::MapGet:
+      return Opcode::MapGet;
+    case O::MapHas:
+      return Opcode::MapHas;
+    case O::MapRemove:
+      return Opcode::MapRemove;
+    case O::MapKeys:
+      return Opcode::MapKeys;
+    case O::MapSize:
+      return Opcode::MapSize;
+    case O::SetNew:
+      return Opcode::SetNew;
+    case O::SetAdd:
+      return Opcode::SetAdd;
+    case O::SetRemove:
+      return Opcode::SetRemove;
+    case O::SetHas:
+      return Opcode::SetHas;
+    case O::SetSize:
+      return Opcode::SetSize;
     default:
       // Fallback for Tier 4 opcodes if they have direct mapping
       switch (instr.opcode) {

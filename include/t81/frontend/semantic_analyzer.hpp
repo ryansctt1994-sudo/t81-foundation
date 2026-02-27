@@ -255,8 +255,11 @@ private:
   const std::unordered_map<std::string, Type>* _current_type_env = nullptr;
 
   void analyze(const Stmt& stmt);
+
+public:
   std::any analyze(const Expr& expr);
 
+private:
   void error(const Token& token, const std::string& message);
   void error_at(const Token& token, const std::string& message);
 

@@ -1116,6 +1116,11 @@ Type SemanticAnalyzer::type_from_token(const Token& name) {
   if (name_str == "Vector") return Type{Type::Kind::Vector};
   if (name_str == "Matrix") return Type{Type::Kind::Matrix};
   if (name_str == "Tensor") return Type{Type::Kind::Tensor};
+  if (name_str == "List") return Type{Type::Kind::List};
+  if (name_str == "Map") return Type{Type::Kind::Map};
+  if (name_str == "Set") return Type{Type::Kind::Set};
+  if (name_str == "Tree") return Type{Type::Kind::Tree};
+  if (name_str == "Graph") return Type{Type::Kind::Graph};
   if (name_str == "T81Bytes") return Type{Type::Kind::Bytes};
   if (name_str == "Symbol") return Type{Type::Kind::Symbol};
   if (name_str == "InfiniteCanonicalForm") return Type{Type::Kind::InfiniteCanonicalForm};
@@ -3286,8 +3291,8 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "std.collections.list expects no arguments.");
         return make_error_type();
       }
-      Type out{Type::Kind::Vector};
-      out.params.push_back(Type{Type::Kind::String});
+      Type out{Type::Kind::List};
+      out.params.push_back(Type{Type::Kind::String}); // Default to String for polyfill compat? Or generic?
       return out;
     }
     if (func_name == "collections_map") {
@@ -3295,8 +3300,9 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "std.collections.map expects no arguments.");
         return make_error_type();
       }
-      Type out{Type::Kind::Vector};
-      out.params.push_back(Type{Type::Kind::String});
+      Type out{Type::Kind::Map};
+      out.params.push_back(Type{Type::Kind::String}); // Key
+      out.params.push_back(Type{Type::Kind::String}); // Value
       return out;
     }
     if (func_name == "collections_map_size") {
@@ -3304,11 +3310,8 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "std.collections.map_size expects exactly one argument.");
         return make_error_type();
       }
-      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
-                                    !arg_types[0].params.empty() &&
-                                    arg_types[0].params[0].kind == Type::Kind::String;
-      if (!is_string_vector) {
-        error(call_token, "std.collections.map_size expects a Vector[T81String] argument.");
+      if (arg_types[0].kind != Type::Kind::Map) {
+        error(call_token, "std.collections.map_size expects a Map argument.");
         return make_error_type();
       }
       return Type{Type::Kind::I32};
@@ -3318,13 +3321,11 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "std.collections.map_has expects exactly two arguments.");
         return make_error_type();
       }
-      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
-                                    !arg_types[0].params.empty() &&
-                                    arg_types[0].params[0].kind == Type::Kind::String;
-      if (!is_string_vector) {
-        error(call_token, "std.collections.map_has expects a Vector[T81String] first argument.");
+      if (arg_types[0].kind != Type::Kind::Map) {
+        error(call_token, "std.collections.map_has expects a Map first argument.");
         return make_error_type();
       }
+      // Assuming key is string for now as per polyfill
       if (arg_types[1].kind != Type::Kind::String) {
         error(call_token, "std.collections.map_has expects a T81String key argument.");
         return make_error_type();
@@ -3336,31 +3337,24 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "std.collections.map_put expects exactly three arguments.");
         return make_error_type();
       }
-      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
-                                    !arg_types[0].params.empty() &&
-                                    arg_types[0].params[0].kind == Type::Kind::String;
-      if (!is_string_vector) {
-        error(call_token, "std.collections.map_put expects a Vector[T81String] first argument.");
+      if (arg_types[0].kind != Type::Kind::Map) {
+        std::cerr << "DEBUG: map_put arg0 kind=" << (int)arg_types[0].kind << " Map=" << (int)Type::Kind::Map << std::endl;
+        error(call_token, "std.collections.map_put expects a Map first argument.");
         return make_error_type();
       }
       if (arg_types[1].kind != Type::Kind::String || arg_types[2].kind != Type::Kind::String) {
         error(call_token, "std.collections.map_put expects T81String key/value arguments.");
         return make_error_type();
       }
-      Type out{Type::Kind::Vector};
-      out.params.push_back(Type{Type::Kind::String});
-      return out;
+      return arg_types[0]; // Return the map
     }
     if (func_name == "collections_map_get") {
       if (arg_types.size() != 2) {
         error(call_token, "std.collections.map_get expects exactly two arguments.");
         return make_error_type();
       }
-      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
-                                    !arg_types[0].params.empty() &&
-                                    arg_types[0].params[0].kind == Type::Kind::String;
-      if (!is_string_vector) {
-        error(call_token, "std.collections.map_get expects a Vector[T81String] first argument.");
+      if (arg_types[0].kind != Type::Kind::Map) {
+        error(call_token, "std.collections.map_get expects a Map first argument.");
         return make_error_type();
       }
       if (arg_types[1].kind != Type::Kind::String) {
@@ -3368,7 +3362,12 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         return make_error_type();
       }
       Type out{Type::Kind::Option};
-      out.params.push_back(Type{Type::Kind::String});
+      // Payload type from Map value param
+      if (arg_types[0].params.size() >= 2) {
+         out.params.push_back(arg_types[0].params[1]);
+      } else {
+         out.params.push_back(Type{Type::Kind::Unknown});
+      }
       return out;
     }
     if (func_name == "collections_map_remove") {
@@ -3376,31 +3375,23 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "std.collections.map_remove expects exactly two arguments.");
         return make_error_type();
       }
-      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
-                                    !arg_types[0].params.empty() &&
-                                    arg_types[0].params[0].kind == Type::Kind::String;
-      if (!is_string_vector) {
-        error(call_token, "std.collections.map_remove expects a Vector[T81String] first argument.");
+      if (arg_types[0].kind != Type::Kind::Map) {
+        error(call_token, "std.collections.map_remove expects a Map first argument.");
         return make_error_type();
       }
       if (arg_types[1].kind != Type::Kind::String) {
         error(call_token, "std.collections.map_remove expects a T81String key argument.");
         return make_error_type();
       }
-      Type out{Type::Kind::Vector};
-      out.params.push_back(Type{Type::Kind::String});
-      return out;
+      return arg_types[0];
     }
     if (func_name == "collections_map_keys") {
       if (arg_types.size() != 1) {
         error(call_token, "std.collections.map_keys expects exactly one argument.");
         return make_error_type();
       }
-      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
-                                    !arg_types[0].params.empty() &&
-                                    arg_types[0].params[0].kind == Type::Kind::String;
-      if (!is_string_vector) {
-        error(call_token, "std.collections.map_keys expects a Vector[T81String] argument.");
+      if (arg_types[0].kind != Type::Kind::Map) {
+        error(call_token, "std.collections.map_keys expects a Map argument.");
         return make_error_type();
       }
       Type out{Type::Kind::Vector};
@@ -3412,7 +3403,7 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "std.collections.set expects no arguments.");
         return make_error_type();
       }
-      Type out{Type::Kind::Vector};
+      Type out{Type::Kind::Set};
       out.params.push_back(Type{Type::Kind::String});
       return out;
     }
@@ -3421,11 +3412,8 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "std.collections.set_size expects exactly one argument.");
         return make_error_type();
       }
-      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
-                                    !arg_types[0].params.empty() &&
-                                    arg_types[0].params[0].kind == Type::Kind::String;
-      if (!is_string_vector) {
-        error(call_token, "std.collections.set_size expects a Vector[T81String] argument.");
+      if (arg_types[0].kind != Type::Kind::Set) {
+        error(call_token, "std.collections.set_size expects a Set argument.");
         return make_error_type();
       }
       return Type{Type::Kind::I32};
@@ -3435,11 +3423,8 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "std.collections.set_has expects exactly two arguments.");
         return make_error_type();
       }
-      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
-                                    !arg_types[0].params.empty() &&
-                                    arg_types[0].params[0].kind == Type::Kind::String;
-      if (!is_string_vector) {
-        error(call_token, "std.collections.set_has expects a Vector[T81String] first argument.");
+      if (arg_types[0].kind != Type::Kind::Set) {
+        error(call_token, "std.collections.set_has expects a Set first argument.");
         return make_error_type();
       }
       if (arg_types[1].kind != Type::Kind::String) {
@@ -3453,40 +3438,30 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "std.collections.set_add expects exactly two arguments.");
         return make_error_type();
       }
-      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
-                                    !arg_types[0].params.empty() &&
-                                    arg_types[0].params[0].kind == Type::Kind::String;
-      if (!is_string_vector) {
-        error(call_token, "std.collections.set_add expects a Vector[T81String] first argument.");
+      if (arg_types[0].kind != Type::Kind::Set) {
+        error(call_token, "std.collections.set_add expects a Set first argument.");
         return make_error_type();
       }
       if (arg_types[1].kind != Type::Kind::String) {
         error(call_token, "std.collections.set_add expects a T81String key argument.");
         return make_error_type();
       }
-      Type out{Type::Kind::Vector};
-      out.params.push_back(Type{Type::Kind::String});
-      return out;
+      return arg_types[0];
     }
     if (func_name == "collections_set_remove") {
       if (arg_types.size() != 2) {
         error(call_token, "std.collections.set_remove expects exactly two arguments.");
         return make_error_type();
       }
-      const bool is_string_vector = arg_types[0].kind == Type::Kind::Vector &&
-                                    !arg_types[0].params.empty() &&
-                                    arg_types[0].params[0].kind == Type::Kind::String;
-      if (!is_string_vector) {
-        error(call_token, "std.collections.set_remove expects a Vector[T81String] first argument.");
+      if (arg_types[0].kind != Type::Kind::Set) {
+        error(call_token, "std.collections.set_remove expects a Set first argument.");
         return make_error_type();
       }
       if (arg_types[1].kind != Type::Kind::String) {
         error(call_token, "std.collections.set_remove expects a T81String key argument.");
         return make_error_type();
       }
-      Type out{Type::Kind::Vector};
-      out.params.push_back(Type{Type::Kind::String});
-      return out;
+      return arg_types[0];
     }
     if (func_name == "collections_tree" || func_name == "collections_graph") {
       if (!arg_types.empty()) {
@@ -3609,15 +3584,15 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, "symbol_intern expects a T81String argument.");
         return make_error_type();
       }
-      return Type{Type::Kind::String};
+      return Type{Type::Kind::Symbol};
     }
     if (func_name == "symbol_to_string") {
       if (arg_types.size() != 1) {
         error(call_token, "symbol_to_string expects exactly one argument.");
         return make_error_type();
       }
-      if (arg_types[0].kind != Type::Kind::String) {
-        error(call_token, "symbol_to_string expects a T81String argument.");
+      if (arg_types[0].kind != Type::Kind::Symbol) {
+        error(call_token, "symbol_to_string expects a Symbol argument.");
         return make_error_type();
       }
       return Type{Type::Kind::String};
@@ -3627,8 +3602,8 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(call_token, func_name + " expects exactly two arguments.");
         return make_error_type();
       }
-      if (arg_types[0].kind != Type::Kind::String || arg_types[1].kind != Type::Kind::String) {
-        error(call_token, func_name + " expects T81String arguments.");
+      if (arg_types[0].kind != Type::Kind::Symbol || arg_types[1].kind != Type::Kind::Symbol) {
+        error(call_token, func_name + " expects Symbol arguments.");
         return make_error_type();
       }
       return Type{Type::Kind::Bool};
@@ -3979,6 +3954,14 @@ std::any SemanticAnalyzer::visit(const CallExpr& expr) {
         error(generic_callee->name, "T81Complex constructor arguments must be numeric, got '" +
                                         type_to_string(arg_types[0]) + "' and '" +
                                         type_to_string(arg_types[1]) + "'.");
+        return make_error_type();
+      }
+      return constructed_type;
+    }
+    if (constructed_type.kind == Type::Kind::Map || constructed_type.kind == Type::Kind::Set ||
+        constructed_type.kind == Type::Kind::List || constructed_type.kind == Type::Kind::Tree) {
+      if (!arg_types.empty()) {
+        error(generic_callee->name, "Collection constructor expects no arguments.");
         return make_error_type();
       }
       return constructed_type;
@@ -4697,6 +4680,11 @@ std::any SemanticAnalyzer::visit(const GenericTypeExpr& expr) {
     const Expr& raw = *expr.params[i];
     if (auto* type_expr = dynamic_cast<const TypeExpr*>(&raw)) {
       params.push_back(analyze_type_expr(*type_expr));
+      continue;
+    }
+
+    if (auto type = type_from_expr(&raw)) {
+      params.push_back(*type);
       continue;
     }
 
