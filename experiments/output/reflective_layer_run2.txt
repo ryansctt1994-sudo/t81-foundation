@@ -1,0 +1,13 @@
+warning: 'run' is a legacy alias; prefer 't81 code run'.
+=== Civilizational / Reflective Layer ===
+Current System Time:
+0t81
+System Entropy:
+0
+System Proof Handle:
+std.sys.proof
+Invoking Agent Self-Reflection...
+Agent Self-Reflection complete.
+Invoking System Reflection...
+System Reflection complete.
+Program terminated normally

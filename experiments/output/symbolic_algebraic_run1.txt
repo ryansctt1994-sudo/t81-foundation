@@ -1,0 +1,7 @@
+warning: 'run' is a legacy alias; prefer 't81 code run'.
+=== Symbolic and Algebraic Layer ===
+Is Polynomial Confluent:
+True
+Is Symbolic Confluent:
+True
+Program terminated normally

@@ -1,0 +1,12 @@
+warning: 'run' is a legacy alias; prefer 't81 code run'.
+=== Container & Structural Layer ===
+--- List (String Handle) ---
+List Size:
+2
+First:
+alpha
+Last:
+beta
+--- Other Containers ---
+Status: T81Map, T81Set, T81Graph caused DecodeFault in VM. T81Tree not available in stdlib.
+Program terminated normally

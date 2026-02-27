@@ -1,0 +1,43 @@
+// experiments/reflective_layer.t81
+// Exploration of Civilizational / Reflective Layer: T81Agent, T81Entropy, T81Time, Reflection
+
+fn reflective_layer_demo() -> i32 {
+    print("=== Civilizational / Reflective Layer ===");
+
+    // 1. System Time (Deterministic?)
+    // In T81, time() should be deterministic in strict mode (e.g. constant or step-based),
+    // or properly governed.
+    let current_time: T81Float = std.sys.time();
+    print("Current System Time: "); print(current_time);
+
+    // 2. Entropy
+    // Should be deterministic if seeded/governed.
+    let ent: i32 = std.sys.entropy();
+    print("System Entropy: "); print(ent);
+
+    // 3. Proof (Cryptographic/Logical Proof handle)
+    let p: T81String = std.sys.proof();
+    print("System Proof Handle: "); print(p);
+
+    // 4. Agent Reflection
+    // Invoking self-reflection hook.
+    print("Invoking Agent Self-Reflection...");
+    std.agent.self_reflect();
+    print("Agent Self-Reflection complete.");
+
+    // 5. System Reflection
+    // Invoking system-level reflection (e.g. status check, policy check).
+    print("Invoking System Reflection...");
+    std.sys.reflect();
+    print("System Reflection complete.");
+
+    // Note: These functions likely trigger side effects in the VM/Axion kernel
+    // rather than returning values we can inspect deeply in T81Lang yet.
+    // Verification is primarily that they execute without trapping.
+
+    return 0;
+}
+
+fn main() -> i32 {
+    return reflective_layer_demo();
+}

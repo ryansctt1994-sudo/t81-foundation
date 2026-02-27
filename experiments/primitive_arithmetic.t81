@@ -1,0 +1,82 @@
+// experiments/primitive_arithmetic.t81
+// Exploration of Primitive Arithmetic Types: T81Int, T81BigInt, T81Fraction, T81Fixed, T81Float
+
+fn primitive_arithmetic_demo() -> i32 {
+    print("=== Primitive Arithmetic Layer ===");
+
+    // 1. T81Int (native i32 in T81Lang currently maps to 32-bit balanced ternary integer concept)
+    let a: i32 = 42;
+    let b: i32 = -17;
+    print("T81Int a: "); print(a);
+    print("T81Int b: "); print(b);
+    print("a + b: "); print(a + b);
+    print("a - b: "); print(a - b);
+    print("a * b: "); print(a * b);
+    print("a / b: "); print(a / b);
+    print("a % b: "); print(a % b);
+
+    // Edge cases
+    let zero: i32 = 0;
+    // Division by zero would trap, so we skip it for now to keep the demo running.
+    // print(a / zero);
+
+    // 2. T81BigInt (arbitrary precision balanced ternary integer)
+    // Removed the large number literal because it caused an error in stoll
+    let big_a: T81BigInt = 1234567890123456t81;
+    let big_b: T81BigInt = -987654321098765t81;
+    print("T81BigInt big_a: "); print(big_a);
+    print("T81BigInt big_b: "); print(big_b);
+
+    let big_sum: T81BigInt = big_a + big_b;
+    print("big_a + big_b: "); print(big_sum);
+
+    let big_prod: T81BigInt = big_a * 2t81;
+    print("big_a * 2: "); print(big_prod);
+
+    // 3. T81Fraction (rational number)
+    let f1: T81Fraction = 1; // 1/2
+    let f2: T81Fraction = 1; // 1/3 (Note: syntax for fraction literal might be limited, using integers for now or constructing via ops if available)
+
+    // Constructing fractions via operations if literals aren't fully supported
+    // Assuming 1/2 + 1/3 = 5/6
+    // Since we don't have direct fraction literals like 1/2t81, we simulate with what we have or just print available types.
+    // Based on fraction_demo.t81, it seems we assign integers to T81Fraction?
+    // Let's test standard arithmetic.
+
+    print("T81Fraction f1: "); print(f1);
+    print("T81Fraction f2: "); print(f2);
+    let f_sum: T81Fraction = f1 + f2;
+    print("f1 + f2: "); print(f_sum);
+
+    // 4. T81Float (Balanced Ternary Float)
+    let fl1: T81Float = 3.14159t81;
+    let fl2: T81Float = 2.71828t81;
+    print("T81Float fl1: "); print(fl1);
+    print("T81Float fl2: "); print(fl2);
+
+    let fl_sum: T81Float = fl1 + fl2;
+    print("fl1 + fl2: "); print(fl_sum);
+
+    let fl_prod: T81Float = fl1 * fl2;
+    print("fl1 * fl2: "); print(fl_prod);
+
+    // Canonicalization check
+    // In balanced ternary, 0 is uniquely 0.
+    let zero_float: T81Float = 0.0t81;
+    let neg_zero_float: T81Float = -0.0t81;
+    print("0.0t81 == -0.0t81 (Canonical Zero): ");
+    // TypeFault here probably because of equality check between floats not fully supported?
+    // Let's try to verify without direct comparison if it traps.
+    // if (zero_float == neg_zero_float) { print("True"); } else { print("False"); }
+    print("Skipping direct float equality check due to TypeFault");
+
+    // 5. T81Fixed
+    print("--- T81Fixed ---");
+    print("Status: Not Implemented / Unavailable in current T81Lang frontend.");
+
+    return 0;
+}
+
+fn main() -> i32 {
+    return primitive_arithmetic_demo();
+}

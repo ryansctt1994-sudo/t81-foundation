@@ -1,0 +1,48 @@
+// experiments/numerical_tensor.t81
+// Exploration of Numerical Tensor Layer: T81Vector, T81Matrix, T81Tensor
+// Note: Based on demos, T81Vector[T, N] syntax is used, but stdlib has Tensor type.
+
+fn numerical_tensor_demo() -> i32 {
+    print("=== Numerical Tensor Layer ===");
+
+    // 1. T81Vector (Fixed size vector)
+    print("--- T81Vector ---");
+    // let v1: T81Vector[i32, 2] = [1, 2];
+    // let v2: T81Vector[i32, 2] = [3, 4];
+    // print("Vector element v1[0]: "); print(v1[0]);
+    // print("Vector element v1[1]: "); print(v1[1]);
+
+    // T81Vector arithmetic (if supported directly or via tensor ops)
+    // let v_sum: i32 = v1[0] + v2[0];
+    // print("Sum of first elements: "); print(v_sum);
+
+    // 2. Tensor (Dynamic / Generic Tensor via stdlib)
+    print("--- Tensor (Dynamic) ---");
+    // Construct tensor from list
+    // std.tensor.from_list takes Vector[i32]
+    // We need to construct a Vector[i32] first.
+    // Assuming we can construct it or push to it.
+    // let vec_vals: Vector[i32] = std.collections.vector(); // Not exposed?
+    // Let's try to assume `[1, 2, 3, 4]` creates a Vector[i32] that can be passed.
+
+    let t1: Tensor = std.tensor.from_list([1, 2, 3, 4]);
+    let t2: Tensor = std.tensor.from_list([5, 6, 7, 8]);
+
+    // Tensor addition
+    let t_sum: Tensor = std.tensor.vec_add(t1, t2);
+    print("Tensor Sum (t1 + t2): ");
+    // print(t_sum); // Probably not printable directly
+    print("Tensor operation executed.");
+
+    // Matrix Multiplication (interpreting tensors as matrices?)
+    // This likely requires shape info which from_list might assume (e.g. flat or 1D?)
+    // If 1D, matmul might be dot product or error?
+    // let t_prod: Tensor = std.tensor.matmul(t1, t2);
+    // print("Tensor Matmul result computed.");
+
+    return 0;
+}
+
+fn main() -> i32 {
+    return numerical_tensor_demo();
+}

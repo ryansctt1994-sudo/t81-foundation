@@ -1,0 +1,43 @@
+warning: 'run' is a legacy alias; prefer 't81 code run'.
+=== Primitive Arithmetic Layer ===
+T81Int a:
+42
+T81Int b:
+-17
+a + b:
+25
+a - b:
+59
+a * b:
+-714
+a / b:
+-2
+a % b:
+8
+T81BigInt big_a:
+1234567890123456
+T81BigInt big_b:
+-987654321098765
+big_a + big_b:
+246913569024691
+big_a * 2:
+2469135780246912
+T81Fraction f1:
+1
+T81Fraction f2:
+1
+f1 + f2:
+2/1t81
+T81Float fl1:
+3.1415899999999999t81
+T81Float fl2:
+2.71828t81
+fl1 + fl2:
+5.8598699999999999t81
+fl1 * fl2:
+8.539721265199999t81
+0.0t81 == -0.0t81 (Canonical Zero):
+Skipping direct float equality check due to TypeFault
+--- T81Fixed ---
+Status: Not Implemented / Unavailable in current T81Lang frontend.
+Program terminated normally

@@ -1,0 +1,47 @@
+// experiments/symbolic_algebraic.t81
+// Exploration of Symbolic and Algebraic Types: T81Symbolic, T81Polynomial
+
+fn symbolic_algebraic_demo() -> i32 {
+    print("=== Symbolic and Algebraic Layer ===");
+
+    // 1. T81Polynomial
+    // Loading a polynomial from string representation
+    // Assuming format "2x^2 + 3x + 1" or similar
+    let poly_seed: T81String = "2*x^2 + 3*x + 1";
+    let poly: T81Polynomial = std.polynomial.load(poly_seed);
+    // print(poly); // Error: print doesn't support T81Polynomial directly
+
+    // Canonicalization
+    let canon_poly: T81Polynomial = std.polynomial.canon(poly);
+
+    // Rewrite (Substitution)
+    // Replace 'x' with 'y'
+    let rewritten_poly: T81Polynomial = std.polynomial.rewrite(poly, "x", "y");
+
+    // Confluence check
+    let is_confluent: bool = std.polynomial.confluent(poly);
+    print("Is Polynomial Confluent: ");
+    if (is_confluent) { print("True"); } else { print("False"); }
+
+    // 2. T81Symbolic
+    // General symbolic expression
+    let sym_seed: T81String = "(a + b) * (a - b)";
+    let sym_expr: T81Symbolic = std.symbolic.load(sym_seed);
+
+    // Rewrite symbolic expression
+    let rewritten_sym: T81Symbolic = std.symbolic.rewrite(sym_expr, "a", "x");
+
+    // Canon symbolic
+    let canon_sym: T81Symbolic = std.symbolic.canon(sym_expr);
+
+    // Confluence check
+    let is_sym_confluent: bool = std.symbolic.confluent(sym_expr);
+    print("Is Symbolic Confluent: ");
+    if (is_sym_confluent) { print("True"); } else { print("False"); }
+
+    return 0;
+}
+
+fn main() -> i32 {
+    return symbolic_algebraic_demo();
+}

@@ -1,0 +1,13 @@
+warning: 'run' is a legacy alias; prefer 't81 code run'.
+=== Cross-Layer Composition ===
+--- 1. Symbolic -> Container -> Tensor ---
+Result Tensor from Polynomial Eval (x=2):
+Tensor([5, 8])
+--- 2. Agent -> Graph(Symbols) ---
+Agent check: Truth -> Good (Direct)?
+No
+Agent inferring transitive relation...
+--- 3. Monadic Pipeline + Entropy ---
+Final Outcome (Entropy + 1):
+1
+Program terminated normally

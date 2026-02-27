@@ -1,0 +1,7 @@
+warning: 'run' is a legacy alias; prefer 't81 code run'.
+=== Numerical Tensor Layer ===
+--- T81Vector ---
+--- Tensor (Dynamic) ---
+Tensor Sum (t1 + t2):
+Tensor operation executed.
+Program terminated normally

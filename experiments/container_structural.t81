@@ -1,0 +1,33 @@
+// experiments/container_structural.t81
+// Exploration of Container and Structural Types: T81List, T81Map, T81Set, T81Tree, T81Graph
+// Note: stdlib currently uses Vector[T81String] as handle/proxy for these types in some cases,
+// or Vector[T] for generic lists.
+
+fn container_structural_demo() -> i32 {
+    print("=== Container & Structural Layer ===");
+
+    // 1. Vector (T81List equivalent)
+    // LIST (Vector[T81String] handle)
+    print("--- List (String Handle) ---");
+    let my_list: Vector[T81String] = std.collections.list();
+    // It seems list() creates an empty list handle.
+    // But std.collections.push takes Vector[T] and returns Vector[T].
+    // Let's try to treat it as a list of strings for now as per signature.
+
+    // my_list = std.collections.push(my_list, "alpha"); // Reassignment not supported? shadowing?
+    let list2: Vector[T81String] = std.collections.push(my_list, "alpha");
+    let list3: Vector[T81String] = std.collections.push(list2, "beta");
+
+    print("List Size: "); print(std.collections.len(list3));
+    print("First: "); print(std.collections.first(list3));
+    print("Last: "); print(std.collections.last(list3));
+
+    print("--- Other Containers ---");
+    print("Status: T81Map, T81Set, T81Graph caused DecodeFault in VM. T81Tree not available in stdlib.");
+
+    return 0;
+}
+
+fn main() -> i32 {
+    return container_structural_demo();
+}

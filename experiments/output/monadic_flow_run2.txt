@@ -1,0 +1,13 @@
+warning: 'run' is a legacy alias; prefer 't81 code run'.
+=== Monadic / Flow Control Layer ===
+--- Option ---
+Option Some(42) match result:
+84
+Option None match result:
+-1
+--- Result ---
+Result Ok(100) match result:
+150
+Result Err match result:
+-999
+Program terminated normally
