@@ -21,9 +21,9 @@ These optimizations are benchmarked regularly (see `../reference/benchmarks.md`)
 
 ### Status: In Progress
 
-Our tensor strategy aims to balance performance with strict determinism.
+Our tensor strategy aims to balance performance with bounded determinism on verified surfaces.
 
--   **Portable Scalar Parity**: We maintain a portable scalar backend that guarantees bit-exact results across all architectures. This serves as the "golden reference" for verification.
+-   **Portable Scalar Parity**: We maintain a portable scalar backend that serves as the "golden reference" for deterministic verification lanes and backend parity checks.
 -   **Optimized Backends**: We are developing optimized backends (e.g., AVX-512, NEON, potential GPU/TPU paths) that *must* produce results mathematically identical to the scalar reference.
 -   **T729Tensor**: The current implementation (`../../include/t81/tensor`) provides a comprehensive API for dense tensors, supporting broadcasting, slicing, and reduction operations. Future work involves further optimizing these operations for specific hardware targets without compromising determinism.
 

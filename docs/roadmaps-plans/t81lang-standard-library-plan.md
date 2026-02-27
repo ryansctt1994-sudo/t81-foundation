@@ -7,7 +7,7 @@ For implementation continuity, see `docs/t81lang-standard-library-handoff.md`.
 
 The T81Lang Standard Library adheres to the same core principles as the underlying C++ foundation:
 
-1.  **Strict Determinism**: All library functions must produce bit-identical results across all platforms. Nondeterministic operations (e.g., system time, network IO) are wrapped in deterministic interfaces or explicitly flagged. **Exception:** Floating-point division and transcendentals currently rely on host precision.
+1.  **Bounded Determinism**: Determinism claims apply to verified surfaces and deterministic profiles. Nondeterministic operations (e.g., system time, network IO) are wrapped in deterministic interfaces or explicitly flagged. **Exception:** Floating-point division and transcendentals currently rely on host precision.
 2.  **Canonical Representation**: Data structures automatically maintain canonical forms (e.g., normalized fractions, sorted maps) to ensure consistent hashing and serialization.
 3.  **Axion Integration**: All resource-intensive or side-effecting operations (IO, memory allocation, tensor ops) must emit Axion trace events and respect Axion policy limits.
 4.  **Ternary Native**: Mathematical primitives prioritize balanced ternary arithmetic (`T81Int`, `T81BigInt`, `T81Float`) over binary approximations.
@@ -23,7 +23,7 @@ Fundamental types that are likely built-in or implicitly available.
 | :--- | :--- | :--- |
 | `Int` | `T81Int`, `T81Uint` | Standard balanced ternary integer (typically 27-trit). |
 | `BigInt` | `T81BigInt` | Arbitrary-precision integer. |
-| `Float` | `T81Float` | Deterministic floating-point number. |
+| `Float` | `T81Float` | Floating-point type with host-dependent behavior for some operations (not globally bit-exact). |
 | `Byte` | `T81Byte` | 5-trit byte representation. |
 | `Bool` | `bool` (Trit) | Ternary logic values (False, Unknown, True). |
 | `Result<T, E>` | `T81Result` | Error handling primitive (no exceptions). |
