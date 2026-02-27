@@ -29,8 +29,8 @@ t81::tisc::Program mixed_program(const std::string& policy) {
   p.insns.push_back({t81::tisc::Opcode::LoadImm, 40, 0, 0});
   p.insns.push_back({t81::tisc::Opcode::LoadImm, 41, 1, 0});
   p.insns.push_back({t81::tisc::Opcode::LoadImm, 42, 5, 0});
-  p.insns.push_back({t81::tisc::Opcode::Add, 40, 40, 41});        // pc=3
-  p.insns.push_back({t81::tisc::Opcode::Less, 43, 40, 42});       // pc=4
+  p.insns.push_back({t81::tisc::Opcode::Add, 40, 40, 41});          // pc=3
+  p.insns.push_back({t81::tisc::Opcode::Less, 43, 40, 42});         // pc=4
   p.insns.push_back({t81::tisc::Opcode::JumpIfNotZero, 3, 43, 0});  // pc=5
   p.insns.push_back({t81::tisc::Opcode::Store, 150, 40, 0});
   p.insns.push_back({t81::tisc::Opcode::Load, 44, 150, 0});
@@ -114,12 +114,10 @@ int main() {
 
   const std::vector<MatrixCase> cases = {
       {"allow-mixed-workload",
-       "(policy (tier 1) (max-instructions 2048) (max-stack 128) (max-meta-writes 64))",
-       true,
+       "(policy (tier 1) (max-instructions 2048) (max-stack 128) (max-meta-writes 64))", true,
        t81::vm::Trap::None},
       {"deny-branch-loop-via-instruction-budget",
-       "(policy (tier 1) (max-instructions 5) (max-stack 128) (max-meta-writes 64))",
-       false,
+       "(policy (tier 1) (max-instructions 5) (max-stack 128) (max-meta-writes 64))", false,
        t81::vm::Trap::SecurityFault},
   };
 

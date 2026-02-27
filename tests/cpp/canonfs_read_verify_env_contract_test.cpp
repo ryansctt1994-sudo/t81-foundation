@@ -68,9 +68,8 @@ int main() {
   unset_env();
   auto driver = make_persistent_driver(root);
   const auto payload = make_bytes("canonfs-read-verify-env-contract");
-  auto write =
-      driver->write_object(ObjectType::RawBlock,
-                           std::span<const std::byte>(payload.data(), payload.size()));
+  auto write = driver->write_object(ObjectType::RawBlock,
+                                    std::span<const std::byte>(payload.data(), payload.size()));
   if (!expect(write.has_value(), "write_object failed")) return 1;
   driver.reset();
 

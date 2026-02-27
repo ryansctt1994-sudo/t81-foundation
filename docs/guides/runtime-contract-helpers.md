@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Guide: Runtime Contract Helpers
+title: "Guide: Runtime Contract Helpers"
 ---
 
 # Guide: Runtime Contract Helpers

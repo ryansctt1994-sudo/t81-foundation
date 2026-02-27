@@ -1,4 +1,5 @@
 #include "internal/tier_limits.hpp"
+#include "t81/vm/state.hpp"
 
 namespace t81::vm::internal {
 

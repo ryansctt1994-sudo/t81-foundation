@@ -1,5 +1,5 @@
 ---
-title: Axion Policy Language: A Deterministic DSL for Safety and Auditing
+title: "Axion Policy Language: A Deterministic DSL for Safety and Auditing"
 status: draft
 author: Jules
 date: 2026-02-10

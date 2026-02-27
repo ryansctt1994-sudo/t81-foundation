@@ -2,7 +2,9 @@
 
 #include <cstddef>
 
-#include "t81/experimental/cog/tier.hpp"
+namespace t81::cog {
+enum class TierId;
+}
 
 namespace t81::vm::internal {
 

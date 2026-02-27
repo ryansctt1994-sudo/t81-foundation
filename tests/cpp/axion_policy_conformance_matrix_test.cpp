@@ -88,47 +88,40 @@ int main() {
   // Spec alignment: spec/axion-kernel.md policy fail-closed + deterministic verdict behavior.
   std::vector<MatrixCase> cases;
   cases.push_back({"allow-basic",
-                   make_noop_halt_program(R"((policy (tier 1) (max-instructions 8)))"),
-                   true,
+                   make_noop_halt_program(R"((policy (tier 1) (max-instructions 8)))"), true,
                    t81::vm::Trap::None});
+  cases.push_back({"deny-max-instructions",
+                   make_noop_halt_program(R"((policy (tier 1) (max-instructions 0)))"), false,
+                   t81::vm::Trap::SecurityFault});
   cases.push_back(
-      {"deny-max-instructions",
-       make_noop_halt_program(R"((policy (tier 1) (max-instructions 0)))"),
-       false,
-       t81::vm::Trap::SecurityFault});
-  cases.push_back({"deny-required-axion-event",
-                   make_noop_halt_program(
-                       R"((policy (tier 1) (require-axion-event (reason "unreachable"))))"),
-                   false,
-                   t81::vm::Trap::SecurityFault});
-  cases.push_back({"max-stack-basic",
-                   make_stack_program(R"((policy (tier 1) (max-stack 64)))"),
-                   true,
-                   t81::vm::Trap::None});
+      {"deny-required-axion-event",
+       make_noop_halt_program(R"((policy (tier 1) (require-axion-event (reason "unreachable"))))"),
+       false, t81::vm::Trap::SecurityFault});
+  cases.push_back({"max-stack-basic", make_stack_program(R"((policy (tier 1) (max-stack 64)))"),
+                   true, t81::vm::Trap::None});
   cases.push_back({"invalid-unknown-clause",
-                   make_noop_halt_program(R"((policy (tier 1) (unknown-clause 1)))"),
-                   false,
+                   make_noop_halt_program(R"((policy (tier 1) (unknown-clause 1)))"), false,
                    t81::vm::Trap::SecurityFault});
-  cases.push_back({"allow-clause-order-a",
-                   make_stack_program(
-                       R"((policy (tier 1) (max-instructions 64) (max-stack 64) (max-meta-writes 8)))"),
-                   true,
-                   t81::vm::Trap::None});
-  cases.push_back({"allow-clause-order-b",
-                   make_stack_program(
-                       R"((policy (tier 1) (max-meta-writes 8) (max-stack 64) (max-instructions 64)))"),
-                   true,
-                   t81::vm::Trap::None});
-  cases.push_back({"deny-clause-order-a",
-                   make_noop_halt_program(
-                       R"((policy (tier 1) (max-instructions 64) (require-axion-event (reason "never-seen"))))"),
-                   false,
-                   t81::vm::Trap::SecurityFault});
-  cases.push_back({"deny-clause-order-b",
-                   make_noop_halt_program(
-                       R"((policy (tier 1) (require-axion-event (reason "never-seen")) (max-instructions 64)))"),
-                   false,
-                   t81::vm::Trap::SecurityFault});
+  cases.push_back(
+      {"allow-clause-order-a",
+       make_stack_program(
+           R"((policy (tier 1) (max-instructions 64) (max-stack 64) (max-meta-writes 8)))"),
+       true, t81::vm::Trap::None});
+  cases.push_back(
+      {"allow-clause-order-b",
+       make_stack_program(
+           R"((policy (tier 1) (max-meta-writes 8) (max-stack 64) (max-instructions 64)))"),
+       true, t81::vm::Trap::None});
+  cases.push_back(
+      {"deny-clause-order-a",
+       make_noop_halt_program(
+           R"((policy (tier 1) (max-instructions 64) (require-axion-event (reason "never-seen"))))"),
+       false, t81::vm::Trap::SecurityFault});
+  cases.push_back(
+      {"deny-clause-order-b",
+       make_noop_halt_program(
+           R"((policy (tier 1) (require-axion-event (reason "never-seen")) (max-instructions 64)))"),
+       false, t81::vm::Trap::SecurityFault});
 
   for (const auto& c : cases) {
     RunResult a = run_program(c.program, 128);
@@ -146,7 +139,8 @@ int main() {
     if (!expect(a.axion_sig == b.axion_sig, c.id + ": run-to-run axion signature drift")) return 1;
   }
 
-  // Clause ordering invariants: semantically equivalent clause sets should yield equivalent outcomes.
+  // Clause ordering invariants: semantically equivalent clause sets should yield equivalent
+  // outcomes.
   const auto allow_order_a = run_program(
       make_stack_program(
           R"((policy (tier 1) (max-instructions 64) (max-stack 64) (max-meta-writes 8)))"),
@@ -155,9 +149,11 @@ int main() {
       make_stack_program(
           R"((policy (tier 1) (max-meta-writes 8) (max-stack 64) (max-instructions 64)))"),
       128);
-  if (!expect(allow_order_a.ok == allow_order_b.ok, "allow clause-order equivalence outcome mismatch"))
+  if (!expect(allow_order_a.ok == allow_order_b.ok,
+              "allow clause-order equivalence outcome mismatch"))
     return 1;
-  if (!expect(allow_order_a.trap == allow_order_b.trap, "allow clause-order equivalence trap mismatch"))
+  if (!expect(allow_order_a.trap == allow_order_b.trap,
+              "allow clause-order equivalence trap mismatch"))
     return 1;
   if (!expect(allow_order_a.trace_sig == allow_order_b.trace_sig,
               "allow clause-order equivalence trace signature mismatch"))
@@ -176,7 +172,8 @@ int main() {
       128);
   if (!expect(deny_order_a.ok == deny_order_b.ok, "deny clause-order equivalence outcome mismatch"))
     return 1;
-  if (!expect(deny_order_a.trap == deny_order_b.trap, "deny clause-order equivalence trap mismatch"))
+  if (!expect(deny_order_a.trap == deny_order_b.trap,
+              "deny clause-order equivalence trap mismatch"))
     return 1;
   if (!expect(deny_order_a.trace_sig == deny_order_b.trace_sig,
               "deny clause-order equivalence trace signature mismatch"))

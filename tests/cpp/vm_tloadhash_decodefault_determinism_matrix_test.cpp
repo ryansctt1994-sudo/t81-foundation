@@ -154,20 +154,13 @@ int main() {
     bool expect_canonfs_miss_reason;
   };
   std::vector<MatrixCase> cases;
-  cases.push_back({"invalid-hash-string",
-                   make_tloadhash_program(invalid_long_hash),
-                   t81::vm::Trap::DecodeFault,
-                   false});
-  cases.push_back(
-      {"canonfs-miss", canonfs_miss_program, t81::vm::Trap::BoundsFault, true});
-  cases.push_back({"malformed-short-object",
-                   make_tloadhash_program(malformed_short_hash),
-                   t81::vm::Trap::DecodeFault,
-                   false});
-  cases.push_back({"malformed-rank-object",
-                   make_tloadhash_program(malformed_rank_hash),
-                   t81::vm::Trap::DecodeFault,
-                   false});
+  cases.push_back({"invalid-hash-string", make_tloadhash_program(invalid_long_hash),
+                   t81::vm::Trap::DecodeFault, false});
+  cases.push_back({"canonfs-miss", canonfs_miss_program, t81::vm::Trap::BoundsFault, true});
+  cases.push_back({"malformed-short-object", make_tloadhash_program(malformed_short_hash),
+                   t81::vm::Trap::DecodeFault, false});
+  cases.push_back({"malformed-rank-object", make_tloadhash_program(malformed_rank_hash),
+                   t81::vm::Trap::DecodeFault, false});
 
   for (const auto& c : cases) {
     RunSummary baseline = run_once(c.program);
@@ -181,10 +174,9 @@ int main() {
     auto run = vm->run_to_halt(256);
     if (!expect(!run.has_value(), c.id + ": expected trap on classification replay")) return 1;
     const auto& events = vm->state().axion_log;
-    const auto has_canonfs_miss =
-        std::any_of(events.begin(), events.end(), [](const auto& ev) {
-          return ev.verdict.reason.find("TLOADHASH canonfs_miss hash=") != std::string::npos;
-        });
+    const auto has_canonfs_miss = std::any_of(events.begin(), events.end(), [](const auto& ev) {
+      return ev.verdict.reason.find("TLOADHASH canonfs_miss hash=") != std::string::npos;
+    });
     if (!expect(has_canonfs_miss == c.expect_canonfs_miss_reason,
                 c.id + ": canonfs-miss reason classification mismatch")) {
       return 1;

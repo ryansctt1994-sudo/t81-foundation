@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Guide: Setun Bridge
+title: "Guide: Setun Bridge"
 ---
 
 # Guide: Setun Bridge (v2)

@@ -279,8 +279,8 @@ int main(int argc, char* argv[]) {
   }
 
   {
-    const auto result =
-        run_cli(t81_bin, {"test", "--json", "--list", "--build-dir", t81_bin.parent_path().string()});
+    const auto result = run_cli(
+        t81_bin, {"test", "--json", "--list", "--build-dir", t81_bin.parent_path().string()});
     T81_TEST_CHECK(result.exit_code == 0);
     T81_TEST_CHECK(contains(result.stdout_text, "\"schema\": \"t81.test.v1\""));
     T81_TEST_CHECK(contains(result.stdout_text, "\"summary\""));
@@ -367,7 +367,8 @@ int main(int argc, char* argv[]) {
     const auto result = run_cli(t81_bin, {"trace", "export", trace.string(), "--format", "json"});
     T81_TEST_CHECK(result.exit_code == 0);
     T81_TEST_CHECK(contains(result.stdout_text, "\"schema\":\"t81.trace-export-entry.v1\""));
-    const auto bad_format = run_cli(t81_bin, {"trace", "export", trace.string(), "--format", "xml"});
+    const auto bad_format =
+        run_cli(t81_bin, {"trace", "export", trace.string(), "--format", "xml"});
     T81_TEST_CHECK(bad_format.exit_code == 1);
     fs::remove_all(temp_dir, ignore_ec);
   }
@@ -398,8 +399,7 @@ int main(int argc, char* argv[]) {
     const auto submit = run_cli(t81_bin, {"feedback", "submit", "--rating", "4", "--note", "good",
                                           "--path", feedback_path.string()});
     T81_TEST_CHECK(submit.exit_code == 0);
-    const auto report =
-        run_cli(t81_bin, {"feedback", "report", "--path", feedback_path.string()});
+    const auto report = run_cli(t81_bin, {"feedback", "report", "--path", feedback_path.string()});
     T81_TEST_CHECK(report.exit_code == 0);
     T81_TEST_CHECK(contains(report.stdout_text, "\"schema\": \"t81.feedback-report.v1\""));
     fs::remove_all(temp_dir, ignore_ec);

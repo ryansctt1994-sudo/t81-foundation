@@ -1,5 +1,5 @@
 ---
-title: Tier 4 Cognition: Self-Referential Modeling and Cognitive Loops
+title: "Tier 4 Cognition: Self-Referential Modeling and Cognitive Loops"
 status: draft
 author: Jules
 date: 2026-02-10
