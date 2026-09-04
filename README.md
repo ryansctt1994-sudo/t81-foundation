@@ -1,203 +1,126 @@
-<p align="center">
-  <img src="assets/banner.png" alt="T81 Foundation — Deterministic Ternary Architecture" width="100%">
-</p>
+# T81 Foundation — Deterministic Ternary Architecture
 
-<p align="center">
-  <a href="https://github.com/t81dev/t81-foundation/releases/latest"><img src="https://img.shields.io/github/v/release/t81dev/t81-foundation?style=for-the-badge&label=Latest%20Release&color=blueviolet" alt="Latest Release"></a>
-  <a href="https://github.com/t81dev/t81-foundation/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/t81dev/t81-foundation/ci.yml?branch=main&style=for-the-badge&logo=github&label=CI" alt="CI Status"></a>
-  <a href="https://github.com/t81dev/t81-foundation/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License: MIT"></a>
-  <a href="https://en.cppreference.com/w/cpp/23"><img src="https://img.shields.io/badge/Language-C%2B%2B23-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white" alt="Language: C++23"></a>
-</p>
+T81 Foundation is an experimental computing stack for balanced-ternary data types, a ternary-oriented instruction-set architecture, deterministic execution research, language/runtime tooling, and policy-governed execution.
 
-<p align="center">
-  <strong>The Deterministic Ternary Computing Stack</strong><br>
-  <em>Bit-exact reproducibility. Ternary-native logic. Auditable AI governance.</em>
-</p>
+The project targets **bit-exact behavior on explicitly defined and tested surfaces**. It does not claim whole-system determinism across every platform, high-stakes certification, cryptographic assurance, or operational authority merely because a component is normative or version-frozen.
 
-<p align="center">
-  <a href="README.md">English</a> •
-  <a href="README.zh-CN.md">简体中文</a> •
-  <a href="README.es.md">Español</a> •
-  <a href="README.ru.md">Русский</a> •
-  <a href="README.pt-BR.md">Português</a>
-</p>
+See [EVIDENCE_AND_AUTHORITY.md](EVIDENCE_AND_AUTHORITY.md).
 
----
+## Evidence boundary
 
-## What is T81?
-
-**T81** is a sovereign computing stack built from the ground up for **determinism** and **ternary logic**. It reduces non-determinism on explicitly verified surfaces and provides a mathematically rigorous foundation for high-stakes AI, cryptography, and scientific modeling.
-
-Where traditional systems drift across architectures, T81 targets bit-exact reproducibility on explicitly verified surfaces, with guarantees bounded by the determinism registry and core profile.
-
-### The Core Promise: Verified Determinism
-
-| Feature | The Problem (Binary/IEEE 754) | The T81 Solution |
-| :--- | :--- | :--- |
-| **Arithmetic** | Floating-point drift across CPU/GPU architectures. | **Deterministic Soft-Float (bounded):** Bit-exact behavior on explicitly verified surfaces under the determinism registry/core profile. |
-| **Logic** | Boolean (True/False) loses nuance. | **Balanced Ternary:** {-1, 0, +1} logic for efficient, drift-free decision trees. |
-| **Safety** | AI models are black boxes with no runtime guarantees. | **Axion Kernel:** Enforceable, audit-grade governance policies at the opcode level. |
-| **Stability** | Constant breaking changes and dependency hell. | **Frozen Specs:** The TISC ISA and Data Types are immutable standards. |
-
----
-
-## 🏗️ Architecture
-
-T81 is organized into strict layers of authority and abstraction.
-
-```mermaid
-flowchart TD
-
-    %% ─────────────────────────────────────
-    %% Application Layer
-    %% ─────────────────────────────────────
-    subgraph A["Application Layer"]
-        Lang["T81Lang Source"]
-        Cognitive["Cognitive Tiers"]
-    end
-
-    %% ─────────────────────────────────────
-    %% Governance Layer
-    %% ─────────────────────────────────────
-    subgraph G["Governance Layer"]
-        Axion["Axion Policy Kernel"]
-    end
-
-    %% ─────────────────────────────────────
-    %% Execution Layer
-    %% ─────────────────────────────────────
-    subgraph E["Execution Layer"]
-        VM["T81VM Interpreter"]
-        JIT["Trace-JIT (Experimental)"]
-    end
-
-    %% ─────────────────────────────────────
-    %% Foundation Layer
-    %% ─────────────────────────────────────
-    subgraph F["Foundation Layer (Frozen)"]
-        ISA["TISC ISA"]
-        Types["Ternary Data Types"]
-    end
-
-    %% Primary execution flow
-    Lang --> VM
-    VM --> ISA
-    ISA --> Types
-
-    %% Governance enforcement
-    VM --> Axion
-    Cognitive --> Axion
-    Axion --> ISA
-
-    %% Experimental path
-    VM -. optional .-> JIT
+```text
+normative specification != operational authority
+version frozen != externally verified
+local repro gate != independent reproduction
+policy enforcement != safety guarantee
+verified surface != whole-stack guarantee
 ```
 
-*   **Foundation Layer:** The "Frozen" core. `T81BigInt`, `T81Float`, and the **TISC** (Ternary Instruction Set Computer) ISA. Changes here require a major version bump.
-*   **Execution Layer:** The **T81VM** executes TISC bytecode. It includes a deterministic interpreter and an experimental Trace-JIT, with bounded determinism claims constrained to governed/verified surfaces.
-*   **Governance Layer:** The **Axion Kernel** intercepts execution to enforce safety policies, resource limits, and ethical guardrails defined in configuration.
+A determinism claim must name the exact operation/surface, implementation and commit, input domain, platform/toolchain set, and reproduction result. JIT, accelerator, external-library, concurrency, I/O, and model-execution behavior require their own evidence.
 
----
+This writable repository exists in the `ryansctt1994-sudo` namespace while related repositories also exist under `t81dev`. Namespace similarity is not provenance proof; cite the exact repository URL and commit SHA for every result.
 
-## 🚀 Quick Start
+## Core architecture
 
-Build the T81 stack from source.
+T81 is organized into four conceptual layers:
 
-### Prerequisites
-*   **CMake** 3.16+
-*   **C++ Compiler** supporting C++20/23 (tested on AppleClang 17+, Clang 18+, GCC 14+, MSVC)
+1. **Foundation** — TISC ISA and ternary data-type contracts.
+2. **Execution** — interpreter/runtime surfaces and experimental Trace-JIT work.
+3. **Governance** — Axion-style policy checks and resource/authority constraints.
+4. **Application** — T81Lang and higher-level consumers.
 
-### Installation
+A specification can be the normative source of truth for what an implementation is supposed to do. “Normative” and “frozen” are change-control terms, not claims of infallibility, certification, or real-world authority.
+
+## Component status
+
+| Component | Project maturity | Claim boundary |
+|---|---|---|
+| TISC ISA | version-frozen v1 contract | normative project specification; changes require version control |
+| Ternary data types | stable/frozen core contracts | deterministic claims limited to explicitly tested surfaces |
+| T81VM | beta | runtime under continued verification |
+| Axion policy engine | alpha | configured policy-enforcement behavior only; not a general safety guarantee |
+| T81Lang | beta implementation / draft normative language spec | implementation and language-spec maturity remain separate |
+| Trace-JIT | experimental | no inherited determinism/performance guarantee |
+| Hanoi Kernel | archived concept | design history only |
+
+## Quick start
+
+Prerequisites:
+
+- CMake 3.16+
+- a compatible C++20/23 compiler
+- Python 3 for repository verification scripts
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/t81dev/t81-foundation.git
+git clone https://github.com/ryansctt1994-sudo/t81-foundation.git
 cd t81-foundation
-
-# 2. Configure and Build
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --parallel
-
-# 3. Verify Installation (Runs the Determinism Gate)
 python3 scripts/ci/t81lang_repro_gate.py --t81-bin build/t81 --check
 ```
 
-### Hello World (Ternary Style)
+A successful run is local evidence for the exact commit/environment exercised. It is not independent reproduction and must not be generalized to untested targets.
 
-Create a file named `hello.t81`:
+Example source:
 
 ```t81
 fn main() {
     print("Hello, Deterministic World!");
     let a: trit = 1;
     let b: trit = -1;
-    print(a + b); // Outputs "0"
+    print(a + b);
 }
 ```
 
-Compile and run:
+Subject to the current CLI contract:
 
 ```bash
-# Compile to TISC bytecode
 ./build/t81 compile hello.t81 -o hello.tisc
-
-# Execute via VM
 ./build/t81 run hello.tisc
 ```
 
----
+## Documentation precedence
 
-## 📚 Documentation
+The repository contains different document roles. Use these labels rather than “authority” levels:
 
-The T81 ecosystem is documented across several authority levels.
+| Resource | Role |
+|---|---|
+| `spec/` | normative project specifications |
+| `docs/architecture/OVERVIEW.md` | architecture and system boundaries |
+| `docs/status/PROJECT_CONTROL_CENTER.md` | status/tracking surface |
+| `docs/governance/` | governance/change-control policies |
+| `book/book-en/README.md` | explanatory monograph |
+| `docs/T81_FOUNDATION_PROJECT_PROFILE.md` | public technical profile |
 
-| Resource | Description | Authority |
-| :--- | :--- | :--- |
-| **[The Monograph](book/book-en/README.md)** | The definitive book on T81's philosophy, architecture, and usage. **Start Here.** | High |
-| **[Project Profile](docs/T81_FOUNDATION_PROJECT_PROFILE.md)** | Public-facing technical profile of T81's deterministic architecture, governance posture, and research relevance. | High |
-| **[Normative Specs](spec/)** | The normative specification source of truth. Defines the TISC ISA, Data Types, and VM behavior. | **Absolute** |
-| **[Architecture](docs/architecture/OVERVIEW.md)** | The "North Star" document defining system boundaries and invariants. | High |
-| **[Status Dashboard](docs/status/PROJECT_CONTROL_CENTER.md)** | Live tracking of system health, active gates, and verified surfaces. | Live |
-| **[Governance](docs/governance/)** | Policies on Spec Drift, Release Discipline, and Threat Models. | High |
+If documents conflict, the appropriate normative spec controls implementation intent for its scoped contract, but evidence of conformance still comes from tests/reproduction rather than document rank.
 
-### Key Topics
-*   **[TISC Instruction Set](spec/tisc-spec.md)** - The frozen ISA specification.
-*   **[Ternary Data Types](spec/t81-data-types.md)** - Understanding `trit`, `tryte`, and `T81Float`.
-*   **[Axion Policy Engine](spec/axion-kernel.md)** - Configuring runtime safety.
+## Governance layer boundary
 
----
+Axion-style controls are intended to mediate execution according to configured policies. Tests can establish that particular rules are enforced on particular execution paths. They cannot establish that a policy is ethically correct, complete, secure, clinically safe, legally compliant, or sufficient for a high-stakes deployment.
 
-## 🧩 Components & Status
+## Determinism and reproducibility
 
-| Component | Status | Description |
-| :--- | :--- | :--- |
-| **TISC ISA** | 🧊 **Frozen** | The instruction set is verified and immutable (v1). |
-| **Data Types** | 🧊 **Frozen** | Core arithmetic types are stable; bit-exact guarantees are bounded to verified deterministic surfaces. |
-| **T81VM** | 🚧 **Beta** | Runtime surface is active and under continued verification. |
-| **Axion** | ⚠️ **Alpha** | Policy engine is active with partial draft-surface coverage. |
-| **T81Lang** | 🚧 **Beta** | Implementation maturity is Beta; normative language spec remains Draft. |
-| **Trace-JIT** | 🧪 **Experimental** | JIT compilation for speed (opt-in). |
-| **Hanoi Kernel** | 🗃️ **Archived Concept** | Historical experimental concept retained for design reference only. |
+The repository's reproducibility gates are valuable engineering controls. Report their outputs with:
 
-> **Note:** "Frozen" components are contractually guaranteed not to change without a major version bump (e.g., 2.0).
+- exact repository + commit SHA;
+- clean/dirty state;
+- command and configuration;
+- platform, CPU/GPU where relevant, OS and compiler/runtime versions;
+- raw output/receipt;
+- scope and unsupported/skipped surfaces.
 
----
+Independent reproduction additionally requires an organizationally independent witness and artifact-bound returned evidence.
 
-## 🤝 Community & Contributing
+## Security and high-stakes use
 
-We welcome contributors who share our passion for rigorous, deterministic systems.
+T81 is research/engineering software unless a specific release or component has separate qualification evidence. Do not infer suitability for cryptography, medical systems, critical infrastructure, financial controls, autonomous safety functions, or other high-stakes use from determinism, balanced-ternary representation, formal specification, or policy enforcement alone.
 
-*   **[Contributing Guide](CONTRIBUTING.md):** Read this before sending a PR.
-*   **[Code of Conduct](CODE_OF_CONDUCT.md):** We adhere to a strict standard of professional conduct.
-*   **[Discussions](https://github.com/t81dev/t81-foundation/discussions):** Ask questions and share ideas.
+## Contributing
 
-### The "Repro Gate"
-Required Pull Request checks enforce reproducibility and conformance gates for scoped deterministic surfaces. If your change alters governed deterministic outputs, the corresponding gate should fail. This is a feature, not a bug.
+See `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and the governance documentation. Changes to normative/frozen surfaces require the relevant version/change-control process and corresponding conformance evidence.
 
----
+## License
 
-## 📄 License
-
-T81 is open-source software licensed under the **[MIT License](LICENSE)**.
+MIT. See [LICENSE](LICENSE).
 
 Copyright © 2024-2026 T81 Foundation.
